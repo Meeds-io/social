@@ -20,9 +20,9 @@ package org.exoplatform.social.core.plugin;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.social.metadata.FavoriteACLPlugin;
 
 public class SpaceFavoriteACLPlugin extends FavoriteACLPlugin {
 

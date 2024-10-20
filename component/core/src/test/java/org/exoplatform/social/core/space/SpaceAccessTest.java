@@ -19,70 +19,55 @@ package org.exoplatform.social.core.space;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.Utils;
-import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 public class SpaceAccessTest extends AbstractCoreTest {
-  private SpaceService               spaceService;
 
-  private IdentityStorage            identityStorage;
+  private static final String SPACE_NAME = "request space";
 
-  private LifeCycleCompletionService lifeCycleCompletionService;
+  private IdentityStorage     identityStorage;
 
-  private List<Space>                tearDownSpaceList;
+  private List<Space>         tearDownSpaceList;
 
-  private List<Identity>             tearDownUserList;
+  private List<Identity>      tearDownUserList;
 
-  private final Log                  LOG = ExoLogger.getLogger(SpaceAccessTest.class);
+  private Identity            demo;
 
-  private Identity                   demo;
+  private Identity            john;
 
-  private Identity                   ghost;
+  private Identity            mary;
 
-  private Identity                   john;
+  private Identity            root;
 
-  private Identity                   mary;
-
-  private Identity                   root;
-
-  private Identity                   jame;
+  private Identity            jame;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    spaceService = (SpaceService) getContainer().getComponentInstanceOfType(SpaceService.class);
-    identityStorage = (IdentityStorage) getContainer().getComponentInstanceOfType(IdentityStorage.class);
-    lifeCycleCompletionService =
-                               (LifeCycleCompletionService) getContainer().getComponentInstanceOfType(LifeCycleCompletionService.class);
-    tearDownSpaceList = new ArrayList<Space>();
-    tearDownUserList = new ArrayList<Identity>();
+    identityStorage = getService(IdentityStorage.class);
+    tearDownSpaceList = new ArrayList<>();
+    tearDownUserList = new ArrayList<>();
 
     demo = new Identity(OrganizationIdentityProvider.NAME, "demo");
-    ghost = new Identity(OrganizationIdentityProvider.NAME, "ghost");
     mary = new Identity(OrganizationIdentityProvider.NAME, "mary");
     john = new Identity(OrganizationIdentityProvider.NAME, "john");
     root = new Identity(OrganizationIdentityProvider.NAME, "root");
     jame = new Identity(OrganizationIdentityProvider.NAME, "jame");
 
     identityStorage.saveIdentity(demo);
-    identityStorage.saveIdentity(ghost);
     identityStorage.saveIdentity(mary);
     identityStorage.saveIdentity(john);
     identityStorage.saveIdentity(root);
     identityStorage.saveIdentity(jame);
 
-    tearDownUserList = new ArrayList<Identity>();
+    tearDownUserList = new ArrayList<>();
     tearDownUserList.add(demo);
-    tearDownUserList.add(ghost);
     tearDownUserList.add(mary);
     tearDownUserList.add(john);
     tearDownUserList.add(root);
@@ -108,15 +93,15 @@ public class SpaceAccessTest extends AbstractCoreTest {
     super.tearDown();
   }
 
-  public void testSpaceNotFound() throws Exception {
+  public void testSpaceNotFound() {
     Space space = spaceService.getSpaceByPrettyName("space_not_found");
     boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(root.getRemoteId(), space);
     assertTrue(gotStatus);
   }
 
-  public void testInvitedSpace() throws Exception {
+  public void testInvitedSpace() {
     Space space = createSpaceData("invited space",
-                                  "validation",
+                                  Space.VALIDATION,
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     space.setInvitedUsers(new String[] { demo.getRemoteId(), jame.getRemoteId() });
@@ -137,9 +122,9 @@ public class SpaceAccessTest extends AbstractCoreTest {
    * 
    * @throws Exception
    */
-  public void testRequestedToJoinSpace() throws Exception {
+  public void testRequestedToJoinSpace() {
     Space space = createSpaceData("requested space",
-                                  "validation",
+                                  Space.VALIDATION,
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     space.setPendingUsers(new String[] { demo.getRemoteId(), jame.getRemoteId() });
@@ -160,9 +145,9 @@ public class SpaceAccessTest extends AbstractCoreTest {
    * 
    * @throws Exception
    */
-  public void testRequestToJoinSpace() throws Exception {
-    Space space = createSpaceData("request space",
-                                  "validation",
+  public void testRequestToJoinSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  Space.VALIDATION,
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);
@@ -177,8 +162,8 @@ public class SpaceAccessTest extends AbstractCoreTest {
     tearDownSpaceList.add(space);
   }
 
-  public void testJoinSpace() throws Exception {
-    Space space = createSpaceData("request space",
+  public void testJoinSpace() {
+    Space space = createSpaceData(SPACE_NAME,
                                   "open",
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
@@ -193,8 +178,8 @@ public class SpaceAccessTest extends AbstractCoreTest {
     tearDownSpaceList.add(space);
   }
 
-  public void testClosedSpace() throws Exception {
-    Space space = createSpaceData("request space",
+  public void testClosedSpace() {
+    Space space = createSpaceData(SPACE_NAME,
                                   "close",
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
@@ -209,10 +194,10 @@ public class SpaceAccessTest extends AbstractCoreTest {
     tearDownSpaceList.add(space);
   }
 
-  public void testHiddenValidationSpace() throws Exception {
-    Space space = createSpaceData("request space",
-                                  "validation",
-                                  "hidden",
+  public void testHiddenValidationSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  Space.VALIDATION,
+                                  Space.HIDDEN,
                                   new String[] { root.getRemoteId(), john.getRemoteId() },
                                   new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);

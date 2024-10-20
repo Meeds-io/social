@@ -17,14 +17,16 @@
 package org.exoplatform.social.core.image;
 
 
-import junit.framework.TestCase;
-import org.exoplatform.social.core.model.AvatarAttachment;
-
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.imageio.ImageIO;
+
+import org.exoplatform.social.core.model.AvatarAttachment;
+
+import junit.framework.TestCase;
 
 public class ImageUtilsTest extends TestCase {
 

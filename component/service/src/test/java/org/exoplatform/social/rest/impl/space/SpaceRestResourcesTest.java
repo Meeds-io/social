@@ -43,35 +43,36 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.space.service.SpaceLayoutService;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
-  private IdentityManager       identityManager;
+  private IdentityManager        identityManager;
 
-  private OrganizationService   organizationService;
+  private OrganizationService    organizationService;
 
-  private UserACL               userACL;
+  private UserACL                userACL;
 
-  private ActivityManager       activityManager;
+  private ActivityManager        activityManager;
 
-  private SpaceService          spaceService;
+  private SpaceService           spaceService;
 
-  private SpaceRest  spaceRestResources;
+  private SpaceRest              spaceRestResources;
 
-  private Identity              rootIdentity;
+  private Identity               rootIdentity;
 
-  private Identity              johnIdentity;
+  private Identity               johnIdentity;
 
-  private Identity              maryIdentity;
+  private Identity               maryIdentity;
 
-  private Identity              demoIdentity;
+  private Identity               demoIdentity;
 
-  private Identity              externalUserIdentity;
+  private Identity               externalUserIdentity;
 
-  private ImageThumbnailService imageThumbnailService;
+  private ImageThumbnailService  imageThumbnailService;
 
   private SecuritySettingService securitySettingService;
 
-  private MockUploadService     uploadService;
+  private MockUploadService      uploadService;
 
   public void setUp() throws Exception {
     super.setUp();
@@ -85,7 +86,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     securitySettingService = getContainer().getComponentInstanceOfType(SecuritySettingService.class);
-    
+    SpaceLayoutService spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
+
     rootIdentity = identityManager.getOrCreateIdentity("organization", "root");
     johnIdentity = identityManager.getOrCreateIdentity("organization", "john");
     maryIdentity = identityManager.getOrCreateIdentity("organization", "mary");
@@ -93,11 +95,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     spaceRestResources =
                        new SpaceRest(new ActivityRest(activityManager, identityManager, spaceService, null),
-                                                spaceService,
-                                                identityManager,
-                                                uploadService,
-                                                imageThumbnailService,
-                                                securitySettingService);
+                                     spaceService,
+                                     spaceLayoutService,
+                                     identityManager,
+                                     uploadService,
+                                     imageThumbnailService,
+                                     securitySettingService);
     registry(spaceRestResources);
   }
 
@@ -122,23 +125,24 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
-  public void testSpaceVisibilityUpdateWithDifferentCases () throws Exception {
+  public void testSpaceVisibilityUpdateWithDifferentCases() throws Exception {
     startSessionAs("root");
     /*
-    *
-    * Test of 'private' and 'hidden' fields with a mix of upper/lower cases
-    */
+     * Test of 'private' and 'hidden' fields with a mix of upper/lower cases
+     */
 
     Space space = getSpaceInstance(1, "root");
 
-    Map<String,String> listOfResponses = new HashMap<String,String>() {{
-      put("{\"displayName\":\"social\",\"visibility\":PRIVATE}", Space.PRIVATE);
-      put("{\"displayName\":\"social\",\"visibility\":private}", Space.PRIVATE);
-      put("{\"displayName\":\"social\",\"visibility\":PriVatE}", Space.PRIVATE);
-      put("{\"displayName\":\"social\",\"visibility\":HIDDEN}", Space.HIDDEN);
-      put("{\"displayName\":\"social\",\"visibility\":hidden}", Space.HIDDEN);
-      put("{\"displayName\":\"social\",\"visibility\":HiDdEn}", Space.HIDDEN);
-    }};
+    Map<String, String> listOfResponses = new HashMap<String, String>() {
+      {
+        put("{\"displayName\":\"social\",\"visibility\":PRIVATE}", Space.PRIVATE);
+        put("{\"displayName\":\"social\",\"visibility\":private}", Space.PRIVATE);
+        put("{\"displayName\":\"social\",\"visibility\":PriVatE}", Space.PRIVATE);
+        put("{\"displayName\":\"social\",\"visibility\":HIDDEN}", Space.HIDDEN);
+        put("{\"displayName\":\"social\",\"visibility\":hidden}", Space.HIDDEN);
+        put("{\"displayName\":\"social\",\"visibility\":HiDdEn}", Space.HIDDEN);
+      }
+    };
 
     ContainerResponse response = null;
 
@@ -241,7 +245,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotNull(eTag);
 
-    MultivaluedMap<String,String> headers = new MultivaluedMapImpl();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("If-None-Match", "\"" + eTag.getValue() + "\"");
     response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
     assertNotNull(response);
@@ -269,7 +273,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     EntityTag eTagRoot = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotNull(eTagRoot);
 
-    MultivaluedMap<String,String> headers = new MultivaluedMapImpl();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("If-None-Match", "\"" + eTagRoot.getValue() + "\"");
     response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", headers, null);
     assertNotNull(response);
@@ -306,7 +310,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testCreateSpace() throws Exception {
     startSessionAs("root");
     String input = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
-    //root try to update demo activity
+    // root try to update demo activity
     ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -320,7 +324,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testCreateSpaceWithNonLatinName() throws Exception {
     startSessionAs("root");
     String input = "{\"displayName\":\"Благодійність\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
-    //root try to update demo activity
+    // root try to update demo activity
     ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -407,7 +411,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     String user = "john";
 
     Space space = getSpaceInstance(1, user);
-    uploadSpaceAvatar(user, space.getId(),"hr-avatar.png");
+    uploadSpaceAvatar(user, space.getId(), "hr-avatar.png");
 
     space = spaceService.getSpaceById(space.getId());
     assertNotNull(space.getAvatarUrl());
@@ -420,7 +424,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
-    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte[]) response.getEntity()));
     assertEquals(100, receivedImage.getWidth());
     assertEquals(100, receivedImage.getHeight());
   }
@@ -429,7 +433,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     String user = "john";
 
     Space space = getSpaceInstance(1, user);
-    uploadSpaceAvatar(user, space.getId(),"hr-avatar.png");
+    uploadSpaceAvatar(user, space.getId(), "hr-avatar.png");
 
     space = spaceService.getSpaceById(space.getId());
     assertNotNull(space.getAvatarUrl());
@@ -437,13 +441,13 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     startSessionAs("mary");
 
     String avatarUrl = space.getAvatarUrl().replace("/portal/rest", "");
-    avatarUrl+="&size=0x0";
+    avatarUrl += "&size=0x0";
 
     ContainerResponse response = service("GET", avatarUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
-    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte[]) response.getEntity()));
     assertEquals(595, receivedImage.getWidth());
     assertEquals(595, receivedImage.getHeight());
   }
@@ -544,7 +548,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   public void testGetSpaceById() throws Exception {
     startSessionAs("root");
     String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
-    //root creates a space
+    // root creates a space
     ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -602,7 +606,11 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(space);
 
     // Get space by its groupId
-    response = service("GET", getURLResource("spaces/byGroupSuffix/" + space.getGroupId().replace(SpaceUtils.SPACE_GROUP + "/", "")), "", null, null);
+    response = service("GET",
+                       getURLResource("spaces/byGroupSuffix/" + space.getGroupId().replace(SpaceUtils.SPACE_GROUP + "/", "")),
+                       "",
+                       null,
+                       null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -626,7 +634,11 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(space);
 
     // Get space by its display name
-    response = service("GET", getURLResource("spaces/byDisplayName/" + space.getDisplayName().replaceAll(" ", "%20")), "", null, null);
+    response = service("GET",
+                       getURLResource("spaces/byDisplayName/" + space.getDisplayName().replaceAll(" ", "%20")),
+                       "",
+                       null,
+                       null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
@@ -638,7 +650,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testGetUpdateDeleteSpaceById() throws Exception {
-    //root creates 1 spaces
+    // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
     space.setVisibility(Space.HIDDEN);
     space.setRegistration(Space.CLOSED);
@@ -656,7 +668,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotNull(eTag);
 
-    //root update space's description and name
+    // root update space's description and name
     String spaceId = spaceEntity.getId();
     String input = "{\"displayName\":displayName_updated, \"description\":description_updated}";
     response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
@@ -672,7 +684,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(Space.CLOSED, spaceEntity.getSubscription());
     EntityTag updatedETag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
     assertNotSame(eTag, updatedETag);
-    //root delete his space
+    // root delete his space
     response = service("DELETE", getURLResource("spaces/" + space.getId()), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
@@ -681,7 +693,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testSaveSpacePublicSite() throws Exception {
-    //root creates 1 spaces
+    // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
 
     startSessionAs("root");
@@ -713,12 +725,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testGetUsersSpaceById() throws Exception {
-    //root creates 1 spaces
+    // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");
-    space.setMembers(new String[] {"root", "john"});
-    space.setManagers(new String[] {"root"});
-    space.setInvitedUsers(new String[] {"mary"});
-    space.setPendingUsers(new String[] {"demo"});
+    space.setMembers(new String[] { "root", "john" });
+    space.setManagers(new String[] { "root" });
+    space.setInvitedUsers(new String[] { "mary" });
+    space.setPendingUsers(new String[] { "demo" });
     spaceService.updateSpace(space);
 
     startSessionAs("root");
@@ -757,10 +769,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testGetSpaceByIdWithDeletedDisableUsers() throws Exception {
-    //root creates 1 spaces
+    // root creates 1 spaces
     Space space = getSpaceInstance(255, "root");
-    space.setMembers(new String[] {"root", "john", "mary", "demo"});
-    space.setManagers(new String[] {"root", "john"});
+    space.setMembers(new String[] { "root", "john", "mary", "demo" });
+    space.setManagers(new String[] { "root", "john" });
     spaceService.updateSpace(space);
 
     startSessionAs("root");
@@ -838,8 +850,9 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
   }
 
   private void uploadSpaceAvatar(String user, String spaceId) throws Exception {
-    uploadSpaceAvatar(user,spaceId,"blank.gif");
+    uploadSpaceAvatar(user, spaceId, "blank.gif");
   }
+
   private void uploadSpaceAvatar(String user, String spaceId, String fileName) throws Exception {
     startSessionAs(user);
     String uploadId = fileName;
@@ -865,12 +878,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     identityManager.updateProfile(externalUserIdentity.getProfile());
     Space space = getSpaceInstance(10, "root");
     ContainerResponse response;
-    response = service("GET", getURLResource("spaces/" + space.getId()+ "/checkExternals"), "", null, null);
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/checkExternals"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertEquals("false", response.getEntity());
     spaceService.addMember(space, "externalUser");
-    response = service("GET", getURLResource("spaces/" + space.getId()+ "/checkExternals"), "", null, null);
+    response = service("GET", getURLResource("spaces/" + space.getId() + "/checkExternals"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     assertEquals("true", response.getEntity());

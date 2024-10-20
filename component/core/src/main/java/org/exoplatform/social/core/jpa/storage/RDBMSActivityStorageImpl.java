@@ -72,7 +72,6 @@ import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.ActivityStorageException.Type;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.impl.StorageUtils;
 import org.exoplatform.social.core.utils.MentionUtils;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
@@ -1827,7 +1826,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                    .stream()
                                                    .filter(item -> item.getStreamType() == StreamType.POSTER
                                                        || item.getStreamType() == StreamType.SPACE)
-                                                   .collect(Collectors.toList());
+                                                   .toList();
       if (!items.isEmpty()) {
         Date now = new Date();
         items.stream().forEach(item -> item.setUpdatedDate(now));
@@ -1843,7 +1842,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
    * @return
    */
   private List<String> memberOfSpaceIds(Identity ownerIdentity) {
-    return spaceStorage.getMemberSpaceIds(ownerIdentity.getId(), 0, -1);
+    return spaceStorage.getMemberRoleSpaceIdentityIds(ownerIdentity.getId(), 0, -1);
 
   }
 

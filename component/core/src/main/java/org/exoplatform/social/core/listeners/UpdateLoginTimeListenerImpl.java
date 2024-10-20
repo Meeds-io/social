@@ -4,7 +4,9 @@ import java.util.Calendar;
 
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.services.listener.*;
+import org.exoplatform.services.listener.Asynchronous;
+import org.exoplatform.services.listener.Event;
+import org.exoplatform.services.listener.Listener;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.ConversationRegistry;
 import org.exoplatform.services.security.ConversationState;
