@@ -22,11 +22,11 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.List;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfilePropertySettingEntity, Long> {
   public ProfilePropertySettingEntity findProfileSettingByName(String name) {

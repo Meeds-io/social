@@ -61,7 +61,7 @@ public class SpaceTemplateStorageTest {
   @Test
   public void testGetSpaceTemplates() {
     SpaceTemplateEntity spaceTemplateEntity = newSpaceTemplateEntity();
-    when(spaceTemplateDAO.findByDeletedFalse(any())).thenAnswer(invocation -> List.of(spaceTemplateEntity));
+    when(spaceTemplateDAO.findByDeletedFalseOrderByTemplateOrderDesc(any())).thenAnswer(invocation -> List.of(spaceTemplateEntity));
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
     assertNotNull(spaceTemplates);
     assertEquals(1l, spaceTemplates.size());
@@ -74,7 +74,7 @@ public class SpaceTemplateStorageTest {
   @Test
   public void testGetEnabledSpaceTemplates() {
     SpaceTemplateEntity spaceTemplateEntity = newSpaceTemplateEntity();
-    when(spaceTemplateDAO.findByDeletedFalseAndEnabledTrue(any())).thenAnswer(invocation -> List.of(spaceTemplateEntity));
+    when(spaceTemplateDAO.findByDeletedFalseAndEnabledTrueOrderByTemplateOrderDesc(any())).thenAnswer(invocation -> List.of(spaceTemplateEntity));
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getEnabledSpaceTemplates(Pageable.unpaged());
     assertNotNull(spaceTemplates);
     assertEquals(1l, spaceTemplates.size());
@@ -131,7 +131,7 @@ public class SpaceTemplateStorageTest {
     assertNotNull(spaceTemplate);
     assertEquals(spaceTemplateEntity.getId().longValue(), spaceTemplate.getId());
     assertEquals(spaceTemplateEntity.getIcon(), spaceTemplate.getIcon());
-    assertEquals(spaceTemplateEntity.getOrder(), spaceTemplate.getOrder());
+    assertEquals(spaceTemplateEntity.getTemplateOrder(), spaceTemplate.getOrder());
     assertEquals(spaceTemplateEntity.getPermissions(), spaceTemplate.getPermissions());
     assertEquals(spaceTemplateEntity.getIcon(), spaceTemplate.getIcon());
     assertEquals(spaceTemplateEntity.isEnabled(), spaceTemplate.isEnabled());
@@ -152,6 +152,7 @@ public class SpaceTemplateStorageTest {
                                    false,
                                    true,
                                    5l,
+                                   "layout",
                                    Arrays.asList("permissions"),
                                    Arrays.asList("spaceLayoutPermissions"),
                                    Arrays.asList("spaceDeletePermissions"),
@@ -171,6 +172,7 @@ public class SpaceTemplateStorageTest {
                              false,
                              true,
                              5l,
+                             "layout",
                              Arrays.asList("permissions"),
                              Arrays.asList("spaceLayoutPermissions"),
                              Arrays.asList("spaceDeletePermissions"),

@@ -19,10 +19,7 @@ package org.exoplatform.social.core.space;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.AssertionFailedError;
-
 import org.exoplatform.portal.config.UserPortalConfigService;
-import org.exoplatform.portal.mop.user.UserPortal;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Authenticator;
@@ -32,6 +29,8 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
+
+import junit.framework.AssertionFailedError;
 
 public class SpaceUtilsRestTest extends AbstractCoreTest {
 

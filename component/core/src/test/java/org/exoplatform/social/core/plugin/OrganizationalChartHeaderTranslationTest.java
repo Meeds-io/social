@@ -1,16 +1,17 @@
 package org.exoplatform.social.core.plugin;
 
-import io.meeds.social.translation.model.TranslationField;
-import io.meeds.social.translation.service.TranslationService;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.component.test.AbstractKernelTest;
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import io.meeds.social.translation.model.TranslationField;
+import io.meeds.social.translation.service.TranslationService;
 
 
 @ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),

@@ -18,7 +18,9 @@ package org.exoplatform.social.core.storage.cache.selector;
 
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
-import org.exoplatform.social.core.storage.cache.model.key.*;
+import org.exoplatform.social.core.storage.cache.model.key.CacheKey;
+import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
+import org.exoplatform.social.core.storage.cache.model.key.SuggestionKey;
 
 public class SuggestionCacheSelector extends CacheSelector<CacheKey, Object> {
   

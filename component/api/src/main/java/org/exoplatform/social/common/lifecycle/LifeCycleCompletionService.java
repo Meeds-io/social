@@ -84,7 +84,6 @@ public class LifeCycleCompletionService implements Startable {
 
   public void addTask(Callable callable) {
     ecs.submit(callable);
-
   }
 
   public void waitCompletionFinished() {
