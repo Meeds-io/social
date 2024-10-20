@@ -606,6 +606,19 @@ public interface SpaceService {
   }
 
   /**
+   * Checks the deletion permissions added from SpaceTemplate entity to Space
+   * entity in space creation step. If empty, then space admin can delete the
+   * space
+   * 
+   * @param space {@link Space}
+   * @param username
+   * @return true if can delete the space, else false
+   */
+  default boolean canDeleteSpace(Space space, String username) {
+    return canManageSpace(space, username);
+  }
+
+  /**
    * checks whether the user can view the space or not
    * 
    * @param space {@link Space}

@@ -87,7 +87,7 @@ export default {
   }),
   computed: {
     isDefaultBanner() {
-      return this.bannerUrl && this.bannerUrl.includes('/portal/rest/v1/social/spaceTemplates/');
+      return this.bannerUrl && this.bannerUrl.includes('/social/images/');
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * ONE_KB * ONE_KB;
