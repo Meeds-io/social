@@ -20,8 +20,9 @@
  */
 package org.exoplatform.social.core.jpa.mock;
 
-import org.exoplatform.services.naming.InitialContextInitializer;
 import org.picocontainer.Startable;
+
+import org.exoplatform.services.naming.InitialContextInitializer;
 
 /**
  * Dummy Startable component to make sure the datasource is bound before others components use it.

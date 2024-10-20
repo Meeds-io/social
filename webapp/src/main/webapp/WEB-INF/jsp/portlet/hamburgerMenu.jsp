@@ -5,10 +5,10 @@
 <%@page import="org.exoplatform.commons.api.settings.data.Scope"%>
 <%@page import="org.exoplatform.commons.api.settings.data.Context"%>
 <%@page import="org.exoplatform.commons.api.settings.SettingService"%>
-<%@page import="org.exoplatform.social.core.space.SpacesAdministrationService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
 <%
-  boolean canCreateSpace = ExoContainerContext.getService(SpacesAdministrationService.class).canCreateSpace(request.getRemoteUser());
+  boolean canCreateSpace = ExoContainerContext.getService(SpaceTemplateService.class).canCreateSpace(request.getRemoteUser());
   SettingValue stickySettingValue = ExoContainerContext.getService(SettingService.class).get(Context.USER.id(request.getRemoteUser()), Scope.APPLICATION.id("HamburgerMenu"), "Sticky");
   boolean sticky = stickySettingValue == null ? Boolean.parseBoolean(System.getProperty("io.meeds.userPrefs.HamburgerMenu.sticky", "false")) : Boolean.parseBoolean(stickySettingValue.getValue().toString());
 

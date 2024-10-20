@@ -19,16 +19,16 @@
 
 package org.exoplatform.social.core.plugin;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.exoplatform.portal.config.GroupVisibilityPlugin;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Implementation of GroupVisibilityPlugin for space creation which allows to

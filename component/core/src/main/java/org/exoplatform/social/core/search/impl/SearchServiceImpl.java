@@ -16,19 +16,25 @@
  */
 package org.exoplatform.social.core.search.impl;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.portal.config.UserACL;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
-import org.exoplatform.social.core.search.*;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.social.core.search.SearchConnector;
+import org.exoplatform.social.core.search.SearchConnectorPlugin;
+import org.exoplatform.social.core.search.SearchService;
 
 /**
  * Service to manage Search connectors

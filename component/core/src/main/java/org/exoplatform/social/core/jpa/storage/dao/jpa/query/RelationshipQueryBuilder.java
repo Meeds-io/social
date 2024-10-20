@@ -22,6 +22,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
+import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity_;
+import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity_;
+import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.relationship.model.Relationship.Type;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -30,15 +39,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-
-import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
-import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity;
-import org.exoplatform.social.core.jpa.storage.entity.ConnectionEntity_;
-import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity_;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.profile.ProfileFilter;
-import org.exoplatform.social.core.relationship.model.Relationship;
-import org.exoplatform.social.core.relationship.model.Relationship.Type;
 
 /**
  * Created by The eXo Platform SAS

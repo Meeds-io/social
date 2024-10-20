@@ -23,20 +23,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.*;
+import org.apache.commons.collections4.CollectionUtils;
 
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.search.ExtendProfileFilter;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity_;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity_;
 
-import org.apache.commons.collections4.CollectionUtils;
-
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.MapJoin;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.SetJoin;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

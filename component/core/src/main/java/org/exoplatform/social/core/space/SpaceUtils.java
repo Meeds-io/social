@@ -207,7 +207,7 @@ public class SpaceUtils {
       parentGroup = groupHandler.findGroupById(SPACE_GROUP);
       // Creates new group
       newGroup = groupHandler.createGroupInstance();
-      shortName = Utils.cleanString(spaceName);
+      shortName = Utils.cleanString(StringUtils.firstNonBlank(groupLabel, spaceName));
       groupId = parentGroup.getId() + "/" + shortName;
 
       if (getSpaceService().getSpaceByGroupId(groupId) != null) {

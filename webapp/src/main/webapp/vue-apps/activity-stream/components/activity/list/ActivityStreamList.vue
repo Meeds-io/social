@@ -167,7 +167,7 @@ export default {
         if (activity) {
           setTimeout(() => {
             if (activity.activityStream.type === 'space') {
-              location.href = `${eXo.env.portal.context}/g/${activity.activityStream.space.groupId.replace(/\//g, ':')}`;
+              location.href = `${eXo.env.portal.context}/s/${activity.activityStream.space.id}`;
             } else {
               location.href = eXo.env.portal.context;
             }

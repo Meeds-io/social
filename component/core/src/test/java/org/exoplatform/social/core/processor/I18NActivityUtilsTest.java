@@ -16,12 +16,12 @@
  */
 package org.exoplatform.social.core.processor;
 
-import junit.framework.TestCase;
-
 import java.util.HashMap;
 
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
+
+import junit.framework.TestCase;
 
 public class I18NActivityUtilsTest extends TestCase {
 

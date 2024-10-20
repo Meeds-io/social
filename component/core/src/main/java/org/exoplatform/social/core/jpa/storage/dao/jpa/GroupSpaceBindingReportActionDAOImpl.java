@@ -19,13 +19,13 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.List;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingReportActionEntity, Long>
     implements GroupSpaceBindingReportActionDAO {

@@ -21,8 +21,8 @@ import java.util.List;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.activity.ActivityFilter;
-import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**

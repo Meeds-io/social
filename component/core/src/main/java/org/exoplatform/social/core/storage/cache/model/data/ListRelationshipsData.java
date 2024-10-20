@@ -17,9 +17,9 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.storage.cache.model.key.RelationshipKey;
-
 import java.util.List;
+
+import org.exoplatform.social.core.storage.cache.model.key.RelationshipKey;
 
 /**
  * Immutable relationship list keys.

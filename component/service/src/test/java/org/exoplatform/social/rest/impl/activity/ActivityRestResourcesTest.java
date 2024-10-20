@@ -3,6 +3,8 @@ package org.exoplatform.social.rest.impl.activity;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.OutputHeadersMap;
@@ -1445,7 +1447,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     return space;
   }
 
-  private Space getSpaceInstance(String prettyName, String creator, String ...members) throws Exception {
+  private Space getSpaceInstance(String prettyName, String username, String ...members) throws Exception {
     Space space = new Space();
     space.setDisplayName(prettyName);
     space.setPrettyName(space.getDisplayName());
@@ -1453,9 +1455,14 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     space.setDescription("add new space " + prettyName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.VALIDATION);
-    space.setMembers(members);
-    this.spaceService.createSpace(space, creator);
-    return space;
+    Space createdSpace = this.spaceService.createSpace(space, username);
+    if (ArrayUtils.isNotEmpty(members)) {
+      Arrays.stream(members).forEach(u -> spaceService.addMember(createdSpace, u));
+    }
+    if (ArrayUtils.isNotEmpty(createdSpace.getRedactors())) {
+      Arrays.stream(createdSpace.getRedactors()).forEach(u -> spaceService.removeRedactor(createdSpace, u));
+    }
+    return createdSpace;
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {
