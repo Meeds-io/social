@@ -1059,12 +1059,27 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-109">
-    
-    <dropUniqueConstraint tableName="SOC_APPS" constraintName="UK_SPACE_APP_01" uniqueColumns="SPACE_ID, APP_ID" />
+    <dropForeignKeyConstraint baseTableName="SOC_APPS" constraintName="FK_SOC_APP_SPACE_01" />
   </changeSet>
 
   <changeSet author="social" id="1.0.0-110">
+    <dropUniqueConstraint tableName="SOC_APPS" constraintName="UK_SPACE_APP_01" uniqueColumns="SPACE_ID, APP_ID" />
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-111">
     <dropTable tableName="SOC_APPS" />
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-112">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="LAYOUT" type="LONGTEXT" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-113" dbms="mysql">
+    <sql>
+      ALTER TABLE SOC_SPACE_TEMPLATES MODIFY COLUMN LAYOUT longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    </sql>
   </changeSet>
 
 </databaseChangeLog>

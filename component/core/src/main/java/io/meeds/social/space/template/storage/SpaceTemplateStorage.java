@@ -43,7 +43,7 @@ public class SpaceTemplateStorage {
 
   @Cacheable(cacheNames = "social.spaceTemplates")
   public List<SpaceTemplate> getSpaceTemplates(Pageable pageable) {
-    return spaceTemplateDAO.findByDeletedFalse(pageable)
+    return spaceTemplateDAO.findByDeletedFalseOrderByTemplateOrderDesc(pageable)
                            .stream()
                            .map(EntityMapper::fromEntity)
                            .toList();
@@ -51,7 +51,7 @@ public class SpaceTemplateStorage {
 
   @Cacheable(cacheNames = "social.enabledSpaceTemplates")
   public List<SpaceTemplate> getEnabledSpaceTemplates(Pageable pageable) {
-    return spaceTemplateDAO.findByDeletedFalseAndEnabledTrue(pageable)
+    return spaceTemplateDAO.findByDeletedFalseAndEnabledTrueOrderByTemplateOrderDesc(pageable)
                            .stream()
                            .map(EntityMapper::fromEntity)
                            .toList();

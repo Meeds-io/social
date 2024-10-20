@@ -59,7 +59,7 @@ export function init(params) {
             this.spaceDescription = space.description;
             this.logoPath = space.avatarUrl;
             this.membersNumber = space.membersCount;
-            this.portalPath = `${eXo.env.portal.context}/g/${space.groupId.replaceAll('/', ':')}/${space.prettyName}`;
+            this.portalPath = `${eXo.env.portal.context}/s/${space.id}`;
             this.$forceUpdate();
           }
         }

@@ -17,7 +17,9 @@
 package org.exoplatform.social.core.identity;
 
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.search.UserSearchServiceImpl;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;

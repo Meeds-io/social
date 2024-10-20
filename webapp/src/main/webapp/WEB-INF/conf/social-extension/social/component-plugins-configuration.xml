@@ -97,18 +97,6 @@
       <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
       <priority>50</priority>
     </component-plugin>
-    <component-plugin>
-      <name>space.portal.config.listener</name>
-      <set-method>addListenerPlugin</set-method>
-	  <type>org.exoplatform.portal.config.GroupPortalConfigListener</type>
-	  <init-params>
-        <value-param>
-          <name>group.name.pattern</name>
-          <description>The group name pattern</description>
-          <value>/spaces/</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>

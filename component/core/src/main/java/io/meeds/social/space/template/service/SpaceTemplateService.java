@@ -61,13 +61,13 @@ public class SpaceTemplateService {
 
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
-                              SpacesAdministrationService spacesAdministrationService,
                               UserACL userAcl,
+                              SpacesAdministrationService spacesAdministrationService,
                               SpaceTemplateStorage spaceTemplateStorage) {
     this.translationService = translationService;
     this.attachmentService = attachmentService;
-    this.spacesAdministrationService = spacesAdministrationService;
     this.userAcl = userAcl;
+    this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateStorage = spaceTemplateStorage;
   }
 
