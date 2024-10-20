@@ -285,6 +285,8 @@ public class EntityConverterUtils {
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setPublicSiteId(space.getPublicSiteId());
     spaceEntity.setPublicSiteVisibility(space.getPublicSiteVisibility() == null ? PublicSiteVisibility.MANAGER : PublicSiteVisibility.valueOf(space.getPublicSiteVisibility().toUpperCase()));
+    spaceEntity.setDeletePermissions(space.getDeletePermissions());
+    spaceEntity.setLayoutPermissions(space.getLayoutPermissions());
     if (space.getRegistration() != null) {
       spaceEntity.setRegistration(Registration.valueOf(space.getRegistration().toUpperCase()));
     }

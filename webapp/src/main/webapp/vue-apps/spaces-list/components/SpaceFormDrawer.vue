@@ -32,7 +32,6 @@
       {{ title }}
     </template>
     <template v-if="drawer" slot="content">
-      <div></div>
       <div>
         <v-stepper
           v-model="stepper"
@@ -54,12 +53,14 @@
               <input
                 ref="autoFocusInput1"
                 v-model="space.displayName"
+                v-bind="nameIsRequired && {
+                  required: 'required',
+                }"
                 :aria-label="$t('spacesList.label.displayName')"
                 :placeholder="$t('spacesList.label.displayName')"
                 type="text"
                 name="name"
-                class="input-block-level ignore-vuetify-classes my-3"
-                required>
+                class="input-block-level ignore-vuetify-classes my-3">
               <v-label for="description">
                 {{ $t('spacesList.label.description') }}
               </v-label>
@@ -244,7 +245,6 @@
   </exo-drawer>
 </template>
 <script>
-
 export default {
   data: () => ({
     drawer: false,
@@ -255,7 +255,6 @@ export default {
     title: null,
     stepper: 0,
     templateId: null,
-    spaceTemplate: null,
     templates: [],
     selectedSpacesWithExternals: [],
     externalAlert: false,
@@ -264,6 +263,12 @@ export default {
   computed: {
     saveButtonDisabled() {
       return this.savingSpace || this.spaceSaved || this.stepper < 3 && !this.space.id || (this.space.description?.length || 0) > this.maxDescriptionLength;
+    },
+    spaceTemplate() {
+      return this.templates?.find?.(temp => temp.id === this.templateId);
+    },
+    nameIsRequired() {
+      return this.spaceTemplate?.spaceFields?.includes?.('name');
     },
     displayedForm() {
       return this.$refs && this.$refs[`form${this.stepper}`];
@@ -313,9 +318,8 @@ export default {
         this.savingSpace = false;
       }
     },
-    templateId() {
-      if (this.templateId && !this.space.id) {
-        this.spaceTemplate = this.templates.find(temp => temp.name === this.templateId);
+    spaceTemplate() {
+      if (!this.space?.id) {
         this.setSpaceTemplateProperties();
       }
     },
@@ -374,8 +378,7 @@ export default {
       this.$spaceTemplateService.getSpaceTemplates()
         .then(data => {
           this.templates = data || [];
-          this.spaceTemplate = this.templates.length && this.templates[0] || null;
-          this.templateId = this.spaceTemplate?.id;
+          this.templateId = this.templates?.[0]?.id;
         });
       this.$refs.spaceFormDrawer.open();
     },
@@ -393,24 +396,15 @@ export default {
       this.$spaceTemplateService.getSpaceTemplates()
         .then(data => {
           this.templates = data || [];
-          this.spaceTemplate = this.templates.length && this.templates[0] || null;
-          this.templateId = this.spaceTemplate?.id;
+          this.templateId = this.templates?.[0]?.id;
         });
       this.$refs.spaceFormDrawer.open();
     },
     setSpaceTemplateProperties() {
       if (this.spaceTemplate) {
-        this.$set(this.space, 'templateId', this.templateId);
-        this.$set(this.space, 'subscription', this.spaceTemplate.registration);
-        this.$set(this.space, 'visibility', this.spaceTemplate.visibility);
-        this.$set(this.space, 'invitedMembers', this.spaceTemplate.invitees && this.spaceTemplate.invitees.split(',') || []);
-        if (this.space.invitedMembers && this.space.invitedMembers.length) {
-          this.space.invitedMembers = this.space.invitedMembers.map(user => ({
-            id: `organization:${user}`,
-            providerId: 'organization',
-            remoteId: user,
-          }));
-        }
+        this.$set(this.space, 'templateId', this.spaceTemplate.id);
+        this.$set(this.space, 'subscription', this.spaceTemplate.spaceDefaultRegistration?.toLowerCase?.());
+        this.$set(this.space, 'visibility', this.spaceTemplate.spaceDefaultVisibility?.toLowerCase?.());
       }
     },
     previousStep() {
