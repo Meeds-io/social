@@ -15,11 +15,11 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import io.meeds.common.ContainerTransactional;
+import java.util.List;
+
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
-
 import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.storage.PageStorage;
 import org.exoplatform.services.listener.Event;
@@ -27,7 +27,7 @@ import org.exoplatform.services.listener.Listener;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
-import java.util.List;
+import io.meeds.common.ContainerTransactional;
 
 public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePropertyService, ProfilePropertySetting> {
 

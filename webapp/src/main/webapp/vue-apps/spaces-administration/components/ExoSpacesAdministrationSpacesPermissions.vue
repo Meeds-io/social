@@ -14,47 +14,6 @@
       </tr>
       <tr>
         <td>
-          <div>{{ $t('social.spaces.administration.permissions.createSpace') }}</div>
-          <div class="text-subtitle">{{ $t('social.spaces.administration.permissions.descriptionCreateSpace') }}</div>
-        </td>
-        <td>
-          <div v-show="!spacesCreatorsEditMode">
-            <div v-if="creators.length > 0">
-              <div v-for="creator in creators" :key="creator">
-                <div>{{ creator }}</div>
-              </div>
-            </div>
-            <div v-if="creators.length === 0 && displayNoAssignmentCreators">{{ $t('social.spaces.administration.permissions.noAssignment') }}</div>
-          </div>
-          <div v-show="spacesCreatorsEditMode" class="inputUser">
-            <input id="add-creators-suggester" type="text">
-          </div>
-        </td>
-        <td v-if="!spacesCreatorsEditMode" class="center actionContainer">
-          <a
-            :title="$t('social.spaces.administration.permissions.actions.edit')"
-            class="actionIcon"
-            @click="editCreateSpace()">
-            <i class="uiIconEdit uiIconLightGray"></i>
-          </a>
-        </td>
-        <td v-if="spacesCreatorsEditMode" class="center actionContainer">
-          <a
-            :title="$t('social.spaces.administration.permissions.actions.save')"
-            class="actionIcon"
-            @click="savePermissionsCreateSpace()">
-            <i class="uiIconSave uiIconLightGray"></i>
-          </a>
-          <a
-            :title="$t('social.spaces.administration.permissions.actions.cancel')"
-            class="actionIcon"
-            @click="editCreateSpace()">
-            <i class="uiIconClose uiIconLightGray"></i>
-          </a>
-        </td>       
-      </tr>
-      <tr>
-        <td>
           <div>{{ $t('social.spaces.administration.permissions.manageSpaces') }}</div>
           <div class="text-subtitle">{{ $t('social.spaces.administration.permissions.descriptionManageSpaces') }}</div>
         </td>
@@ -101,107 +60,16 @@
 export default {
   data() {
     return {
-      creators: [],
       administrators: [],
       spacesCreatorsEditMode: false,
       spacesAdministratorsEditMode: false,
-      displayNoAssignmentCreators: false,
       displayNoAssignmentAdministrators: false,
     };
   },
   created() {
-    this.getSettingValueCreateSpace();
     this.getSettingValueSpacesAdministrators();
   },
   methods: {
-    initSuggesterSpacesCreators() {
-      const suggesterContainer = $('#add-creators-suggester');
-      if (suggesterContainer && suggesterContainer.length && suggesterContainer.suggester) {
-        const component = this;
-        const suggesterData = {
-          type: 'tag',
-          plugins: ['remove_button', 'restore_on_backspace'],
-          create: false,
-          createOnBlur: false,
-          highlight: false,
-          openOnFocus: false,
-          sourceProviders: ['exo:spacesAdministration'],
-          valueField: 'text',
-          labelField: 'text',
-          searchField: ['text'],
-          closeAfterSelect: true,
-          dropdownParent: 'body',
-          hideSelected: true,
-          renderMenuItem (item, escape) {
-            return component.renderMenuItem(item, escape);
-          },
-          renderItem(item) {
-            return `<div class="item">${item.text}</div>`;
-          },
-          onItemAdd(item) {
-            component.addSuggestedItemCreate(item);
-          },
-          onItemRemove(item) {
-            component.removeSuggestedItemCreators(item);
-          },
-          sortField: [{field: 'order'}, {field: '$score'}],
-          providers: {
-            'exo:spacesAdministration': component.findGroups
-          }
-        };
-        suggesterContainer.suggester(suggesterData);
-        $('#add-creators-suggester')[0].selectize.clear();
-        if (this.creators && this.creators !== null) {
-          for (const permission of this.creators) {
-            suggesterContainer[0].selectize.addOption({text: permission});
-            suggesterContainer[0].selectize.addItem(permission);
-          }
-        }
-      }
-    },
-    addSuggestedItemCreate(item) {
-      if ($('#add-creators-suggester') && $('#add-creators-suggester').length && $('#add-creators-suggester')[0].selectize) {
-        const selectize = $('#add-creators-suggester')[0].selectize;
-        item = selectize.options[item];
-      }
-      if (!this.creators.find(creator => creator === item.text)) {
-        this.creators.push(item.text);
-      }
-    },
-    removeSuggestedItemCreators(item) {
-      const suggesterContainer = $('#add-creators-suggester');
-      for (let i=this.creators.length-1; i>=0; i--) {
-        if (this.creators[i] === item) {
-          this.creators.splice(i, 1);
-          suggesterContainer[0].selectize.removeOption(item);
-          suggesterContainer[0].selectize.removeItem(item);
-        }
-      }
-    },
-    savePermissionsCreateSpace() {
-      $('.tooltip.fade.bottom.in').remove();
-      if (this.creators){
-        this.$spacesAdministrationServices.updateSpacesAdministrationSetting('spacesCreators',
-          this.creators.map(creator => {
-            const splitCreator = creator.split(':');
-            return { 'membershipType': splitCreator[0], 'group': splitCreator[1] };
-          }));
-      }
-      this.spacesCreatorsEditMode = false;
-    },
-    getSettingValueCreateSpace() {
-      this.$spacesAdministrationServices.getSpacesAdministrationSetting('spacesCreators').then(data => {
-        if (data) {
-          this.creators = [];
-          for (const permission of data.memberships) {
-            const permissionExpression = `${permission.membershipType}:${permission.group}`;
-            this.creators.push(permissionExpression);
-          }
-        }
-        this.displayNoAssignmentCreators = true;
-        this.initSuggesterSpacesCreators();
-      });
-    },
     initSuggesterSpacesAdministrators() {
       const suggesterContainer = $('#add-administrators-suggester');
       if (suggesterContainer && suggesterContainer.length && suggesterContainer.suggester) {
@@ -312,15 +180,6 @@ export default {
         this.displayNoAssignmentAdministrators = true;
         this.initSuggesterSpacesAdministrators();
       });
-    },
-    editCreateSpace(){
-      $('.tooltip.fade.bottom.in').remove();
-      if (this.spacesCreatorsEditMode) {
-        this.spacesCreatorsEditMode = false;
-      } else {
-        this.spacesCreatorsEditMode = true;
-      }
-      this.getSettingValueCreateSpace();
     },
     editManageSpace(){
       $('.tooltip.fade.bottom.in').remove();

@@ -16,13 +16,20 @@
  */
 package org.exoplatform.social.core.manager;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Validate;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.PropertyManager;
@@ -34,9 +41,18 @@ import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
-import org.exoplatform.social.core.activity.*;
+import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess;
 import org.exoplatform.social.core.activity.ActivitiesRealtimeListAccess.ActivityType;
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityLifeCycle;
+import org.exoplatform.social.core.activity.ActivityListener;
+import org.exoplatform.social.core.activity.ActivityListenerPlugin;
+import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
+import org.exoplatform.social.core.activity.CommentsRealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
+import org.exoplatform.social.core.activity.model.ActivityStream;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;

@@ -28,13 +28,10 @@ import org.exoplatform.social.core.binding.spi.RDBMSGroupSpaceBindingStorageTest
 import org.exoplatform.social.core.jpa.search.ComplementaryFilterSearchConnectorTest;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnectorTest;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnectorTest;
-import org.exoplatform.social.core.jpa.storage.ActivityManagerRDBMSTest;
+import org.exoplatform.social.core.jpa.storage.ActivityStorageTest;
 import org.exoplatform.social.core.jpa.storage.IdentityStorageTest;
 import org.exoplatform.social.core.jpa.storage.ProfileLabelStorageTest;
 import org.exoplatform.social.core.jpa.storage.ProfileSettingStorageTest;
-import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImplTest;
-import org.exoplatform.social.core.jpa.storage.RDBMSRelationshipManagerTest;
-import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageTest;
 import org.exoplatform.social.core.jpa.storage.RelationshipStorageTest;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAOTest;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAOTest;
@@ -82,11 +79,8 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ActivityDAOTest.class,
   IdentityDAOTest.class,
   StreamItemDAOTest.class,
-  ActivityManagerRDBMSTest.class,
   RelationshipStorageTest.class,
-  RDBMSRelationshipManagerTest.class,
   IdentityStorageTest.class,
-  RDBMSSpaceStorageTest.class,
   ProfileSettingStorageTest.class,
   ProfileLabelStorageTest.class,
   ProfilePropertyServiceTest.class,
@@ -97,7 +91,7 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ProfileLabelDAOTest.class,
   I18NActivityProcessorTest.class,
   SearchServiceTest.class,
-  RDBMSActivityStorageImplTest.class,
+  ActivityStorageTest.class,
   ActivityManagerTest.class,
   IdentityManagerTest.class,
   SpaceServiceTest.class,

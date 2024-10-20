@@ -17,13 +17,13 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 
 /**
  * Immutable profile data.

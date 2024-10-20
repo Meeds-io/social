@@ -18,8 +18,15 @@
  */
 package org.exoplatform.social.metadata.tag;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -27,8 +34,12 @@ import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
-import org.exoplatform.social.metadata.model.*;
-import org.exoplatform.social.metadata.tag.model.*;
+import org.exoplatform.social.metadata.model.Metadata;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
+import org.exoplatform.social.metadata.tag.model.TagFilter;
+import org.exoplatform.social.metadata.tag.model.TagName;
+import org.exoplatform.social.metadata.tag.model.TagObject;
 
 /**
  * Test class for {@link TagService}
@@ -88,8 +99,8 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(0, tagNames.size());
 
     String content =
-                   "<div>Test tag #NoTagHere test test"
-                       + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANew'TagHere</a>&nbsp;.</div>";
+                   "<div>Test tag #NoTagHere test test" +
+                       " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANew'TagHere</a>&nbsp;.</div>";
     tagNames = tagService.detectTagNames(content);
     assertNotNull(tagNames);
     assertEquals(1, tagNames.size());
@@ -165,10 +176,10 @@ public class TagServiceTest extends AbstractCoreTest {
     assertNotNull(metadataItems);
     assertEquals(2, metadataItems.size());
     Set<TagName> storedTagNames = metadataItems.stream()
-                  .map(MetadataItem::getMetadata)
-                  .map(Metadata::getName)
-                  .map(TagName::new)
-                  .collect(Collectors.toSet());
+                                               .map(MetadataItem::getMetadata)
+                                               .map(Metadata::getName)
+                                               .map(TagName::new)
+                                               .collect(Collectors.toSet());
     assertTrue(storedTagNames.contains(new TagName(tagName1)));
     assertTrue(storedTagNames.contains(new TagName(tagName2)));
 
@@ -211,7 +222,7 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(tagNames2, storedTagNames);
   }
 
-  public void testFindTags() throws Exception {
+  public void testFindTags() throws IllegalAccessException {
     List<Space> spaces = new ArrayList<>();
     List<Long> spaceIdentityIds = new ArrayList<>();
     List<Long> spaceCreators = new ArrayList<>();
@@ -273,7 +284,7 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().toList());
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 0), Long.parseLong(maryIdentity.getId()));
     assertNotNull(marySavedTags);
@@ -281,7 +292,7 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohnMary2",
                                "tagMary1",
                                "tagMary2"),
-                 marySavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+                 marySavedTags.stream().map(TagName::getName).sorted().toList());
 
     marySavedTags = tagService.findTags(new TagFilter("mar", 3), Long.parseLong(maryIdentity.getId()));
     assertNotNull(marySavedTags);
@@ -291,13 +302,13 @@ public class TagServiceTest extends AbstractCoreTest {
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().toList());
 
     johnSavedTags = tagService.findTags(new TagFilter("mar", 2), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
     assertEquals(Arrays.asList("tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().toList());
 
     johnSavedTags = tagService.findTags(new TagFilter("joh", 10), Long.parseLong(johnIdentity.getId()));
     assertNotNull(johnSavedTags);
@@ -305,10 +316,10 @@ public class TagServiceTest extends AbstractCoreTest {
                                "tagJohn2",
                                "tagJohnMary1",
                                "tagJohnMary2"),
-                 johnSavedTags.stream().map(TagName::getName).sorted().collect(Collectors.toList()));
+                 johnSavedTags.stream().map(TagName::getName).sorted().toList());
   }
 
-  public void testFindTagsCaseInsensitive() throws Exception {
+  public void testFindTagsCaseInsensitive() throws IllegalAccessException {
     Set<TagName> tagNames = new HashSet<>();
     tagNames.add(new TagName("tagMary1"));
     tagNames.add(new TagName("tagMary2"));
@@ -343,8 +354,7 @@ public class TagServiceTest extends AbstractCoreTest {
     assertEquals(tagNames, savedTagNames);
   }
 
-  @SuppressWarnings("deprecation")
-  private Space createSpace(String spaceName, String creator, String... members) throws Exception {
+  private Space createSpace(String spaceName, String creator, String... members) {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
@@ -354,11 +364,12 @@ public class TagServiceTest extends AbstractCoreTest {
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
     String[] managers = new String[] { creator };
-    String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);
-    space.setMembers(spaceMembers);
-    spaceService.createSpace(space); // NOSONAR
-    tearDownSpaceList.add(space);
-    return space;
+    Space createdSpace = spaceService.createSpace(space);
+    if (ArrayUtils.isNotEmpty(members)) {
+      Arrays.stream(members).forEach(u -> spaceService.addMember(createdSpace, u));
+    }
+    tearDownSpaceList.add(createdSpace);
+    return createdSpace;
   }
 }

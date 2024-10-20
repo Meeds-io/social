@@ -19,13 +19,13 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.List;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingQueueDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingQueueEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 public class GroupSpaceBindingQueueDAOImpl extends GenericDAOJPAImpl<GroupSpaceBindingQueueEntity, Long>
     implements GroupSpaceBindingQueueDAO {

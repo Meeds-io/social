@@ -23,7 +23,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
-import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;

@@ -213,8 +213,8 @@ export default {
       return this.spaceGroupId?.replace?.(/\//g, ':');
     },
     spaceURL() {
-      if (this.spaceUri) {
-        return `${eXo.env.portal.context}/g/${this.spaceUri}/`;
+      if (this.space?.id) {
+        return `${eXo.env.portal.context}/s/${this.space?.id}/`;
       } else {
         return '#';
       }

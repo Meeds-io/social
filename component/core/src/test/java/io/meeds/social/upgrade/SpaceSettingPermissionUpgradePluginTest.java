@@ -41,23 +41,25 @@ import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.storage.cache.CachePageStorage;
 import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
 @ConfiguredBy({
-                @ConfigurationUnit(scope = ContainerScope.ROOT,
-                                   path = "conf/configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.ROOT,
-                                   path = "conf/exo.social.component.core-local-root-configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                                   path = "conf/portal/configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                                   path = "conf/exo.social.component.core-local-configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                                   path = "conf/social.component.core-local-portal-configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                                   path = "conf/exo.portal.component.portal-configuration-local.xml"),
+  @ConfigurationUnit(scope = ContainerScope.ROOT,
+      path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.ROOT,
+      path = "conf/exo.social.component.core-local-root-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+      path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+      path = "conf/exo.social.component.core-local-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+      path = "conf/social.component.core-local-portal-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+      path = "conf/exo.portal.component.portal-configuration-local.xml"),
 })
 public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
 
@@ -66,18 +68,21 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
   @Override
   protected void setUp() {
     begin();
-    spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+    spaceService = getService(SpaceService.class);
+    identityManager = getService(IdentityManager.class);
+    identityRegistry = getService(IdentityRegistry.class);
+    spaceService = getService(SpaceService.class);
   }
 
   @Test
   public void testProcessUpgrade() {
-    assertTrue(getContainer().getComponentInstanceOfType(PageDAO.class) instanceof PageDAOImpl);
+    assertTrue(getService(PageDAO.class) instanceof PageDAOImpl);
 
     Space space = createSpace("spaceWithSettings", "root");
     String[] accessPermissions = new String[] { "*:" + space.getGroupId() };
     String managerPermission = "manager:" + space.getGroupId();
 
-    LayoutService layoutService = getContainer().getComponentInstanceOfType(LayoutService.class);
+    LayoutService layoutService = getService(LayoutService.class);
     PortalConfig spacePortalConfig = layoutService.getPortalConfig(SiteKey.group(space.getGroupId()));
     if (spacePortalConfig == null) {
       spacePortalConfig = new PortalConfig(PortalConfig.GROUP_TYPE, space.getGroupId());
@@ -109,7 +114,7 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
     assertNotNull(page);
     page.setAccessPermissions(accessPermissions);
     layoutService.save(new PageContext(page.getPageKey(), Utils.toPageState(page)));
-    getContainer().getComponentInstanceOfType(CacheService.class).getCacheInstance(CachePageStorage.PAGE_CACHE_NAME).clearCache();
+    getService(CacheService.class).getCacheInstance(CachePageStorage.PAGE_CACHE_NAME).clearCache();
     restartTransaction();
 
     new SpaceSettingPermissionUpgradePlugin(getEntityManagerService(),
@@ -123,7 +128,7 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
   }
 
   private EntityManagerService getEntityManagerService() {
-    return getContainer().getComponentInstanceOfType(EntityManagerService.class);
+    return getService(EntityManagerService.class);
   }
 
   private InitParams getInitParams() {
@@ -144,11 +149,6 @@ public class SpaceSettingPermissionUpgradePluginTest extends AbstractCoreTest {
     space.setDescription("description of space" + spaceName);
     space.setVisibility(Space.PRIVATE);
     space.setRegistration(Space.OPEN);
-    String[] managers = new String[] { creator };
-    String[] members = new String[] { creator };
-    space.setManagers(managers);
-    space.setMembers(members);
-    spaceService.createSpace(space, creator);
-    return space;
+    return spaceService.createSpace(space, creator);
   }
 }

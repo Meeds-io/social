@@ -22,6 +22,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 
+import io.meeds.social.link.constant.LinkDisplayType;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -34,9 +36,6 @@ import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-
-import io.meeds.social.link.constant.LinkDisplayType;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

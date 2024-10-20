@@ -1,11 +1,12 @@
 package org.exoplatform.social.core.identity.provider;
 
-import org.exoplatform.container.component.ComponentRequestLifecycle;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.services.organization.idm.UserImpl;
-import org.exoplatform.services.organization.impl.UserProfileImpl;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.lenient;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -13,10 +14,16 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.Arrays;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.lenient;
+import org.exoplatform.container.component.ComponentRequestLifecycle;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserProfile;
+import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.idm.UserImpl;
+import org.exoplatform.services.organization.impl.UserProfileImpl;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrganizationIdentityProviderTest {

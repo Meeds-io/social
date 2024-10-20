@@ -22,15 +22,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.upgrade.UpgradeProductPlugin;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 
 public class SpaceNavigationIconUpgradePlugin extends UpgradeProductPlugin {
 
