@@ -17,7 +17,11 @@
 
 package org.exoplatform.social.core.storage.cache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.container.PortalContainer;
@@ -27,17 +31,30 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.RDBMSSpaceStorageImpl;
-import org.exoplatform.social.core.jpa.storage.dao.*;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO;
+import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.SpaceStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
-import org.exoplatform.social.core.storage.cache.model.data.*;
-import org.exoplatform.social.core.storage.cache.model.key.*;
-import org.exoplatform.social.core.storage.cache.selector.*;
+import org.exoplatform.social.core.storage.cache.model.data.IntegerData;
+import org.exoplatform.social.core.storage.cache.model.data.ListIdentitiesData;
+import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
+import org.exoplatform.social.core.storage.cache.model.data.SpaceData;
+import org.exoplatform.social.core.storage.cache.model.key.ListIdentitiesKey;
+import org.exoplatform.social.core.storage.cache.model.key.ListSpacesKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceFilterKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceRefKey;
+import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
+import org.exoplatform.social.core.storage.cache.selector.IdentityCacheSelector;
+import org.exoplatform.social.core.storage.cache.selector.LastAccessedSpacesCacheSelector;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
@@ -45,7 +62,7 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
-public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
+public class CachedSpaceStorage extends SpaceStorage {
 
   private static final SpaceKey                                                                    EMPTY_SPACE_KEY =
                                                                                                                    new SpaceKey("0");
@@ -208,10 +225,9 @@ public class CachedSpaceStorage extends RDBMSSpaceStorageImpl {
   }
 
   @Override
-  public void saveSpace(final Space space, final boolean isNew) throws SpaceStorageException {
-
+  public Space saveSpace(final Space space, final boolean isNew)  {
     try {
-      super.saveSpace(space, isNew);
+      return super.saveSpace(space, isNew);
     } finally {
       spaceCache.remove(new SpaceKey(space.getId()));
       clearSpaceCache();

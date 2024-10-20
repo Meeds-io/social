@@ -17,9 +17,9 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
-
 import java.util.List;
+
+import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
 
 /**
  * Immutable space list keys.

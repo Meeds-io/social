@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
+
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 
 public class ActivityCounter implements Collection<ExoSocialActivity> {

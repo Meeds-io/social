@@ -23,6 +23,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
+
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -35,20 +36,16 @@ import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.ActivityStorageException;
-import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
-public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
+public class ActivityStorageTest extends AbstractCoreTest {
 
   private StreamItemDAO streamItemDAO;
   
-  private List<ExoSocialActivity> tearDownActivityList;
-
   private Identity rootIdentity;
   private Identity johnIdentity;
   private Identity maryIdentity;
@@ -68,20 +65,16 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
     demoIdentity = createIdentity("demo");
-
-    tearDownActivityList = new ArrayList<ExoSocialActivity>();
   }
 
   public void testGetActivitiesByPoster() {
     ExoSocialActivity activity1 = createActivity(1);
     activity1.setType("TYPE1");
     activityStorage.saveActivity(demoIdentity, activity1);
-    tearDownActivityList.add(activity1);
     
     ExoSocialActivity activity2 = createActivity(2);
     activity2.setType("TYPE2");
     activityStorage.saveActivity(demoIdentity, activity2);
-    tearDownActivityList.add(activity2);
     
     //
     List<ExoSocialActivity> activities = activityStorage.getActivitiesByPoster(demoIdentity, 0, 10);
@@ -105,8 +98,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertTrue(Arrays.asList(rs.getLikeIdentityIds()).contains("demo"));
     
     //
-    tearDownActivityList.add(activity);
-    
   }
 
   public void testUpdateActivity() {
@@ -136,15 +127,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.updateActivity(activityCreated);
 
     assertEquals(titleUpdated, activityCreated.getTitle());
-
-    tearDownActivityList.add(activity);
   }
 
   public void testUpdateComment() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Initial Activity");
     activityStorage.saveActivity(rootIdentity, activity);
-    tearDownActivityList.add(activity);
 
     //
     ExoSocialActivity comment = new ExoSocialActivityImpl();
@@ -225,7 +213,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     assertEquals(1, list.size());
 
     //
-    tearDownActivityList.add(activity);
     System.clearProperty("gatein.email.domain.url");
   }
   
@@ -235,7 +222,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(demoIdentity, activity);
     List<ExoSocialActivity> got = activityStorage.getUserActivities(demoIdentity, 0, 20);
     assertEquals(1, got.size());
-    tearDownActivityList.addAll(got);
   }
   
   public void testGetUserIdsActivities() {
@@ -244,19 +230,15 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(demoIdentity, activity);
     List<String> got = activityStorage.getUserIdsActivities(demoIdentity, 0, 20);
     assertEquals(1, got.size());
-    tearDownActivityList.add(activityStorage.getActivity(got.get(0)));
   }
 
   public void testGetActivitiesByIDs() {
     ExoSocialActivity activity1 = createActivity(10);
     activityStorage.saveActivity(demoIdentity, activity1);
-    tearDownActivityList.add(activity1);
     ExoSocialActivity activity2 = createActivity(20);
     activityStorage.saveActivity(demoIdentity, activity2);
-    tearDownActivityList.add(activity2);
     ExoSocialActivity activity3 = createActivity(30);
     activityStorage.saveActivity(demoIdentity, activity3);
-    tearDownActivityList.add(activity3);
     //
     List<ExoSocialActivity> got = activityStorage.getActivities(Arrays.asList(new String[] {activity1.getId(), activity2.getId(), activity3.getId()}));
     assertEquals(3, got.size());
@@ -283,7 +265,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
       activityManager.saveActivityNoReturn(spaceIdentity, activity);
-      tearDownActivityList.add(activity);
     }
     
     List<String> got = activityStorage.getSpaceActivityIds(spaceIdentity, 0, 10);
@@ -295,7 +276,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity = createActivity(1);
     //
     activity = activityStorage.saveActivity(demoIdentity, activity);
-    tearDownActivityList.add(activity);
   }
   
   /**
@@ -318,8 +298,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     createActivities(1, johnIdentity);
 
     ListAccess<ExoSocialActivity> got = activityManager.getActivitiesOfConnectionsWithListAccess(demoIdentity);
-    assertEquals(6, got.load(0, 10).length);
-    assertEquals(6, got.getSize());
+    assertEquals(7, got.load(0, 10).length);
+    assertEquals(7, got.getSize());
   }
   
   public void testGetNewerOnUserActivities() {
@@ -367,8 +347,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     Relationship demoMaryConnection = relationshipManager.inviteToConnect(demoIdentity, maryIdentity);
     relationshipManager.confirm(maryIdentity, demoIdentity);
     createActivities(2, maryIdentity);
-    assertEquals(5, activityStorage.getNewerOnActivityFeed(demoIdentity, demoBaseActivity, 10).size());
-    assertEquals(5, activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, demoBaseActivity));
+    assertEquals(7, activityStorage.getNewerOnActivityFeed(demoIdentity, demoBaseActivity, 10).size());
+    assertEquals(7, activityStorage.getNumberOfNewerOnActivityFeed(demoIdentity, demoBaseActivity));
   }
 
   public void testGetOlderOnActivityFeed() throws Exception {
@@ -379,20 +359,20 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     
     List<ExoSocialActivity> demoActivityFeed = activityStorage.getActivityFeed(demoIdentity, 0, 10);
     ExoSocialActivity baseActivity = demoActivityFeed.get(4);
-    assertEquals(0, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
-    assertEquals(0, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
-    //
-    createActivities(1, johnIdentity);
-    assertEquals(0, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
-    assertEquals(0, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
-    //
-    baseActivity = demoActivityFeed.get(2);
     assertEquals(2, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
     assertEquals(2, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
+    //
+    createActivities(1, johnIdentity);
+    assertEquals(2, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
+    assertEquals(2, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
+    //
+    baseActivity = demoActivityFeed.get(2);
+    assertEquals(4, activityStorage.getNumberOfOlderOnActivityFeed(demoIdentity, baseActivity));
+    assertEquals(4, activityStorage.getOlderOnActivityFeed(demoIdentity, baseActivity, 10).size());
   }
 
-  public void testGetNewerOnActivitiesOfConnections() throws Exception {
-    List<Relationship> relationships = new ArrayList<Relationship> ();
+  public void testGetNewerOnActivitiesOfConnections() {
+    List<Relationship> relationships = new ArrayList<> ();
     createActivities(3, maryIdentity);
     createActivities(1, demoIdentity);
     createActivities(2, johnIdentity);
@@ -417,12 +397,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     createActivities(1, demoIdentity);
 
     //mary has 2 activities created by demo (1 at the beginning + 1 after the connection confirmation) newer than the base activity
-    assertEquals(2, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(2, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(3, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(3, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
     
     //demo has  activity created by mary newer than the base activity
-    assertEquals(1, activityStorage.getNewerOnActivitiesOfConnections(demoIdentity, baseActivity, 10).size());
-    assertEquals(1, activityStorage.getNumberOfNewerOnActivitiesOfConnections(demoIdentity, baseActivity));
+    assertEquals(2, activityStorage.getNewerOnActivitiesOfConnections(demoIdentity, baseActivity, 10).size());
+    assertEquals(2, activityStorage.getNumberOfNewerOnActivitiesOfConnections(demoIdentity, baseActivity));
     
     //john connects with mary
     Relationship maryJohnRelationship = relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
@@ -433,12 +413,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     createActivities(1, johnIdentity);
 
     //mary has 2 activities created by demo and 3 activities created by john (2 at the beginning + 1 after the connection confirmation) newer than the base activity
-    assertEquals(5, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(5, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(7, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(7, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
 
     //john has 1 activity created by mary newer than the base activity
-    assertEquals(1, activityStorage.getNewerOnActivitiesOfConnections(johnIdentity, baseActivity, 10).size());
-    assertEquals(1, activityStorage.getNumberOfNewerOnActivitiesOfConnections(johnIdentity, baseActivity));
+    assertEquals(2, activityStorage.getNewerOnActivitiesOfConnections(johnIdentity, baseActivity, 10).size());
+    assertEquals(2, activityStorage.getNumberOfNewerOnActivitiesOfConnections(johnIdentity, baseActivity));
     
     //mary connects with root
     Relationship maryRootRelationship = relationshipManager.inviteToConnect(maryIdentity, rootIdentity);
@@ -450,12 +430,12 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
     //mary has 2 activities created by demo, 3 activities created by john (2 at the beginning + 1 after the connection confirmation)
     //and 3 activities created by root (2 at the beginning + 1 after the connection confirmation) newer than the base activity
-    assertEquals(8, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(8, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(10, activityStorage.getNewerOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(11, activityStorage.getNumberOfNewerOnActivitiesOfConnections(maryIdentity, baseActivity));
   }
 
-  public void testGetOlderOnActivitiesOfConnections() throws Exception {
-    List<Relationship> relationships = new ArrayList<Relationship> ();
+  public void testGetOlderOnActivitiesOfConnections() {
+    List<Relationship> relationships = new ArrayList<> ();
     createActivities(3, maryIdentity);
     createActivities(1, demoIdentity);
     createActivities(2, johnIdentity);
@@ -478,11 +458,11 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     
     baseActivity = activityStorage.getActivitiesOfIdentity(demoIdentity, 0, 10).get(0);
     LOG.info("demo::sinceTime = " + baseActivity.getPostedTime());
-    assertEquals(0, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(0, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(1, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(1, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
     
-    assertEquals(3, activityStorage.getOlderOnActivitiesOfConnections(demoIdentity, baseActivity, 10).size());
-    assertEquals(3, activityStorage.getNumberOfOlderOnActivitiesOfConnections(demoIdentity, baseActivity));
+    assertEquals(4, activityStorage.getOlderOnActivitiesOfConnections(demoIdentity, baseActivity, 10).size());
+    assertEquals(4, activityStorage.getNumberOfOlderOnActivitiesOfConnections(demoIdentity, baseActivity));
     
     //john connects with mary
     Relationship maryJohnRelationship = relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
@@ -491,11 +471,11 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     
     baseActivity = activityStorage.getActivitiesOfIdentity(johnIdentity, 0, 10).get(0);
     LOG.info("john::sinceTime = " + baseActivity.getPostedTime());
-    assertEquals(2, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(2, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(4, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(4, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
     
-    assertEquals(3, activityStorage.getOlderOnActivitiesOfConnections(johnIdentity, baseActivity, 10).size());
-    assertEquals(3, activityStorage.getNumberOfOlderOnActivitiesOfConnections(johnIdentity, baseActivity));
+    assertEquals(4, activityStorage.getOlderOnActivitiesOfConnections(johnIdentity, baseActivity, 10).size());
+    assertEquals(4, activityStorage.getNumberOfOlderOnActivitiesOfConnections(johnIdentity, baseActivity));
     
     //mary connects with root
     Relationship maryRootRelationship = relationshipManager.inviteToConnect(maryIdentity, rootIdentity);
@@ -505,8 +485,8 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     
     baseActivity = activityStorage.getActivitiesOfIdentity(rootIdentity, 0, 10).get(0);
     LOG.info("root::sinceTime = " + baseActivity.getPostedTime());    
-    assertEquals(4, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
-    assertEquals(4, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
+    assertEquals(7, activityStorage.getOlderOnActivitiesOfConnections(maryIdentity, baseActivity, 10).size());
+    assertEquals(7, activityStorage.getNumberOfOlderOnActivitiesOfConnections(maryIdentity, baseActivity));
   }
 
   public void testGetNewerOnUserSpacesActivities() throws Exception {
@@ -523,7 +503,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activityStorage.saveActivity(spaceIdentity, activity);
       //Wait for 1 ms to make sure that the activities are not created on the same time
       sleep(1);
-      tearDownActivityList.add(activity);
       if (i == 0) {
         baseActivity = activity;
       }
@@ -545,7 +524,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activityStorage.saveActivity(spaceIdentity2, activity);
       //Wait for 1 ms to make sure that the activities are not created on the same time
       sleep(1);
-      tearDownActivityList.add(activity);
     }
 
     assertEquals(19, activityStorage.getNewerOnUserSpacesActivities(demoIdentity, baseActivity, 20).size());
@@ -568,7 +546,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       // Wait for 1 ms to make sure that the activities are not created on the same time
       sleep(1);
       restartTransaction();
-      tearDownActivityList.add(activity);
       if (i == 4) {
         baseActivity = activity;
       }
@@ -593,7 +570,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       // Wait for 1 ms to make sure that the activities are not created on the same time
       sleep(1);
       restartTransaction();
-      tearDownActivityList.add(activity);
     }
     assertEquals(4, activityStorage.getOlderOnUserSpacesActivities(demoIdentity, baseActivity, 10).size());
     assertEquals(4, activityStorage.getNumberOfOlderOnUserSpacesActivities(demoIdentity, baseActivity));
@@ -606,7 +582,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activity.setTitle("activity title");
     activity.setUserId(rootIdentity.getId());
     activityStorage.saveActivity(rootIdentity, activity);
-    tearDownActivityList.add(activity);
 
     for (int i = 0; i < totalNumber; i++) {
       // To add different update times
@@ -656,7 +631,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activity.setTitle("activity title");
     activity.setUserId(rootIdentity.getId());
     activityStorage.saveActivity(rootIdentity, activity);
-    tearDownActivityList.add(activity);
     
     for (int i = 0; i < totalNumber; i ++) {
       //John comments on Root's activity
@@ -699,7 +673,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity = createActivity(1);
     activity.setTitle("hello @demo @john");
     activityStorage.saveActivity(rootIdentity, activity);
-    tearDownActivityList.add(activity);
     
     ExoSocialActivity got = activityStorage.getActivity(activity.getId());
     assertNotNull(got);
@@ -754,7 +727,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Test parent activity");
     activityStorage.saveActivity(rootIdentity, activity);
-    tearDownActivityList.add(activity);
 
     ExoSocialActivity comment = new ExoSocialActivityImpl();
     comment.setTitle("Test comment");
@@ -786,7 +758,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity1 = createActivity(1);
     activity1.setTitle("hello world");
     activityStorage.saveActivity(demoIdentity, activity1);
-    tearDownActivityList.add(activity1);
 
     end();
     begin();
@@ -794,7 +765,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity2 = createActivity(1);
     activity2.setTitle("hello mention @demo");
     activityStorage.saveActivity(rootIdentity, activity2);
-    tearDownActivityList.add(activity2);
 
     end();
     begin();
@@ -802,7 +772,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity3 = createActivity(1);
     activity3.setTitle("bye world");
     activityStorage.saveActivity(demoIdentity, activity3);
-    tearDownActivityList.add(activity3);
 
     end();
     begin();
@@ -823,13 +792,11 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     // Demo mentionned here
     activity1.setTitle("title @demo hi");
     activityStorage.saveActivity(rootIdentity, activity1);
-    tearDownActivityList.add(activity1);
 
     // owner poster comment
     ExoSocialActivity activity2 = new ExoSocialActivityImpl();
     activity2.setTitle("root title");
     activityStorage.saveActivity(rootIdentity, activity2);
-    tearDownActivityList.add(activity2);
 
     Space space = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -839,7 +806,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
       activityStorage.saveActivity(spaceIdentity2, activity);
-      tearDownActivityList.add(activity);
     }
 
     createComment(activity2, demoIdentity, null, 5, 0);
@@ -865,13 +831,11 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     // Demo mentionned here
     activity1.setTitle("title @mary hi");
     activityStorage.saveActivity(rootIdentity, activity1);
-    tearDownActivityList.add(activity1);
 
     // owner poster comment
     ExoSocialActivity activity2 = new ExoSocialActivityImpl();
     activity2.setTitle("root title");
     activityStorage.saveActivity(rootIdentity, activity2);
-    tearDownActivityList.add(activity2);
 
     Space space = this.getSpaceInstance(1);
     Identity spaceIdentity2 = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName(), false);
@@ -881,7 +845,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activity.setTitle("activity title " + i);
       activity.setUserId(demoIdentity.getId());
       activityStorage.saveActivity(spaceIdentity2, activity);
-      tearDownActivityList.add(activity);
     }
 
     createComment(activity2, demoIdentity, maryIdentity, 5, 5);
@@ -907,7 +870,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     // Demo mentionned here
     activity1.setTitle("title @mary hi");
     activityStorage.saveActivity(rootIdentity, activity1);
-    tearDownActivityList.add(activity1);
 
     // owner poster comment
     ExoSocialActivity activity2 = new ExoSocialActivityImpl();
@@ -915,7 +877,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     activityStorage.saveActivity(rootIdentity, activity2);
     activity2.setLikeIdentityIds(new String[]{maryIdentity.getId()});
     activityStorage.updateActivity(activity2);
-    tearDownActivityList.add(activity2);
 
     //demo posts activities to his stream
     for (int i = 0; i < 5; i ++) {
@@ -925,7 +886,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
       activityStorage.saveActivity(rootIdentity, activity);
 
       createComment(activity, demoIdentity, maryIdentity, 5, 5);
-      tearDownActivityList.add(activity);
     }
 
     // Demo post a comment
@@ -963,7 +923,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
     ExoSocialActivity activity1 = new ExoSocialActivityImpl();
     activity1.setTitle("Initial Activity");
     activityStorage.saveActivity(rootIdentity, activity1);
-    tearDownActivityList.add(activity1);
 
     // mention root
     ExoSocialActivity comment1 = new ExoSocialActivityImpl();
@@ -999,8 +958,6 @@ public class RDBMSActivityStorageImplTest extends AbstractCoreTest {
 
     List<ExoSocialActivity> comments = activityStorage.getComments(list.get(0),true,0,10);
     assertEquals(4,comments.size());
-
-    tearDownActivityList.add(activity1);
   }
 
   

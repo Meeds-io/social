@@ -16,11 +16,11 @@
  */
 package org.exoplatform.social.core.relationship;
 
-import junit.framework.TestCase;
-
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
+
+import junit.framework.TestCase;
 
 public class RelationshipTest extends TestCase {
   public void testToString() {

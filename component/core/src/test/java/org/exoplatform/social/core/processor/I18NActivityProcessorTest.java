@@ -24,20 +24,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import junit.framework.TestCase;
-
-import org.exoplatform.commons.utils.*;
-import org.exoplatform.container.configuration.ConfigurationManagerImpl;
+import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
-import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.container.xml.ValuesParam;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.Query;
 import org.exoplatform.services.resources.ResourceBundleData;
 import org.exoplatform.services.resources.impl.BaseResourceBundlePlugin;
 import org.exoplatform.services.resources.impl.BaseResourceBundleService;
-import org.exoplatform.services.resources.impl.LocaleConfigServiceImpl;
 import org.exoplatform.social.common.xmlprocessor.XMLProcessorImpl;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;

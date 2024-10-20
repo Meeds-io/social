@@ -34,9 +34,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.Metadata;
@@ -58,8 +56,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private Identity        maryIdentity;
 
-  private IdentityManager identityManager;
-
   private MetadataService metadataService;
 
   private MetadataDAO     metadataDAO;
@@ -68,17 +64,14 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
   private MetadataType    spaceMetadataType;
 
-  private List<Space>     tearDownSpaceList;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
-    tearDownSpaceList = new ArrayList<>();
 
     if (metadataService.getMetadataTypeByName(userMetadataType.getName()) == null) {
       MetadataTypePlugin userMetadataTypePlugin = new MetadataTypePlugin(newParam(1000, "user")) {
@@ -119,14 +112,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     identityManager.deleteIdentity(johnIdentity);
     identityManager.deleteIdentity(maryIdentity);
     metadataDAO.deleteAll();
-
-    for (Space space : tearDownSpaceList) {
-      Identity spaceIdentity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
-      if (spaceIdentity != null) {
-        identityManager.deleteIdentity(spaceIdentity);
-      }
-      spaceService.deleteSpace(space);
-    }
 
     super.tearDown();
   }
@@ -398,7 +383,12 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     restartTransaction();
 
-    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(name, type, objectType, spaceId, 0, 10);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceId(name,
+                                                                                                                type,
+                                                                                                                objectType,
+                                                                                                                spaceId,
+                                                                                                                0,
+                                                                                                                10);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
     assertEquals(storedMetadataItem.getId(), metadataItems.get(0).getId());
@@ -1880,8 +1870,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     return metadata;
   }
 
-  @SuppressWarnings("deprecation")
-  private Space createSpace(String spaceName, String creator, String... members) throws Exception {
+  private Space createSpace(String spaceName, String creator, String... members) {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
@@ -1894,8 +1883,6 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String[] spaceMembers = members == null ? new String[] { creator } : members;
     space.setManagers(managers);
     space.setMembers(spaceMembers);
-    spaceService.createSpace(space); // NOSONAR
-    tearDownSpaceList.add(space);
-    return space;
+    return spaceService.createSpace(space);
   }
 }

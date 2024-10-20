@@ -1,6 +1,8 @@
 package org.exoplatform.social.core.jpa.search;
 
-import java.util.*;
+import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 
 import org.exoplatform.commons.search.domain.Document;
 

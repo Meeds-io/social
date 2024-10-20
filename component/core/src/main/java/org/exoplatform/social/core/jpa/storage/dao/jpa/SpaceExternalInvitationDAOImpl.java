@@ -1,12 +1,13 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
+import java.util.List;
+
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 
 import jakarta.persistence.TypedQuery;
-import java.util.List;
 
 public class SpaceExternalInvitationDAOImpl extends GenericDAOJPAImpl<SpaceExternalInvitationEntity, Long> implements SpaceExternalInvitationDAO {
     @Override

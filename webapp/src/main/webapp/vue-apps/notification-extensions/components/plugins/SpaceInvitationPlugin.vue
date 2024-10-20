@@ -58,11 +58,8 @@ export default {
     spaceId() {
       return this.space?.id;
     },
-    spaceGroupId() {
-      return this.space?.groupId?.replace(/\//g, ':');
-    },
     spaceUrl() {
-      return `${eXo.env.portal.context}/g/${this.spaceGroupId}`;
+      return `${eXo.env.portal.context}/s/${this.spaceId}`;
     },
     spaceAvatarUrl() {
       return this.space?.avatarUrl;
