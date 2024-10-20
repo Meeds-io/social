@@ -50,6 +50,8 @@ public class SpaceTemplate {
 
   private long         order;
 
+  private String       layout;
+
   private List<String> permissions;
 
   private List<String> spaceLayoutPermissions;

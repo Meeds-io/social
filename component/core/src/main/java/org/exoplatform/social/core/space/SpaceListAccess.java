@@ -31,8 +31,8 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 
 import io.meeds.social.core.search.SpaceSearchConnector;
 import io.meeds.social.core.search.model.SpaceSearchFilter;

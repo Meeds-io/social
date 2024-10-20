@@ -170,7 +170,7 @@ export default {
         .then(spaces => {
           const mutedSpaces = spaces || [];
           mutedSpaces.forEach(space => {
-            space.url = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}/`;
+            space.url = `${eXo.env.portal.context}/s/${space.id}`;
           });
           this.mutedSpaces = mutedSpaces;
         })

@@ -1,6 +1,8 @@
 package org.exoplatform.social.core.activity;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -15,8 +17,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
-import org.exoplatform.social.core.activity.model.*;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
+import org.exoplatform.social.core.activity.model.ActivityStreamImpl;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector;

@@ -19,12 +19,21 @@ package org.exoplatform.social.core.storage.cache;
 
 import static org.exoplatform.social.core.storage.ActivityStorageException.Type.FAILED_TO_GET_ACTIVITY;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
-import org.exoplatform.services.cache.*;
+import org.exoplatform.services.cache.CacheListener;
+import org.exoplatform.services.cache.CacheListenerContext;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.ActivityProcessor;
@@ -36,9 +45,18 @@ import org.exoplatform.social.core.jpa.storage.RDBMSActivityStorageImpl;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
-import org.exoplatform.social.core.storage.cache.model.data.*;
-import org.exoplatform.social.core.storage.cache.model.key.*;
-import org.exoplatform.social.core.storage.cache.selector.*;
+import org.exoplatform.social.core.storage.cache.model.data.ActivityData;
+import org.exoplatform.social.core.storage.cache.model.data.IntegerData;
+import org.exoplatform.social.core.storage.cache.model.data.ListActivitiesData;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityType;
+import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
+import org.exoplatform.social.core.storage.cache.model.key.ListActivitiesKey;
+import org.exoplatform.social.core.storage.cache.selector.ActivityAttachmentCacheSelector;
+import org.exoplatform.social.core.storage.cache.selector.ActivityMetadataCacheSelector;
+import org.exoplatform.social.core.storage.cache.selector.ActivityOwnerCacheSelector;
+import org.exoplatform.social.core.storage.cache.selector.ActivityStreamOwnerCacheSelector;
 
 /**
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>

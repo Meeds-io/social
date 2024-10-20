@@ -76,7 +76,7 @@
                 {{ $t('spacesList.label.spaceTemplate') }}
               </v-label>
               <select
-                v-model="template"
+                v-model="templateId"
                 :aria-label="$t('spacesList.label.spaceTemplate')"
                 :disabled="space && space.id"
                 name="spaceTemplate"
@@ -84,12 +84,12 @@
                 required>
                 <option
                   v-for="item in templates"
-                  :key="item.name"
-                  :value="item.name">
-                  {{ item.resolvedLabel || item.name }}
+                  :key="item.id"
+                  :value="item.id">
+                  {{ item.name }}
                 </option>
               </select>
-              <div class="text-subtitle ps-1">{{ spaceTemplate && spaceTemplate.resolvedDescription || '' }}</div>
+              <div class="text-subtitle ps-1">{{ spaceTemplate?.description || '' }}</div>
               <v-card-actions class="px-0">
                 <v-spacer />
                 <v-btn
@@ -254,7 +254,7 @@ export default {
     spaceToUpdate: {},
     title: null,
     stepper: 0,
-    template: null,
+    templateId: null,
     spaceTemplate: null,
     templates: [],
     selectedSpacesWithExternals: [],
@@ -313,9 +313,9 @@ export default {
         this.savingSpace = false;
       }
     },
-    template() {
-      if (this.template && !this.space.id) {
-        this.spaceTemplate = this.templates.find(temp => temp.name === this.template);
+    templateId() {
+      if (this.templateId && !this.space.id) {
+        this.spaceTemplate = this.templates.find(temp => temp.name === this.templateId);
         this.setSpaceTemplateProperties();
       }
     },
@@ -352,18 +352,18 @@ export default {
       const createSpace = parameters['createSpace'];
       if (createSpace && Boolean(createSpace)) {
         this.$root.$once('application-loaded', () => {
-          this.$nextTick().then(() => {
-            this.spaceToUpdate = null;
-            this.setSpaceTemplateProperties();
-            this.title= this.$t('spacesList.label.addNewSpace');
-            this.$refs.spaceFormDrawer.open();
-          });
+          this.$nextTick().then(this.open);
         });
       }
     }
   },
   mounted() {
-    this.$root.$on('addNewSpace', () => {
+    document.addEventListener('meeds.social.editSpace', this.editSpace);
+    this.$root.$on('addNewSpace', this.open);
+    this.$root.$on('editSpace', this.editSpace);
+  },
+  methods: {
+    open() {
       this.spaceToUpdate = null;
       this.space = {
         subscription: 'open',
@@ -371,21 +371,36 @@ export default {
       };
       this.setSpaceTemplateProperties();
       this.title = this.$t('spacesList.label.addNewSpace');
+      this.$spaceTemplateService.getSpaceTemplates()
+        .then(data => {
+          this.templates = data || [];
+          this.spaceTemplate = this.templates.length && this.templates[0] || null;
+          this.templateId = this.spaceTemplate?.id;
+        });
       this.$refs.spaceFormDrawer.open();
-    });
-    document.addEventListener('meeds.social.editSpace', this.editSpace);
-    this.$root.$on('editSpace', this.editSpace);
-    this.$spaceService.getSpaceTemplates()
-      .then(data => {
-        this.templates = data || [];
-        this.spaceTemplate = this.templates.length && this.templates[0] || null;
-        this.template = this.spaceTemplate && this.spaceTemplate.name;
-      });
-  },
-  methods: {
+    },
+    editSpace(space) {
+      space = space.detail && space.detail.data || space;
+      if (!space || !space.id) {
+        // eslint-disable-next-line no-console
+        console.warn('space does not have an id ', space, ' ignore user action');
+        return;
+      }
+      this.spaceToUpdate = space;
+      this.space = Object.assign({}, space);
+      this.templateId = this.space.templateId;
+      this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
+      this.$spaceTemplateService.getSpaceTemplates()
+        .then(data => {
+          this.templates = data || [];
+          this.spaceTemplate = this.templates.length && this.templates[0] || null;
+          this.templateId = this.spaceTemplate?.id;
+        });
+      this.$refs.spaceFormDrawer.open();
+    },
     setSpaceTemplateProperties() {
       if (this.spaceTemplate) {
-        this.$set(this.space, 'template', this.template);
+        this.$set(this.space, 'templateId', this.templateId);
         this.$set(this.space, 'subscription', this.spaceTemplate.registration);
         this.$set(this.space, 'visibility', this.spaceTemplate.visibility);
         this.$set(this.space, 'invitedMembers', this.spaceTemplate.invitees && this.spaceTemplate.invitees.split(',') || []);
@@ -397,19 +412,6 @@ export default {
           }));
         }
       }
-    },
-    editSpace(space) {
-      space = space.detail && space.detail.data || space;
-      if (!space || !space.id) {
-        // eslint-disable-next-line no-console
-        console.warn('space does not have an id ', space, ' ignore user action');
-        return;
-      }
-      this.spaceToUpdate = space;
-      this.space = Object.assign({}, space);
-      this.template = this.space.template || this.template;
-      this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
-      this.$refs.spaceFormDrawer.open();
     },
     previousStep() {
       this.stepper--;
@@ -465,11 +467,11 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       } else {
-        this.space.template = this.template;
+        this.space.templateId = this.templateId;
         this.$spaceService.createSpace(this.space)
           .then(space => {
             this.spaceSaved = true;
-            window.location.href = `${eXo.env.portal.context}/g/${space.groupId.replace(/\//g, ':')}`;
+            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
           })
           .catch(e => {
             if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {

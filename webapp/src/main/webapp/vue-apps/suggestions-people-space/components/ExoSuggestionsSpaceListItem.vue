@@ -65,10 +65,10 @@ export default {
       return this.space && this.space.spaceAvatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.spaceUrl}/avatar`;
     },
     url() {
-      if (!this.space || !this.space.spaceId) {
+      if (!this.space?.spaceId) {
         return '#';
       }
-      return `${eXo.env.portal.context}/g/:spaces:${this.space.spaceUrl}/`;
+      return `${eXo.env.portal.context}/s/${this.space.spaceId}`;
     },
   },
   methods: {

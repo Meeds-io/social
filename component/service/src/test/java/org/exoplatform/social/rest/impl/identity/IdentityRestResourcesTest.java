@@ -332,7 +332,7 @@ public class IdentityRestResourcesTest extends AbstractResourceTest {
     newSpace.setManagers(new String[] { "root" });
     newSpace.setRegistration(Space.OPEN);
     newSpace.setVisibility(Space.PRIVATE);
-    spaceService.createSpace(newSpace, "root");
+    newSpace = spaceService.createSpace(newSpace, "root");
 
     spaceService.addMember(newSpace, johnIdentity.getRemoteId());
 
