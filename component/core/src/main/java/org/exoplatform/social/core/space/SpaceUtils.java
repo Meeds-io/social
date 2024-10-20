@@ -58,55 +58,59 @@ import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
  */
 public class SpaceUtils {
 
-  private static final Log    LOG                      = ExoLogger.getLogger(SpaceUtils.class);
+  private static final Log    LOG                        = ExoLogger.getLogger(SpaceUtils.class);
 
-  public static final String  SPACE_GROUP              = "/spaces";
+  public static final String  SPACE_GROUP                = "/spaces";
 
-  public static final String  PLATFORM_USERS_GROUP     = "/platform/users";
+  public static final String  SPACE_GROUP_PREFIX         = SPACE_GROUP + "/";
 
-  public static final String  PLATFORM_EXTERNALS_GROUP = "/platform/externals";
+  public static final String  PLATFORM_USERS_GROUP       = "/platform/users";
 
-  public static final String  PLATFORM_PUBLISHER_GROUP = "/platform/web-contributors";
+  public static final String  PLATFORM_EXTERNALS_GROUP   = "/platform/externals";
 
-  public static final String  MANAGER                  = "manager";
+  public static final String  PLATFORM_PUBLISHER_GROUP   = "/platform/web-contributors";
 
-  public static final String  MEMBER                   = "member";
+  public static final String  SPACE_ADMIN_REFERENCE_NAME = "spaceAdmin";
 
-  public static final String  INTERNAL                 = "internal";
+  public static final String  MANAGER                    = "manager";
 
-  public static final String  AUTHENTICATED            = "authenticated";
+  public static final String  MEMBER                     = "member";
 
-  public static final String  EVERYONE                 = "everyone";
+  public static final String  INTERNAL                   = "internal";
 
-  public static final String  REDACTOR                 = "redactor";
+  public static final String  AUTHENTICATED              = "authenticated";
 
-  public static final String  PUBLISHER                = "publisher";
+  public static final String  EVERYONE                   = "everyone";
 
-  public static final String  PENDING                  = "pending";
+  public static final String  REDACTOR                   = "redactor";
 
-  public static final String  INVITED                  = "invited";
+  public static final String  PUBLISHER                  = "publisher";
 
-  public static final String  IGNORED                  = "ignored";
+  public static final String  PENDING                    = "pending";
 
-  public static final String  MENU_CONTAINER           = "Menu";
+  public static final String  INVITED                    = "invited";
 
-  public static final String  APPLICATION_CONTAINER    = "Application";
+  public static final String  IGNORED                    = "ignored";
 
-  public static final String  SPACE_URL                = "SPACE_URL";
+  public static final String  MENU_CONTAINER             = "Menu";
 
-  public static final String  SPACE_SETTINGS_PAGE      = "settings";
+  public static final String  APPLICATION_CONTAINER      = "Application";
 
-  public static final String  PUBLIC_SITE_SPACE_ID     = "SPACE_ID";
+  public static final String  SPACE_URL                  = "SPACE_URL";
 
-  public static final String  IS_PUBLIC_SITE_SPACE     = "IS_SPACE_PUBLIC_SITE";
+  public static final String  SPACE_SETTINGS_PAGE        = "settings";
 
-  public static final String  CURRENT_SPACE            = "CurrentSpace";
+  public static final String  PUBLIC_SITE_SPACE_ID       = "SPACE_ID";
 
-  private static final String NUMBER_REG_PATTERN       = "\\d";
+  public static final String  IS_PUBLIC_SITE_SPACE       = "IS_SPACE_PUBLIC_SITE";
 
-  private static final String UNDER_SCORE_STR          = "_";
+  public static final String  CURRENT_SPACE              = "CurrentSpace";
 
-  private static final String SPACE_STR                = " ";
+  private static final String NUMBER_REG_PATTERN         = "\\d";
+
+  private static final String UNDER_SCORE_STR            = "_";
+
+  private static final String SPACE_STR                  = " ";
 
   /**
    * Utility for cleaning space name

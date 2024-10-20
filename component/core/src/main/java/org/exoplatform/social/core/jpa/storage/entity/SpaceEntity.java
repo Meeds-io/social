@@ -19,7 +19,10 @@ package org.exoplatform.social.core.jpa.storage.entity;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+
+import org.exoplatform.commons.utils.StringListConverter;
 
 import io.meeds.social.space.constant.PublicSiteVisibility;
 import io.meeds.social.space.constant.Registration;
@@ -27,6 +30,7 @@ import io.meeds.social.space.constant.Visibility;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -138,6 +142,18 @@ public class SpaceEntity implements Serializable {
   @Setter
   @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
   private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
+
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "LAYOUT_PERMISSIONS")
+  private List<String>                             layoutPermissions;
+
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "DELETE_PERMISSIONS")
+  private List<String>                             deletePermissions;
 
   public Long getId() {
     return id;
