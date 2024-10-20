@@ -16,10 +16,11 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao;
 
-import org.exoplatform.social.core.jpa.storage.entity.*;
-import org.exoplatform.social.core.jpa.test.BaseCoreTest;
+import java.util.ArrayList;
+import java.util.List;
 
-import java.util.*;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
+import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
 public class SpaceExternalInvitationDAOTest extends BaseCoreTest {
 

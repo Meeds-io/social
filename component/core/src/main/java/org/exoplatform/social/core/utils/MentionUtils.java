@@ -1,6 +1,7 @@
 package org.exoplatform.social.core.utils;
 
-import static org.exoplatform.social.core.BaseActivityProcessorPlugin.*;
+import static org.exoplatform.social.core.BaseActivityProcessorPlugin.TEMPLATE_PARAM_LIST_DELIM;
+import static org.exoplatform.social.core.BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS;
 
 import java.util.ArrayList;
 import java.util.Collections;

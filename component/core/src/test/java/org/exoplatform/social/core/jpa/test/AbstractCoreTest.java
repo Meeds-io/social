@@ -17,7 +17,16 @@
 
 package org.exoplatform.social.core.jpa.test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+
 import org.apache.commons.lang3.ArrayUtils;
+import org.mockito.Mockito;
 
 import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.commons.utils.ListAccess;
@@ -25,11 +34,11 @@ import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.RealtimeListAccess;
@@ -49,18 +58,9 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 
 import lombok.SneakyThrows;
-
-import org.mockito.Mockito;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 /**
  * @author <a href="mailto:thanhvc@exoplatform.com">Thanh Vu</a>
@@ -93,9 +93,9 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     spaceService = getService(SpaceService.class);
 
     deleteAllRelationships();
-    deleteAllSpaces();
-    deleteAllIdentitiesWithActivities();
     deleteAllActivities();
+    deleteAllIdentitiesWithActivities();
+    deleteAllSpaces();
   }
 
   @Override
@@ -318,7 +318,9 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   protected void deleteAllActivities() throws Exception {
     ActivityDAO activityDAO = getService(ActivityDAO.class);
     activityDAO.deleteAll();
+    ((CachedActivityStorage) activityStorage).clearCache();
   }
+
   public void persist() {
     restartTransaction();
   }

@@ -18,6 +18,7 @@ package org.exoplatform.social.core.listeners;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -278,8 +279,7 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     return params;
   }
 
-  @SuppressWarnings("deprecation")
-  private Space createSpace(String spaceName, String manager, String... members) throws Exception {
+  private Space createSpace(String spaceName, String manager, String... members) {
     Space space = new Space();
     space.setDisplayName(spaceName);
     space.setPrettyName(spaceName);
@@ -290,10 +290,12 @@ public class ActivityMetadataListenerTest extends AbstractCoreTest {
     space.setRegistration(Space.OPEN);
     String[] managers = new String[] { manager };
     space.setManagers(managers);
-    space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));
-    spaceService.createSpace(space); // NOSONAR
-    tearDownSpaceList.add(space);
-    return space;
+    Space createdSpace = spaceService.createSpace(space);
+    if (ArrayUtils.isNotEmpty(members)) {
+      Arrays.stream(members).forEach(u -> spaceService.addMember(createdSpace, u));
+    }
+    tearDownSpaceList.add(createdSpace);
+    return createdSpace;
   }
 
 }

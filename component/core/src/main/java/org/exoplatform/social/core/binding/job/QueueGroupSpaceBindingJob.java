@@ -16,17 +16,17 @@
  */
 package org.exoplatform.social.core.binding.job;
 
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
+import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 
 @DisallowConcurrentExecution
 public class QueueGroupSpaceBindingJob implements Job {

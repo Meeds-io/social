@@ -17,7 +17,10 @@
 
 package org.exoplatform.social.core.storage.cache;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
@@ -35,9 +38,24 @@ import org.exoplatform.social.core.storage.RelationshipStorageException;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.api.RelationshipStorage;
 import org.exoplatform.social.core.storage.cache.loader.ServiceContext;
-import org.exoplatform.social.core.storage.cache.model.data.*;
-import org.exoplatform.social.core.storage.cache.model.key.*;
-import org.exoplatform.social.core.storage.cache.selector.*;
+import org.exoplatform.social.core.storage.cache.model.data.IdentityData;
+import org.exoplatform.social.core.storage.cache.model.data.IntegerData;
+import org.exoplatform.social.core.storage.cache.model.data.ListActivitiesData;
+import org.exoplatform.social.core.storage.cache.model.data.ListIdentitiesData;
+import org.exoplatform.social.core.storage.cache.model.data.RelationshipData;
+import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
+import org.exoplatform.social.core.storage.cache.model.key.IdentityFilterKey;
+import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
+import org.exoplatform.social.core.storage.cache.model.key.ListActivitiesKey;
+import org.exoplatform.social.core.storage.cache.model.key.ListRelationshipsKey;
+import org.exoplatform.social.core.storage.cache.model.key.RelationshipCountKey;
+import org.exoplatform.social.core.storage.cache.model.key.RelationshipIdentityKey;
+import org.exoplatform.social.core.storage.cache.model.key.RelationshipKey;
+import org.exoplatform.social.core.storage.cache.model.key.RelationshipType;
+import org.exoplatform.social.core.storage.cache.model.key.SuggestionKey;
+import org.exoplatform.social.core.storage.cache.selector.RelationshipCacheSelector;
+import org.exoplatform.social.core.storage.cache.selector.SuggestionCacheSelector;
 
 /**
  * Cache support for RelationshipStorage.

@@ -1058,6 +1058,15 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.RelationshipManager</target-component>
+    <component-plugin>
+      <name>RelationshipPublisher</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.application.RelationshipPublisher</type>
+    </component-plugin>
+  </external-component-plugins>
+
   <remove-configuration>org.exoplatform.portal.resource.SkinResourceRequestHandler</remove-configuration>
   <remove-configuration>org.exoplatform.web.WebAppController</remove-configuration>
 </configuration>

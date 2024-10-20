@@ -17,7 +17,6 @@
 
 package org.exoplatform.social.core.binding.spi;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,11 +27,11 @@ import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.test.AbstractCoreTest;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.core.test.AbstractCoreTest;
 
 /**
  * Unit Tests for

@@ -22,14 +22,14 @@ package io.meeds.social.link.dao;
 import java.util.Collections;
 import java.util.List;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-
 import org.apache.commons.collections.CollectionUtils;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 
 import io.meeds.social.link.entity.LinkEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 public class LinkDAO extends GenericDAOJPAImpl<LinkEntity, Long> {
 

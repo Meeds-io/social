@@ -206,9 +206,8 @@ export default {
       }, this.endTypingKeywordTimeout);
     },
     url(space) {
-      if (space && space.groupId) {
-        const uriPart = space.groupId.replace(/\//g, ':');
-        return `${eXo.env.portal.context}/g/${uriPart}/`;
+      if (space?.id) {
+        return `${eXo.env.portal.context}/s/${space.id}/`;
       } else {
         return '#';
       }

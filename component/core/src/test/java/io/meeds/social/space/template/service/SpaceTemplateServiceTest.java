@@ -89,8 +89,8 @@ public class SpaceTemplateServiceTest {
   public void init() {
     spaceTemplateService = new SpaceTemplateService(translationService,
                                                     attachmentService,
-                                                    spacesAdministrationService,
                                                     userAcl,
+                                                    spacesAdministrationService,
                                                     spaceTemplateStorage);
   }
 
@@ -235,6 +235,7 @@ public class SpaceTemplateServiceTest {
                              false,
                              true,
                              5l,
+                             "layout",
                              Arrays.asList(CREATE_AND_ACCESS_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
