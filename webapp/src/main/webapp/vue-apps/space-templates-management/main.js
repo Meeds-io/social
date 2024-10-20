@@ -42,7 +42,6 @@ export function init() {
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
-          spaceAdministratorsPermission: [],
         },
         computed: {
           isMobile() {
@@ -51,14 +50,6 @@ export function init() {
         },
         async created() {
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
-          const spaceAdministrators = await this.$spacesAdministrationServices.getSpacesAdministrationSetting('spacesAdministrators');
-          this.spaceAdministratorsPermission = [];
-          if (spaceAdministrators.memberships) {
-            for (const permission of spaceAdministrators.memberships) {
-              const permissionExpression = `${permission.membershipType}:${permission.group}`;
-              this.spaceAdministratorsPermission.push(permissionExpression);
-            }
-          }
         },
         template: `<space-templates-management id="${appId}"/>`,
         vuetify: Vue.prototype.vuetifyOptions,

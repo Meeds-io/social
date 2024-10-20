@@ -320,16 +320,11 @@ export default {
     open(spaceTemplate, name, nameTranslations, description, descriptionTranslations) {
       this.isNew = !spaceTemplate?.id;
       this.spaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
-      this.name = this.isNew ? name : spaceTemplate?.name;
-      this.description = this.isNew ? description : spaceTemplate?.description;
+      this.name = name || spaceTemplate?.name;
+      this.description = description || spaceTemplate?.description;
       this.nameTranslations = nameTranslations;
       this.descriptionTranslations = descriptionTranslations;
       this.step = 1;
-      if (this.isNew) {
-        spaceTemplate.spaceFields = ['name', 'invitation', 'properties', 'access'];
-      } else if (!spaceTemplate.spaceFields) {
-        spaceTemplate.spaceFields = [];
-      }
       this.spaceFieldName = spaceTemplate.spaceFields.includes('name') || false;
       this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
       this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;

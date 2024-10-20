@@ -18,14 +18,9 @@
  */
 
 import * as spaceTemplateService from './js/SpaceTemplateService.js';
-import * as spacesAdministrationServices from '../spaces-administration/js/SpacesAdministrationServices.js';
 
 if (!Vue.prototype.$spaceTemplateService) {
   window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
     value: spaceTemplateService,
   });
 }
-
-window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
-  value: spacesAdministrationServices,
-});

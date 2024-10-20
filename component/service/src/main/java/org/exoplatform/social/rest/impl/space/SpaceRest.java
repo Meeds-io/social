@@ -333,27 +333,10 @@ public class SpaceRest implements ResourceContainer {
                                   "<br />\"visibility\": \"private\"," +
                                   "<br />\"subscription\": \"validation\"<br />}", required = true)
                               SpaceEntity model) {
-    if (model == null || model.getDisplayName() == null
-        || model.getDisplayName().length() < 3
-        || model.getDisplayName().length() > 200) {
-      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-                                                .entity(SpaceException.Code.INVALID_SPACE_NAME.name())
-                                                .build());
-    }
-
-    // validate the display name
-    if (spaceService.getSpaceByDisplayName(model.getDisplayName()) != null) {
-      throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
-                                                .entity(SpaceException.Code.SPACE_ALREADY_EXIST.name())
-                                                .build());
-    }
-
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    //
     Space space = new Space();
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
-
     try {
       space = spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
     } catch (SpaceException e) {
@@ -361,7 +344,6 @@ public class SpaceRest implements ResourceContainer {
                                                 .entity(e.getCode().name())
                                                 .build());
     }
-
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
@@ -445,7 +427,7 @@ public class SpaceRest implements ResourceContainer {
              description = "This returns the spaces count by Space template identifier")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled") })
   public Response countSpacesByTemplate() {
-    return Response.ok(spaceService.countSpacesByTemplate()).build();
+    return Response.ok(JsonUtils.toJsonString(spaceService.countSpacesByTemplate())).build();
   }
 
   @GET
@@ -830,7 +812,7 @@ public class SpaceRest implements ResourceContainer {
     space.setEditor(authenticatedUser);
     space = spaceService.updateSpace(space, model.getInvitedMembers());
 
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(spaceService.getSpaceById(id),
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space,
                                                                         authenticatedUser,
                                                                         uriInfo.getPath(),
                                                                         expand),
@@ -839,9 +821,6 @@ public class SpaceRest implements ResourceContainer {
                                      Response.Status.OK);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
@@ -867,7 +846,7 @@ public class SpaceRest implements ResourceContainer {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     //
     Space space = spaceService.getSpaceById(id);
-    if (!spaceService.canManageSpace(space, authenticatedUser)) {
+    if (!spaceService.canDeleteSpace(space, authenticatedUser)) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
     space.setEditor(authenticatedUser);

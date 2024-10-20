@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -73,6 +74,8 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import lombok.SneakyThrows;
 
@@ -851,20 +854,71 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testCreateSpaceExceedingNameLimit() {
     Space space = new Space();
     String spaceDisplayName =
-                            "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
-    String shortName = "zzz";
+        "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
     space.setDisplayName(spaceDisplayName);
-    space.setPrettyName(shortName);
     space.setRegistration(Space.OPEN);
     space.setDescription(SPACE_DESCRIPTION);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    String creator = ROOT_NAME;
+    assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
+  }
+
+  public void testCreateSpaceNameTooShort() {
+    Space space = new Space();
+    String spaceDisplayName = "zz";
+    space.setDisplayName(spaceDisplayName);
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
+  }
+
+  public void testCreateSpaceWithNoNameWhenSpaceTemplateAllowsIt() throws ObjectNotFoundException {
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    List<String> originalSpaceFields = spaceTemplate.getSpaceFields();
+
     try {
-      spaceService.createSpace(space, creator);
-      fail("Should have thrown an RuntimeException because Name length exceeds limits");
-    } catch (RuntimeException e) {
-      assertTrue(e.getMessage().contains("space name cannot exceed 200 characters"));
+      Space space = new Space();
+      space.setRegistration(Space.OPEN);
+      space.setDescription(SPACE_DESCRIPTION);
+      space.setVisibility(Space.PUBLIC);
+      space.setRegistration(Space.VALIDATION);
+      assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
+
+      spaceTemplate.setSpaceFields(Collections.singletonList("invitation"));
+      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+
+      Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
+      assertNotNull(createdSpace);
+      assertEquals("Dragon Ball", createdSpace.getDisplayName());
+    } finally {
+      spaceTemplate.setSpaceFields(originalSpaceFields);
+      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+    }
+  }
+
+  public void testCreateSpaceWithTemplateCharacteristics() throws ObjectNotFoundException, SpaceException {
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    List<String> originalSpaceFields = spaceTemplate.getSpaceFields();
+    spaceTemplate.setSpaceFields(Collections.singletonList("invitation"));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+
+    try {
+      Space createdSpace = spaceService.createSpace(new Space(), RAUL_NAME, Arrays.asList(dragon, john));
+      assertNotNull(createdSpace);
+      assertTrue(createdSpace.getDisplayName().contains("Dragon Ball"));
+      assertTrue(createdSpace.getDisplayName().contains("and 1 more"));
+      assertTrue(createdSpace.getDisplayName().contains(", "));
+      assertEquals(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase(), createdSpace.getVisibility());
+      assertEquals(spaceTemplate.getSpaceDefaultRegistration().name().toLowerCase(), createdSpace.getRegistration());
+      assertEquals(spaceTemplate.getSpaceDeletePermissions(), createdSpace.getDeletePermissions());
+      assertEquals(spaceTemplate.getSpaceLayoutPermissions(), createdSpace.getLayoutPermissions());
+    } finally {
+      spaceTemplate.setSpaceFields(originalSpaceFields);
+      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
     }
   }
 
@@ -964,7 +1018,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
                organizationService.getGroupHandler().findGroupById(groupId));
   }
 
-  public void testDeleteSpaceWithoutDelitingGroup() throws Exception {
+  public void testDeleteSpaceWithoutDeletingGroup() throws Exception {
     Space space = this.getSpaceInstance(0);
     String spaceDisplayName = space.getDisplayName();
     String spaceDescription = space.getDescription();
