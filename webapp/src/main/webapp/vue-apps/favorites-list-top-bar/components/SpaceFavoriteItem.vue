@@ -64,7 +64,7 @@ export default {
       .then((spaceData)=> {
         this.space = spaceData;
         this.spaceName = spaceData?.displayName ? spaceData.displayName : this.$t('UITopBarFavoritesPortlet.label.space');
-        this.spaceUrl = `${eXo.env.portal.context}/g/${spaceData.groupId.replace(/\//g, ':')}`;
+        this.spaceUrl = `${eXo.env.portal.context}/s/${spaceData.id}`;
       });
   },
   methods: {

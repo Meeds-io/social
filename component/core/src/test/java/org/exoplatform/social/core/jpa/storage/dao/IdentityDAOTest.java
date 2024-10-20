@@ -19,6 +19,15 @@
 
 package org.exoplatform.social.core.jpa.storage.dao;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -29,10 +38,6 @@ import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 
 import jakarta.persistence.EntityExistsException;
-
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:tuyennt@exoplatform.com">Tuyen Nguyen The</a>.

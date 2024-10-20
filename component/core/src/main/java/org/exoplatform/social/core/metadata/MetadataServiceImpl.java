@@ -24,6 +24,8 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.picocontainer.Startable;
+
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
@@ -40,7 +42,6 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
-import org.picocontainer.Startable;
 
 @SuppressWarnings("removal")
 public class MetadataServiceImpl implements MetadataService, Startable {

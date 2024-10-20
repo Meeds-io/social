@@ -17,9 +17,9 @@
 
 package org.exoplatform.social.core.storage.cache.model.data;
 
-import org.exoplatform.social.core.identity.model.Identity;
-
 import java.util.Objects;
+
+import org.exoplatform.social.core.identity.model.Identity;
 
 /**
  * Immutable identity data.
