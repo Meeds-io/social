@@ -33,7 +33,7 @@ export function init(bannerUrl, maxUploadSize, isAdmin) {
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<space-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" @banner-changed="bannerUrl = $event" />`,
+      template: `<space-banner v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" @banner-changed="bannerUrl = $event" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, appElement, 'Space Header');

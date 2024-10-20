@@ -49,8 +49,8 @@
         </template>
       </v-radio>
       <v-radio
-        v-if="spaceAdmins && $root.spaceAdministratorsPermission.length"
-        value="spaceAdmins"
+        v-if="spaceAdmins"
+        value="spaceAdmin"
         class="mt-0">
         <template #label>
           <div class="text-body">
@@ -118,7 +118,7 @@ export default {
       } else if (this.choice === 'admins') {
         return [this.$root.administratorsPermission];
       } else if (this.choice === 'spaceAdmins') {
-        return this.$root.spaceAdministratorsPermission;
+        return 'spaceAdmin';
       } else {
         return this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g);
       }
@@ -145,7 +145,7 @@ export default {
     } else if (this.admins && JSON.stringify(this.value) === JSON.stringify(this.$root.administratorsPermission)) {
       this.choice = 'admins';
       this.specificGroupEntries = null;
-    } else if (this.spaceAdmins && JSON.stringify(this.value) === JSON.stringify(this.$root.spaceAdministratorsPermission)) {
+    } else if (this.spaceAdmins && this.value?.[0] === 'spaceAdmin') {
       this.choice = 'spaceAdmins';
       this.specificGroupEntries = null;
     } else {
