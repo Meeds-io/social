@@ -76,6 +76,8 @@ export default {
           this.name = space.displayName;
           this.avatarUrl = space.avatarUrl;
         }
+      } else if (this.groupId === 'spaceAdmin') {
+        this.name = this.$t('spaceTemplate.permissionsStepSpaceAdmins');
       } else {
         const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
         if (group) {
