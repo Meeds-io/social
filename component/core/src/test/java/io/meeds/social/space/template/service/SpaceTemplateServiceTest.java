@@ -234,7 +234,6 @@ public class SpaceTemplateServiceTest {
                              true,
                              false,
                              true,
-                             5l,
                              "layout",
                              Arrays.asList(CREATE_AND_ACCESS_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),

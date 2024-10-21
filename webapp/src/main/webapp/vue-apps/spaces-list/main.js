@@ -38,6 +38,7 @@ export function init(filter, canCreateSpace) {
         pendingCount: 0,
         requestsCount: 0,
         unreadPerSpace: null,
+        collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
       computed: {
         isMobile() {
