@@ -43,6 +43,7 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -222,6 +223,7 @@ public class SpaceServiceImpl implements SpaceService {
     Space createdSpace;
     try {
       createdSpace = spaceStorage.saveSpace(spaceToCreate, true);
+      space.setId(createdSpace.getId());
       spaceLifeCycle.spaceCreated(spaceToCreate, username);
     } catch (Exception e) {
       throw new SpaceException(Code.ERROR_DATASTORE,
@@ -238,12 +240,11 @@ public class SpaceServiceImpl implements SpaceService {
     }
 
     try {
+      createdSpace.setEditor(username);
       inviteIdentities(createdSpace, identitiesToInvite);
     } catch (Exception e) {
       LOG.warn("Error inviting identities {} to space {}", identitiesToInvite, spaceToCreate.getDisplayName(), e);
     }
-    String spaceId = createdSpace.getId();
-    space.setId(spaceId);
     return getSpaceById(createdSpace.getId());
   }
 
@@ -253,14 +254,17 @@ public class SpaceServiceImpl implements SpaceService {
       return;
     }
 
+    // Get a fresh instance in case changes made by listeners
+    Space existingSpace = getSpaceById(space.getId());
+    existingSpace.setEditor(existingSpace.getEditor());
     List<String> usernames = getUsersToInvite(identitiesToInvite);
     for (String username : usernames) {
-      if (isMember(space, username)) {
+      if (isMember(existingSpace, username)) {
         continue;
       }
 
-      if (!isInvitedUser(space, username)) {
-        addInvitedUser(space, username);
+      if (!isInvitedUser(existingSpace, username)) {
+        addInvitedUser(existingSpace, username);
       }
     }
   }
@@ -758,7 +762,6 @@ public class SpaceServiceImpl implements SpaceService {
     triggerSpaceUpdate(space, storedSpace);
 
     inviteIdentities(space, identitiesToInvite);
-
     return getSpaceById(space.getId());
   }
 
@@ -966,6 +969,10 @@ public class SpaceServiceImpl implements SpaceService {
   private void setSpaceDisplayName(Space space, SpaceTemplate spaceTemplate, List<String> invitees) throws SpaceException {
     if (!spaceTemplate.getSpaceFields().contains("name")
         && StringUtils.isBlank(space.getDisplayName())) {
+      if (CollectionUtils.isNotEmpty(invitees)) {
+        invitees = new ArrayList<>(invitees);
+        invitees.removeAll(Arrays.asList(space.getMembers()));
+      }
       String[] users = ArrayUtils.addAll(space.getMembers(),
                                          CollectionUtils.isEmpty(invitees) ? new String[0] :
                                                                            invitees.toArray(new String[invitees.size()]));
@@ -980,8 +987,10 @@ public class SpaceServiceImpl implements SpaceService {
       if (users.length > 2) {
         String moreLabel = resourceBundleService.getSharedString("space.name.more",
                                                                  localeConfigService.getDefaultLocaleConfig().getLocale());
-        displayName +=
-                    " " + StringUtils.firstNonBlank(moreLabel, "and {0} more").replace("{0}", String.valueOf(users.length - 2));
+        displayName += " " + StringUtils.firstNonBlank(moreLabel, "and {0} more").replace("{0}", String.valueOf(users.length - 2));
+        if (displayName.length() > MAX_SPACE_NAME_LENGTH) {
+          displayName = displayName.substring(0, MAX_SPACE_NAME_LENGTH);
+        }
       }
       space.setDisplayName(displayName);
     } else if (space.getDisplayName() == null
