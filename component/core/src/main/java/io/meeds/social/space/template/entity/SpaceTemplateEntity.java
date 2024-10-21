@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.exoplatform.commons.utils.StringListConverter;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

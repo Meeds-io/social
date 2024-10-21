@@ -28,7 +28,6 @@ import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
@@ -239,7 +238,6 @@ public class CachedSpaceStorage extends SpaceStorage {
   @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
     String oldDisplayName = space.getDisplayName();
-    String oldUrl = Utils.cleanString(oldDisplayName);
     String oldPrettyName = space.getPrettyName();
 
     //
@@ -269,7 +267,6 @@ public class CachedSpaceStorage extends SpaceStorage {
     spaceRefCache.remove(new SpaceRefKey(oldDisplayName));
     spaceRefCache.remove(new SpaceRefKey(null, oldPrettyName));
     spaceRefCache.remove(new SpaceRefKey(null, null, space.getGroupId()));
-    spaceRefCache.remove(new SpaceRefKey(null, null, null, oldUrl));
   }
 
   @Override
@@ -652,31 +649,6 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public Space getSpaceByUrl(final String url) throws SpaceStorageException {
-
-    //
-    SpaceRefKey refKey = new SpaceRefKey(null, null, null, url);
-
-    //
-    SpaceKey key = spaceRefFutureCache.get(() -> {
-      Space space = CachedSpaceStorage.super.getSpaceByUrl(url);
-      if (space != null) {
-        return putSpaceInCacheIfNotExists(space);
-      } else {
-        return SpaceKey.NULL_OBJECT;
-      }
-    }, refKey);
-
-    //
-    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
-      return getSpaceById(key.getId());
-    } else {
-      return null;
-    }
-
-  }
-
-  @Override
   public void updateSpaceAccessed(String remoteId, Space space) throws SpaceStorageException {
     // we remove all cache entries for the given userId and for space type
     // LATEST_ACCESSED
@@ -830,19 +802,15 @@ public class CachedSpaceStorage extends SpaceStorage {
     if (spaceCache.get(key) == null) {
       spaceCache.putLocal(key, new SpaceData(space));
     }
-    SpaceRefKey refKey = new SpaceRefKey(space.getDisplayName(), null, null, null);
+    SpaceRefKey refKey = new SpaceRefKey(space.getDisplayName());
     if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
-    refKey = new SpaceRefKey(null, null, space.getGroupId(), null);
+    refKey = new SpaceRefKey(null, null, space.getGroupId());
     if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
-    refKey = new SpaceRefKey(null, space.getPrettyName(), null, null);
-    if (spaceRefCache.get(refKey) == null) {
-      spaceRefCache.putLocal(refKey, key);
-    }
-    refKey = new SpaceRefKey(null, null, null, space.getUrl());
+    refKey = new SpaceRefKey(null, space.getPrettyName());
     if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
@@ -864,12 +832,10 @@ public class CachedSpaceStorage extends SpaceStorage {
     spaceRefCache.remove(new SpaceRefKey(removed.getDisplayName()));
     spaceRefCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
     spaceRefCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
-    spaceRefCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
 
     spaceRefFutureCache.remove(new SpaceRefKey(removed.getDisplayName()));
     spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
     spaceRefFutureCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, null, null, removed.getUrl()));
   }
 
   private void clearIdentityCache() {

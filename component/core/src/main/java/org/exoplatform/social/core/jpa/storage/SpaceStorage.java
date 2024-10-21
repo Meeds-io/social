@@ -387,11 +387,6 @@ public class SpaceStorage {
     return fillSpaceFromEntity(entity);
   }
 
-  public Space getSpaceByUrl(String url) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.getSpaceByURL(url);
-    return fillSpaceFromEntity(entity);
-  }
-
   public List<Space> getSpaces(long offset, long limit) throws SpaceStorageException {
     return getSpacesByFilter(null, offset, limit);
   }
@@ -439,10 +434,18 @@ public class SpaceStorage {
 
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
     String oldPrettyName = space.getPrettyName();
+    // Ensure unicity of new pretty name
+    String newPrettyName = buildPrettyName(newDisplayName);
 
     space.setDisplayName(newDisplayName);
-    space.setPrettyName(newDisplayName);
-    space.setUrl(Utils.cleanString(newDisplayName));
+    space.setPrettyName(newPrettyName);
+    if (oldPrettyName.equals(space.getUrl())) {
+      // Update URL only if legacy
+      // navigation tree which uses pretty name
+      space.setUrl(newPrettyName);
+    } else if (StringUtils.isBlank(space.getUrl())) {
+      space.setUrl(Space.HOME_URL);
+    }
 
     SpaceEntity entity = spaceDAO.find(Long.parseLong(space.getId()));
     // Retrieve identity before saving
@@ -489,6 +492,8 @@ public class SpaceStorage {
     SpaceEntity entity;
     if (isNew) {
       entity = new SpaceEntity();
+      // Ensure unicity of pretty name
+      space.setPrettyName(buildPrettyName(space.getDisplayName()));
       EntityConverterUtils.buildFrom(space, entity);
 
       //
@@ -827,6 +832,17 @@ public class SpaceStorage {
     return token == null ? null :
                          Instant.ofEpochMilli(token.getExpirationTimeMillis())
                                 .minusSeconds(remindPasswordTokenService.getValidityTime());
+  }
+
+  private String buildPrettyName(String displayName) {
+    String prettyName = Utils.cleanString(displayName);
+    int index = 0;
+    while (spaceDAO.getSpaceByPrettyName(prettyName) != null) {
+      // Use sapme algorithm to compte new pretty name as for creation
+      // used in SpaceUtils.buildGroupId
+      prettyName = Utils.cleanString(displayName + " " + ++index);
+    }
+    return prettyName;
   }
 
 }

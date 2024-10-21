@@ -1,4 +1,4 @@
-<%@page import="io.meeds.social.space.service.SpaceLayoutService"%>
+<%@page import="io.meeds.social.core.space.service.SpaceLayoutService"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>

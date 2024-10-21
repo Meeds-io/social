@@ -70,6 +70,14 @@ export default {
       type: Object,
       default: null,
     },
+    bannerUploadId: {
+      type: String,
+      default: null,
+    },
+    bannerData: {
+      type: Object,
+      default: null,
+    },
     maxUploadSize: {
       type: Number,
       default: () => 2,
@@ -110,6 +118,18 @@ export default {
         return 175;
       }
     },
+  },
+  watch: {
+    imageData() {
+      this.$emit('data', this.imageData);
+    },
+    uploadId() {
+      this.$emit('input', this.uploadId);
+    },
+  },
+  created() {
+    this.uploadId = this.bannerUploadId;
+    this.imageData = this.bannerData;
   },
   methods: {
     save(spaceTemplateId) {

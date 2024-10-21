@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.space.service;
+package io.meeds.social.core.space.service;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,10 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -48,6 +51,8 @@ public class SpaceLayoutService {
 
   private LayoutService           layoutService;
 
+  private NavigationService       navigationService;
+
   private SpaceService            spaceService;
 
   private SpaceTemplateService    spaceTemplateService;
@@ -55,9 +60,11 @@ public class SpaceLayoutService {
   public SpaceLayoutService(SpaceService spaceService,
                             SpaceTemplateService spaceTemplateService,
                             UserPortalConfigService portalConfigService,
-                            LayoutService layoutService) {
+                            LayoutService layoutService,
+                            NavigationService navigationService) {
     this.portalConfigService = portalConfigService;
     this.layoutService = layoutService;
+    this.navigationService = navigationService;
     this.spaceService = spaceService;
     this.spaceTemplateService = spaceTemplateService;
   }
@@ -78,6 +85,12 @@ public class SpaceLayoutService {
     portalConfig.setEditPermission(StringUtils.join(spaceTemplate.getSpaceLayoutPermissions(), ","));
     portalConfig.setLabel(space.getDisplayName());
     layoutService.save(portalConfig);
+
+    // Set URL of root node of the space
+    String url = getFirstSpacePageUri(space.getGroupId());
+    space = spaceService.getSpaceById(space.getId());
+    space.setUrl(url);
+    spaceService.updateSpace(space);
   }
 
   /**
@@ -220,6 +233,15 @@ public class SpaceLayoutService {
     }
     default:
       throw new IllegalArgumentException("Unexpected value: " + publicSiteVisibility);
+    }
+  }
+
+  public String getFirstSpacePageUri(String groupId) {
+    NodeContext<NodeContext<Object>> rootNode = navigationService.loadNode(SiteKey.group(groupId));
+    if (rootNode == null || rootNode.getNodeCount() == 0) {
+      return Space.HOME_URL;
+    } else {
+      return rootNode.getFirst().getNode().getName();
     }
   }
 

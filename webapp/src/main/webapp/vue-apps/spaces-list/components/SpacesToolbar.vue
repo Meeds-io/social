@@ -32,15 +32,15 @@
     }"
     :compact="compactDisplay || $root.isMobile"
     :filters-count="filtersCount"
-    no-text-truncate
     class="px-1"
+    no-text-truncate
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-button-click="$root.$emit('spaces-list-filter-open', filter)"
     @loading="$emit('loading', $event)">
     <template #left>
-      <div class="d-flex align-center">
+      <div :class="!canCreateSpace && 'ms-n3'" class="d-flex align-center">
         <v-btn
-          v-if="canCreateSpace" 
+          v-if="canCreateSpace"
           id="addNewSpaceButton"
           :small="$root.isMobile"
           color="primary"
