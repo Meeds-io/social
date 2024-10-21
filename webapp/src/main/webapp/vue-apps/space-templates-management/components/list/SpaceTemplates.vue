@@ -130,7 +130,13 @@ export default {
       ];
     },
     filteredSpaceTemplates() {
-      const spaceTemplates = this.spaceTemplates?.filter?.(t => t.name) || [];
+      const spaceTemplates = this.spaceTemplates
+        ?.filter?.(t => t.name)
+        ?.map?.(t => {
+          t = JSON.parse(JSON.stringify(t));
+          t.spacesCount = this.$root.spacesCountByTemplates?.[t.id] || 0;
+          return t;
+        }) || [];
       spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
       return this.keyword?.length && spaceTemplates.filter(t => {
         const name = this.$te(t.name) ? this.$t(t.name) : t.name;

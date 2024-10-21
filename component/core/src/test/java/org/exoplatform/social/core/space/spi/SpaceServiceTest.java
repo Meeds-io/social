@@ -1816,6 +1816,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     organizationService.getUserHandler().createUser(superManager, false);
     Identity superManagerIdentity = identityManager.getOrCreateUserIdentity(username);
     assertFalse(spaceService.isSuperManager(username));
+
     // Create Super managers group
     Group group = organizationService.getGroupHandler().createGroupInstance();
     group.setGroupName("space-managers");
@@ -1831,9 +1832,9 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(spaceService.isSuperManager(username));
 
     Space space = createSpace("spacename1", ROOT_NAME);
-    space.setVisibility(Space.PUBLIC);
-    space.setRegistration(Space.OPEN);
     spaceService.inviteIdentities(space, Collections.singletonList(superManagerIdentity));
+
+    space = spaceService.getSpaceById(space.getId());
     assertTrue(spaceService.isInvitedUser(space, username));
   }
 
@@ -2031,8 +2032,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setRegistration(Space.OPEN);
     space.setDescription("description of space" + spaceName);
     space.setVisibility(Space.PRIVATE);
-    space = spaceService.createSpace(space, username);
-    return space;
+    return spaceService.createSpace(space, username);
   }
 
   /**

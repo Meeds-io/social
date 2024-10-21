@@ -170,6 +170,7 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
       identities = identityStorage.getIdentitiesForMentions(providerId, profileFilter, null, offset, usedLimit, forceLoadProfile);
     }
     if (profileFilter != null && profileFilter.getViewerIdentity() != null) {
+      identities = new ArrayList<>(identities);
       Iterator<? extends Identity> iterator = identities.iterator();
       while (iterator.hasNext()) {
         Identity identity = iterator.next();
