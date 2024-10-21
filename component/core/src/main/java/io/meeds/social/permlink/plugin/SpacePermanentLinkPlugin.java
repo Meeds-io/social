@@ -77,7 +77,7 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
     StringBuilder spaceUrl = new StringBuilder("/portal/g/");
     spaceUrl.append(space.getGroupId().replace("/", ":"))
             .append("/")
-            .append(space.getPrettyName())
+            .append(space.getUrl())
             .append("/");
     if (object.getParameters() != null) {
       if (object.getParameters().containsKey(APPLICATION_URI)) {

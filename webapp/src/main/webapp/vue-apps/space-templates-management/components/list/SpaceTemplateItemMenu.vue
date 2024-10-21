@@ -69,6 +69,16 @@
               {{ $t('spaceTemplate.label.editProperties') }}
             </v-list-item-title>
           </v-list-item>
+          <v-list-item
+            dense
+            @click="duplicate">
+            <v-icon size="13">
+              fa-copy
+            </v-icon>
+            <v-list-item-title class="ps-2">
+              {{ $t('spaceTemplate.label.duplicate') }}
+            </v-list-item-title>
+          </v-list-item>
           <v-tooltip :disabled="!spaceTemplate.system" bottom>
             <template #activator="{ on, attrs }">
               <div
@@ -83,10 +93,8 @@
                     size="13">
                     fa-trash
                   </v-icon>
-                  <v-list-item-title
-                    :class="!spaceTemplate.system && 'error--text' || 'disabled--text'"
-                    class="ps-2">
-                    {{ $t('spaceTemplate.label.delete') }}
+                  <v-list-item-title class="ps-2">
+                    <span :class="!spaceTemplate.system && 'error--text' || 'disabled--text'">{{ $t('spaceTemplate.label.delete') }}</span>
                   </v-list-item-title>
                 </v-list-item>
               </div>
@@ -157,6 +165,30 @@ export default {
       if (e.target && !e.target.closest(`.${this.menuId}`)) {
         this.menu = false;
       }
+    },
+    async duplicate() {
+      const nameTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'name');
+      const descriptionTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'description');
+      const translationConfiguration = await this.$translationService.getTranslationConfiguration();
+
+      const bannerBlob = !this.spaceTemplate.bannerFileId ? null : await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate.id}/${this.spaceTemplate.bannerFileId}`, {
+        credentials: 'include',
+        method: 'GET',
+      }).then(resp => resp?.ok && resp.blob());
+      const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
+      const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
+
+      this.$root.$emit('space-templates-name-open', {
+        ...this.spaceTemplate,
+        id: null,
+        bannerFileId: null,
+      }, nameTranslations?.[translationConfiguration?.defaultLanguage],
+      nameTranslations,
+      descriptionTranslations?.[translationConfiguration?.defaultLanguage],
+      descriptionTranslations,
+      true,
+      bannerUploadId,
+      bannerData);
     },
     checkMenuStatus(templateId) {
       if (this.menu && templateId !== this.spaceTemplate.id) {
