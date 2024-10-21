@@ -183,9 +183,9 @@ export default {
         icon: 'fa-people-arrows',
         enabled: true,
         order: 0,
-        permissions: this.$root.usersPermission,
-        spaceLayoutPermissions: this.$root.administratorsPermission,
-        spaceDeletePermissions: this.$root.administratorsPermission,
+        permissions: [this.$root.usersPermission],
+        spaceLayoutPermissions: [this.$root.administratorsPermission],
+        spaceDeletePermissions: [this.$root.administratorsPermission],
         spaceFields: ['name', 'invitation', 'properties', 'access'],
         spaceDefaultVisibility: 'PRIVATE',
         spaceDefaultRegistration: 'OPEN',
@@ -193,9 +193,9 @@ export default {
       };
       this.bannerUploadId = bannerUploadId;
       this.bannerData = bannerData;
-      this.name = name || spaceTemplate.name || null;
+      this.name = name || this.spaceTemplate.name || null;
       this.nameTranslations = nameTranslations || null;
-      this.description = description || null;
+      this.description = description || this.spaceTemplate.description || null;
       this.descriptionTranslations = descriptionTranslations || null;
       this.initialized = false;
       this.$refs.drawer.open();

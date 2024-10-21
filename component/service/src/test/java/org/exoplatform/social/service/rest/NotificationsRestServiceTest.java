@@ -159,8 +159,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listInviteds = Arrays.asList(space.getInvitedUsers());
     assertTrue(listInviteds.contains("root"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
     ContainerResponse response = service("GET", "/social/notifications/acceptInvitationToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId(), "", null, null);
@@ -168,8 +167,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(303, response.getStatus());
 
-    end();
-    begin();
+    restartTransaction();
     
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertTrue(listMembers.contains("root"));
@@ -186,8 +184,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listInviteds = Arrays.asList(space.getInvitedUsers());
     assertTrue(listInviteds.contains("root"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
     ContainerResponse response = service("GET", "/social/notifications/acceptInvitationToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId(), "", null, null);
@@ -195,8 +192,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(401, response.getStatus());
 
-    end();
-    begin();
+    restartTransaction();
 
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertFalse(listMembers.contains("root"));
@@ -213,8 +209,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listInviteds = Arrays.asList(space.getInvitedUsers());
     assertTrue(listInviteds.contains("root"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
     ContainerResponse response = service("GET", "/social/notifications/ignoreInvitationToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId(), "", null, null);
@@ -222,8 +217,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(303, response.getStatus());
 
-    end();
-    begin();
+    restartTransaction();
 
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertFalse(listMembers.contains("root"));
@@ -265,8 +259,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listPendings = Arrays.asList(space.getPendingUsers());
     assertTrue(listPendings.contains("james"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
     ContainerResponse response = service("GET", "/social/notifications/validateRequestToJoinSpace/" + space.getId() +"/james" + ";jsessionid=0C004882C60E5BF3AB8EDCA4FD1467F1", "", null, null);
@@ -291,8 +284,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listPendings = Arrays.asList(space.getPendingUsers());
     assertTrue(listPendings.contains("james"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("demo");
     ContainerResponse response = service("GET", "/social/notifications/validateRequestToJoinSpace/" + space.getId() +"/james", "", null, null);
@@ -300,8 +292,7 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(401, response.getStatus());
 
-    end();
-    begin();
+    restartTransaction();
 
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertFalse(listMembers.contains("james"));

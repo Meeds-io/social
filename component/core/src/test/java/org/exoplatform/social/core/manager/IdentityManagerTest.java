@@ -132,7 +132,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
 
     space = this.createSpaceNonInitApps(space, demoIdentity.getRemoteId(), null);
 
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull("savedSpace must not be null", savedSpace);
 
     // add member to space
@@ -267,8 +267,7 @@ public class IdentityManagerTest extends AbstractCoreTest {
     Identity identityUpdated = identityManager.getOrCreateIdentity(rootIdentity.getProviderId(), rootIdentity.getRemoteId());
     assertEquals("CEO", identityUpdated.getProfile().getProperty(Profile.POSITION));
 
-    end();
-    begin();
+    restartTransaction();
 
     RealtimeListAccess<ExoSocialActivity> activitiesWithListAccess = activityManager.getActivitiesWithListAccess(rootIdentity);
     List<ExoSocialActivity> rootActivityList = activitiesWithListAccess.loadAsList(0, activitiesWithListAccess.getSize());
