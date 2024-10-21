@@ -2,7 +2,7 @@ package org.exoplatform.social.rest.impl.relationship;
 
 import java.util.List;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;

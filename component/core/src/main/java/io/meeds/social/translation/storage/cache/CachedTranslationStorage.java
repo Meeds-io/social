@@ -20,7 +20,7 @@ package io.meeds.social.translation.storage.cache;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.commons.cache.future.Loader;
