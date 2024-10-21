@@ -137,9 +137,6 @@ export default {
     permissions() {
       this.$emit('input', this.permissions);
     },
-    choice() {
-      console.warn('this.choice', this.choice);
-    },
   },
   created() {
     if (this.users && this.value?.length === 1 && this.value?.[0] === this.$root.usersPermission) {

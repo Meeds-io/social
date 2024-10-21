@@ -1988,7 +1988,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       activityManager.saveActivityNoReturn(spaceIdentity, activity);
     }
 
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertNotNull("space must not be null", space);
     assertEquals("space.getDisplayName() must return: my space 0", "my space 0", space.getDisplayName());
     assertEquals("space.getDescription() must return: add new space 0", "add new space 0", space.getDescription());
@@ -2008,7 +2008,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
       activityManager.saveActivityNoReturn(spaceIdentity2, activity);
     }
 
-    space2 = spaceService.getSpaceByDisplayName(space2.getDisplayName());
+    space2 = spaceService.getSpaceById(space2.getId());
     assertNotNull("space2 must not be null", space2);
     assertEquals("space2.getDisplayName() must return: my space 1", "my space 1", space2.getDisplayName());
     assertEquals("space2.getDescription() must return: add new space 1", "add new space 1", space2.getDescription());
