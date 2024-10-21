@@ -22,6 +22,8 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
+    :confirm-close="modified"
+    :confirm-close-labels="closeConfirmLabels"
     class="spaceTemplateNameFormDrawer"
     right
     allow-expand
@@ -29,8 +31,19 @@
     <template #title>
       {{ isNew && $t('spaceTemplate.add.drawer.newTemplate') || $t('spaceTemplate.add.drawer.editTemplate') }}
     </template>
-    <template v-if="drawer" #content>
+    <template v-if="drawer && spaceTemplate" #content>
       <div class="pa-4" flat>
+        <v-alert
+          v-if="step === 1 && !isNew"
+          type="info"
+          outlined>
+          <div class="text-color">
+            <div class="mb-2">
+              {{ $t('spaceTemplate.editWarningInfo1') }}
+            </div>
+            <span v-sanitized-html="editWarningInfo2"></span>
+          </div>
+        </v-alert>
         <div class="d-flex align-center">
           <v-icon size="24" class="me-3">{{ spaceTemplate.icon }}</v-icon>
           <span class="text-truncate text-start font-weight-bold flex-grow-1">{{ name }}</span>
@@ -112,8 +125,12 @@
             </span>
             <space-templates-management-banner
               ref="bannerInput"
+              :banner-upload-id="bannerUploadId"
+              :banner-data="bannerData"
               :space-template="spaceTemplate"
-              class="mb-4" />
+              class="mb-4"
+              @data="bannerData = $event"
+              @input="bannerUploadId = $event" />
             <space-templates-management-access
               v-model="spaceTemplate.spaceDefaultRegistration" />
             <space-templates-management-visibility
@@ -150,7 +167,7 @@
             label="spaceTemplate.permissionsStepEditSpaceLayoutPermissionLabel"
             class="mb-4"
             admins
-            space-admins />
+            space-admin />
           <space-templates-management-permissions-editorial
             v-model="spaceTemplate.spaceAllowContentCreation"
             class="mb-4" />
@@ -159,7 +176,7 @@
             label="spaceTemplate.permissionsStepDeleteSpacePermissionLabel"
             class="mb-4"
             admins
-            space-admins />
+            space-admin />
         </div>
       </div>
     </template>
@@ -206,7 +223,11 @@ export default {
     expanded: false,
     saving: false,
     isNew: false,
+    basicInformationModified: false,
     spaceTemplate: null,
+    originalSpaceTemplate: null,
+    bannerUploadId: null,
+    bannerData: null,
     name: null,
     description: null,
     nameTranslations: {},
@@ -240,6 +261,19 @@ export default {
         && !this.spaceTemplate?.spaceFields?.includes?.('name')
         && !this.spaceTemplate?.spaceFields?.includes?.('invitation');
     },
+    modified() {
+      return this.isNew
+        || this.basicInformationModified
+        || (JSON.stringify(this.spaceTemplate) !== JSON.stringify(this.originalSpaceTemplate));
+    },
+    closeConfirmLabels() {
+      return {
+        title: this.$t('spaceTemplate.closeConfirmLabels.title'),
+        message: this.$t('spaceTemplate.closeConfirmLabels.message'),
+        ok: this.$t('spaceTemplate.closeConfirmLabels.ok'),
+        cancel: this.$t('spaceTemplate.closeConfirmLabels.cancel'),
+      };
+    },
     disabled() {
       return !this.name?.length
           || this.name.length > this.maxNameLength
@@ -251,6 +285,12 @@ export default {
     },
     permissionsStepDescription1() {
       return this.$t('spaceTemplate.permissionsStepDescription1', {
+        0: `<a href="${this.spacesManagementUrl}">`,
+        1: '</a>',
+      });
+    },
+    editWarningInfo2() {
+      return this.$t('spaceTemplate.editWarningInfo2', {
         0: `<a href="${this.spacesManagementUrl}">`,
         1: '</a>',
       });
@@ -317,9 +357,13 @@ export default {
     this.$root.$off('space-templates-characteristics-open', this.open);
   },
   methods: {
-    open(spaceTemplate, name, nameTranslations, description, descriptionTranslations) {
+    open(spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
       this.isNew = !spaceTemplate?.id;
+      this.basicInformationModified = modified;
       this.spaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
+      this.bannerUploadId = bannerUploadId;
+      this.bannerData = bannerData;
+      this.originalSpaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
       this.name = name || spaceTemplate?.name;
       this.description = description || spaceTemplate?.description;
       this.nameTranslations = nameTranslations;
@@ -331,11 +375,16 @@ export default {
       this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
       this.$refs.drawer.open();
     },
-    close() {
+    async close() {
+      this.spaceTemplate = null;
+      this.originalSpaceTemplate = null;
+      this.isNew = false;
+      this.basicInformationModified = false;
+      await this.$nextTick();
       this.$refs.drawer.close();
     },
     openNameDrawer() {
-      this.$root.$emit('space-templates-name-open', this.spaceTemplate);
+      this.$root.$emit('space-templates-name-open', this.spaceTemplate, this.name, this.nameTranslations, this.description, this.descriptionTranslations, this.modified, this.bannerUploadId, this.bannerData);
       this.close();
     },
     async save() {
