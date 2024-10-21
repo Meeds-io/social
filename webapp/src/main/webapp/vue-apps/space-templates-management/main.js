@@ -42,6 +42,7 @@ export function init() {
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
+          collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         },
         computed: {
           isMobile() {
