@@ -88,8 +88,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     identityManager.hardDeleteIdentity(johnIdentity);
     metadataDAO.deleteAll();
 

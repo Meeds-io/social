@@ -361,11 +361,6 @@ public class SpaceStorage {
     return getPendingSpacesByFilterCount(userId, null);
   }
 
-  public Space getSpaceByDisplayName(String spaceDisplayName) throws SpaceStorageException {
-    SpaceEntity entity = spaceDAO.getSpaceByDisplayName(spaceDisplayName);
-    return fillSpaceFromEntity(entity);
-  }
-
   public Space getSpaceByGroupId(String groupId) throws SpaceStorageException {
     SpaceEntity entity = spaceDAO.getSpaceByGroupId(groupId);
     return fillSpaceFromEntity(entity);
