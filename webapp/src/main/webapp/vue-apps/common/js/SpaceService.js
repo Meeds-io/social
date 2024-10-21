@@ -96,29 +96,6 @@ export function getSpaceByPrettyName(prettyName, expand) {
   });
 }
 
-export function getSpaceByDisplayName(displayName, expand) {
-  expand = expand || '';
-  const key = `${displayName}-${expand}`;
-  if (spaces[key]) {
-    return Promise.resolve(spaces[key]);
-  }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/byDisplayName/${displayName}?expand=${expand}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp || !resp.ok) {
-      throw new Error('Response code indicates a server error', resp);
-    } else {
-      return resp.json();
-    }
-  }).then(space => {
-    if (space) {
-      spaces[key] = space;
-    }
-    return space;
-  });
-}
-
 export function getSpaceByGroupId(groupId, expand) {
   expand = expand || '';
   const groupSuffix = groupId.replace('/spaces/', '');

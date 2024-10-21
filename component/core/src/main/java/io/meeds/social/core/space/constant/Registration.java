@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-package io.meeds.social.space.constant;
+package io.meeds.social.core.space.constant;
 
-public enum Visibility {
-  PUBLIC, PRIVATE, HIDDEN
+public enum Registration {
+  OPEN, VALIDATION, CLOSED
 }

@@ -85,18 +85,6 @@ public interface SpaceService {
   }
 
   /**
-   * Gets a space by its URL.
-   *
-   * @param spaceUrl URL of the space.
-   * @return The space.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
-   */
-  default Space getSpaceByUrl(String spaceUrl) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Gets a list access that contains all spaces.
    *
    * @return The list access.

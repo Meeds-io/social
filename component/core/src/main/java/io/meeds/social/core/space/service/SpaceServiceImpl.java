@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-package io.meeds.social.space.service;
+package io.meeds.social.core.space.service;
 
 import static org.exoplatform.social.core.space.SpaceUtils.AUTHENTICATED;
 import static org.exoplatform.social.core.space.SpaceUtils.EVERYONE;
@@ -177,11 +177,6 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public Space getSpaceById(String id) {
     return spaceStorage.getSpaceById(id);
-  }
-
-  @Override
-  public Space getSpaceByUrl(String url) {
-    return spaceStorage.getSpaceByUrl(url);
   }
 
   @Override
@@ -1005,7 +1000,6 @@ public class SpaceServiceImpl implements SpaceService {
     String groupId = createGroup(space.getDisplayName(), space.getPrettyName(), username);
     space.setGroupId(groupId);
     space.setPrettyName(groupId.replace("/spaces/", ""));
-    space.setUrl(space.getPrettyName());
     return groupId;
   }
 

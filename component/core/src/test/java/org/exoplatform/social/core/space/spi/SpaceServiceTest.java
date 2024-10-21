@@ -73,7 +73,7 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
-import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.core.space.service.SpaceLayoutService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -465,12 +465,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = populateData();
     createMoreSpace(SPACE2_DISPLAY_NAME);
     assertEquals(space.getDisplayName(), spaceService.getSpaceById(space.getId()).getDisplayName());
-  }
-
-  public void testGetSpaceByUrl() {
-    Space space = populateData();
-    assertNotNull(spaceService.getSpaceByUrl(space.getUrl()));
-    assertEquals(space.getDisplayName(), spaceService.getSpaceByUrl(space.getUrl()).getDisplayName());
   }
 
   public void testCanRedact() {
