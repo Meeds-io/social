@@ -61,8 +61,7 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     spaceDAO.create(spaceEntity);
 
-    end();
-    begin();
+    restartTransaction();
 
     SpaceEntity result = spaceDAO.find(spaceEntity.getId());
     assertSpace(spaceEntity, result);
@@ -73,13 +72,9 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     spaceDAO.create(spaceEntity);
 
-    end();
-    begin();
+    restartTransaction();
 
-    SpaceEntity result = spaceDAO.getSpaceByDisplayName(spaceEntity.getDisplayName());
-    assertSpace(spaceEntity, result);
-
-    result = spaceDAO.getSpaceByGroupId(spaceEntity.getGroupId());
+    SpaceEntity result = spaceDAO.getSpaceByGroupId(spaceEntity.getGroupId());
     assertSpace(spaceEntity, result);
 
     result = spaceDAO.getSpaceByPrettyName(spaceEntity.getPrettyName());
@@ -90,8 +85,7 @@ public class SpaceDAOTest extends BaseCoreTest {
     SpaceEntity space2 = createSpace("testPrettyName2");
     spaceDAO.create(space2);
 
-    end();
-    begin();
+    restartTransaction();
 
     List<Long> result = spaceDAO.getLastSpaces(1);
     assertEquals(1, result.size());
@@ -151,8 +145,7 @@ public class SpaceDAOTest extends BaseCoreTest {
 
     IdentityEntity spaceIdentity = identityDAO.create(createIdentity(SpaceIdentityProvider.NAME, spaceEntity.getPrettyName()));
 
-    end();
-    begin();
+    restartTransaction();
 
     Set<Long> activityIds = new HashSet<>();
     for (int i = 0; i < 15; i++) {
@@ -166,8 +159,7 @@ public class SpaceDAOTest extends BaseCoreTest {
       activityDao.update(activity);
     }
 
-    end();
-    begin();
+    restartTransaction();
 
     spaceEntity = spaceDAO.find(spaceEntity.getId());
     spaceDAO.delete(spaceEntity);

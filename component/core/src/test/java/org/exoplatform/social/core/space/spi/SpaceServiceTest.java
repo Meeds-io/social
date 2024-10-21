@@ -263,15 +263,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNull(spaceService.getSpaceMembershipDate(Long.parseLong(space.getId()), "notExistingUser"));
   }
 
-  public void testGetSpaceByDisplayName() {
-    Space space = populateData();
-    Space gotSpace1 = spaceService.getSpaceByDisplayName(SPACE1_DISPLAY_NAME);
-
-    assertNotNull("gotSpace1 must not be null", gotSpace1);
-
-    assertEquals(space.getDisplayName(), gotSpace1.getDisplayName());
-  }
-
   public void testGetSpaceByPrettyName() {
     int count = 5;
     for (int i = 0; i < count; i++) {
@@ -632,8 +623,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
   }
 
   public void testCountPendingSpaceRequestsToManage() throws Exception {
-    populateData();
-    Space space = spaceService.getSpaceByDisplayName(SPACE1_DISPLAY_NAME);
+    Space space = populateData();
     spaceService.addPendingUser(space, PAUL_NAME);
     spaceService.addPendingUser(space, JAMES_NAME);
 
@@ -945,7 +935,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String spaceDisplayName = space.getDisplayName();
     String spaceDescription = space.getDescription();
     String groupId = space.getGroupId();
-    Space savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertEquals(spaceDisplayName, savedSpace.getDisplayName());
     assertEquals(spaceDescription, savedSpace.getDescription());
@@ -999,14 +989,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String spaceDisplayName = space.getDisplayName();
     String spaceDescription = space.getDescription();
     String groupId = space.getGroupId();
-    Space savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertEquals(spaceDisplayName, savedSpace.getDisplayName());
     assertEquals(spaceDescription, savedSpace.getDescription());
     assertEquals(groupId, savedSpace.getGroupId());
     assertNotNull(organizationService.getGroupHandler().findGroupById(groupId));
     spaceService.deleteSpace(space);
-    savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertNull("savedSpace must be null", savedSpace);
     assertNull("the group " + groupId + " must be deleted after space deletion ",
                organizationService.getGroupHandler().findGroupById(groupId));
@@ -1017,14 +1007,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String spaceDisplayName = space.getDisplayName();
     String spaceDescription = space.getDescription();
     String groupId = space.getGroupId();
-    Space savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertEquals(spaceDisplayName, savedSpace.getDisplayName());
     assertEquals(spaceDescription, savedSpace.getDescription());
     assertEquals(groupId, savedSpace.getGroupId());
     assertNotNull(organizationService.getGroupHandler().findGroupById(groupId));
     spaceService.deleteSpace(space, false);
-    savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertNull("savedSpace must be null", savedSpace);
     assertNotNull("the group " + groupId + " must exist after space deletion",
                   organizationService.getGroupHandler().findGroupById(groupId));
@@ -1053,7 +1043,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String spaceDisplayName = space.getDisplayName();
     String spaceDescription = space.getDescription();
     String groupId = space.getGroupId();
-    Space savedSpace = spaceService.getSpaceByDisplayName(spaceDisplayName);
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertEquals(spaceDisplayName, savedSpace.getDisplayName());
     assertEquals(spaceDescription, savedSpace.getDescription());
@@ -1063,7 +1053,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setDisplayName(updateSpaceDisplayName);
     space.setPrettyName(space.getDisplayName());
     spaceService.updateSpace(space);
-    savedSpace = spaceService.getSpaceByDisplayName(updateSpaceDisplayName);
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertEquals("savedSpace.getDisplayName() must return: " + updateSpaceDisplayName,
                  updateSpaceDisplayName,
@@ -1078,7 +1068,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse("ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()) must be false",
                 ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()));
     spaceService.addPendingUser(space, newPendingUser.getRemoteId());
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertEquals(pendingUsersCount + 1,
                  space.getPendingUsers().length);
     assertTrue(
@@ -1091,14 +1081,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse("ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()) must be false",
                 ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()));
     spaceService.addPendingUser(space, newPendingUser.getRemoteId());
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertEquals(pendingUsersCount + 1,
                  space.getPendingUsers().length);
     assertTrue(
                ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()));
 
     spaceService.removePendingUser(space, newPendingUser.getRemoteId());
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertEquals("space.getPendingUsers().length must return: " + pendingUsersCount,
                  pendingUsersCount,
                  space.getPendingUsers().length);
@@ -1108,7 +1098,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testIsPendingUser() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertTrue("spaceService.isPendingUser(savedSpace, \"jame\") must return true",
                spaceService.isPendingUser(savedSpace, JAME_NAME));
@@ -1122,12 +1112,12 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testAddInvitedUser() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     int invitedUsersCount = savedSpace.getInvitedUsers().length;
     assertFalse(ArrayUtils.contains(savedSpace.getInvitedUsers(), newInvitedUser.getRemoteId()));
     spaceService.addInvitedUser(savedSpace, newInvitedUser.getRemoteId());
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(invitedUsersCount + 1,
                  savedSpace.getInvitedUsers().length);
     assertTrue("ArrayUtils.contains(savedSpace.getInvitedUsers(), newInvitedUser.getRemoteId()) must return true",
@@ -1136,18 +1126,18 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testRemoveInvitedUser() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     int invitedUsersCount = savedSpace.getInvitedUsers().length;
     assertFalse(ArrayUtils.contains(savedSpace.getInvitedUsers(), newInvitedUser.getRemoteId()));
     spaceService.addInvitedUser(savedSpace, newInvitedUser.getRemoteId());
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(invitedUsersCount + 1,
                  savedSpace.getInvitedUsers().length);
     assertTrue("ArrayUtils.contains(savedSpace.getInvitedUsers(), newInvitedUser.getRemoteId()) must return true",
                ArrayUtils.contains(savedSpace.getInvitedUsers(), newInvitedUser.getRemoteId()));
     spaceService.removeInvitedUser(savedSpace, newInvitedUser.getRemoteId());
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals("savedSpace.getInvitedUsers().length must return: " + invitedUsersCount,
                  invitedUsersCount,
                  savedSpace.getInvitedUsers().length);
@@ -1156,7 +1146,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testIsInvitedUser() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertTrue("spaceService.isInvitedUser(savedSpace, \"register1\") must return true",
                spaceService.isInvitedUser(savedSpace, REGISTER1_NAME));
@@ -1189,25 +1179,25 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = this.createSpaceNonInitApps(space, DEMO_NAME, null);
 
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     int managers = savedSpace.getManagers().length;
     spaceService.setManager(savedSpace, DEMO_NAME, true);
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(managers, savedSpace.getManagers().length);
 
     spaceService.setManager(savedSpace, JOHN_NAME, true);
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals("savedSpace.getManagers().length must return: " + managers + 1, managers + 1, savedSpace.getManagers().length);
 
     spaceService.setManager(savedSpace, DEMO_NAME, false);
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(managers, savedSpace.getManagers().length);
   }
 
   public void testIsManager() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertTrue("spaceService.isManager(savedSpace, \"demo\") must return true", spaceService.isManager(savedSpace, DEMO_NAME));
     assertTrue("spaceService.isManager(savedSpace, \"tom\") must return true", spaceService.isManager(savedSpace, TOM_NAME));
@@ -1269,7 +1259,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testIsOnlyManager() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
     assertFalse("spaceService.isOnlyManager(savedSpace, \"tom\") must return false",
                 spaceService.isOnlyManager(savedSpace, TOM_NAME));
@@ -1312,13 +1302,13 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = this.createSpaceNonInitApps(space, DEMO_NAME, null);
 
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
 
     spaceService.addMember(savedSpace, ROOT_NAME);
     spaceService.addMember(savedSpace, MARY_NAME);
     spaceService.addMember(savedSpace, JOHN_NAME);
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
   }
 
@@ -1349,7 +1339,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     space = this.createSpaceNonInitApps(space, DEMO_NAME, null);
 
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
 
     User user = organizationService.getUserHandler().createUserInstance(USER_NEW_1_NAME);
@@ -1362,7 +1352,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(savedSpace, USER_NEW_1_NAME);
     spaceService.addMember(savedSpace, USER_DOT_NEW_NAME);
     spaceService.addMember(savedSpace, USER_NEW_NAME);
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals(4, savedSpace.getMembers().length);
   }
 
@@ -1386,7 +1376,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setMembers(members);
 
     space = this.createSpaceNonInitApps(space, DEMO_NAME, null);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
 
     spaceService.addMember(savedSpace, ROOT_NAME);
@@ -1403,7 +1393,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     organizationService.getMembershipHandler()
                        .linkMembership(user, groupHandler.findGroupById(space.getGroupId()), mbShipTypeMember, true);
 
-    savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    savedSpace = spaceService.getSpaceById(space.getId());
     assertEquals("savedSpace.getMembers().length must return 4", 4, savedSpace.getMembers().length);
 
     spaceService.removeMember(savedSpace, ROOT_NAME);
@@ -1435,7 +1425,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     space.setMembers(new String[] { JOHN_NAME, MARY_NAME });
     space = this.createSpaceNonInitApps(space, JOHN_NAME, null);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     spaceService.addMember(savedSpace, userToBind);
 
     Group groupToBind = organizationService.getGroupHandler().createGroupInstance();
@@ -1500,7 +1490,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setUrl(space.getPrettyName());
     space.setMembers(new String[] { JOHN_NAME, MARY_NAME });
     space = this.createSpaceNonInitApps(space, JOHN_NAME, null);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     spaceService.addMember(savedSpace, userToBind);
 
     Group groupToBind = organizationService.getGroupHandler().createGroupInstance();
@@ -1622,7 +1612,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testIsMember() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
 
     assertTrue("spaceService.isMember(savedSpace, \"raul\") must return true", spaceService.isMember(savedSpace, RAUL_NAME));
@@ -1638,14 +1628,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse("ArrayUtils.contains(space.getPendingUsers(), newPendingUser) must be false",
                 ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()));
     spaceService.addPendingUser(space, newPendingUser.getRemoteId());
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertEquals(pendingUsersCount + 1,
                  space.getPendingUsers().length);
     assertTrue(
                ArrayUtils.contains(space.getPendingUsers(), newPendingUser.getRemoteId()));
 
     spaceService.removePendingUser(space, newPendingUser.getRemoteId());
-    space = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    space = spaceService.getSpaceById(space.getId());
     assertEquals("space.getPendingUsers().length must return: " + pendingUsersCount,
                  pendingUsersCount,
                  space.getPendingUsers().length);
@@ -1654,7 +1644,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testDenyInvitation() {
     Space space = this.getSpaceInstance(0);
-    Space savedSpace = spaceService.getSpaceByDisplayName(space.getDisplayName());
+    Space savedSpace = spaceService.getSpaceById(space.getId());
     assertNotNull(savedSpace);
 
     spaceService.removeInvitedUser(savedSpace, "new member 1");

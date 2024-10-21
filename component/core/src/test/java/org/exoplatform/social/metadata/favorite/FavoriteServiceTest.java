@@ -84,8 +84,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     identityManager.deleteIdentity(johnIdentity);
     metadataDAO.deleteAll();
 

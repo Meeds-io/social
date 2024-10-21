@@ -206,24 +206,6 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public Space getSpaceByDisplayName(final String spaceDisplayName) throws SpaceStorageException {
-    SpaceRefKey refKey = new SpaceRefKey(spaceDisplayName);
-    SpaceKey key = spaceRefFutureCache.get(() -> {
-      Space space = CachedSpaceStorage.super.getSpaceByDisplayName(spaceDisplayName);
-      if (space != null) {
-        return putSpaceInCacheIfNotExists(space);
-      } else {
-        return SpaceKey.NULL_OBJECT;
-      }
-    }, refKey);
-    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
-      return getSpaceById(key.getId());
-    } else {
-      return null;
-    }
-  }
-
-  @Override
   public Space saveSpace(final Space space, final boolean isNew)  {
     try {
       return super.saveSpace(space, isNew);
@@ -237,7 +219,6 @@ public class CachedSpaceStorage extends SpaceStorage {
 
   @Override
   public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    String oldDisplayName = space.getDisplayName();
     String oldPrettyName = space.getPrettyName();
 
     //
@@ -264,9 +245,8 @@ public class CachedSpaceStorage extends SpaceStorage {
     clearSpaceCache();
     clearIdentityCache();
     cleanRef(space);
-    spaceRefCache.remove(new SpaceRefKey(oldDisplayName));
-    spaceRefCache.remove(new SpaceRefKey(null, oldPrettyName));
-    spaceRefCache.remove(new SpaceRefKey(null, null, space.getGroupId()));
+    spaceRefCache.remove(new SpaceRefKey(oldPrettyName));
+    spaceRefCache.remove(new SpaceRefKey(null, space.getGroupId()));
   }
 
   @Override
@@ -602,7 +582,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   public Space getSpaceByPrettyName(final String spacePrettyName) throws SpaceStorageException {
 
     //
-    SpaceRefKey refKey = new SpaceRefKey(null, spacePrettyName);
+    SpaceRefKey refKey = new SpaceRefKey(spacePrettyName);
 
     //
     SpaceKey key = spaceRefFutureCache.get(() -> {
@@ -627,7 +607,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   public Space getSpaceByGroupId(final String groupId) throws SpaceStorageException {
 
     //
-    SpaceRefKey refKey = new SpaceRefKey(null, null, groupId);
+    SpaceRefKey refKey = new SpaceRefKey(null, groupId);
 
     //
     SpaceKey key = spaceRefFutureCache.get(() -> {
@@ -802,15 +782,11 @@ public class CachedSpaceStorage extends SpaceStorage {
     if (spaceCache.get(key) == null) {
       spaceCache.putLocal(key, new SpaceData(space));
     }
-    SpaceRefKey refKey = new SpaceRefKey(space.getDisplayName());
+    SpaceRefKey refKey = new SpaceRefKey(null, space.getGroupId());
     if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
-    refKey = new SpaceRefKey(null, null, space.getGroupId());
-    if (spaceRefCache.get(refKey) == null) {
-      spaceRefCache.putLocal(refKey, key);
-    }
-    refKey = new SpaceRefKey(null, space.getPrettyName());
+    refKey = new SpaceRefKey(space.getPrettyName());
     if (spaceRefCache.get(refKey) == null) {
       spaceRefCache.putLocal(refKey, key);
     }
@@ -829,13 +805,11 @@ public class CachedSpaceStorage extends SpaceStorage {
     if (removed == null) {
       return;
     }
-    spaceRefCache.remove(new SpaceRefKey(removed.getDisplayName()));
-    spaceRefCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
-    spaceRefCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
+    spaceRefCache.remove(new SpaceRefKey(removed.getPrettyName()));
+    spaceRefCache.remove(new SpaceRefKey(null, removed.getGroupId()));
 
-    spaceRefFutureCache.remove(new SpaceRefKey(removed.getDisplayName()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getPrettyName()));
-    spaceRefFutureCache.remove(new SpaceRefKey(null, null, removed.getGroupId()));
+    spaceRefFutureCache.remove(new SpaceRefKey(removed.getPrettyName()));
+    spaceRefFutureCache.remove(new SpaceRefKey(null, removed.getGroupId()));
   }
 
   private void clearIdentityCache() {
