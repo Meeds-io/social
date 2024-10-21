@@ -222,6 +222,7 @@ public class SpaceServiceImpl implements SpaceService {
     Space createdSpace;
     try {
       createdSpace = spaceStorage.saveSpace(spaceToCreate, true);
+      space.setId(createdSpace.getId());
       spaceLifeCycle.spaceCreated(spaceToCreate, username);
     } catch (Exception e) {
       throw new SpaceException(Code.ERROR_DATASTORE,
@@ -242,8 +243,6 @@ public class SpaceServiceImpl implements SpaceService {
     } catch (Exception e) {
       LOG.warn("Error inviting identities {} to space {}", identitiesToInvite, spaceToCreate.getDisplayName(), e);
     }
-    String spaceId = createdSpace.getId();
-    space.setId(spaceId);
     return getSpaceById(createdSpace.getId());
   }
 
@@ -253,6 +252,8 @@ public class SpaceServiceImpl implements SpaceService {
       return;
     }
 
+    // Get a fresh instance in case changes made by listeners
+    space = getSpaceById(space.getId());
     List<String> usernames = getUsersToInvite(identitiesToInvite);
     for (String username : usernames) {
       if (isMember(space, username)) {

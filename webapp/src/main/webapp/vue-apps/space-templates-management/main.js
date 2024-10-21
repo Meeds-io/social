@@ -33,6 +33,20 @@ if (extensionRegistry) {
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.SpaceTemplatesManagement?lang=${lang}`;
 
+//Navigation
+  //Space Home
+  //Members
+  //Apps > Tasks, Notes
+//Creation Steps
+  //Invitation
+//Access Control
+  //Invite Only
+  //Hidden
+//Permissions
+  //Editorial Mode OFF
+  //Space Creation: Users
+  //Layout Management: Admins only
+
 const appId = 'SpaceTemplatesManagement';
 export function init() {
   exoi18n.loadLanguageAsync(lang, url)
