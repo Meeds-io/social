@@ -27,7 +27,7 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
-import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.core.space.service.SpaceLayoutService;
 
 /**
  * A listener to change public site visibility if the space has become hidden

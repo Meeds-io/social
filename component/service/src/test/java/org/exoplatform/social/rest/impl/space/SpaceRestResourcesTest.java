@@ -43,7 +43,7 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
-import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.core.space.service.SpaceLayoutService;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
   private IdentityManager        identityManager;

@@ -24,9 +24,9 @@ import java.util.Set;
 
 import org.exoplatform.commons.utils.StringListConverter;
 
-import io.meeds.social.space.constant.PublicSiteVisibility;
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.core.space.constant.PublicSiteVisibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,7 +54,6 @@ import lombok.Setter;
             query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName")
 @NamedQuery(name = "SpaceEntity.getSpaceByDisplayName",
             query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.displayName = :displayName")
-@NamedQuery(name = "SpaceEntity.getSpaceByURL", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.url = :url")
 @NamedQuery(
             name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
             query = "SELECT spaces FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +

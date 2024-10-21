@@ -49,7 +49,7 @@ import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
 
-import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.core.space.service.SpaceLayoutService;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.http.HttpServletRequest;

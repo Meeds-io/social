@@ -34,8 +34,8 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.space.constant.Visibility;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
