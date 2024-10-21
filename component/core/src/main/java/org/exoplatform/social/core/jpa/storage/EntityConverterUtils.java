@@ -37,10 +37,10 @@ import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
-import io.meeds.social.space.constant.PublicSiteVisibility;
-import io.meeds.social.space.constant.Registration;
+import io.meeds.social.core.space.constant.PublicSiteVisibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.space.constant.Visibility;
 
 public class EntityConverterUtils {
 
