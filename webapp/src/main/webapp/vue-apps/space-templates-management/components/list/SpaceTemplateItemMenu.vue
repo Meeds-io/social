@@ -182,6 +182,7 @@ export default {
         ...this.spaceTemplate,
         id: null,
         bannerFileId: null,
+        system: false,
       }, nameTranslations?.[translationConfiguration?.defaultLanguage],
       nameTranslations,
       descriptionTranslations?.[translationConfiguration?.defaultLanguage],

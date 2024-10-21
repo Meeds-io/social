@@ -18,12 +18,16 @@
  */
 package org.exoplatform.social.notification.impl;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.exoplatform.commons.api.notification.NotificationContext;
-import org.exoplatform.commons.api.notification.model.*;
+import org.exoplatform.commons.api.notification.model.NotificationInfo;
+import org.exoplatform.commons.api.notification.model.PluginKey;
+import org.exoplatform.commons.api.notification.model.WebNotificationFilter;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.WebNotificationService;
 import org.exoplatform.commons.notification.impl.NotificationContextImpl;
-import org.exoplatform.commons.notification.net.WebNotificationSender;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -35,8 +39,6 @@ import org.exoplatform.social.notification.Utils;
 import org.exoplatform.social.notification.plugin.RequestJoinSpacePlugin;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtils;
 import org.exoplatform.social.notification.plugin.SpaceInvitationPlugin;
-import java.util.HashMap;
-import java.util.List;
 
 public class SpaceNotificationImpl extends SpaceListenerPlugin {
 
@@ -89,6 +91,10 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
     String userId = event.getTarget();
     String senderRemoteId = space.getEditor();
     Identity identity = Utils.getIdentityManager().getOrCreateUserIdentity(senderRemoteId);
+    if (identity == null) {
+      LOG.warn("Can't send Invitation notification since the inviter isn't known");
+      return;
+    }
     String senderName = identity.getProfile().getFullName();
     NotificationContext ctx = NotificationContextImpl.cloneInstance()
             .append(SocialNotificationUtils.REMOTE_ID, userId)
