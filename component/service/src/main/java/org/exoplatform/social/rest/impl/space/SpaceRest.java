@@ -489,36 +489,6 @@ public class SpaceRest implements ResourceContainer {
   }
 
   @GET
-  @Path("byDisplayName/{displayName}")
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Gets a specific space by display name",
-             method = "GET",
-             description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
-  @ApiResponses(
-                value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceByDisplayName(
-                                        @Context
-                                        UriInfo uriInfo,
-                                        @Context
-                                        Request request,
-                                        @Parameter(description = "Space id", required = true)
-                                        @PathParam("displayName")
-                                        String displayName,
-                                        @Parameter(
-                                                   description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                                   required = false)
-                                        @QueryParam("expand")
-                                        String expand) {
-
-    Space space = spaceService.getSpaceByDisplayName(displayName);
-    return buildSpaceResponse(space, expand, uriInfo, request);
-  }
-
-  @GET
   @Path("{id}/avatar")
   @Operation(
              summary = "Gets a space avatar by pretty name",

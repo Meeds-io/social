@@ -37,18 +37,6 @@ import org.exoplatform.social.core.space.model.Space;
 public interface SpaceService {
 
   /**
-   * Gets a space by its display name.
-   *
-   * @param spaceDisplayName The space display name.
-   * @return The space.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
-   */
-  default Space getSpaceByDisplayName(String spaceDisplayName) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Gets a space by its pretty name.
    *
    * @param spacePrettyName The space's pretty name.

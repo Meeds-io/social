@@ -189,8 +189,7 @@ public class ActivityMentionMailBuilderTest extends AbstractPluginTest {
     //root add comment to maryActivity and mention john
     makeComment(activityManager.getActivity(maryActivity.getId()), rootIdentity, "root mention @john");
     
-    end();
-    begin();
+    restartTransaction();
 
     assertMadeMailDigestNotifications(3);
     List<NotificationInfo> list2 = assertMadeMailDigestNotifications(johnIdentity.getRemoteId(), 1);
