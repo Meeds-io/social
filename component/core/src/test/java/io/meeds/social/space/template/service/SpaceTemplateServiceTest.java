@@ -45,8 +45,8 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;

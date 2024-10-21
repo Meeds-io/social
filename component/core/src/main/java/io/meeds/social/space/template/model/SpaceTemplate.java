@@ -20,8 +20,8 @@ package io.meeds.social.space.template.model;
 
 import java.util.List;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

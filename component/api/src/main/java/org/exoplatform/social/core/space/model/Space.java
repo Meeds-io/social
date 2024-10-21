@@ -63,6 +63,8 @@ public class Space implements CacheEntry {
   /** The Constant CLOSED. */
   public static final String CLOSED                             = "closed";
 
+  public static final String HOME_URL                           = "home";
+
   /** The id. */
   private String             id;
 

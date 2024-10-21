@@ -23,12 +23,14 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
+    :confirm-close="modified"
+    :confirm-close-labels="closeConfirmLabels"
     class="spaceTemplateNameFormDrawer"
     right>
     <template #title>
       {{ isNew && $t('spaceTemplate.add.drawer.newTemplate') || $t('spaceTemplate.add.drawer.editTemplate') }}
     </template>
-    <template v-if="drawer" #content>
+    <template v-if="drawer && spaceTemplate" #content>
       <div class="pa-4" flat>
         <div class="d-flex">
           <translation-text-field
@@ -44,7 +46,8 @@
             drawer-title="spaceTemplate.nameDrawerTitle"
             class="width-auto flex-grow-1 pb-1"
             back-icon
-            required>
+            required
+            @initialized="setOriginalInfo">
             <template #title>
               {{ $t('spaceTemplate.nameLabel') }}
             </template>
@@ -63,7 +66,8 @@
             drawer-title="spaceTemplate.descriptionDrawerTitle"
             class="ma-1px mt-4"
             back-icon
-            rich-editor>
+            rich-editor
+            @initialized="setOriginalInfo">
             <template #title>
               {{ $t('spaceTemplate.descriptionLabel') }}
             </template>
@@ -97,13 +101,19 @@ export default {
   data: () => ({
     drawer: false,
     isNew: false,
+    initialized: false,
+    characteristicsInformationModified: false,
     spaceTemplate: null,
+    bannerUploadId: null,
+    bannerData: null,
     name: null,
     description: null,
     maxNameLength: 50,
     maxDescriptionLength: 1300,
     nameTranslations: {},
+    originalNameTranslations: null,
     descriptionTranslations: {},
+    originalDescriptionTranslations: null,
   }),
   computed: {
     rules() {
@@ -123,6 +133,19 @@ export default {
     },
     descriptionText() {
       return this.description && this.$utils.htmlToText(this.description) || '';
+    },
+    modified() {
+      return this.characteristicsInformationModified
+        || (JSON.stringify(this.originalNameTranslations) !== JSON.stringify(this.nameTranslations))
+        || (JSON.stringify(this.originalDescriptionTranslations) !== JSON.stringify(this.descriptionTranslations));
+    },
+    closeConfirmLabels() {
+      return {
+        title: this.$t('spaceTemplate.closeConfirmLabels.title'),
+        message: this.$t('spaceTemplate.closeConfirmLabels.message'),
+        ok: this.$t('spaceTemplate.closeConfirmLabels.ok'),
+        cancel: this.$t('spaceTemplate.closeConfirmLabels.cancel'),
+      };
     },
     disabled() {
       return !this.name?.length
@@ -150,8 +173,9 @@ export default {
     this.$root.$off('space-templates-name-open', this.open);
   },
   methods: {
-    open(spaceTemplate) {
+    open(spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
       this.isNew = !spaceTemplate?.id;
+      this.characteristicsInformationModified = modified;
       this.spaceTemplate = spaceTemplate || {
         name: null,
         description: null,
@@ -167,19 +191,33 @@ export default {
         spaceDefaultRegistration: 'OPEN',
         spaceAllowContentCreation: true,
       };
-      if (!spaceTemplate) {
-        this.name = null;
-        this.nameTranslations = null;
-        this.description = null;
-        this.descriptionTranslations = null;
-      }
+      this.bannerUploadId = bannerUploadId;
+      this.bannerData = bannerData;
+      this.name = name || spaceTemplate.name || null;
+      this.nameTranslations = nameTranslations || null;
+      this.description = description || null;
+      this.descriptionTranslations = descriptionTranslations || null;
+      this.initialized = false;
       this.$refs.drawer.open();
     },
-    close() {
+    setOriginalInfo() {
+      if (!this.initialized) {
+        this.originalNameTranslations = JSON.parse(JSON.stringify(this.nameTranslations));
+        this.originalDescriptionTranslations = JSON.parse(JSON.stringify(this.descriptionTranslations));
+      }
+    },
+    async close() {
+      this.spaceTemplate = null;
+      this.nameTranslations = null;
+      this.descriptionTranslations = null;
+      this.originalNameTranslations = null;
+      this.originalDescriptionTranslations = null;
+      this.characteristicsInformationModified = false;
+      await this.$nextTick();
       this.$refs.drawer.close();
     },
     openCharacteristicsDrawer() {
-      this.$root.$emit('space-templates-characteristics-open', this.spaceTemplate, this.name, this.nameTranslations, this.description, this.descriptionTranslations);
+      this.$root.$emit('space-templates-characteristics-open', this.spaceTemplate, this.name, this.nameTranslations, this.description, this.descriptionTranslations, this.modified, this.bannerUploadId, this.bannerData);
       this.close();
     },
   },

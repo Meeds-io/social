@@ -30,25 +30,19 @@ public class SpaceRefKey implements CacheKey {
   private final String displayName;
   private final String prettyName;
   private final String groupId;
-  private final String url;
 
   public SpaceRefKey(final String displayName) {
-    this(displayName, null, null, null);
+    this(displayName, null, null);
   }
 
   public SpaceRefKey(final String displayName, final String prettyName) {
-    this(displayName, prettyName, null, null);
+    this(displayName, prettyName, null);
   }
 
   public SpaceRefKey(final String displayName, final String prettyName, final String groupId) {
-    this(displayName, prettyName, groupId, null);
-  }
-
-  public SpaceRefKey(final String displayName, final String prettyName, final String groupId, final String url) {
     this.displayName = displayName;
     this.prettyName = prettyName;
     this.groupId = groupId;
-    this.url = url;
   }
 
   @Override
@@ -71,10 +65,6 @@ public class SpaceRefKey implements CacheKey {
     if (prettyName != null ? !prettyName.equals(that.prettyName) : that.prettyName != null) {
       return false;
     }
-    if (url != null ? !url.equals(that.url) : that.url != null) {
-      return false;
-    }
-
     return true;
 
   }
@@ -84,7 +74,6 @@ public class SpaceRefKey implements CacheKey {
     int result = (displayName != null ? displayName.hashCode() : 0);
     result = 31 * result + (prettyName != null ? prettyName.hashCode() : 0);
     result = 31 * result + (groupId != null ? groupId.hashCode() : 0);
-    result = 31 * result + (url != null ? url.hashCode() : 0);
     return result;
   }
   
