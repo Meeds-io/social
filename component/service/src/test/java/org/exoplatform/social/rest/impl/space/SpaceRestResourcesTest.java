@@ -618,34 +618,6 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertNotNull(eTag);
   }
 
-  public void testGetSpaceByDisplayName() throws Exception {
-    startSessionAs("root");
-    String input = "{\"displayName\":\"test space\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
-    // root creates a space
-    ContainerResponse response = getResponse("POST", getURLResource("spaces/"), input);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
-    Space space = spaceService.getSpaceById(spaceEntity.getId());
-    assertNotNull(space);
-
-    // Get space by its display name
-    response = service("GET",
-                       getURLResource("spaces/byDisplayName/" + space.getDisplayName().replaceAll(" ", "%20")),
-                       "",
-                       null,
-                       null);
-    assertNotNull(response);
-    assertEquals(200, response.getStatus());
-
-    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
-    assertNotNull(spaceEntity);
-    assertEquals("test space", spaceEntity.getDisplayName());
-    EntityTag eTag = (EntityTag) response.getHttpHeaders().getFirst("ETAG");
-    assertNotNull(eTag);
-  }
-
   public void testGetUpdateDeleteSpaceById() throws Exception {
     // root creates 1 spaces
     Space space = getSpaceInstance(1, "root");

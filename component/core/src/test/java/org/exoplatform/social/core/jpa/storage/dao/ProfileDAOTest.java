@@ -50,8 +50,7 @@ public class ProfileDAOTest extends BaseCoreTest {
     identityDAO = getService(IdentityDAO.class);
 
     identity = identityDAO.create(createIdentity());
-    end();
-    begin();
+    restartTransaction();
     identity = identityDAO.find(identity.getId());
   }
 
@@ -62,8 +61,7 @@ public class ProfileDAOTest extends BaseCoreTest {
     }
 
     identityDAO.delete(identity);
-    end();
-    begin();
+    restartTransaction();
 
     super.tearDown();
   }

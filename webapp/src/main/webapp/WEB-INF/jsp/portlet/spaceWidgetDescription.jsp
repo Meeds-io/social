@@ -1,4 +1,3 @@
-<%@page import="io.meeds.social.core.space.service.SpaceLayoutService"%>
 <%@page import="java.net.URLEncoder"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
@@ -6,6 +5,7 @@
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.exoplatform.portal.mop.SiteType"%>
+<%@page import="io.meeds.social.core.space.service.SpaceLayoutService"%>
 <%
   PortalRequestContext rcontext = PortalRequestContext.getCurrentInstance();
   Space space = SpaceUtils.getSpaceByContext();
