@@ -25,7 +25,7 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
-import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.core.space.service.SpaceLayoutService;
 
 import jakarta.annotation.PostConstruct;
 

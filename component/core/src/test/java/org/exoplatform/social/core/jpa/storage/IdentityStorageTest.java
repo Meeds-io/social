@@ -57,12 +57,6 @@ import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 import lombok.SneakyThrows;
 
-/**
- * Created by IntelliJ IDEA.
- * User: zun
- * Date: Jun 17, 2010
- * Time: 9:34:56 AM
- */
 public class IdentityStorageTest extends AbstractCoreTest {
   private IdentityStorage identityStorage;
   private SpaceStorage spaceStorage;

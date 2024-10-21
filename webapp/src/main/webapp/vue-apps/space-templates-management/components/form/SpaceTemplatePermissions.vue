@@ -49,7 +49,7 @@
         </template>
       </v-radio>
       <v-radio
-        v-if="spaceAdmins"
+        v-if="spaceAdmin"
         value="spaceAdmin"
         class="mt-0">
         <template #label>
@@ -102,7 +102,7 @@ export default {
       type: Boolean,
       default: false,
     },
-    spaceAdmins: {
+    spaceAdmin: {
       type: Boolean,
       default: false,
     },
@@ -117,8 +117,8 @@ export default {
         return [this.$root.usersPermission];
       } else if (this.choice === 'admins') {
         return [this.$root.administratorsPermission];
-      } else if (this.choice === 'spaceAdmins') {
-        return 'spaceAdmin';
+      } else if (this.choice === 'spaceAdmin') {
+        return ['spaceAdmin'];
       } else {
         return this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g);
       }
@@ -137,16 +137,19 @@ export default {
     permissions() {
       this.$emit('input', this.permissions);
     },
+    choice() {
+      console.warn('this.choice', this.choice);
+    },
   },
   created() {
-    if (this.users && JSON.stringify(this.value) === JSON.stringify(this.$root.usersPermission)) {
+    if (this.users && this.value?.length === 1 && this.value?.[0] === this.$root.usersPermission) {
       this.choice = 'users';
       this.specificGroupEntries = null;
-    } else if (this.admins && JSON.stringify(this.value) === JSON.stringify(this.$root.administratorsPermission)) {
+    } else if (this.admins && this.value?.length === 1 && this.value?.[0] === this.$root.administratorsPermission) {
       this.choice = 'admins';
       this.specificGroupEntries = null;
-    } else if (this.spaceAdmins && this.value?.[0] === 'spaceAdmin') {
-      this.choice = 'spaceAdmins';
+    } else if (this.spaceAdmin && this.value?.[0] === 'spaceAdmin') {
+      this.choice = 'spaceAdmin';
       this.specificGroupEntries = null;
     } else {
       this.choice = 'suggester';
