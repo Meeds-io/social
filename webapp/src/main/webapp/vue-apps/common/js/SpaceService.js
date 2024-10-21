@@ -125,11 +125,32 @@ export function getSpaceByGroupSuffix(groupSuffix, expand) {
   });
 }
 
-export function getSpaces(query, offset, limit, filter, expand) {
+export function getSpaces(query, offset, limit, filter, expand, templateId) {
   if (!expand) {
     expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
   }
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&filterType=${filter}&returnSize=true&expand=${expand}`, {
+  const formData = new FormData();
+  if (query) {
+    formData.append('q', query);
+  }
+  if (templateId) {
+    formData.append('templateId', templateId);
+  }
+  if (offset) {
+    formData.append('offset', offset);
+  }
+  if (limit) {
+    formData.append('limit', limit);
+  }
+  if (filter) {
+    formData.append('filterType', filter);
+  }
+  formData.append('returnSize', true);
+  if (expand) {
+    formData.append('expand', expand);
+  }
+  const urlParams = new URLSearchParams(formData).toString();
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?${urlParams}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
