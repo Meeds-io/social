@@ -43,12 +43,13 @@
     </td>
     <td
       v-if="!$root.isMobile"
-      class="text-truncate text-center"
+      class="text-center"
       width="120px">
       <space-templates-management-item-permission
         v-for="expression in spaceTemplate.permissions"
         :key="expression"
-        :expression="expression" />
+        :expression="expression"
+        class="ma-1" />
     </td>
     <td
       v-if="!$root.isMobile"
@@ -109,7 +110,7 @@ export default {
       return this.spaceTemplate?.icon;
     },
     spacesCount() {
-      return this.$root.spacesCountByTemplates?.[this.spaceTemplate?.id] || 0;
+      return this.spaceTemplate?.spacesCount;
     },
   },
   watch: {
