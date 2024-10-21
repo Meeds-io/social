@@ -213,6 +213,9 @@ public class SpaceRest implements ResourceContainer {
                             @Schema(defaultValue = "20")
                             @QueryParam("limit")
                             int limit,
+                            @Parameter(description = "Space Template identifier, if equals to 0, it will not be used", required = false)
+                            @QueryParam("templateId")
+                            long templateId,
                             @Parameter(description = "Sort", required = false)
                             @QueryParam("sort")
                             String sort,
@@ -249,6 +252,7 @@ public class SpaceRest implements ResourceContainer {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
     spaceFilter.setTagNames(tagNames);
+    spaceFilter.setTemplateId(templateId);
 
     if (StringUtils.isNotBlank(sort)) {
       SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
