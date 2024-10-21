@@ -759,22 +759,19 @@ public class ActivityStorageTest extends AbstractCoreTest {
     activity1.setTitle("hello world");
     activityStorage.saveActivity(demoIdentity, activity1);
 
-    end();
-    begin();
+    restartTransaction();
 
     ExoSocialActivity activity2 = createActivity(1);
     activity2.setTitle("hello mention @demo");
     activityStorage.saveActivity(rootIdentity, activity2);
 
-    end();
-    begin();
+    restartTransaction();
 
     ExoSocialActivity activity3 = createActivity(1);
     activity3.setTitle("bye world");
     activityStorage.saveActivity(demoIdentity, activity3);
 
-    end();
-    begin();
+    restartTransaction();
 
     // When
     List<ExoSocialActivity> activities = activityStorage.getActivities(demoIdentity, demoIdentity, 0, 10);
