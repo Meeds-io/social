@@ -29,8 +29,8 @@ import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 @Repository
 public interface SpaceTemplateDAO extends JpaRepository<SpaceTemplateEntity, Long> {
 
-  List<SpaceTemplateEntity> findByDeletedFalseOrderByTemplateOrderDesc(Pageable pageable);
+  List<SpaceTemplateEntity> findByDeletedFalse(Pageable pageable);
 
-  List<SpaceTemplateEntity> findByDeletedFalseAndEnabledTrueOrderByTemplateOrderDesc(Pageable pageable);
+  List<SpaceTemplateEntity> findByDeletedFalseAndEnabledTrue(Pageable pageable);
 
 }

@@ -48,8 +48,6 @@ public class SpaceTemplate {
 
   private boolean      system;
 
-  private long         order;
-
   private String       layout;
 
   private List<String> permissions;

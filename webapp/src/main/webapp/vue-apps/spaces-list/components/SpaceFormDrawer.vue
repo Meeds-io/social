@@ -84,13 +84,16 @@
                 class="input-block-level ignore-vuetify-classes my-3"
                 required>
                 <option
-                  v-for="item in templates"
+                  v-for="item in sortedTemplates"
                   :key="item.id"
                   :value="item.id">
                   {{ item.name }}
                 </option>
               </select>
-              <div class="text-subtitle ps-1">{{ spaceTemplate?.description || '' }}</div>
+              <div
+                v-if="spaceTemplate?.description"
+                v-sanitized-html="spaceTemplate?.description"
+                class="text-subtitle ps-1"></div>
               <v-card-actions class="px-0">
                 <v-spacer />
                 <v-btn
@@ -264,6 +267,16 @@ export default {
     saveButtonDisabled() {
       return this.savingSpace || this.spaceSaved || this.stepper < 3 && !this.space.id || (this.space.description?.length || 0) > this.maxDescriptionLength;
     },
+    sortedTemplates() {
+      const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
+      spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+      return this.keyword?.length && spaceTemplates.filter(t => {
+        const name = this.$te(t.name) ? this.$t(t.name) : t.name;
+        const description = this.$te(t.description) ? this.$t(t.description) : t.description;
+        return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
+          || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
+      }) || spaceTemplates;
+    },
     spaceTemplate() {
       return this.templates?.find?.(temp => temp.id === this.templateId);
     },
@@ -378,7 +391,7 @@ export default {
       this.$spaceTemplateService.getSpaceTemplates()
         .then(data => {
           this.templates = data || [];
-          this.templateId = this.templates?.[0]?.id;
+          this.templateId = this.sortedTemplates?.[0]?.id;
         });
       this.$refs.spaceFormDrawer.open();
     },
@@ -396,7 +409,7 @@ export default {
       this.$spaceTemplateService.getSpaceTemplates()
         .then(data => {
           this.templates = data || [];
-          this.templateId = this.templates?.[0]?.id;
+          this.templateId = this.sortedTemplates?.[0]?.id;
         });
       this.$refs.spaceFormDrawer.open();
     },

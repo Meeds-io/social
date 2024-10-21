@@ -131,7 +131,12 @@ public final class SpaceQueryBuilder {
                                         .toList()));
     }
 
-    //status
+    // Space Template
+    if (spaceFilter.getTemplateId() > 0) {
+      predicates.add(root.get(SpaceEntity_.templateId).in(spaceFilter.getTemplateId()));
+    }
+
+    // status
     if (CollectionUtils.isNotEmpty(spaceFilter.getStatusList())) {
       Path<SpaceMemberEntity> join = getMembersJoin(root, JoinType.INNER);
 
