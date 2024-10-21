@@ -33,6 +33,14 @@ export function includeExtensions(suffix) {
     });
 }
 
+export function blobToBase64(blob) {
+  return new Promise(resolve => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
 export function convertImageDataAsSrc(imageData) {
   if (Array.isArray(imageData)) {
     let binary = '';

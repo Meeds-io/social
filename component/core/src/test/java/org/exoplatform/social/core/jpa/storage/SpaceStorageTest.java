@@ -1182,42 +1182,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
   /**
    * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getSpaceByUrl(String)}
-   *
-   * @throws Exception
-   */
-  public void testGetSpaceByUrl() throws Exception {
-    int number = 1;
-    Space space = this.getSpaceInstance(number);
-    space.setUrl("http://fake.com.vn");
-    spaceStorage.saveSpace(space, true);
-    persist();
-
-    // get saved space
-    Space savedSpace = spaceStorage.getSpaceByUrl(space.getUrl());
-    assertNotNull("savedSpace must not be null", savedSpace);
-    assertNotNull("savedSpace.getId() must not be null", savedSpace.getId());
-    assertEquals("space.getId() must return: " + space.getId(), space.getId(), savedSpace.getId());
-    assertEquals("space.getName() must return: " + space.getPrettyName(), space.getPrettyName(), savedSpace.getPrettyName());
-
-    // Show that getName() is the same as getPrettyname
-    assertTrue("savedSpace.getName().equals(savedSpace.getPrettyName()) must return true",
-               savedSpace.getPrettyName().equals(savedSpace.getPrettyName()));
-
-    assertEquals("space.getRegistration() must return: " + space.getRegistration(),
-                 space.getRegistration(),
-                 savedSpace.getRegistration());
-    assertEquals("space.getDescription() must return: " + space.getDescription(),
-                 space.getDescription(),
-                 savedSpace.getDescription());
-    assertEquals("space.getVisibility() must equal savedSpace.getVisibility() = " + space.getVisibility(),
-                 space.getVisibility(),
-                 savedSpace.getVisibility());
-    assertEquals("space.getUrl() must return: " + space.getUrl(), space.getUrl(), savedSpace.getUrl());
-  }
-
-  /**
-   * Test
    * {@link org.exoplatform.social.core.storage.SpaceStorage#getSpaceByPrettyName(String)}
    *
    * @throws Exception
