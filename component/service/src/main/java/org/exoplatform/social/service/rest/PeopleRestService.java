@@ -124,25 +124,6 @@ public class PeopleRestService implements ResourceContainer{
   private RelationshipManager relationshipManager;
   private SpaceService spaceService;
 
-  public PeopleRestService() {
-  }
-
-  /**
-   * Gets users' names that match the input string for suggestion.
-   *
-   * @param uriInfo The requested URI information.
-   * @param name The provided characters to be searched.
-   * @param currentUser The user who sends request.
-   * @param activityId the Id of the activity where we want to mention a user in its comment
-   * @param typeOfRelation The relationship status such as "confirmed", "pending", "incoming", "member_of_space", "mention_activity_stream", "mention_comment" or "user_to_invite"
-   * @param spaceUrl The URL of the related space.
-   * @param spacePrettyName The prettyName of the related space.
-   * @param format The format of the returned result, for example, JSON, or XML.
-   * @return A list of users' names that match the input string.
-   * @throws Exception
-   * @LevelAPI Platform
-   * @anchor PeopleRestService.suggestUsernames
-   */
   @RolesAllowed("users")
   @GET
   @Path("suggest.{format}")
@@ -166,23 +147,18 @@ public class PeopleRestService implements ResourceContainer{
     identityFilter.setPosition("");
     identityFilter.setSkills("");
 
-    Space currentSpace = getSpaceService().getSpaceByUrl(spaceUrl);
-    if (currentSpace == null && StringUtils.isNotBlank(spacePrettyName)) {
-      currentSpace = getSpaceService().getSpaceByPrettyName(spacePrettyName);
-      if (currentSpace != null) {
-        spaceUrl = currentSpace.getUrl();
-      }
+    if (StringUtils.isBlank(spacePrettyName) && StringUtils.isNotBlank(spaceUrl)) {
+      spacePrettyName = spaceUrl;
     }
-
+    Space currentSpace = getSpaceService().getSpaceByPrettyName(spacePrettyName);
     IdentityNameList nameList = new IdentityNameList();
-    if (currentSpace == null
-        && (StringUtils.isNotBlank(spacePrettyName) || StringUtils.isNotBlank(spaceUrl))) {
+    if (currentSpace == null && StringUtils.isNotBlank(spacePrettyName)) {
       return Util.getResponse(nameList, uriInfo, mediaType, Response.Status.OK);
     }
 
     List<Identity> excludedIdentityList = identityFilter.getExcludedIdentityList();
     if (excludedIdentityList == null) {
-      excludedIdentityList = new ArrayList<Identity>();
+      excludedIdentityList = new ArrayList<>();
     }
     Identity currentIdentity = Util.getViewerIdentity(currentUser);
     identityFilter.setViewerIdentity(currentIdentity);
@@ -400,7 +376,7 @@ public class PeopleRestService implements ResourceContainer{
 
       // first add space members in the suggestion list when mentioning in a space Activity Stream
       if (currentSpace != null) {
-        userInfos = addSpaceMembers(spaceUrl, identityFilter, userInfos, currentUser, request.getLocale());
+        userInfos = addSpaceMembers(spacePrettyName, identityFilter, userInfos, currentUser, request.getLocale());
       }
       else {
         // then add connections in the suggestions
@@ -451,8 +427,8 @@ public class PeopleRestService implements ResourceContainer{
       if (currentSpace != null || getActivityManager().getActivity(activityId).getActivityStream().getType().equals(Type.SPACE)) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0) {
-          spaceUrl = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spaceUrl;
-          userInfos = addSpaceMembers(spaceUrl, identityFilter, userInfos, currentUser, request.getLocale());
+          spacePrettyName = currentSpace == null ? getActivityManager().getActivity(activityId).getStreamOwner() : spacePrettyName;
+          userInfos = addSpaceMembers(spacePrettyName, identityFilter, userInfos, currentUser, request.getLocale());
         }
       }
       else {
@@ -558,8 +534,8 @@ public class PeopleRestService implements ResourceContainer{
     return userInfos;
   }
 
-  private LinkedHashSet<UserInfo> addSpaceMembers (String spaceURL, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
-    String[] spaceMembers = getSpaceService().getSpaceByUrl(spaceURL).getMembers();
+  private LinkedHashSet<UserInfo> addSpaceMembers (String spaceByPrettyName, ProfileFilter identityFilter, LinkedHashSet<UserInfo> userInfos, String currentUser, Locale locale) {
+    String[] spaceMembers = getSpaceService().getSpaceByPrettyName(spaceByPrettyName).getMembers();
     for (String spaceMember : spaceMembers) {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
       if (identity.isEnable() && !identity.isDeleted()) {
@@ -881,7 +857,7 @@ public class PeopleRestService implements ResourceContainer{
 
     private static final long serialVersionUID = -3638967656497819786L;
 
-    public static enum Field {
+    public enum Field {
       /**
        * User Displayname
        */
@@ -917,18 +893,20 @@ public class PeopleRestService implements ResourceContainer{
       */
       private final String fieldName;
 
-     /**
-      * private constructor.
-      *
-      * @param string string type
-      */
-      private Field(final String string) {
-        fieldName = string;
-      }
-      
+      @Override
       public String toString() {
         return fieldName;
       }
+
+      /**
+       * private constructor.
+       *
+       * @param string string type
+       */
+      private Field(final String string) {
+        fieldName = string;
+      }
+
     }
     /**
      * Default constructor, used by JAX-RS.

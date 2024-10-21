@@ -31,9 +31,9 @@ import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import io.meeds.social.space.constant.Registration;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.space.constant.Visibility;
 
 public class SpaceDAOTest extends BaseCoreTest {
   private SpaceDAO    spaceDAO;
@@ -83,9 +83,6 @@ public class SpaceDAOTest extends BaseCoreTest {
     assertSpace(spaceEntity, result);
 
     result = spaceDAO.getSpaceByPrettyName(spaceEntity.getPrettyName());
-    assertSpace(spaceEntity, result);
-
-    result = spaceDAO.getSpaceByURL(spaceEntity.getUrl());
     assertSpace(spaceEntity, result);
   }
 

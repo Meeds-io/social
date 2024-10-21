@@ -39,8 +39,8 @@ import org.springframework.data.domain.Pageable;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.template.dao.SpaceTemplateDAO;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;

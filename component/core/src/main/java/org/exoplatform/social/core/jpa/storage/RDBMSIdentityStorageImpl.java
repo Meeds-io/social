@@ -95,13 +95,13 @@ import lombok.SneakyThrows;
  */
 public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
-  private static final Log                 LOG                   = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
+  private static final Log                 LOG               = ExoLogger.getLogger(RDBMSIdentityStorageImpl.class);
 
-  private static final int                 BATCH_SIZE            = 100;
+  private static final int                 BATCH_SIZE        = 100;
 
-  private static final long                MEGABYTE              = 1024L * 1024L;
+  private static final long                MEGABYTE          = 1024L * 1024L;
 
-  private static final String              socialNameSpace       = "social";
+  private static final String              SOCIAL_NAME_SPACE = "social";
 
   private final IdentityDAO                identityDAO;
 
@@ -119,9 +119,9 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   private SpaceStorage                     spaceStorage;
 
-  private Map<String, IdentityProvider<?>> identityProviders     = null;
+  private Map<String, IdentityProvider<?>> identityProviders = null;
 
-  private int                              imageUploadLimit      = DEFAULT_UPLOAD_IMAGE_LIMIT;
+  private int                              imageUploadLimit  = DEFAULT_UPLOAD_IMAGE_LIMIT;
 
   public RDBMSIdentityStorageImpl(IdentityDAO identityDAO,
                                   SpaceMemberDAO spaceMemberDAO,
@@ -192,7 +192,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             fileItem = new FileItem(avatarId,
                     fileName,
                     attachment.getMimeType(),
-                    socialNameSpace,
+                    SOCIAL_NAME_SPACE,
                     bytes.length,
                     new Date(),
                     identityEntity.getRemoteId(),
@@ -204,7 +204,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             fileItem = new FileItem(null,
                     fileName,
                     attachment.getMimeType(),
-                    socialNameSpace,
+                    SOCIAL_NAME_SPACE,
                     bytes.length,
                     new Date(),
                     identityEntity.getRemoteId(),
@@ -242,7 +242,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             fileItem = new FileItem(bannerId,
                     fileName,
                     attachment.getMimeType(),
-                    socialNameSpace,
+                    SOCIAL_NAME_SPACE,
                     bytes.length,
                     new Date(),
                     identityEntity.getRemoteId(),
@@ -254,7 +254,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
             fileItem = new FileItem(null,
                     fileName,
                     attachment.getMimeType(),
-                    socialNameSpace,
+                    SOCIAL_NAME_SPACE,
                     bytes.length,
                     new Date(),
                     identityEntity.getRemoteId(),
@@ -648,7 +648,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
    * @since 4.1.0
    */
   public Set<String> getActiveUsers(ActiveIdentityFilter filter) {
-    Set<String> activeUsers = new HashSet<String>();
+    Set<String> activeUsers = new HashSet<>();
     //by userGroups
     if (filter.getUserGroups() != null) {
       StringTokenizer stringToken = new StringTokenizer(filter.getUserGroups(), ActiveIdentityFilter.COMMA_SEPARATOR);
@@ -978,6 +978,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                            .toList();
   }
 
+  @Override
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
     return this.getIdentities(providerId, null, null, true, null, null, null, offset, limit);
   }
@@ -1082,7 +1083,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
           file = new FileItem(null,
                               EntityConverterUtils.DEFAULT_AVATAR,
                               avatar.getMimeType(),
-                              socialNameSpace,
+                              SOCIAL_NAME_SPACE,
                               bytes.length,
                               new Date(),
                               identity.getRemoteId(),
