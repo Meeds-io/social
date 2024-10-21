@@ -55,7 +55,7 @@ public class SpaceFilter implements Cloneable {
 
   private long                  identityId;
 
-  private String                template;
+  private long                  templateId;
 
   private SpaceMembershipStatus status;
 
@@ -105,7 +105,7 @@ public class SpaceFilter implements Cloneable {
                            exclusions,
                            remoteId,
                            identityId,
-                           template,
+                           templateId,
                            status,
                            extraStatus,
                            sorting,
