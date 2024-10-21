@@ -58,7 +58,6 @@ export default {
     spaceTemplates: [],
     spaceTemplateToDelete: null,
     loading: false,
-    collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
   }),
   computed: {
     headers() {
@@ -131,12 +130,14 @@ export default {
       ];
     },
     filteredSpaceTemplates() {
-      return this.keyword?.length && this.spaceTemplates.filter(t => {
+      const spaceTemplates = this.spaceTemplates?.filter?.(t => t.name) || [];
+      spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+      return this.keyword?.length && spaceTemplates.filter(t => {
         const name = this.$te(t.name) ? this.$t(t.name) : t.name;
         const description = this.$te(t.description) ? this.$t(t.description) : t.description;
         return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
           || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
-      }) || this.spaceTemplates;
+      }) || spaceTemplates;
     },
     nameToDelete() {
       return this.spaceTemplateToDelete && this.$te(this.spaceTemplateToDelete?.name) ? this.$t(this.spaceTemplateToDelete?.name) : this.spaceTemplateToDelete?.name;

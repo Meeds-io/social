@@ -62,9 +62,6 @@ public class SpaceTemplateEntity {
   @Column(name = "IS_SYSTEM")
   private boolean      system;
 
-  @Column(name = "TEMPLATE_ORDER")
-  private long         templateOrder;
-
   @Column(name = "LAYOUT")
   private String       layout;
 
