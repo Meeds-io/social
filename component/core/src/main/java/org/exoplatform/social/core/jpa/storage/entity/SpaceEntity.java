@@ -52,8 +52,6 @@ import lombok.Setter;
 @NamedQuery(name = "SpaceEntity.getSpaceByGroupId", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.groupId = :groupId")
 @NamedQuery(name = "SpaceEntity.getSpaceByPrettyName",
             query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName")
-@NamedQuery(name = "SpaceEntity.getSpaceByDisplayName",
-            query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.displayName = :displayName")
 @NamedQuery(
             name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
             query = "SELECT spaces FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +

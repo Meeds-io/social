@@ -155,11 +155,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public Space getSpaceByDisplayName(String spaceDisplayName) {
-    return spaceStorage.getSpaceByDisplayName(spaceDisplayName);
-  }
-
-  @Override
   public Space getSpaceByPrettyName(String spacePrettyName) {
     return spaceStorage.getSpaceByPrettyName(spacePrettyName);
   }

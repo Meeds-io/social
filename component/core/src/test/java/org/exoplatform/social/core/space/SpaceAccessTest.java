@@ -77,8 +77,7 @@ public class SpaceAccessTest extends AbstractCoreTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     for (Identity identity : tearDownUserList) {
       identityStorage.deleteIdentity(identity);
