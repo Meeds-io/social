@@ -42,7 +42,6 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       true,
                                       false,
                                       true,
-                                      1l,
                                       null,
                                       Arrays.asList("*:/platform/users"),
                                       Arrays.asList("*:/platform/administrators"),
