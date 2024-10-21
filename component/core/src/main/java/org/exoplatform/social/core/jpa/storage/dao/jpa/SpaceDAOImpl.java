@@ -60,17 +60,6 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
   }
 
   @Override
-  public SpaceEntity getSpaceByDisplayName(String spaceDisplayName) {
-    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByDisplayName", SpaceEntity.class);
-    query.setParameter("displayName", spaceDisplayName);
-    try {
-      return query.getSingleResult();
-    } catch (NoResultException ex) {
-      return null;
-    }
-  }
-
-  @Override
   public SpaceEntity getSpaceByPrettyName(String spacePrettyName) {
     TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByPrettyName", SpaceEntity.class);
     query.setParameter("prettyName", spacePrettyName);

@@ -94,8 +94,7 @@ public class MetadataActivityProcessorTest extends AbstractCoreTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     identityManager.deleteIdentity(rootIdentity);
     identityManager.deleteIdentity(johnIdentity);
     identityManager.deleteIdentity(maryIdentity);
