@@ -77,8 +77,7 @@ public class ActivityCommentReplyMailBuilderTest extends AbstractPluginTest {
     //STEP 3 add comment reply (notif sent to root)
     makeCommentReply(activity, demoIdentity, SUB_COMMENT_TITLE, comment.getId());
 
-    end();
-    begin();
+    restartTransaction();
 
     List<NotificationInfo> list = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
     NotificationInfo commentReplyNotification = list.get(0);
@@ -107,8 +106,7 @@ public class ActivityCommentReplyMailBuilderTest extends AbstractPluginTest {
     //demo add comment reply to maryActivity ==> notify to root and mary
     makeCommentReply(maryActivity, demoIdentity, "demo add reply", comment.getId());
 
-    end();
-    begin();
+    restartTransaction();
 
     List<NotificationInfo> list1 = assertMadeMailDigestNotifications(rootIdentity.getRemoteId(), 1);
     toRoot.add(list1.get(0));

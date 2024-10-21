@@ -114,8 +114,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   }
 
   public void testShouldConfirmInvitationToConnectWhenReceiverConfirmsTheInvitation() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     // Given
     Relationship invitation = relationshipManager.inviteToConnect(johnIdentity, maryIdentity);
@@ -133,8 +132,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   }
 
   public void testShouldNotConfirmInvitationToConnectWhenSenderConfirmsTheInvitation() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     // Given
     Relationship invitation = relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
@@ -158,8 +156,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listInviteds = Arrays.asList(space.getInvitedUsers());
     assertTrue(listInviteds.contains("root"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
     ContainerResponse response = service("GET", "/social/intranet-notification/ignoreInvitationToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId() + "/" + createNotif() + "/message.json", "", null, null);
@@ -170,8 +167,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     Map<String, Boolean> map = (Map<String, Boolean>) response.getEntity();
     assertFalse(map.get("showViewAll"));
 
-    end();
-    begin();
+    restartTransaction();
 
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertFalse(listMembers.contains("root"));
@@ -184,8 +180,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserAcceptInvitation() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
@@ -207,8 +202,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testAuthorizedUserAcceptInvitation() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
 
@@ -234,8 +228,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserRequestValidationByManagerWithNonInvitedUser() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
 
@@ -259,8 +252,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserRequestValidationByNonManagerWithNotInvitedTargetUser() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
@@ -288,8 +280,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
 
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
@@ -314,8 +305,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testAuthorizedUserRequestValidationByManager() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
 
