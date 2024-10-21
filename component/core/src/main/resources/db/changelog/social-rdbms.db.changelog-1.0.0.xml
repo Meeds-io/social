@@ -1022,7 +1022,13 @@
     <createSequence sequenceName="SEQ_SOC_SPACE_TEMPLATE_ID" startValue="1"/>
   </changeSet>
 
-  <changeSet author="social" id="1.0.0-106">
+  <changeSet author="social" id="1.0.0-106" onValidationFail="MARK_RAN">
+    <validCheckSum>ANY</validCheckSum>
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <tableExists tableName="SOC_SPACE_TEMPLATES"/>
+      </not>
+    </preConditions>
     <createTable tableName="SOC_SPACE_TEMPLATES">
       <column name="ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOCIAL_SPACE_TEMPLATE"/>
@@ -1031,7 +1037,6 @@
       <column name="ENABLED" type="BOOLEAN" defaultValueBoolean="false" />
       <column name="DELETED" type="BOOLEAN" defaultValueBoolean="false" />
       <column name="IS_SYSTEM" type="BOOLEAN" defaultValueBoolean="false" />
-      <column name="TEMPLATE_ORDER" type="BIGINT" defaultValueNumeric="0" />
       <column name="PERMISSIONS" type="NVARCHAR(2000)" />
       <column name="SPACE_DELETE_PERMISSIONS" type="NVARCHAR(2000)" />
       <column name="SPACE_LAYOUT_PERMISSIONS" type="NVARCHAR(2000)" />

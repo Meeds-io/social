@@ -54,7 +54,13 @@
       v-if="!$root.isMobile"
       class="text-truncate text-center"
       width="120px">
-      {{ spacesCount }}
+      <v-card
+        v-on="spacesCount && {
+          click: () => $root.$emit('space-list-by-template-open', spaceTemplate.id, spaceTemplate.name),
+        }"
+        flat>
+        {{ spacesCount }}
+      </v-card>
     </td>
     <td
       v-if="!$root.isMobile"
