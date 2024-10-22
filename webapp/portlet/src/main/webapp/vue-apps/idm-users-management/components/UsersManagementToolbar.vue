@@ -53,6 +53,7 @@
     <v-spacer />
     <v-scale-transition>
       <v-text-field
+        v-if="filter === 'ENABLED'"
         v-model="keyword"
         :placeholder="$t('UsersManagement.filterBy')"
         prepend-inner-icon="fa-filter"
