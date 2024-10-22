@@ -256,7 +256,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     // Get a fresh instance in case changes made by listeners
     Space existingSpace = getSpaceById(space.getId());
-    existingSpace.setEditor(existingSpace.getEditor());
+    existingSpace.setEditor(space.getEditor());
     List<String> usernames = getUsersToInvite(identitiesToInvite);
     for (String username : usernames) {
       if (isMember(existingSpace, username)) {

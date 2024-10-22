@@ -55,7 +55,10 @@
             <v-icon size="20">fa-edit</v-icon>
           </v-btn>
         </div>
-        <div class="d-flex my-4">
+        <v-card
+          class="d-flex my-4"
+          flat
+          @click="step = 1">
           <v-card
             height="24"
             width="24"
@@ -66,7 +69,7 @@
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.mandatoryCreationStep') }}
           </div>
-        </div>
+        </v-card>
         <div v-if="step === 1" class="d-flex flex-column mb-4">
           <span class="mb-2">{{ $t('spaceTemplate.mandatoryCreationStepDescription') }}</span>
           <v-checkbox
@@ -105,7 +108,12 @@
             {{ $t('spaceTemplate.mandatoryCreationStepNameOrInvitationMandatory') }}
           </div>
         </div>
-        <div class="d-flex mb-4">
+        <v-card
+          v-on="step2Enabled && {
+            click: () => step = 2,
+          }"
+          class="d-flex mb-4"
+          flat>
           <v-card
             :class="step > 1 ? 'tertiary' : 'mask-color'"
             height="24"
@@ -117,7 +125,7 @@
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.defaultSpaceConfigurationStep') }}
           </div>
-        </div>
+        </v-card>
         <div v-show="step === 2" class="mb-4">
           <div class="d-flex flex-column">
             <span class="mb-4">
@@ -138,7 +146,12 @@
               class="mb-n2" />
           </div>
         </div>
-        <div class="d-flex mb-4">
+        <v-card
+          v-on="step3Enabled && {
+            click: () => step = 3,
+          }"
+          class="d-flex mb-4"
+          flat>
           <v-card
             :class="step > 2 ? 'tertiary' : 'mask-color'"
             height="24"
@@ -150,7 +163,7 @@
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.permissionsStep') }}
           </div>
-        </div>
+        </v-card>
         <div v-if="step === 3" class="d-flex flex-column mb-4">
           <span v-sanitized-html="permissionsStepDescription1" class="mb-2"></span>
           <span class="mb-4">
@@ -260,6 +273,12 @@ export default {
       return this.step === 1
         && !this.spaceTemplate?.spaceFields?.includes?.('name')
         && !this.spaceTemplate?.spaceFields?.includes?.('invitation');
+    },
+    step2Enabled() {
+      return !this.disabledFirstStep;
+    },
+    step3Enabled() {
+      return this.step2Enabled;
     },
     modified() {
       return this.isNew
