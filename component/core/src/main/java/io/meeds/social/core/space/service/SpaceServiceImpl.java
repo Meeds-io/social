@@ -256,7 +256,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     // Get a fresh instance in case changes made by listeners
     Space existingSpace = getSpaceById(space.getId());
-    existingSpace.setEditor(existingSpace.getEditor());
+    existingSpace.setEditor(space.getEditor());
     List<String> usernames = getUsersToInvite(identitiesToInvite);
     for (String username : usernames) {
       if (isMember(existingSpace, username)) {
@@ -349,10 +349,12 @@ public class SpaceServiceImpl implements SpaceService {
       space = this.removeInvited(space, username);
       space = this.removePending(space, username);
       if (!ArrayUtils.contains(members, username)) {
-        addUserToGroupWithMemberMembership(username, space.getGroupId());
         members = ArrayUtils.add(members, username);
         space.setMembers(members);
         spaceStorage.saveSpace(space, false);
+        // Add User to Group after adding member to space to not
+        // invoke twice the membership change
+        addUserToGroupWithMemberMembership(username, space.getGroupId());
         spaceLifeCycle.memberJoined(space, username);
       }
     } finally {
@@ -673,6 +675,8 @@ public class SpaceServiceImpl implements SpaceService {
       redactors = ArrayUtils.add(redactors, username);
       space.setRedactors(redactors);
       spaceStorage.saveSpace(space, false);
+      // Add User to Group after adding member to space to not
+      // invoke twice the membership change
       addUserToGroupWithRedactorMembership(username, space.getGroupId());
     }
   }
@@ -695,6 +699,8 @@ public class SpaceServiceImpl implements SpaceService {
       publishers = ArrayUtils.add(publishers, username);
       space.setPublishers(publishers);
       spaceStorage.saveSpace(space, false);
+      // Add User to Group after adding member to space to not
+      // invoke twice the membership change
       addUserToGroupWithPublisherMembership(username, space.getGroupId());
     }
   }
@@ -717,10 +723,12 @@ public class SpaceServiceImpl implements SpaceService {
       if (!ArrayUtils.contains(managers, username)) {
         spaceLifeCycle.setCurrentEvent(Type.GRANTED_LEAD);
         try {
-          addUserToGroupWithManagerMembership(username, space.getGroupId());
           managers = ArrayUtils.add(managers, username);
           space.setManagers(managers);
           spaceStorage.saveSpace(space, false);
+          // Add User to Group after adding member to space to not
+          // invoke twice the membership change
+          addUserToGroupWithManagerMembership(username, space.getGroupId());
           spaceLifeCycle.grantedLead(space, username);
         } finally {
           spaceLifeCycle.resetCurrentEvent(Type.GRANTED_LEAD);
