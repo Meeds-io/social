@@ -22,7 +22,7 @@
   <parent>
     <artifactId>social</artifactId>
     <groupId>io.meeds.social</groupId>
-    <version>7.0.x-meed-SNAPSHOT</version>
+    <version>7.0.0-meed-20241022</version>
   </parent>
   <artifactId>social-component</artifactId>
   <packaging>pom</packaging>
