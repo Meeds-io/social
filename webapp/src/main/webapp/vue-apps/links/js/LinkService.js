@@ -71,6 +71,9 @@ export function saveSettingName(url, name) {
 }
 
 export function toLinkUrl(url) {
+  if (url?.indexOf?.('./') === 0) {
+    url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
+  }
   if (url?.indexOf?.('/') === 0) {
     url = `${window.location.origin}${url}`;
   }
