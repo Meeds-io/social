@@ -388,7 +388,7 @@ export default {
     this.$root.$on('editSpace', this.editSpace);
   },
   methods: {
-    open() {
+    open(templateId) {
       this.spaceToUpdate = null;
       this.space = {
         subscription: 'open',
@@ -399,7 +399,7 @@ export default {
       this.$spaceTemplateService.getSpaceTemplates()
         .then(data => {
           this.templates = data || [];
-          this.templateId = this.sortedTemplates?.[0]?.id;
+          this.templateId = templateId || this.sortedTemplates?.[0]?.id;
         });
       this.$refs.spaceFormDrawer.open();
     },

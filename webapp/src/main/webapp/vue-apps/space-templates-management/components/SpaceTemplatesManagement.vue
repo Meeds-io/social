@@ -34,6 +34,7 @@
     <space-templates-management-name-drawer />
     <space-templates-management-characteristics-drawer />
     <space-templates-management-list-by-template-drawer />
+    <space-form-drawer />
   </v-app>
 </template>
 <script>
