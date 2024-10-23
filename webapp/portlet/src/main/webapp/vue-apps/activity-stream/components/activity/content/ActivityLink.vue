@@ -332,7 +332,7 @@ export default {
       return this.activityTypeExtension && this.activityTypeExtension.getActivityViews;
     },
     activityViewsTooltip() {
-      return this.activityViews?.tooltip && this.$t(this.activityViews.tooltip);
+      return this.activityViews?.tooltip && this.$t(this.activityViews.tooltip, {0: this.activityViews?.originalViewsCount});
     },
     activityViewsCount() {
       return this.activityViews?.viewsCount;
