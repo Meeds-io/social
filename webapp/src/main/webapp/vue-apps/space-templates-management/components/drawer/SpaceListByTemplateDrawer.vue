@@ -31,6 +31,25 @@
         0: templateName
       }) }}
     </template>
+    <template #titleIcons>
+      <div class="full-height d-flex align-center">
+        <v-btn
+          v-if="role !== 'pending'"
+          :title="$t('spaceTemplate.addSpaceTooltip')"
+          color="primary"
+          elevation="0"
+          small
+          @click="$root.$emit('addNewSpace', templateId)">
+          <v-icon
+            color="while"
+            class="me-2"
+            size="18">
+            fa-plus
+          </v-icon>
+          {{ $t('spaceTemplate.addSpaceButtonLabel') }}
+        </v-btn>
+      </div>
+    </template>
     <template #content>
       <div class="pa-5">
         <div class="mb-5">
