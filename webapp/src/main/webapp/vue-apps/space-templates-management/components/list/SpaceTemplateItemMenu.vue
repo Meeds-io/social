@@ -61,6 +61,27 @@
         <v-list-item-group v-model="listItem">
           <v-list-item
             dense
+            @click="$root.$emit('addNewSpace', spaceTemplate.id)">
+            <v-icon size="13">
+              fa-plus
+            </v-icon>
+            <v-list-item-title class="ps-2">
+              {{ $t('spaceTemplate.addSpaceMenuLabel') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-if="spaceTemplate.spacesCount"
+            dense
+            @click="$root.$emit('space-list-by-template-open', spaceTemplate.id, spaceTemplate.name)">
+            <v-icon size="13">
+              fa-layer-group
+            </v-icon>
+            <v-list-item-title class="ps-2">
+              {{ $t('spaceTemplate.listSpaceMenuLabel') }}
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            dense
             @click="$root.$emit('space-templates-characteristics-open', spaceTemplate)">
             <v-icon size="13">
               fa-edit
