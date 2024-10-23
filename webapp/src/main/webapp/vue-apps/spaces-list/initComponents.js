@@ -16,6 +16,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import '../space-form/initComponents.js';
+
 import SpacesList from './components/SpacesList.vue';
 import SpacesToolbar from './components/SpacesToolbar.vue';
 import SpacesCardList from './components/SpacesCardList.vue';
@@ -25,7 +27,6 @@ import SpaceCardButton from './components/SpaceCardButton.vue';
 import SpaceCardMenu from './components/SpaceCardMenu.vue';
 import SpaceCardMenuItem from './components/SpaceCardMenuItem.vue';
 import SpaceCardUnreadBadge from './components/SpaceCardUnreadBadge.vue';
-import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
 import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
 import SpacePendingButton from './components/SpacePendingButton.vue';
 import SpacePendingDrawer from './components/SpacePendingDrawer.vue';
@@ -45,7 +46,6 @@ const components = {
   'space-card-menu': SpaceCardMenu,
   'space-card-menu-item': SpaceCardMenuItem,
   'space-card-unread-badge': SpaceCardUnreadBadge,
-  'space-form-drawer': SpaceFormDrawer,
   'space-favorite-action': SpaceFavoriteAction,
   'space-pending-button': SpacePendingButton,
 };

@@ -55,13 +55,22 @@
       v-if="!$root.isMobile"
       class="text-truncate text-center"
       width="120px">
-      <v-card
-        v-on="spacesCount && {
-          click: () => $root.$emit('space-list-by-template-open', spaceTemplate.id, spaceTemplate.name),
-        }"
-        flat>
-        {{ spacesCount }}
-      </v-card>
+      <v-chip
+        v-if="spacesCount"
+        :title="spacesCount"
+        elevation="0"
+        @click="openSpacesList">
+        {{ spacesCountLabel }}
+      </v-chip>
+      <v-btn
+        v-else
+        :title="$t('spaceTemplate.addSpaceTooltip')"
+        elevation="0"
+        class="btn"
+        icon
+        @click="openSpaceForm">
+        <v-icon class="icon-default-color" size="20">fa-plus</v-icon>
+      </v-btn>
     </td>
     <td
       v-if="!$root.isMobile"
@@ -112,6 +121,9 @@ export default {
     spacesCount() {
       return this.spaceTemplate?.spacesCount;
     },
+    spacesCountLabel() {
+      return this.spacesCount > 9 ? '9+' : this.spacesCount;
+    },
   },
   watch: {
     hoverMenu() {
@@ -125,6 +137,12 @@ export default {
     },
   },
   methods: {
+    openSpacesList() {
+      this.$root.$emit('space-list-by-template-open', this.spaceTemplate.id, this.spaceTemplate.name);
+    },
+    openSpaceForm() {
+      this.$root.$emit('addNewSpace', this.spaceTemplate.id);
+    },
     changeStatus() {
       this.$root.$emit('close-alert-message');
       this.loading = true;
