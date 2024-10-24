@@ -17,6 +17,21 @@
 
 package org.exoplatform.social.core.jpa.test;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.commons.testing.BaseExoTestCase;
 import org.exoplatform.component.test.ConfigurationUnit;
@@ -36,11 +51,6 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.concurrent.*;
 
 /**
  * @author <a href="mailto:thanhvc@exoplatform.com">Thanh Vu</a>

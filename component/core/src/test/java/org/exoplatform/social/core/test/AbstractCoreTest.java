@@ -16,27 +16,49 @@
  */
 package org.exoplatform.social.core.test;
 
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.testing.BaseExoTestCase;
-import org.exoplatform.commons.utils.*;
-import org.exoplatform.component.test.*;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.PageList;
+import org.exoplatform.component.test.ConfigurationUnit;
+import org.exoplatform.component.test.ConfiguredBy;
+import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
-import org.exoplatform.services.security.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipHandler;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityRegistry;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
+import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.manager.RelationshipManager;
+import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.core.storage.api.ActivityStorage;
+import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 import org.exoplatform.social.core.storage.cache.CachedSpaceStorage;
 
 import junit.framework.AssertionFailedError;
@@ -71,19 +93,41 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
     begin();
 
     //
-    spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
-    identityRegistry = getContainer().getComponentInstanceOfType(IdentityRegistry.class);
+    spaceService = getService(SpaceService.class);
+    identityManager = getService(IdentityManager.class);
+    identityRegistry = getService(IdentityRegistry.class);
 
+    deleteAllRelationships();
+    deleteAllActivities();
     deleteAllSpaces();
+    restartTransaction();
   }
 
   @Override
   protected void tearDown() throws Exception {
+    deleteAllRelationships();
+    deleteAllActivities();
     deleteAllSpaces();
+    restartTransaction();
 
     wantCount = false;
     end();
+  }
+
+  protected void deleteAllRelationships() throws Exception {
+    RelationshipManager relationshipManager = getService(RelationshipManager.class);
+    ListAccess<org.exoplatform.social.core.identity.model.Identity> identities = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, new ProfileFilter(), true);
+    for(org.exoplatform.social.core.identity.model.Identity identity : identities.load(0, identities.getSize())) {
+      ListAccess<org.exoplatform.social.core.identity.model.Identity> relationships = relationshipManager.getAllWithListAccess(identity);
+      Arrays.stream(relationships.load(0, relationships.getSize()))
+            .forEach(relationship -> relationshipManager.delete(new Relationship(identity, relationship)));
+    }
+  }
+
+  protected void deleteAllActivities() {
+    ActivityDAO activityDAO = getService(ActivityDAO.class);
+    activityDAO.deleteAll();
+    ((CachedActivityStorage) getService(ActivityStorage.class)).clearCache();
   }
 
   @SneakyThrows
@@ -176,14 +220,11 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
 
   public Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
     Space space = new Space();
-    space.setApp("app");
     space.setDisplayName("my space " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(registration);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { manager };
     String[] invitedUsers = new String[] {};

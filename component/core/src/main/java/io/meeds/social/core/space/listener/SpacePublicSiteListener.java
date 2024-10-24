@@ -22,18 +22,19 @@ package io.meeds.social.core.space.listener;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
-import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.core.space.service.SpaceLayoutService;
 
 /**
  * A listener to change public site visibility if the space has become hidden
  */
 public class SpacePublicSiteListener extends SpaceListenerPlugin {
+
+  private SpaceLayoutService spaceLayoutService;
 
   @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
@@ -42,22 +43,19 @@ public class SpacePublicSiteListener extends SpaceListenerPlugin {
         && space.getPublicSiteId() > 0
         && !(StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)
              || StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER))) {
-      ExoContainerContext.getService(SpaceService.class).saveSpacePublicSite(space, SpaceUtils.MEMBER);
+      getSpaceLayoutService().saveSpacePublicSite(space, SpaceUtils.MEMBER);
     }
   }
 
   @Override
   public void spaceRemoved(SpaceLifeCycleEvent event) {
-    Space space = event.getSpace();
-    if (space.getPublicSiteId() == 0) {
-      return;
-    }
-    LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
-    PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
-    if (portalConfig == null) {
-      return;
-    }
-    layoutService.remove(portalConfig);
+    getSpaceLayoutService().removeSpacePublicSite(event.getPayload());
   }
 
+  public SpaceLayoutService getSpaceLayoutService() {
+    if (spaceLayoutService == null) {
+      spaceLayoutService = ExoContainerContext.getService(SpaceLayoutService.class);
+    }
+    return spaceLayoutService;
+  }
 }

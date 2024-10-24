@@ -16,23 +16,21 @@
  */
 package org.exoplatform.social.service.rest.notification;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.relationship.model.Relationship;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
-import org.exoplatform.social.core.space.impl.SpaceServiceImpl;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResources;
 import org.exoplatform.social.service.rest.IntranetNotificationRestService;
 import org.exoplatform.social.service.test.AbstractResourceTest;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Test class for Intranet Notifications REST API
@@ -42,7 +40,7 @@ import java.util.Map;
 public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
 
   private IdentityStorage identityStorage;
-  private SpaceServiceImpl spaceService;
+  private SpaceService spaceService;
   private RelationshipManager relationshipManager;
   private WebNotificationStorage notificationStorage;
   
@@ -55,7 +53,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     super.setUp();
     
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
-    spaceService = getContainer().getComponentInstanceOfType(SpaceServiceImpl.class);
+    spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     notificationStorage = getContainer().getComponentInstanceOfType(WebNotificationStorage.class);
     
@@ -116,8 +114,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   }
 
   public void testShouldConfirmInvitationToConnectWhenReceiverConfirmsTheInvitation() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     // Given
     Relationship invitation = relationshipManager.inviteToConnect(johnIdentity, maryIdentity);
@@ -135,8 +132,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   }
 
   public void testShouldNotConfirmInvitationToConnectWhenSenderConfirmsTheInvitation() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     // Given
     Relationship invitation = relationshipManager.inviteToConnect(maryIdentity, johnIdentity);
@@ -160,8 +156,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     List<String> listInviteds = Arrays.asList(space.getInvitedUsers());
     assertTrue(listInviteds.contains("root"));
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
     ContainerResponse response = service("GET", "/social/intranet-notification/ignoreInvitationToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId() + "/" + createNotif() + "/message.json", "", null, null);
@@ -172,8 +167,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
     Map<String, Boolean> map = (Map<String, Boolean>) response.getEntity();
     assertFalse(map.get("showViewAll"));
 
-    end();
-    begin();
+    restartTransaction();
 
     listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
     assertFalse(listMembers.contains("root"));
@@ -186,8 +180,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserAcceptInvitation() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
@@ -209,8 +202,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testAuthorizedUserAcceptInvitation() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("root");
 
@@ -236,8 +228,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserRequestValidationByManagerWithNonInvitedUser() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
 
@@ -261,8 +252,7 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testUnauthorizedUserRequestValidationByNonManagerWithNotInvitedTargetUser() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
@@ -290,21 +280,20 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
 
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("mary");
 
     //Given : mary is not manager, and root is invited
     List<String> listPendings = Arrays.asList(space.getPendingUsers());
-    assertTrue(listPendings.contains("root"));
+    assertTrue(listPendings.contains("james"));
 
     List<String> listManager = Arrays.asList(space.getManagers());
     assertFalse(listManager.contains("mary"));
 
 
     //When : she call the service to accept the request
-    ContainerResponse response = service("GET", "/social/intranet-notification/validateRequestToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId() + "/" + maryIdentity.getRemoteId() + "/"+ createNotif() + "/message.json", "", null, null);
+    ContainerResponse response = service("GET", "/social/intranet-notification/validateRequestToJoinSpace/" + space.getId() +"/james/" + maryIdentity.getRemoteId() + "/"+ createNotif() + "/message.json", "", null, null);
 
     //Then : service return unauthorized
     assertEquals(401, response.getStatus());
@@ -316,50 +305,41 @@ public class IntranetNotificationsRestServiceTest extends AbstractResourceTest {
   public void testAuthorizedUserRequestValidationByManager() throws Exception {
     Space space = getSpaceInstance(1);
 
-    end();
-    begin();
+    restartTransaction();
 
     startSessionAs("john");
 
     //Given : root is pending in this space, and john is manager
     List<String> listPendings = Arrays.asList(space.getPendingUsers());
-    assertTrue(listPendings.contains("root"));
+    assertTrue(listPendings.contains("james"));
 
     List<String> listManager = Arrays.asList(space.getManagers());
     assertTrue(listManager.contains("john"));
 
     //When : he call the service to accept the request
-    ContainerResponse response = service("GET", "/social/intranet-notification/validateRequestToJoinSpace/" + space.getId() +"/" + rootIdentity.getRemoteId() + "/" + johnIdentity.getRemoteId() + "/"+ createNotif() + "/message.json", "", null, null);
+    ContainerResponse response = service("GET", "/social/intranet-notification/validateRequestToJoinSpace/" + space.getId() +"/james/" + johnIdentity.getRemoteId() + "/"+ createNotif() + "/message.json", "", null, null);
 
     //Then : service return status ok and root is added as member
     assertEquals(200, response.getStatus());
 
-
     List<String> listMembers = Arrays.asList(spaceService.getSpaceById(space.getId()).getMembers());
-    assertTrue(listMembers.contains("root"));
+    assertTrue(listMembers.contains("james"));
   }
 
-  private Space getSpaceInstance(int number) throws Exception {
+  private Space getSpaceInstance(int number) {
     Space space = new Space();
     space.setDisplayName("my_space_" + number);
     space.setPrettyName(space.getDisplayName());
-    space.setRegistration(Space.OPEN);
+    space.setRegistration(Space.VALIDATION);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/my_space_" + number);
-    String[] managers = new String[] {"john"};
-    String[] members = new String[] {};
+    Space createdSpace = this.spaceService.createSpace(space, "john");
     String[] invitedUsers = new String[] {"root"};
-    String[] pendingUsers = new String[] {"root"};
-    space.setInvitedUsers(invitedUsers);
-    space.setPendingUsers(pendingUsers);
-    space.setManagers(managers);
-    space.setMembers(members);
-    space.setUrl(space.getPrettyName());
-    this.spaceService.createSpace(space, "john");
-    return space;
+    String[] pendingUsers = new String[] {"james"};
+    Arrays.stream(pendingUsers).forEach(u -> spaceService.addPendingUser(createdSpace, u));
+    Arrays.stream(invitedUsers).forEach(u -> spaceService.addInvitedUser(createdSpace, u));
+    return createdSpace;
   }
   
   private String createNotif() {

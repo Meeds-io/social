@@ -1,26 +1,21 @@
 package org.exoplatform.social.core.jpa.search;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
-import org.exoplatform.component.test.AbstractGateInTest;
-import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.identity.model.Profile;
-import org.exoplatform.social.core.manager.IdentityManager;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ComplementaryFilterSearchConnectorTest {

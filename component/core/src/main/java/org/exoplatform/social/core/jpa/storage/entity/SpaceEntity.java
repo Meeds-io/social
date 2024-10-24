@@ -14,118 +14,121 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import jakarta.persistence.*;
+import org.exoplatform.commons.utils.StringListConverter;
+
+import io.meeds.social.core.space.constant.PublicSiteVisibility;
+import io.meeds.social.core.space.constant.Registration;
+import io.meeds.social.core.space.constant.Visibility;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity(name = "SocSpaceEntity")
 @Table(name = "SOC_SPACES")
-@NamedQueries({
-        @NamedQuery(name = "SpaceEntity.getLastSpaces", query = "SELECT sp.id, sp.createdDate FROM SocSpaceEntity sp ORDER BY sp.createdDate DESC"),
-        @NamedQuery(name = "SpaceEntity.getSpaceByGroupId", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.groupId = :groupId"),
-        @NamedQuery(name = "SpaceEntity.getSpaceByPrettyName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName"),
-        @NamedQuery(name = "SpaceEntity.getSpaceByDisplayName", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.displayName = :displayName"),
-        @NamedQuery(name = "SpaceEntity.getSpaceByURL", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.url = :url"),
-        @NamedQuery(
-                name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
-                query =
-                        "SELECT spaces FROM SocSpaceEntity spaces "
-                        + "WHERE spaces.id IN ( "
-                        + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
-                        + " WHERE t1.userId = :userId "
-                        + " AND t2.userId = :otherUserId "
-                        + " AND t1.space.id = t2.space.id"
-                        + " )"
-        ),
-        @NamedQuery(
-                name = "SpaceEntity.countCommonSpacesBetweenTwoUsers",
-                query =
-                        "SELECT COUNT(*) FROM SocSpaceEntity spaces "
-                                + "WHERE spaces.id IN ( "
-                                + "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 "
-                                + " WHERE t1.userId = :userId "
-                                + " AND t2.userId = :otherUserId "
-                                + " AND t1.space.id = t2.space.id"
-                                + " )"
-        ),
-})
+@NamedQuery(name = "SpaceEntity.getLastSpaces",
+            query = "SELECT sp.id, sp.createdDate FROM SocSpaceEntity sp ORDER BY sp.createdDate DESC")
+@NamedQuery(name = "SpaceEntity.getSpaceByGroupId", query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.groupId = :groupId")
+@NamedQuery(name = "SpaceEntity.getSpaceByPrettyName",
+            query = "SELECT sp FROM SocSpaceEntity sp WHERE sp.prettyName = :prettyName")
+@NamedQuery(
+            name = "SpaceEntity.getCommonSpacesBetweenTwoUsers",
+            query = "SELECT spaces FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +
+                "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 " + " WHERE t1.userId = :userId " +
+                " AND t2.userId = :otherUserId " + " AND t1.space.id = t2.space.id" + " )")
+@NamedQuery(
+            name = "SpaceEntity.countCommonSpacesBetweenTwoUsers",
+            query = "SELECT COUNT(*) FROM SocSpaceEntity spaces " + "WHERE spaces.id IN ( " +
+                "SELECT distinct (t1.space.id) FROM SocSpaceMember t1, SocSpaceMember t2 " + " WHERE t1.userId = :userId " +
+                " AND t2.userId = :otherUserId " + " AND t1.space.id = t2.space.id" + " )")
+@NamedQuery(
+            name = "SpaceEntity.countSpacesByTemplate",
+            query = """
+                  SELECT s.templateId, COUNT(s.id) FROM SocSpaceEntity s
+                  WHERE s.templateId > 0
+                  GROUP BY s.templateId
+                """)
 public class SpaceEntity implements Serializable {
 
-  private static final long serialVersionUID = 3223615477747436986L;
+  private static final long                        serialVersionUID           = 3223615477747436986L;
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_SPACES_ID", sequenceName = "SEQ_SOC_SPACES_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACES_ID")
   @Column(name = "SPACE_ID")
-  private Long              id;
+  private Long                                     id;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<SpaceMemberEntity> members          = new HashSet<>();
+  private Set<SpaceMemberEntity>                   members                    = new HashSet<>();
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<GroupSpaceBindingEntity> spaceBindingEntities          = new HashSet<>();
-  
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
-  private Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities          = new HashSet<>();
+  private Set<GroupSpaceBindingEntity>             spaceBindingEntities       = new HashSet<>();
 
-  /**
-   * The list of applications with portlet Id, application name, and its state
-   * (installed, activated, deactivated).
-   */
-  @ElementCollection
-  @CollectionTable(name = "SOC_APPS", joinColumns = @JoinColumn(name = "SPACE_ID") )
-  private Set<AppEntity>    app              = new HashSet<>();
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
+  private Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities = new HashSet<>();
 
   @Column(name = "PRETTY_NAME")
-  private String            prettyName;
+  private String                                   prettyName;
 
   @Column(name = "DISPLAY_NAME")
-  private String            displayName;
+  private String                                   displayName;
 
   @Column(name = "REGISTRATION")
-  private REGISTRATION            registration;
+  private Registration                             registration;
 
   @Column(name = "DESCRIPTION")
-  private String            description;
+  private String                                   description;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "AVATAR_LAST_UPDATED")
-  private Date              avatarLastUpdated;
+  private Date                                     avatarLastUpdated;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "BANNER_LAST_UPDATED")
-  private Date              bannerLastUpdated;
+  private Date                                     bannerLastUpdated;
 
   @Column(name = "VISIBILITY")
-  public VISIBILITY         visibility;
-
-  @Column(name = "PRIORITY")
-  public PRIORITY           priority;
+  public Visibility                                visibility;
 
   @Column(name = "GROUP_ID")
-  public String             groupId;
+  public String                                    groupId;
 
   @Column(name = "URL")
-  public String             url;
+  public String                                    url;
 
-  @Column(name = "TEMPLATE")
-  private String            template;
+  @Getter
+  @Setter
+  @Column(name = "TEMPLATE_ID")
+  private Long                                     templateId;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "CREATED_DATE", nullable = false)
-  private Date              createdDate      = new Date();
+  private Date                                     createdDate                = new Date();
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "UPDATED_DATE", nullable = false)
-  private Date              updatedDate      = new Date();
+  private Date                                     updatedDate                = new Date();
 
   @Getter
   @Setter
@@ -137,20 +140,24 @@ public class SpaceEntity implements Serializable {
   @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
   private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
 
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "LAYOUT_PERMISSIONS")
+  private List<String>                             layoutPermissions;
+
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "DELETE_PERMISSIONS")
+  private List<String>                             deletePermissions;
+
   public Long getId() {
     return id;
   }
 
   public void setId(Long id) {
     this.id = id;
-  }
-
-  public Set<AppEntity> getApp() {
-    return app;
-  }
-
-  public void setApp(Set<AppEntity> app) {
-    this.app = app;
   }
 
   public String getPrettyName() {
@@ -169,11 +176,11 @@ public class SpaceEntity implements Serializable {
     this.displayName = displayName;
   }
 
-  public REGISTRATION getRegistration() {
+  public Registration getRegistration() {
     return registration;
   }
 
-  public void setRegistration(REGISTRATION registration) {
+  public void setRegistration(Registration registration) {
     this.registration = registration;
   }
 
@@ -201,20 +208,12 @@ public class SpaceEntity implements Serializable {
     this.bannerLastUpdated = bannerLastUpdated;
   }
 
-  public VISIBILITY getVisibility() {
+  public Visibility getVisibility() {
     return visibility;
   }
 
-  public void setVisibility(VISIBILITY visibility) {
+  public void setVisibility(Visibility visibility) {
     this.visibility = visibility;
-  }
-
-  public PRIORITY getPriority() {
-    return priority;
-  }
-
-  public void setPriority(PRIORITY priority) {
-    this.priority = priority;
   }
 
   public String getGroupId() {
@@ -249,14 +248,6 @@ public class SpaceEntity implements Serializable {
     this.updatedDate = updatedDate;
   }
 
-  public String getTemplate() {
-    return template;
-  }
-
-  public void setTemplate(String template) {
-    this.template = template;
-  }
-
   public Set<SpaceMemberEntity> getMembers() {
     return members;
   }
@@ -264,23 +255,23 @@ public class SpaceEntity implements Serializable {
   public void setMembers(Set<SpaceMemberEntity> members) {
     this.members = members;
   }
-  
+
   public Set<GroupSpaceBindingEntity> getSpaceBindingEntities() {
     return spaceBindingEntities;
   }
-  
+
   public void setSpaceBindingEntities(Set<GroupSpaceBindingEntity> spaceBindingEntities) {
     this.spaceBindingEntities = spaceBindingEntities;
   }
-  
+
   public Set<GroupSpaceBindingReportActionEntity> getSpaceBindingReportEntities() {
     return spaceBindingReportEntities;
   }
-  
+
   public void setSpaceBindingReportEntities(Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities) {
     this.spaceBindingReportEntities = spaceBindingReportEntities;
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -292,25 +283,10 @@ public class SpaceEntity implements Serializable {
     SpaceEntity that = (SpaceEntity) o;
     return id.equals(that.id);
   }
-  
+
   @Override
   public int hashCode() {
     return id == null ? 0 : id.intValue();
   }
-  
-  public enum VISIBILITY {
-    PUBLIC, PRIVATE, HIDDEN
-  }
 
-  public enum PRIORITY {
-    HIGH, INTERMEDIATE, LOW
-  }
-
-  public enum REGISTRATION {
-    OPEN, VALIDATION, CLOSED
-  }
-
-  public static enum PublicSiteVisibility {
-    MANAGER, MEMBER, INTERNAL, AUTHENTICATED, EVERYONE;
-  }
 }

@@ -17,8 +17,12 @@
 
 package org.exoplatform.social.core.jpa.storage;
 
+import java.io.InputStream;
+import java.util.List;
+
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
@@ -26,30 +30,32 @@ import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
-
-import java.io.InputStream;
-import java.util.List;
+import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 
 public abstract class SpaceStorageTest extends AbstractCoreTest {
 
-  private SpaceStorage    spaceStorage;
+  private SpaceStorage              spaceStorage;
 
-  private IdentityStorage identityStorage;
+  private IdentityStorage           identityStorage;
 
-  private Identity rootIdentity;
-  private Identity johnIdentity;
-  private Identity maryIdentity;
-  private Identity demoIdentity;
+  private SocialStorageCacheService cacheService;
+
+  private Identity                  rootIdentity;
+
+  private Identity                  johnIdentity;
+
+  private Identity                  maryIdentity;
+
+  private Identity                  demoIdentity;
 
   @Override
   protected void setUp() throws Exception {
     super.setUp();
-    spaceStorage = (SpaceStorage) this.getContainer().getComponentInstanceOfType(SpaceStorage.class);
-    identityStorage = (IdentityStorage) this.getContainer().getComponentInstanceOfType(IdentityStorage.class);
+    spaceStorage = getService(SpaceStorage.class);
+    identityStorage = getService(IdentityStorage.class);
+    cacheService = getService(SocialStorageCacheService.class);
 
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
@@ -65,14 +71,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
    */
   protected Space getSpaceInstance(int number) {
     Space space = new Space();
-    space.setApp("app1:appName1:true:active,app2:appName2:false:deactive");
     space.setDisplayName("my space test " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { "demo", "tom" };
     String[] members = new String[] { "demo", "tom", "raul", "ghost", "dragon" };
@@ -94,14 +97,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
    */
   protected Space getSpaceInstance(int number, String visible, String registration, String manager, String... members) {
     Space space = new Space();
-    space.setApp("app:appName:true:active");
     space.setDisplayName("my space test " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(registration);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { manager };
     String[] invitedUsers = new String[] {};
@@ -109,7 +109,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     space.setInvitedUsers(invitedUsers);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);
-    space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));
+    space.setMembers(members == null ? new String[] { manager } : ArrayUtils.add(members, manager));
     space.setUrl(space.getPrettyName());
     return space;
   }
@@ -127,14 +127,11 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
                                               String manager,
                                               String... members) {
     Space space = new Space();
-    space.setApp("app:appName:true:active");
     space.setDisplayName("my space test " + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(registration);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(visible);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     space.setUrl(space.getPrettyName());
     String[] managers = new String[] { manager };
@@ -143,7 +140,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     space.setInvitedUsers(invitedMember);
     space.setPendingUsers(pendingUsers);
     space.setManagers(managers);
-    space.setMembers(members == null ? new String[]{manager} : ArrayUtils.add(members, manager));
+    space.setMembers(members == null ? new String[] { manager } : ArrayUtils.add(members, manager));
     return space;
   }
 
@@ -323,7 +320,10 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
       spaceStorage.saveSpace(listSpace[i], true);
       persist();
     }
-    List<Space> accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo", new SpaceFilter("my space test"), 0, 10);
+    List<Space> accessibleSpacesByFilter = spaceStorage.getAccessibleSpacesByFilter("demo",
+                                                                                    new SpaceFilter("my space test"),
+                                                                                    0,
+                                                                                    10);
     assertNotNull("accessibleSpacesByFilter must not be null", accessibleSpacesByFilter);
     assertEquals("accessibleSpacesByFilter.size() must return: ", 10, accessibleSpacesByFilter.size());
 
@@ -911,171 +911,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
   /**
    * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getPublicSpaces(String)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetPublicSpaces() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> publicSpaces = spaceStorage.getPublicSpaces("mary");
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpaces("demo");
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getPublicSpacesByFilter(String, org.exoplatform.social.core.space.SpaceFilter, long, long)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetPublicSpacesByFilter() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter("add new"), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter("my space test"), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter("m"), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter(maryIdentity.getRemoteId(), new SpaceFilter("my space test"), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter("m"), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 10, 10, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter("add new "), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 10, 10, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpacesByFilter("newStranger", new SpaceFilter("my space test "), 0, 10);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 10, 10, publicSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getPublicSpacesByFilterCount(String, org.exoplatform.social.core.space.SpaceFilter)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetPublicSpacesByFilterCount() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    int publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("add new"));
-    assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("my space test"));
-    assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("m"));
-    assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("mary", new SpaceFilter("my space test"));
-    assertEquals("publicSpacesByFilterCount must be: " + 0, 0, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter("m"));
-    assertEquals("publicSpacesByFilterCount must be: " + 10, 10, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter("add new "));
-    assertEquals("publicSpacesByFilterCount must be: " + 10, 10, publicSpacesByFilterCount);
-
-    publicSpacesByFilterCount = spaceStorage.getPublicSpacesByFilterCount("newstranger", new SpaceFilter("my space test "));
-    assertEquals("publicSpacesByFilterCount must be: " + 10, 10, publicSpacesByFilterCount);
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getPublicSpaces(String, long, long)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetPublicSpacesWithOffset() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> publicSpaces = spaceStorage.getPublicSpaces("mary", 0, 5);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpaces("demo", 0, 5);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 0, 0, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpaces("headshot", 0, 5);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + 5, 5, publicSpaces.size());
-
-    publicSpaces = spaceStorage.getPublicSpaces("hello", 0, countSpace);
-    assertNotNull("publicSpaces must not be  null", publicSpaces);
-    assertEquals("publicSpaces.size() must return: " + countSpace, countSpace, publicSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getPublicSpacesCount(String)}
-   *
-   * @since 1.20.-GA
-   * @throws Exception
-   */
-  public void testGetPublicSpacesCount() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    int publicSpacesCount = spaceStorage.getPublicSpacesCount("jame");
-    assertEquals("publicSpacesCount must be: 0", 0, publicSpacesCount);
-
-    publicSpacesCount = spaceStorage.getPublicSpacesCount("paul");
-    assertEquals("publicSpacesCount must be: 0", 0, publicSpacesCount);
-
-    publicSpacesCount = spaceStorage.getPublicSpacesCount("hacker");
-    assertEquals("publicSpacesCount must be: 0", 0, publicSpacesCount);
-
-    publicSpacesCount = spaceStorage.getPublicSpacesCount("nobody");
-    assertEquals("publicSpacesCount must be: " + countSpace, countSpace, publicSpacesCount);
-  }
-
-  /**
-   * Test
    * {@link org.exoplatform.social.core.storage.SpaceStorage#getMemberSpaces(String)}
    *
    * @throws Exception
@@ -1307,7 +1142,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     Space savedSpace = spaceStorage.getSpaceById(space.getId());
     assertNotNull("savedSpace must not be null", savedSpace);
     assertNotNull("savedSpace.getId() must not be null", savedSpace.getId());
-    assertNotNull("savedSpace.getApp() must not be null", savedSpace.getApp());
     assertEquals("space.getId() must return: " + space.getId(), space.getId(), savedSpace.getId());
     assertEquals("space.getPrettyName() must return: " + space.getPrettyName(),
                  space.getPrettyName(),
@@ -1318,13 +1152,15 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("space.getDescription() must return: " + space.getDescription(),
                  space.getDescription(),
                  savedSpace.getDescription());
-    assertEquals("space.getType() must return: " + space.getType(), space.getType(), savedSpace.getType());
     assertEquals("space.getVisibility() must return: " + space.getVisibility(),
                  space.getVisibility(),
                  savedSpace.getVisibility());
-    assertEquals("space.getPriority() must return: " + space.getPriority(), space.getPriority(), savedSpace.getPriority());
-    assertEquals("space.getPublicSiteId() must return: " + space.getPublicSiteId(), space.getPublicSiteId(), savedSpace.getPublicSiteId());
-    assertEquals("space.getPublicSiteVisibility() must return: " + space.getPublicSiteVisibility(), space.getPublicSiteVisibility(), savedSpace.getPublicSiteVisibility());
+    assertEquals("space.getPublicSiteId() must return: " + space.getPublicSiteId(),
+                 space.getPublicSiteId(),
+                 savedSpace.getPublicSiteId());
+    assertEquals("space.getPublicSiteVisibility() must return: " + space.getPublicSiteVisibility(),
+                 space.getPublicSiteVisibility(),
+                 savedSpace.getPublicSiteVisibility());
   }
 
   /**
@@ -1346,44 +1182,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
   /**
    * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getSpaceByUrl(String)}
-   *
-   * @throws Exception
-   */
-  public void testGetSpaceByUrl() throws Exception {
-    int number = 1;
-    Space space = this.getSpaceInstance(number);
-    space.setUrl("http://fake.com.vn");
-    spaceStorage.saveSpace(space, true);
-    persist();
-
-    // get saved space
-    Space savedSpace = spaceStorage.getSpaceByUrl(space.getUrl());
-    assertNotNull("savedSpace must not be null", savedSpace);
-    assertNotNull("savedSpace.getId() must not be null", savedSpace.getId());
-    assertEquals("space.getId() must return: " + space.getId(), space.getId(), savedSpace.getId());
-    assertEquals("space.getName() must return: " + space.getName(), space.getName(), savedSpace.getName());
-
-    // Show that getName() is the same as getPrettyname
-    assertTrue("savedSpace.getName().equals(savedSpace.getPrettyName()) must return true",
-        savedSpace.getName().equals(savedSpace.getPrettyName()));
-
-    assertEquals("space.getRegistration() must return: " + space.getRegistration(),
-                 space.getRegistration(),
-                 savedSpace.getRegistration());
-    assertEquals("space.getDescription() must return: " + space.getDescription(),
-                 space.getDescription(),
-                 savedSpace.getDescription());
-    assertEquals("space.getType() must return: " + space.getType(), space.getType(), savedSpace.getType());
-    assertEquals("space.getVisibility() must equal savedSpace.getVisibility() = " + space.getVisibility(),
-                 space.getVisibility(),
-                 savedSpace.getVisibility());
-    assertEquals("space.getPriority() must return: " + space.getPriority(), space.getPriority(), savedSpace.getPriority());
-    assertEquals("space.getUrl() must return: " + space.getUrl(), space.getUrl(), savedSpace.getUrl());
-  }
-
-  /**
-   * Test
    * {@link org.exoplatform.social.core.storage.SpaceStorage#getSpaceByPrettyName(String)}
    *
    * @throws Exception
@@ -1393,7 +1191,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     int number = 1;
     // new space
     Space space = this.getSpaceInstance(number);
-    space.setType("CustomSpaceType");
     // save to space activityStorage
     spaceStorage.saveSpace(space, true);
     persist();
@@ -1412,11 +1209,9 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertEquals("space.getDescription() must return: " + space.getDescription(),
                  space.getDescription(),
                  foundSpaceList.getDescription());
-    assertEquals("space.getType() must return: " + space.getType(), space.getType(), foundSpaceList.getType());
     assertEquals("space.getVisibility() must return: " + space.getVisibility(),
                  space.getVisibility(),
                  foundSpaceList.getVisibility());
-    assertEquals("space.getPriority() must return: " + space.getPriority(), space.getPriority(), foundSpaceList.getPriority());
   }
 
   /**
@@ -1449,8 +1244,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     spaceStorage.saveSpace(space, false);
     persist();
-    assertEquals(newName, spaceStorage.getSpaceById(space.getId()).getName());
-    assertEquals(newName, space.getName());
+    assertEquals(newName, spaceStorage.getSpaceById(space.getId()).getPrettyName());
+    assertEquals(newName, space.getPrettyName());
 
     Space got = spaceStorage.getSpaceById(space.getId());
     assertNotNull(got.getAvatarUrl());
@@ -1896,9 +1691,196 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
   }
 
-  // TODO : test getSpaceByGroupId without result
-  // TODO : save space with null member[]
-  // TODO : test space member number
-  // TODO : test app data
-  // TODO : test accepte invited / pending
+  public void testVisited() throws Exception {
+    Space space0 = getSpaceInstance(5);
+    spaceStorage.saveSpace(space0, true);
+    Space space1 = getSpaceInstance(6);
+    spaceStorage.saveSpace(space1, true);
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setRemoteId("ghost");
+
+    List<Space> result = spaceStorage.getVisitedSpaces(filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space0.getId(), result.get(0).getId());
+
+    restartTransaction();
+    spaceStorage.updateSpaceAccessed("ghost", space1);
+
+    // getVisitedSpaces return a list of spaces that
+    // order by visited space then others
+    result = spaceStorage.getVisitedSpaces(filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space1.getId(), result.get(0).getId());
+  }
+
+  public void testLastAccess() throws Exception {
+    Space space2 = getSpaceInstance(7);
+    spaceStorage.saveSpace(space2, true);
+    Space space3 = getSpaceInstance(8);
+    spaceStorage.saveSpace(space3, true);
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setRemoteId("ghost");
+
+    List<Space> result = spaceStorage.getLastAccessedSpace(filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space2.getId(), result.get(0).getId());
+
+    restartTransaction();
+    spaceStorage.updateSpaceAccessed("ghost", space3);
+
+    result = spaceStorage.getLastAccessedSpace(filter, 0, -1);
+    assertEquals(2, result.size());
+    assertEquals(space3.getId(), result.get(0).getId());
+  }
+
+  public void testGetLastAccessedSpace() {
+    // create a new space
+    Space space = getSpaceInstance(1);
+    spaceStorage.saveSpace(space, true);
+    // Update space accessed
+    spaceStorage.updateSpaceAccessed("raul", space);
+    cacheService.getSpacesCache().clearCache();
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setRemoteId("raul");
+    // Get last accessed space list , this will fill all the caches with a
+    // complete SpaceData
+    spaceStorage.getLastAccessedSpace(filter, 0, 10);
+    // clear SpaceCache and SpaceSimpleCache
+    cacheService.getSpaceCache().clearCache();
+    // Get last accessed space list again, this will fill both SimpleSpaceCache
+    // and SpaceCache with a SpaceSimpleData
+    // that has members and managers set to null by the function
+    // putSpaceInCacheIfNotExists
+    spaceStorage.getLastAccessedSpace(filter, 0, 10);
+
+    // Get the space from SpaceCache, this will retrieve a SpaceSimpleData
+    // object with managers and members set to null
+    Space spaceFromCache = spaceStorage.getSpaceById(space.getId());
+
+    // Check that the space should have 3 members and 2 managers
+    assertNotNull(spaceFromCache.getMembers());
+    assertEquals(5, spaceFromCache.getMembers().length);
+    assertNotNull(spaceFromCache.getManagers());
+    assertEquals(2, spaceFromCache.getManagers().length);
+  }
+
+  public void testGetLastAccessedPagination() throws Exception {
+    assertEquals(0, spaceService.getLastAccessedSpace("raul").getSize());
+
+    int numberOfSpaces = 5;
+    for (int i = 0; i < numberOfSpaces; i++) {
+      Space s = getSpaceInstance(i);
+      spaceStorage.saveSpace(s, true);
+      s = spaceStorage.getSpaceByPrettyName(s.getPrettyName());
+      assertNotNull(s);
+      restartTransaction();
+
+      spaceService.updateSpaceAccessed("raul", s);
+      restartTransaction();
+
+      SpaceFilter filter = new SpaceFilter();
+      filter.setRemoteId("raul");
+      List<Space> spaces = spaceStorage.getLastAccessedSpace(filter, 0, 10);
+      assertEquals(s.getPrettyName(), spaces.get(0).getPrettyName());
+
+      spaces = spaceStorage.getLastAccessedSpace(filter, 0, i + 1);
+      assertEquals(s.getPrettyName(), spaces.get(0).getPrettyName());
+    }
+
+    ListAccess<Space> spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    Space[] spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_4", spaces[0].getPrettyName());
+    assertEquals("my_space_test_3", spaces[1].getPrettyName());
+
+    Space space6 = getSpaceInstance(6);
+    spaceStorage.saveSpace(space6, true);
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_4", spaces[0].getPrettyName());
+    assertEquals("my_space_test_3", spaces[1].getPrettyName());
+
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(2, 10);
+    assertEquals(4, spaces.length);
+    assertEquals("my_space_test_2", spaces[0].getPrettyName());
+    assertEquals("my_space_test_1", spaces[1].getPrettyName());
+    assertEquals("my_space_test_0", spaces[2].getPrettyName());
+    assertEquals("my_space_test_6", spaces[3].getPrettyName());
+
+    spaceService.updateSpaceAccessed("raul", space6);
+
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(0, 2);
+    assertEquals(2, spaces.length);
+    assertEquals("my_space_test_6", spaces[0].getPrettyName());
+    assertEquals("my_space_test_4", spaces[1].getPrettyName());
+
+    spacesListAccess = spaceService.getLastAccessedSpace("raul");
+    spaces = spacesListAccess.load(2, 10);
+    assertEquals(4, spaces.length);
+    assertEquals("my_space_test_3", spaces[0].getPrettyName());
+    assertEquals("my_space_test_2", spaces[1].getPrettyName());
+    assertEquals("my_space_test_1", spaces[2].getPrettyName());
+    assertEquals("my_space_test_0", spaces[3].getPrettyName());
+  }
+
+  public void testGetCommonSpaces() throws Exception {
+
+    // Get instances of 3 spaces with different members and 1 common manager
+    Space space1 = getSpaceInstance(11, "public", "open", "demo", "ghost", "dragon");
+    Space space2 = getSpaceInstance(12, "public", "open", "demo", "ghost", "dragon", "raul");
+    Space space3 = getSpaceInstance(13, "public", "open", "demo", "ghost", "dragon", "raul");
+    Space space4 = getSpaceInstance(14, "public", "open", "demo", "ghost", "dragon", "raul");
+    Space space5 = getSpaceInstance(15, "public", "open", "demo", "ghost", "dragon", "raul");
+    Space space6 = getSpaceInstance(16, "public", "open", "demo", "ghost", "dragon", "raul");
+
+    spaceStorage.saveSpace(space1, true);
+    spaceStorage.saveSpace(space2, true);
+    spaceStorage.saveSpace(space3, true);
+    spaceStorage.saveSpace(space4, true);
+    spaceStorage.saveSpace(space5, true);
+    spaceStorage.saveSpace(space6, true);
+
+    List<Space> resultListCommonSpaces1 = spaceStorage.getCommonSpaces("demo", "raul", 0, 2);
+    assertEquals(2, resultListCommonSpaces1.size());
+    Space testSpace2 = resultListCommonSpaces1.get(0);
+    assertEquals(space2, testSpace2);
+    Space testSpace3 = resultListCommonSpaces1.get(1);
+    assertEquals(space3, testSpace3);
+
+    List<Space> resultListCommonSpaces2 = spaceStorage.getCommonSpaces("demo", "raul", 2, 2);
+    assertEquals(2, resultListCommonSpaces2.size());
+    Space testSpace4 = resultListCommonSpaces2.get(0);
+    assertEquals(space4, testSpace4);
+    Space testSpace5 = resultListCommonSpaces2.get(1);
+    assertEquals(space5, testSpace5);
+
+    List<Space> resultListCommonSpaces3 = spaceStorage.getCommonSpaces("demo", "raul", 4, 2);
+    assertEquals(1, resultListCommonSpaces3.size());
+    Space testSpace6 = resultListCommonSpaces3.get(0);
+    assertEquals(space6, testSpace6);
+
+  }
+
+  public void testCountCommonSpaces() throws Exception {
+
+    // Get instances of 3 spaces with different members and 1 common manager
+    Space space3 = getSpaceInstance(11, "public", "open", "demo", "ghost", "dragon");
+    Space space1 = getSpaceInstance(12, "public", "open", "demo", "ghost", "dragon", "raul");
+    Space space2 = getSpaceInstance(13, "public", "open", "demo", "ghost", "dragon", "raul");
+
+    spaceStorage.saveSpace(space3, true);
+    spaceStorage.saveSpace(space1, true);
+    spaceStorage.saveSpace(space2, true);
+
+    int resultListCommonSpaces = spaceStorage.countCommonSpaces("demo", "raul");
+    assertEquals(2, resultListCommonSpaces);
+
+  }
+
 }

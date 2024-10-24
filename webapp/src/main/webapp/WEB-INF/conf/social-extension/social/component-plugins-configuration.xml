@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (C) 2003-2011 eXo Platform SAS.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+
+<configuration
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
+   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
+    <component-plugin>
+      <name>MentionsProcessor</name>
+      <set-method>addProcessorPlugin</set-method>
+      <type>org.exoplatform.social.core.processor.MentionsProcessor</type>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <description>priority of this processor (lower are executed first)</description>
+          <value>2</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>TemplateParamsProcessor</name>
+      <set-method>addProcessorPlugin</set-method>
+      <type>org.exoplatform.social.core.processor.TemplateParamsProcessor</type>
+      <init-params>
+        <value-param>
+          <name>priority</name>
+          <value>1</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
+    <component-plugin>
+      <name>ProfileUpdatesPublisher</name>
+      <set-method>addProfileListener</set-method>
+      <type>org.exoplatform.social.core.application.ProfileUpdatesPublisher</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.IdentityManager</target-component>
+    <component-plugin>
+      <name>groupSynchronization.listeners.social.profile</name>
+      <set-method>addProfileListener</set-method>
+      <type>org.exoplatform.social.core.listeners.GroupSynchronizationSocialProfileListener</type>
+      <description>Social Profile listener for profile properties group synchronization</description>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.core.manager.RelationshipManager</target-component>
+    <component-plugin>
+      <name>RelationshipPublisher</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.application.RelationshipPublisher</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.organization.OrganizationService</target-component>
+    <component-plugin>
+      <name>social.new.user.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
+    </component-plugin>
+    <component-plugin>
+      <name>social.update.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.ExternalUsersListenerImpl</type>
+      <description>Update external profile property.</description>
+    </component-plugin>
+    <component-plugin>
+      <name>social.update.membership.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
+      <priority>50</priority>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.common.xmlprocessor.XMLProcessor</target-component>
+    <component-plugin>
+      <name>XMLBalancerFilterPlugin</name>
+      <set-method>addFilterPlugin</set-method>
+      <type>org.exoplatform.social.common.xmlprocessor.filters.XMLBalancerFilterPlugin</type>
+    </component-plugin>
+    <component-plugin>
+      <name>URLConverterFilterPlugin</name>
+      <set-method>addFilterPlugin</set-method>
+      <type>org.exoplatform.social.common.xmlprocessor.filters.URLConverterFilterPlugin</type>
+      <init-params>
+        <value-param>
+          <name>urlMaxLength</name>
+          <description>the max length of URL</description>
+          <value>-1</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>DOMContentEscapeFilterPlugin</name>
+      <set-method>addFilterPlugin</set-method>
+      <type>org.exoplatform.social.common.xmlprocessor.filters.SanitizeFilterPlugin</type>
+    </component-plugin>
+    <component-plugin>
+      <name>OpenLinkInNewTabFilterPlugin</name>
+      <set-method>addFilterPlugin</set-method>
+      <type>org.exoplatform.social.common.xmlprocessor.filters.OpenLinkNewTabFilterPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.services.listener.ListenerService</target-component>
+    <component-plugin>
+      <name>exo.core.security.ConversationRegistry.register</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.UpdateLoginTimeListenerImpl</type>
+      <description>Update Last Login Time for user profile</description>
+    </component-plugin>
+
+    <component-plugin>
+      <name>profile-property-setting-updated</name>
+      <set-method>addListener</set-method>
+      <type>org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListener</type>
+      <description>Updates visibility of pages containing Organization chart application</description>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.favorite.FavoriteService</target-component>
+    <component-plugin>
+      <name>SpaceFavoriteACLPlugin</name>
+      <set-method>addFavoriteACLPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.SpaceFavoriteACLPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.metadata.favorite.FavoriteService</target-component>
+    <component-plugin>
+      <name>SpaceFavoriteACLPlugin</name>
+      <set-method>addFavoriteACLPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.ActivityFavoriteACLPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>org.exoplatform.social.attachment.AttachmentService</target-component>
+    <component-plugin>
+      <name>ActivityAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.ActivityAttachmentPlugin</type>
+    </component-plugin>
+    <component-plugin>
+      <name>ImageAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.image.plugin.ImageAttachmentPlugin</type>
+    </component-plugin>
+  </external-component-plugins>
+
+</configuration>

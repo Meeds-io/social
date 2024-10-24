@@ -16,7 +16,13 @@
  */
 package org.exoplatform.social.core.jpa.search;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -26,10 +32,10 @@ import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.search.DocumentWithMetadata;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
@@ -83,6 +89,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     fields.put("description", htmlToText(space.getDescription()));
     fields.put("visibility", space.getVisibility());
     fields.put("registration", space.getRegistration());
+    fields.put("templateId", String.valueOf(space.getTemplateId()));
 
     Date createdDate = new Date(space.getCreatedTime());
 

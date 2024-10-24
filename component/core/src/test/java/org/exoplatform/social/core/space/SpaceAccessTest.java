@@ -16,79 +16,68 @@
  */
 package org.exoplatform.social.core.space;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.exoplatform.social.common.Utils;
-import org.exoplatform.social.common.lifecycle.LifeCycleCompletionService;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class SpaceAccessTest extends AbstractCoreTest {
-  private SpaceService spaceService;
-  private IdentityStorage identityStorage;
-  private LifeCycleCompletionService lifeCycleCompletionService;
-  private List<Space> tearDownSpaceList;
-  private List<Identity> tearDownUserList;
 
-  private final Log       LOG = ExoLogger.getLogger(SpaceAccessTest.class);
+  private static final String SPACE_NAME = "request space";
 
-  private Identity demo;
-  private Identity ghost;
-  private Identity john;
-  private Identity mary;
-  private Identity root;
-  private Identity jame;
-  
+  private IdentityStorage     identityStorage;
+
+  private List<Space>         tearDownSpaceList;
+
+  private List<Identity>      tearDownUserList;
+
+  private Identity            demo;
+
+  private Identity            john;
+
+  private Identity            mary;
+
+  private Identity            root;
+
+  private Identity            jame;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    spaceService = (SpaceService) getContainer().getComponentInstanceOfType(SpaceService.class);
-    identityStorage = (IdentityStorage) getContainer().getComponentInstanceOfType(IdentityStorage.class);
-    lifeCycleCompletionService = (LifeCycleCompletionService) getContainer().getComponentInstanceOfType(LifeCycleCompletionService.class);
-    tearDownSpaceList = new ArrayList<Space>();
-    tearDownUserList = new ArrayList<Identity>();
-    
-   
+    identityStorage = getService(IdentityStorage.class);
+    tearDownSpaceList = new ArrayList<>();
+    tearDownUserList = new ArrayList<>();
+
     demo = new Identity(OrganizationIdentityProvider.NAME, "demo");
-    ghost = new Identity(OrganizationIdentityProvider.NAME, "ghost");
     mary = new Identity(OrganizationIdentityProvider.NAME, "mary");
     john = new Identity(OrganizationIdentityProvider.NAME, "john");
     root = new Identity(OrganizationIdentityProvider.NAME, "root");
     jame = new Identity(OrganizationIdentityProvider.NAME, "jame");
-    
 
     identityStorage.saveIdentity(demo);
-    identityStorage.saveIdentity(ghost);
     identityStorage.saveIdentity(mary);
     identityStorage.saveIdentity(john);
     identityStorage.saveIdentity(root);
     identityStorage.saveIdentity(jame);
-    
 
-    tearDownUserList = new ArrayList<Identity>();
+    tearDownUserList = new ArrayList<>();
     tearDownUserList.add(demo);
-    tearDownUserList.add(ghost);
     tearDownUserList.add(mary);
     tearDownUserList.add(john);
     tearDownUserList.add(root);
     tearDownUserList.add(jame);
-    
-    
+
   }
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
 
     for (Identity identity : tearDownUserList) {
       identityStorage.deleteIdentity(identity);
@@ -102,122 +91,147 @@ public class SpaceAccessTest extends AbstractCoreTest {
     }
     super.tearDown();
   }
-  
-  public void testSpaceNotFound() throws Exception {
+
+  public void testSpaceNotFound() {
     Space space = spaceService.getSpaceByPrettyName("space_not_found");
     boolean gotStatus = SpaceAccessType.SPACE_NOT_FOUND.doCheck(root.getRemoteId(), space);
     assertTrue(gotStatus);
   }
-  
-  public void testInvitedSpace() throws Exception {
-    Space space = createSpaceData("invited space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    space.setInvitedUsers(new String[]{demo.getRemoteId(), jame.getRemoteId()});
+
+  public void testInvitedSpace() {
+    Space space = createSpaceData("invited space",
+                                  Space.VALIDATION,
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
+    space.setInvitedUsers(new String[] { demo.getRemoteId(), jame.getRemoteId() });
     spaceService.createSpace(space);
-    
+
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.INVITED_SPACE.doCheck(demo.getRemoteId(), space);
     assertTrue(gotStatus);
-    
+
     gotStatus = SpaceAccessType.INVITED_SPACE.doCheck(jame.getRemoteId(), space);
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
+
   /**
    * RequesTED to join space.
+   * 
    * @throws Exception
    */
-  public void testRequestedToJoinSpace() throws Exception {
-    Space space = createSpaceData("requested space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
-    space.setPendingUsers(new String[]{demo.getRemoteId(), jame.getRemoteId()});
+  public void testRequestedToJoinSpace() {
+    Space space = createSpaceData("requested space",
+                                  Space.VALIDATION,
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
+    space.setPendingUsers(new String[] { demo.getRemoteId(), jame.getRemoteId() });
     spaceService.createSpace(space);
-    
+
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.REQUESTED_JOIN_SPACE.doCheck(demo.getRemoteId(), space);
     assertTrue(gotStatus);
-    
+
     gotStatus = SpaceAccessType.REQUESTED_JOIN_SPACE.doCheck(jame.getRemoteId(), space);
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
-  
+
   /**
    * Request to join space
+   * 
    * @throws Exception
    */
-  public void testRequestToJoinSpace() throws Exception {
-    Space space = createSpaceData("request space", "validation", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
+  public void testRequestToJoinSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  Space.VALIDATION,
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);
-    
+
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(demo.getRemoteId(), space);
     assertTrue(gotStatus);
-    
+
     gotStatus = SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(jame.getRemoteId(), space);
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
-  
-  public void testJoinSpace() throws Exception {
-    Space space = createSpaceData("request space", "open", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
+
+  public void testJoinSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  "open",
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.JOIN_SPACE.doCheck(demo.getRemoteId(), space);
     assertTrue(gotStatus);
-    
+
     gotStatus = SpaceAccessType.JOIN_SPACE.doCheck(jame.getRemoteId(), space);
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
-  
-  public void testClosedSpace() throws Exception {
-    Space space = createSpaceData("request space", "close", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
+
+  public void testClosedSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  "close",
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
     boolean gotStatus = SpaceAccessType.CLOSED_SPACE.doCheck(demo.getRemoteId(), space);
     assertTrue(gotStatus);
-    
+
     gotStatus = SpaceAccessType.CLOSED_SPACE.doCheck(jame.getRemoteId(), space);
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
 
-  public void testHiddenValidationSpace() throws Exception {
-    Space space = createSpaceData("request space", "validation", "hidden", new String[] {root.getRemoteId(), john.getRemoteId()}, new String[] {root.getRemoteId(), john.getRemoteId(), mary.getRemoteId()});
+  public void testHiddenValidationSpace() {
+    Space space = createSpaceData(SPACE_NAME,
+                                  Space.VALIDATION,
+                                  Space.HIDDEN,
+                                  new String[] { root.getRemoteId(), john.getRemoteId() },
+                                  new String[] { root.getRemoteId(), john.getRemoteId(), mary.getRemoteId() });
     spaceService.createSpace(space);
     space = spaceService.getSpaceByPrettyName(space.getPrettyName());
     assertNotNull(space);
-    boolean gotStatus = (!SpaceAccessType.SPACE_NOT_FOUND.doCheck(demo.getRemoteId(), space) && SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(demo.getRemoteId(), space));
+    boolean gotStatus = (!SpaceAccessType.SPACE_NOT_FOUND.doCheck(demo.getRemoteId(), space)
+                         && SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(demo.getRemoteId(), space));
     assertTrue(gotStatus);
 
-    gotStatus = (!SpaceAccessType.SPACE_NOT_FOUND.doCheck(jame.getRemoteId(), space) && SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(jame.getRemoteId(), space));
+    gotStatus = (!SpaceAccessType.SPACE_NOT_FOUND.doCheck(jame.getRemoteId(), space)
+                 && SpaceAccessType.REQUEST_JOIN_SPACE.doCheck(jame.getRemoteId(), space));
     assertTrue(gotStatus);
     tearDownSpaceList.add(space);
   }
-  
-  private Space createSpaceData(String spaceName, String registration, String[] managers, String[] members) throws Exception {
+
+  private Space createSpaceData(String spaceName, String registration, String[] managers, String[] members) {
     Space space2 = new Space();
-    space2.setApp("Contact,Forum");
     space2.setDisplayName(spaceName);
     space2.setPrettyName(space2.getDisplayName());
     String shortName = Utils.cleanString(spaceName);
-    space2.setGroupId("/spaces/" + shortName );
+    space2.setGroupId("/spaces/" + shortName);
     space2.setUrl(shortName);
     space2.setMembers(members);
     space2.setManagers(managers);
     space2.setRegistration(registration);
     space2.setDescription("This is my second space for testing");
-    space2.setType("classic");
     space2.setVisibility("public");
-    space2.setPriority("2");
     return space2;
   }
 
-  private Space createSpaceData(String spaceName, String registration, String visibility, String[] managers, String[] members) throws Exception {
+  private Space createSpaceData(String spaceName,
+                                String registration,
+                                String visibility,
+                                String[] managers,
+                                String[] members) {
     Space space2 = createSpaceData(spaceName, registration, managers, members);
     space2.setVisibility(visibility);
     return space2;

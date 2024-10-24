@@ -845,7 +845,6 @@ public class EntityBuilder {
         spaceEntity.setIdentity(identity);
         spaceEntity.setIdentityId(spaceIdentity.getId());
         spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
-        spaceEntity.setApplications(getSpaceApplications(space));
 
         boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
         spaceEntity.setHasBindings(hasBindings);
@@ -923,6 +922,7 @@ public class EntityBuilder {
       spaceEntity.setIsInvited(spaceService.isInvitedUser(space, userId));
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
       spaceEntity.setCanEdit(canEdit);
+      spaceEntity.setCanDelete(spaceService.canDeleteSpace(space, userId));
       spaceEntity.setCanRedactOnSpace(spaceService.canRedactOnSpace(space, getCurrentUserIdentity()));
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
@@ -933,12 +933,13 @@ public class EntityBuilder {
     }
 
     PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(PortalConfig.GROUP_TYPE, space.getGroupId()));
-    spaceEntity.setSiteId((portalConfig.getStorageId().split("_"))[1]);
+    if (portalConfig != null) {
+      spaceEntity.setSiteId((portalConfig.getStorageId().split("_"))[1]);
+    }
 
     spaceEntity.setDisplayName(space.getDisplayName());
     spaceEntity.setLastUpdatedTime(space.getLastUpdatedTime());
     spaceEntity.setCreatedTime(String.valueOf(space.getCreatedTime()));
-    spaceEntity.setTemplate(space.getTemplate());
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
@@ -1706,21 +1707,6 @@ public class EntityBuilder {
       owner = identityManager.getOrCreateSpaceIdentity(activity.getStreamOwner());
     }
     return owner;
-  }
-
-  private static List<DataEntity> getSpaceApplications(Space space) {
-    List<DataEntity> spaceApplications = new ArrayList<>();
-    String installedApps = space.getApp();
-    if (installedApps != null) {
-      String[] appStatuses = installedApps.split(",");
-      for (String appStatus : appStatuses) {
-        String[] apps = appStatus.split(":");
-        BaseEntity app = new BaseEntity(apps[0]);
-        app.setProperty(RestProperties.DISPLAY_NAME, apps.length > 1 ? apps[1] : "");
-        spaceApplications.add(app.getDataEntity());
-      }
-    }
-    return spaceApplications;
   }
 
   private static void updateCachedEtagValue(int etagValue) {

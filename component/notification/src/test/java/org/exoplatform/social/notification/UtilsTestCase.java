@@ -2,9 +2,9 @@ package org.exoplatform.social.notification;
 
 
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
 import org.exoplatform.social.core.space.model.Space;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,23 +19,20 @@ public class UtilsTestCase extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("new space ");
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
-    space.setGroupId("/space/space");
-    String[] managers = new String[] {rootIdentity.getRemoteId()};
-    String[] members = new String[] { rootIdentity.getRemoteId(), demoIdentity.getRemoteId(), johnIdentity.getRemoteId() };
-    space.setManagers(managers);
-    space.setMembers(members);
-    space.setUrl(space.getPrettyName());
+    space.setEditor(rootIdentity.getRemoteId());
     space.setAvatarLastUpdated(System.currentTimeMillis());
-    space = spaceService.createSpace(space, rootIdentity.getRemoteId());
-    tearDownSpaceList.add(space);
+    Space createdSpace = spaceService.createSpace(space, rootIdentity.getRemoteId());
+
+    Arrays.asList(rootIdentity.getRemoteId(), demoIdentity.getRemoteId(), johnIdentity.getRemoteId())
+          .forEach(u -> spaceService.addMember(createdSpace, u));
+
+    tearDownSpaceList.add(createdSpace);
     System.setProperty(CommonsUtils.CONFIGURED_DOMAIN_URL_KEY, "http://test.com");
   }
 
-  public void testProcessLinkInActivityTitle() throws Exception {
+  public void testProcessLinkInActivityTitle() {
     String title = "<a href=\"www.yahoo.com\">Yahoo Site</a> is better than <a href=\"www.hotmail.com\">Hotmail Site</a>";
     title = Utils.processLinkTitle(title);
     assertEquals("<a href=\"www.yahoo.com\" style=\"color: #2f5e92; text-decoration: none;\">Yahoo Site</a> is better than <a href=\"www.hotmail.com\" style=\"color: #2f5e92; text-decoration: none;\">Hotmail Site</a>", title);
@@ -61,7 +58,6 @@ public class UtilsTestCase extends AbstractCoreTest {
 
   public void testSendToCommenters() {
     Set<String> receivers = new HashSet<>();
-    ;
     String[] commenters = new String[] { demoIdentity.getId()};
     Utils.sendToCommeters(receivers, commenters, rootIdentity.getId(), space.getId());
     assertEquals(1, receivers.size());

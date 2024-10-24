@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.storage.cache.model.data;
 
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.social.core.relationship.model.Relationship;
 
 /**

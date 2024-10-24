@@ -19,13 +19,18 @@ package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.*;
+import org.apache.commons.collections4.CollectionUtils;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Tuple;
+import jakarta.persistence.TypedQuery;
 
 public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implements SpaceDAO {
 
@@ -39,7 +44,7 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     } else {
       return resultList.stream()
                        .map(tuple -> tuple.get(0, Long.class))
-                       .collect(Collectors.toList());
+                       .toList();
     }
   }
 
@@ -48,29 +53,7 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByGroupId", SpaceEntity.class);
     query.setParameter("groupId", groupId);
     try {
-      return query.getSingleResult();      
-    } catch (NoResultException ex) {
-      return null;
-    }
-  }
-
-  @Override
-  public SpaceEntity getSpaceByURL(String url) {
-    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByURL", SpaceEntity.class);
-    query.setParameter("url", url);
-    try {
-      return query.getSingleResult();      
-    } catch (NoResultException ex) {
-      return null;
-    }
-  }
-
-  @Override
-  public SpaceEntity getSpaceByDisplayName(String spaceDisplayName) {
-    TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getSpaceByDisplayName", SpaceEntity.class);
-    query.setParameter("displayName", spaceDisplayName);
-    try {
-      return query.getSingleResult();      
+      return query.getSingleResult();
     } catch (NoResultException ex) {
       return null;
     }
@@ -82,7 +65,7 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     query.setParameter("prettyName", spacePrettyName);
     query.setMaxResults(1);
     try {
-      return query.getSingleResult();      
+      return query.getSingleResult();
     } catch (NoResultException ex) {
       return null;
     }
@@ -103,7 +86,7 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
       throw new IllegalArgumentException("limit must be > 0");
     }
     TypedQuery<SpaceEntity> query = getEntityManager().createNamedQuery("SpaceEntity.getCommonSpacesBetweenTwoUsers",
-            SpaceEntity.class);
+                                                                        SpaceEntity.class);
     query.setParameter("userId", userId);
     query.setParameter("otherUserId", otherUserId);
     query.setFirstResult(offset);
@@ -122,10 +105,24 @@ public class SpaceDAOImpl extends GenericDAOJPAImpl<SpaceEntity, Long> implement
     }
 
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SpaceEntity.countCommonSpacesBetweenTwoUsers",
-            Long.class);
+                                                                 Long.class);
     query.setParameter("userId", userId);
     query.setParameter("otherUserId", otherUserId);
     return query.getSingleResult().intValue();
 
   }
+
+  @Override
+  public Map<Long, Long> countSpacesByTemplate() {
+    TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceEntity.countSpacesByTemplate",
+                                                                  Tuple.class);
+    List<Tuple> resultList = query.getResultList();
+    if (CollectionUtils.isEmpty(resultList)) {
+      return Collections.emptyMap();
+    } else {
+      return resultList.stream()
+                       .collect(Collectors.toMap(t -> t.get(0, Long.class), t -> t.get(1, Long.class)));
+    }
+  }
+
 }

@@ -1,9 +1,8 @@
 package org.exoplatform.social.core.space;
 
-import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.core.space.model.Space;
-
 import java.util.List;
+
+import org.exoplatform.services.security.MembershipEntry;
 
 /**
  * Service to manage administration of spaces
@@ -24,25 +23,14 @@ public interface SpacesAdministrationService {
   void updateSpacesAdministratorsMemberships(List<MembershipEntry> permissionsExpressions);
 
   /**
-   * Returns the list of creators memberships (permission expressions)
+   * Checks if the user is a super manager of all spaces
    *
-   * @return a {@link List} of memberships of type {@link String}
+   * @param username user name
+   * @return true if the user is member of super administrators groups, else
+   *         false
    */
-  List<MembershipEntry> getSpacesCreatorsMemberships();
-
-  /**
-   * Update spaces super creator memberships
-   *
-   * @param permissionsExpressions
-   */
-  void updateSpacesCreatorsMemberships(List<MembershipEntry> permissionsExpressions);
-
-
-  /**
-   * Check if the user can create spaces
-   * @param username
-   * @return true if the user can create spaces
-   */
-  boolean canCreateSpace(String username) ;
+  default boolean isSuperManager(String username) {
+    throw new UnsupportedOperationException();
+  }
 
 }

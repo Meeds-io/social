@@ -17,7 +17,8 @@
 
 package org.exoplatform.social.core.storage.cache;
 
-import org.exoplatform.commons.file.model.FileItem;
+import java.util.HashMap;
+
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.social.core.storage.cache.model.data.ActivityData;
@@ -29,7 +30,6 @@ import org.exoplatform.social.core.storage.cache.model.data.ListSpacesData;
 import org.exoplatform.social.core.storage.cache.model.data.ProfileData;
 import org.exoplatform.social.core.storage.cache.model.data.RelationshipData;
 import org.exoplatform.social.core.storage.cache.model.data.SpaceData;
-import org.exoplatform.social.core.storage.cache.model.data.SpaceSimpleData;
 import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
@@ -80,10 +80,9 @@ public class SocialStorageCacheService {
   private final ExoCache<SpaceKey, SpaceData> spaceCache;
   private final ExoCache<SpaceRefKey, SpaceKey> spaceRefCache;
   private final ExoCache<SpaceFilterKey, IntegerData> spacesCountCache;
+  private final ExoCache<SpaceKey, HashMap<Long, Long>> spacesCountByTemplateCache;
   private final ExoCache<ListSpacesKey, ListSpacesData> spacesCache;
   
-  private final ExoCache<SpaceKey, SpaceSimpleData> spaceSimpleCache;
-
   public SocialStorageCacheService(CacheService cacheService) {
     
     this.identityCache = CacheType.IDENTITY.getFromService(cacheService);
@@ -107,10 +106,12 @@ public class SocialStorageCacheService {
     this.spaceCache = CacheType.SPACE.getFromService(cacheService);
     this.spaceRefCache = CacheType.SPACE_REF.getFromService(cacheService);
     this.spacesCountCache = CacheType.SPACES_COUNT.getFromService(cacheService);
+    this.spacesCountByTemplateCache = CacheType.SPACES_COUNT_BY_TEMPLATE.getFromService(cacheService);
     this.spacesCache = CacheType.SPACES.getFromService(cacheService);
-    
-    this.spaceSimpleCache = CacheType.SPACE_SIMPLE.getFromService(cacheService);
+  }
 
+  public ExoCache<SpaceKey, HashMap<Long, Long>> getSpacesCountByTemplateCache() {
+    return spacesCountByTemplateCache;
   }
 
   public ExoCache<IdentityKey, IdentityData> getIdentityCache() {
@@ -171,10 +172,6 @@ public class SocialStorageCacheService {
   public ExoCache<SpaceKey, SpaceData> getSpaceCache() {
     return spaceCache;
   }
-  
-  public ExoCache<SpaceKey, SpaceSimpleData> getSpaceSimpleCache() {
-    return spaceSimpleCache;
-  }
 
   public ExoCache<SpaceRefKey, SpaceKey> getSpaceRefCache() {
     return spaceRefCache;
@@ -187,4 +184,5 @@ public class SocialStorageCacheService {
   public ExoCache<ListSpacesKey, ListSpacesData> getSpacesCache() {
     return spacesCache;
   }
+
 }
