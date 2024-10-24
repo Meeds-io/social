@@ -98,8 +98,8 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="space_alias" />
-          <property name="index_previous" value="${meeds.social.index.space.previous:space_v2}" />
-          <property name="index_current" value="${meeds.social.index.space.current:space_v3}" />
+          <property name="index_previous" value="${meeds.social.index.space.previous:space_v3}" />
+          <property name="index_current" value="${meeds.social.index.space.current:space_v4}" />
           <property name="reindexOnUpgrade" value="${meeds.social.index.space.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
