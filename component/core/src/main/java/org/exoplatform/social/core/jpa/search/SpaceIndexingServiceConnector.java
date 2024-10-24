@@ -154,6 +154,8 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("    \"prettyName\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"displayName\" : {")
                                                .append("      \"type\" : \"text\",")
+                                               .append("      \"analyzer\": \"ngram_analyzer\",")
+                                               .append("      \"search_analyzer\": \"ngram_analyzer_search\",")
                                                .append("      \"index_options\": \"offsets\",")
                                                .append("      \"fields\": {")
                                                .append("        \"raw\": {")
