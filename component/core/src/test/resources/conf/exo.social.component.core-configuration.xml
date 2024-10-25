@@ -64,13 +64,8 @@
   </component>
 
   <component>
-    <type>org.exoplatform.social.common.lifecycle.LifeCycleCompletionService</type>
-    <init-params>
-      <value-param>
-        <name>async-execution</name>
-        <value>false</value>
-      </value-param>
-    </init-params>
+    <key>org.exoplatform.social.common.lifecycle.LifeCycleCompletionService</key>
+    <type>org.exoplatform.social.common.lifecycle.LifeCycleCompletionServiceMock</type>
   </component>
 
   <component>
