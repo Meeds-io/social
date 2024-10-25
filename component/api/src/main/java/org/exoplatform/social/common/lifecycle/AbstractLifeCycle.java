@@ -70,28 +70,30 @@ public abstract class AbstractLifeCycle<T extends LifeCycleListener<E>, E extend
    */
   protected void broadcast(final E event) {
     for (final T listener : listeners) {
-      if (completionService.isAsync() || listener.getClass().isAnnotationPresent(Asynchronous.class)) {
-        completionService.addTask(new Callable<E>() {
-          public E call() throws Exception {
-            begin();
-            try {
-              dispatchEvent(listener, event);
-            } catch (Exception e) {
-              LOG.warn("Error dispatching event", e);
-            } finally {
-              end();
+      try {
+        if (completionService.isAsync() || listener.getClass().isAnnotationPresent(Asynchronous.class)) {
+          completionService.addTask(new Callable<E>() {
+            public E call() throws Exception {
+              begin();
+              try {
+                dispatchEvent(listener, event);
+              } catch (Exception e) {
+                LOG.warn("Error dispatching event", e);
+              } finally {
+                end();
+              }
+              return event;
             }
-            return event;
-          }
-        });
-      } else {
-        try {
+          });
+        } else {
           dispatchEvent(listener, event);
-        } catch (Exception e) {
-          LOG.warn("Error dispatching event", e);
         }
+      } catch (Exception e) {
+        LOG.warn("Error dispatching event, source: {}, payload: {}. Continue braocasting other events.",
+                 event.getSource(),
+                 event.getPayload(),
+                 e);
       }
-
     }
   }
 
