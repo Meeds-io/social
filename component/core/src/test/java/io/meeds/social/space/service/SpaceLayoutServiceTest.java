@@ -151,12 +151,11 @@ public class SpaceLayoutServiceTest extends AbstractCoreTest {
     space.setDescription("add new space " + number);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
-    space.setGroupId("/space/space" + number);
+    Space createdSpace = this.spaceService.createSpace(space, "root");
     String[] managers = new String[] { "demo", "tom" };
     String[] members = new String[] { "demo", "raul", "ghost", "dragon" };
     String[] invitedUsers = new String[] { "register1", "mary" };
     String[] pendingUsers = new String[] { "jame", "paul", "hacker" };
-    Space createdSpace = this.spaceService.createSpace(space, "root");
     Arrays.stream(pendingUsers).forEach(u -> spaceService.addPendingUser(createdSpace, u));
     Arrays.stream(invitedUsers).forEach(u -> spaceService.addInvitedUser(createdSpace, u));
     Arrays.stream(members).forEach(u -> spaceService.addMember(createdSpace, u));
