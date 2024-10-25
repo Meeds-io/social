@@ -36,7 +36,6 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
-import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -48,7 +47,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.*;
 
-
 @Path(VersionResources.VERSION_ONE + "/social/profile/settings")
 @Tag(name = VersionResources.VERSION_ONE + "/social/profile/settings\"", description = "Operations on profile settings")
 public class ProfileSettingsRest implements ResourceContainer {
@@ -59,15 +57,10 @@ public class ProfileSettingsRest implements ResourceContainer {
 
   private final ProfilePropertyService profilePropertyService;
 
-  private static final int             CACHE_IN_SECONDS       = 604800;
-
-  private static final int             CACHE_IN_MILLI_SECONDS = 604800 * 1000;
-
-  private static final CacheControl    CACHE_CONTROL          = new CacheControl();
+  private static final CacheControl    CACHE_CONTROL        = new CacheControl();
 
   static {
-    CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-    CACHE_CONTROL.setMustRevalidate(true);
+    CACHE_CONTROL.setNoCache(true);
   }
 
   public ProfileSettingsRest(ProfilePropertyService profilePropertyService) {
