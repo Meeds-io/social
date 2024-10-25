@@ -86,11 +86,6 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   }
 
   @Override
-  public void spaceBannerEdited(SpaceLifeCycleEvent event) {
-    // Banner not indexed
-  }
-
-  @Override
   public void grantedLead(SpaceLifeCycleEvent event) {
     reindex(event, "space member granted as manager");
   }
@@ -116,13 +111,43 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   }
 
   @Override
+  public void addRedactorUser(SpaceLifeCycleEvent event) {
+    reindex(event, "add redactor");
+  }
+
+  @Override
+  public void removeRedactorUser(SpaceLifeCycleEvent event) {
+    reindex(event, "remove redactor");
+  }
+
+  @Override
+  public void addPublisherUser(SpaceLifeCycleEvent event) {
+    reindex(event, "add publisher");
+  }
+
+  @Override
+  public void removePublisherUser(SpaceLifeCycleEvent event) {
+    reindex(event, "remove publisher");
+  }
+
+  @Override
   public void addInvitedUser(SpaceLifeCycleEvent event) {
     reindex(event, "user invited to space");
   }
 
   @Override
+  public void removeInvitedUser(SpaceLifeCycleEvent event) {
+    reindex(event, "user invitation to space canceled");
+  }
+
+  @Override
   public void addPendingUser(SpaceLifeCycleEvent event) {
     reindex(event, "user requested access to space");
+  }
+
+  @Override
+  public void removePendingUser(SpaceLifeCycleEvent event) {
+    reindex(event, "user canceled request access to space");
   }
 
   private void reindex(SpaceLifeCycleEvent event, String cause) {
@@ -142,7 +167,10 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
     Set<TagName> tagNames = tagService.detectTagNames(space.getDescription());
     IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
     Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-    String editor = StringUtils.firstNonBlank(space.getEditor(), space.getManagers() == null || space.getManagers().length == 0 ? null : space.getManagers()[0]);
+    String editor = StringUtils.firstNonBlank(space.getEditor(),
+                                              space.getManagers() == null
+                                                                 || space.getManagers().length == 0 ? null :
+                                                                                                    space.getManagers()[0]);
     if (editor == null) {
       LOG.warn("Can't update Space Tags due to missing editor username");
     } else {
