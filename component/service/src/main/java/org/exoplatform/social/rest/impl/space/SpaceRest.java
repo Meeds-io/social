@@ -178,8 +178,7 @@ public class SpaceRest implements ResourceContainer {
     this.securitySettingService = securitySettingService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-    CACHE_REVALIDATE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
-    CACHE_REVALIDATE_CONTROL.setMustRevalidate(true);
+    CACHE_REVALIDATE_CONTROL.setNoCache(true);
   }
 
   @GET

@@ -672,12 +672,18 @@ public class SpaceServiceImpl implements SpaceService {
   public void addRedactor(Space space, String username) {
     String[] redactors = space.getRedactors();
     if (!ArrayUtils.contains(redactors, username)) {
-      redactors = ArrayUtils.add(redactors, username);
-      space.setRedactors(redactors);
-      spaceStorage.saveSpace(space, false);
-      // Add User to Group after adding member to space to not
-      // invoke twice the membership change
-      addUserToGroupWithRedactorMembership(username, space.getGroupId());
+      spaceLifeCycle.setCurrentEvent(Type.ADD_REDACTOR_USER);
+      try {
+        redactors = ArrayUtils.add(redactors, username);
+        space.setRedactors(redactors);
+        spaceStorage.saveSpace(space, false);
+        // Add User to Group after adding member to space to not
+        // invoke twice the membership change
+        addUserToGroupWithRedactorMembership(username, space.getGroupId());
+        spaceLifeCycle.addRedactorUser(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.ADD_REDACTOR_USER);
+      }
     }
   }
 
@@ -685,10 +691,16 @@ public class SpaceServiceImpl implements SpaceService {
   public void removeRedactor(Space space, String username) {
     String[] redactors = space.getRedactors();
     if (ArrayUtils.contains(redactors, username)) {
-      removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
-      redactors = ArrayUtils.removeAllOccurrences(redactors, username);
-      space.setRedactors(redactors);
-      spaceStorage.saveSpace(space, false);
+      spaceLifeCycle.setCurrentEvent(Type.REMOVE_REDACTOR_USER);
+      try {
+        redactors = ArrayUtils.removeAllOccurrences(redactors, username);
+        space.setRedactors(redactors);
+        spaceStorage.saveSpace(space, false);
+        removeUserFromGroupWithRedactorMembership(username, space.getGroupId());
+        spaceLifeCycle.removeRedactorUser(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.REMOVE_REDACTOR_USER);
+      }
     }
   }
 
@@ -696,12 +708,18 @@ public class SpaceServiceImpl implements SpaceService {
   public void addPublisher(Space space, String username) {
     String[] publishers = space.getPublishers();
     if (!ArrayUtils.contains(publishers, username)) {
-      publishers = ArrayUtils.add(publishers, username);
-      space.setPublishers(publishers);
-      spaceStorage.saveSpace(space, false);
-      // Add User to Group after adding member to space to not
-      // invoke twice the membership change
-      addUserToGroupWithPublisherMembership(username, space.getGroupId());
+      spaceLifeCycle.setCurrentEvent(Type.ADD_PUBLISHER_USER);
+      try {
+        publishers = ArrayUtils.add(publishers, username);
+        space.setPublishers(publishers);
+        spaceStorage.saveSpace(space, false);
+        // Add User to Group after adding member to space to not
+        // invoke twice the membership change
+        addUserToGroupWithPublisherMembership(username, space.getGroupId());
+        spaceLifeCycle.addPublisherUser(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.ADD_PUBLISHER_USER);
+      }
     }
   }
 
@@ -709,10 +727,16 @@ public class SpaceServiceImpl implements SpaceService {
   public void removePublisher(Space space, String username) {
     String[] publishers = space.getPublishers();
     if (ArrayUtils.contains(publishers, username)) {
-      publishers = ArrayUtils.removeAllOccurrences(publishers, username);
-      space.setPublishers(publishers);
-      spaceStorage.saveSpace(space, false);
-      removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
+      spaceLifeCycle.setCurrentEvent(Type.REMOVE_PUBLISHER_USER);
+      try {
+        publishers = ArrayUtils.removeAllOccurrences(publishers, username);
+        space.setPublishers(publishers);
+        spaceStorage.saveSpace(space, false);
+        removeUserFromGroupWithPublisherMembership(username, space.getGroupId());
+        spaceLifeCycle.removePublisherUser(space, username);
+      } finally {
+        spaceLifeCycle.resetCurrentEvent(Type.REMOVE_PUBLISHER_USER);
+      }
     }
   }
 
