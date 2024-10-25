@@ -157,6 +157,42 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   }
 
   /**
+   * Triggered when a Redactor role has been added
+   * 
+   * @param event the space lifecycle event
+   */
+  default void addRedactorUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
+   * Triggered when a Redactor role has been removed
+   * 
+   * @param event the space lifecycle event
+   */
+  default void removeRedactorUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
+   * Triggered when a Publisher role has been added
+   * 
+   * @param event the space lifecycle event
+   */
+  default void addPublisherUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
+   * Triggered when a Publisher role has been removed
+   * 
+   * @param event the space lifecycle event
+   */
+  default void removePublisherUser(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
    * Invokes this method when a user update the space registration
    * @param event
    */
