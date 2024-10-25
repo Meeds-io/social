@@ -1072,6 +1072,10 @@ public class SpaceServiceImpl implements SpaceService {
 
   private void triggerSpaceUpdate(Space newSpace, Space oldSpace) {
     if (oldSpace != null) {
+      if (StringUtils.isBlank(newSpace.getEditor())
+          && ArrayUtils.isNotEmpty(oldSpace.getManagers())) {
+        newSpace.setEditor(oldSpace.getManagers()[0]);
+      }
       if (!StringUtils.equals(oldSpace.getDescription(), newSpace.getDescription())) {
         spaceLifeCycle.spaceDescriptionEdited(newSpace, newSpace.getEditor());
       }
