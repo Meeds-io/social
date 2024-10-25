@@ -18,6 +18,8 @@
  */
 package io.meeds.social.core.space.service;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.navigation.NodeContext;
+import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -35,8 +38,6 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
-
-import lombok.SneakyThrows;
 
 @Service
 public class SpaceLayoutService {
@@ -125,7 +126,7 @@ public class SpaceLayoutService {
    *          manager, member, internal, authenticated or everyone.
    */
   public void saveSpacePublicSite(Space space, String publicSiteVisibility) {
-    saveSpacePublicSite(space, publicSiteVisibility, null);
+    saveSpacePublicSite(space, publicSiteVisibility, space.getEditor());
   }
 
   /**
@@ -157,7 +158,6 @@ public class SpaceLayoutService {
     }
   }
 
-  @SneakyThrows
   private long createSpacePublicSite(Space space,
                                      String name,
                                      String label,
@@ -168,15 +168,26 @@ public class SpaceLayoutService {
                                                DEFAULT_PUBLIC_SITE_TEMPLATE,
                                                DEFAULT_SITE_TEMPLATE_PATH);
     PortalConfig portalConfig = layoutService.getPortalConfig(siteName);
+
+    String editPermission = SpaceUtils.MANAGER + ":" + space.getGroupId();
     if (accessPermissions != null) {
       portalConfig.setAccessPermissions(accessPermissions);
-      portalConfig.setEditPermission(SpaceUtils.MANAGER + ":" + space.getGroupId());
+      portalConfig.setEditPermission(editPermission);
     }
     portalConfig.setLabel(StringUtils.firstNonBlank(label, space.getDisplayName()));
     portalConfig.setDefaultSite(false);
     portalConfig.setProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID, space.getId());
     portalConfig.setProperty(SpaceUtils.IS_PUBLIC_SITE_SPACE, "true");
     layoutService.save(portalConfig);
+
+    List<PageContext> pages = layoutService.findPages(SiteKey.portal(siteName));
+    pages.forEach(page -> {
+      page.setState(page.getState()
+                        .builder()
+                        .editPermission(editPermission)
+                        .build());
+      layoutService.save(page);
+    });
     return Long.parseLong(portalConfig.getStorageId().split("_")[1]);
   }
 
@@ -191,9 +202,10 @@ public class SpaceLayoutService {
                                           space.getDisplayName(),
                                           getPublicSitePermissions(publicSiteVisibility,
                                                                    space.getGroupId()));
+      space = spaceService.getSpaceById(space.getId());
       space.setPublicSiteId(siteId);
       space.setPublicSiteVisibility(publicSiteVisibility);
-      space.setEditor(authenticatedUser);
+      space.setEditor(authenticatedUser == null ? space.getManagers()[0] : authenticatedUser);
       spaceService.updateSpace(space);
     } else {
       PortalConfig portalConfig = layoutService.getPortalConfig(space.getPublicSiteId());
@@ -203,8 +215,9 @@ public class SpaceLayoutService {
         portalConfig.setDefaultSite(false);
         layoutService.save(portalConfig);
 
+        space = spaceService.getSpaceById(space.getId());
         space.setPublicSiteVisibility(publicSiteVisibility);
-        space.setEditor(authenticatedUser);
+        space.setEditor(authenticatedUser == null ? space.getManagers()[0] : authenticatedUser);
         spaceService.updateSpace(space);
       }
     }
