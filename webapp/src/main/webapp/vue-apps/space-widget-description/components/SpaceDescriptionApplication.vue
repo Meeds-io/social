@@ -90,7 +90,9 @@ export default {
       return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
     },
     publicSiteUrl() {
-      return this.$root.publicSiteName && `${eXo.env.portal.context}/${this.$root.publicSiteName}`;
+      return this.$root.publicSiteName
+        && eXo.env.portal.portalName !== this.$root.publicSiteName
+        && `${eXo.env.portal.context}/${this.$root.publicSiteName}`;
     },
     emptyDescription() {
       return !this.$root.spaceDescription
