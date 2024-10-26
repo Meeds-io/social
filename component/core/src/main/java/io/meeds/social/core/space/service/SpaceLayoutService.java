@@ -74,13 +74,14 @@ public class SpaceLayoutService {
    * Create a {@link Space} site switch designated templateId characteristics
    * 
    * @param space
+   * @throws ObjectNotFoundException 
    */
-  public void createSpaceSite(Space space) {
+  public void createSpaceSite(Space space) throws ObjectNotFoundException {
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(space.getTemplateId());
-    portalConfigService.createUserPortalConfig(PortalConfig.GROUP_TYPE,
-                                               space.getGroupId(),
-                                               StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE),
-                                               DEFAULT_SITE_TEMPLATE_PATH);
+    portalConfigService.createSiteFromTemplate(SiteKey.group(space.getGroupId()),
+                                               SiteKey.groupTemplate(StringUtils.firstNonBlank(spaceTemplate.getLayout(),
+                                                                                               DEFAULT_SITE_TEMPLATE)),
+                                               space.getGroupId());
     PortalConfig portalConfig = layoutService.getPortalConfig(PortalConfig.GROUP_TYPE,
                                                               space.getGroupId());
     portalConfig.setEditPermission(StringUtils.join(spaceTemplate.getSpaceLayoutPermissions(), ","));

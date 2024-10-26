@@ -51,7 +51,9 @@ public class AuthorizationManager extends UserACL {
 
   @Override
   public boolean hasEditPermission(Identity identity, String ownerType, String ownerId, String expression) {
-    if (isSpaceOwnerId(ownerType, ownerId)) {
+    if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
+      return isAdministrator(identity);
+    } else if (isSpaceOwnerId(ownerType, ownerId)) {
       Space space = getSpaceService().getSpaceByGroupId(ownerId);
       if (space != null && identity != null) {
         if (CollectionUtils.isNotEmpty(space.getLayoutPermissions())) {
@@ -71,6 +73,9 @@ public class AuthorizationManager extends UserACL {
 
   @Override
   public boolean hasAccessPermission(Identity identity, String ownerType, String ownerId, Stream<String> expressionsStream) {
+    if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
+      return isAdministrator(identity);
+    }
     return isAdministrator(identity, ownerType, ownerId)
            || super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream);
   }

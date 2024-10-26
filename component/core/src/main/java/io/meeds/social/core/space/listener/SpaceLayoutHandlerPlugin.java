@@ -21,6 +21,8 @@ package io.meeds.social.core.space.listener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -32,8 +34,10 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class SpaceLayoutHandlerPlugin implements SpaceLifeCycleListener {
 
+  private static final Log   LOG = ExoLogger.getLogger(SpaceLayoutHandlerPlugin.class);
+
   @Autowired
-  private SpaceService spaceService;
+  private SpaceService       spaceService;
 
   @Autowired
   private SpaceLayoutService spaceLayoutService;
@@ -45,7 +49,11 @@ public class SpaceLayoutHandlerPlugin implements SpaceLifeCycleListener {
 
   @Override
   public void spaceCreated(SpaceLifeCycleEvent event) {
-    spaceLayoutService.createSpaceSite(event.getPayload());
+    try {
+      spaceLayoutService.createSpaceSite(event.getPayload());
+    } catch (Exception e) {
+      LOG.error("Can't create Site for Space {} width id", event.getPayload().getDisplayName(), event.getPayload().getId(), e);
+    }
   }
 
 }
