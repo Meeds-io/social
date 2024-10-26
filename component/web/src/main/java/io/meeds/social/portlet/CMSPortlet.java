@@ -39,7 +39,6 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.ApplicationState;
-import org.exoplatform.portal.config.model.ApplicationType;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.pom.spi.portlet.Portlet;
@@ -160,9 +159,9 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
   protected void savePreference(String name, String value) {
     String storageId = UIPortlet.getCurrentUIPortlet().getStorageId();
     LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
-    Application<Portlet> applicationModel = layoutService.getApplicationModel(storageId);
-    ApplicationState<Portlet> state = applicationModel.getState();
-    Portlet prefs = layoutService.load(state, ApplicationType.PORTLET);
+    Application applicationModel = layoutService.getApplicationModel(storageId);
+    ApplicationState state = applicationModel.getState();
+    Portlet prefs = layoutService.load(state);
     prefs.setValue(name, value);
     layoutService.save(state, prefs);
   }

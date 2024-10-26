@@ -102,7 +102,7 @@ import lombok.SneakyThrows;
 
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log            LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class.getName());
+  private static final Log            LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class);
 
   private static final int            MAX_SPACE_NAME_LENGTH = 200;
 

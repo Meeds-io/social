@@ -18,9 +18,6 @@
  */
 package org.exoplatform.social.core.space;
 
-import org.exoplatform.portal.config.model.ApplicationType;
-import org.exoplatform.portal.pom.spi.portlet.Portlet;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,9 +34,5 @@ public class Application {
   private String displayName;
 
   private String description;
-
-  public ApplicationType<Portlet> getType() {
-    return ApplicationType.PORTLET;
-  }
 
 }
