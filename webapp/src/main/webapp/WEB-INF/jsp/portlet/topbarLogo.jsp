@@ -55,12 +55,9 @@
     if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
       portalPath = "/portal/public";
     } else {
-      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
       if (portalPath == null) {
-        portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
-        if (portalPath == null) {
-          portalPath = defaultHomePath;
-        }
+        portalPath = defaultHomePath;
       }
     }
     titleClass = "company";
