@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.core.space.listener;
+package io.meeds.social.space.listener;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,7 +29,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
 import io.meeds.common.ContainerTransactional;
-import io.meeds.social.core.space.service.SpaceLayoutService;
+import io.meeds.social.space.service.SpaceLayoutService;
 
 import lombok.SneakyThrows;
 
