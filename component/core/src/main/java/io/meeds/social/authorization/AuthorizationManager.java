@@ -53,7 +53,7 @@ public class AuthorizationManager extends UserACL {
   public boolean hasEditPermission(Identity identity, String ownerType, String ownerId, String expression) {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
       return isAdministrator(identity);
-    } else if (isSpaceOwnerId(ownerType, ownerId)) {
+    } else if (isSpaceSite(ownerType, ownerId)) {
       Space space = getSpaceService().getSpaceByGroupId(ownerId);
       if (space != null && identity != null) {
         if (CollectionUtils.isNotEmpty(space.getLayoutPermissions())) {
@@ -81,7 +81,7 @@ public class AuthorizationManager extends UserACL {
   }
 
   private boolean isAdministrator(Identity identity, String ownerType, String ownerId) {
-    return isSpaceOwnerId(ownerType, ownerId) && isSpacesAdministrator(identity);
+    return isSpaceSite(ownerType, ownerId) && isSpacesAdministrator(identity);
   }
 
   private boolean isSpacesAdministrator(Identity identity) {
@@ -91,7 +91,7 @@ public class AuthorizationManager extends UserACL {
                                   .anyMatch(permission -> isMemberOf(identity, permission.toString()));
   }
 
-  private boolean isSpaceOwnerId(String ownerType, String ownerId) {
+  private boolean isSpaceSite(String ownerType, String ownerId) {
     return PortalConfig.GROUP_TYPE.equalsIgnoreCase(ownerType)
            && StringUtils.startsWith(ownerId, SpaceUtils.SPACE_GROUP_PREFIX);
   }
