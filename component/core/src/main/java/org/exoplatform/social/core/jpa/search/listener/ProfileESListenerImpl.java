@@ -18,8 +18,10 @@ package org.exoplatform.social.core.jpa.search.listener;
 
 import org.exoplatform.commons.search.index.IndexingService;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.IdentifierUtil;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
 import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
@@ -34,12 +36,17 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
 
   @Override
   public void avatarUpdated(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for profile avatar update id={}", id);
+      LOG.debug("Notifying indexing service for profile avatar update id={}", id);
 
-    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for profile avatar update for disabled id={}", event.getProfile().getIdentity().getId());
+    }
+
   }
 
   @Override
@@ -49,50 +56,69 @@ public class ProfileESListenerImpl extends ProfileListenerPlugin {
 
   @Override
   public void contactSectionUpdated(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile contact update id={}", id);
+      LOG.debug("Notifying indexing service for the profile contact update id={}", id);
 
-    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for profile contact update for disabled id={}", event.getProfile().getIdentity().getId());
+    }
   }
 
   @Override
   public void aboutMeUpdated(ProfileLifeCycleEvent event) {
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile aboutme update id={}", id);
+      LOG.debug("Notifying indexing service for the profile aboutme update id={}", id);
 
-    CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
+      CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for profile aboutme update for disabled id={}", event.getProfile().getIdentity().getId());
+    }
   }
 
   @Override
   public void experienceSectionUpdated(ProfileLifeCycleEvent event) {
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile experience update id={}", id);
+      LOG.debug("Notifying indexing service for the profile experience update id={}", id);
 
-    CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
+      CommonsUtils.getService(IndexingService.class).reindex(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for profile experience update for disabled id={}", event.getProfile().getIdentity().getId());
+    }
   }
 
   @Override
   public void createProfile(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile creation id={}", id);
+      LOG.debug("Notifying indexing service for the profile creation id={}", id);
 
-    indexingService.index(ProfileIndexingServiceConnector.TYPE, id);
+      indexingService.index(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for profile creation for disabled id={}", event.getProfile().getIdentity().getId());
+    }
   }
 
   @Override
   public void technicalUpdated(ProfileLifeCycleEvent event) {
-    IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
-    String id = event.getProfile().getIdentity().getId();
+    if (event.getProfile().getIdentity().isEnable()) {
+      IndexingService indexingService = CommonsUtils.getService(IndexingService.class);
+      String id = event.getProfile().getIdentity().getId();
 
-    LOG.debug("Notifying indexing service for the profile update id={}, technical property changed", id);
+      LOG.debug("Notifying indexing service for the profile update id={}, technical property changed", id);
 
-    indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+      indexingService.reindex(ProfileIndexingServiceConnector.TYPE, id);
+    } else {
+      LOG.debug("Ignore notifying indexing service for the profile update for disabled id={}, technical property changed", event.getProfile().getIdentity().getId());
+    }
   }
-
 }
