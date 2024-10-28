@@ -29,8 +29,6 @@ if (extensionRegistry) {
   }
 }
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 //getting language of user
 const lang = eXo && eXo.env.portal.language || 'en';
 
@@ -70,9 +68,6 @@ export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, mem
           this.$root.$on('space-settings-members-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
         },
-        mounted() {
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-        },
         beforeDestroy() {
           this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-members-updated', this.handleSpaceUpdated);
@@ -84,7 +79,6 @@ export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, mem
               await this.refreshSpace();
             }
             await this.refreshExternalInvitations();
-            document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
           },
           handlePendingUpdated() {
             this.refreshSpace();
