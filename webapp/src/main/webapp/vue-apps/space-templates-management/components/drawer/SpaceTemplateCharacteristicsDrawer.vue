@@ -422,6 +422,8 @@ export default {
           await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
         }
         await this.$refs.bannerInput.save(this.spaceTemplate.id);
+        this.spaceTemplate.name = this.name;
+        this.spaceTemplate.description = this.description;
         if (this.isNew) {
           this.$root.$emit('alert-message', this.$t('spaceTemplate.spaceTemplateCreatedSuccessfully'), 'success');
           this.$root.$emit('space-templates-created', this.spaceTemplate);

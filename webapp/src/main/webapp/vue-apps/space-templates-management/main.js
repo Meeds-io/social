@@ -47,7 +47,9 @@ export function init() {
           collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
           extensionApp: 'space-templates',
           menuItemExtensionType: 'space-templates-item-action',
+          mainExtensionType: 'space-templates-main',
           menuItemExtensions: [],
+          mainExtensions: [],
         },
         computed: {
           isMobile() {
@@ -55,21 +57,27 @@ export function init() {
           },
         },
         async created() {
-          document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshExtensions);
+          document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
+          document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
-          this.refreshExtensions();
+          this.refreshMainExtensions();
+          this.refreshMenuExtensions();
         },
         beforeDestroy() {
-          document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshExtensions);
+          document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
+          document.removeEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
         },
         methods: {
-          refreshExtensions() {
+          refreshMenuExtensions() {
             this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
+          },
+          refreshMainExtensions() {
+            this.mainExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.mainExtensionType);
           },
         },
         template: `<space-templates-management id="${appId}"/>`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }, `#${appId}`, 'Space Templates')
-    ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceTemplateManagementExtension'));
+    );
 }
