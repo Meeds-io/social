@@ -13,7 +13,7 @@
         absolute
         left
         x-small
-        @click="moveLeft">
+        @click="($vuetify.rtl) ? moveRight() : moveLeft()">
         <v-icon size="25">fa-arrow-circle-left</v-icon>
       </v-btn>
     </v-fab-transition>
@@ -40,7 +40,7 @@
         absolute
         right
         x-small
-        @click="moveRight">
+        @click="($vuetify.rtl) ? moveLeft() : moveRight()">
         <v-icon size="25">fa-arrow-circle-right</v-icon>
       </v-btn>
     </v-fab-transition>
@@ -111,9 +111,12 @@ export default {
           const contentWidth = this.scrollElement.firstChild.offsetWidth;
           const children = this.scrollElement.firstChild.children;
           const childrenCount = children.length;
+          const scrollElementLeft = (this.$vuetify.rtl) ? -this.scrollElement.scrollLeft : this.scrollElement.scrollLeft;
+          const visibilityIconArrowPrev = this.scrollElement && childrenCount && scrollElementLeft > children[0].offsetLeft;
+          const visibilityIconArrowNext = this.scrollElement && (this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - scrollElementLeft) > 5;
           this.visibleChildrenPerPage = parseInt(parentWidth * childrenCount / contentWidth);
-          this.displayLeftArrow = this.scrollElement && childrenCount && this.scrollElement.scrollLeft > children[0].offsetLeft;
-          this.displayRightArrow = this.scrollElement && (this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - this.scrollElement.scrollLeft) > 5;
+          this.displayLeftArrow = (this.$vuetify.rtl) ? visibilityIconArrowNext : visibilityIconArrowPrev;
+          this.displayRightArrow = (this.$vuetify.rtl) ? visibilityIconArrowPrev : visibilityIconArrowNext;
           if (!this.initialized && childrenCount) {
             this.childScrollIndex = this.visibleChildrenPerPage >= children.length ? (children.length - 1) : this.visibleChildrenPerPage;
             this.initialized = true;
