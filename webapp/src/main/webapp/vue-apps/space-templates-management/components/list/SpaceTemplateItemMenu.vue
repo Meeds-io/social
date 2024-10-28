@@ -8,6 +8,7 @@
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 3 of the License, or (at your option) any later version.
+
   This program is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -29,6 +30,7 @@
     <template #activator="{ on, attrs }">
       <v-btn
         :aria-label="$t('spaceTemplates.menu.open')"
+        :loading="menuItemLoading"
         icon
         small
         class="mx-auto"
@@ -59,69 +61,16 @@
           </div>
         </v-subheader>
         <v-list-item-group v-model="listItem">
-          <v-list-item
-            dense
-            @click="$root.$emit('addNewSpace', spaceTemplate.id)">
-            <v-icon size="13">
-              fa-plus
-            </v-icon>
-            <v-list-item-title class="ps-2">
-              {{ $t('spaceTemplate.addSpaceMenuLabel') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            v-if="spaceTemplate.spacesCount"
-            dense
-            @click="$root.$emit('space-list-by-template-open', spaceTemplate.id, spaceTemplate.name)">
-            <v-icon size="13">
-              fa-layer-group
-            </v-icon>
-            <v-list-item-title class="ps-2">
-              {{ $t('spaceTemplate.listSpaceMenuLabel') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            dense
-            @click="$root.$emit('space-templates-characteristics-open', spaceTemplate)">
-            <v-icon size="13">
-              fa-edit
-            </v-icon>
-            <v-list-item-title class="ps-2">
-              {{ $t('spaceTemplate.label.editProperties') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            dense
-            @click="duplicate">
-            <v-icon size="13">
-              fa-copy
-            </v-icon>
-            <v-list-item-title class="ps-2">
-              {{ $t('spaceTemplate.label.duplicate') }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-tooltip :disabled="!spaceTemplate.system" bottom>
-            <template #activator="{ on, attrs }">
-              <div
-                v-on="on"
-                v-bind="attrs">
-                <v-list-item
-                  :disabled="spaceTemplate.system"
-                  dense
-                  @click="$root.$emit('space-templates-delete', spaceTemplate)">
-                  <v-icon
-                    :class="!spaceTemplate.system && 'error--text' || 'disabled--text'"
-                    size="13">
-                    fa-trash
-                  </v-icon>
-                  <v-list-item-title class="ps-2">
-                    <span :class="!spaceTemplate.system && 'error--text' || 'disabled--text'">{{ $t('spaceTemplate.label.delete') }}</span>
-                  </v-list-item-title>
-                </v-list-item>
-              </div>
-            </template>
-            <span>{{ $t('spaceTemplate.label.system.noDelete') }}</span>
-          </v-tooltip>
+          <extension-registry-components
+            name="spaceTemplateActions"
+            type="space-template-actions"
+            :params="{spaceTemplate}" />
+          <component
+            v-for="extension in sortedExtensions"
+            :key="extension.id"
+            :is="extension.componentName"
+            :space-template="spaceTemplate"
+            @loading="menuItemLoading = $event" />
         </v-list-item-group>
       </v-list>
     </v-hover>
@@ -140,6 +89,7 @@ export default {
     hoverMenu: false,
     listItem: null,
     menuId: `spaceTemplateMenu${parseInt(Math.random() * 10000)}`,
+    menuItemLoading: false,
   }),
   computed: {
     spaceTemplateId() {
@@ -147,6 +97,13 @@ export default {
     },
     name() {
       return this.$te(this.spaceTemplate?.name) ? this.$t(this.spaceTemplate?.name) : this.spaceTemplate?.name;
+    },
+    sortedExtensions() {
+      return this.$root.menuItemExtensions
+        // Remove duplication
+        .filter((t, i) => this.$root.menuItemExtensions.findIndex(v => v.name === t.name) === i)
+        // Sort results
+        .sort((a, b) => a.rank - b.rank);
     },
   },
   watch: {
@@ -186,31 +143,6 @@ export default {
       if (e.target && !e.target.closest(`.${this.menuId}`)) {
         this.menu = false;
       }
-    },
-    async duplicate() {
-      const nameTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'name');
-      const descriptionTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'description');
-      const translationConfiguration = await this.$translationService.getTranslationConfiguration();
-
-      const bannerBlob = !this.spaceTemplate.bannerFileId ? null : await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate.id}/${this.spaceTemplate.bannerFileId}`, {
-        credentials: 'include',
-        method: 'GET',
-      }).then(resp => resp?.ok && resp.blob());
-      const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
-      const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
-
-      this.$root.$emit('space-templates-name-open', {
-        ...this.spaceTemplate,
-        id: null,
-        bannerFileId: null,
-        system: false,
-      }, nameTranslations?.[translationConfiguration?.defaultLanguage],
-      nameTranslations,
-      descriptionTranslations?.[translationConfiguration?.defaultLanguage],
-      descriptionTranslations,
-      true,
-      bannerUploadId,
-      bannerData);
     },
     checkMenuStatus(templateId) {
       if (this.menu && templateId !== this.spaceTemplate.id) {

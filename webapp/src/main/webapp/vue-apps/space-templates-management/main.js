@@ -19,6 +19,7 @@
 
 import '../space-form/initComponents.js';
 import './initComponents.js';
+import './extensions.js';
 import './services.js';
 
 // get overridden components if exists
@@ -44,6 +45,9 @@ export function init() {
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
           collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+          extensionApp: 'space-templates',
+          menuItemExtensionType: 'space-templates-item-action',
+          menuItemExtensions: [],
         },
         computed: {
           isMobile() {
@@ -51,11 +55,21 @@ export function init() {
           },
         },
         async created() {
+          document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshExtensions);
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
+          this.refreshExtensions();
+        },
+        beforeDestroy() {
+          document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshExtensions);
+        },
+        methods: {
+          refreshExtensions() {
+            this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
+          },
         },
         template: `<space-templates-management id="${appId}"/>`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }, `#${appId}`, 'Space Templates')
-    );
+    ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceTemplateManagementExtension'));
 }
