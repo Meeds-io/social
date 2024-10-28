@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package io.meeds.social.core.search;
+package io.meeds.social.search;
 
 import java.io.InputStream;
 import java.text.Normalizer;
@@ -47,8 +47,8 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.tag.TagService;
 
-import io.meeds.social.core.search.model.SpaceSearchFilter;
-import io.meeds.social.core.search.model.SpaceSearchResult;
+import io.meeds.social.search.model.SpaceSearchFilter;
+import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 import lombok.Getter;
