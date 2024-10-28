@@ -48,16 +48,18 @@ import org.gatein.pc.api.state.PropertyMap;
 
 public class PortletInvokerMock implements PortletInvoker {
 
+  private static final String SOCIAL = "social";
+
   @Override
   public Set<Portlet> getPortlets() throws PortletInvokerException {
     return new HashSet<>(Arrays.asList(
                                        new PortletImpl(new PortletInfoImpl("dashboard", "DashboardPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "SpaceActivityStreamPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "SpaceSettingPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "MembersPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "ForumPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "CalendarPortlet")),
-                                       new PortletImpl(new PortletInfoImpl("social", "AnswersPortlet"))));
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "SpaceActivityStreamPortlet")),
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "SpaceSettingPortlet")),
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "MembersPortlet")),
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "ForumPortlet")),
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "CalendarPortlet")),
+                                       new PortletImpl(new PortletInfoImpl(SOCIAL, "AnswersPortlet"))));
   }
 
   @Override
