@@ -1978,7 +1978,7 @@
   <portlet>
     <name>SpaceTemplateManagement</name>
     <module>
-      <load-group>spaceTemplateManagement</load-group>
+      <load-group>SpaceTemplateManagement</load-group>
       <script>
         <minify>false</minify>
         <path>/js/spaceTemplateManagement.bundle.js</path>

@@ -19,31 +19,25 @@
 
 -->
 <template>
-  <v-app>
-    <v-card class="application-body position-static pb-5" flat>
-      <h4 class="text-title px-5 pt-5 ma-0">
-        {{ $t('spaceTemplates.title') }}
-      </h4>
-      <space-templates-management-toolbar
-        ref="toolbar"
-        @space-templates-filter="keyword = $event" />
-      <space-templates-management-list
-        ref="list"
-        :keyword="keyword" />
-    </v-card>
-    <space-templates-management-name-drawer />
-    <space-templates-management-characteristics-drawer />
-    <space-templates-management-list-by-template-drawer />
-    <space-form-drawer />
-    <extension-registry-components
-      name="space-templates"
-      type="space-templates-drawers" />
-  </v-app>
+  <v-list-item
+    v-if="spaceTemplate.spacesCount"
+    dense
+    @click="$root.$emit('space-list-by-template-open', spaceTemplate.id, spaceTemplate.name)">
+    <v-icon size="13">
+      fa-layer-group
+    </v-icon>
+    <v-list-item-title class="ps-2">
+      {{ $t('spaceTemplate.listSpaceMenuLabel') }}
+    </v-list-item-title>
+  </v-list-item>
 </template>
 <script>
 export default {
-  data: () => ({
-    keyword: null,
-  }),
+  props: {
+    spaceTemplate: {
+      type: Object,
+      default: null,
+    },
+  },
 };
 </script>
