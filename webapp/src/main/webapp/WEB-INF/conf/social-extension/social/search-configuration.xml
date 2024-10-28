@@ -49,7 +49,7 @@
    </component>
 
   <component>
-    <type>io.meeds.social.core.search.SpaceSearchConnector</type>
+    <type>io.meeds.social.search.SpaceSearchConnector</type>
     <init-params>
       <value-param>
         <name>query.file.path</name>
