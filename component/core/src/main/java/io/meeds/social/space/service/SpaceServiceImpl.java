@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-package io.meeds.social.core.space.service;
+package io.meeds.social.space.service;
 
 import static org.exoplatform.social.core.space.SpaceUtils.AUTHENTICATED;
 import static org.exoplatform.social.core.space.SpaceUtils.EVERYONE;
@@ -94,7 +94,7 @@ import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
-import io.meeds.social.core.search.SpaceSearchConnector;
+import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 

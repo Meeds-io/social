@@ -36,9 +36,9 @@ import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
-import io.meeds.social.core.richeditor.RichEditorConfiguration;
-import io.meeds.social.core.richeditor.RichEditorConfigurationPlugin;
-import io.meeds.social.core.richeditor.RichEditorConfigurationService;
+import io.meeds.social.richeditor.RichEditorConfiguration;
+import io.meeds.social.richeditor.RichEditorConfigurationPlugin;
+import io.meeds.social.richeditor.RichEditorConfigurationService;
 
 public class RichEditorConfigurationServiceImpl implements RichEditorConfigurationService {
 
