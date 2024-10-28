@@ -59,9 +59,9 @@ import io.meeds.social.space.constant.Visibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPlugin;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPlugin;
-import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.space.template.service.injection.model.SpaceTemplateDescriptor;
 import io.meeds.social.space.template.service.injection.model.SpaceTemplateDescriptorList;
+import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.util.JsonUtils;
 
 import jakarta.annotation.PostConstruct;
@@ -77,10 +77,10 @@ public class SpaceTemplateImportService {
 
   private static final String                   SPACE_TEMPLATE_VERSION      = "version";
 
-  private static final Log                      LOG                        =
+  private static final Log                      LOG                         =
                                                     ExoLogger.getLogger(SpaceTemplateImportService.class);
 
-  private static final Random                   RANDOM                     = new Random();
+  private static final Random                   RANDOM                      = new Random();
 
   @Autowired
   private SpaceTemplateTranslationImportService layoutTranslationService;
@@ -89,7 +89,7 @@ public class SpaceTemplateImportService {
   private AttachmentService                     attachmentService;
 
   @Autowired
-  private SpaceTemplateService                  spaceTemplateService;
+  private SpaceTemplateStorage                  spaceTemplateStorage;
 
   @Autowired
   private SettingService                        settingService;
@@ -196,7 +196,7 @@ public class SpaceTemplateImportService {
   protected SpaceTemplate createSpaceTemplate(SpaceTemplateDescriptor d, long oldTemplateId) {
     SpaceTemplate spaceTemplate = null;
     if (oldTemplateId > 0) {
-      spaceTemplate = spaceTemplateService.getSpaceTemplate(oldTemplateId);
+      spaceTemplate = spaceTemplateStorage.getSpaceTemplate(oldTemplateId);
     }
     boolean isNew = spaceTemplate == null;
     if (isNew) {
@@ -214,9 +214,9 @@ public class SpaceTemplateImportService {
     spaceTemplate.setSpaceDefaultVisibility(Visibility.valueOf(d.getSpaceDefaultVisibility().toUpperCase()));
     spaceTemplate.setSpaceAllowContentCreation(d.isSpaceAllowContentCreation());
     if (isNew) {
-      return spaceTemplateService.createSpaceTemplate(spaceTemplate);
+      return spaceTemplateStorage.createSpaceTemplate(spaceTemplate);
     } else {
-      return spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+      return spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     }
   }
 

@@ -24,6 +24,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +44,11 @@ import org.springframework.data.domain.Pageable;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
@@ -72,7 +81,16 @@ public class SpaceTemplateServiceTest {
   protected AttachmentService           attachmentService;
 
   @Mock
+  protected UserPortalConfigService     userPortalConfigService;
+
+  @Mock
   protected SpacesAdministrationService spacesAdministrationService;
+
+  @Mock
+  protected LayoutService               layoutService;
+
+  @Mock
+  protected ListenerService             listenerService;
 
   @Mock
   protected UserACL                     userAcl;
@@ -83,12 +101,18 @@ public class SpaceTemplateServiceTest {
   @Mock
   private Identity                      userIdentity;
 
+  @Mock
+  private PortalConfig                  portalConfig;
+
   private SpaceTemplateService          spaceTemplateService;
 
   @Before
   public void init() {
     spaceTemplateService = new SpaceTemplateService(translationService,
                                                     attachmentService,
+                                                    userPortalConfigService,
+                                                    layoutService,
+                                                    listenerService,
                                                     userAcl,
                                                     spacesAdministrationService,
                                                     spaceTemplateStorage);
@@ -165,13 +189,29 @@ public class SpaceTemplateServiceTest {
   }
 
   @Test
-  public void testCreateSpaceTemplate() throws IllegalAccessException {
+  public void testCreateSpaceTemplate() throws IllegalAccessException, ObjectNotFoundException {
     assertThrows(IllegalAccessException.class, () -> spaceTemplateService.createSpaceTemplate(newSpaceTemplate(0l), TEST_USER));
     setCanManageTemplate(true);
     assertThrows(IllegalArgumentException.class, () -> spaceTemplateService.createSpaceTemplate(newSpaceTemplate(2l), TEST_USER));
     SpaceTemplate spaceTemplate = newSpaceTemplate(0l);
+    assertThrows(ObjectNotFoundException.class, () -> spaceTemplateService.createSpaceTemplate(spaceTemplate, TEST_USER));
+
+    doAnswer(invocation -> {
+      SpaceTemplate spaceTemplateClone = spaceTemplate.clone();
+      spaceTemplateClone.setId(2l);
+      return spaceTemplateClone;
+    }).when(spaceTemplateStorage).createSpaceTemplate(any());
+    when(layoutService.getPortalConfig(SiteKey.groupTemplate(spaceTemplate.getLayout()))).thenReturn(portalConfig);
     spaceTemplateService.createSpaceTemplate(spaceTemplate, TEST_USER);
-    verify(spaceTemplateStorage).createSpaceTemplate(spaceTemplate);
+
+    SpaceTemplate spaceTemplateClone = spaceTemplate.clone();
+    spaceTemplateClone.setLayout(null);
+    spaceTemplateClone.setSystem(false);
+    spaceTemplateClone.setDeleted(false);
+    verify(spaceTemplateStorage).createSpaceTemplate(spaceTemplateClone);
+    verify(spaceTemplateStorage).updateSpaceTemplate(argThat(template -> StringUtils.equals(template.getLayout(), "2")));
+    verify(userPortalConfigService).createSiteFromTemplate(SiteKey.groupTemplate(spaceTemplate.getLayout()),
+                                                           SiteKey.groupTemplate("2"));
   }
 
   @Test

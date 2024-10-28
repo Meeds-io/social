@@ -101,6 +101,7 @@ public class SpaceTemplateRest {
   @ApiResponses(value = {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
                           @ApiResponse(responseCode = "403", description = "Forbidden"),
+                          @ApiResponse(responseCode = "404", description = "Referenced Layout Not found"),
   })
   public SpaceTemplate createSpaceTemplate(HttpServletRequest request,
                                            @RequestBody
@@ -110,6 +111,8 @@ public class SpaceTemplateRest {
       return getSpaceTemplate(request, spaceTemplate.getId());
     } catch (IllegalArgumentException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     }
