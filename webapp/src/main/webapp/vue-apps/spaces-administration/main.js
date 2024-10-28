@@ -28,7 +28,7 @@ export function init(applicationsByCategory) {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
-    Vue.createApp({
+    return Vue.createApp({
       data: {
         applicationsByCategory: applicationsByCategory,
       },
@@ -36,5 +36,5 @@ export function init(applicationsByCategory) {
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Spaces Administration');
-  });
+  }).finally(() => Vue.prototype.$utils.includeExtensions('ManageSpacesExtension'));
 }
