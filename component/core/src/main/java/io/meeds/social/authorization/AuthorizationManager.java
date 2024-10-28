@@ -35,6 +35,9 @@ import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
+
 import lombok.Setter;
 
 public class AuthorizationManager extends UserACL {
@@ -45,6 +48,9 @@ public class AuthorizationManager extends UserACL {
   @Setter
   private SpaceService                spaceService;
 
+  @Setter
+  private SpaceTemplateService        spaceTemplateService;
+
   public AuthorizationManager(InitParams params) {
     super(params);
   }
@@ -52,43 +58,45 @@ public class AuthorizationManager extends UserACL {
   @Override
   public boolean hasEditPermission(Identity identity, String ownerType, String ownerId, String expression) {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
-      return isAdministrator(identity);
+      SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplateByLayout(ownerId);
+      return spaceTemplate == null ? isAdministrator(identity) : !spaceTemplate.isSystem() && isSpacesAdministrator(identity);
     } else if (isSpaceSite(ownerType, ownerId)) {
       Space space = getSpaceService().getSpaceByGroupId(ownerId);
       if (space != null && identity != null) {
-        if (CollectionUtils.isNotEmpty(space.getLayoutPermissions())) {
-          return isAdministrator(identity)
-                 || isSpacesAdministrator(identity)
-                 || space.getLayoutPermissions()
-                         .stream()
-                         .anyMatch(permission -> identity.isMemberOf(getMembershipEntry(permission)));
-        } else {
-          return isAdministrator(identity) || isSpacesAdministrator(identity);
-        }
+        return isSpacesAdministrator(identity)
+               || (CollectionUtils.isNotEmpty(space.getLayoutPermissions())
+                   && space.getLayoutPermissions()
+                           .stream()
+                           .anyMatch(permission -> identity.isMemberOf(getMembershipEntry(permission))));
       }
     }
-    return isAdministrator(identity, ownerType, ownerId)
+    return isSpacesAdministrator(identity, ownerType, ownerId)
            || super.hasEditPermission(identity, ownerType, ownerId, expression);
   }
 
   @Override
   public boolean hasAccessPermission(Identity identity, String ownerType, String ownerId, Stream<String> expressionsStream) {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
-      return isAdministrator(identity);
+      SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplateByLayout(ownerId);
+      return spaceTemplate == null ? isAdministrator(identity) : isSpacesAdministrator(identity);
     }
-    return isAdministrator(identity, ownerType, ownerId)
+    return isSpacesAdministrator(identity, ownerType, ownerId)
            || super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream);
   }
 
-  private boolean isAdministrator(Identity identity, String ownerType, String ownerId) {
+  private boolean isSpacesAdministrator(Identity identity, String ownerType, String ownerId) {
     return isSpaceSite(ownerType, ownerId) && isSpacesAdministrator(identity);
   }
 
   private boolean isSpacesAdministrator(Identity identity) {
-    List<MembershipEntry> spacesAdministrators = getSpacesAdministrationService().getSpacesAdministratorsMemberships();
-    return CollectionUtils.isNotEmpty(spacesAdministrators)
-           && spacesAdministrators.stream()
-                                  .anyMatch(permission -> isMemberOf(identity, permission.toString()));
+    if (isAdministrator(identity)) {
+      return true;
+    } else {
+      List<MembershipEntry> spacesAdministrators = getSpacesAdministrationService().getSpacesAdministratorsMemberships();
+      return CollectionUtils.isNotEmpty(spacesAdministrators)
+             && spacesAdministrators.stream()
+                                    .anyMatch(permission -> isMemberOf(identity, permission.toString()));
+    }
   }
 
   private boolean isSpaceSite(String ownerType, String ownerId) {
@@ -112,5 +120,12 @@ public class AuthorizationManager extends UserACL {
       spaceService = ExoContainerContext.getService(SpaceService.class);
     }
     return spaceService;
+  }
+
+  public SpaceTemplateService getSpaceTemplateService() {
+    if (spaceTemplateService == null) {
+      spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
+    }
+    return spaceTemplateService;
   }
 }

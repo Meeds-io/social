@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpaceTemplate {
+public class SpaceTemplate implements Cloneable {
 
   private long         id;
 
@@ -64,4 +64,23 @@ public class SpaceTemplate {
 
   private boolean      spaceAllowContentCreation;
 
+  @Override
+  public SpaceTemplate clone() { // NOSONAR
+    return new SpaceTemplate(id,
+                             name,
+                             description,
+                             bannerFileId,
+                             icon,
+                             enabled,
+                             deleted,
+                             system,
+                             layout,
+                             permissions,
+                             spaceLayoutPermissions,
+                             spaceDeletePermissions,
+                             spaceFields,
+                             spaceDefaultVisibility,
+                             spaceDefaultRegistration,
+                             spaceAllowContentCreation);
+  }
 }

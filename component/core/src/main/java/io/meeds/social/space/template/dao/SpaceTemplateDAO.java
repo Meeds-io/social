@@ -19,6 +19,7 @@
 package io.meeds.social.space.template.dao;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,5 +33,7 @@ public interface SpaceTemplateDAO extends JpaRepository<SpaceTemplateEntity, Lon
   List<SpaceTemplateEntity> findByDeletedFalse(Pageable pageable);
 
   List<SpaceTemplateEntity> findByDeletedFalseAndEnabledTrue(Pageable pageable);
+
+  Optional<SpaceTemplateEntity> findByLayout(String layout);
 
 }
