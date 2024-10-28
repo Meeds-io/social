@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.notification.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.*;
 import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
@@ -126,7 +127,7 @@ public class SpaceNotificationImpl extends SpaceListenerPlugin {
     webNotificationFilter.setPluginKey(new PluginKey(pluginId));
     List<NotificationInfo> webNotifs = getWebNotificationService().getNotificationInfos(webNotificationFilter, 0, -1);
     for (NotificationInfo info : webNotifs) {
-      if (info.getTo().equals(to) && info.getFrom().equals(from) && !"accepted".equals(info.getOwnerParameter().get("status"))) {
+      if (info.getTo().equals(to) && (StringUtils.isEmpty(info.getFrom()) || info.getFrom().equals(from)) && !"accepted".equals(info.getOwnerParameter().get("status"))) {
         //one element has changed, we need to update
         info.setTo(to);
         info.setFrom(from);
