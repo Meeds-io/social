@@ -35,7 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.PropertyManager;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 
-import io.meeds.social.core.richeditor.RichEditorConfigurationService;
+import io.meeds.social.richeditor.RichEditorConfigurationService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

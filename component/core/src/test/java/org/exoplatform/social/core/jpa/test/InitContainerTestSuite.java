@@ -67,12 +67,12 @@ import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 import io.meeds.social.cms.service.CMSServiceTest;
-import io.meeds.social.core.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.link.plugin.LinkSettingTranslationPluginTest;
 import io.meeds.social.link.plugin.LinkTranslationPluginTest;
 import io.meeds.social.link.service.LinkServiceTest;
 import io.meeds.social.observer.plugin.ActivityOberverPluginTest;
 import io.meeds.social.observer.service.ObserverServiceTest;
+import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
 import io.meeds.social.translation.service.TranslationServiceTest;
 
 @SuiteClasses({
