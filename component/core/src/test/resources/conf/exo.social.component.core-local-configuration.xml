@@ -43,7 +43,7 @@
   </component>
 
   <component>
-    <key>io.meeds.social.core.richeditor.RichEditorConfigurationService</key>
+    <key>io.meeds.social.richeditor.RichEditorConfigurationService</key>
     <type>io.meeds.social.richeditor.RichEditorConfigurationServiceImpl</type>
   </component>
 
@@ -71,15 +71,15 @@
   </external-component-plugins>
 
   <external-component-plugins>
-    <target-component>io.meeds.social.core.richeditor.RichEditorConfigurationService</target-component>
+    <target-component>io.meeds.social.richeditor.RichEditorConfigurationService</target-component>
     <component-plugin>
       <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <type>io.meeds.social.richeditor.RichEditorConfigurationPlugin</type>
       <init-params>
         <object-param>
           <name>BaseCKEditorConfiguration</name>
-          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+          <object type="io.meeds.social.richeditor.RichEditorConfiguration">
             <field name="instanceType">
               <string></string>
             </field>
@@ -93,11 +93,11 @@
     <component-plugin>
       <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <type>io.meeds.social.richeditor.RichEditorConfigurationPlugin</type>
       <init-params>
         <object-param>
           <name>BaseCKEditorConfiguration</name>
-          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+          <object type="io.meeds.social.richeditor.RichEditorConfiguration">
             <field name="instanceType">
               <string>test-extension</string>
             </field>
@@ -111,11 +111,11 @@
     <component-plugin>
       <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <type>io.meeds.social.richeditor.RichEditorConfigurationPlugin</type>
       <init-params>
         <object-param>
           <name>BaseCKEditorConfiguration</name>
-          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+          <object type="io.meeds.social.richeditor.RichEditorConfiguration">
             <field name="instanceType">
               <string>java-variable-test</string>
             </field>
@@ -129,11 +129,11 @@
     <component-plugin>
       <name>BaseCKEditorConfiguration</name>
       <set-method>addPlugin</set-method>
-      <type>io.meeds.social.core.richeditor.RichEditorConfigurationPlugin</type>
+      <type>io.meeds.social.richeditor.RichEditorConfigurationPlugin</type>
       <init-params>
         <object-param>
           <name>BaseCKEditorConfiguration</name>
-          <object type="io.meeds.social.core.richeditor.RichEditorConfiguration">
+          <object type="io.meeds.social.richeditor.RichEditorConfiguration">
             <field name="instanceType">
               <string>js-variable-test</string>
             </field>

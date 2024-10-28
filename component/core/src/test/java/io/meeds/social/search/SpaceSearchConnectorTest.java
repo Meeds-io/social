@@ -16,10 +16,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.core.search;
+package io.meeds.social.search;
 
-import static io.meeds.social.core.search.SpaceSearchConnector.SEARCH_COUNT_FILE_PATH_PARAM;
-import static io.meeds.social.core.search.SpaceSearchConnector.SEARCH_QUERY_FILE_PATH_PARAM;
+import static io.meeds.social.search.SpaceSearchConnector.SEARCH_COUNT_FILE_PATH_PARAM;
+import static io.meeds.social.search.SpaceSearchConnector.SEARCH_QUERY_FILE_PATH_PARAM;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
@@ -49,8 +49,9 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
 
-import io.meeds.social.core.search.model.SpaceSearchFilter;
-import io.meeds.social.core.search.model.SpaceSearchResult;
+import io.meeds.social.search.SpaceSearchConnector;
+import io.meeds.social.search.model.SpaceSearchFilter;
+import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.util.JsonUtils;
 

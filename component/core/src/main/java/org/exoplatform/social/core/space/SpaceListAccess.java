@@ -34,9 +34,9 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
 
-import io.meeds.social.core.search.SpaceSearchConnector;
-import io.meeds.social.core.search.model.SpaceSearchFilter;
-import io.meeds.social.core.search.model.SpaceSearchResult;
+import io.meeds.social.search.SpaceSearchConnector;
+import io.meeds.social.search.model.SpaceSearchFilter;
+import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 public class SpaceListAccess implements ListAccess<Space> {

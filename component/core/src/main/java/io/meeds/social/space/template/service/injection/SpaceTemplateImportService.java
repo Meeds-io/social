@@ -54,8 +54,8 @@ import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
 import org.exoplatform.upload.UploadResource;
 
 import io.meeds.common.ContainerTransactional;
-import io.meeds.social.core.space.constant.Registration;
-import io.meeds.social.core.space.constant.Visibility;
+import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.Visibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPlugin;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPlugin;
