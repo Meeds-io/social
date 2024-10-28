@@ -19,31 +19,36 @@
 
 -->
 <template>
-  <v-app>
-    <v-card class="application-body position-static pb-5" flat>
-      <h4 class="text-title px-5 pt-5 ma-0">
-        {{ $t('spaceTemplates.title') }}
-      </h4>
-      <space-templates-management-toolbar
-        ref="toolbar"
-        @space-templates-filter="keyword = $event" />
-      <space-templates-management-list
-        ref="list"
-        :keyword="keyword" />
-    </v-card>
-    <space-templates-management-name-drawer />
-    <space-templates-management-characteristics-drawer />
-    <space-templates-management-list-by-template-drawer />
-    <space-form-drawer />
-    <extension-registry-components
-      name="space-templates"
-      type="space-templates-drawers" />
-  </v-app>
+  <v-tooltip :disabled="!spaceTemplate.system" bottom>
+    <template #activator="{ on, attrs }">
+      <div
+        v-on="on"
+        v-bind="attrs">
+        <v-list-item
+          :disabled="spaceTemplate.system"
+          dense
+          @click="$root.$emit('space-templates-delete', spaceTemplate)">
+          <v-icon
+            :class="!spaceTemplate.system && 'error--text' || 'disabled--text'"
+            size="13">
+            fa-trash
+          </v-icon>
+          <v-list-item-title class="ps-2">
+            <span :class="!spaceTemplate.system && 'error--text' || 'disabled--text'">{{ $t('spaceTemplate.label.delete') }}</span>
+          </v-list-item-title>
+        </v-list-item>
+      </div>
+    </template>
+    <span>{{ $t('spaceTemplate.label.system.noDelete') }}</span>
+  </v-tooltip>
 </template>
 <script>
 export default {
-  data: () => ({
-    keyword: null,
-  }),
+  props: {
+    spaceTemplate: {
+      type: Object,
+      default: null,
+    },
+  },
 };
 </script>

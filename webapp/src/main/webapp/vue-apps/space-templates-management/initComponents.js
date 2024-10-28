@@ -25,6 +25,12 @@ import SpaceTemplateItem from './components/list/SpaceTemplateItem.vue';
 import SpaceTemplateItemMenu from './components/list/SpaceTemplateItemMenu.vue';
 import SpaceTemplateItemPermission from './components/list/SpaceTemplateItemPermission.vue';
 
+import SpaceTemplateCreateSpaceMenuItem from './components/menu-action/SpaceTemplateCreateSpaceMenuItem.vue';
+import SpaceTemplateDeleteMenuItem from './components/menu-action/SpaceTemplateDeleteMenuItem.vue';
+import SpaceTemplateDuplicateMenuItem from './components/menu-action/SpaceTemplateDuplicateMenuItem.vue';
+import SpaceTemplateEditMenuItem from './components/menu-action/SpaceTemplateEditMenuItem.vue';
+import SpaceTemplateListSpacesMenuItem from './components/menu-action/SpaceTemplateListSpacesMenuItem.vue';
+
 import SpaceTemplateNameDrawer from './components/drawer/SpaceTemplateNameDrawer.vue';
 import SpaceTemplateCharacteristicsDrawer from './components/drawer/SpaceTemplateCharacteristicsDrawer.vue';
 import SpaceListByTemplateDrawer from './components/drawer/SpaceListByTemplateDrawer.vue';
@@ -42,6 +48,11 @@ const components = {
   'space-templates-management-item': SpaceTemplateItem,
   'space-templates-management-item-menu': SpaceTemplateItemMenu,
   'space-templates-management-item-permission': SpaceTemplateItemPermission,
+  'space-templates-management-menu-item-create-space': SpaceTemplateCreateSpaceMenuItem,
+  'space-templates-management-menu-item-list-spaces': SpaceTemplateListSpacesMenuItem,
+  'space-templates-management-menu-item-edit': SpaceTemplateEditMenuItem,
+  'space-templates-management-menu-item-duplicate': SpaceTemplateDuplicateMenuItem,
+  'space-templates-management-menu-item-delete': SpaceTemplateDeleteMenuItem,
   'space-templates-management-name-drawer': SpaceTemplateNameDrawer,
   'space-templates-management-characteristics-drawer': SpaceTemplateCharacteristicsDrawer,
   'space-templates-management-list-by-template-drawer': SpaceListByTemplateDrawer,
