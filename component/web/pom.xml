@@ -30,9 +30,6 @@
   <packaging>jar</packaging>
   <name>Meeds:: PLF:: Social Web Component</name>
   <description>Meeds Social Web Component</description>
-  <properties>
-    <exo.test.coverage.ratio>0</exo.test.coverage.ratio>
-  </properties>
   <dependencies>
     <dependency>
       <groupId>io.meeds.social</groupId>

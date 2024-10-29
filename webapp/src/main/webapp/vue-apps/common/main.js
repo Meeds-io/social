@@ -138,7 +138,7 @@ export function init(i18n) {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }).$mount('#drawers-overlay');
-    } else if (!document.querySelector('#UIPortalApplication')) { // Needed for anonymous pages (login, register ...)
+    } else { // Needed for anonymous pages (login, register ...)
       const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
       let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
       if (!drawersOverlayElement) {
