@@ -207,6 +207,7 @@ public class SpaceTemplateServiceTest {
       return spaceTemplateClone;
     }).when(spaceTemplateStorage).createSpaceTemplate(any());
     when(layoutService.getPortalConfig(SiteKey.groupTemplate(spaceTemplate.getLayout()))).thenReturn(portalConfig);
+    when(layoutService.getPortalConfig(SiteKey.groupTemplate("2"))).thenReturn(portalConfig);
     spaceTemplateService.createSpaceTemplate(spaceTemplate, TEST_USER);
 
     SpaceTemplate spaceTemplateClone = spaceTemplate.clone();
