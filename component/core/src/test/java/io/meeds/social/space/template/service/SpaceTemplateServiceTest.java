@@ -48,6 +48,7 @@ import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
@@ -90,6 +91,9 @@ public class SpaceTemplateServiceTest {
   protected LayoutService               layoutService;
 
   @Mock
+  protected NavigationService           navigationService;
+
+  @Mock
   protected ListenerService             listenerService;
 
   @Mock
@@ -112,6 +116,7 @@ public class SpaceTemplateServiceTest {
                                                     attachmentService,
                                                     userPortalConfigService,
                                                     layoutService,
+                                                    navigationService,
                                                     listenerService,
                                                     userAcl,
                                                     spacesAdministrationService,
