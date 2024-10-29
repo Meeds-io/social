@@ -31,7 +31,12 @@
     <component-plugin>
       <name>PublicSpaceSiteLifecycle</name>
       <set-method>addPortalApplicationLifecycle</set-method>
-      <type>io.meeds.social.portlet.PublicSpaceSiteLifecycle</type>
+      <type>io.meeds.social.lifecycle.PublicSpaceSiteLifecycle</type>
+    </component-plugin>
+    <component-plugin>
+      <name>SpaceSiteTemplateLifecycle</name>
+      <set-method>addPortalApplicationLifecycle</set-method>
+      <type>io.meeds.social.lifecycle.SpaceSiteTemplateLifecycle</type>
     </component-plugin>
   </external-component-plugins>
 
