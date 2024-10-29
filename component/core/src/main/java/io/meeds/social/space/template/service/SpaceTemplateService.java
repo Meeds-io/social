@@ -31,8 +31,10 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -75,12 +77,15 @@ public class SpaceTemplateService {
 
   private LayoutService               layoutService;
 
+  private NavigationService           navigationService;
+
   private ListenerService             listenerService;
 
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
                               UserPortalConfigService userPortalConfigService,
                               LayoutService layoutService,
+                              NavigationService navigationService,
                               ListenerService listenerService,
                               UserACL userAcl,
                               SpacesAdministrationService spacesAdministrationService,
@@ -92,6 +97,7 @@ public class SpaceTemplateService {
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateStorage = spaceTemplateStorage;
     this.layoutService = layoutService;
+    this.navigationService = navigationService;
     this.listenerService = listenerService;
   }
 
@@ -245,8 +251,6 @@ public class SpaceTemplateService {
     if (spaceTemplate == null || spaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException(String.format("Space template with id %s doesn't exist", templateId));
     }
-    spaceTemplate.setDeleted(true);
-    spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
 
     try {
       attachmentService.deleteAttachments(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE, String.valueOf(templateId));
@@ -258,6 +262,15 @@ public class SpaceTemplateService {
     } catch (ObjectNotFoundException e) {
       LOG.debug("Error while deleting translation labels of deleted Page Template", e);
     }
+    PortalConfig portalConfig = layoutService.getPortalConfig(SiteKey.groupTemplate(spaceTemplate.getLayout()));
+    if (portalConfig != null) {
+      SiteKey siteKey = SiteKey.portal(portalConfig.getName());
+      navigationService.destroyNavigation(siteKey);
+      layoutService.removePages(siteKey);
+      layoutService.remove(portalConfig);
+    }
+    spaceTemplate.setDeleted(true);
+    spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     listenerService.broadcast(SPACE_TEMPLATE_DELETED_EVENT, spaceTemplate, spaceTemplate);
   }
 
