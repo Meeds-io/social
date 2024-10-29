@@ -61,6 +61,8 @@ public class SiteEntity {
   private long                      bannerFileId;
 
   private String                    bannerUrl;
+
+  private Map<String, String>       properties;
   
   @Override
   public int hashCode() {
