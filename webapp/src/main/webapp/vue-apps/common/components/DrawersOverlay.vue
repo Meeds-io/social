@@ -29,6 +29,10 @@ export default {
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
     this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
+    if (this.getQueryParam('mask') === 'true') {
+      document.addEventListener('mouseover', this.showOverlay);
+      document.addEventListener('mouseout', this.forceHideOverlay);
+    }
   },
   methods: {
     closeDisplayedDrawerNoEvent() {
@@ -49,16 +53,22 @@ export default {
         searchDialog.style.zIndex = 'revert';
       }
     },
+    forceHideOverlay() {
+      this.openedDrawers = 1;
+      this.hideOverlay();
+    },
     hideOverlay() {
       if (this.openedDrawers > 0) {
-        this.openedDrawers -= 1;
-      }
-      if (this.openedDrawers === 0) {
-        this.uiPortalApplicationElement.classList.remove('decrease-z-index');
-      }
-      const searchDialog = document.querySelector('#searchDialog');
-      if (searchDialog) {
-        searchDialog.style.zIndex = '';
+        window.setTimeout(() => {
+          this.openedDrawers -= 1;
+          if (this.openedDrawers === 0) {
+            this.uiPortalApplicationElement.classList.remove('decrease-z-index');
+          }
+          const searchDialog = document.querySelector('#searchDialog');
+          if (searchDialog) {
+            searchDialog.style.zIndex = '';
+          }
+        }, 10);
       }
     },
     modalOpened() {
@@ -68,6 +78,11 @@ export default {
       if (this.openedModals > 0) {
         this.openedModals -= 1;
       }
+    },
+    getQueryParam(paramName) {
+      const uri = window.location.search.substring(1);
+      const params = new URLSearchParams(uri);
+      return params.get(paramName);
     },
   },
 };
