@@ -143,6 +143,9 @@ public class SpaceLayoutService {
     if (portalConfig == null) {
       return;
     }
+    SiteKey siteKey = SiteKey.portal(portalConfig.getName());
+    navigationService.destroyNavigation(siteKey);
+    layoutService.removePages(siteKey);
     layoutService.remove(portalConfig);
   }
 
