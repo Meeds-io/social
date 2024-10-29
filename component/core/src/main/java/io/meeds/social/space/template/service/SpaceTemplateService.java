@@ -53,15 +53,19 @@ import io.meeds.social.translation.service.TranslationService;
 @Service
 public class SpaceTemplateService {
 
-  public static final String          SPACE_TEMPLATE_CREATED_EVENT = "space.template.created";
+  public static final String          SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
 
-  public static final String          SPACE_TEMPLATE_UPDATED_EVENT = "space.template.updated";
+  public static final String          SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
 
-  public static final String          SPACE_TEMPLATE_DELETED_EVENT = "space.template.deleted";
+  public static final String          SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
 
-  public static final String          DEFAULT_SITE_TEMPLATE        = "space";
+  public static final String          SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
 
-  private static final Log            LOG                          = ExoLogger.getLogger(SpaceTemplateService.class);
+  public static final String          SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
+
+  public static final String          DEFAULT_SITE_TEMPLATE         = "space";
+
+  private static final Log            LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
 
   private TranslationService          translationService;
 
@@ -276,10 +280,14 @@ public class SpaceTemplateService {
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
                                                   String sourceLayout) throws ObjectNotFoundException {
-    String targetLayout = String.valueOf(spaceTemplate.getId());
-    userPortalConfigService.createSiteFromTemplate(SiteKey.groupTemplate(sourceLayout),
-                                                   SiteKey.groupTemplate(targetLayout));
-    spaceTemplate.setLayout(targetLayout);
+    SiteKey sourceSiteKey = SiteKey.groupTemplate(sourceLayout);
+    SiteKey targetSiteKey = SiteKey.groupTemplate(String.valueOf(spaceTemplate.getId()));
+    userPortalConfigService.createSiteFromTemplate(sourceSiteKey, targetSiteKey);
+    PortalConfig targetPortalConfig = layoutService.getPortalConfig(targetSiteKey);
+    targetPortalConfig.setProperty(SPACE_TEMPLATE_SITE_PROP_NAME, "true");
+    targetPortalConfig.setProperty(SPACE_TEMPLATE_ID_PROP_NAME, targetSiteKey.getName());
+    layoutService.save(targetPortalConfig);
+    spaceTemplate.setLayout(targetSiteKey.getName());
     return spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
   }
 

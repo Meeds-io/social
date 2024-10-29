@@ -2249,7 +2249,8 @@ public class EntityBuilder {
                           siteNavigations,
                           getUserACL().hasEditPermission(site, ConversationState.getCurrent().getIdentity()),
                           site.getBannerFileId(),
-                          LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()));
+                          LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()),
+                          site.getProperties());
   }
 
   private static String getSiteDescription(SiteKey siteKey, UserPortal userPortal) {
