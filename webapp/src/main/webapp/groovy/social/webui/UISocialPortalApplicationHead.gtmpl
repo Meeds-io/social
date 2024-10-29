@@ -31,6 +31,7 @@
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
+     eXo.env.portal.previewSpaceId = <%=rcontext.getRequest().getParameter("previewSpaceId")%>;
      eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
      eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
      eXo.env.portal.spaceDisplayName = decodeURIComponent("<%=space == null ? "" : java.net.URLEncoder.encode(space.getDisplayName().replace(" ", "._.")).replace("._.", " ") %>") ;
