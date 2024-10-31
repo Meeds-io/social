@@ -24,7 +24,9 @@
       <space-setting-overview id="SpaceSettingsOverview" />
       <space-setting-roles id="SpaceSettingsRoles" />
       <space-setting-access id="SpaceSettingsAccess" />
-      <space-setting-public-site id="SpaceSettingsPublicAccess" />
+      <space-setting-public-site
+        id="SpaceSettingsPublicAccess"
+        v-if="$root.space?.canManagePublicSite" />
       <template>
         <extension-registry-components
           :params="extensionParams"

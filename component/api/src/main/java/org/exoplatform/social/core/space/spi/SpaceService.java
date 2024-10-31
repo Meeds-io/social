@@ -582,6 +582,24 @@ public interface SpaceService {
   }
 
   /**
+   * @param space {@link Space} to check
+   * @param username user name
+   * @return true if can create public site else false
+   */
+  default boolean canManageSpacePublicSite(Space space, String username) {
+    return false;
+  }
+
+  /**
+   * @param space {@link Space} to check
+   * @param username user name
+   * @return true if can manage site layout else false
+   */
+  default boolean canManageSpaceLayout(Space space, String username) {
+    return false;
+  }
+
+  /**
    * Checks the deletion permissions added from SpaceTemplate entity to Space
    * entity in space creation step. If empty, then space admin can delete the
    * space

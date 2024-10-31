@@ -32,7 +32,7 @@
       {{ isNew && $t('spaceTemplate.add.drawer.newTemplate') || $t('spaceTemplate.add.drawer.editTemplate') }}
     </template>
     <template v-if="drawer && spaceTemplate" #content>
-      <div class="pa-4" flat>
+      <div class="pa-4 full-wdith overflow-hidden">
         <v-alert
           v-if="step === 1 && !isNew"
           type="info"
@@ -185,6 +185,12 @@
             admins
             space-admin />
           <space-templates-management-permissions
+            v-model="spaceTemplate.spacePublicSitePermissions"
+            label="spaceTemplate.permissionsStepPublicSitePermissionLabel"
+            class="mb-4"
+            admins
+            space-admin />
+          <space-templates-management-permissions
             v-model="spaceTemplate.spaceDeletePermissions"
             label="spaceTemplate.permissionsStepDeleteSpacePermissionLabel"
             class="mb-4"
@@ -297,9 +303,6 @@ export default {
       return !this.name?.length
           || this.name.length > this.maxNameLength
           || (this.description?.length && this.description.length > this.maxDescriptionLength)
-          || !this.spaceTemplate?.permissions?.length
-          || !this.spaceTemplate?.spaceLayoutPermissions?.length
-          || !this.spaceTemplate?.spaceDeletePermissions?.length
           || (!this.spaceTemplate?.spaceFields?.includes?.('name') && !this.spaceTemplate?.spaceFields?.includes?.('invitation'));
     },
     permissionsStepDescription1() {

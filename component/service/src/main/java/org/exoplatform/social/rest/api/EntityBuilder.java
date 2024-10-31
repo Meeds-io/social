@@ -923,6 +923,7 @@ public class EntityBuilder {
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
       spaceEntity.setCanEdit(canEdit);
       spaceEntity.setCanDelete(spaceService.canDeleteSpace(space, userId));
+      spaceEntity.setCanManagePublicSite(spaceService.canManageSpacePublicSite(space, userId));
       spaceEntity.setCanRedactOnSpace(spaceService.canRedactOnSpace(space, getCurrentUserIdentity()));
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));

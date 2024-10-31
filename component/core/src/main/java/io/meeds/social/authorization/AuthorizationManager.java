@@ -62,13 +62,9 @@ public class AuthorizationManager extends UserACL {
       return spaceTemplate == null ? isAdministrator(identity) : !spaceTemplate.isSystem() && isSpacesAdministrator(identity);
     } else if (isSpaceSite(ownerType, ownerId)) {
       Space space = getSpaceService().getSpaceByGroupId(ownerId);
-      if (space != null && identity != null) {
-        return isSpacesAdministrator(identity)
-               || (CollectionUtils.isNotEmpty(space.getLayoutPermissions())
-                   && space.getLayoutPermissions()
-                           .stream()
-                           .anyMatch(permission -> identity.isMemberOf(getMembershipEntry(permission))));
-      }
+      return space != null
+             && identity != null
+             && getSpaceService().canManageSpaceLayout(space, identity.getUserId());
     }
     return isSpacesAdministrator(identity, ownerType, ownerId)
            || super.hasEditPermission(identity, ownerType, ownerId, expression);
@@ -102,10 +98,6 @@ public class AuthorizationManager extends UserACL {
   private boolean isSpaceSite(String ownerType, String ownerId) {
     return PortalConfig.GROUP_TYPE.equalsIgnoreCase(ownerType)
            && StringUtils.startsWith(ownerId, SpaceUtils.SPACE_GROUP_PREFIX);
-  }
-
-  private MembershipEntry getMembershipEntry(String expression) {
-    return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
   }
 
   private SpacesAdministrationService getSpacesAdministrationService() {

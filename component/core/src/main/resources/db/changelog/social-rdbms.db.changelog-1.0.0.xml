@@ -1108,4 +1108,16 @@
       constraintName="UK_SPACE_TEMPLATES_LAYOUT_01" />
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-119">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PUBLIC_SITE_PERMISSIONS" type="NVARCHAR(2000)" />
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-120">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="SPACE_PUBLIC_SITE_PERMISSIONS" type="NVARCHAR(2000)" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

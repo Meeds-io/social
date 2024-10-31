@@ -255,6 +255,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("canDelete");
   }
 
+  public SpaceEntity setCanManagePublicSite(boolean canDelete) {
+    setProperty("canManagePublicSite", canDelete);
+    return this;
+  }
+
+  public Boolean getCanManagePublicSite() {
+    return (Boolean) getProperty("canManagePublicSite");
+  }
+
   public SpaceEntity setCanRedactOnSpace(boolean canRedactOnSpace) {
     setProperty("canRedactOnSpace", canRedactOnSpace);
     return this;
