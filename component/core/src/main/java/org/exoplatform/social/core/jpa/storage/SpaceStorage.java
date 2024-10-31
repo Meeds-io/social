@@ -782,6 +782,7 @@ public class SpaceStorage {
     space.setLastUpdatedTime(entity.getUpdatedDate().getTime());
     space.setDeletePermissions(entity.getDeletePermissions());
     space.setLayoutPermissions(entity.getLayoutPermissions());
+    space.setPublicSitePermissions(entity.getPublicSitePermissions());
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());

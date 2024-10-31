@@ -41,6 +41,7 @@ import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -82,7 +83,7 @@ public class AuthorizationManagerTest {
   SpacesAdministrationService          spacesAdministrationService;
 
   @Mock
-  SpaceService                         spacesService;
+  SpaceService                         spaceService;
 
   @Mock
   SpaceTemplateService                 spaceTemplateService;
@@ -108,13 +109,16 @@ public class AuthorizationManagerTest {
   @Mock
   SpaceTemplate                        spaceTemplate;
 
+  @Mock
+  Space                                space;
+
   AuthorizationManager                 authorizationManager;
 
   @Before
   public void setup() {
     authorizationManager = new AuthorizationManager(params);
     authorizationManager.setSpacesAdministrationService(spacesAdministrationService);
-    authorizationManager.setSpaceService(spacesService);
+    authorizationManager.setSpaceService(spaceService);
     authorizationManager.setSpaceTemplateService(spaceTemplateService);
     when(spacesAdministrationService.getSpacesAdministratorsMemberships()).thenReturn(Collections.singletonList(ADMIN_SPACES_MEMBERSHIP));
   }
@@ -161,8 +165,14 @@ public class AuthorizationManagerTest {
     when(portalConfig.getName()).thenReturn(SPACE_PAGE_KEY.getSite().getName());
     when(portalConfig.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
     assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
 
-    when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
+    when(spaceService.getSpaceByGroupId(SPACE_PAGE_KEY.getSite().getName())).thenReturn(space);
+    assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(spaceService.canManageSpaceLayout(space, TEST_USER)).thenReturn(true);
+    assertTrue(authorizationManager.hasEditPermission(portalConfig, identity));
     assertTrue(authorizationManager.hasEditPermission(page, identity));
   }
 
