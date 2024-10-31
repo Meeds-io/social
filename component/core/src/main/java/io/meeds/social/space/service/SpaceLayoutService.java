@@ -111,8 +111,8 @@ public class SpaceLayoutService {
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null) {
       throw new ObjectNotFoundException("Space not found");
-    } else if (!spaceService.canManageSpace(space, username)) {
-      throw new IllegalAccessException("User isn't manager of the space");
+    } else if (!spaceService.canManageSpacePublicSite(space, username)) {
+      throw new IllegalAccessException("User can't manage the space public site");
     }
     space.setEditor(username);
 

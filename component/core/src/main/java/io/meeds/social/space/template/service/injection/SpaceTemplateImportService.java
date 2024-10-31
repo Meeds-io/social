@@ -100,7 +100,7 @@ public class SpaceTemplateImportService {
   @Value("${meeds.space.template.import.override:false}")
   private boolean                               forceReimportTemplates;
 
-  @Value("${meeds.space.template.import.version:1}")
+  @Value("${meeds.space.template.import.version:2}")
   private long                                  version;
 
   @PostConstruct
@@ -209,6 +209,7 @@ public class SpaceTemplateImportService {
     spaceTemplate.setSpaceFields(d.getSpaceFields());
     spaceTemplate.setPermissions(d.getPermissions());
     spaceTemplate.setSpaceLayoutPermissions(d.getSpaceLayoutPermissions());
+    spaceTemplate.setSpacePublicSitePermissions(d.getSpacePublicSitePermissions());
     spaceTemplate.setSpaceDeletePermissions(d.getSpaceDeletePermissions());
     spaceTemplate.setSpaceDefaultRegistration(Registration.valueOf(d.getSpaceDefaultRegistration().toUpperCase()));
     spaceTemplate.setSpaceDefaultVisibility(Visibility.valueOf(d.getSpaceDefaultVisibility().toUpperCase()));
