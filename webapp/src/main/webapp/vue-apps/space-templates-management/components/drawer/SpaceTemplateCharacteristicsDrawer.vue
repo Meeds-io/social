@@ -139,6 +139,9 @@
               class="mb-4"
               @data="bannerData = $event"
               @input="bannerUploadId = $event" />
+            <space-templates-management-permissions-editorial
+              v-model="spaceTemplate.spaceAllowContentCreation"
+              class="mb-4" />
             <space-templates-management-access
               v-model="spaceTemplate.spaceDefaultRegistration" />
             <space-templates-management-visibility
@@ -181,9 +184,6 @@
             class="mb-4"
             admins
             space-admin />
-          <space-templates-management-permissions-editorial
-            v-model="spaceTemplate.spaceAllowContentCreation"
-            class="mb-4" />
           <space-templates-management-permissions
             v-model="spaceTemplate.spaceDeletePermissions"
             label="spaceTemplate.permissionsStepDeleteSpacePermissionLabel"
