@@ -189,7 +189,7 @@ export default {
         spaceFields: ['name', 'invitation', 'properties', 'access'],
         spaceDefaultVisibility: 'PRIVATE',
         spaceDefaultRegistration: 'OPEN',
-        spaceAllowContentCreation: true,
+        spaceAllowContentCreation: false,
       };
       this.bannerUploadId = bannerUploadId;
       this.bannerData = bannerData;
