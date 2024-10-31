@@ -48,6 +48,16 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceTemplateStorageTest {
 
+  private static final String  SPACE_FIELDS                  = "spaceFields";
+
+  private static final String  SPACE_CREATE_PERMISSIONS      = "permissions";
+
+  private static final String  SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
+
+  private static final String  SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
+
+  private static final String  SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
+
   @Mock
   private SpaceTemplateDAO     spaceTemplateDAO;
 
@@ -131,13 +141,18 @@ public class SpaceTemplateStorageTest {
     assertNotNull(spaceTemplate);
     assertEquals(spaceTemplateEntity.getId().longValue(), spaceTemplate.getId());
     assertEquals(spaceTemplateEntity.getIcon(), spaceTemplate.getIcon());
-    assertEquals(spaceTemplateEntity.getPermissions(), spaceTemplate.getPermissions());
     assertEquals(spaceTemplateEntity.getIcon(), spaceTemplate.getIcon());
     assertEquals(spaceTemplateEntity.isEnabled(), spaceTemplate.isEnabled());
     assertEquals(spaceTemplateEntity.isDeleted(), spaceTemplate.isDeleted());
     assertEquals(spaceTemplateEntity.isSystem(), spaceTemplate.isSystem());
+    assertEquals(spaceTemplateEntity.getPermissions(), spaceTemplate.getPermissions());
+    assertEquals(SPACE_CREATE_PERMISSIONS, spaceTemplate.getPermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceDeletePermissions(), spaceTemplate.getSpaceDeletePermissions());
+    assertEquals(SPACE_DELETE_PERMISSIONS, spaceTemplate.getSpaceDeletePermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceLayoutPermissions(), spaceTemplate.getSpaceLayoutPermissions());
+    assertEquals(SPACE_LAYOUT_PERMISSIONS, spaceTemplate.getSpaceLayoutPermissions().get(0));
+    assertEquals(spaceTemplateEntity.getSpacePublicSitePermissions(), spaceTemplate.getSpacePublicSitePermissions());
+    assertEquals(SPACE_PUBLIC_SITE_PERMISSIONS, spaceTemplate.getSpacePublicSitePermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceFields(), spaceTemplate.getSpaceFields());
     assertEquals(spaceTemplateEntity.getSpaceDefaultVisibility(), spaceTemplate.getSpaceDefaultVisibility());
     assertEquals(spaceTemplateEntity.getSpaceDefaultRegistration(), spaceTemplate.getSpaceDefaultRegistration());
@@ -151,10 +166,11 @@ public class SpaceTemplateStorageTest {
                                    false,
                                    true,
                                    "layout",
-                                   Arrays.asList("permissions"),
-                                   Arrays.asList("spaceLayoutPermissions"),
-                                   Arrays.asList("spaceDeletePermissions"),
-                                   Arrays.asList("spaceFields"),
+                                   Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                                   Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
+                                   Arrays.asList(SPACE_DELETE_PERMISSIONS),
+                                   Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
+                                   Arrays.asList(SPACE_FIELDS),
                                    Visibility.PRIVATE,
                                    Registration.VALIDATION,
                                    true);
@@ -170,10 +186,11 @@ public class SpaceTemplateStorageTest {
                              false,
                              true,
                              "layout",
-                             Arrays.asList("permissions"),
-                             Arrays.asList("spaceLayoutPermissions"),
-                             Arrays.asList("spaceDeletePermissions"),
-                             Arrays.asList("spaceFields"),
+                             Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                             Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
+                             Arrays.asList(SPACE_DELETE_PERMISSIONS),
+                             Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
+                             Arrays.asList(SPACE_FIELDS),
                              Visibility.PRIVATE,
                              Registration.VALIDATION,
                              true);

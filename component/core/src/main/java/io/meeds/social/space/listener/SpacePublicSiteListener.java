@@ -22,6 +22,7 @@ package io.meeds.social.space.listener;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -41,6 +42,8 @@ public class SpacePublicSiteListener extends SpaceListenerPlugin {
 
   private SpaceLayoutService spaceLayoutService;
 
+  private UserACL            userAcl;
+
   @Override
   @SneakyThrows
   @ContainerTransactional
@@ -50,7 +53,7 @@ public class SpacePublicSiteListener extends SpaceListenerPlugin {
         && space.getPublicSiteId() > 0
         && !(StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MEMBER)
              || StringUtils.equals(space.getPublicSiteVisibility(), SpaceUtils.MANAGER))) {
-      getSpaceLayoutService().saveSpacePublicSite(space.getId(), SpaceUtils.MEMBER, event.getSource());
+      getSpaceLayoutService().saveSpacePublicSite(space.getId(), SpaceUtils.MEMBER, getUserAcl().getSuperUser());
     }
   }
 
@@ -65,5 +68,12 @@ public class SpacePublicSiteListener extends SpaceListenerPlugin {
       spaceLayoutService = ExoContainerContext.getService(SpaceLayoutService.class);
     }
     return spaceLayoutService;
+  }
+
+  public UserACL getUserAcl() {
+    if (userAcl == null) {
+      userAcl = ExoContainerContext.getService(UserACL.class);
+    }
+    return userAcl;
   }
 }

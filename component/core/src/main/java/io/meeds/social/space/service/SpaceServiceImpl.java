@@ -328,7 +328,7 @@ public class SpaceServiceImpl implements SpaceService {
       }
 
       if (deleteGroup) {
-        GroupHandler groupHandler = getOrgService().getGroupHandler();
+        GroupHandler groupHandler = getOrganizationService().getGroupHandler();
         Group spaceGroup = groupHandler.findGroupById(space.getGroupId());
         List<String> mandatories = userAcl.getMandatoryGroups();
         if (spaceGroup != null && !isMandatory(groupHandler, spaceGroup, mandatories)) {
@@ -577,8 +577,9 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public boolean canDeleteSpace(Space space, String username) {
-    return CollectionUtils.isEmpty(space.getDeletePermissions()) ? canManageSpace(space, username) :
-                                                                 hasDeletePermission(space, username);
+    return hasSpacePermission(space,
+                              space.getDeletePermissions(),
+                              username);
   }
 
   @Override
@@ -922,6 +923,20 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public boolean canManageSpacePublicSite(Space space, String username) {
+    return hasSpacePermission(space,
+                              space.getPublicSitePermissions(),
+                              username);
+  }
+
+  @Override
+  public boolean canManageSpaceLayout(Space space, String username) {
+    return hasSpacePermission(space,
+                              space.getLayoutPermissions(),
+                              username);
+  }
+
+  @Override
   public boolean isContentManager(String username) {
     if (userAcl.isAnonymousUser(username)) {
       return false;
@@ -975,6 +990,7 @@ public class SpaceServiceImpl implements SpaceService {
     String groupId = createSpaceGroup(space, username);
     setDeletePermissions(space, spaceTemplate, groupId);
     setLayoutPermissions(space, spaceTemplate, groupId);
+    setPublicSitePermissions(space, spaceTemplate, groupId);
     setSpaceDefaultRedactors(space, spaceTemplate, username, groupId);
   }
 
@@ -1019,7 +1035,8 @@ public class SpaceServiceImpl implements SpaceService {
       if (users.length > 2) {
         String moreLabel = resourceBundleService.getSharedString("space.name.more",
                                                                  localeConfigService.getDefaultLocaleConfig().getLocale());
-        displayName += " " + StringUtils.firstNonBlank(moreLabel, "and {0} more").replace("{0}", String.valueOf(users.length - 2));
+        displayName +=
+                    " " + StringUtils.firstNonBlank(moreLabel, "and {0} more").replace("{0}", String.valueOf(users.length - 2));
         if (displayName.length() > MAX_SPACE_NAME_LENGTH) {
           displayName = displayName.substring(0, MAX_SPACE_NAME_LENGTH);
         }
@@ -1040,21 +1057,40 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   private void setLayoutPermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
-    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceLayoutPermissions())
-        || SPACE_ADMIN_REFERENCE_NAME.equals(spaceTemplate.getSpaceLayoutPermissions().getFirst())) {
-      space.setLayoutPermissions(Collections.singletonList(MANAGER + ":" + groupId));
+    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceLayoutPermissions())) {
+      space.setLayoutPermissions(Collections.emptyList());
     } else {
-      space.setLayoutPermissions(spaceTemplate.getSpaceLayoutPermissions());
+      space.setLayoutPermissions(spaceTemplate.getSpaceLayoutPermissions()
+                                              .stream()
+                                              .map(p -> computeSpacePermissionFromTemplate(p, groupId))
+                                              .toList());
+    }
+  }
+
+  private void setPublicSitePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
+    if (CollectionUtils.isEmpty(spaceTemplate.getSpacePublicSitePermissions())) {
+      space.setPublicSitePermissions(Collections.emptyList());
+    } else {
+      space.setPublicSitePermissions(spaceTemplate.getSpacePublicSitePermissions()
+                                                  .stream()
+                                                  .map(p -> computeSpacePermissionFromTemplate(p, groupId))
+                                                  .toList());
     }
   }
 
   private void setDeletePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
-    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceDeletePermissions())
-        || SPACE_ADMIN_REFERENCE_NAME.equals(spaceTemplate.getSpaceDeletePermissions().getFirst())) {
-      space.setDeletePermissions(Collections.singletonList(MANAGER + ":" + groupId));
+    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceDeletePermissions())) {
+      space.setDeletePermissions(Collections.emptyList());
     } else {
-      space.setDeletePermissions(spaceTemplate.getSpaceDeletePermissions());
+      space.setDeletePermissions(spaceTemplate.getSpaceDeletePermissions()
+                                              .stream()
+                                              .map(p -> computeSpacePermissionFromTemplate(p, groupId))
+                                              .toList());
     }
+  }
+
+  private String computeSpacePermissionFromTemplate(String p, String groupId) {
+    return SPACE_ADMIN_REFERENCE_NAME.equals(p) ? MANAGER + ":" + groupId : p;
   }
 
   private String checkSpaceEditorPermissions(Space space) {
@@ -1065,9 +1101,15 @@ public class SpaceServiceImpl implements SpaceService {
     return editor;
   }
 
-  private boolean hasDeletePermission(Space space, String username) {
-    org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
-    return space.getDeletePermissions().stream().anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission)));
+  private boolean hasSpacePermission(Space space, List<String> permissions, String username) {
+    if (CollectionUtils.isEmpty(permissions)) {
+      return canManageSpace(space, username);
+    } else {
+      org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
+      return isSuperManager(username)
+             || (isMember(space, username)
+                 && permissions.stream().anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission))));
+    }
   }
 
   private void triggerSpaceUpdate(Space newSpace, Space oldSpace) {
@@ -1095,13 +1137,6 @@ public class SpaceServiceImpl implements SpaceService {
         spaceLifeCycle.spaceRegistrationEdited(newSpace, newSpace.getEditor());
       }
     }
-  }
-
-  private OrganizationService getOrgService() {
-    if (organizationService == null) {
-      organizationService = ExoContainerContext.getService(OrganizationService.class);
-    }
-    return organizationService;
   }
 
   private List<String> getUsersToInvite(List<Identity> identities) {
@@ -1195,6 +1230,13 @@ public class SpaceServiceImpl implements SpaceService {
       space.setInvitedUsers(invitedUsers);
     }
     return space;
+  }
+
+  private OrganizationService getOrganizationService() {
+    if (organizationService == null) {
+      organizationService = ExoContainerContext.getService(OrganizationService.class);
+    }
+    return organizationService;
   }
 
   public SpaceTemplateService getSpaceTemplateService() {

@@ -56,6 +56,8 @@ public class SpaceTemplate implements Cloneable {
 
   private List<String> spaceDeletePermissions;
 
+  private List<String> spacePublicSitePermissions;
+
   private List<String> spaceFields;
 
   private Visibility   spaceDefaultVisibility;
@@ -78,6 +80,7 @@ public class SpaceTemplate implements Cloneable {
                              permissions,
                              spaceLayoutPermissions,
                              spaceDeletePermissions,
+                             spacePublicSitePermissions,
                              spaceFields,
                              spaceDefaultVisibility,
                              spaceDefaultRegistration,

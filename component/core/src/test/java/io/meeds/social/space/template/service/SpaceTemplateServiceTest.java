@@ -71,6 +71,8 @@ public class SpaceTemplateServiceTest {
 
   private static final String           SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
 
+  private static final String           SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
+
   private static final String           CREATE_AND_ACCESS_PERMISSIONS = "permissions";
 
   private static final String           TEST_USER                     = "testuser";
@@ -284,6 +286,7 @@ public class SpaceTemplateServiceTest {
                              Arrays.asList(CREATE_AND_ACCESS_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
+                             Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
                              Visibility.PRIVATE,
                              Registration.VALIDATION,

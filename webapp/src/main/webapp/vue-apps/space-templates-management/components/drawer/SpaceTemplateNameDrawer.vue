@@ -185,6 +185,7 @@ export default {
         order: 0,
         permissions: [this.$root.usersPermission],
         spaceLayoutPermissions: [this.$root.administratorsPermission],
+        spacePublicSitePermissions: [this.$root.administratorsPermission],
         spaceDeletePermissions: [this.$root.administratorsPermission],
         spaceFields: ['name', 'invitation', 'properties', 'access'],
         spaceDefaultVisibility: 'PRIVATE',

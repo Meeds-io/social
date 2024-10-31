@@ -139,7 +139,7 @@ public class SpaceEntity implements Serializable {
   @Setter
   @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
   private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
-
+  
   @Getter
   @Setter
   @Convert(converter = StringListConverter.class)
@@ -151,6 +151,12 @@ public class SpaceEntity implements Serializable {
   @Convert(converter = StringListConverter.class)
   @Column(name = "DELETE_PERMISSIONS")
   private List<String>                             deletePermissions;
+
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "PUBLIC_SITE_PERMISSIONS")
+  private List<String>                             publicSitePermissions;
 
   public Long getId() {
     return id;

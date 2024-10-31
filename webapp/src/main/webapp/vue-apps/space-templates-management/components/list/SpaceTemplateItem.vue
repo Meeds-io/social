@@ -59,6 +59,7 @@
         v-if="spacesCount"
         :title="spacesCount"
         elevation="0"
+        class="me-2"
         @click="openSpacesList">
         {{ spacesCountLabel }}
       </v-chip>
@@ -74,14 +75,13 @@
     </td>
     <td
       v-if="!$root.isMobile"
-      class="text-center"
       width="50px">
       <v-switch
         v-model="enabled"
         :loading="loading"
-        :aria-label="enabled && $t('spaceTemplate.label.disableTemplate') || $t('spaceTemplate.label.enableTemplate')"
-        class="mt-0 mx-auto"
-        @click="changeStatus" />
+        :title="$t('spaceTemplate.changeStatusTooltip')"
+        class="mt-0 mx-auto ps-4"
+        @change="changeStatus" />
     </td>
     <td
       class="text-center"
@@ -143,19 +143,19 @@ export default {
     openSpaceForm() {
       this.$root.$emit('addNewSpace', this.spaceTemplate.id);
     },
-    changeStatus() {
+    changeStatus(enabled) {
       this.$root.$emit('close-alert-message');
       this.loading = true;
       this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplate.id)
         .then(spaceTemplate => {
-          spaceTemplate.enabled = !this.enabled;
+          spaceTemplate.enabled = enabled;
           return this.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
             .then(() => {
-              this.$root.$emit(`space-templates-${this.enabled && 'disabled' || 'enabled'}`, spaceTemplate);
+              this.$root.$emit(`space-templates-${enabled && 'enabled' || 'disabled'}`, spaceTemplate);
             });
         })
         .then(() => {
-          this.$root.$emit('alert-message', this.$t('spaceTemplate.status.update.success'), 'success');
+          this.$root.$emit('alert-message', enabled ? this.$t('spaceTemplate.status.enabled.success') : this.$t('spaceTemplate.status.disabled.success'), 'success');
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('spaceTemplate.status.update.error'), 'error'))
         .finally(() => this.loading = false);
