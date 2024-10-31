@@ -23,53 +23,49 @@
     <div class="font-weight-bold">
       {{ $t(label) }}
     </div>
-    <v-radio-group
-      v-model="choice"
-      class="mt-2 ms-n1"
-      mandatory
-      inset>
-      <v-radio
-        v-if="users"
-        value="users"
-        class="mt-0">
-        <template #label>
-          <div class="text-body">
-            {{ $t('spaceTemplate.permissionsStepUsers') }}
-          </div>
-        </template>
-      </v-radio>
-      <v-radio
-        v-if="admins"
-        value="admins"
-        class="mt-0">
-        <template #label>
-          <div class="text-body">
-            {{ $t('spaceTemplate.permissionsStepAdministrators') }}
-          </div>
-        </template>
-      </v-radio>
-      <v-radio
-        v-if="spaceAdmin"
-        value="spaceAdmin"
-        class="mt-0">
-        <template #label>
-          <div class="text-body">
-            {{ $t('spaceTemplate.permissionsStepSpaceAdmins') }}
-          </div>
-        </template>
-      </v-radio>
-      <v-radio
-        value="suggester"
-        class="mt-0">
-        <template #label>
-          <div class="text-body">
-            {{ $t('spaceTemplate.permissionsStepGroupMembers') }}
-          </div>
-        </template>
-      </v-radio>
-    </v-radio-group>
+    <v-checkbox
+      v-if="admins"
+      v-model="isAdministrationPermissions"
+      class="mt-0"
+      disabled>
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepAdministrators') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
+      v-if="users"
+      v-model="isUserPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepUsers') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
+      v-if="spaceAdmin"
+      v-model="isSpaceAdminPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepSpaceAdmins') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
+      v-model="isCustomPermissions"
+      class="mt-0"
+      @click="specificGroupEntries = null">
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepGroupMembers') }}
+        </div>
+      </template>
+    </v-checkbox>
     <exo-identity-suggester
-      v-if="isSpecificGroup"
+      v-if="isCustomPermissions"
       ref="targetPermissions"
       v-model="specificGroupEntries"
       :labels="suggesterLabels"
@@ -108,23 +104,32 @@ export default {
     },
   },
   data: () => ({
-    choice: null,
+    isAdministrationPermissions: true,
+    isUserPermissions: false,
+    isSpaceAdminPermissions: false,
+    isCustomPermissions: false,
     specificGroupEntries: null,
   }),
   computed: {
-    permissions() {
-      if (this.choice === 'users') {
-        return [this.$root.usersPermission];
-      } else if (this.choice === 'admins') {
-        return [this.$root.administratorsPermission];
-      } else if (this.choice === 'spaceAdmin') {
-        return ['spaceAdmin'];
-      } else {
-        return this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g);
-      }
-    },
     isSpecificGroup() {
-      return this.choice === 'suggester';
+      return !!this.specificGroupEntries?.length;
+    },
+    permissions() {
+      const permissions = [];
+      if (this.isUserPermissions) {
+        permissions.push(this.$root.usersPermission);
+      }
+      if (this.isSpaceAdminPermissions) {
+        permissions.push('spaceAdmin');
+      }
+      if (this.specificGroupEntries?.length) {
+        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
+        permissions.push(...specificGroupEntries);
+      }
+      if (!permissions.length) {
+        permissions.push(this.$root.administratorsPermission);
+      }
+      return permissions;
     },
     suggesterLabels() {
       return {
@@ -139,21 +144,19 @@ export default {
     },
   },
   created() {
-    if (this.users && this.value?.length === 1 && this.value?.[0] === this.$root.usersPermission) {
-      this.choice = 'users';
-      this.specificGroupEntries = null;
-    } else if (this.admins && this.value?.length === 1 && this.value?.[0] === this.$root.administratorsPermission) {
-      this.choice = 'admins';
-      this.specificGroupEntries = null;
-    } else if (this.spaceAdmin && this.value?.[0] === 'spaceAdmin') {
-      this.choice = 'spaceAdmin';
-      this.specificGroupEntries = null;
-    } else {
-      this.choice = 'suggester';
-      this.specificGroupEntries = [];
-      if (this.value?.length) {
-        this.value.forEach(this.retrieveObject);
-      }
+    const permissions = this.value?.slice?.();
+    this.isUserPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
+    this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin') && true || false;
+    this.specificGroupEntries = [];
+
+    const specificGroupEntries = permissions?.filter?.(p =>
+      p !== this.$root.administratorsPermission
+      && (!this.users || p !== this.$root.usersPermission)
+      && (!this.spaceAdmin || p !== 'spaceAdmin')
+    ) || null;
+    this.isCustomPermissions = !!specificGroupEntries?.length;
+    if (specificGroupEntries?.length) {
+      specificGroupEntries.forEach(this.retrieveObject);
     }
   },
   methods: {
