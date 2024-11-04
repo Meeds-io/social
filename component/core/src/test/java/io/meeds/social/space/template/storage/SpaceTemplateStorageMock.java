@@ -24,8 +24,10 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 
-import io.meeds.social.core.space.constant.Registration;
-import io.meeds.social.core.space.constant.Visibility;
+import org.exoplatform.social.core.space.SpaceUtils;
+
+import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.Visibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 
 public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
@@ -43,9 +45,10 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       false,
                                       true,
                                       null,
-                                      Arrays.asList("*:/platform/users"),
-                                      Arrays.asList("*:/platform/administrators"),
-                                      Arrays.asList("*:/platform/users"),
+                                      Arrays.asList(SpaceUtils.PLATFORM_USERS_GROUP),
+                                      Arrays.asList(SpaceUtils.SPACE_ADMIN_REFERENCE_NAME),
+                                      Arrays.asList(SpaceUtils.SPACE_ADMIN_REFERENCE_NAME),
+                                      Arrays.asList(SpaceUtils.SPACE_ADMIN_REFERENCE_NAME),
                                       Arrays.asList("name", "invitation", "properties", "access"),
                                       Visibility.PRIVATE,
                                       Registration.OPEN,

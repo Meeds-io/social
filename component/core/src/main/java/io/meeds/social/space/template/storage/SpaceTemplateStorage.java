@@ -64,6 +64,13 @@ public class SpaceTemplateStorage {
                            .orElse(null);
   }
 
+  @Cacheable(cacheNames = "social.spaceTemplates")
+  public SpaceTemplate getSpaceTemplateByLayout(String layout) {
+    return spaceTemplateDAO.findByLayout(layout)
+                           .map(EntityMapper::fromEntity)
+                           .orElse(null);
+  }
+
   @CacheEvict(cacheNames = { "social.spaceTemplates", "social.enabledSpaceTemplates" }, allEntries = true)
   public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate) {
     SpaceTemplateEntity spaceTemplateEntity = EntityMapper.toEntity(spaceTemplate);

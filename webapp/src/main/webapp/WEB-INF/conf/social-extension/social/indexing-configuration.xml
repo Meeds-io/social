@@ -59,7 +59,7 @@
     <component-plugin>
       <name>SpaceIndexingListenerImpl</name>
       <set-method>addSpaceListener</set-method>
-      <type>io.meeds.social.core.search.listener.SpaceIndexingListenerImpl</type>
+      <type>io.meeds.social.search.listener.SpaceIndexingListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
 

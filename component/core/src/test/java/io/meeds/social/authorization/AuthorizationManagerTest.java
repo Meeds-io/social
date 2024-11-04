@@ -41,7 +41,11 @@ import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpacesAdministrationService;
+import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationManagerTest {
@@ -56,13 +60,20 @@ public class AuthorizationManagerTest {
 
   private static final String          TEST_SITE               = "testSite";
 
-  private static final PageKey         PORTAL_PAGE_KEY         = PageKey.parse(String.format("%s::%s::%s",
+  private static final String          PAGE_KEY_FORMAT         = "%s::%s::%s";
+
+  private static final PageKey         PORTAL_PAGE_KEY         = PageKey.parse(String.format(PAGE_KEY_FORMAT,
                                                                                              PortalConfig.PORTAL_TYPE,
                                                                                              TEST_SITE,
                                                                                              TEST_PAGE));
 
-  private static final PageKey         SPACE_PAGE_KEY          = PageKey.parse(String.format("%s::%s::%s",
+  private static final PageKey         SPACE_PAGE_KEY          = PageKey.parse(String.format(PAGE_KEY_FORMAT,
                                                                                              PortalConfig.GROUP_TYPE,
+                                                                                             "/spaces/" + TEST_SITE,
+                                                                                             TEST_PAGE));
+
+  private static final PageKey         SPACE_TEMPLATE_PAGE_KEY = PageKey.parse(String.format(PAGE_KEY_FORMAT,
+                                                                                             PortalConfig.GROUP_TEMPLATE,
                                                                                              "/spaces/" + TEST_SITE,
                                                                                              TEST_PAGE));
 
@@ -72,7 +83,10 @@ public class AuthorizationManagerTest {
   SpacesAdministrationService          spacesAdministrationService;
 
   @Mock
-  SpaceService                         spacesService;
+  SpaceService                         spaceService;
+
+  @Mock
+  SpaceTemplateService                 spaceTemplateService;
 
   @Mock
   InitParams                           params;
@@ -92,18 +106,25 @@ public class AuthorizationManagerTest {
   @Mock
   Identity                             identity;
 
+  @Mock
+  SpaceTemplate                        spaceTemplate;
+
+  @Mock
+  Space                                space;
+
   AuthorizationManager                 authorizationManager;
 
   @Before
   public void setup() {
     authorizationManager = new AuthorizationManager(params);
     authorizationManager.setSpacesAdministrationService(spacesAdministrationService);
-    authorizationManager.setSpaceService(spacesService);
+    authorizationManager.setSpaceService(spaceService);
+    authorizationManager.setSpaceTemplateService(spaceTemplateService);
     when(spacesAdministrationService.getSpacesAdministratorsMemberships()).thenReturn(Collections.singletonList(ADMIN_SPACES_MEMBERSHIP));
   }
 
   @Test
-  public void testHasEditPermissionWhenSiteNotSpace() {
+  public void testHasNotEditPermissionWhenSiteNotSpace() {
     when(identity.getUserId()).thenReturn(TEST_USER);
 
     when(page.getOwnerType()).thenReturn(PORTAL_PAGE_KEY.getSite().getTypeName());
@@ -123,8 +144,6 @@ public class AuthorizationManagerTest {
 
     lenient().when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
              .thenReturn(true);
-    assertFalse(authorizationManager.hasEditPermission(page, identity));
-    assertFalse(authorizationManager.hasEditPermission(page, identity));
     assertFalse(authorizationManager.hasEditPermission(page, identity));
   }
 
@@ -146,11 +165,44 @@ public class AuthorizationManagerTest {
     when(portalConfig.getName()).thenReturn(SPACE_PAGE_KEY.getSite().getName());
     when(portalConfig.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
     assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(spaceService.getSpaceByGroupId(SPACE_PAGE_KEY.getSite().getName())).thenReturn(space);
+    assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(spaceService.canManageSpaceLayout(space, TEST_USER)).thenReturn(true);
+    assertTrue(authorizationManager.hasEditPermission(portalConfig, identity));
+    assertTrue(authorizationManager.hasEditPermission(page, identity));
+  }
+
+  @Test
+  public void testHasEditPermissionWhenSiteIsASpaceTemplate() {
+    when(identity.getUserId()).thenReturn(TEST_USER);
+
+    when(page.getOwnerType()).thenReturn(SPACE_TEMPLATE_PAGE_KEY.getSite().getTypeName());
+    when(page.getOwnerId()).thenReturn(SPACE_TEMPLATE_PAGE_KEY.getSite().getName());
+    when(page.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(pageContext.getKey()).thenReturn(SPACE_TEMPLATE_PAGE_KEY);
+    when(pageContext.getState()).thenReturn(pageState);
+    when(pageState.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
+    assertFalse(authorizationManager.hasEditPermission(pageContext, identity));
+
+    when(portalConfig.getType()).thenReturn(SPACE_TEMPLATE_PAGE_KEY.getSite().getTypeName());
+    when(portalConfig.getName()).thenReturn(SPACE_TEMPLATE_PAGE_KEY.getSite().getName());
+    when(portalConfig.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
+    assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
 
     when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(spaceTemplateService.getSpaceTemplateByLayout(SPACE_TEMPLATE_PAGE_KEY.getSite().getName())).thenReturn(spaceTemplate);
     assertTrue(authorizationManager.hasEditPermission(page, identity));
-    assertTrue(authorizationManager.hasEditPermission(page, identity));
-    assertTrue(authorizationManager.hasEditPermission(page, identity));
+
+    when(spaceTemplate.isSystem()).thenReturn(true);
+    assertFalse(authorizationManager.hasEditPermission(page, identity));
   }
 
   @Test
@@ -175,8 +227,6 @@ public class AuthorizationManagerTest {
     lenient().when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
              .thenReturn(true);
     assertFalse(authorizationManager.hasAccessPermission(page, identity));
-    assertFalse(authorizationManager.hasAccessPermission(page, identity));
-    assertFalse(authorizationManager.hasAccessPermission(page, identity));
   }
 
   @Test
@@ -199,8 +249,6 @@ public class AuthorizationManagerTest {
     assertFalse(authorizationManager.hasAccessPermission(portalConfig, identity));
 
     when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
-    assertTrue(authorizationManager.hasAccessPermission(page, identity));
-    assertTrue(authorizationManager.hasAccessPermission(page, identity));
     assertTrue(authorizationManager.hasAccessPermission(page, identity));
   }
 

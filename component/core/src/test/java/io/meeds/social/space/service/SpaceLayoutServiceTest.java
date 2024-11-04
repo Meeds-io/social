@@ -33,8 +33,6 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
-import io.meeds.social.core.space.service.SpaceLayoutService;
-
 import lombok.SneakyThrows;
 
 @ConfiguredBy({

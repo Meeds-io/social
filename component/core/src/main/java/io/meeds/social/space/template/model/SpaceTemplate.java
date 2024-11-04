@@ -20,8 +20,8 @@ package io.meeds.social.space.template.model;
 
 import java.util.List;
 
-import io.meeds.social.core.space.constant.Registration;
-import io.meeds.social.core.space.constant.Visibility;
+import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.Visibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpaceTemplate {
+public class SpaceTemplate implements Cloneable {
 
   private long         id;
 
@@ -56,6 +56,8 @@ public class SpaceTemplate {
 
   private List<String> spaceDeletePermissions;
 
+  private List<String> spacePublicSitePermissions;
+
   private List<String> spaceFields;
 
   private Visibility   spaceDefaultVisibility;
@@ -64,4 +66,24 @@ public class SpaceTemplate {
 
   private boolean      spaceAllowContentCreation;
 
+  @Override
+  public SpaceTemplate clone() { // NOSONAR
+    return new SpaceTemplate(id,
+                             name,
+                             description,
+                             bannerFileId,
+                             icon,
+                             enabled,
+                             deleted,
+                             system,
+                             layout,
+                             permissions,
+                             spaceLayoutPermissions,
+                             spaceDeletePermissions,
+                             spacePublicSitePermissions,
+                             spaceFields,
+                             spaceDefaultVisibility,
+                             spaceDefaultRegistration,
+                             spaceAllowContentCreation);
+  }
 }

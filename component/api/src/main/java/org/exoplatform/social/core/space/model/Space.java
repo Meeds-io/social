@@ -192,6 +192,10 @@ public class Space implements CacheEntry {
   @Setter
   private List<String>       deletePermissions;
 
+  @Getter
+  @Setter
+  private List<String>       publicSitePermissions;
+
   public void setLastUpdatedTime(long lastUpdatedTime) {
     this.lastUpdatedTime = lastUpdatedTime;
   }

@@ -52,6 +52,8 @@ public class SpaceTemplateDescriptor {
 
   private List<String>        spaceLayoutPermissions;
 
+  private List<String>        spacePublicSitePermissions;
+
   private List<String>        spaceDeletePermissions;
 
   private String              spaceDefaultRegistration;

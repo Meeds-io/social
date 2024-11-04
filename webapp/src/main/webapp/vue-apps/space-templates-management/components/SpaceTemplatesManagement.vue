@@ -35,6 +35,13 @@
     <space-templates-management-characteristics-drawer />
     <space-templates-management-list-by-template-drawer />
     <space-form-drawer />
+    <extension-registry-components
+      name="space-templates"
+      type="space-templates-drawers" />
+    <component
+      v-for="extension in $root.mainExtensions"
+      :key="extension.id"
+      :is="extension.componentName" />
   </v-app>
 </template>
 <script>

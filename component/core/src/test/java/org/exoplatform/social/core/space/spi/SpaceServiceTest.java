@@ -73,7 +73,7 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
-import io.meeds.social.core.space.service.SpaceLayoutService;
+import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -898,8 +898,9 @@ public class SpaceServiceTest extends AbstractCoreTest {
       assertTrue(createdSpace.getDisplayName().contains(", "));
       assertEquals(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase(), createdSpace.getVisibility());
       assertEquals(spaceTemplate.getSpaceDefaultRegistration().name().toLowerCase(), createdSpace.getRegistration());
-      assertEquals(spaceTemplate.getSpaceDeletePermissions(), createdSpace.getDeletePermissions());
-      assertEquals(spaceTemplate.getSpaceLayoutPermissions(), createdSpace.getLayoutPermissions());
+      assertEquals(SpaceUtils.MANAGER + ":" + createdSpace.getGroupId(), createdSpace.getDeletePermissions().get(0));
+      assertEquals(SpaceUtils.MANAGER + ":" + createdSpace.getGroupId(), createdSpace.getLayoutPermissions().get(0));
+      assertEquals(SpaceUtils.MANAGER + ":" + createdSpace.getGroupId(), createdSpace.getPublicSitePermissions().get(0));
     } finally {
       spaceTemplate.setSpaceFields(originalSpaceFields);
       spaceTemplateService.updateSpaceTemplate(spaceTemplate);

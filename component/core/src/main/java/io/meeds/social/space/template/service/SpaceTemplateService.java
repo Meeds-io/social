@@ -30,6 +30,12 @@ import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.service.LayoutService;
+import org.exoplatform.portal.mop.service.NavigationService;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
@@ -47,7 +53,19 @@ import io.meeds.social.translation.service.TranslationService;
 @Service
 public class SpaceTemplateService {
 
-  private static final Log            LOG = ExoLogger.getLogger(SpaceTemplateService.class);
+  public static final String          SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
+
+  public static final String          SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
+
+  public static final String          SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
+
+  public static final String          SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
+
+  public static final String          SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
+
+  public static final String          DEFAULT_SITE_TEMPLATE         = "space";
+
+  private static final Log            LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
 
   private TranslationService          translationService;
 
@@ -59,16 +77,32 @@ public class SpaceTemplateService {
 
   private SpaceTemplateStorage        spaceTemplateStorage;
 
+  private UserPortalConfigService     userPortalConfigService;
+
+  private LayoutService               layoutService;
+
+  private NavigationService           navigationService;
+
+  private ListenerService             listenerService;
+
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
+                              UserPortalConfigService userPortalConfigService,
+                              LayoutService layoutService,
+                              NavigationService navigationService,
+                              ListenerService listenerService,
                               UserACL userAcl,
                               SpacesAdministrationService spacesAdministrationService,
                               SpaceTemplateStorage spaceTemplateStorage) {
+    this.userPortalConfigService = userPortalConfigService;
     this.translationService = translationService;
     this.attachmentService = attachmentService;
     this.userAcl = userAcl;
     this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateStorage = spaceTemplateStorage;
+    this.layoutService = layoutService;
+    this.navigationService = navigationService;
+    this.listenerService = listenerService;
   }
 
   public List<SpaceTemplate> getSpaceTemplates() {
@@ -121,6 +155,10 @@ public class SpaceTemplateService {
     return spaceTemplate;
   }
 
+  public SpaceTemplate getSpaceTemplateByLayout(String layout) {
+    return spaceTemplateStorage.getSpaceTemplateByLayout(layout);
+  }
+
   public long getSpaceTemplateBannerId(long templateId) {
     List<String> attachmentFileIds = attachmentService.getAttachmentFileIds(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE,
                                                                             String.valueOf(templateId));
@@ -151,22 +189,35 @@ public class SpaceTemplateService {
                                .anyMatch(t -> canViewTemplate(t, username));
   }
 
-  public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate, String username) throws IllegalAccessException {
+  public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate, String username) throws IllegalAccessException,
+                                                                                         ObjectNotFoundException {
     if (!canManageTemplates(username)) {
       throw new IllegalAccessException("User isn't authorized to create a space template");
     }
     return createSpaceTemplate(spaceTemplate);
   }
 
-  public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate) {
+  public SpaceTemplate createSpaceTemplate(SpaceTemplate spaceTemplate) throws ObjectNotFoundException {
     if (spaceTemplate.getId() != 0) {
       throw new IllegalArgumentException("Space template to create shouldn't have an id");
     }
-    return spaceTemplateStorage.createSpaceTemplate(spaceTemplate);
+    String layout = StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE);
+    if (layoutService.getPortalConfig(SiteKey.groupTemplate(layout)) == null) {
+      throw new ObjectNotFoundException(String.format("Space Template layout '%s' wasn't found", layout));
+    }
+
+    SpaceTemplate spaceTemplateToCreate = spaceTemplate.clone();
+    spaceTemplateToCreate.setSystem(false);
+    spaceTemplateToCreate.setDeleted(false);
+    spaceTemplateToCreate.setLayout(null);
+    SpaceTemplate createdSpaceTemplate = spaceTemplateStorage.createSpaceTemplate(spaceTemplateToCreate);
+    createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, layout);
+    listenerService.broadcast(SPACE_TEMPLATE_CREATED_EVENT, spaceTemplate, createdSpaceTemplate);
+    return createdSpaceTemplate;
   }
 
-  public SpaceTemplate updateSpaceTemplate(SpaceTemplate spaceTemplate, String username) throws ObjectNotFoundException,
-                                                                                         IllegalAccessException {
+  public SpaceTemplate updateSpaceTemplate(SpaceTemplate spaceTemplate,
+                                           String username) throws ObjectNotFoundException, IllegalAccessException {
     if (!canManageTemplates(username)) {
       throw new IllegalAccessException("User isn't authorized to update a space template");
     } else if (spaceTemplate.isDeleted()) {
@@ -180,7 +231,12 @@ public class SpaceTemplateService {
     if (storedSpaceTemplate == null || storedSpaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException("Space Template doesn't exist");
     }
-    return spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
+    spaceTemplate.setSystem(storedSpaceTemplate.isSystem());
+    spaceTemplate.setDeleted(storedSpaceTemplate.isDeleted());
+    spaceTemplate.setLayout(storedSpaceTemplate.getLayout());
+    SpaceTemplate updatedSpaceTemplate = spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
+    listenerService.broadcast(SPACE_TEMPLATE_UPDATED_EVENT, storedSpaceTemplate, updatedSpaceTemplate);
+    return updatedSpaceTemplate;
   }
 
   public void deleteSpaceTemplate(long templateId, String username) throws IllegalAccessException, ObjectNotFoundException {
@@ -199,8 +255,6 @@ public class SpaceTemplateService {
     if (spaceTemplate == null || spaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException(String.format("Space template with id %s doesn't exist", templateId));
     }
-    spaceTemplate.setDeleted(true);
-    spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
 
     try {
       attachmentService.deleteAttachments(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE, String.valueOf(templateId));
@@ -212,6 +266,29 @@ public class SpaceTemplateService {
     } catch (ObjectNotFoundException e) {
       LOG.debug("Error while deleting translation labels of deleted Page Template", e);
     }
+    PortalConfig portalConfig = layoutService.getPortalConfig(SiteKey.groupTemplate(spaceTemplate.getLayout()));
+    if (portalConfig != null) {
+      SiteKey siteKey = SiteKey.portal(portalConfig.getName());
+      navigationService.destroyNavigation(siteKey);
+      layoutService.removePages(siteKey);
+      layoutService.remove(portalConfig);
+    }
+    spaceTemplate.setDeleted(true);
+    spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
+    listenerService.broadcast(SPACE_TEMPLATE_DELETED_EVENT, spaceTemplate, spaceTemplate);
+  }
+
+  private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
+                                                  String sourceLayout) throws ObjectNotFoundException {
+    SiteKey sourceSiteKey = SiteKey.groupTemplate(sourceLayout);
+    SiteKey targetSiteKey = SiteKey.groupTemplate(String.valueOf(spaceTemplate.getId()));
+    userPortalConfigService.createSiteFromTemplate(sourceSiteKey, targetSiteKey);
+    PortalConfig targetPortalConfig = layoutService.getPortalConfig(targetSiteKey);
+    targetPortalConfig.setProperty(SPACE_TEMPLATE_SITE_PROP_NAME, "true");
+    targetPortalConfig.setProperty(SPACE_TEMPLATE_ID_PROP_NAME, targetSiteKey.getName());
+    layoutService.save(targetPortalConfig);
+    spaceTemplate.setLayout(targetSiteKey.getName());
+    return spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
   }
 
   private void computeSpaceTemplateAttributes(SpaceTemplate spaceTemplate, Locale locale) {

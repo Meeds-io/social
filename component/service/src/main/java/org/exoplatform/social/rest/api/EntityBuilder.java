@@ -923,6 +923,7 @@ public class EntityBuilder {
       spaceEntity.setIsMember(spaceService.isMember(space, userId));
       spaceEntity.setCanEdit(canEdit);
       spaceEntity.setCanDelete(spaceService.canDeleteSpace(space, userId));
+      spaceEntity.setCanManagePublicSite(spaceService.canManageSpacePublicSite(space, userId));
       spaceEntity.setCanRedactOnSpace(spaceService.canRedactOnSpace(space, getCurrentUserIdentity()));
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
@@ -942,6 +943,7 @@ public class EntityBuilder {
     spaceEntity.setCreatedTime(String.valueOf(space.getCreatedTime()));
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());
+    spaceEntity.setTemplateId(space.getTemplateId());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
@@ -2248,7 +2250,8 @@ public class EntityBuilder {
                           siteNavigations,
                           getUserACL().hasEditPermission(site, ConversationState.getCurrent().getIdentity()),
                           site.getBannerFileId(),
-                          LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()));
+                          LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()),
+                          site.getProperties());
   }
 
   private static String getSiteDescription(SiteKey siteKey, UserPortal userPortal) {

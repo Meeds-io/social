@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.exoplatform.commons.utils.StringListConverter;
 
-import io.meeds.social.core.space.constant.Registration;
-import io.meeds.social.core.space.constant.Visibility;
+import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.Visibility;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -68,7 +68,7 @@ public class SpaceTemplateEntity {
   @Convert(converter = StringListConverter.class)
   @Column(name = "PERMISSIONS")
   private List<String> permissions;
-
+  
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_LAYOUT_PERMISSIONS")
   private List<String> spaceLayoutPermissions;
@@ -76,6 +76,10 @@ public class SpaceTemplateEntity {
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_DELETE_PERMISSIONS")
   private List<String> spaceDeletePermissions;
+
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "SPACE_PUBLIC_SITE_PERMISSIONS")
+  private List<String> spacePublicSitePermissions;
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_FIELDS")

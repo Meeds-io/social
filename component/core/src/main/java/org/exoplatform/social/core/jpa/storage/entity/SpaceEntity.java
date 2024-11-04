@@ -24,9 +24,9 @@ import java.util.Set;
 
 import org.exoplatform.commons.utils.StringListConverter;
 
-import io.meeds.social.core.space.constant.PublicSiteVisibility;
-import io.meeds.social.core.space.constant.Registration;
-import io.meeds.social.core.space.constant.Visibility;
+import io.meeds.social.space.constant.PublicSiteVisibility;
+import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.Visibility;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -139,7 +139,7 @@ public class SpaceEntity implements Serializable {
   @Setter
   @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
   private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
-
+  
   @Getter
   @Setter
   @Convert(converter = StringListConverter.class)
@@ -151,6 +151,12 @@ public class SpaceEntity implements Serializable {
   @Convert(converter = StringListConverter.class)
   @Column(name = "DELETE_PERMISSIONS")
   private List<String>                             deletePermissions;
+
+  @Getter
+  @Setter
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "PUBLIC_SITE_PERMISSIONS")
+  private List<String>                             publicSitePermissions;
 
   public Long getId() {
     return id;

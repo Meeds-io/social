@@ -5,7 +5,7 @@
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.exoplatform.portal.mop.SiteType"%>
-<%@page import="io.meeds.social.core.space.service.SpaceLayoutService"%>
+<%@page import="io.meeds.social.space.service.SpaceLayoutService"%>
 <%
   PortalRequestContext rcontext = PortalRequestContext.getCurrentInstance();
   Space space = SpaceUtils.getSpaceByContext();

@@ -41,7 +41,7 @@
   </component>
 
   <component>
-    <type>io.meeds.social.core.search.SpaceSearchConnector</type>
+    <type>io.meeds.social.search.SpaceSearchConnector</type>
     <init-params>
       <value-param>
         <name>query.file.path</name>
@@ -342,11 +342,11 @@
 
   <component>
     <key>org.exoplatform.social.core.space.spi.SpaceService</key>
-    <type>io.meeds.social.core.space.service.SpaceServiceImpl</type>
+    <type>io.meeds.social.space.service.SpaceServiceImpl</type>
   </component>
 
   <component>
-    <type>io.meeds.social.core.space.service.SpaceLayoutService</type>
+    <type>io.meeds.social.space.service.SpaceLayoutService</type>
   </component>
 
   <component>
@@ -1139,18 +1139,6 @@
         </object-param>
       </init-params>
     </component-plugin>
-    <component-plugin>
-      <name>space.portal.config.listener</name>
-      <set-method>addListenerPlugin</set-method>
-	  <type>org.exoplatform.portal.config.GroupPortalConfigListener</type>
-	  <init-params>
-        <value-param>
-          <name>group.name.pattern</name>
-          <description>The group name pattern</description>
-          <value>/spaces/</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
@@ -1170,10 +1158,6 @@
           <name>initializing.failure.ignore</name>
           <description>In the run method, use try catch or not (value is true/false)</description>
           <value>true</value>
-        </value-param>
-        <value-param>
-          <name>page.templates.location</name>
-          <value>classpath:/portal/template/pages</value>
         </value-param>
         <object-param>
           <name>portal.configuration</name>
@@ -1488,7 +1472,7 @@
     <component-plugin>
       <name>SpacePublicSiteListener</name>
       <set-method>addSpaceListener</set-method>
-      <type>io.meeds.social.core.space.listener.SpacePublicSiteListener</type>
+      <type>io.meeds.social.space.listener.SpacePublicSiteListener</type>
     </component-plugin>
   </external-component-plugins>
 
@@ -1497,7 +1481,7 @@
     <component-plugin>
       <name>SpaceIndexingListenerImpl</name>
       <set-method>addSpaceListener</set-method>
-      <type>io.meeds.social.core.search.listener.SpaceIndexingListenerImpl</type>
+      <type>io.meeds.social.search.listener.SpaceIndexingListenerImpl</type>
     </component-plugin>
   </external-component-plugins>
 
