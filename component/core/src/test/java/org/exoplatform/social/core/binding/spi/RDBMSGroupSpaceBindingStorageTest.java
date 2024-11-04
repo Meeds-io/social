@@ -17,7 +17,6 @@
 
 package org.exoplatform.social.core.binding.spi;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -28,12 +27,11 @@ import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
-import org.exoplatform.social.core.test.AbstractCoreTest;
-import org.exoplatform.social.core.space.impl.DefaultSpaceApplicationHandler;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
-import org.exoplatform.social.core.storage.api.SpaceStorage;
+import org.exoplatform.social.core.test.AbstractCoreTest;
 
 /**
  * Unit Tests for
@@ -124,14 +122,11 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
    */
   private Space getSpaceInstance(int number) {
     Space space = new Space();
-    space.setApp("app1,app2");
     space.setDisplayName("myspacetestbinding" + number);
     space.setPrettyName(space.getDisplayName());
     space.setRegistration(Space.OPEN);
     space.setDescription("add new space " + number);
-    space.setType(DefaultSpaceApplicationHandler.NAME);
     space.setVisibility(Space.PUBLIC);
-    space.setPriority(Space.INTERMEDIATE_PRIORITY);
     space.setGroupId("/spaces/space" + number);
     String[] managers = new String[] { "demo" };
     String[] members = new String[] { "john", "root" };

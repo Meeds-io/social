@@ -34,6 +34,7 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.social.core.space.constant.Visibility;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 
 import jakarta.persistence.EntityManager;
@@ -130,7 +131,12 @@ public final class SpaceQueryBuilder {
                                         .toList()));
     }
 
-    //status
+    // Space Template
+    if (spaceFilter.getTemplateId() > 0) {
+      predicates.add(root.get(SpaceEntity_.templateId).in(spaceFilter.getTemplateId()));
+    }
+
+    // status
     if (CollectionUtils.isNotEmpty(spaceFilter.getStatusList())) {
       Path<SpaceMemberEntity> join = getMembersJoin(root, JoinType.INNER);
 
@@ -145,7 +151,7 @@ public final class SpaceQueryBuilder {
                                                                         spaceFilter.getRemoteId()));
       boolean includePrivate = spaceFilter.isIncludePrivate();
       if (includePrivate) {
-        predicates.add(cb.or(cb.equal(root.get(SpaceEntity_.visibility), SpaceEntity.VISIBILITY.PRIVATE), tmp));
+        predicates.add(cb.or(cb.equal(root.get(SpaceEntity_.visibility), Visibility.PRIVATE), tmp));
       } else {
         predicates.add(tmp);
       }
@@ -175,7 +181,7 @@ public final class SpaceQueryBuilder {
     //not hidden
     boolean notHidden = spaceFilter.isNotHidden();
     if (notHidden) {
-      predicates.add(cb.notEqual(root.get(SpaceEntity_.visibility), SpaceEntity.VISIBILITY.HIDDEN));
+      predicates.add(cb.notEqual(root.get(SpaceEntity_.visibility), Visibility.HIDDEN));
     }
     
     //

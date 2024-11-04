@@ -20,13 +20,16 @@
 
 package org.exoplatform.social.core.jpa.search;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-
-import java.util.*;
 
 public class ComplementaryFilterSearchConnector {
 

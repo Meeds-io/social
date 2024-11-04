@@ -42,16 +42,18 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import io.meeds.social.upgrade.model.LayoutUpgrade;
 
 @ConfiguredBy({
-                @ConfigurationUnit(scope = ContainerScope.ROOT,
-                    path = "conf/configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.ROOT,
-                    path = "conf/exo.social.component.core-local-root-configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                    path = "conf/portal/configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                    path = "conf/exo.social.component.core-local-configuration.xml"),
-                @ConfigurationUnit(scope = ContainerScope.PORTAL,
-                    path = "conf/social.component.core-local-portal-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.ROOT,
+    path = "conf/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.ROOT,
+    path = "conf/exo.social.component.core-local-root-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+    path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+    path = "conf/exo.social.component.core-local-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+    path = "conf/social.component.core-local-portal-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL,
+    path = "conf/exo.portal.component.portal-configuration-local.xml"),
 })
 public class LayoutUpgradePluginTest extends AbstractCoreTest {// NOSONAR
 

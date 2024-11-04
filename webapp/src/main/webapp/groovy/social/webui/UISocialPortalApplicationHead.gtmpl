@@ -1,0 +1,70 @@
+<%
+  import org.exoplatform.ws.frameworks.cometd.ContinuationService;
+  import org.mortbay.cometd.continuation.EXoContinuationBayeux;
+  import org.exoplatform.commons.api.settings.ExoFeatureService;
+  import org.exoplatform.social.attachment.AttachmentService;
+  import org.exoplatform.social.core.space.SpaceUtils;
+  import org.exoplatform.social.webui.Utils;
+  import org.apache.commons.lang3.StringUtils;
+  import org.exoplatform.portal.application.PortalRequestContext;
+  import org.exoplatform.social.core.identity.model.Identity;
+  import org.exoplatform.social.core.space.model.Space;
+  import org.exoplatform.social.core.search.SearchConnector;
+  import org.exoplatform.commons.utils.PropertyManager;
+  import org.exoplatform.portal.branding.BrandingService;
+  import java.util.Set;
+
+  def rcontext = _ctx.getRequestContext();
+  Space space = SpaceUtils.getSpaceByContext();
+  Identity spaceIdentity = SpaceUtils.getSpaceIdentityByContext();
+  ContinuationService continuationService = uicomponent.getApplicationComponent(ContinuationService.class);
+  EXoContinuationBayeux continuationBayeux = uicomponent.getApplicationComponent(EXoContinuationBayeux.class);
+  AttachmentService attachmentService = uicomponent.getApplicationComponent(AttachmentService.class);
+  ExoFeatureService featureService = uicomponent.getApplicationComponent(ExoFeatureService.class);
+  def userName = rcontext.getRemoteUser();
+  String cometdToken = userName == null ? "" : continuationService.getUserToken(userName);
+  String cometdContext = continuationBayeux.getCometdContextName();
+  BrandingService brandingService = uicomponent.getApplicationComponent(BrandingService.class);
+  Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
+  String viewerIdentityId = Utils.getViewerIdentityId();
+  String ownerIdentityId = Utils.getOwnerIdentityId();
+%>
+<script type="text/javascript" id="socialHeadScripts">
+     eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
+     eXo.env.portal.spaceName = "<%=space == null ? "" : space.getPrettyName()%>" ;
+     eXo.env.portal.spaceUrl = "<%=space == null ? "" : space.getUrl()%>" ;
+     eXo.env.portal.spaceDisplayName = decodeURIComponent("<%=space == null ? "" : java.net.URLEncoder.encode(space.getDisplayName().replace(" ", "._.")).replace("._.", " ") %>") ;
+     eXo.env.portal.spaceGroup = "<%=space == null ? "" : space.getGroupId().replace("/spaces/", "")%>" ;
+     eXo.env.portal.spaceIdentityId = "<%=spaceIdentity == null ? "" : spaceIdentity.getId()%>" ;
+     eXo.env.portal.profileOwner = "<%=ownerIdentityId == null ? "" : Utils.getOwnerRemoteId()%>" ;
+     eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
+     eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
+     eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
+     eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
+     eXo.env.portal.isSpacesManager = <%=Utils.isSpacesManager(Utils.getViewerIdentity())%>;
+     eXo.env.portal.cometdToken = "<%=cometdToken%>";
+     eXo.env.portal.cometdContext = "<%=cometdContext%>";
+     eXo.env.server.sessionId = "<%=rcontext.getRequest().getSession(true).getId()%>";
+     eXo.env.portal.vuetifyPreset = {
+       dark: true,
+       silent: !eXo.developing,
+       iconfont: 'mdi',
+       rtl: eXo.env.portal.orientation === 'rtl',
+       theme: { disable: true },
+       breakpoint: {
+         mobileBreakpoint: 600,
+         thresholds: {
+           xs: 0,
+           sm: 600,
+           md: 960,
+           lg: 1264,
+           xl: 1904,
+         },
+       },
+     };
+
+     eXo.env.portal.postToNetworkEnabled = <%=featureService.isFeatureActiveForUser("PostToNetwork", userName)%>;
+     eXo.env.portal.editorAttachImageEnabled = <%=featureService.isFeatureActiveForUser("EditorAttachImage", userName)%>;
+     eXo.env.portal.attachmentObjectTypes = ['<%=StringUtils.join(supportedAttachmentObjectTypes, "', '")%>'];
+     eXo.env.portal.customStylesheetEnabled = <%=featureService.isFeatureActiveForUser("customStylesheet", userName)%>;
+</script>

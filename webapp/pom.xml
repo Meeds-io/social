@@ -1,34 +1,507 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (C) 2003-2010 eXo Platform SAS.
+  This file is part of the Meeds project (https://meeds.io/).
 
-    This program is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Affero General Public License
-    as published by the Free Software Foundation; either version 3
-    of the License, or (at your option) any later version.
+  Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, see<http://www.gnu.org/licenses />.
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <artifactId>social</artifactId>
     <groupId>io.meeds.social</groupId>
+    <artifactId>social</artifactId>
     <version>7.0.x-SNAPSHOT</version>
   </parent>
   <artifactId>social-webapp</artifactId>
-  <packaging>pom</packaging>
-  <name>Meeds:: PLF:: Social Web Apps</name>
-  <description>Meeds Social Web Apps</description>
-  <modules>
-    <module>portlet</module>
-  </modules>
+  <packaging>war</packaging>
+  <name>Meeds:: PLF:: Social Webapp</name>
+  <description>Meeds Social Webapp</description>
+  <dependencies>
+    <!-- Portal and Core dependencies -->
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.api</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-logging</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.tomcat.embed</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.common</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.file-storage</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.file-storage</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.resources</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.resources</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.identity</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.identity</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.pc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.pc</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.portal</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.portal</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.scripting</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.scripting</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.controller</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.controller</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.security</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.resources</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.web.resources</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.webui.portal</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.webui.portal</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.management</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.management</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Commons dependencies -->
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-common</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-product</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-product</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-upgrade</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-component-upgrade</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-search</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-comet-service</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-comet-service</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Social dependencies -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-api</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-common</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-common</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-core</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-service</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-service</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-notification</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-notification</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-oauth-auth</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-oauth-auth</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>social-component-web</artifactId>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Needed for cache management in runtime -->
+    <dependency>
+      <groupId>io.meeds.kernel</groupId>
+      <artifactId>exo.kernel.component.ext.cache.impl.infinispan.v8</artifactId>
+    </dependency>
+
+    <!-- Transitive dependencies to exclude -->
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.test.core</artifactId>
+      <scope>test</scope>
+      <!-- Exclude Test artifacts from packaging -->
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.portal</groupId>
+      <artifactId>portal.component.test.web</artifactId>
+      <scope>test</scope>
+      <!-- Exclude Test artifacts from packaging -->
+    </dependency>
+    <dependency>
+      <groupId>io.meeds.commons</groupId>
+      <artifactId>commons-testing</artifactId>
+      <scope>test</scope>
+      <!-- Exclude Test artifacts from packaging -->
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <!-- Used for compilation only, thus exclude it from packaging
+                  (already packaged in Web container, Tomcat Server) -->
+      <scope>test</scope>
+    </dependency>
+    <!-- Swagger -->
+    <dependency>
+      <groupId>io.swagger.core.v3</groupId>
+      <artifactId>swagger-annotations-jakarta</artifactId>
+      <scope>test</scope>
+      <!-- Used for compilation only, thus exclude it from packaging -->
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <scope>provided</scope>
+      <!-- Used for compilation only, thus exclude it from packaging -->
+    </dependency>
+    <!-- Platform-ui for Less Variables use-->
+    <dependency>
+      <groupId>io.meeds.platform-ui</groupId>
+      <artifactId>platform-ui-skin</artifactId>
+      <classifier>sources</classifier>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>social</finalName>
+    <plugins>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>less-copy-resources</id>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/src/main/webapp/skin/less</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/webapp/skin/less</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>platform-ui-src</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>unpack-dependencies</goal>
+            </goals>
+            <configuration>
+              <includeArtifactIds>platform-ui-skin</includeArtifactIds>
+              <outputDirectory>${project.build.directory}/src/main/webapp</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.lesscss</groupId>
+        <artifactId>lesscss-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>core</id>
+            <configuration>
+              <sourceDirectory>${project.build.directory}/src/main/webapp/skin/less</sourceDirectory>
+              <outputDirectory>${project.build.directory}/${project.build.finalName}/skin/css</outputDirectory>
+              <compress>false</compress>
+              <includes>
+                <include>portlet/ActivitySearch/Style.less</include>
+                <include>portlet/ActivityStream/Style.less</include>
+                <include>portlet/GettingStarted/Style.less</include>
+                <include>portlet/HamburgerMenu/Style.less</include>
+                <include>portlet/IDMGroupsManagement/Style.less</include>
+                <include>portlet/IDMMembershipTypesManagement/Style.less</include>
+                <include>portlet/IDMUsersManagement/Style.less</include>
+                <include>portlet/PeopleList/Style.less</include>
+                <include>portlet/PeopleOverview/Style.less</include>
+                <include>portlet/ProfileAboutMe/Style.less</include>
+                <include>portlet/ProfileContactInformation/Style.less</include>
+                <include>portlet/ProfileHeader/Style.less</include>
+                <include>portlet/ProfileSearch/Style.less</include>
+                <include>portlet/ProfileSettings/Style.less</include>
+                <include>portlet/ProfileWorkExperience/Style.less</include>
+                <include>portlet/Search/Style.less</include>
+                <include>portlet/SpaceInfos/Style.less</include>
+                <include>portlet/SpacesAdministration/Style.less</include>
+                <include>portlet/SpacesListExternal/Style.less</include>
+                <include>portlet/SpacesOverview/Style.less</include>
+                <include>portlet/SuggestionsPeopleAndSpace/Style.less</include>
+                <include>portlet/TopBarMenu/Style.less</include>
+                <include>portlet/VerticalMenu/Style.less</include>
+                <include>common/siteDetails/Style.less</include>
+                <include>portlet/organizational-chart/Style.less</include>
+                <!-- Deprecated Portlets -->
+                <include>portlet/TopBarNotification/Style.less</include>
+                <!-- Standalone Modules -->
+                <include>standalone-pages/AccountSetup.less</include>
+                <include>standalone-pages/Login.less</include>
+              </includes>
+            </configuration>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <includeEmptyDirectories>false</includeEmptyDirectories>
+          <packagingExcludes>WEB-INF/lib/*.jar,**/*.less,**/less/**,**/*.vue,css/lib/*,vue-apps/**,js/mock/**/*,**-dev.*,**/vue-apps</packagingExcludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 </project>

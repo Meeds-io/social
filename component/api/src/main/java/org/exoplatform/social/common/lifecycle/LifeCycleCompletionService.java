@@ -18,7 +18,6 @@
 package org.exoplatform.social.common.lifecycle;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -30,72 +29,56 @@ import org.picocontainer.Startable;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 
+import lombok.SneakyThrows;
+
 /**
  * Process the callable request out of the http request.
  *
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
+@SuppressWarnings("rawtypes")
 public class LifeCycleCompletionService implements Startable {
 
-  private final String THREAD_NUMBER_KEY = "thread-number";
+  private static final String       THREAD_NUMBER_KEY       = "thread-number";
 
-  private final String ASYNC_EXECUTION_KEY = "async-execution";
+  private static final String       ASYNC_EXECUTION_KEY     = "async-execution";
 
-  private Executor executor;
+  private static final int          DEFAULT_THREAD_NUMBER   = 1;
+
+  private static final boolean      DEFAULT_ASYNC_EXECUTION = true;
+
+  private ExecutorService           executor;
 
   private ExecutorCompletionService ecs;
 
-  private final int DEFAULT_THREAD_NUMBER = 1;
+  private int                       configThreadNumber;
 
-  private final boolean DEFAULT_ASYNC_EXECUTION = true;
-
-  private int configThreadNumber;
-
-  private boolean configAsyncExecution;
+  private boolean                   configAsyncExecution;
 
   public LifeCycleCompletionService(InitParams params) {
+    ValueParam threadNumber = params == null ? null : params.getValueParam(THREAD_NUMBER_KEY);
+    ValueParam asyncExecution = params == null ? null : params.getValueParam(ASYNC_EXECUTION_KEY);
 
-    //
-    ValueParam threadNumber = params.getValueParam(THREAD_NUMBER_KEY);
-    ValueParam asyncExecution = params.getValueParam(ASYNC_EXECUTION_KEY);
-
-    //
-    try {
-      this.configThreadNumber = Integer.valueOf(threadNumber.getValue());
-    }
-    catch (Exception e) {
-      this.configThreadNumber = DEFAULT_THREAD_NUMBER;
-    }
-
-    //
-    try {
-      this.configAsyncExecution = Boolean.valueOf(asyncExecution.getValue());
-    }
-    catch (Exception e) {
-      this.configAsyncExecution = DEFAULT_ASYNC_EXECUTION;
-    }
-
+    this.configThreadNumber = threadNumber == null ? DEFAULT_THREAD_NUMBER : Integer.valueOf(threadNumber.getValue());
+    this.configAsyncExecution = asyncExecution == null ? DEFAULT_ASYNC_EXECUTION : Boolean.valueOf(asyncExecution.getValue());
     this.executor = Executors.newFixedThreadPool(this.configThreadNumber);
-
     this.ecs = new ExecutorCompletionService(executor);
-
   }
 
+  @Override
+  public void stop() {
+    executor.shutdown();
+  }
+
+  @SuppressWarnings("unchecked")
   public void addTask(Callable callable) {
     ecs.submit(callable);
-
   }
 
+  @SneakyThrows
   public void waitCompletionFinished() {
-    try {
-      if (executor instanceof ExecutorService) {
-        ((ExecutorService) executor).awaitTermination(1, TimeUnit.SECONDS);
-      }
-    }
-    catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    executor.awaitTermination(1, TimeUnit.SECONDS);
   }
 
   public boolean isAsync() {
@@ -105,27 +88,17 @@ public class LifeCycleCompletionService implements Startable {
   public long getActiveTaskCount() {
     if (executor instanceof ThreadPoolExecutor threadPoolExecutor) {
       return threadPoolExecutor.getActiveCount();
+    } else {
+      return 0;
     }
-    return 0;
   }
 
+  @SneakyThrows
   public void waitAllTaskFinished(long timeout) {
     long start = System.currentTimeMillis();
-    try {
-      while (getActiveTaskCount() != 0 && System.currentTimeMillis() - start <= timeout) {
-        Thread.sleep(100);
-      }
-    }
-    catch (InterruptedException e) {
-      throw new RuntimeException(e);
+    while (getActiveTaskCount() != 0 && System.currentTimeMillis() - start <= timeout) {
+      Thread.sleep(100);
     }
   }
 
-  public void start() {}
-  
-  public void stop() {
-    if (executor instanceof ExecutorService) {
-      ((ExecutorService) executor).shutdown();
-    }
-  };
 }

@@ -32,7 +32,8 @@ import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.favorite.model.FavoriteObject;
-import org.exoplatform.social.metadata.model.*;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
 
 public class FavoriteServiceImpl implements FavoriteService {
 

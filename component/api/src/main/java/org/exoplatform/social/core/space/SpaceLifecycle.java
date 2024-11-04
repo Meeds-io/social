@@ -23,7 +23,6 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 
-
 /**
  * Implementation of the lifecycle of spaces. <br>
  * Events are dispatched asynchronously but sequentially to their listeners
@@ -63,26 +62,6 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       break;
     case SPACE_REMOVED:
       listener.spaceRemoved(event);
-      break;
-    case APP_ACTIVATED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationActivated(event);
-      }
-      break;
-    case APP_DEACTIVATED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationDeactivated(event);
-      }
-      break;
-    case APP_ADDED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationAdded(event);
-      }
-      break;
-    case APP_REMOVED:
-      if (isSpaceProperEvent(event)) {
-        listener.applicationRemoved(event);
-      }
       break;
     case JOINED:
       if (isSpaceProperEvent(event)) {
@@ -144,6 +123,18 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case REMOVE_PENDING_USER:
       listener.removePendingUser(event);
       break;
+    case ADD_REDACTOR_USER:
+      listener.addRedactorUser(event);
+      break;
+    case REMOVE_REDACTOR_USER:
+      listener.removeRedactorUser(event);
+      break;
+    case ADD_PUBLISHER_USER:
+      listener.addPublisherUser(event);
+      break;
+    case REMOVE_PUBLISHER_USER:
+      listener.removePublisherUser(event);
+      break;
     default:
       break;
     }
@@ -155,27 +146,6 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void spaceRemoved(Space space, String remover) {
     broadcast(new SpaceLifeCycleEvent(space, remover, Type.SPACE_REMOVED));
-  }
-
-  public void addApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_ADDED);
-    event.getSource();
-    broadcast(event);
-  }
-
-  public void deactivateApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_DEACTIVATED);
-    broadcast(event);
-  }
-
-  public void activateApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_ACTIVATED);
-    broadcast(event);
-  }
-
-  public void removeApplication(Space space, String appId) {
-    SpaceLifeCycleEvent event = new SpaceLifeCycleEvent(space, appId, Type.APP_REMOVED);
-    broadcast(event);
   }
 
   public void memberJoined(Space space, String userId) {
@@ -193,15 +163,15 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void revokedLead(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.REVOKED_LEAD));
   }
-  
+
   public void spaceRenamed(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_RENAMED));
   }
-  
+
   public void spaceDescriptionEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_DESCRIPTION_EDITED));
   }
-  
+
   public void spaceAvatarEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_AVATAR_EDITED));
   }
@@ -209,7 +179,7 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void spaceBannerEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_BANNER_EDITED));
   }
-  
+
   public void spaceAccessEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_HIDDEN));
   }
@@ -240,6 +210,22 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void removePendingUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.REMOVE_PENDING_USER));
+  }
+
+  public void addRedactorUser(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_REDACTOR_USER));
+  }
+
+  public void removeRedactorUser(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.REMOVE_REDACTOR_USER));
+  }
+
+  public void addPublisherUser(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.ADD_PUBLISHER_USER));
+  }
+
+  public void removePublisherUser(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.REMOVE_PUBLISHER_USER));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {

@@ -15,7 +15,14 @@
  */
 package org.exoplatform.social.core.thumbnail;
 
+import java.io.ByteArrayInputStream;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.io.IOUtils;
+
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
@@ -29,12 +36,6 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.metadata.thumbnail.model.ThumbnailObject;
-
-import java.io.ByteArrayInputStream;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class ImageThumbnailServiceImpl implements ImageThumbnailService {
 

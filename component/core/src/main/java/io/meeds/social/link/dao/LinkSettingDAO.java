@@ -19,12 +19,12 @@
 
 package io.meeds.social.link.dao;
 
-import jakarta.persistence.NoResultException;
-import jakarta.persistence.TypedQuery;
-
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 
 import io.meeds.social.link.entity.LinkSettingEntity;
+
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.TypedQuery;
 
 public class LinkSettingDAO extends GenericDAOJPAImpl<LinkSettingEntity, Long> {
 

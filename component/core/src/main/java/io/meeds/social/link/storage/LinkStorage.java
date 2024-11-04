@@ -18,7 +18,8 @@
  */
 package io.meeds.social.link.storage;
 
-import static io.meeds.social.link.storage.util.EntityMapper.*;
+import static io.meeds.social.link.storage.util.EntityMapper.fromModel;
+import static io.meeds.social.link.storage.util.EntityMapper.toModel;
 
 import java.time.Instant;
 import java.util.List;

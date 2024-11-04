@@ -21,6 +21,7 @@ package org.exoplatform.social.metadata.favorite;
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
+
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
@@ -83,8 +84,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     identityManager.deleteIdentity(johnIdentity);
     metadataDAO.deleteAll();
 

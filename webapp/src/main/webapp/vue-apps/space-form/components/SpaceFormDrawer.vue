@@ -1,0 +1,508 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<template>
+  <exo-drawer
+    ref="spaceFormDrawer"
+    v-model="drawer"
+    right
+    class="spaceFormDrawer"
+    @opened="stepper = 1"
+    @closed="stepper = 0">
+    <template slot="title">
+      {{ title }}
+    </template>
+    <template v-if="drawer" slot="content">
+      <div>
+        <v-stepper
+          v-model="stepper"
+          vertical
+          flat
+          class="ma-0 py-0 me-4"
+          :class="`${isMobile ? 'pr-3' : ''}`">
+          <v-stepper-step
+            :complete="stepper > 1"
+            step="1"
+            class="ma-0">
+            {{ $t('spacesList.label.spaceDetails') }}
+          </v-stepper-step>
+          <v-stepper-content step="1" class="ps-4 pe-6 my-0">
+            <form ref="form1" @submit="nextStep">
+              <v-label for="name">
+                {{ $t('spacesList.label.name') }}
+              </v-label>
+              <input
+                ref="autoFocusInput1"
+                v-model="space.displayName"
+                v-bind="nameIsRequired && {
+                  required: 'required',
+                }"
+                :aria-label="$t('spacesList.label.displayName')"
+                :placeholder="$t('spacesList.label.displayName')"
+                type="text"
+                name="name"
+                class="input-block-level ignore-vuetify-classes my-3">
+              <v-label for="description">
+                {{ $t('spacesList.label.description') }}
+              </v-label>
+              <rich-editor
+                id="spaceDescriptionRichEditor"
+                v-model="space.description"
+                :placeholder="$t('SpaceSettings.label.description')"
+                :max-length="maxDescriptionLength"
+                tag-enabled
+                class="my-3"
+                ck-editor-type="spaceDescription"
+                disable-suggester />
+              <v-label for="spaceTemplate">
+                {{ $t('spacesList.label.spaceTemplate') }}
+              </v-label>
+              <select
+                v-model="templateId"
+                :aria-label="$t('spacesList.label.spaceTemplate')"
+                :disabled="space && space.id"
+                name="spaceTemplate"
+                class="input-block-level ignore-vuetify-classes my-3"
+                required>
+                <option
+                  v-for="item in sortedTemplates"
+                  :key="item.id"
+                  :value="item.id">
+                  {{ item.name }}
+                </option>
+              </select>
+              <div
+                v-if="spaceTemplate?.description"
+                v-sanitized-html="spaceTemplate?.description"
+                class="text-subtitle ps-1"></div>
+              <v-card-actions class="px-0">
+                <v-spacer />
+                <v-btn
+                  class="btn btn-primary"
+                  outlined
+                  @click="nextStep">
+                  {{ $t('spacesList.button.continue') }}
+                  <v-icon size="18" class="ms-2">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
+                </v-btn>
+              </v-card-actions>
+            </form>
+          </v-stepper-content>
+          <v-stepper-step
+            :complete="stepper > 2"
+            step="2"
+            class="ma-0">
+            {{ $t('spacesList.label.spaceAccess') }}
+          </v-stepper-step>
+          <v-stepper-content step="2" class="ps-4 pe-6 my-0">
+            <form ref="form2" @submit="nextStep">
+              <div class="d-flex flex-wrap pt-2">
+                <label for="hidden" class="v-label theme--light my-auto float-left">
+                  {{ $t('spacesList.label.hidden') }}
+                </label>
+                <v-switch
+                  ref="autoFocusInput2"
+                  v-model="space.visibility"
+                  true-value="hidden"
+                  false-value="private"
+                  class="float-left my-0 ms-4" />
+              </div>
+              <div class="text-subtitle ps-1 mb-2 mt-1">
+                {{ $t(`spacesList.description.${space.visibility || 'hidden'}`) }}
+              </div>
+              <div class="d-flex flex-wrap pt-2">
+                <label for="hidden" class="v-label theme--light">
+                  {{ $t('spacesList.label.registration') }}
+                </label>
+                <v-radio-group
+                  v-model="space.subscription"
+                  class="mt-2 ms-2"
+                  mandatory
+                  row
+                  inset>
+                  <v-radio
+                    :label="$t('spacesList.label.open')"
+                    value="open"
+                    class="my-0" />
+                  <v-radio
+                    :label="$t('spacesList.label.validation')"
+                    value="validation"
+                    class="my-0" />
+                  <v-radio
+                    :label="$t('spacesList.label.closed')"
+                    value="closed"
+                    class="my-0" />
+                </v-radio-group>
+              </div>
+              <div class="text-subtitle ps-1">{{ $t(`spacesList.description.${space.subscription || 'open'}`) }}</div>
+              <v-card-actions class="mt-4 px-0">
+                <v-btn class="btn" @click="previousStep">
+                  <v-icon size="18" class="me-2">
+                    {{ $vuetify.rtl && 'fa-caret-right' || 'fa-caret-left' }}
+                  </v-icon>
+                  {{ $t('spacesList.button.back') }}
+                </v-btn>
+                <v-spacer />
+                <v-btn
+                  class="btn btn-primary"
+                  outlined
+                  @click="nextStep">
+                  {{ $t('spacesList.button.continue') }}
+                  <v-icon size="18" class="ms-2">
+                    {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
+                  </v-icon>
+                </v-btn>
+              </v-card-actions>
+            </form>
+          </v-stepper-content>
+          <v-stepper-step
+            :complete="stepper > 3"
+            step="3"
+            class="ma-0">
+            {{ $t('spacesList.label.inviteUsers') }}
+          </v-stepper-step>
+          <v-stepper-content step="3" class="ps-4 pe-6 my-0">
+            <form
+              ref="form3"
+              :disabled="savingSpace || spaceSaved"
+              @submit="saveSpace">
+              <v-label for="inviteMembers" class="mb-4">
+                {{ $t('spacesList.label.users') }}
+              </v-label>
+              <exo-identity-suggester
+                ref="autoFocusInput3"
+                v-model="space.invitedMembers"
+                :labels="suggesterLabels"
+                :disabled="savingSpace || spaceSaved"
+                :required="invitationIsRequired"
+                :search-options="{
+                  spaceURL: space.prettyName,
+                }"
+                name="inviteMembers"
+                type-of-relations="user_to_invite"
+                height="100"
+                include-users
+                include-spaces
+                multiple />
+              <v-card-actions class="mt-4 px-0">
+                <v-btn
+                  :disabled="savingSpace || spaceSaved"
+                  class="btn"
+                  @click="previousStep">
+                  <v-icon size="18" class="me-2">
+                    {{ $vuetify.rtl && 'fa-caret-right' || 'fa-caret-left' }}
+                  </v-icon>
+                  {{ $t('spacesList.button.back') }}
+                </v-btn>
+              </v-card-actions>
+            </form>
+          </v-stepper-content>
+        </v-stepper>
+      </div>
+    </template>
+    <template slot="footer">
+      <div class="d-flex">
+        <v-spacer />
+        <v-btn
+          :disabled="savingSpace || spaceSaved"
+          class="btn me-2"
+          @click="cancel">
+          <template>
+            {{ $t('spacesList.button.cancel') }}
+          </template>
+        </v-btn>
+        <v-btn
+          :loading="savingSpace"
+          :disabled="saveButtonDisabled"
+          class="btn btn-primary"
+          @click="saveSpace">
+          <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
+          <template v-else-if="spaceToUpdate">
+            {{ $t('spacesList.button.updateSpace') }}
+          </template>
+          <template v-else>
+            {{ $t('spacesList.button.createSpace') }}
+          </template>
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
+</template>
+<script>
+export default {
+  data: () => ({
+    drawer: false,
+    savingSpace: false,
+    spaceSaved: false,
+    space: {},
+    spaceToUpdate: {},
+    title: null,
+    stepper: 0,
+    templateId: null,
+    templates: [],
+    selectedSpacesWithExternals: [],
+    externalAlert: false,
+    maxDescriptionLength: 2000,
+  }),
+  computed: {
+    saveButtonDisabled() {
+      return this.savingSpace
+        || this.spaceSaved
+        || this.stepper < 3 && !this.space.id
+        || (this.space.description?.length || 0) > this.maxDescriptionLength
+        || (this.invitationIsRequired && !this.space.invitedMembers?.length);
+    },
+    sortedTemplates() {
+      const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
+      spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+      return this.keyword?.length && spaceTemplates.filter(t => {
+        const name = this.$te(t.name) ? this.$t(t.name) : t.name;
+        const description = this.$te(t.description) ? this.$t(t.description) : t.description;
+        return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
+          || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
+      }) || spaceTemplates;
+    },
+    spaceTemplate() {
+      return this.templates?.find?.(temp => temp.id === this.templateId);
+    },
+    nameIsRequired() {
+      return this.spaceTemplate?.spaceFields?.includes?.('name');
+    },
+    invitationIsRequired() {
+      return this.spaceTemplate?.spaceFields?.includes?.('invitation');
+    },
+    displayedForm() {
+      return this.$refs && this.$refs[`form${this.stepper}`];
+    },
+    suggesterLabels() {
+      return {
+        placeholder: this.$t('spacesList.label.inviteMembers'),
+        noDataLabel: this.$t('spacesList.label.noDataLabel'),
+      };
+    },
+    invitedSpacesWithExternals() {
+      return this.$t && this.$t('spaceList.checkExternals.warning', {
+        0: `<strong>[${this.selectedSpacesWithExternals.join(',')}]</strong>`,
+      });
+    },
+    isMobile() {
+      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    },
+    spaceInvitedMembers() {
+      return this.space?.invitedMembers;
+    },
+  },
+  watch: {
+    savingSpace() {
+      if (this.savingSpace) {
+        this.$refs.spaceFormDrawer.startLoading();
+      } else {
+        this.$refs.spaceFormDrawer.endLoading();
+      }
+    },
+    stepper() {
+      if (this.stepper) {
+        // Used to focus on space name field
+        this.$nextTick().then(() => {
+          let elementToFocusOn = this.$refs[`autoFocusInput${this.stepper}`];
+          if (elementToFocusOn) {
+            elementToFocusOn = elementToFocusOn.focus || !elementToFocusOn.$el ? elementToFocusOn : elementToFocusOn.$el || elementToFocusOn;
+          }
+          if (elementToFocusOn) {
+            window.setTimeout(() => {
+              elementToFocusOn.focus();
+            }, 200);
+          }
+        });
+      } else {
+        this.spaceSaved = false;
+        this.savingSpace = false;
+      }
+    },
+    spaceTemplate() {
+      if (!this.space?.id) {
+        this.setSpaceTemplateProperties();
+      }
+    },
+    externalAlert() {
+      if (this.externalAlert) {
+        this.$root.$emit('alert-message-html', this.invitedSpacesWithExternals, 'warning');
+      }
+    },
+    spaceInvitedMembers() {
+      if (this.spaceInvitedMembers) {
+        this.selectedSpacesWithExternals = [];
+        this.externalAlert = false;
+        this.spaceInvitedMembers.filter(item => item.providerId === 'space')
+          .forEach(space => {
+            this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
+              if (hasExternals && hasExternals === 'true') {
+                this.selectedSpacesWithExternals.push(space.displayName);
+                this.$nextTick().then(() => this.externalAlert = true);
+              }
+            });
+          });
+      }
+    }
+  },
+  created() {
+    const search = window.location.search && window.location.search.substring(1);
+    if (search) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      const createSpace = parameters['createSpace'];
+      if (createSpace && Boolean(createSpace)) {
+        this.$root.$once('application-loaded', () => {
+          this.$nextTick().then(this.open);
+        });
+      }
+    }
+  },
+  mounted() {
+    document.addEventListener('meeds.social.editSpace', this.editSpace);
+    this.$root.$on('addNewSpace', this.open);
+    this.$root.$on('editSpace', this.editSpace);
+  },
+  methods: {
+    open(templateId) {
+      this.spaceToUpdate = null;
+      this.space = {
+        subscription: 'open',
+        visibility: 'private',
+      };
+      this.setSpaceTemplateProperties();
+      this.title = this.$t('spacesList.label.addNewSpace');
+      this.$spaceTemplateService.getSpaceTemplates()
+        .then(data => {
+          this.templates = data || [];
+          this.templateId = templateId || this.sortedTemplates?.[0]?.id;
+        });
+      this.$refs.spaceFormDrawer.open();
+    },
+    editSpace(space) {
+      space = space.detail && space.detail.data || space;
+      if (!space || !space.id) {
+        // eslint-disable-next-line no-console
+        console.warn('space does not have an id ', space, ' ignore user action');
+        return;
+      }
+      this.spaceToUpdate = space;
+      this.space = Object.assign({}, space);
+      this.templateId = this.space.templateId;
+      this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
+      this.$spaceTemplateService.getSpaceTemplates()
+        .then(data => {
+          this.templates = data || [];
+          this.templateId = this.sortedTemplates?.[0]?.id;
+        });
+      this.$refs.spaceFormDrawer.open();
+    },
+    setSpaceTemplateProperties() {
+      if (this.spaceTemplate) {
+        this.$set(this.space, 'templateId', this.spaceTemplate.id);
+        this.$set(this.space, 'subscription', this.spaceTemplate.spaceDefaultRegistration?.toLowerCase?.());
+        this.$set(this.space, 'visibility', this.spaceTemplate.spaceDefaultVisibility?.toLowerCase?.());
+      }
+    },
+    previousStep() {
+      this.stepper--;
+    },
+    nextStep(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      if (this.displayedForm && this.displayedForm.reportValidity()) {
+        this.stepper++;
+      }
+    },
+    cancel() {
+      this.$refs.spaceFormDrawer.close();
+    },
+    saveSpace(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+
+      if (this.spaceSaved || this.savingSpace) {
+        return;
+      }
+      this.savingSpace = true;
+      if (this.space.id) {
+        this.$spaceService.updateSpace({
+          id: this.space.id,
+          displayName: this.space.displayName,
+          description: this.space.description,
+          visibility: this.space.visibility,
+          subscription: this.space.subscription,
+          invitedMembers: this.space.invitedMembers,
+        })
+          .then(space => {
+            Object.assign(this.spaceToUpdate, space, {managers: this.spaceToUpdate.managers}, {description: space.description || ''});
+            this.spaceSaved = true;
+
+            window.setTimeout(() => {
+              this.$refs.spaceFormDrawer.close();
+            }, 200);
+          })
+          .catch(e => {
+            // eslint-disable-next-line no-console
+            console.warn('Error updating space ', this.space, e);
+            if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
+              this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
+            } else {
+              this.displayAlert(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
+            }
+          })
+          .finally(() => this.savingSpace = false);
+      } else {
+        this.space.templateId = this.templateId;
+        this.$spaceService.createSpace(this.space)
+          .then(space => {
+            this.spaceSaved = true;
+            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+          })
+          .catch(e => {
+            if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
+              this.displayAlert(this.$t('spacesList.error.spaceWithSameNameExists'), 'error');
+            } else if (String(e).indexOf('INVALID_SPACE_NAME') >= 0) {
+              this.displayAlert(this.$t('spacesList.error.InvalidSpaceName'), 'error');
+            } else {
+              this.displayAlert(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
+            }
+          })
+          .finally(() => this.savingSpace = false);
+      }
+    },
+    displayAlert(message, type) {
+      this.$root.$emit('alert-message', message, type || 'success');
+    },
+  },
+};
+</script>

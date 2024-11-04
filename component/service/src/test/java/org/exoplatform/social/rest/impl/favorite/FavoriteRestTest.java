@@ -88,8 +88,7 @@ public class FavoriteRestTest extends AbstractResourceTest {
 
   @Override
   public void tearDown() throws Exception {
-    end();
-    begin();
+    restartTransaction();
     identityManager.hardDeleteIdentity(johnIdentity);
     metadataDAO.deleteAll();
 
@@ -140,16 +139,9 @@ public class FavoriteRestTest extends AbstractResourceTest {
 
     Space space1 = new Space();
     space1.setDisplayName("space1");
-    space1.setPrettyName(space1.getDisplayName());
     space1.setRegistration("validation");
     space1.setVisibility("public");
-    space1.setPriority("2");
-    String[] manager = new String[] { "john" };
-    String[] members = new String[] { "john" };
-    space1.setManagers(manager);
-    space1.setMembers(members);
-
-    spaceService.createSpace(space1, johnIdentity.getRemoteId());
+    space1 = spaceService.createSpace(space1, johnIdentity.getRemoteId());
 
     Space createdSpace = spaceService.getSpaceByPrettyName(space1.getPrettyName());
 

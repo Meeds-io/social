@@ -43,6 +43,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setRemoteId(spaceFilter.getRemoteId());
       this.setSorting(spaceFilter.getSorting());
       this.setFavorite(spaceFilter.isFavorite());
+      this.setTemplateId(spaceFilter.getTemplateId());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }

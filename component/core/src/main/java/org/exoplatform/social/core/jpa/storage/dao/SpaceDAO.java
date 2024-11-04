@@ -17,6 +17,7 @@
 package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.List;
+import java.util.Map;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
@@ -26,10 +27,6 @@ public interface SpaceDAO extends GenericDAO<SpaceEntity, Long> {
   List<Long> getLastSpaces(int limit);
 
   SpaceEntity getSpaceByGroupId(String groupId);
-
-  SpaceEntity getSpaceByURL(String url);
-
-  SpaceEntity getSpaceByDisplayName(String spaceDisplayName);
 
   SpaceEntity getSpaceByPrettyName(String spacePrettyName);
 
@@ -57,4 +54,12 @@ public interface SpaceDAO extends GenericDAO<SpaceEntity, Long> {
   default int countCommonSpaces(String userId,String otherUserId)  {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * @return the count of spaces by Space Template identifier
+   */
+  default Map<Long, Long> countSpacesByTemplate()  {
+    throw new UnsupportedOperationException();
+  }
+
 }
