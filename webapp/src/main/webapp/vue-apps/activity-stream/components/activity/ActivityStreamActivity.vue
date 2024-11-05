@@ -37,7 +37,7 @@
           :activity-types="activityTypes"
           :activity-type-extension="activityTypeExtension" />
         <activity-comments-preview
-          v-if="!extendedComponent.overrideComments"
+          v-if="activityReactionEnabled && !extendedComponent.overrideComments"
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
@@ -75,6 +75,7 @@
           :activity-types="activityTypes"
           :activity-type-extension="activityTypeExtension" />
         <activity-comments-preview
+          v-if="activityReactionEnabled"
           :activity="activity"
           :comment-types="commentTypes"
           :comment-actions="commentActions"
@@ -211,6 +212,9 @@ export default {
     },
     showLastComments() {
       return this.hasNewComment || this.isActivityDetail;
+    },
+    activityReactionEnabled() {
+      return this.activityTypeExtension?.reactionEnabled(this.activity);
     }
   },
   watch: {
