@@ -1101,10 +1101,6 @@
     </createIndex>
   </changeSet>
 
-  <changeSet author="social" id="1.0.0-118.builders">
-    <sql>UPDATE SOC_SPACE_TEMPLATES SET LAYOUT = ID WHERE ID > 4</sql>
-  </changeSet>
-
   <changeSet author="social" id="1.0.0-118">
     <addUniqueConstraint
       tableName="SOC_SPACE_TEMPLATES"
