@@ -49,7 +49,6 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
 
-import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
