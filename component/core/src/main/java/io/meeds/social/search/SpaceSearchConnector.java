@@ -194,7 +194,7 @@ public class SpaceSearchConnector {
                                      String query,
                                      long offset,
                                      long limit) {
-    String termQuery = buildTermQueryStatement(filter.getTerm());
+    String termQuery = buildTermQueryStatement(StringUtils.lowerCase(filter.getTerm()));
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
     String permissionsQuery = buildPermissionsQuery(filter);
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
