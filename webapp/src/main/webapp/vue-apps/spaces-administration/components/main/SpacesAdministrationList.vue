@@ -41,8 +41,7 @@
         <template slot="item" slot-scope="props">
           <spaces-administration-item
             :key="props.item.id"
-            :space="props.item"
-            :action-extensions="actionExtensions" />
+            :space="props.item" />
         </template>
       </v-data-table>
       <v-card
@@ -110,7 +109,6 @@ export default {
     },
   },
   data: () => ({
-    actionExtensions: [],
     initialized: false,
     offset: 0,
     pageSize: 25,
@@ -247,24 +245,29 @@ export default {
   }, 
   created() {
     this.searchSpaces();
-
-    document.addEventListener('extension-spaces-administration-action-updated', this.refreshExtensions);
-    this.$root.$on('spaces-list-refresh', this.searchSpaces);
-    this.refreshExtensions();
+    this.$root.$on('spaces-administration-list-refresh', this.refreshSpaces);
   },
   beforeDestroy() {
-    document.removeEventListener('extension-spaces-administration-action-updated', this.refreshExtensions);
-    this.$root.$off('spaces-list-refresh', this.searchSpaces);
+    this.$root.$off('spaces-administration-list-refresh', this.refreshSpaces);
   },
   methods: {
-    refreshExtensions() {
-      this.actionExtensions = extensionRegistry.loadExtensions('spaces-administration', 'action') || [];
+    refreshSpaces() {
+      this.searchSpaces(true);
     },
-    searchSpaces() {
+    searchSpaces(refresh) {
+      const offset = refresh ? 0 : this.offset;
+      const limit = refresh ? this.offset + this.pageSize : this.pageSize;
       this.$emit('loading-spaces', true);
-      return this.$spaceService.getSpaces(this.keyword, this.offset, this.pageSize, this.filter, this.expand, this.selectedTemplateId && Number(this.selectedTemplateId))
+      return this.$spaceService.getSpaces(
+        this.keyword,
+        offset,
+        limit,
+        this.filter,
+        this.expand,
+        this.selectedTemplateId && Number(this.selectedTemplateId)
+      )
         .then(data => {
-          if (this.offset) {
+          if (offset) {
             this.spaces.push(...data.spaces);
           } else {
             this.spaces = data.spaces || [];
