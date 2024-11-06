@@ -38,7 +38,26 @@
     no-text-truncate
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-select-change="$emit('template-changed', $event)"
-    @loading="$emit('loading', $event)" />
+    @loading="$emit('loading', $event)">
+    <template v-if="!$root.isMobile" #left>
+      <v-btn
+        id="applicationToolbarLeftButton"
+        :aria-label="$t('social.spaces.administration.manageSpaces.spaceTemplates.add')"
+        :class="$root.isMobile && 'px-0'"
+        class="btn btn-primary text-truncate"
+        @click="$root.$emit('addNewSpace')">
+        <v-icon
+          size="18">
+          fa-plus
+        </v-icon>
+        <span
+          v-if="!$root.isMobile"
+          class="text-truncate text-none ms-2">
+          {{ $t('social.spaces.administration.manageSpaces.spaceTemplates.add') }}
+        </span>
+      </v-btn>
+    </template>
+  </application-toolbar>
 </template>
 <script>
 export default {
