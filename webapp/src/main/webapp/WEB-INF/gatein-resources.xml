@@ -98,14 +98,6 @@
 
   <portlet-skin>
     <application-name>social</application-name>
-    <portlet-name>SpacesAdministration</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/SpacesAdministration/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social</application-name>
     <portlet-name>SpaceTemplateManagement</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
@@ -1558,6 +1550,7 @@
   <portlet>
     <name>SpacesAdministration</name>
     <module>
+      <load-group>SpacesAdministration</load-group>
       <script>
         <minify>false</minify>
         <path>/js/spacesAdministration.bundle.js</path>
@@ -1575,17 +1568,13 @@
         <module>eXoVueI18n</module>
       </depends>
       <depends>
-        <module>jquery</module>
-        <as>$</as>
+        <module>applicationToolbarComponent</module>
       </depends>
       <depends>
         <module>suggester</module>
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>ManageSpacesExtension</module>
       </depends>
     </module>
   </portlet>

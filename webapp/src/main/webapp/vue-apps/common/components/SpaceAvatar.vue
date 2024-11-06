@@ -35,6 +35,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
@@ -56,6 +57,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <div
         v-if="displayName || $slots.subTitle"
@@ -79,6 +81,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
@@ -142,6 +145,10 @@ export default {
     linkStyle: {
       type: Boolean,
       default: () => false,
+    },
+    linkTarget: {
+      type: String,
+      default: () => '_self',
     },
     smallFontSize: {
       type: Boolean,
