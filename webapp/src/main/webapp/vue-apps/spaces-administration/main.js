@@ -18,6 +18,7 @@
  */
 import '../space-form/initComponents.js';
 import './initComponents.js';
+import './extensions.js';
 import './services.js';
 
 if (extensionRegistry) {
@@ -40,6 +41,7 @@ export function init() {
     .then(i18n => Vue.createApp({
       data: {
         spaceTemplates: null,
+        itemMenuExtensions: [],
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
       computed: {
@@ -48,11 +50,19 @@ export function init() {
         },
       },
       created() {
+        document.addEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         this.refreshSpaceTemplates();
+        this.refreshExtensions();
+      },
+      beforeDestroy() {
+        document.removeEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
       },
       methods: {
         async refreshSpaceTemplates() {
           this.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
+        },
+        refreshExtensions() {
+          this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
         },
       },
       template: `<spaces-administration id="${appId}" />`,
