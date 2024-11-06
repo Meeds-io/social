@@ -73,6 +73,8 @@ public class RestProperties {
 
   public static final String MUTED                  = "muted";
 
+  public static final String GROUP_BINDING          = "groupBinding";
+
   /* Kept for backward compatibility */
   public static final String USER_NAME              = "userName";
 

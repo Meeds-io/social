@@ -844,12 +844,15 @@ public class EntityBuilder {
         }
         spaceEntity.setIdentity(identity);
         spaceEntity.setIdentityId(spaceIdentity.getId());
-        spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
 
-        boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
-        spaceEntity.setHasBindings(hasBindings);
-        if (hasBindings) {
-          spaceEntity.setIsUserBound(groupSpaceBindingService.countUserBindings(space.getId(), userId) > 0);
+        if (expandFields.contains(RestProperties.GROUP_BINDING)
+            && spaceService.canViewSpace(space, userId)) {
+          spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
+          boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
+          spaceEntity.setHasBindings(hasBindings);
+          if (hasBindings) {
+            spaceEntity.setIsUserBound(groupSpaceBindingService.countUserBindings(space.getId(), userId) > 0);
+          }
         }
 
         LinkEntity managers;
