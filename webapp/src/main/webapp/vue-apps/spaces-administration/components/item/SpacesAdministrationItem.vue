@@ -94,7 +94,7 @@
     <td
       align="center"
       width="50px">
-      -
+      <spaces-administration-item-menu :space="space" />
     </td>
   </tr>
 </template>
