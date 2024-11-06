@@ -23,14 +23,16 @@
   <v-app>
     <v-main class="application-body">
       <spaces-administration-toolbar
-        compact-display
+        :selected-template-id="selectedTemplateId"
         @keyword-changed="keyword = $event"
+        @template-changed="selectedTemplateId = $event"
         @loading="loadingSpaces = loadingSpaces || $event" />
       <spaces-administration-list
         ref="spacesList"
         :keyword="keyword"
         :loading-spaces="loadingSpaces"
         :spaces-size="spacesSize"
+        :selected-template-id="selectedTemplateId"
         class="px-3"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
@@ -45,6 +47,7 @@ export default {
     spacesSize: 0,
     loadingSpaces: false,
     initialized: false,
+    selectedTemplateId: '0',
   }),
   methods: {
     spacesLoaded(spacesSize) {
