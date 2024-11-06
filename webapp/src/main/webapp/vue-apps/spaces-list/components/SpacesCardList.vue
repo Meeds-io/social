@@ -38,10 +38,10 @@
     </v-card>
     <div id="spacesListBody" class="flex-grow-1 flex-shrink-1 pt-2">
       <div
-        v-if="filteredSpaces && filteredSpaces.length"
+        v-if="spacesSize"
         class="d-flex flex-wrap border-box-sizing">
         <space-card
-          v-for="space in filteredSpaces"
+          v-for="space in spaces"
           :key="space.id"
           :space="space"
           :space-action-extensions="spaceActionExtensions"
@@ -165,14 +165,6 @@ export default {
     displayMembersCount() {
       return this.cardWidth > 280;
     },
-    filteredSpaces() {
-      if (!this.keyword || !this.loadingSpaces) {
-        return this.spaces;
-      } else {
-        return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0
-            || space.description && space.description.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0 );
-      }
-    },
   },
   watch: {
     keyword() {
@@ -223,18 +215,13 @@ export default {
     },
     searchSpaces() {
       this.$emit('loading-spaces', true);
-      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite';
+      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
       return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
         .then(data => {
           this.spaces = data && data.spaces || [];
           this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
           this.$emit('loaded', data?.size || 0);
           return this.$nextTick();
-        })
-        .then(() => {
-          if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.spaces.length >= this.limitToFetch) {
-            this.limitToFetch += this.pageSize;
-          }
         })
         .finally(() => {
           this.$emit('loading-spaces', false);

@@ -452,7 +452,6 @@
                 <include>portlet/ProfileWorkExperience/Style.less</include>
                 <include>portlet/Search/Style.less</include>
                 <include>portlet/SpaceInfos/Style.less</include>
-                <include>portlet/SpacesAdministration/Style.less</include>
                 <include>portlet/SpacesListExternal/Style.less</include>
                 <include>portlet/SpacesOverview/Style.less</include>
                 <include>portlet/SuggestionsPeopleAndSpace/Style.less</include>
