@@ -104,6 +104,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    selectedTemplateId: {
+      type: String,
+      default: () => '0',
+    },
   },
   data: () => ({
     actionExtensions: [],
@@ -233,6 +237,13 @@ export default {
         this.searchSpaces();
       }
     },
+    selectedTemplateId() {
+      if (this.initialized) {
+        this.offset = 0;
+        this.spaces = [];
+        this.searchSpaces();
+      }
+    },
   }, 
   created() {
     this.searchSpaces();
@@ -251,7 +262,7 @@ export default {
     },
     searchSpaces() {
       this.$emit('loading-spaces', true);
-      return this.$spaceService.getSpaces(this.keyword, this.offset, this.pageSize, this.filter, this.expand)
+      return this.$spaceService.getSpaces(this.keyword, this.offset, this.pageSize, this.filter, this.expand, this.selectedTemplateId && Number(this.selectedTemplateId))
         .then(data => {
           if (this.offset) {
             this.spaces.push(...data.spaces);
