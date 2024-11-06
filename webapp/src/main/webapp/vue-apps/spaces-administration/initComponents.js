@@ -22,6 +22,10 @@ import SpacesAdministrationList from './components/main/SpacesAdministrationList
 import SpacesAdministrationToolbar from './components/main/SpacesAdministrationToolbar.vue';
 
 import SpacesAdministrationItem from './components/item/SpacesAdministrationItem.vue';
+import SpacesAdministrationItemMenu from './components/item/SpacesAdministrationItemMenu.vue';
+
+import SpacesAdministrationDeleteMenuItem from './components/menu-action/SpacesAdministrationDeleteMenuItem.vue';
+import SpacesAdministrationSettingsMenuItem from './components/menu-action/SpacesAdministrationSettingsMenuItem.vue';
 
 import SpacesAdministrationManagersDrawer from './components/drawer/SpacesAdministrationManagersDrawer.vue';
 
@@ -30,6 +34,9 @@ const components = {
   'spaces-administration-toolbar': SpacesAdministrationToolbar,
   'spaces-administration-list': SpacesAdministrationList,
   'spaces-administration-item': SpacesAdministrationItem,
+  'spaces-administration-item-menu': SpacesAdministrationItemMenu,
+  'spaces-administration-delete-menu-item': SpacesAdministrationDeleteMenuItem,
+  'spaces-administration-settings-menu-item': SpacesAdministrationSettingsMenuItem,
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
 };
 

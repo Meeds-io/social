@@ -31,7 +31,6 @@
         ref="spacesList"
         :keyword="keyword"
         :loading-spaces="loadingSpaces"
-        :spaces-size="spacesSize"
         :selected-template-id="selectedTemplateId"
         class="px-5"
         @loading-spaces="loadingSpaces = $event"
@@ -45,14 +44,12 @@
 export default {
   data: () => ({
     keyword: null,
-    spacesSize: 0,
     loadingSpaces: false,
     initialized: false,
     selectedTemplateId: '0',
   }),
   methods: {
-    spacesLoaded(spacesSize) {
-      this.spacesSize = spacesSize;
+    spacesLoaded() {
       if (!this.initialized) {
         this.$root.$applicationLoaded();
         this.initialized = true;
