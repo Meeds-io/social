@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -26,28 +27,48 @@
       placeholder: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
-    :compact="compactDisplay || $root.isMobile"
+    :right-select-box="{
+      hide: $root.isMobile,
+      selected: selectedTemplateId,
+      items: spaceTemplateItems,
+    }"
+    :filters-count="filtersCount"
+    compact
     class="px-1"
     no-text-truncate
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
-    @filter-button-click="$root.$emit('spaces-list-filter-open', filter)"
+    @filter-select-change="$emit('template-changed', $event)"
     @loading="$emit('loading', $event)" />
 </template>
 <script>
 export default {
   props: {
-    filter: {
+    selectedTemplateId: {
       type: String,
-      default: null,
-    },
-    compactDisplay: {
-      type: Boolean,
-      default: false
+      default: () => '0',
     },
   },
   data: () => ({
     loading: 0,
   }),
+  computed: {
+    filtersCount() {
+      return this.selectedTemplateId === '0' ? 0 : 1;
+    },
+    spaceTemplateItems() {
+      const spaceTemplateItems = [{
+        text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.all'),
+        value: '0',
+      }];
+      if (this.$root.spaceTemplates?.length) {
+        spaceTemplateItems.push(...this.$root.spaceTemplates.map(t => ({
+          text: t.name,
+          value: t.id,
+        })));
+      }
+      return spaceTemplateItems;
+    },
+  },
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
     this.$root.$on('space-list-pending-updated', this.refresh);
