@@ -33,11 +33,12 @@
         :loading-spaces="loadingSpaces"
         :spaces-size="spacesSize"
         :selected-template-id="selectedTemplateId"
-        class="px-3"
+        class="px-5"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
     </v-main>
     <spaces-administration-managers-drawer />
+    <space-form-drawer />
   </v-app>    
 </template>
 <script>
