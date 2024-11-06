@@ -41,6 +41,11 @@ export function init() {
         spaceTemplates: null,
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
+      computed: {
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
+      },
       created() {
         this.refreshSpaceTemplates();
       },
