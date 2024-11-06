@@ -22,52 +22,30 @@
 <template>
   <v-app>
     <v-main class="application-body">
-      <spaces-toolbar
-        :filter="filter"
-        :filter-message="$t('spacesList.label.spacesSize', {0: spacesSize})"
-        :filters-count="filtersCount"
-        :can-create-space="canCreateSpace"
+      <spaces-administration-toolbar
         compact-display
         @keyword-changed="keyword = $event"
         @loading="loadingSpaces = loadingSpaces || $event" />
-      <spaces-card-list
+      <spaces-administration-list
         ref="spacesList"
         :keyword="keyword"
-        :filter="filter"
         :loading-spaces="loadingSpaces"
         :spaces-size="spacesSize"
         class="px-3"
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
     </v-main>
-    <spaces-list-filter-drawer />
-    <space-form-drawer />
-    <spaces-pending-drawer />
+    <spaces-administration-managers-drawer />
   </v-app>    
 </template>
 <script>
 export default {
-  props: {
-    canCreateSpace: {
-      type: Boolean,
-      default: false,
-    },
-    filter: {
-      type: String,
-      default: null,
-    },
-  },
   data: () => ({
     keyword: null,
     spacesSize: 0,
     loadingSpaces: false,
     initialized: false,
   }),
-  computed: {
-    filtersCount() {
-      return this.filter !== 'all' ? 1 : 0;
-    },
-  },
   methods: {
     spacesLoaded(spacesSize) {
       this.spacesSize = spacesSize;
