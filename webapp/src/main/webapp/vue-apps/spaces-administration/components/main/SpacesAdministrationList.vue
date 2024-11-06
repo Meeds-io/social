@@ -37,7 +37,7 @@
         must-sort
         disable-pagination
         hide-default-footer
-        class="pageTemplatesTable px-5">
+        class="spacesAdministrationTable px-0">
         <template slot="item" slot-scope="props">
           <spaces-administration-item
             :key="props.item.id"
