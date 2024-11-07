@@ -24,20 +24,39 @@ import SpacesAdministrationToolbar from './components/main/SpacesAdministrationT
 import SpacesAdministrationItem from './components/item/SpacesAdministrationItem.vue';
 import SpacesAdministrationItemMenu from './components/item/SpacesAdministrationItemMenu.vue';
 
+import SpacesAdministrationPermissions from './components/form/SpacesAdministrationPermissions.vue';
+
 import SpacesAdministrationDeleteMenuItem from './components/menu-action/SpacesAdministrationDeleteMenuItem.vue';
 import SpacesAdministrationSettingsMenuItem from './components/menu-action/SpacesAdministrationSettingsMenuItem.vue';
+import SpacesAdministrationSynMembersMenuItem from './components/menu-action/SpacesAdministrationSynMembersMenuItem.vue';
+
+import SpacesAdministrationBindingReportItem from './components/binding-report/SpacesAdministrationBindingReportItem.vue';
+import SpacesAdministrationBindingReportList from './components/binding-report/SpacesAdministrationBindingReportList.vue';
 
 import SpacesAdministrationManagersDrawer from './components/drawer/SpacesAdministrationManagersDrawer.vue';
+import SpacesAdministrationSyncMembersDrawer from './components/drawer/SpacesAdministrationSyncMembersDrawer.vue';
+import SpacesAdministrationSyncReportsDrawer from './components/drawer/SpacesAdministrationSyncReportsDrawer.vue';
 
 const components = {
   'spaces-administration': SpacesAdministration,
   'spaces-administration-toolbar': SpacesAdministrationToolbar,
+
   'spaces-administration-list': SpacesAdministrationList,
   'spaces-administration-item': SpacesAdministrationItem,
   'spaces-administration-item-menu': SpacesAdministrationItemMenu,
+
+  'spaces-administration-binding-report-list': SpacesAdministrationBindingReportList,
+  'spaces-administration-binding-report-item': SpacesAdministrationBindingReportItem,
+
+  'spaces-administration-permissions': SpacesAdministrationPermissions,
+
   'spaces-administration-delete-menu-item': SpacesAdministrationDeleteMenuItem,
   'spaces-administration-settings-menu-item': SpacesAdministrationSettingsMenuItem,
+  'spaces-administration-sync-members-menu-item': SpacesAdministrationSynMembersMenuItem,
+
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
+  'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
+  'spaces-administration-sync-reports-drawer': SpacesAdministrationSyncReportsDrawer,
 };
 
 for (const key in components) {

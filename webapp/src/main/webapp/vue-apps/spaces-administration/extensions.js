@@ -21,8 +21,21 @@ extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   name: 'open-settings',
   componentName: 'spaces-administration-settings-menu-item',
 });
+
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   rank: 20,
+  name: 'sync-members',
+  componentName: 'spaces-administration-sync-members-menu-item',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
+  rank: 40,
   name: 'delete',
   componentName: 'spaces-administration-delete-menu-item',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'main', {
+  rank: 10,
+  name: 'sync-members',
+  componentName: 'spaces-administration-sync-members-drawer',
 });
