@@ -142,9 +142,11 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     return groupSpaceBindingStorage.getGroupSpaceBindingReportOperations();
   }
 
-  /**
-   * {@inheritDoc}
-   */
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations(String spaceId) {
+    return groupSpaceBindingStorage.getGroupSpaceBindingReportOperations(spaceId);
+  }
+
   @Override
   public List<UserSpaceBinding> findUserBindingsByGroup(String group, String userName) {
     LOG.debug("Retrieving user bindings for user : " + userName + " with group : " + group);
