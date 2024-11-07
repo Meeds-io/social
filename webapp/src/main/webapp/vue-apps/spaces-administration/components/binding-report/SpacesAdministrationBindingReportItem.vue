@@ -95,7 +95,7 @@ export default {
     async download() {
       this.downloading = true;
       try {
-        await this.$spacesAdministrationServices.getReport(
+        await this.$spaceBindingService.getReport(
           this.operation.space.id,
           this.operation.operationType,
           this.operation.group.id,
