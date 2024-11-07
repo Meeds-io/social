@@ -139,6 +139,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
     showOverlay: {
       type: Boolean,
       default: false,
@@ -246,7 +250,7 @@ export default {
         }
       }
       this.$emit('input', this.drawer);
-      this.expand = false;
+      this.expand = this.expanded;
     },
   },
   created() {
@@ -284,6 +288,7 @@ export default {
         // opened drawers
         this.mountOnParent();
         this.$nextTick().then(() => this.drawer = true);
+        this.expand = this.expanded;
       } else {
         this.drawer = true;
       }

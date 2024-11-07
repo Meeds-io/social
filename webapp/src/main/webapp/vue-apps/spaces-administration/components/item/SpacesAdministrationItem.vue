@@ -70,8 +70,7 @@
         :margin-left="space.managersCount > 1 && 'ml-n5' || ''"
         :icon-size="33"
         :max="3"
-        :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="absolute-vertical-center"
+        class="absolute-all-center"
         compact
         clickable
         popover
@@ -87,7 +86,8 @@
       width="50px">
       <v-btn
         :title="bindingStatusTitle"
-        icon>
+        icon
+        @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
         <v-icon :class="boundToGroup && 'success--text'" size="20">fa-users</v-icon>
       </v-btn>
     </td>
@@ -126,7 +126,7 @@ export default {
       return managers;
     },
     boundToGroup() {
-      return this.space.hasBinding;
+      return this.space.hasBindings;
     },
     totalBoundUsers() {
       return this.space.totalBoundUsers > 1000 ? `${parseInt(this.space.totalBoundUsers)}K` : this.space.totalBoundUsers || 0;

@@ -148,7 +148,7 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testCountFavorites() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, null, true, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, null, true, null, null);
     when(client.countRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
                                                 && hasPermissionQueryPart(esQuery, MEMBER, 1, USER_NAME)),
                              eq(index))).thenReturn(COUNT_RESULT);
@@ -157,7 +157,7 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testSearchFavorites() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, null, true, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, null, true, null, null);
     when(client.sendRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, MEMBER, 1, USER_NAME)),
                             eq(index))).thenReturn(SEARCH_RESULT);
@@ -176,6 +176,7 @@ public class SpaceSearchConnectorTest {
     assertThrows(IllegalArgumentException.class,
                  () -> spaceSearchConnector.search(new SpaceSearchFilter(USER_NAME,
                                                                          USER_IDENTITY_ID,
+                                                                         0,
                                                                          null,
                                                                          false,
                                                                          null,
@@ -216,7 +217,7 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testSearchSpaceNoMembership() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, PHRASE, false, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, PHRASE, false, null, null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery,
                                                                          PERMISSIONS_FIELD,
@@ -237,7 +238,13 @@ public class SpaceSearchConnectorTest {
   @Test
   public void testSearchTags() {
     SpaceSearchFilter filter =
-                             new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, null, false, Arrays.asList("tag1", "tag2"), null);
+                             new SpaceSearchFilter(USER_NAME,
+                                                   USER_IDENTITY_ID,
+                                                   0,
+                                                   null,
+                                                   false,
+                                                   Arrays.asList("tag1", "tag2"),
+                                                   null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, PERMISSIONS_FIELD, 2, "all", USER_NAME)
                                                && hasTagsQueryPart(esQuery, 2, "tag1", "tag2")),
@@ -253,7 +260,7 @@ public class SpaceSearchConnectorTest {
   }
 
   private void checkPermissionField(SpaceMembershipStatus status, String fieldName) {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, TERM, false, null, status);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, TERM, false, null, status);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, fieldName, 1, USER_NAME)),
                             eq(index))).thenReturn(SEARCH_RESULT);
