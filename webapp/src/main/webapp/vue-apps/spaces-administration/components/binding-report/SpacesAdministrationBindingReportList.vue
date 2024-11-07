@@ -48,7 +48,40 @@ export default {
   },
   computed: {
     headers() {
-      return [
+      return this.$root.isMobile && [
+        {
+          text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
+          value: 'group.name',
+          align: 'left',
+          sortable: false,
+          class: 'pe-0',
+          width: '120px'
+        },
+        {
+          text: this.$t('social.spaces.administration.binding.reports.table.title.added.users'),
+          value: 'addedUsers',
+          align: 'center',
+          sortable: false,
+          class: 'px-1',
+          width: '90px'
+        },
+        {
+          text: this.$t('social.spaces.administration.binding.reports.table.title.removed.users'),
+          value: 'removedUsers',
+          align: 'center',
+          sortable: false,
+          class: 'px-1',
+          width: '90px'
+        },
+        {
+          text: this.$t('social.spaces.administration.binding.reports.table.title.File'),
+          value: 'id',
+          align: 'center',
+          sortable: false,
+          class: 'px-1',
+          width: '60px'
+        }
+      ] || [
         {
           text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
           value: 'group.name',
@@ -95,7 +128,7 @@ export default {
           align: 'center',
           sortable: false,
           class: 'px-1',
-          width: '60px'
+          width: '90px'
         },
         {
           text: this.$t('social.spaces.administration.binding.reports.table.title.File'),

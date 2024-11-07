@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,7 +54,6 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 
 import io.meeds.social.space.constant.Registration;
 import io.meeds.social.space.constant.Visibility;
@@ -87,9 +87,6 @@ public class SpaceTemplateServiceTest {
   protected UserPortalConfigService     userPortalConfigService;
 
   @Mock
-  protected SpacesAdministrationService spacesAdministrationService;
-
-  @Mock
   protected LayoutService               layoutService;
 
   @Mock
@@ -121,7 +118,6 @@ public class SpaceTemplateServiceTest {
                                                     navigationService,
                                                     listenerService,
                                                     userAcl,
-                                                    spacesAdministrationService,
                                                     spaceTemplateStorage);
   }
 
@@ -270,7 +266,9 @@ public class SpaceTemplateServiceTest {
   }
 
   private void setCanManageTemplate(boolean hasAccess) {
-    when(spacesAdministrationService.isSuperManager(TEST_USER)).thenReturn(hasAccess);
+    Identity identity = mock(Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER)).thenReturn(identity);
+    when(userAcl.isAdministrator(identity)).thenReturn(hasAccess);
   }
 
   private SpaceTemplate newSpaceTemplate(long id) {

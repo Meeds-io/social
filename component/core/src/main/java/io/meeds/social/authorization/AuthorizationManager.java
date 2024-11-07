@@ -18,10 +18,8 @@
  */
 package io.meeds.social.authorization;
 
-import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
@@ -29,9 +27,7 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -41,9 +37,6 @@ import io.meeds.social.space.template.service.SpaceTemplateService;
 import lombok.Setter;
 
 public class AuthorizationManager extends UserACL {
-
-  @Setter
-  private SpacesAdministrationService spacesAdministrationService;
 
   @Setter
   private SpaceService                spaceService;
@@ -88,23 +81,13 @@ public class AuthorizationManager extends UserACL {
     if (isAdministrator(identity)) {
       return true;
     } else {
-      List<MembershipEntry> spacesAdministrators = getSpacesAdministrationService().getSpacesAdministratorsMemberships();
-      return CollectionUtils.isNotEmpty(spacesAdministrators)
-             && spacesAdministrators.stream()
-                                    .anyMatch(permission -> isMemberOf(identity, permission.toString()));
+      return getSpaceService().isSuperManager(identity.getUserId());
     }
   }
 
   private boolean isSpaceSite(String ownerType, String ownerId) {
     return PortalConfig.GROUP_TYPE.equalsIgnoreCase(ownerType)
            && StringUtils.startsWith(ownerId, SpaceUtils.SPACE_GROUP_PREFIX);
-  }
-
-  private SpacesAdministrationService getSpacesAdministrationService() {
-    if (spacesAdministrationService == null) {
-      spacesAdministrationService = ExoContainerContext.getService(SpacesAdministrationService.class);
-    }
-    return spacesAdministrationService;
   }
 
   private SpaceService getSpaceService() {

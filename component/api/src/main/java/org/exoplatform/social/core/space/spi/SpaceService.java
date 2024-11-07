@@ -69,6 +69,22 @@ public interface SpaceService {
    * @since 1.2.0-GA
    */
   default Space getSpaceById(String spaceId) {
+    try {
+      return getSpaceById(Long.parseLong(spaceId));
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Gets a space by its Id.
+   *
+   * @param spaceId Id of the space.
+   * @return The space.
+   * @LevelAPI Platform
+   * @since 1.2.0-GA
+   */
+  default Space getSpaceById(long spaceId) {
     throw new UnsupportedOperationException();
   }
 
