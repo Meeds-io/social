@@ -31,10 +31,8 @@
         :headers="headers"
         :items="spaces"
         :loading="loadingSpaces"
-        :disable-sort="$root.isMobile"
         :hide-default-header="$root.isMobile"
-        :custom-sort="applySortOnItems"
-        must-sort
+        disable-sort
         disable-pagination
         hide-default-footer
         class="spacesAdministrationTable px-0">
@@ -144,7 +142,7 @@ export default {
           text: this.$t('social.spaces.administration.manageSpaces.name'),
           value: 'displayName',
           align: 'left',
-          sortable: true,
+          sortable: false,
           class: 'space-name-header pe-0',
           width: 'auto'
         },
@@ -160,7 +158,7 @@ export default {
           text: this.$t('social.spaces.administration.manageSpaces.template'),
           value: 'templateId',
           align: 'center',
-          sortable: true,
+          sortable: false,
           class: 'space-template-header px-1',
           width: '120px'
         },

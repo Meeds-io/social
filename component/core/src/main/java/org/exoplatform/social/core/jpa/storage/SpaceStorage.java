@@ -366,13 +366,7 @@ public class SpaceStorage {
     return fillSpaceFromEntity(entity);
   }
 
-  public Space getSpaceById(String id) throws SpaceStorageException {
-    Long spaceId;
-    try {
-      spaceId = Long.parseLong(id);
-    } catch (Exception ex) {
-      return null;
-    }
+  public Space getSpaceById(long spaceId) throws SpaceStorageException {
     SpaceEntity entity = spaceDAO.find(spaceId);
     return fillSpaceFromEntity(entity);
   }
@@ -508,7 +502,7 @@ public class SpaceStorage {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
       }
     }
-    return getSpaceById(String.valueOf(entity.getId()));
+    return getSpaceById(entity.getId());
   }
 
   @ExoTransactional
@@ -749,7 +743,7 @@ public class SpaceStorage {
     List<Space> spaces = new LinkedList<>();
     if (ids != null) {
       for (Long id : ids) {
-        spaces.add(getSpaceById(String.valueOf(id)));
+        spaces.add(getSpaceById(id));
       }
     }
     return spaces;

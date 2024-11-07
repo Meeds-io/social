@@ -85,7 +85,6 @@ import org.exoplatform.social.core.space.SpaceLifecycle;
 import org.exoplatform.social.core.space.SpaceListAccess;
 import org.exoplatform.social.core.space.SpaceListAccessType;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
@@ -116,8 +115,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   private UserACL                     userAcl;
 
-  private SpacesAdministrationService spacesAdministrationService;
-
   private ResourceBundleService       resourceBundleService;
 
   private LocaleConfigService         localeConfigService;
@@ -134,7 +131,6 @@ public class SpaceServiceImpl implements SpaceService {
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
                           SpaceSearchConnector spaceSearchConnector,
                           IdentityManager identityManager,
-                          SpacesAdministrationService spacesAdministrationService,
                           UserACL userAcl,
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
@@ -143,7 +139,6 @@ public class SpaceServiceImpl implements SpaceService {
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
     this.identityManager = identityManager;
-    this.spacesAdministrationService = spacesAdministrationService;
     this.userAcl = userAcl;
     this.resourceBundleService = resourceBundleService;
     this.localeConfigService = localeConfigService;
@@ -171,8 +166,8 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public Space getSpaceById(String id) {
-    return spaceStorage.getSpaceById(id);
+  public Space getSpaceById(long spaceId) {
+    return spaceStorage.getSpaceById(spaceId);
   }
 
   @Override
@@ -790,7 +785,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public Space updateSpace(Space space, List<Identity> identitiesToInvite) {
-    Space storedSpace = spaceStorage.getSpaceById(space.getId());
+    Space storedSpace = spaceStorage.getSpaceById(space.getSpaceId());
     spaceStorage.saveSpace(space, false);
     triggerSpaceUpdate(space, storedSpace);
 
@@ -815,7 +810,7 @@ public class SpaceServiceImpl implements SpaceService {
     identityManager.updateProfile(profile);
     spaceLifeCycle.spaceAvatarEdited(existingSpace, existingSpace.getEditor());
 
-    existingSpace = spaceStorage.getSpaceById(existingSpace.getId());
+    existingSpace = spaceStorage.getSpaceById(existingSpace.getSpaceId());
     existingSpace.setAvatarLastUpdated(System.currentTimeMillis());
     spaceStorage.saveSpace(existingSpace, false);
     return existingSpace;
@@ -836,7 +831,7 @@ public class SpaceServiceImpl implements SpaceService {
       }
       identityManager.updateProfile(profile);
 
-      existingSpace = spaceStorage.getSpaceById(existingSpace.getId());
+      existingSpace = spaceStorage.getSpaceById(existingSpace.getSpaceId());
       existingSpace.setBannerLastUpdated(System.currentTimeMillis());
       spaceStorage.saveSpace(existingSpace, false);
 
@@ -919,7 +914,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public boolean isSuperManager(String username) {
-    return spacesAdministrationService.isSuperManager(username);
+    return userAcl.isAdministrator(userAcl.getUserIdentity(username));
   }
 
   @Override
