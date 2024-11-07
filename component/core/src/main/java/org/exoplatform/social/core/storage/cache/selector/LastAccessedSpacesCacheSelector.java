@@ -57,12 +57,12 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
       ListSpacesData listSpacesData = objectCacheInfo.get();
       List<SpaceKey> ids = listSpacesData.getIds();
       if (ids != null && !ids.isEmpty()) {
-        if (ids.get(0).getId().equals(space.getId())) {
+        if (ids.get(0).getId() == space.getSpaceId()) {
           updateStore = false;
           return;
         } else if (listSpacesKey.getOffset() == 0
                    && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())) {
-          SpaceKey spaceKey = new SpaceKey(space.getId());
+          SpaceKey spaceKey = new SpaceKey(space.getSpaceId());
           ids = new ArrayList<>(ids);
           if (ids.contains(spaceKey)) {
             ids.remove(spaceKey);

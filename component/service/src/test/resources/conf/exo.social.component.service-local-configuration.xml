@@ -38,11 +38,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
-    <type>org.exoplatform.social.service.test.MockSpacesAdministrationService</type>
-  </component>
-
-  <component>
     <key>org.exoplatform.commons.api.notification.service.storage.WebNotificationStorage</key>
     <type>org.exoplatform.social.webNotification.service.test.MockWebNotificationStorage</type>
   </component>
