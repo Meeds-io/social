@@ -66,9 +66,6 @@
     <type>org.exoplatform.social.rest.impl.binding.GroupSpaceBindingRest</type>
   </component>
   <component>
-    <type>org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRest</type>
-  </component>
-  <component>
     <type>org.exoplatform.social.rest.impl.favorite.FavoriteRest</type>
   </component>
   <component>

@@ -41,7 +41,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
@@ -71,8 +70,6 @@ public class SpaceTemplateService {
 
   private AttachmentService           attachmentService;
 
-  private SpacesAdministrationService spacesAdministrationService;
-
   private UserACL                     userAcl;
 
   private SpaceTemplateStorage        spaceTemplateStorage;
@@ -92,13 +89,11 @@ public class SpaceTemplateService {
                               NavigationService navigationService,
                               ListenerService listenerService,
                               UserACL userAcl,
-                              SpacesAdministrationService spacesAdministrationService,
                               SpaceTemplateStorage spaceTemplateStorage) {
     this.userPortalConfigService = userPortalConfigService;
     this.translationService = translationService;
     this.attachmentService = attachmentService;
     this.userAcl = userAcl;
-    this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateStorage = spaceTemplateStorage;
     this.layoutService = layoutService;
     this.navigationService = navigationService;
@@ -170,7 +165,7 @@ public class SpaceTemplateService {
   }
 
   public boolean canManageTemplates(String username) {
-    return spacesAdministrationService.isSuperManager(username);
+    return userAcl.isAdministrator(userAcl.getUserIdentity(username));
   }
 
   public boolean canViewTemplate(long templateId, String username) {
