@@ -105,6 +105,14 @@ public class SpaceSearchConnector {
       }
       """;
 
+  public static final String           TEMPLATE_ID_QUERY             = """
+      {
+        "terms":{
+          "templateId": [@templateId@]
+        }
+      }
+      """;
+
   private static final String          TERM_REPLACEMENT              = "@term@";
 
   private static final String          PHRASE_REPLACEMENT            = "@phrase@";
@@ -196,16 +204,25 @@ public class SpaceSearchConnector {
                                      long limit) {
     String termQuery = buildTermQueryStatement(StringUtils.lowerCase(filter.getTerm()));
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
+    String templateQuery = buildTemplateIdQueryStatement(filter);
     String permissionsQuery = buildPermissionsQuery(filter);
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     return query.replace("@term_query@",
                          termQuery)
+                .replace("@template_query@",
+                         templateQuery)
                 .replace("@favorite_query@",
-                         favoriteQuery)
+                         StringUtils.isBlank(templateQuery) || StringUtils.isBlank(favoriteQuery) ? favoriteQuery :
+                                                                                                  String.format(",%n%s",
+                                                                                                                favoriteQuery))
+                .replace("@permissions_query@",
+                         StringUtils.isBlank(permissionsQuery)
+                                                || (StringUtils.isBlank(favoriteQuery) && StringUtils.isBlank(templateQuery)) ?
+                                                                                                                              permissionsQuery :
+                                                                                                                              String.format(",%n%s",
+                                                                                                                                            permissionsQuery))
                 .replace("@tags_query@",
                          tagsQuery)
-                .replace("@permissions_query@",
-                         StringUtils.isBlank(favoriteQuery) ? permissionsQuery : String.format(",%n%s", permissionsQuery))
                 .replace("@offset@",
                          String.valueOf(offset))
                 .replace("@limit@",
@@ -303,7 +320,8 @@ public class SpaceSearchConnector {
   private Map<String, List<String>> buildMetadatasFilter(SpaceSearchFilter filter) {
     Map<String, List<String>> metadataFilters = new HashMap<>();
     if (filter.isFavorites()) {
-      metadataFilters.put(FavoriteService.METADATA_TYPE.getName(), Collections.singletonList(String.valueOf(filter.getUserIdentityId())));
+      metadataFilters.put(FavoriteService.METADATA_TYPE.getName(),
+                          Collections.singletonList(String.valueOf(filter.getUserIdentityId())));
     }
     if (CollectionUtils.isNotEmpty(filter.getTagNames())) {
       metadataFilters.put(TagService.METADATA_TYPE.getName(), filter.getTagNames());
@@ -375,6 +393,14 @@ public class SpaceSearchConnector {
                             .replace(PERMISSIONS_REPLACEMENT,
                                      permissionField == null ? String.format("[\"all\", \"%s\"]", username) :
                                                              String.format("[\"%s\"]", username));
+  }
+
+  private String buildTemplateIdQueryStatement(SpaceSearchFilter filter) {
+    if (filter.getTemplateId() > 0) {
+      return TEMPLATE_ID_QUERY.replace("@templateId@", String.valueOf(filter.getTemplateId()));
+    } else {
+      return StringUtils.EMPTY;
+    }
   }
 
   private String getPermissionField(SpaceSearchFilter filter) {
