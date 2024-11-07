@@ -42,4 +42,6 @@ public interface GroupSpaceBindingReportActionDAO extends GenericDAO<GroupSpaceB
    * @return
    */
   List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportActionsOrderedByEndDate();
+
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportActionsOrderedByEndDate(String spaceId);
 }
