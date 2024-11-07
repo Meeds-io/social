@@ -64,7 +64,6 @@ export default {
         this.$root.$emit('spaces-administration-list-refresh');
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletedSuccessfully'), 'success');
       } catch (e) {
-        console.error(e);
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletionError', {0: this.space.displayName}), 'error');
       } finally {
         this.$emit('loading', false);

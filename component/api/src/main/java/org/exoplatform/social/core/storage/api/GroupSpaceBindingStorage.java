@@ -242,7 +242,9 @@ public interface GroupSpaceBindingStorage {
    * @return
    */
   List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
-  
+
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations(String spaceId);
+
   void saveGroupSpaceBindingReportUser(GroupSpaceBindingReportUser groupSpaceBindingReportUser);
 
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction bindingReportAction);
@@ -257,5 +259,5 @@ public interface GroupSpaceBindingStorage {
   List<GroupSpaceBindingQueue> findAllGroupSpaceBindingQueue();
   List<GroupSpaceBindingReportAction> findAllGroupSpaceBindingReportAction();
   List<GroupSpaceBindingReportUser> findAllGroupSpaceBindingReportUser();
-  
+
 }
