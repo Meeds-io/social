@@ -42,7 +42,7 @@
     <template v-if="!$root.isMobile" #left>
       <v-btn
         id="applicationToolbarLeftButton"
-        :aria-label="$t('social.spaces.administration.manageSpaces.spaceTemplates.add')"
+        :aria-label="$t('social.spaces.administration.manageSpaces.spaces.add')"
         :class="$root.isMobile && 'px-0'"
         class="btn btn-primary text-truncate"
         @click="$root.$emit('addNewSpace')">
@@ -53,7 +53,7 @@
         <span
           v-if="!$root.isMobile"
           class="text-truncate text-none ms-2">
-          {{ $t('social.spaces.administration.manageSpaces.spaceTemplates.add') }}
+          {{ $t('social.spaces.administration.manageSpaces.spaces.add') }}
         </span>
       </v-btn>
     </template>

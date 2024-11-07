@@ -64,7 +64,7 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 public class CachedSpaceStorage extends SpaceStorage {
 
   private static final SpaceKey                                                                    EMPTY_SPACE_KEY =
-                                                                                                                   new SpaceKey("0");
+                                                                                                                   new SpaceKey(0);
 
   /** Logger */
   private static final Log                                                                         LOG             =
@@ -155,7 +155,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     } else {
       List<String> identityIds = new ArrayList<>();
       for (SpaceKey k : data.getIds()) {
-        identityIds.add(k.getId());
+        identityIds.add(String.valueOf(k.getId()));
       }
       return identityIds;
     }
@@ -193,24 +193,24 @@ public class CachedSpaceStorage extends SpaceStorage {
   /**
    * Build the ids from the space identity id list.
    *
-   * @param identities identities
+   * @param spaceIds identities
    * @return identities
    */
-  private ListSpacesData buildListIdentityIds(List<String> identities) {
+  private ListSpacesData buildListIdentityIds(List<String> spaceIds) {
     List<SpaceKey> data = new ArrayList<>();
-    for (String identityId : identities) {
-      SpaceKey k = new SpaceKey(identityId);
+    for (String spaceId : spaceIds) {
+      SpaceKey k = new SpaceKey(Long.parseLong(spaceId));
       data.add(k);
     }
     return new ListSpacesData(data);
   }
 
   @Override
-  public Space saveSpace(final Space space, final boolean isNew)  {
+  public Space saveSpace(final Space space, final boolean isNew) {
     try {
       return super.saveSpace(space, isNew);
     } finally {
-      spaceCache.remove(new SpaceKey(space.getId()));
+      spaceCache.remove(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
       clearIdentityCache();
       cleanRef(space);
@@ -241,7 +241,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     cachedActivityStorage.clearOwnerStreamCache(oldPrettyName);
 
     // remove space cached
-    spaceCache.remove(new SpaceKey(space.getId()));
+    spaceCache.remove(new SpaceKey(space.getSpaceId()));
     clearSpaceCache();
     clearIdentityCache();
     cleanRef(space);
@@ -253,11 +253,11 @@ public class CachedSpaceStorage extends SpaceStorage {
   public void deleteSpace(final String id) throws SpaceStorageException {
 
     //
-    Space space = getSpaceById(id);
+    Space space = getSpaceById(Long.parseLong(id));
     super.deleteSpace(id);
 
     //
-    spaceCache.remove(new SpaceKey(id));
+    spaceCache.remove(new SpaceKey(Long.parseLong(id)));
     clearSpaceCache();
     cleanRef(space);
 
@@ -271,7 +271,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     try {
       super.ignoreSpace(spaceId, userId);
     } finally {
-      SpaceData spaceData = spaceCache.remove(new SpaceKey(spaceId));
+      SpaceData spaceData = spaceCache.remove(new SpaceKey(Long.parseLong(spaceId)));
       if (spaceData != null) {
         Space space = spaceData.build();
         clearSpaceCache();
@@ -554,7 +554,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public Space getSpaceById(final String id) throws SpaceStorageException {
+  public Space getSpaceById(long id) throws SpaceStorageException {
 
     //
     SpaceKey key = new SpaceKey(id);
@@ -595,7 +595,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     }, refKey);
 
     //
-    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
+    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() > 0) {
       return getSpaceById(key.getId());
     } else {
       return null;
@@ -620,7 +620,7 @@ public class CachedSpaceStorage extends SpaceStorage {
     }, refKey);
 
     //
-    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() != null) {
+    if (key != null && key != SpaceKey.NULL_OBJECT && key.getId() > 0) {
       return getSpaceById(key.getId());
     } else {
       return null;
@@ -757,7 +757,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   public void clearSpaceCached(String spaceId) {
-    SpaceKey cacheKey = new SpaceKey(spaceId);
+    SpaceKey cacheKey = new SpaceKey(Long.parseLong(spaceId));
     SpaceData cachedSpace = spaceCache.get(cacheKey);
     if (cachedSpace != null) {
       Space space = cachedSpace.build();
@@ -778,7 +778,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   private SpaceKey putSpaceInCacheIfNotExists(Space space) {
-    SpaceKey key = new SpaceKey(space.getId());
+    SpaceKey key = new SpaceKey(space.getSpaceId());
     if (spaceCache.get(key) == null) {
       spaceCache.putLocal(key, new SpaceData(space));
     }

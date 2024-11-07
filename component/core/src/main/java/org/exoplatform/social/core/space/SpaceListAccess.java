@@ -176,7 +176,6 @@ public class SpaceListAccess implements ListAccess<Space> {
       List<SpaceSearchResult> spaces = spaceSearchConnector.search(searchFilter, offset, limit);
       listSpaces = spaces.stream()
                          .map(SpaceSearchResult::getId)
-                         .map(String::valueOf)
                          .map(spaceStorage::getSpaceById)
                          .filter(Objects::nonNull)
                          .toList();
@@ -239,7 +238,7 @@ public class SpaceListAccess implements ListAccess<Space> {
         // to retrieve contents
         List<Space> pendingSpaceRequestsToManage = spaceStorage.getPendingSpaceRequestsToManage(userId, offset, limit);
         listSpaces = pendingSpaceRequestsToManage.stream().map(space -> {
-          Space storedSpace = spaceStorage.getSpaceById(space.getId());
+          Space storedSpace = spaceStorage.getSpaceById(space.getSpaceId());
           storedSpace.setPendingUsers(space.getPendingUsers());
           return storedSpace;
         }).toList();

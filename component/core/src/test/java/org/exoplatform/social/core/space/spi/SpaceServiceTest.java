@@ -65,7 +65,6 @@ import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -81,116 +80,113 @@ import lombok.SneakyThrows;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
-  private static final String           EXTERNAL3_USER_EMAIL         = "external3@external3.com";
+  private static final String EXTERNAL3_USER_EMAIL         = "external3@external3.com";
 
-  private static final String           EXTERNAL2_USER_EMAIL         = "external2@external2.com";
+  private static final String EXTERNAL2_USER_EMAIL         = "external2@external2.com";
 
-  private static final String           EXTERNAL1_USER_EMAIL         = "external1@external1.com";
+  private static final String EXTERNAL1_USER_EMAIL         = "external1@external1.com";
 
-  private static final String           EXTERNAL_USER_EMAIL          = "external@external.com";
+  private static final String EXTERNAL_USER_EMAIL          = "external@external.com";
 
-  private static final String           OTHER_USER_NAME              = "otherUser";
+  private static final String OTHER_USER_NAME              = "otherUser";
 
-  private static final String           MY_SPACE_0_PRETTY_NAME       = "my_space_0";
+  private static final String MY_SPACE_0_PRETTY_NAME       = "my_space_0";
 
-  private static final String           MY_SPACE_DISPLAY_NAME_PREFIX = "my space ";
+  private static final String MY_SPACE_DISPLAY_NAME_PREFIX = "my space ";
 
-  private static final String           TEST_SPACE_DESCRIPTION       = "Space Description for Testing";
+  private static final String TEST_SPACE_DESCRIPTION       = "Space Description for Testing";
 
-  private static final String           TEST_SPACE_DISPLAY_NAME      = "testSpace";
+  private static final String TEST_SPACE_DISPLAY_NAME      = "testSpace";
 
-  private static final String           SPACES_GROUP_PREFIX          = "/spaces/";
+  private static final String SPACES_GROUP_PREFIX          = "/spaces/";
 
-  private static final String           SPACE_DESCRIPTION            = "add new space ";
+  private static final String SPACE_DESCRIPTION            = "add new space ";
 
-  private static final String           SPACE2_DISPLAY_NAME          = "Space2";
+  private static final String SPACE2_DISPLAY_NAME          = "Space2";
 
-  private static final String           SPACE1_DISPLAY_NAME          = "Space1";
+  private static final String SPACE1_DISPLAY_NAME          = "Space1";
 
-  private static final String           SPACE1_NAME                  = "space1";
+  private static final String SPACE1_NAME                  = "space1";
 
-  private static final String           JAMES_NAME                   = "james";
+  private static final String JAMES_NAME                   = "james";
 
-  private static final String           PLATFORM_ADMINISTRATORS      = "/platform/administrators";
+  private static final String PLATFORM_ADMINISTRATORS      = "/platform/administrators";
 
-  private static final String           MEMBER3_NAME                 = "member3";
+  private static final String MEMBER3_NAME                 = "member3";
 
-  private static final String           NEW_PENDING_USER_NAME        = "newPendingUser";
+  private static final String NEW_PENDING_USER_NAME        = "newPendingUser";
 
-  private static final String           NEW_INVITED_USER_NAME        = "newInvitedUser";
+  private static final String NEW_INVITED_USER_NAME        = "newInvitedUser";
 
-  private static final String           HEAR_BREAKER_NAME            = "hearBreaker";
+  private static final String HEAR_BREAKER_NAME            = "hearBreaker";
 
-  private static final String           PAUL_NAME                    = "paul";
+  private static final String PAUL_NAME                    = "paul";
 
-  private static final String           JAME_NAME                    = "jame";
+  private static final String JAME_NAME                    = "jame";
 
-  private static final String           ROOT_NAME                    = "root";
+  private static final String ROOT_NAME                    = "root";
 
-  private static final String           JOHN_NAME                    = "john";
+  private static final String JOHN_NAME                    = "john";
 
-  private static final String           MARY_NAME                    = "mary";
+  private static final String MARY_NAME                    = "mary";
 
-  private static final String           REGISTER1_NAME               = "register1";
+  private static final String REGISTER1_NAME               = "register1";
 
-  private static final String           DRAGON_NAME                  = "dragon";
+  private static final String DRAGON_NAME                  = "dragon";
 
-  private static final String           GHOST_NAME                   = "ghost";
+  private static final String GHOST_NAME                   = "ghost";
 
-  private static final String           RAUL_NAME                    = "raul";
+  private static final String RAUL_NAME                    = "raul";
 
-  private static final String           TOM_NAME                     = "tom";
+  private static final String TOM_NAME                     = "tom";
 
-  private static final String           DEMO_NAME                    = "demo";
+  private static final String DEMO_NAME                    = "demo";
 
-  private static final String           USER_DOT_NEW_NAME            = "user.new";
+  private static final String USER_DOT_NEW_NAME            = "user.new";
 
-  private static final String           USER_NEW_1_NAME              = "user-new.1";
+  private static final String USER_NEW_1_NAME              = "user-new.1";
 
-  private static final String           USER_NEW_NAME                = "user-new";
+  private static final String USER_NEW_NAME                = "user-new";
 
-  private static final String           MEMBER2_NAME                 = "member2";
+  private static final String MEMBER2_NAME                 = "member2";
 
-  private static final String           MEMBER1_NAME                 = "member1";
+  private static final String MEMBER1_NAME                 = "member1";
 
-  private static final String           MANAGER_NAME                 = "manager";
+  private static final String MANAGER_NAME                 = "manager";
 
-  private static final String           HACKER_NAME                  = "hacker";
+  private static final String HACKER_NAME                  = "hacker";
 
-  private static final String           EXTERNAL_USER_NAME           = "externalUser";
+  private static final String EXTERNAL_USER_NAME           = "externalUser";
 
-  private IdentityStorage               identityStorage;
+  private IdentityStorage     identityStorage;
 
-  private OrganizationService           organizationService;
+  private OrganizationService organizationService;
 
-  protected SpacesAdministrationService spacesAdministrationService;
+  private SpaceLayoutService  spaceLayoutService;
 
-  protected SpaceLayoutService          spaceLayoutService;
+  private Identity            tom;
 
-  private Identity                      tom;
+  private Identity            dragon;
 
-  private Identity                      dragon;
+  private Identity            john;
 
-  private Identity                      john;
+  private Identity            mary;
 
-  private Identity                      mary;
+  private Identity            root;
 
-  private Identity                      root;
+  private Identity            hearBreaker;
 
-  private Identity                      hearBreaker;
+  private Identity            newInvitedUser;
 
-  private Identity                      newInvitedUser;
+  private Identity            newPendingUser;
 
-  private Identity                      newPendingUser;
-
-  private Identity                      externalUser;
+  private Identity            externalUser;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
-    spacesAdministrationService = getContainer().getComponentInstanceOfType(SpacesAdministrationService.class);
     spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
 
     Identity userNew = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_NAME);
@@ -838,7 +834,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testCreateSpaceExceedingNameLimit() {
     Space space = new Space();
     String spaceDisplayName =
-        "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
+                            "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
     space.setDisplayName(spaceDisplayName);
     space.setRegistration(Space.OPEN);
     space.setDescription(SPACE_DESCRIPTION);
@@ -1819,17 +1815,11 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse(spaceService.isSuperManager(username));
 
     // Create Super managers group
-    Group group = organizationService.getGroupHandler().createGroupInstance();
-    group.setGroupName("space-managers");
-    organizationService.getGroupHandler().addChild(null, group, true);
-    MembershipType msType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
-    msType.setName("test-ms");
-    organizationService.getMembershipTypeHandler().createMembershipType(msType, true);
-    // Add user to super managers
+    Group group = organizationService.getGroupHandler().findGroupById(PLATFORM_ADMINISTRATORS);
+    MembershipType msType = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MANAGER);
     organizationService.getMembershipHandler().linkMembership(superManager, group, msType, true);
-    // Register group as super administrators
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/space-managers",
-                                                                                                        "test-ms")));
+    restartTransaction();
+
     assertTrue(spaceService.isSuperManager(username));
 
     Space space = createSpace("spacename1", ROOT_NAME);
@@ -1922,21 +1912,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     User user = organizationService.getUserHandler().createUserInstance("user-space-admin");
     organizationService.getUserHandler().createUser(user, false);
-    Group group = organizationService.getGroupHandler().createGroupInstance();
-    group.setGroupName("testgroup");
-    organizationService.getGroupHandler().addChild(null, group, true);
-    MembershipType mstype = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
-    mstype.setName("mstypetest");
-    organizationService.getMembershipTypeHandler().createMembershipType(mstype, true);
-
+    Group group = organizationService.getGroupHandler().findGroupById(PLATFORM_ADMINISTRATORS);
+    MembershipType mstype = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MANAGER);
     organizationService.getMembershipHandler().linkMembership(user, group, mstype, true);
+    restartTransaction();
 
     String userName = user.getUserName();
 
     assertEquals(6, spaceService.getAllSpacesWithListAccess().getSize());
-    assertFalse(spaceService.isSuperManager(userName));
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/testgroup",
-                                                                                                        "mstypetest")));
     assertTrue(spaceService.isSuperManager(userName));
   }
 

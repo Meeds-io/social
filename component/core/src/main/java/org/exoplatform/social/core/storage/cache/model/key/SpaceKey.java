@@ -26,17 +26,17 @@ import java.io.Serializable;
  * @version $Revision$
  */
 public class SpaceKey implements CacheKey, Serializable {
-  private static final long serialVersionUID = -5427340881099936940L;
+  private static final long    serialVersionUID = -5427340881099936940L;
 
-  public static final SpaceKey NULL_OBJECT = new SpaceKey(null);
+  public static final SpaceKey NULL_OBJECT      = new SpaceKey(0);
 
-  private final String id;
+  private final long           id;
 
-  public SpaceKey(final String id) {
+  public SpaceKey(long id) {
     this.id = id;
   }
 
-  public String getId() {
+  public long getId() {
     return id;
   }
 
@@ -45,22 +45,12 @@ public class SpaceKey implements CacheKey, Serializable {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof SpaceKey)) {
-      return false;
-    }
-
-    SpaceKey spaceKey = (SpaceKey) o;
-
-    if (id != null ? !id.equals(spaceKey.id) : spaceKey.id != null) {
-      return false;
-    }
-
-    return true;
+    return o instanceof SpaceKey spaceKey && id == spaceKey.id;
   }
 
   @Override
   public int hashCode() {
-    return id != null ? id.hashCode() : 0;
+    return Long.hashCode(id);
   }
-  
+
 }

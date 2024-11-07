@@ -31,7 +31,6 @@ import org.exoplatform.social.rest.impl.relationship.RelationshipsRestResourcesT
 import org.exoplatform.social.rest.impl.site.SiteRestTest;
 import org.exoplatform.social.rest.impl.space.SpaceRestResourcesTest;
 import org.exoplatform.social.rest.impl.spacemembership.SpaceMembershipRestResourcesTest;
-import org.exoplatform.social.rest.impl.spacesadministration.SpacesAdministrationRestResourcesTest;
 import org.exoplatform.social.rest.impl.users.UserRestResourcesTest;
 import org.exoplatform.social.service.rest.GroupSpaceBindingRestServiceTest;
 import org.exoplatform.social.service.rest.NotificationsRestServiceTest;
@@ -56,7 +55,6 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   RelationshipsRestResourcesTest.class,
   SpaceRestResourcesTest.class,
   SpaceMembershipRestResourcesTest.class,
-  SpacesAdministrationRestResourcesTest.class,
   UserRestResourcesTest.class,
   GroupSpaceBindingRestServiceTest.class,
   FavoriteRestTest.class,
