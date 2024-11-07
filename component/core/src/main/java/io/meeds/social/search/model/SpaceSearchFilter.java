@@ -36,6 +36,8 @@ public class SpaceSearchFilter {
 
   private long                  userIdentityId;
 
+  private long                  templateId;
+
   private String                term;
 
   private boolean               favorites;

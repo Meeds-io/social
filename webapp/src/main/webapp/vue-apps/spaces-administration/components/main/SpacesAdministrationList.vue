@@ -27,7 +27,7 @@
     flat>
     <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
       <v-data-table
-        v-if="spacesSize"
+        v-if="spacesSize || !initialized"
         :headers="headers"
         :items="spaces"
         :loading="loadingSpaces"

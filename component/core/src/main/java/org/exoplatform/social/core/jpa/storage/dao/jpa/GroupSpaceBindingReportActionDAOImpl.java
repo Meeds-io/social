@@ -53,4 +53,14 @@ public class GroupSpaceBindingReportActionDAOImpl extends GenericDAOJPAImpl<Grou
                                                                                               GroupSpaceBindingOperationReport.class);
     return query.getResultList();
   }
+
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportActionsOrderedByEndDate(String spaceId) {
+    TypedQuery<GroupSpaceBindingOperationReport> query =
+                                                       getEntityManager().createNamedQuery("SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperationsBySpaceId",
+                                                                                           GroupSpaceBindingOperationReport.class);
+    query.setParameter("spaceId", spaceId);
+    return query.getResultList();
+  }
+
 }

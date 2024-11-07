@@ -37,7 +37,12 @@
         @loaded="spacesLoaded" />
     </v-main>
     <spaces-administration-managers-drawer />
+    <spaces-administration-sync-reports-drawer />
     <space-form-drawer />
+    <component
+      v-for="extension in $root.mainExtensions"
+      :key="extension.name"
+      :is="extension.componentName" />
   </v-app>    
 </template>
 <script>
