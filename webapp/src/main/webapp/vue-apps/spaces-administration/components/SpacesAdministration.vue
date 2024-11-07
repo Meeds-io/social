@@ -38,6 +38,8 @@
     </v-main>
     <spaces-administration-managers-drawer />
     <spaces-administration-sync-reports-drawer />
+    <spaces-administration-sync-members-drawer />
+    <spaces-administration-permissions-drawer />
     <space-form-drawer />
     <component
       v-for="extension in $root.mainExtensions"
