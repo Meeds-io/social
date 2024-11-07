@@ -36,14 +36,15 @@
   </changeSet>
 
   <changeSet author="links" id="1.0.0-1">
+    <validCheckSum>ANY</validCheckSum>
     <createTable tableName="SOC_LINK_SETTINGS">
       <column name="LINK_SETTING_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_LINK_SETTINGS" />
       </column>
-      <column name="NAME" type="NVARCHAR(255)">
+      <column name="NAME" type="VARCHAR(255)">
         <constraints nullable="false" unique="true" uniqueConstraintName="UK_SOC_LINK_SETTINGS_NAME" />
       </column>
-      <column name="PAGE_REFERENCE" type="NVARCHAR(500)">
+      <column name="PAGE_REFERENCE" type="VARCHAR(500)">
         <constraints nullable="false" />
       </column>
       <column name="TYPE" type="BIGINT" defaultValueNumeric="0">
@@ -53,17 +54,18 @@
       <column name="LARGE_ICON" type="BOOLEAN" defaultValueBoolean="false" />
       <column name="SHOW_NAME" type="BOOLEAN" defaultValueBoolean="false" />
       <column name="SHOW_DESCRIPTION" type="BOOLEAN" defaultValueBoolean="false" />
-      <column name="SEE_MORE_URL" type="NVARCHAR(2000)" />
+      <column name="SEE_MORE_URL" type="VARCHAR(2000)" />
       <column name="LAST_MODIFIED" type="TIMESTAMP" defaultValueDate="${now}">
         <constraints nullable="false" />
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="links" id="1.0.0-2">
+    <validCheckSum>ANY</validCheckSum>
     <createTable tableName="SOC_LINKS">
       <column name="LINK_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_LINKS" />
@@ -71,19 +73,20 @@
       <column name="LINK_SETTING_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_LINKS_SOC_LINK_SETTINGS" references="SOC_LINK_SETTINGS(LINK_SETTING_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
       </column>
-      <column name="URL" type="NVARCHAR(2000)" />
+      <column name="URL" type="VARCHAR(2000)" />
       <column name="SAME_TAB" type="BOOLEAN" defaultValueBoolean="false" />
       <column name="LINK_ORDER" type="INT" defaultValueNumeric="0" />
       <column name="ICON_FILE_ID" type="BIGINT" defaultValueNumeric="0" />
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_unicode_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="links" id="1.0.0-3">
+    <validCheckSum>ANY</validCheckSum>
     <createIndex tableName="SOC_LINK_SETTINGS" indexName="IDX_SOC_LINK_SETTINGS_01">
-      <column name="NAME" type="NVARCHAR(255)"></column>
+      <column name="NAME" type="VARCHAR(255)"></column>
     </createIndex>
     <createIndex tableName="SOC_LINKS" indexName="IDX_SOC_LINKS_01">
       <column name="LINK_SETTING_ID" type="BIGINT"></column>
@@ -96,4 +99,10 @@
     <createSequence sequenceName="SEQ_SOC_LINK_SETTINGS_ID" startValue="1" incrementBy="1" />
   </changeSet>
 
+  <changeSet author="links" id="1.0.0-5">
+    <sql dbms="mysql">
+      ALTER TABLE SOC_LINK_SETTINGS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_LINKS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
