@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -117,7 +116,7 @@ public class GroupSpaceBindingRest implements ResourceContainer {
                                        groupSpaceBindingService.getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE)
                                                                .stream()
                                                                .map(groupSpaceBinding -> groupSpaceBinding.getId())
-                                                               .collect(Collectors.toList());
+                                                               .toList();
 
     List<GroupSpaceBinding> spaceBindings = groupSpaceBindingService.findGroupSpaceBindingsBySpace(spaceId);
 
@@ -221,26 +220,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
     return Response.ok().build();
   }
 
-  @GET
-  @RolesAllowed("administrators")
-  @Produces(MediaType.APPLICATION_JSON)
-  @Path("getGroupsTree")
-  @Operation(summary = "Gets list of groups entities from the parent group root.", method = "GET", description = "Returns a list of group entities in the following cases if the authenticated user is an administrator.")
-  @ApiResponses(value = {
-          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-          @ApiResponse(responseCode = "500", description = "Internal server error"),
-          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getGroupsTree(@Context UriInfo uriInfo) throws Exception {
-    List<DataEntity> groupNodesDataEntities = buildGroupTree();
-
-    CollectionEntity collectionGroupEntity = new CollectionEntity(groupNodesDataEntities,
-                                                                  EntityBuilder.ORGANIZATION_GROUP_TYPE,
-                                                                  0,
-                                                                  10);
-
-    return EntityBuilder.getResponse(collectionGroupEntity, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
   /**
    * {@inheritDoc}
    */
@@ -340,130 +319,6 @@ public class GroupSpaceBindingRest implements ResourceContainer {
     return EntityBuilder.getResponse(collectionBindingReports, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
   }
 
-  private List<DataEntity> buildGroupTree() throws Exception {
-    OrganizationService organizationService = CommonsUtils.getOrganizationService();
-    Collection<Group> allGroups = organizationService.getGroupHandler().getAllGroups();
-    // get rid of space groups
-    List<Group> groups = allGroups.stream().filter(group -> !group.getId().startsWith("/spaces")).collect(Collectors.toList());
-
-    // Find nodes with highest level
-    int highestLevel = 0;
-    for (Group group : groups) {
-      int level = StringUtils.countMatches(group.getId(), "/");
-      highestLevel = highestLevel > level ? highestLevel : level;
-    }
-
-    // convert to group node entities
-    List<GroupNodeEntity> allGroupNodesEntities = new ArrayList<>();
-    for (Group group : groups) {
-      GroupNodeEntity groupNodeEntity = EntityBuilder.buildEntityFromGroup(group);
-      allGroupNodesEntities.add(groupNodeEntity);
-    }
-
-    // Get root child groups. entities
-    List<GroupNodeEntity> rootChildrenEntities = allGroupNodesEntities.stream()
-                                                                      .filter(child -> child.getParentId().equals("root"))
-                                                                      .collect(Collectors.toList());
-    allGroupNodesEntities.removeAll(rootChildrenEntities);
-
-    for (int i = highestLevel; i > 1; i--) {
-
-      // Get bottom group node entities
-      List<GroupNodeEntity> bottomGroupNodesEntities = getBottomGroupEntities(allGroupNodesEntities, i);
-      List<GroupNodeEntity> bottomEntities = new ArrayList<>();
-      bottomEntities.addAll(bottomGroupNodesEntities);
-
-      // Build from children entities.
-      for (GroupNodeEntity groupNodeEntity : bottomGroupNodesEntities) {
-        if (bottomEntities.contains(groupNodeEntity)) {
-          GroupNodeEntity parentEntity = getParentEntityOf(groupNodeEntity, allGroupNodesEntities);
-          // If parent is null then its a direct child of a rootChild.
-          if (parentEntity != null) {
-            allGroupNodesEntities.remove(parentEntity);
-            List<GroupNodeEntity> childrenEntities = getChildrenEntitiesOf(parentEntity, allGroupNodesEntities);
-            parentEntity.setChildGroupNodesEntities(convertToChildrenDataEntities(childrenEntities));
-            // replaceParent
-            allGroupNodesEntities.add(parentEntity);
-            allGroupNodesEntities.removeAll(childrenEntities);
-            bottomEntities.removeAll(childrenEntities);
-          }
-        }
-      }
-    }
-
-    // Finally set rootChildren's children.
-    List<GroupNodeEntity> rootChildGroupNodesEntities = new ArrayList<>();
-    for (GroupNodeEntity rootChildEntity : rootChildrenEntities) {
-      List<GroupNodeEntity> childrenEntities = getChildrenEntitiesOf(rootChildEntity, allGroupNodesEntities);
-      rootChildEntity.setChildGroupNodesEntities(convertToChildrenDataEntities(childrenEntities));
-      rootChildGroupNodesEntities.add(rootChildEntity);
-    }
-
-    // Return list of data entities
-    List<DataEntity> groupNodesDataEntities = new ArrayList<>();
-    for (GroupNodeEntity entity : rootChildGroupNodesEntities) {
-      groupNodesDataEntities.add(entity.getDataEntity());
-    }
-
-    return groupNodesDataEntities;
-
-  }
-
-  private List<GroupNodeEntity> getBottomGroupEntities(List<GroupNodeEntity> allGroupNodesEntities, int highestLevel) {
-    List<GroupNodeEntity> bottomGroupNodesEntities = new ArrayList<>();
-    for (GroupNodeEntity groupNodeEntity : allGroupNodesEntities) {
-      if (StringUtils.countMatches(groupNodeEntity.getId(), "/") == highestLevel) {
-        bottomGroupNodesEntities.add(groupNodeEntity);
-      }
-    }
-    return bottomGroupNodesEntities;
-  }
-
-  private GroupNodeEntity getParentEntityOf(GroupNodeEntity groupNodeEntity, List<GroupNodeEntity> groupNodesEntities) {
-    GroupNodeEntity parentNodeEntity = null;
-    for (GroupNodeEntity parentEntity : groupNodesEntities) {
-      if (parentEntity.getId().equals(groupNodeEntity.getParentId())) {
-        parentNodeEntity = parentEntity;
-      }
-    }
-    return parentNodeEntity;
-  }
-
-  private List<GroupNodeEntity> getChildrenEntitiesOf(GroupNodeEntity groupNodeEntity, List<GroupNodeEntity> groupNodeEntities) {
-    List<GroupNodeEntity> childrenEntities = new ArrayList<>();
-    for (GroupNodeEntity childEntity : groupNodeEntities) {
-      if (childEntity.getParentId().equals(groupNodeEntity.getId())) {
-        childrenEntities.add(childEntity);
-      }
-    }
-    return childrenEntities;
-  }
-
-  private List<DataEntity> convertToChildrenDataEntities(List<GroupNodeEntity> childrenEntities) {
-    List<DataEntity> childrenDataEntities = new ArrayList<>();
-    for (GroupNodeEntity childGroupNodeEntity : childrenEntities) {
-      childrenDataEntities.add(childGroupNodeEntity.getDataEntity());
-    }
-    return childrenDataEntities;
-  }
-
-  private List<GroupSpaceBindingOperationReport> convertBindingQueueListToReportOperations(List<GroupSpaceBindingQueue> bindingQueueList) {
-    List<GroupSpaceBindingOperationReport> bindingOperationReports =
-                                                                   bindingQueueList.stream()
-                                                                                   .map(bindingQueue -> convertBindingQueueToOperationReport(bindingQueue))
-                                                                                   .collect(Collectors.toList());
-    return bindingOperationReports;
-  }
-
-  private GroupSpaceBindingOperationReport convertBindingQueueToOperationReport(GroupSpaceBindingQueue bindingQueue) {
-    GroupSpaceBindingOperationReport bindingOperationReport = new GroupSpaceBindingOperationReport();
-    bindingOperationReport.setSpaceId(Long.parseLong(bindingQueue.getGroupSpaceBinding().getSpaceId()));
-    bindingOperationReport.setGroup(bindingQueue.getGroupSpaceBinding().getGroup());
-    bindingOperationReport.setAction(bindingQueue.getAction());
-    bindingOperationReport.setGroupSpaceBindingId(bindingQueue.getGroupSpaceBinding().getId());
-    return bindingOperationReport;
-  }
-
   private String computeCSV(String spaceId, String group, String action, List<GroupSpaceBindingReportUser> reports) {
     StringBuilder sbResult = new StringBuilder();
 
@@ -483,7 +338,7 @@ public class GroupSpaceBindingRest implements ResourceContainer {
       
       if (!groupSpaceBindingReport.getGroupSpaceBindingReportAction().getAction().equals(GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION)  &&
           (groupSpaceBindingReport.getAction().equals(GroupSpaceBindingReportUser.ACTION_REMOVE_USER)
-          && (groupSpaceBindingReport.isWasPresentBefore() | groupSpaceBindingReport.isStillInSpace()))) {
+          && (groupSpaceBindingReport.isWasPresentBefore() || groupSpaceBindingReport.isStillInSpace()))) {
         //if the current global action is not synchronize and
         // if the action is "remove", and the user present in the
         // space before, then, he was not removed

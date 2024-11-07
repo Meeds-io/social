@@ -32,13 +32,13 @@
     content-class="position-absolute application-menu z-index-modal"
     offset-y
     eager>
-    <template #activator="{attrs}">
+    <template #activator="{on, attrs}">
       <v-btn
         v-bind="attrs"
+        v-on="on"
         :aria-label="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
         :loading="loading"
-        icon
-        @click="menu = !menu">
+        icon>
         <v-icon size="20">fa-ellipsis-v</v-icon>
       </v-btn>
     </template>
@@ -86,6 +86,19 @@ export default {
     this.$root.$off('spaces-administration-list-menu-opened', this.closeMenu);
     document.removeEventListener('mousedown', this.closeMenu);
   },
+  methods: {
+    closeMenu(event) {
+      if (event !== this.id) {
+        if (event?.target) {
+          window.setTimeout(() => {
+            this.menu = false;
+          }, 200);
+        } else {
+          this.menu = false;
+        }
+      }
+    },
+  }
 };
 </script>
 

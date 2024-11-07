@@ -1139,7 +1139,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     spaceStorage.saveSpace(space, true);
     persist();
 
-    Space savedSpace = spaceStorage.getSpaceById(space.getId());
+    Space savedSpace = spaceStorage.getSpaceById(space.getSpaceId());
     assertNotNull("savedSpace must not be null", savedSpace);
     assertNotNull("savedSpace.getId() must not be null", savedSpace.getId());
     assertEquals("space.getId() must return: " + space.getId(), space.getId(), savedSpace.getId());
@@ -1244,10 +1244,10 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     spaceStorage.saveSpace(space, false);
     persist();
-    assertEquals(newName, spaceStorage.getSpaceById(space.getId()).getPrettyName());
+    assertEquals(newName, spaceStorage.getSpaceById(space.getSpaceId()).getPrettyName());
     assertEquals(newName, space.getPrettyName());
 
-    Space got = spaceStorage.getSpaceById(space.getId());
+    Space got = spaceStorage.getSpaceById(space.getSpaceId());
     assertNotNull(got.getAvatarUrl());
   }
 
@@ -1267,12 +1267,12 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     space.setPrettyName(space.getDisplayName());
     spaceStorage.saveSpace(space, false);
     persist();
-    assertEquals("spaceStorage.getSpaceById(space.getId()).getName() must return: " + newName,
+    assertEquals("spaceStorage.getSpaceById(space.getSpaceId()).getName() must return: " + newName,
                  newName,
-                 spaceStorage.getSpaceById(space.getId()).getPrettyName());
+                 spaceStorage.getSpaceById(space.getSpaceId()).getPrettyName());
     assertEquals("space.getName() must return: " + newName, newName, space.getPrettyName());
 
-    Space got = spaceStorage.getSpaceById(space.getId());
+    Space got = spaceStorage.getSpaceById(space.getSpaceId());
     assertNotNull(got.getAvatarUrl());
 
     Identity spaceIdentity = new Identity(SpaceIdentityProvider.NAME, got.getPrettyName());
@@ -1281,7 +1281,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     String newDisplayName = "new display name";
     spaceStorage.renameSpace(space, newDisplayName);
 
-    got = spaceStorage.getSpaceById(space.getId());
+    got = spaceStorage.getSpaceById(space.getSpaceId());
     assertEquals(newDisplayName, got.getDisplayName());
   }
 
@@ -1315,12 +1315,12 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
     //
     long lastUpdatedTime = space.getLastUpdatedTime();
-    Space spaceForUpdate = spaceStorage.getSpaceById(space.getId());
+    Space spaceForUpdate = spaceStorage.getSpaceById(space.getSpaceId());
     spaceStorage.saveSpace(spaceForUpdate, false);
     persist();
 
     //
-    Space got = spaceStorage.getSpaceById(spaceForUpdate.getId());
+    Space got = spaceStorage.getSpaceById(spaceForUpdate.getSpaceId());
 
     assertNotNull("avatar URL should not be null", got.getAvatarUrl());
     assertTrue(got.getLastUpdatedTime() >= lastUpdatedTime);
@@ -1758,7 +1758,7 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
     // Get the space from SpaceCache, this will retrieve a SpaceSimpleData
     // object with managers and members set to null
-    Space spaceFromCache = spaceStorage.getSpaceById(space.getId());
+    Space spaceFromCache = spaceStorage.getSpaceById(space.getSpaceId());
 
     // Check that the space should have 3 members and 2 managers
     assertNotNull(spaceFromCache.getMembers());
