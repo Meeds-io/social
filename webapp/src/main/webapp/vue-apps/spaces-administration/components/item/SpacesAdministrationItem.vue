@@ -65,6 +65,7 @@
       </div>
     </td>
     <td
+      v-if="!$root.isMobile"
       align="center"
       width="50px"
       class="position-relative text-no-wrap">
@@ -89,6 +90,7 @@
         use-k-suffix />
     </td>
     <td
+      v-if="!$root.isMobile"
       align="center"
       width="50px">
       <v-btn

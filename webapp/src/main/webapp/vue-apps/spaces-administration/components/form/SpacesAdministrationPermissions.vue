@@ -22,8 +22,8 @@
 <template>
   <div class="d-flex flex-column">
     <v-checkbox
-      v-if="admins"
       v-model="isAdministrationPermissions"
+      :disabled="!admins"
       class="mt-0">
       <template #label>
         <div class="text-body">
@@ -48,6 +48,16 @@
       <template #label>
         <div class="text-body">
           {{ $t('social.spaces.administration.manageSpaces.permissionsStepExternals') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
+      v-if="spaceAdmin"
+      v-model="isSpaceAdminPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('social.spaces.administration.manageSpaces.permissionsStepSpaceAdmins') }}
         </div>
       </template>
     </v-checkbox>
@@ -83,6 +93,10 @@ export default {
       type: String,
       default: null,
     },
+    space: {
+      type: Object,
+      default: null,
+    },
     admins: {
       type: Boolean,
       default: false,
@@ -95,17 +109,25 @@ export default {
       type: Boolean,
       default: false,
     },
+    spaceAdmin: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     isAdministrationPermissions: false,
     isUsersPermissions: false,
     isExternalsPermissions: false,
+    isSpaceAdminPermissions: false,
     isCustomPermissions: false,
     specificGroupEntries: null,
   }),
   computed: {
     isSpecificGroup() {
       return !!this.specificGroupEntries?.length;
+    },
+    spaceAdminMembershipType() {
+      return `manager:${this.space.groupId}`;
     },
     permissions() {
       const permissions = [];
@@ -115,12 +137,21 @@ export default {
       if (this.isExternalsPermissions) {
         permissions.push(this.$root.externalsPermission);
       }
-      if (this.isAdministrationPermissions) {
+      if (this.isAdministrationPermissions && this.admins) {
         permissions.push(this.$root.administratorsPermission);
       }
+      if (this.isSpaceAdminPermissions) {
+        permissions.push(this.spaceAdminMembershipType);
+      }
       if (this.specificGroupEntries?.length) {
-        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
+        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g?.length) || [];
         permissions.push(...specificGroupEntries);
+      }
+      // Keep all time a permission
+      // to not having to use the fallback
+      // where the space is considered as without an associated template
+      if (this.isAdministrationPermissions && !permissions.length) {
+        permissions.push(this.$root.administratorsPermission);
       }
       return permissions;
     },
@@ -148,16 +179,19 @@ export default {
     refreshSelection() {
       const permissions = this.value?.slice?.();
 
-      this.isUsersPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
-      this.isExternalsPermissions = this.externals && permissions?.find?.(p => p === this.$root.externalsPermission) && true || false;
-      this.isAdministrationPermissions = this.admins && permissions?.find?.(p => p === this.$root.administratorsPermission) && true || false;
+      this.isUsersPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) ? true : false;
+      this.isExternalsPermissions = this.externals && permissions?.find?.(p => p === this.$root.externalsPermission) ? true : false;
+      this.isAdministrationPermissions = !this.admins || permissions?.find?.(p => p === this.$root.administratorsPermission) ? true : false;
+      this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === this.spaceAdminMembershipType) && true || false;
       this.specificGroupEntries = [];
 
       const specificGroupEntries = permissions?.filter?.(p =>
-        (!this.admins || p !== this.$root.administratorsPermission)
+        (p !== this.$root.administratorsPermission)
+        && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
         && (!this.users || p !== this.$root.usersPermission)
         && (!this.externals || p !== this.$root.externalsPermission)
-      ) || null;
+        && (!this.spaceAdmin || p !== this.spaceAdminMembershipType)
+      )?.filter?.(g => g?.length) || null;
       this.isCustomPermissions = !!specificGroupEntries?.length;
       if (specificGroupEntries?.length) {
         specificGroupEntries.forEach(this.retrieveObject);

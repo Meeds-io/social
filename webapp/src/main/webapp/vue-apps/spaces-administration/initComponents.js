@@ -29,6 +29,7 @@ import SpacesAdministrationPermissions from './components/form/SpacesAdministrat
 import SpacesAdministrationDeleteMenuItem from './components/menu-action/SpacesAdministrationDeleteMenuItem.vue';
 import SpacesAdministrationSettingsMenuItem from './components/menu-action/SpacesAdministrationSettingsMenuItem.vue';
 import SpacesAdministrationSynMembersMenuItem from './components/menu-action/SpacesAdministrationSynMembersMenuItem.vue';
+import SpacesAdministrationPermissionsMenuItem from './components/menu-action/SpacesAdministrationPermissionsMenuItem.vue';
 
 import SpacesAdministrationBindingReportItem from './components/binding-report/SpacesAdministrationBindingReportItem.vue';
 import SpacesAdministrationBindingReportList from './components/binding-report/SpacesAdministrationBindingReportList.vue';
@@ -36,6 +37,7 @@ import SpacesAdministrationBindingReportList from './components/binding-report/S
 import SpacesAdministrationManagersDrawer from './components/drawer/SpacesAdministrationManagersDrawer.vue';
 import SpacesAdministrationSyncMembersDrawer from './components/drawer/SpacesAdministrationSyncMembersDrawer.vue';
 import SpacesAdministrationSyncReportsDrawer from './components/drawer/SpacesAdministrationSyncReportsDrawer.vue';
+import SpacesAdministrationPermissionsDrawer from './components/drawer/SpacesAdministrationPermissionsDrawer.vue';
 
 const components = {
   'spaces-administration': SpacesAdministration,
@@ -53,10 +55,12 @@ const components = {
   'spaces-administration-delete-menu-item': SpacesAdministrationDeleteMenuItem,
   'spaces-administration-settings-menu-item': SpacesAdministrationSettingsMenuItem,
   'spaces-administration-sync-members-menu-item': SpacesAdministrationSynMembersMenuItem,
+  'spaces-administration-permissions-menu-item': SpacesAdministrationPermissionsMenuItem,
 
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
   'spaces-administration-sync-reports-drawer': SpacesAdministrationSyncReportsDrawer,
+  'spaces-administration-permissions-drawer': SpacesAdministrationPermissionsDrawer,
 };
 
 for (const key in components) {

@@ -33,7 +33,7 @@ import lombok.EqualsAndHashCode;
 public class SpaceData implements CacheData<Space> {
   private static final long serialVersionUID = 6109309246791818373L;
 
-  private final String      id;
+  private final long        id;
 
   private final String      prettyName;
 
@@ -88,7 +88,7 @@ public class SpaceData implements CacheData<Space> {
   private List<String>      publicSitePermissions;
 
   public SpaceData(final Space space) {
-    id = space.getId();
+    id = space.getSpaceId();
     templateId = space.getTemplateId();
     prettyName = space.getPrettyName();
     displayName = space.getDisplayName();

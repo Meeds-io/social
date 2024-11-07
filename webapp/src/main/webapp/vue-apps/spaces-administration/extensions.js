@@ -29,13 +29,13 @@ extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
+  rank: 30,
+  name: 'permissions',
+  componentName: 'spaces-administration-permissions-menu-item',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   rank: 40,
   name: 'delete',
   componentName: 'spaces-administration-delete-menu-item',
-});
-
-extensionRegistry.registerExtension('spaces-administration', 'main', {
-  rank: 10,
-  name: 'sync-members',
-  componentName: 'spaces-administration-sync-members-drawer',
 });
