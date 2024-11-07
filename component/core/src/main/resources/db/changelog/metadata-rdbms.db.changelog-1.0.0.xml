@@ -37,6 +37,8 @@
   </changeSet>
 
   <changeSet author="metadata" id="1.0.0-1">
+    <validCheckSum>9:0a2f337dc523486dd5e7ce4831b21657</validCheckSum>
+    <validCheckSum>9:971c4c0f2b65199e18a17b4be24f6c56</validCheckSum>
     <createTable tableName="SOC_METADATAS">
       <column name="METADATA_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_METADATAS" />
@@ -44,7 +46,7 @@
       <column name="TYPE" type="BIGINT">
         <constraints nullable="false" />
       </column>
-      <column name="NAME" type="NVARCHAR(255)" />
+      <column name="NAME" type="VARCHAR(255)" />
       <column name="CREATOR_ID" type="BIGINT">
         <constraints nullable="false" />
       </column>
@@ -54,16 +56,18 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="metadata" id="1.0.0-2">
+    <validCheckSum>9:a4e65111347150fe7c485c0c8a127b69</validCheckSum>
+    <validCheckSum>9:e431c1166e876ca7788c2799ffabcb6b</validCheckSum>
     <createTable tableName="SOC_METADATA_PROPERTIES">
       <column name="METADATA_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_METADATA_PROPERTIES_METADATAS" references="SOC_METADATAS(METADATA_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
       </column>
-      <column name="NAME" type="NVARCHAR(255)">
+      <column name="NAME" type="VARCHAR(255)">
         <constraints nullable="false" />
       </column>
       <column name="VALUE" type="LONGTEXT">
@@ -71,11 +75,13 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="metadata" id="1.0.0-3">
+    <validCheckSum>9:f68fb9277e1de878bd3f38c5a2720f5a</validCheckSum>
+    <validCheckSum>9:c1c64368bdba035f8fdd67c378bcdf04</validCheckSum>
     <createTable tableName="SOC_METADATA_ITEMS">
       <column name="METADATA_ITEM_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_METADATA_ITEMS" />
@@ -83,13 +89,13 @@
       <column name="METADATA_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_METADATA_ITEMS_METADATAS" references="SOC_METADATAS(METADATA_ID)" deleteCascade="true" />
       </column>
-      <column name="OBJECT_TYPE" type="NVARCHAR(255)">
+      <column name="OBJECT_TYPE" type="VARCHAR(255)">
         <constraints nullable="false" />
       </column>
-      <column name="OBJECT_ID" type="NVARCHAR(255)">
+      <column name="OBJECT_ID" type="VARCHAR(255)">
         <constraints nullable="false" />
       </column>
-      <column name="PARENT_OBJECT_ID" type="NVARCHAR(255)" />
+      <column name="PARENT_OBJECT_ID" type="VARCHAR(255)" />
       <column name="CREATOR_ID" type="BIGINT">
         <constraints nullable="false" />
       </column>
@@ -98,16 +104,18 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="metadata" id="1.0.0-4">
+    <validCheckSum>9:6e43c4b1efd98f990275a9d514cf2a94</validCheckSum>
+    <validCheckSum>9:a7d5bc26f7b382c58e58f012628dbdc8</validCheckSum>
     <createTable tableName="SOC_METADATA_ITEMS_PROPERTIES">
       <column name="METADATA_ITEM_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_METADATA_ITEM_PROPERTIES_METADATA_ITEMS" references="SOC_METADATA_ITEMS(METADATA_ITEM_ID)" deferrable="false" initiallyDeferred="false" deleteCascade="true" />
       </column>
-      <column name="NAME" type="NVARCHAR(255)">
+      <column name="NAME" type="VARCHAR(255)">
         <constraints nullable="false" />
       </column>
       <column name="VALUE" type="LONGTEXT">
@@ -115,19 +123,19 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
   <changeSet author="metadata" id="1.0.0-5">
     <createIndex tableName="SOC_METADATAS" indexName="IDX_SOC_METADATA_01">
       <column name="TYPE" type="BIGINT"></column>
-      <column name="NAME" type="NVARCHAR(255)"></column>
+      <column name="NAME" type="VARCHAR(255)"></column>
       <column name="AUDIENCE_ID" type="BIGINT"></column>
     </createIndex>
     <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_OBJECT_01">
-      <column name="OBJECT_TYPE" type="NVARCHAR(255)"></column>
-      <column name="OBJECT_ID" type="NVARCHAR(255)"></column>
+      <column name="OBJECT_TYPE" type="VARCHAR(255)"></column>
+      <column name="OBJECT_ID" type="VARCHAR(255)"></column>
     </createIndex>
   </changeSet>
 
@@ -138,8 +146,8 @@
   <changeSet author="metadata" id="1.0.0-7">
     <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_OBJECT_02">
       <column name="METADATA_ID" type="BIGINT"></column>
-      <column name="OBJECT_TYPE" type="NVARCHAR(255)"></column>
-      <column name="OBJECT_ID" type="NVARCHAR(255)"></column>
+      <column name="OBJECT_TYPE" type="VARCHAR(255)"></column>
+      <column name="OBJECT_ID" type="VARCHAR(255)"></column>
     </createIndex>
   </changeSet>
 
@@ -173,5 +181,12 @@
       </column>
     </addColumn>
   </changeSet>
-
+  <changeSet author="metadata" id="1.0.0-13">
+    <sql dbms="mysql">
+      ALTER TABLE SOC_METADATAS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_METADATA_PROPERTIES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_METADATA_ITEMS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_METADATA_ITEMS_PROPERTIES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+    </sql>
+  </changeSet>
 </databaseChangeLog>

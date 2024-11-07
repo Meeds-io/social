@@ -34,14 +34,16 @@
   <property name="now" value="CURRENT_TIMESTAMP" dbms="mssql"/>
     
     <changeSet author="social" id="1.0.0-1">
+        <validCheckSum>9:3b8b708f94efd4e5fd188a3aca493f95</validCheckSum>
+        <validCheckSum>9:9899ce5413e6547650c4ed8a1339f1c7</validCheckSum>
         <createTable tableName="SOC_ACTIVITIES">
             <column name="ACTIVITY_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
               <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_ACTIVITIES"/>
             </column>
-            <column name="APP_ID" type="NVARCHAR(200)"/>
+            <column name="APP_ID" type="VARCHAR(200)"/>
             <column name="BODY" type="LONGTEXT"/>
-            <column name="EXTERNAL_ID" type="NVARCHAR(200)"/>
-            <column name="PROVIDER_ID" type="NVARCHAR(200)"/>
+            <column name="EXTERNAL_ID" type="VARCHAR(200)"/>
+            <column name="PROVIDER_ID" type="VARCHAR(200)"/>
             <column name="HIDDEN" type="BOOLEAN">
               <constraints nullable="false"/>
             </column>
@@ -51,21 +53,21 @@
             <column name="LOCKED" type="BOOLEAN">
               <constraints nullable="false"/>
             </column>
-            <column name="OWNER_ID" type="NVARCHAR(200)">
+            <column name="OWNER_ID" type="VARCHAR(200)">
               <constraints nullable="true"/>
             </column>
-            <column name="PERMALINK" type="NVARCHAR(500)"/>
+            <column name="PERMALINK" type="VARCHAR(500)"/>
             <column name="POSTED" type="BIGINT">
               <constraints nullable="false"/>
             </column>
-            <column name="POSTER_ID" type="NVARCHAR(200)">
+            <column name="POSTER_ID" type="VARCHAR(200)">
               <constraints nullable="false"/>
             </column>
             <column name="TITLE" type="LONGTEXT">
               <constraints nullable="false"/>
             </column>
-            <column name="TITLE_ID" type="NVARCHAR(1024)"/>
-            <column name="TYPE" type="NVARCHAR(255)"/>
+            <column name="TITLE_ID" type="VARCHAR(1024)"/>
+            <column name="TYPE" type="VARCHAR(255)"/>
             <column name="IS_COMMENT" type="BOOLEAN">
               <constraints nullable="false"/>
             </column>
@@ -74,7 +76,7 @@
             </column>
         </createTable>
         <modifySql dbms="mysql">
-            <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+            <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
         </modifySql>
     </changeSet>
     <changeSet author="social" id="1.0.0-1.1">
@@ -93,11 +95,12 @@
     </changeSet>
 
     <changeSet author="social" id="1.0.0-2">
+      <validCheckSum>9:8c7220d90531f3c63233584a1ee49a6e</validCheckSum>
         <createTable tableName="SOC_ACTIVITY_LIKERS">
-            <column name="ACTIVITY_ID" type="BIGINT"> 
+            <column name="ACTIVITY_ID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="LIKER_ID" type="NVARCHAR(200)">
+            <column name="LIKER_ID" type="VARCHAR(200)">
             	<constraints nullable="false"/>
             </column>
             <column name="CREATED_DATE" type="TIMESTAMP">
@@ -110,6 +113,7 @@
         </createIndex>
     </changeSet>
     <changeSet author="social" id="1.0.0-3">
+      <validCheckSum>9:5920019eca40dc1e5ab98631319cb231</validCheckSum>
         <createTable tableName="SOC_MENTIONS">
             <column name="MENTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
               <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_MENTIONS"/>
@@ -117,7 +121,7 @@
             <column name="ACTIVITY_ID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="MENTIONER_ID" type="NVARCHAR(200)">
+            <column name="MENTIONER_ID" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
@@ -129,17 +133,19 @@
         </createIndex>
     </changeSet>
     <changeSet author="social" id="1.0.0-4">
+        <validCheckSum>9:a55d3b177c427faab6a401ae273bc68f</validCheckSum>
+        <validCheckSum>9:e7cddbf2b48f18d427a1af9c1b53a7d6</validCheckSum>
         <createTable tableName="SOC_ACTIVITY_TEMPLATE_PARAMS">
             <column name="ACTIVITY_ID" type="BIGINT">
                 <constraints nullable="false"/>
             </column>
-            <column name="TEMPLATE_PARAM_VALUE" type="NVARCHAR(1024)"/>
-            <column name="TEMPLATE_PARAM_KEY" type="NVARCHAR(255)">
+            <column name="TEMPLATE_PARAM_VALUE" type="VARCHAR(1024)"/>
+            <column name="TEMPLATE_PARAM_KEY" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
         <modifySql dbms="mysql">
-            <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+            <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
         </modifySql>
     </changeSet>
     <changeSet author="social" id="1.0.0-8">
@@ -195,53 +201,57 @@
   <changeSet author="social" id="1.0.0-22" dbms="oracle,postgresql">
     <createSequence sequenceName="SEQ_SOC_STREAM_ITEMS_ID" startValue="1"/>
   </changeSet>
-  
+
   <changeSet author="social" id="1.0.0-23">
     <validCheckSum>7:c3ca7d3497b2e0b0523e956ac51b7cd8</validCheckSum>
     <validCheckSum>7:c3de92c3178ae646550a47e0872bf0d3</validCheckSum>
     <validCheckSum>7:bcd010320c809f5338a4ec3b40dfac00</validCheckSum>
     <validCheckSum>7:5b06578d177b37a9f7cf8322b47b0818</validCheckSum>
     <validCheckSum>7:e4bb89b68498a673346e206116538cb4</validCheckSum>
+    <validCheckSum>9:20ea6cc18677b619d8ec0c89230c5199</validCheckSum>
+    <validCheckSum>9:09f12bb2fdfa2bbb388b28d19e4388f0</validCheckSum>
     <createTable tableName="SOC_SPACES">
         <column name="SPACE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
           <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACES"/>
         </column>
-        <column name="PRETTY_NAME" type="NVARCHAR(200)">
+        <column name="PRETTY_NAME" type="VARCHAR(200)">
           <constraints nullable="false" unique="true" uniqueConstraintName="UK_SOC_SPACE_PRETTY_NAME"/>
         </column>
-        <column name="DISPLAY_NAME" type="NVARCHAR(200)">
+        <column name="DISPLAY_NAME" type="VARCHAR(200)">
           <constraints nullable="false"/>
         </column>
         <column name="REGISTRATION" type="TINYINT">
           <constraints nullable="false"/>
         </column>
-        <column name="DESCRIPTION" type="NVARCHAR(2000)"/>
+        <column name="DESCRIPTION" type="VARCHAR(2000)"/>
         <column name="AVATAR_LAST_UPDATED" type="TIMESTAMP"/>
         <column name="VISIBILITY" type="TINYINT">
           <constraints nullable="false"/>
         </column>
         <column name="PRIORITY" type="TINYINT"/>
-        <column name="GROUP_ID" type="NVARCHAR(200)">
+        <column name="GROUP_ID" type="VARCHAR(200)">
           <constraints nullable="false"/>
         </column>
-        <column name="URL" type="NVARCHAR(500)"/>
+        <column name="URL" type="VARCHAR(500)"/>
         <column name="CREATED_DATE" type="TIMESTAMP" defaultValueDate="${now}">
           <constraints nullable="false"/>
         </column>
     </createTable>
     <modifySql dbms="mysql">
-        <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+        <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
     </modifySql>
   </changeSet>
   <changeSet author="social" id="1.0.0-24">
+    <validCheckSum>9:549ae427da30e1f9c7f70387390b8b12</validCheckSum>
+    <validCheckSum>9:41cdee54b355be86c0e705a39e6de12f</validCheckSum>
     <createTable tableName="SOC_APPS">
         <column name="SPACE_ID" type="BIGINT">
           <constraints foreignKeyName="FK_SOC_APP_SPACE_01" references="SOC_SPACES(SPACE_ID)" nullable="false"/>
         </column>
-        <column name="APP_ID" type="NVARCHAR(200)">
- 	      <constraints nullable="false"/>        	
+        <column name="APP_ID" type="VARCHAR(200)">
+ 	      <constraints nullable="false"/>
         </column>
-        <column name="APP_NAME" type="NVARCHAR(550)">
+        <column name="APP_NAME" type="VARCHAR(550)">
           <constraints nullable="false"/>
         </column>
         <column name="REMOVABLE" type="BOOLEAN">
@@ -250,12 +260,14 @@
         <column name="STATUS" type="TINYINT">
           <constraints nullable="false"/>
         </column>
-    </createTable>    
+    </createTable>
     <modifySql dbms="mysql">
-        <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+        <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
     </modifySql>
   </changeSet>
   <changeSet author="social" id="1.0.0-25">
+    <validCheckSum>9:5789915a913ab668d827cd5c492e10e7</validCheckSum>
+    <validCheckSum>9:0faefc610e0a23dd5cfb5a4b8447d122</validCheckSum>
     <createTable tableName="SOC_SPACES_MEMBERS">
       <column name="SPACE_MEMBER_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACES_MEMBERS"/>
@@ -263,7 +275,7 @@
       <column name="SPACE_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_MEM_SPACE_01" references="SOC_SPACES(SPACE_ID)" nullable="false"/>
       </column>
-      <column name="USER_ID" type="NVARCHAR(200)">
+      <column name="USER_ID" type="VARCHAR(200)">
       	<constraints nullable="false"/>
       </column>
       <column name="STATUS" type="INT">
@@ -271,10 +283,10 @@
       </column>
       <column name="LAST_ACCESS" type="TIMESTAMP"/>
       <column name="VISITED" type="BOOLEAN"/>
-    </createTable>    
+    </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_bin"/>
-    </modifySql>    
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
+    </modifySql>
   </changeSet>
 
   <changeSet author="social" id="1.0.0-26">
@@ -283,14 +295,16 @@
     <validCheckSum>7:c79ef7602443ce4d6bcb45bae3ce6d06</validCheckSum>
     <validCheckSum>7:b85b7e794c54da597970bc4680e678c1</validCheckSum>
     <validCheckSum>7:b31d4780c26411f652acab2194175fac</validCheckSum>
+    <validCheckSum>9:37a25dc0cfee7a1877d7cf94bd204424</validCheckSum>
+    <validCheckSum>9:07fb580091db1eb23734f89aabd5fc4d</validCheckSum>
     <createTable tableName="SOC_IDENTITIES">
       <column name="IDENTITY_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_IDENTITIES"/>
       </column>
-      <column name="PROVIDER_ID" type="NVARCHAR(200)">
+      <column name="PROVIDER_ID" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
-      <column name="REMOTE_ID" type="NVARCHAR(200)">
+      <column name="REMOTE_ID" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="ENABLED"  type="BOOLEAN" defaultValue="1">
@@ -299,7 +313,7 @@
       <column name="DELETED" type="BOOLEAN" defaultValue="0">
         <constraints nullable="false"/>
       </column>
-      
+
       <!-- profile -->
       <column name="AVATAR_FILE_ID" type="BIGINT">
         <constraints nullable="true"/>
@@ -309,7 +323,7 @@
       </column>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
     </modifySql>
   </changeSet>
   <changeSet author="social" id="1.0.0-27">
@@ -322,37 +336,41 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-31">
+    <validCheckSum>9:51444be86a76bd916501957b7330808b</validCheckSum>
+    <validCheckSum>9:f0bfe13e40c7c916837b069233b6487a</validCheckSum>
     <createTable tableName="SOC_IDENTITY_PROPERTIES">
       <column name="IDENTITY_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_IDENTITY_PROPERTIES" references="SOC_IDENTITIES(IDENTITY_ID)" nullable="false"/>
       </column>
-      <column name="NAME" type="NVARCHAR(200)">
+      <column name="NAME" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
-      <column name="VALUE" type="NVARCHAR(2000)"/>
-    </createTable>    
+      <column name="VALUE" type="VARCHAR(2000)"/>
+    </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
     </modifySql>
   </changeSet>
 
   <changeSet author="social" id="1.0.0-32">
+    <validCheckSum>9:fee6db118e941563b49a97d90098cf45</validCheckSum>
+    <validCheckSum>9:1a16581e86accf181c43870ac9eb8d4f</validCheckSum>
     <createTable tableName="SOC_IDENTITY_EXPERIENCES">
       <column name="IDENTITY_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_IDENTITY_EXPERIENCES" references="SOC_IDENTITIES(IDENTITY_ID)" nullable="false"/>
       </column>
-      <column name="COMPANY" type="NVARCHAR(250)"/>
-      <column name="POSITION" type="NVARCHAR(500)"/>
-      <column name="START_DATE" type="NCHAR(10)"/>
-      <column name="END_DATE" type="NCHAR(10)"/>
-      <column name="SKILLS" type="NVARCHAR(2000)"/>
+      <column name="COMPANY" type="VARCHAR(250)"/>
+      <column name="POSITION" type="VARCHAR(500)"/>
+      <column name="START_DATE" type="CHAR(10)"/>
+      <column name="END_DATE" type="CHAR(10)"/>
+      <column name="SKILLS" type="VARCHAR(2000)"/>
       <column name="DESCRIPTION" type="LONGTEXT"/>
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci"/>
     </modifySql>
   </changeSet>
-  
+
   <changeSet author="social" id="1.0.0-33">
     <validCheckSum>ANY</validCheckSum>
     <addUniqueConstraint columnNames="SPACE_ID, APP_ID"
@@ -364,12 +382,12 @@
      And seem the problem is happened on MySQL only
     -->
     <sql dbms="mysql">
-      ALTER TABLE SOC_SPACES_MEMBERS MODIFY USER_ID varchar(100) CHARACTER SET utf8 NOT NULL COLLATE utf8_bin;
+      ALTER TABLE SOC_SPACES_MEMBERS MODIFY USER_ID varchar(100) CHARACTER SET utf8mb4 NOT NULL COLLATE utf8mb4_0900_ai_ci;
     </sql>
     <addUniqueConstraint columnNames="SPACE_ID, USER_ID, STATUS"
                          constraintName="UK_SPACE_USER_STATUS_01"
-                         tableName="SOC_SPACES_MEMBERS"/>                         
-    <addPrimaryKey columnNames="IDENTITY_ID, NAME" constraintName="PK_SOC_IDENTITY_PROPERTIES_01" tableName="SOC_IDENTITY_PROPERTIES"/>                                                    
+                         tableName="SOC_SPACES_MEMBERS"/>
+    <addPrimaryKey columnNames="IDENTITY_ID, NAME" constraintName="PK_SOC_IDENTITY_PROPERTIES_01" tableName="SOC_IDENTITY_PROPERTIES"/>
   </changeSet>
 
   <changeSet author="social" id="1.0.0-34">
@@ -490,13 +508,14 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-53">
+    <validCheckSum>9:d39dafb596b8ec68344932cfe2e82ac3</validCheckSum>
     <addColumn tableName="SOC_SPACES">
-      <column name="TYPE" type="NVARCHAR(200)">
+      <column name="TYPE" type="VARCHAR(200)">
       </column>
     </addColumn>
   </changeSet>
 
-  <!--PLF-6956 : Oracle: Changing NVARCHAR column to CLOB-->
+  <!--PLF-6956 : Oracle: Changing VARCHAR column to CLOB-->
   <changeSet author="social" id="1.0.0-54" dbms="oracle">
     <addColumn tableName="SOC_ACTIVITY_TEMPLATE_PARAMS">
       <column name="TEMPLATE_PARAM_VALUE_TEMP" type="LONGTEXT"/>
@@ -554,7 +573,8 @@
     <addPrimaryKey tableName="SOC_IDENTITY_EXPERIENCES" columnNames="EXPERIENCE_ID"></addPrimaryKey>
   </changeSet>
   <changeSet author="social" id="1.0.0-61">
-    <renameColumn tableName="SOC_SPACES" oldColumnName="TYPE" newColumnName="TEMPLATE" columnDataType="NVARCHAR(200)"/>
+    <validCheckSum>9:ce7b1def3ce3eb0949a70971e92a53e7</validCheckSum>
+    <renameColumn tableName="SOC_SPACES" oldColumnName="TYPE" newColumnName="TEMPLATE" columnDataType="VARCHAR(200)"/>
   </changeSet>
 
   <changeSet author="social" id="1.0.0-62" dbms="mysql">
@@ -576,8 +596,9 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-63">
+    <validCheckSum>9:29a3cad4cdf2052a2928476bdea7c776</validCheckSum>
     <modifyDataType columnName="GROUP_ID"
-                    newDataType="NVARCHAR(250)"
+                    newDataType="VARCHAR(250)"
                     tableName="SOC_SPACES"/>
   </changeSet>
 
@@ -594,6 +615,7 @@
     <validCheckSum>7:7ca5c5299bebdaac7f2a7ec495a9fe40</validCheckSum>
     <validCheckSum>8:bc5af3f9bb7233de43162095435a981d</validCheckSum>
     <validCheckSum>8:07be275888d44afbf758eb009046d967</validCheckSum>
+    <validCheckSum>9:927b0e56c5fa68efd5210720bd6e9d6f</validCheckSum>
     <createTable tableName="SOC_GROUP_SPACE_BINDING">
       <column name="GROUP_SPACE_BINDING_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_ID"/>
@@ -601,7 +623,7 @@
       <column name="SPACE_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_SPACEID" references="SOC_SPACES(SPACE_ID)" nullable="false"/>
       </column>
-      <column name="GROUP_NAME" type="NVARCHAR(200)">
+      <column name="GROUP_NAME" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -612,7 +634,7 @@
       <column name="GROUP_SPACE_BINDING_ID" type="BIGINT">
         <constraints foreignKeyName="FK_SOC_USER_SPACE_BINDING_GROUP" references="SOC_GROUP_SPACE_BINDING(GROUP_SPACE_BINDING_ID)" nullable="false"/>
       </column>
-      <column name="USERNAME" type="NVARCHAR(200)">
+      <column name="USERNAME" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="SPACE_ID" type="BIGINT">
@@ -626,9 +648,33 @@
       <column name="USERNAME"/>
       <column name="SPACE_ID"/>
     </createIndex>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-65.1" dbms="postgresql">
     <createSequence sequenceName="SEQ_SOC_USER_SPACE_BINDING_ID" startValue="1"/>
     <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_ID" startValue="1"/>
-    <sql dbms="postgresql">UPDATE SOC_USER_SPACE_BINDING SET USER_SPACE_BINDING_ID=nextval('SEQ_SOC_USER_SPACE_BINDING_ID');UPDATE SOC_GROUP_SPACE_BINDING SET GROUP_SPACE_BINDING_ID=nextval('SEQ_SOC_GROUP_SPACE_BINDING_ID');</sql>
+    <sql>UPDATE SOC_USER_SPACE_BINDING SET USER_SPACE_BINDING_ID=nextval('SEQ_SOC_USER_SPACE_BINDING_ID');UPDATE SOC_GROUP_SPACE_BINDING SET GROUP_SPACE_BINDING_ID=nextval('SEQ_SOC_GROUP_SPACE_BINDING_ID');</sql>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-65.2" dbms="oracle">
+    <createSequence sequenceName="SEQ_SOC_USER_SPACE_BINDING_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-65.3" dbms="hsqldb">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <sequenceExists sequenceName="SEQ_SOC_USER_SPACE_BINDING_ID" />
+      </not>
+    </preConditions>
+    <createSequence sequenceName="SEQ_SOC_USER_SPACE_BINDING_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-65.4" dbms="hsqldb">
+    <preConditions onFail="MARK_RAN">
+      <not>
+        <sequenceExists sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_ID" />
+      </not>
+    </preConditions>
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_ID" startValue="1"/>
   </changeSet>
 
   <changeSet author="social" id="1.0.0-66" dbms="hsqldb">
@@ -657,6 +703,7 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-70">
+    <validCheckSum>9:41e72ddf5ce1dc40870ccf5bea041f0b</validCheckSum>
     <createTable tableName="SOC_GROUP_SPACE_BINDING_QUEUE">
       <column name="GROUP_SPACE_BINDING_QUEUE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_QUEUE_ID"/>
@@ -665,7 +712,7 @@
         <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_QUEUE_BINDING_ID" references="SOC_GROUP_SPACE_BINDING(GROUP_SPACE_BINDING_ID)"
         nullable="false"/>
       </column>
-      <column name="ACTION" type="NVARCHAR(200)">
+      <column name="ACTION" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
     </createTable>
@@ -676,6 +723,7 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-72">
+    <validCheckSum>9:2cd75cd40a4f82519481e83e4f3e837f</validCheckSum>
     <createTable tableName="SOC_GROUP_SPACE_BINDING_REPORT_ACTION">
       <column name="GROUP_SPACE_BINDING_REPORT_ACTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_GROUP_SPACE_BINDING_REPORT_ACTION_ID"/>
@@ -687,10 +735,10 @@
           <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPORT_SPACE_ID" references="SOC_SPACES(SPACE_ID)"
                        nullable="false"/>
       </column>
-      <column name="GROUP_ID" type="NVARCHAR(200)">
+      <column name="GROUP_ID" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
-      <column name="ACTION" type="NVARCHAR(200)">
+      <column name="ACTION" type="VARCHAR(200)">
         <constraints nullable="false"/>
       </column>
       <column name="START_DATE" type="TIMESTAMP" defaultValueDate="${now}">
@@ -708,10 +756,10 @@
           <constraints foreignKeyName="FK_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" references="SOC_GROUP_SPACE_BINDING_REPORT_ACTION(GROUP_SPACE_BINDING_REPORT_ACTION_ID)"
                        nullable="false"/>
       </column>
-      <column name="USERNAME" type="NVARCHAR(200)">
+      <column name="USERNAME" type="VARCHAR(200)">
           <constraints nullable="false"/>
       </column>
-      <column name="ACTION" type="NVARCHAR(200)">
+      <column name="ACTION" type="VARCHAR(200)">
           <constraints nullable="false"/>
       </column>
       <column name="WAS_PRESENT_BEFORE" type="BOOLEAN">
@@ -739,22 +787,24 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-75">
+    <validCheckSum>9:780043208b608112ffeafc774c0c89c9</validCheckSum>
       <createTable tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
           <column name="INVITATION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
               <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACES_EXTERNAL_INVITATIONS"/>
           </column>
-          <column name="SPACE_ID" type="NVARCHAR(200)">
+          <column name="SPACE_ID" type="VARCHAR(200)">
               <constraints nullable="false"/>
           </column>
-          <column name="USER_EMAIL" type="NVARCHAR(200)">
+          <column name="USER_EMAIL" type="VARCHAR(200)">
               <constraints nullable="false"/>
           </column>
       </createTable>
   </changeSet>
 
   <changeSet id="1.0.0-76" author="social">
+    <validCheckSum>9:528d03ce86abe2413685425a47c35dc8</validCheckSum>
       <addColumn tableName="SOC_SPACES_EXTERNAL_INVITATIONS">
-          <column name="TOKEN_ID" type="NVARCHAR(200)">
+          <column name="TOKEN_ID" type="VARCHAR(200)">
               <constraints nullable="false"/>
           </column>
         </addColumn>
@@ -769,6 +819,7 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-80">
+    <validCheckSum>9:2a4758a44c81553f686dd6517db20b48</validCheckSum>
     <createTable tableName="SOC_ACTIVITY_SHARE_ACTIONS">
       <column name="ACTIVITY_SHARE_ACTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_ACTIVITY_SHARE_ACTION" />
@@ -783,7 +834,7 @@
       <column name="SHARE_DATE" type="TIMESTAMP" defaultValueComputed="NULL" />
     </createTable>
     <modifySql dbms="mysql">
-      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+      <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
     </modifySql>
   </changeSet>
 
@@ -816,19 +867,19 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-83" dbms="hsqldb">
-    <createSequence sequenceName="SEQ_SOC_ACTIVITIES_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_MENTIONS_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_STREAM_ITEMS_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_IDENTITY_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_CONNECTIONS_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_SPACES_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_SPACE_MEMBER_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_EXPERIENCE_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>  
-    <createSequence sequenceName="SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID" startValue="1"/>  
+    <createSequence sequenceName="SEQ_SOC_ACTIVITIES_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_MENTIONS_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_STREAM_ITEMS_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_IDENTITY_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_CONNECTIONS_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_SPACES_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_SPACE_MEMBER_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_EXPERIENCE_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_QUEUE_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_GROUP_SPACE_BINDING_REPORT_USER_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_INVITATION_ID" startValue="1"/>
+    <createSequence sequenceName="SEQ_SOC_ACTIVITY_SHARE_ACTIONS_ID" startValue="1"/>
   </changeSet>
 
     <changeSet id="1.0.0-84" author="social">
@@ -840,11 +891,13 @@
     </changeSet>
 
     <changeSet author="social" id="1.0.0-85">
+      <validCheckSum>9:036e6687b6a2af306195020d013496ed</validCheckSum>
+      <validCheckSum>9:40c6af67f2ef6582a519367eb22b1848</validCheckSum>
         <createTable tableName="SOC_PROFILE_PROPERTY_SETTING">
             <column name="PROPERTY_SETTING_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PROPERTY_SETTING_ID" />
             </column>
-            <column name="PROPERTY_NAME" type="NVARCHAR(550)">
+            <column name="PROPERTY_NAME" type="VARCHAR(550)">
                 <constraints nullable="false" unique="true" uniqueConstraintName="PROPERTY_SETTING_UNIQUE_NAME"/>
             </column>
             <column name="VISIBLE" type="BOOLEAN"/>
@@ -857,7 +910,7 @@
             <column name="PARENT_ID" type="BIGINT"/>
         </createTable>
         <modifySql dbms="mysql">
-            <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+            <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
         </modifySql>
     </changeSet>
 
@@ -866,25 +919,27 @@
     </changeSet>
 
     <changeSet author="social" id="1.0.0-87">
+      <validCheckSum>9:087ea7414a31a050f6812fe739ab0cdc</validCheckSum>
+      <validCheckSum>9:eb11095c277cb9e2c1f51c7d093ea7f0</validCheckSum>
         <createTable tableName="SOC_LABELS">
             <column name="LABEL_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="PK_LABEL_ID" />
             </column>
-            <column name="OBJECT_ID" type="NVARCHAR(200)">
+            <column name="OBJECT_ID" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
-            <column name="OBJECT_TYPE" type="NVARCHAR(550)">
+            <column name="OBJECT_TYPE" type="VARCHAR(550)">
                 <constraints nullable="false"/>
             </column>
-            <column name="LABEL" type="NVARCHAR(550)">
+            <column name="LABEL" type="VARCHAR(550)">
                 <constraints nullable="false"/>
             </column>
-            <column name="LANGUAGE" type="NVARCHAR(200)">
+            <column name="LANGUAGE" type="VARCHAR(200)">
                 <constraints nullable="false"/>
             </column>
         </createTable>
         <modifySql dbms="mysql">
-            <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+            <append value=" ENGINE=INNODB CHARSET=UTF8MB4 COLLATE utf8mb4_0900_ai_ci" />
         </modifySql>
     </changeSet>
 
@@ -897,15 +952,16 @@
             ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS MODIFY COLUMN TITLE longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
         </sql>
     </changeSet>
-    
+
     <changeSet author="social" id="1.0.0-90" dbms="postgresql">
         <createSequence sequenceName="SEQ_SOC_PROPERTY_SETTING_ID" startValue="1"/>
         <createSequence sequenceName="SEQ_SOC_LABELS_ID" startValue="1"/>
     </changeSet>
 
     <changeSet author="social" id="1.0.0-91" dbms="mysql">
+      <validCheckSum>9:e3c0eb9208a0c795d5fd0328f9b77e4a</validCheckSum>
         <sql>
-            ALTER TABLE SOC_ACTIVITY_TEMPLATE_PARAMS MODIFY COLUMN TEMPLATE_PARAM_KEY NVARCHAR(255) BINARY;
+            ALTER TABLE SOC_ACTIVITY_TEMPLATE_PARAMS MODIFY COLUMN TEMPLATE_PARAM_KEY VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
         </sql>
     </changeSet>
     <changeSet author="social" id="1.0.0-92">
@@ -922,8 +978,9 @@
     </changeSet>
 
     <changeSet author="social" id="1.0.0-94">
+      <validCheckSum>9:4bebfd9baba648fabdcd9d6e02249ad5</validCheckSum>
         <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
-            <column name="PROPERTY_TYPE" type="NVARCHAR(100)" defaultValue="text"/>
+            <column name="PROPERTY_TYPE" type="VARCHAR(100)" defaultValue="text"/>
         </addColumn>
     </changeSet>
     
@@ -1017,4 +1074,28 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-105">
+    <!--
+      This changelog is added to reapply modification about charset and collation apply in changelog 33.
+      Changelog 33 was modified to upgrade to mysql 8.4
+    -->
+    <sql dbms="mysql">
+      ALTER TABLE SOC_SPACES_MEMBERS MODIFY USER_ID varchar(100) CHARACTER SET utf8mb4 NOT NULL COLLATE utf8mb4_0900_ai_ci;
+    </sql>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-106">
+    <sql dbms="mysql">
+      ALTER TABLE SOC_ACTIVITIES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_ACTIVITY_TEMPLATE_PARAMS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_SPACES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_APPS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_SPACES_MEMBERS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_IDENTITIES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_IDENTITY_PROPERTIES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_IDENTITY_EXPERIENCES CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_ACTIVITY_SHARE_ACTIONS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_PROFILE_PROPERTY_SETTING CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+      ALTER TABLE SOC_LABELS CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+    </sql>
+  </changeSet>
 </databaseChangeLog>
