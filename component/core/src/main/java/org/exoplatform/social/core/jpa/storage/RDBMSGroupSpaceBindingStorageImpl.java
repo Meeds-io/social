@@ -311,6 +311,11 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate();
   }
 
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations(String spaceId) {
+    return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate(spaceId);
+  }
+
   private List<GroupSpaceBindingReportAction> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportActionEntity> entities) {
     List<GroupSpaceBindingReportAction> groupSpaceBindingsReports;
     groupSpaceBindingsReports =

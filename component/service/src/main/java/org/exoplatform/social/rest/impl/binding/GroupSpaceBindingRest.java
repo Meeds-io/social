@@ -300,10 +300,17 @@ public class GroupSpaceBindingRest implements ResourceContainer {
           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
           @ApiResponse(responseCode = "500", description = "Internal server error"),
           @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getBindingReportOperations(@Context UriInfo uriInfo) throws Exception {
+  public Response getBindingReportOperations(
+                                             @Context
+                                             UriInfo uriInfo,
+                                             @Parameter(description = "spaceId", required = true)
+                                             @QueryParam("spaceId")
+                                             String spaceId) throws Exception {
     // Get binding operations from the binding queue
     List<GroupSpaceBindingOperationReport> bindingOperationReports =
-                                                                   groupSpaceBindingService.getGroupSpaceBindingReportOperations();
+                                                                   StringUtils.isBlank(spaceId) ?
+                                                                                                groupSpaceBindingService.getGroupSpaceBindingReportOperations() :
+                                                                                                groupSpaceBindingService.getGroupSpaceBindingReportOperations(spaceId);
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
