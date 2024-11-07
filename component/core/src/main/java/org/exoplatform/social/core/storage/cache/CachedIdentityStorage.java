@@ -270,7 +270,7 @@ public class CachedIdentityStorage implements IdentityStorage {
     ListIdentitiesData keys = identitiesCache.get(() -> {
       List<Identity> got = storage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, type, offset, limit);
       return buildIds(got);
-    }, new ListSpaceMembersKey(new SpaceKey(space.getId()),
+    }, new ListSpaceMembersKey(new SpaceKey(space.getSpaceId()),
                                new IdentityFilterKey(SpaceIdentityProvider.NAME, profileFilter),
                                type,
                                offset,

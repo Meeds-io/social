@@ -84,7 +84,7 @@ public abstract class AbstractMetadataItemListener<S, D> extends Listener<S, D> 
             moveMetadataItemToTargetObject(metadataItem, metadataObject);
           }
         } else if (metadataItem.getSpaceId() >= 0 && cachedSpaceStorage != null) {
-          Space space = cachedSpaceStorage.getSpaceById(String.valueOf(metadataItem.getSpaceId()));
+          Space space = cachedSpaceStorage.getSpaceById(metadataItem.getSpaceId());
           if (space != null) {
             // Activities can have different object type & id, thus
             // systematically Trigger clearing cache when it's about a space

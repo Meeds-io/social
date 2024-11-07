@@ -359,11 +359,6 @@
   </component>
 
   <component>
-    <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
-    <type>org.exoplatform.social.core.space.impl.SpacesAdministrationServiceImpl</type>
-  </component>
-
-  <component>
     <type>org.exoplatform.social.core.processor.MentionsProcessor</type>
   </component>
 
@@ -909,7 +904,7 @@
                       <string>john@platform.com</string>
                     </field>
                     <field name="groups">
-                      <string>member:/platform/administrators,member:/platform/users</string>
+                      <string>manager:/platform/administrators,member:/platform/users</string>
                     </field>
                   </object>
                 </value>

@@ -20,11 +20,10 @@ package io.meeds.social.authorization;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +32,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.page.PageContext;
@@ -40,7 +41,6 @@ import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -80,10 +80,10 @@ public class AuthorizationManagerTest {
   private static final MembershipEntry ADMIN_SPACES_MEMBERSHIP = new MembershipEntry("/group", "*");
 
   @Mock
-  SpacesAdministrationService          spacesAdministrationService;
+  SpaceService                         spaceService;
 
   @Mock
-  SpaceService                         spaceService;
+  UserACL                              userAcl;
 
   @Mock
   SpaceTemplateService                 spaceTemplateService;
@@ -116,11 +116,17 @@ public class AuthorizationManagerTest {
 
   @Before
   public void setup() {
+    ValueParam adminGroupsParam = mock(ValueParam.class);
+    when(params.getValueParam("portal.administrator.groups")).thenReturn(adminGroupsParam);
+    when(adminGroupsParam.getValue()).thenReturn(ADMIN_SPACES_MEMBERSHIP.getGroup());
+
+    ValueParam adminMSTypeParam = mock(ValueParam.class);
+    when(params.getValueParam("portal.administrator.mstype")).thenReturn(adminMSTypeParam);
+    when(adminMSTypeParam.getValue()).thenReturn(ADMIN_SPACES_MEMBERSHIP.getMembershipType());
+
     authorizationManager = new AuthorizationManager(params);
-    authorizationManager.setSpacesAdministrationService(spacesAdministrationService);
     authorizationManager.setSpaceService(spaceService);
     authorizationManager.setSpaceTemplateService(spaceTemplateService);
-    when(spacesAdministrationService.getSpacesAdministratorsMemberships()).thenReturn(Collections.singletonList(ADMIN_SPACES_MEMBERSHIP));
   }
 
   @Test
@@ -141,10 +147,11 @@ public class AuthorizationManagerTest {
     when(portalConfig.getName()).thenReturn(PORTAL_PAGE_KEY.getSite().getName());
     when(portalConfig.getEditPermission()).thenReturn(PAGE_EDIT_PERMISSION);
     assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
-
-    lenient().when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
-             .thenReturn(true);
     assertFalse(authorizationManager.hasEditPermission(page, identity));
+
+    when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
+                                                                                                              .thenReturn(true);
+    assertTrue(authorizationManager.hasEditPermission(page, identity));
   }
 
   @Test
@@ -196,7 +203,7 @@ public class AuthorizationManagerTest {
     assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
 
     when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
-    assertFalse(authorizationManager.hasEditPermission(page, identity));
+    assertTrue(authorizationManager.hasEditPermission(page, identity));
 
     when(spaceTemplateService.getSpaceTemplateByLayout(SPACE_TEMPLATE_PAGE_KEY.getSite().getName())).thenReturn(spaceTemplate);
     assertTrue(authorizationManager.hasEditPermission(page, identity));
@@ -224,9 +231,9 @@ public class AuthorizationManagerTest {
     when(portalConfig.getAccessPermissions()).thenReturn(PAGE_ACCESS_PERMISSION);
     assertFalse(authorizationManager.hasAccessPermission(portalConfig, identity));
 
-    lenient().when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
-             .thenReturn(true);
-    assertFalse(authorizationManager.hasAccessPermission(page, identity));
+    when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType()))
+                                                                                                              .thenReturn(true);
+    assertTrue(authorizationManager.hasAccessPermission(page, identity));
   }
 
   @Test
@@ -248,7 +255,8 @@ public class AuthorizationManagerTest {
     when(portalConfig.getAccessPermissions()).thenReturn(PAGE_ACCESS_PERMISSION);
     assertFalse(authorizationManager.hasAccessPermission(portalConfig, identity));
 
-    when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
+    when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(),
+                             ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
     assertTrue(authorizationManager.hasAccessPermission(page, identity));
   }
 
