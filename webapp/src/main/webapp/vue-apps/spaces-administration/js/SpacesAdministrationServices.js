@@ -52,17 +52,6 @@ export function getSpacesAdministrationSetting(key) {
   });
 }
 
-export function updateSpacesAdministrationSetting(key, value) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACES_ADMINISTRATION_API}/permissions/${key}`, {
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include',
-    method: 'PUT',
-    body: JSON.stringify(value)
-  });
-}
-
 export function saveGroupsSpaceBindings(spaceId, groupNames) {
   return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/saveGroupsSpaceBindings/${spaceId}`, {
     headers: {
@@ -88,8 +77,8 @@ export function getGroupsTree() {
   return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getGroupsTree`, {credentials: 'include'}).then(resp => resp.json());
 }
 
-export function getBindingReportOperations() {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations`, {credentials: 'include'}).then(resp => resp.json());
+export function getBindingReportOperations(spaceId) {
+  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations?spaceId=${spaceId || ''}`, {credentials: 'include'}).then(resp => resp.json());
 }
 
 export function getReport(spaceId, action, groupId, groupBindingId) {
