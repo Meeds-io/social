@@ -40,38 +40,41 @@
     <td
       v-if="!$root.isMobile"
       :title="!spaceTemplateName && $t('social.spaces.administration.manageSpaces.noTemplate')"
-      align="left"
-      class="text-center"
+      align="center"
       width="70px">
-      <template v-if="spaceTemplateName">
+      <div v-if="spaceTemplateName" class="width-fit-content no-max-width">
         {{ spaceTemplateName }}
-      </template>
+      </div>
       <span v-else>-</span>
     </td>
     <td
       v-if="!$root.isMobile"
       align="center"
       width="50px">
-      {{ $t(`social.spaces.administration.manageSpaces.registration.${space.subscription}`) }}
+      <div class="width-fit-content no-max-width">
+        {{ $t(`social.spaces.administration.manageSpaces.registration.${space.subscription}`) }}
+      </div>
     </td>
     <td
       v-if="!$root.isMobile"
       align="center"
-      width="50px">
-      {{ $t(`social.spaces.administration.manageSpaces.visibility.${space.visibility}`) }}
+      width="50px"
+      class="text-no-wrap">
+      <div class="width-fit-content no-max-width">
+        {{ $t(`social.spaces.administration.manageSpaces.visibility.${space.visibility}`) }}
+      </div>
     </td>
     <td
       align="center"
       width="50px"
-      class="position-relative">
+      class="position-relative text-no-wrap">
       <exo-user-avatars-list
         :users="sortedManagers"
         :default-length="space.managersCount"
         :margin-left="space.managersCount > 1 && 'ml-n5' || ''"
         :icon-size="33"
         :max="3"
-        :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        class="absolute-vertical-center"
+        class="absolute-all-center"
         compact
         clickable
         popover
@@ -80,14 +83,18 @@
     <td
       align="center"
       width="50px">
-      <number-format :value="space.membersCount" />
+      <number-format
+        :title="space.membersCount"
+        :value="space.membersCount"
+        use-k-suffix />
     </td>
     <td
       align="center"
       width="50px">
       <v-btn
         :title="bindingStatusTitle"
-        icon>
+        icon
+        @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
         <v-icon :class="boundToGroup && 'success--text'" size="20">fa-users</v-icon>
       </v-btn>
     </td>
@@ -126,10 +133,10 @@ export default {
       return managers;
     },
     boundToGroup() {
-      return this.space.hasBinding;
+      return this.space.hasBindings;
     },
     totalBoundUsers() {
-      return this.space.totalBoundUsers > 1000 ? `${parseInt(this.space.totalBoundUsers)}K` : this.space.totalBoundUsers || 0;
+      return this.space.totalBoundUsers > 1000 ? `${parseInt(this.space.totalBoundUsers / 1000)}k` : this.space.totalBoundUsers || 0;
     },
     bindingStatusTitle() {
       return this.boundToGroup ? this.$t('social.spaces.administration.manageSpaces.bindingStatus.tooltip', {0: this.totalBoundUsers}) : this.$t('social.spaces.administration.manageSpaces.noBindingStatus.tooltip');

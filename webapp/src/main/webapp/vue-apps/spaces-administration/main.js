@@ -41,7 +41,11 @@ export function init() {
     .then(i18n => Vue.createApp({
       data: {
         spaceTemplates: null,
+        mainExtensions: [],
         itemMenuExtensions: [],
+        usersPermission: '/platform/users',
+        externalsPermission: '/platform/externals',
+        administratorsPermission: '/platform/administrators',
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
       computed: {
@@ -51,11 +55,13 @@ export function init() {
       },
       created() {
         document.addEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
+        document.addEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
         this.refreshSpaceTemplates();
         this.refreshExtensions();
       },
       beforeDestroy() {
         document.removeEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
+        document.removeEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
       },
       methods: {
         async refreshSpaceTemplates() {
@@ -63,6 +69,7 @@ export function init() {
         },
         refreshExtensions() {
           this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
+          this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
         },
       },
       template: `<spaces-administration id="${appId}" />`,

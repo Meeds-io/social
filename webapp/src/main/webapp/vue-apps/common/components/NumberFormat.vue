@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <div>{{ formattedValue }}</div>
+  <div class="text-no-wrap">{{ formattedValue }}{{ kSuffix || '' }}</div>
 </template>
 <script>
 export default {
@@ -45,6 +45,10 @@ export default {
       type: Number,
       default: () => 0,
     },
+    useKSuffix: {
+      type: Boolean,
+      default: false,
+    },
     format: {
       type: Object,
       default: () => ({
@@ -53,12 +57,15 @@ export default {
     },
   },
   computed: {
+    kSuffix() {
+      return this.useKSuffix && this.value && Number(this.value) > 999 ? 'k' : null;
+    },
     formattedValue() {
       return this.value && new Intl.NumberFormat(this.lang, {
         ...this.format,
         minimumFractionDigits: this.minDigits,
         maximumFractionDigits: this.maxDigits,
-      }).format(this.value) || this.defaultValue;
+      }).format(this.kSuffix ? parseInt(Number(this.value) / 1000) : this.value) || this.defaultValue;
     },
   },
 };

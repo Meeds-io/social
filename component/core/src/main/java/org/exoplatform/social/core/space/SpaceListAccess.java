@@ -268,6 +268,7 @@ public class SpaceListAccess implements ListAccess<Space> {
             || statusType != null)) {
       return new SpaceSearchFilter(username,
                                    spaceFilter.getIdentityId(),
+                                   spaceFilter.getTemplateId(),
                                    spaceFilter.getSpaceNameSearchCondition(),
                                    spaceFilter.isFavorite(),
                                    spaceFilter.getTagNames(),
