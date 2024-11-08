@@ -22,7 +22,13 @@
   <v-list-item
     dense
     @click="$root.$emit('space-administration-permissions-drawer-open', space)">
-    <v-icon size="13">fa-shield-alt</v-icon>
+    <v-card
+      class="d-flex full-height justify-center"
+      color="transparent"
+      width="20"
+      flat>
+      <v-icon size="16">fa-shield-alt</v-icon>
+    </v-card>
     <v-list-item-title class="ps-2">
       {{ $t('social.spaces.administration.manageSpaces.permissions') }}
     </v-list-item-title>

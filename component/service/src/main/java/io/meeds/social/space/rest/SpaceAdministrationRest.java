@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.space.administration.rest;
+package io.meeds.social.space.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,8 +33,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
-import io.meeds.social.space.administration.model.SpacePermissions;
-import io.meeds.social.space.administration.service.SpaceAdministrationService;
+import io.meeds.social.space.model.SpacePermissions;
+import io.meeds.social.space.model.SpaceTemplatePatch;
+import io.meeds.social.space.service.SpaceAdministrationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -44,7 +45,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/space/administration")
-@Tag(name = "/social/rest/space/administration", description = "Managing space templates")
+@Tag(name = "/social/rest/space/administration", description = "Managing spaces by platform administrators")
 public class SpaceAdministrationRest {
 
   @Autowired
@@ -58,7 +59,7 @@ public class SpaceAdministrationRest {
              description = "This returns the space permissions settings: <br/><ul><li>Delete Permissions</li><li>Layout Permissions</li><li>Public Site Permissions</li></ul>")
   @ApiResponses(value = {
                           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "404", description = "Space Not found"),
+                          @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public SpacePermissions getSpacePermissions(
                                               @Parameter(description = "Space template identifier")
@@ -79,7 +80,7 @@ public class SpaceAdministrationRest {
              description = "This updates a space permissions settings: <br/><ul><li>Delete Permissions</li><li>Layout Permissions</li><li>Public Site Permissions</li></ul>")
   @ApiResponses(value = {
                           @ApiResponse(responseCode = "204", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "404", description = "Space Not found"),
+                          @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public void updateSpacePermissions(
                                      @Parameter(description = "Space template identifier")
@@ -89,6 +90,29 @@ public class SpaceAdministrationRest {
                                      SpacePermissions permissions) {
     try {
       spacesAdministrationService.updateSpacePermissions(spaceId, permissions);
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+  }
+
+  @PutMapping(path = "{spaceId}/template", consumes = MediaType.APPLICATION_JSON_VALUE)
+  @Secured("administrators")
+  @Operation(
+             summary = "Update a space by applying a chosen template characteristics",
+             method = "PUT",
+             description = "This updates a space a space by applying a chosen template characteristics: <br/><ul><li>Layout</li><li>Editorial mode</li><li>Delete Permissions</li><li>Layout Permissions</li><li>Public Site Permissions</li></ul>")
+  @ApiResponses(value = {
+                          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+                          @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public void applySpaceTemplate(
+                                 @Parameter(description = "Space template identifier")
+                                 @PathVariable("spaceId")
+                                 long spaceId,
+                                 @RequestBody(required = true)
+                                 SpaceTemplatePatch templatePatch) {
+    try {
+      spacesAdministrationService.applySpaceTemplate(spaceId, templatePatch);
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
