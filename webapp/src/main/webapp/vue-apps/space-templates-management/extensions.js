@@ -41,3 +41,16 @@ extensionRegistry.registerExtension('space-templates', 'space-templates-item-act
   name: 'delete',
   componentName: 'space-templates-management-menu-item-delete',
 });
+
+extensionRegistry.registerExtension('spaces-administration', 'main', {
+  rank: 200,
+  id: 'space-templates-management-name',
+  name: 'space-templates-management-name',
+  componentName: 'space-templates-management-name-drawer',
+});
+extensionRegistry.registerExtension('spaces-administration', 'main', {
+  rank: 210,
+  id: 'space-templates-management-characteristics',
+  name: 'space-templates-management-characteristics',
+  componentName: 'space-templates-management-characteristics-drawer',
+});
