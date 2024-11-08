@@ -36,6 +36,7 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, [
     `/social/i18n/locale.portlet.social.SpacesAdministrationPortlet?lang=${lang}`,
     `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`,
+    `/social/i18n/locale.portlet.SpaceTemplatesManagement?lang=${lang}`,
     `/social/i18n/locale.portal.webui?lang=${lang}`,
   ])
     .then(i18n => Vue.createApp({
