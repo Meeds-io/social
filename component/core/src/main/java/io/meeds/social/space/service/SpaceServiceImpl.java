@@ -28,7 +28,6 @@ import static org.exoplatform.social.core.space.SpaceUtils.MEMBER;
 import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_PUBLISHER_GROUP;
 import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_USERS_GROUP;
 import static org.exoplatform.social.core.space.SpaceUtils.PUBLISHER;
-import static org.exoplatform.social.core.space.SpaceUtils.SPACE_ADMIN_REFERENCE_NAME;
 import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithManagerMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithMemberMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithPublisherMembership;
@@ -41,6 +40,7 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithMemberMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithPublisherMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -101,31 +101,31 @@ import lombok.SneakyThrows;
 
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log            LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class);
+  private static final Log         LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class);
 
-  private static final int            MAX_SPACE_NAME_LENGTH = 200;
+  private static final int         MAX_SPACE_NAME_LENGTH = 200;
 
-  private SpaceStorage                spaceStorage;
+  private SpaceStorage             spaceStorage;
 
-  private SpaceSearchConnector        spaceSearchConnector;
+  private SpaceSearchConnector     spaceSearchConnector;
 
-  private GroupSpaceBindingStorage    groupSpaceBindingStorage;
+  private GroupSpaceBindingStorage groupSpaceBindingStorage;
 
-  private IdentityManager             identityManager;
+  private IdentityManager          identityManager;
 
-  private UserACL                     userAcl;
+  private UserACL                  userAcl;
 
-  private ResourceBundleService       resourceBundleService;
+  private ResourceBundleService    resourceBundleService;
 
-  private LocaleConfigService         localeConfigService;
+  private LocaleConfigService      localeConfigService;
 
-  private OrganizationService         organizationService;
+  private OrganizationService      organizationService;
 
-  private SpaceTemplateService        spaceTemplateService;
+  private SpaceTemplateService     spaceTemplateService;
 
-  private FileService                 fileService;
+  private FileService              fileService;
 
-  private SpaceLifecycle              spaceLifeCycle        = new SpaceLifecycle();
+  private SpaceLifecycle           spaceLifeCycle        = new SpaceLifecycle();
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
@@ -1052,40 +1052,21 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   private void setLayoutPermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
-    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceLayoutPermissions())) {
-      space.setLayoutPermissions(Collections.emptyList());
-    } else {
-      space.setLayoutPermissions(spaceTemplate.getSpaceLayoutPermissions()
-                                              .stream()
-                                              .map(p -> computeSpacePermissionFromTemplate(p, groupId))
-                                              .toList());
-    }
+    setPermissionsFromTemplate(spaceTemplate::getSpaceLayoutPermissions,
+                               space::setLayoutPermissions,
+                               groupId);
   }
 
   private void setPublicSitePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
-    if (CollectionUtils.isEmpty(spaceTemplate.getSpacePublicSitePermissions())) {
-      space.setPublicSitePermissions(Collections.emptyList());
-    } else {
-      space.setPublicSitePermissions(spaceTemplate.getSpacePublicSitePermissions()
-                                                  .stream()
-                                                  .map(p -> computeSpacePermissionFromTemplate(p, groupId))
-                                                  .toList());
-    }
+    setPermissionsFromTemplate(spaceTemplate::getSpacePublicSitePermissions,
+                               space::setPublicSitePermissions,
+                               groupId);
   }
 
-  private void setDeletePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
-    if (CollectionUtils.isEmpty(spaceTemplate.getSpaceDeletePermissions())) {
-      space.setDeletePermissions(Collections.emptyList());
-    } else {
-      space.setDeletePermissions(spaceTemplate.getSpaceDeletePermissions()
-                                              .stream()
-                                              .map(p -> computeSpacePermissionFromTemplate(p, groupId))
-                                              .toList());
-    }
-  }
-
-  private String computeSpacePermissionFromTemplate(String p, String groupId) {
-    return SPACE_ADMIN_REFERENCE_NAME.equals(p) ? MANAGER + ":" + groupId : p;
+  public static void setDeletePermissions(Space space, SpaceTemplate spaceTemplate, String groupId) {
+    setPermissionsFromTemplate(spaceTemplate::getSpaceDeletePermissions,
+                               space::setDeletePermissions,
+                               groupId);
   }
 
   private String checkSpaceEditorPermissions(Space space) {
@@ -1097,8 +1078,10 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   private boolean hasSpacePermission(Space space, List<String> permissions, String username) {
-    if (CollectionUtils.isEmpty(permissions)) {
+    if (space.getTemplateId() == 0 && CollectionUtils.isEmpty(permissions)) {
       return canManageSpace(space, username);
+    } else if (CollectionUtils.isEmpty(permissions)) {
+      return isSuperManager(username);
     } else {
       org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
       return isSuperManager(username)
