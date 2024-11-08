@@ -49,8 +49,8 @@
         </div>
         <select
           v-model="spaceTemplateId"
-          class="flex-grow-0 ignore-vuetify-classes py-2 height-auto full-width text-truncate mt-0 mb-4"
-          @change="$emit('filter-select-change', select)">
+          :aria-label="$t('social.spaces.administration.manageSpaces.templateSelection')"
+          class="flex-grow-0 ignore-vuetify-classes py-2 height-auto full-width text-truncate mt-0 mb-4">
           <option
             v-for="item in spaceTemplateItems"
             :key="item.value"
