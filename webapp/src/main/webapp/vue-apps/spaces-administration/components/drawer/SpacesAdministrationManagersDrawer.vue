@@ -27,8 +27,7 @@
     :loading="loading"
     allow-expand
     no-x-scroll
-    right
-    @expand-updated="expanded = $event">
+    right>
     <template #title>
       {{ $t('social.spaces.administration.manageSpaces.admins.drawerTitle', {
         0: spaceName,

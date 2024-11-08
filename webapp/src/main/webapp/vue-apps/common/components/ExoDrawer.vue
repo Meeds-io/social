@@ -33,7 +33,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content class="drawerTitle align-start text-header-title">
-                <div class="text-truncate d-flex full-width">
+                <div class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
               </v-list-item-content>

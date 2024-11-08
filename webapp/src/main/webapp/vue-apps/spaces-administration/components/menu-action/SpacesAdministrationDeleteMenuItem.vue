@@ -22,7 +22,13 @@
   <v-list-item
     dense
     @click="openConfirmDialog">
-    <v-icon class="error--text" size="13">fa-trash</v-icon>
+    <v-card
+      class="d-flex full-height justify-center"
+      color="transparent"
+      width="20"
+      flat>
+      <v-icon class="error--text" size="16">fa-trash</v-icon>
+    </v-card>
     <v-list-item-title class="ps-2">
       <span class="error--text">{{ $t('social.spaces.administration.manageSpaces.delete') }}</span>
     </v-list-item-title>

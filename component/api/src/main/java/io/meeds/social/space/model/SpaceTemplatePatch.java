@@ -7,7 +7,6 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -17,9 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.space.administration.model;
-
-import java.util.List;
+package io.meeds.social.space.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,12 +25,18 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpacePermissions {
+public class SpaceTemplatePatch {
 
-  private List<String> layoutPermissions;
+  private long    templateId;
 
-  private List<String> publicSitePermissions;
+  private boolean accessRules;
 
-  private List<String> deletePermissions;
+  private boolean editorialMode;
+
+  private boolean layoutPermissions;
+
+  private boolean publicSitePermissions;
+
+  private boolean deletePermissions;
 
 }

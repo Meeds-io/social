@@ -1055,7 +1055,7 @@ public class SpaceRest implements ResourceContainer {
       }
     }
 
-    if (model.getTemplateId() > 0) {
+    if (space.getSpaceId() == 0 && model.getTemplateId() > 0) {
       space.setTemplateId(model.getTemplateId());
     }
 
