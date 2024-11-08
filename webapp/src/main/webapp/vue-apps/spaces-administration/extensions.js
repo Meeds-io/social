@@ -36,12 +36,18 @@ extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   rank: 40,
+  name: 'save-as-template',
+  componentName: 'spaces-administration-save-as-template-menu-item',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
+  rank: 50,
   name: 'permissions',
   componentName: 'spaces-administration-permissions-menu-item',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
-  rank: 50,
+  rank: 60,
   name: 'delete',
   componentName: 'spaces-administration-delete-menu-item',
 });

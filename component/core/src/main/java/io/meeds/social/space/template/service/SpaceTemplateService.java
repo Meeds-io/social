@@ -52,35 +52,35 @@ import io.meeds.social.translation.service.TranslationService;
 @Service
 public class SpaceTemplateService {
 
-  public static final String          SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
+  public static final String      SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
 
-  public static final String          SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
+  public static final String      SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
 
-  public static final String          SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
+  public static final String      SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
 
-  public static final String          SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
+  public static final String      SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
 
-  public static final String          SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
+  public static final String      SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
 
-  public static final String          DEFAULT_SITE_TEMPLATE         = "space";
+  public static final String      DEFAULT_SITE_TEMPLATE         = "space";
 
-  private static final Log            LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
+  private static final Log        LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
 
-  private TranslationService          translationService;
+  private TranslationService      translationService;
 
-  private AttachmentService           attachmentService;
+  private AttachmentService       attachmentService;
 
-  private UserACL                     userAcl;
+  private UserACL                 userAcl;
 
-  private SpaceTemplateStorage        spaceTemplateStorage;
+  private SpaceTemplateStorage    spaceTemplateStorage;
 
-  private UserPortalConfigService     userPortalConfigService;
+  private UserPortalConfigService userPortalConfigService;
 
-  private LayoutService               layoutService;
+  private LayoutService           layoutService;
 
-  private NavigationService           navigationService;
+  private NavigationService       navigationService;
 
-  private ListenerService             listenerService;
+  private ListenerService         listenerService;
 
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
@@ -196,9 +196,11 @@ public class SpaceTemplateService {
     if (spaceTemplate.getId() != 0) {
       throw new IllegalArgumentException("Space template to create shouldn't have an id");
     }
-    String layout = StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE);
-    if (layoutService.getPortalConfig(SiteKey.groupTemplate(layout)) == null) {
-      throw new ObjectNotFoundException(String.format("Space Template layout '%s' wasn't found", layout));
+    String sourceLayout = StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE);
+    SiteKey sourceSiteKey = sourceLayout.contains("::") ? new SiteKey(sourceLayout.split("::")[0], sourceLayout.split("::")[1]) :
+                                                        SiteKey.groupTemplate(sourceLayout);
+    if (layoutService.getPortalConfig(sourceSiteKey) == null) {
+      throw new ObjectNotFoundException(String.format("Space Template layout '%s' wasn't found", sourceLayout));
     }
 
     SpaceTemplate spaceTemplateToCreate = spaceTemplate.clone();
@@ -206,7 +208,7 @@ public class SpaceTemplateService {
     spaceTemplateToCreate.setDeleted(false);
     spaceTemplateToCreate.setLayout(null);
     SpaceTemplate createdSpaceTemplate = spaceTemplateStorage.createSpaceTemplate(spaceTemplateToCreate);
-    createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, layout);
+    createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, sourceSiteKey);
     listenerService.broadcast(SPACE_TEMPLATE_CREATED_EVENT, spaceTemplate, createdSpaceTemplate);
     return createdSpaceTemplate;
   }
@@ -274,8 +276,7 @@ public class SpaceTemplateService {
   }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
-                                                  String sourceLayout) throws ObjectNotFoundException {
-    SiteKey sourceSiteKey = SiteKey.groupTemplate(sourceLayout);
+                                                  SiteKey sourceSiteKey) throws ObjectNotFoundException {
     SiteKey targetSiteKey = SiteKey.groupTemplate(String.valueOf(spaceTemplate.getId()));
     userPortalConfigService.createSiteFromTemplate(sourceSiteKey, targetSiteKey);
     PortalConfig targetPortalConfig = layoutService.getPortalConfig(targetSiteKey);
