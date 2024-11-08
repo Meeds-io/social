@@ -59,7 +59,6 @@
         v-if="spacesCount"
         :title="spacesCount"
         elevation="0"
-        class="me-2"
         @click="openSpacesList">
         {{ spacesCountLabel }}
       </v-chip>
