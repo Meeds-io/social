@@ -6,6 +6,7 @@
       :activity-types="activityTypes"
       class="no-border-bottom mb-0 pa-3" />
     <div
+      v-if="activityReactionEnabled"
       :class="actionBarBorderClass"
       class="mb-0 d-flex flex-wrap flex-column flex-lg-row align-lg-center">
       <activity-reactions
@@ -66,6 +67,9 @@ export default {
     isDesktop() {
       return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm' && this.$vuetify.breakpoint.name !== 'md';
     },
+    activityReactionEnabled() {
+      return this.activityTypeExtension?.reactionEnabled?.(this.activity) ?? true;
+    }
   },
   created() {
     this.$root.$on('activity-comment-created', this.checkCommentsSize);
