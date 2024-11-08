@@ -17,8 +17,12 @@
 package org.exoplatform.social.core.space;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -583,6 +587,23 @@ public class SpaceUtils {
 
   public static SpaceService getSpaceService() {
     return ExoContainerContext.getService(SpaceService.class);
+  }
+
+  public static void setPermissionsFromTemplate(Supplier<List<String>> permissionsSupplier,
+                                                Consumer<List<String>> permissionsConsumer,
+                                                String groupId) {
+    if (CollectionUtils.isEmpty(permissionsSupplier.get())) {
+      permissionsConsumer.accept(Collections.emptyList());
+    } else {
+      permissionsConsumer.accept(permissionsSupplier.get()
+                                                    .stream()
+                                                    .map(p -> computeSpacePermissionFromTemplate(p, groupId))
+                                                    .toList());
+    }
+  }
+
+  private static String computeSpacePermissionFromTemplate(String p, String groupId) {
+    return SPACE_ADMIN_REFERENCE_NAME.equals(p) ? MANAGER + ":" + groupId : p;
   }
 
   private static void clearIdentityCaching(String providerId, String remoteId) {

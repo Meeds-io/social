@@ -44,3 +44,18 @@ export function updateSpacePermissions(spaceId, permissions) {
     }
   });
 }
+
+export function applySpaceTemplate(spaceId, templatePatch) {
+  return fetch(`/social/rest/space/administration/${spaceId}/template`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(templatePatch),
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
