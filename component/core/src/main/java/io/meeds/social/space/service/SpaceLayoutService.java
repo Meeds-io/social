@@ -96,6 +96,23 @@ public class SpaceLayoutService {
   }
 
   /**
+   * Updates {@link Space} site switch designated templateId characteristics
+   * 
+   * @param space
+   * @throws ObjectNotFoundException
+   */
+  public void updateSpaceSite(Space space) throws ObjectNotFoundException {
+    SiteKey spaceSiteKey = SiteKey.group(space.getGroupId());
+    PortalConfig portalConfig = layoutService.getPortalConfig(spaceSiteKey);
+    if (portalConfig != null) {
+      navigationService.destroyNavigation(spaceSiteKey);
+      layoutService.removePages(spaceSiteKey);
+      layoutService.remove(portalConfig);
+    }
+    createSpaceSite(space);
+  }
+
+  /**
    * Saves the space public site characteristics
    * 
    * @param spaceId

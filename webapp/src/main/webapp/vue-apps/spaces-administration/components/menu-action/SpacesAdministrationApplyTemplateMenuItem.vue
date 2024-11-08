@@ -20,18 +20,17 @@
 -->
 <template>
   <v-list-item
-    class="d-flex justify-center"
     dense
-    @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
+    @click="$root.$emit('space-administration-apply-template-drawer-open', space)">
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
       width="20"
       flat>
-      <v-icon size="16">fa-users</v-icon>
+      <v-icon size="16">fa-sitemap</v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
-      {{ $t('social.spaces.administration.manageSpaces.syncMembers') }}
+      {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
     </v-list-item-title>
   </v-list-item>
 </template>
