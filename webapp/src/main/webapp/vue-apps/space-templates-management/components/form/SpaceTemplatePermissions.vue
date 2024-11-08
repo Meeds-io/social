@@ -151,6 +151,7 @@ export default {
 
     const specificGroupEntries = permissions?.filter?.(p =>
       p !== this.$root.administratorsPermission
+      && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
       && (!this.users || p !== this.$root.usersPermission)
       && (!this.spaceAdmin || p !== 'spaceAdmin')
     ) || null;
