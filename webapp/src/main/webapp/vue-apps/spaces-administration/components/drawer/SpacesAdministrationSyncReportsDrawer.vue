@@ -27,8 +27,7 @@
     :loading="loading"
     expanded
     no-x-scroll
-    right
-    @expand-updated="expanded = $event">
+    right>
     <template v-if="space" #title>
       {{ $t('social.spaces.administration.manageSpaces.bindingReportsOfSpace', {
         0: space.displayName

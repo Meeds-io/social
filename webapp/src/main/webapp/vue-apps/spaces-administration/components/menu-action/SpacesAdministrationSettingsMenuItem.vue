@@ -22,7 +22,13 @@
   <v-list-item
     :href="spaceSettingsUrl"
     dense>
-    <v-icon size="13">fa-edit</v-icon>
+    <v-card
+      class="d-flex full-height justify-center"
+      color="transparent"
+      width="20"
+      flat>
+      <v-icon size="16">fa-edit</v-icon>
+    </v-card>
     <v-list-item-title class="ps-2">
       {{ $t('social.spaces.administration.manageSpaces.openSettings') }}
     </v-list-item-title>
