@@ -36,16 +36,18 @@
         @loading-spaces="loadingSpaces = $event"
         @loaded="spacesLoaded" />
     </v-main>
+    <div>
+      <component
+        v-for="extension in $root.mainExtensions"
+        :key="extension.name"
+        :is="extension.componentName" />
+    </div>
     <spaces-administration-managers-drawer />
     <spaces-administration-sync-reports-drawer />
     <spaces-administration-sync-members-drawer />
     <spaces-administration-permissions-drawer />
     <spaces-administration-apply-template-drawer />
     <space-form-drawer />
-    <component
-      v-for="extension in $root.mainExtensions"
-      :key="extension.name"
-      :is="extension.componentName" />
   </v-app>    
 </template>
 <script>
