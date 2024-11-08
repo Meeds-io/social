@@ -337,12 +337,6 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- Needed for cache management in runtime -->
-    <dependency>
-      <groupId>io.meeds.kernel</groupId>
-      <artifactId>exo.kernel.component.ext.cache.impl.infinispan.v8</artifactId>
-    </dependency>
-
     <!-- Transitive dependencies to exclude -->
     <dependency>
       <groupId>io.meeds.portal</groupId>
