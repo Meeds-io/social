@@ -52,6 +52,8 @@ public class SpaceTemplateStorageTest {
 
   private static final String  SPACE_CREATE_PERMISSIONS      = "permissions";
 
+  private static final String  SPACE_ADMIN_PERMISSIONS       = "adminPermissions";
+
   private static final String  SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
 
   private static final String  SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
@@ -147,6 +149,8 @@ public class SpaceTemplateStorageTest {
     assertEquals(spaceTemplateEntity.isSystem(), spaceTemplate.isSystem());
     assertEquals(spaceTemplateEntity.getPermissions(), spaceTemplate.getPermissions());
     assertEquals(SPACE_CREATE_PERMISSIONS, spaceTemplate.getPermissions().get(0));
+    assertEquals(spaceTemplateEntity.getAdminPermissions(), spaceTemplate.getAdminPermissions());
+    assertEquals(SPACE_ADMIN_PERMISSIONS, spaceTemplate.getAdminPermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceDeletePermissions(), spaceTemplate.getSpaceDeletePermissions());
     assertEquals(SPACE_DELETE_PERMISSIONS, spaceTemplate.getSpaceDeletePermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceLayoutPermissions(), spaceTemplate.getSpaceLayoutPermissions());
@@ -167,6 +171,7 @@ public class SpaceTemplateStorageTest {
                                    true,
                                    "layout",
                                    Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                                   Arrays.asList(SPACE_ADMIN_PERMISSIONS),
                                    Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                                    Arrays.asList(SPACE_DELETE_PERMISSIONS),
                                    Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
@@ -187,6 +192,7 @@ public class SpaceTemplateStorageTest {
                              true,
                              "layout",
                              Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                             Arrays.asList(SPACE_ADMIN_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
