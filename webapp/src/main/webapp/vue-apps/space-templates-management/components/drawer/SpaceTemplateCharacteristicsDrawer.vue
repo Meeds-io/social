@@ -133,6 +133,36 @@
             class="mb-4"
             users
             admins />
+          <space-templates-management-permissions
+            v-model="spaceTemplate.adminPermissions"
+            help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
+            help-tooltip="spaceTemplate.permissionsStepSpaceAdminsPermissionTooltip"
+            class="mb-4"
+            users
+            admins>
+            <template #helpContent>
+              <div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent1') }}
+                </div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent2') }}
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent3') }}
+                  </div>
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent4') }}
+                  </div>
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent5') }}
+                  </div>
+                </div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent6') }}
+                </div>
+              </div>
+            </template>
+          </space-templates-management-permissions>
         </div>
         <v-card
           v-on="step3Enabled && {
