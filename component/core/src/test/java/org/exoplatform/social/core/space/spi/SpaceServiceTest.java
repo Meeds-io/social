@@ -301,6 +301,22 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(profile.isDefaultAvatar());
   }
 
+  public void testGetSpacesWithExcludedIds() throws Exception {
+    SpaceFilter spaceFilter = new SpaceFilter();
+    ArrayList<Long> excludedIds = new ArrayList<>();
+    for (int i = 0; i < 6; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i % 2 == 0) {
+        excludedIds.add(Long.parseLong(space.getId()));
+      }
+    }
+    ListAccess<Space> spaces = spaceService.getAllSpacesByFilter(spaceFilter);
+    int size = spaces.getSize();
+    spaceFilter.setExcludedIds(excludedIds);
+    spaces = spaceService.getAllSpacesByFilter(spaceFilter);
+    assertEquals(size - 3, spaces.getSize());
+  }
+
   public void testUpdateSpaceAvatar() throws IOException {
     this.getSpaceInstance(0);
     Space space = spaceService.getSpaceByPrettyName(MY_SPACE_0_PRETTY_NAME);
