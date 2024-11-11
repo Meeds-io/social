@@ -2200,9 +2200,6 @@ public class EntityBuilder {
     }
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String siteName = site.getName();
-    if (SiteType.GROUP.equals(siteType) && !isMemberOf(siteName)) {
-      return null;
-    }
     SiteKey siteKey = new SiteKey(siteType, siteName);
 
     UserPortalConfig userPortalConfig = getUserPortalConfig(request, site, siteType);
@@ -2263,11 +2260,6 @@ public class EntityBuilder {
 
   private static String getSiteLabel(SiteKey siteKey, UserPortal userPortal) {
     return userPortal == null ? siteKey.getName() : userPortal.getPortalLabel(siteKey);
-  }
-
-  private static boolean isMemberOf(String groupId) {
-    org.exoplatform.services.security.Identity identity = getCurrentUserIdentity();
-    return identity != null && identity.isMemberOf(groupId);
   }
 
   private static UserPortalConfig getUserPortalConfig(HttpServletRequest request,

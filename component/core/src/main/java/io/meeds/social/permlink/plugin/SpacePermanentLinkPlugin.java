@@ -61,7 +61,7 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
         throw new ObjectNotFoundException(String.format("Space with id %s not found", object.getObjectId()));
       } else {
         String username = identity.getUserId();
-        return spaceService.isSuperManager(username)
+        return spaceService.isSuperManager(space, username)
                || spaceService.isInvitedUser(space, username)
                || spaceService.isMember(space, username)
                || (!StringUtils.equals(Space.HIDDEN, space.getVisibility())

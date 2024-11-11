@@ -104,7 +104,7 @@ public class Utils {
   }
   
   public static void sendToCommeters(Set<String> receivers, String[] commenters, String poster, String spaceId) {
-    receivers.addAll(getDestinataires(commenters, poster, spaceId));
+    receivers.addAll(getReceiverUsers(commenters, poster, spaceId));
   }
 
   /**
@@ -139,14 +139,14 @@ public class Utils {
     String activityPosterRemoteId = Utils.getUserId(activityPosterId);
     SpaceService spaceService = getSpaceService();
     if (spaceId == null
-        || spaceService.isSuperManager(activityPosterRemoteId)
+        || spaceService.isSuperManager(spaceService.getSpaceById(spaceId), activityPosterRemoteId)
         || spaceService.isMember(spaceService.getSpaceById(spaceId), activityPosterRemoteId)) {
       receivers.add(activityPosterRemoteId);
     }
   }
   
   public static void sendToMentioners(Set<String> receivers, String[] mentioners, String poster, String spaceId) {
-    receivers.addAll(getDestinataires(mentioners, poster, spaceId));
+    receivers.addAll(getReceiverUsers(mentioners, poster, spaceId));
   }
   
   /**
@@ -156,8 +156,8 @@ public class Utils {
    * @param poster The user who has posted the activity or comment.
    * @return The remote Ids.
    */
-  private static Set<String> getDestinataires(String[] users, String poster , String spaceId) {
-    Set<String> destinataires = new HashSet<String>();
+  private static Set<String> getReceiverUsers(String[] users, String poster , String spaceId) {
+    Set<String> destinataires = new HashSet<>();
     SpaceService spaceService = getSpaceService();
     Space space = spaceService.getSpaceById(spaceId);
     for (String user : users) {
@@ -165,7 +165,7 @@ public class Utils {
       String userName = getUserId(user);
       boolean isMember = true;
       if(space != null) {
-        isMember = spaceService.isMember(space, userName) || spaceService.isSuperManager(userName);
+        isMember = spaceService.isMember(space, userName) || spaceService.isSuperManager(space, userName);
       }
       if (!user.equals(poster) && isMember) {
         destinataires.add(userName);
@@ -214,7 +214,7 @@ public class Utils {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, remoteId, false);
       boolean isMember = true;
       if (space != null) {
-        isMember = spaceService.isMember(space, remoteId) || spaceService.isSuperManager(remoteId);
+        isMember = spaceService.isMember(space, remoteId) || spaceService.isSuperManager(space, remoteId);
       }
       if (identity != null && !posterRemoteId.equals(remoteId) && isMember) {
         mentioners.add(remoteId);

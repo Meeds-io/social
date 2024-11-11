@@ -905,6 +905,46 @@ public class SpaceServiceTest extends AbstractCoreTest {
     }
   }
 
+  public void testIsSuperManagerBySpaceTemplate() throws ObjectNotFoundException {
+    Space raulSpace = createSpace("raulSpace", RAUL_NAME);
+    Space rootSpace = createSpace("rootSpace", ROOT_NAME);
+    assertFalse(spaceService.isSuperManager(rootSpace.getSpaceId(), RAUL_NAME));
+
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    List<String> originalSpaceAdminPermissions = spaceTemplate.getAdminPermissions();
+    spaceTemplate.setAdminPermissions(Collections.singletonList(raulSpace.getGroupId()));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+    try {
+      assertFalse(spaceService.isSuperManager(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canManageSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canDeleteSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canManageSpaceLayout(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canPublishOnSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canRedactOnSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canViewSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isMember(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isManager(rootSpace, RAUL_NAME));
+
+      restartTransaction();
+      rootSpace = spaceService.getSpaceById(rootSpace.getSpaceId());
+      rootSpace.setTemplateId(spaceTemplate.getId());
+
+      assertTrue(spaceService.isSuperManager(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canManageSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canDeleteSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canManageSpaceLayout(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canPublishOnSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canRedactOnSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canViewSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isMember(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isManager(rootSpace, RAUL_NAME));
+    } finally {
+      spaceTemplate.setAdminPermissions(originalSpaceAdminPermissions);
+      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+    }
+  }
+
   public void testCreateSpaceWithInvalidSpaceName() {
     Space space = new Space();
     String spaceDisplayName = "%zzz:^!/<>😁";
