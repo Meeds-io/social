@@ -49,7 +49,7 @@ public class SpaceFilter implements Cloneable {
 
   private List<Space>           includeSpaces;
 
-  private List<Space>           exclusions;
+  private List<Long>            excludedIds;
 
   private String                remoteId;
 
@@ -102,7 +102,7 @@ public class SpaceFilter implements Cloneable {
   public SpaceFilter clone() { // NOSONAR
     return new SpaceFilter(spaceNameSearchCondition,
                            includeSpaces,
-                           exclusions,
+                           excludedIds,
                            remoteId,
                            identityId,
                            templateId,
