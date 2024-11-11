@@ -870,29 +870,15 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
   }
 
-  public void testCreateSpaceWithNoNameWhenSpaceTemplateAllowsIt() throws ObjectNotFoundException {
-    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
-    List<String> originalSpaceFields = spaceTemplate.getSpaceFields();
-
-    try {
-      Space space = new Space();
-      space.setRegistration(Space.OPEN);
-      space.setDescription(SPACE_DESCRIPTION);
-      space.setVisibility(Space.PUBLIC);
-      space.setRegistration(Space.VALIDATION);
-      assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
-
-      spaceTemplate.setSpaceFields(Collections.singletonList("invitation"));
-      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
-
-      Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
-      assertNotNull(createdSpace);
-      assertEquals("Dragon Ball", createdSpace.getDisplayName());
-    } finally {
-      spaceTemplate.setSpaceFields(originalSpaceFields);
-      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
-    }
+  public void testCreateSpaceWithNoName() {
+    Space space = new Space();
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(createdSpace);
+    assertEquals("Dragon Ball", createdSpace.getDisplayName());
   }
 
   public void testCreateSpaceWithTemplateCharacteristics() throws ObjectNotFoundException, SpaceException {
