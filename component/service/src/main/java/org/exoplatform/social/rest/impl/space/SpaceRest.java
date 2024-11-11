@@ -232,6 +232,9 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Tag names used to search spaces", required = true)
                             @QueryParam("tags")
                             List<String> tagNames,
+                            @Parameter(description = "Excluded space ids", required = false)
+                            @QueryParam("excludedId")
+                            List<Long> excludedIds,
                             @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
                                        required = false)
                             @QueryParam("expand")
@@ -252,6 +255,7 @@ public class SpaceRest implements ResourceContainer {
     }
     spaceFilter.setTagNames(tagNames);
     spaceFilter.setTemplateId(templateId);
+    spaceFilter.setExcludedIds(excludedIds);
 
     if (StringUtils.isNotBlank(sort)) {
       SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
