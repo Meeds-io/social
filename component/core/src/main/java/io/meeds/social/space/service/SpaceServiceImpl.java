@@ -980,7 +980,7 @@ public class SpaceServiceImpl implements SpaceService {
                                            String username,
                                            List<String> invitees) throws SpaceException {
     setSpaceAccess(space, spaceTemplate);
-    setSpaceDisplayName(space, spaceTemplate, invitees);
+    setSpaceDisplayName(space, invitees);
     // Creates the associated group to the space
     String groupId = createSpaceGroup(space, username);
     setDeletePermissions(space, spaceTemplate, groupId);
@@ -1009,9 +1009,8 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
 
-  private void setSpaceDisplayName(Space space, SpaceTemplate spaceTemplate, List<String> invitees) throws SpaceException {
-    if (!spaceTemplate.getSpaceFields().contains("name")
-        && StringUtils.isBlank(space.getDisplayName())) {
+  private void setSpaceDisplayName(Space space, List<String> invitees) throws SpaceException {
+    if (StringUtils.isBlank(space.getDisplayName())) {
       if (CollectionUtils.isNotEmpty(invitees)) {
         invitees = new ArrayList<>(invitees);
         invitees.removeAll(Arrays.asList(space.getMembers()));
