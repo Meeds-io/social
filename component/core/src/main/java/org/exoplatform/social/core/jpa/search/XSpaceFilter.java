@@ -44,6 +44,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setSorting(spaceFilter.getSorting());
       this.setFavorite(spaceFilter.isFavorite());
       this.setTemplateId(spaceFilter.getTemplateId());
+      this.setExcludedIds(spaceFilter.getExcludedIds());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
       }

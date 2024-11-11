@@ -30,16 +30,19 @@
         v-if="spacesSize || !initialized"
         :headers="headers"
         :items="spaces"
-        :loading="loadingSpaces"
+        :loading="loadingSpaces && !$root.isMobile"
         :hide-default-header="$root.isMobile"
-        disable-sort
+        :options.sync="options"
+        :disable-sort="!canSort || $root.isMobile"
+        :must-sort="canSort"
         disable-pagination
         hide-default-footer
-        class="spacesAdministrationTable px-0">
+        class="spacesAdministrationTable full-width px-0">
         <template slot="item" slot-scope="props">
           <spaces-administration-item
             :key="props.item.id"
-            :space="props.item" />
+            :space="props.item"
+            :headers="headers" />
         </template>
       </v-data-table>
       <v-card
@@ -108,50 +111,61 @@ export default {
   },
   data: () => ({
     initialized: false,
+    loading: false,
     offset: 0,
     pageSize: 25,
     spacesSize: 0,
     filter: 'all',
     expand: 'managers,groupBinding',
     spaces: [],
+    options: {
+      sortBy: ['title'],
+      sortDesc: [false],
+    },
   }),
   computed: {
     canShowMore() {
       return this.spaces?.length && this.spacesSize > this.spaces.length;
     },
+    canSort() {
+      // Sort is made by pertinence
+      // When search by keyword, thus disable
+      // when the text search is used
+      return !this.keyword?.length;
+    },
     headers() {
-      return this.$root.isMobile && [
+      const headers = this.$root.isMobile && [
         {
           text: this.$t('social.spaces.administration.manageSpaces.name'),
-          value: 'displayName',
+          value: 'title',
           align: 'left',
-          sortable: true,
-          class: 'space-name-header',
-          width: '20%'
+          sortable: false,
+          class: 'space-name-header px-0',
+          width: '70%'
+        },
+        {
+          text: this.$t('social.spaces.administration.manageSpaces.users'),
+          value: 'membersCount',
+          align: 'center',
+          sortable: false,
+          class: 'space-users-header px-0',
+          width: '15%'
         },
         {
           text: this.$t('social.spaces.administration.manageSpaces.actions'),
           value: 'actions',
           align: 'center',
           sortable: false,
-          class: 'space-actions-header',
-          width: '50px'
+          class: 'space-actions-header px-0',
+          width: '15%'
         },
       ] || [
         {
           text: this.$t('social.spaces.administration.manageSpaces.name'),
-          value: 'displayName',
+          value: 'title',
           align: 'left',
-          sortable: false,
+          sortable: true,
           class: 'space-name-header pe-0',
-          width: 'auto'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.description'),
-          value: 'description',
-          align: 'left',
-          sortable: false,
-          class: 'space-description-header pe-0',
           width: 'auto'
         },
         {
@@ -160,23 +174,7 @@ export default {
           align: 'center',
           sortable: false,
           class: 'space-template-header px-1',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.registration'),
-          value: 'registration',
-          align: 'center',
-          sortable: true,
-          class: 'space-registration-header px-1',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.visibility'),
-          value: 'visibility',
-          align: 'center',
-          sortable: false,
-          class: 'space-visibility-header px-1',
-          width: '120px'
+          width: '90px'
         },
         {
           text: this.$t('social.spaces.administration.manageSpaces.admins'),
@@ -184,7 +182,7 @@ export default {
           align: 'center',
           sortable: false,
           class: 'space-admins-header px-1',
-          width: '90px'
+          width: '120px'
         },
         {
           text: this.$t('social.spaces.administration.manageSpaces.users'),
@@ -192,7 +190,7 @@ export default {
           align: 'center',
           sortable: false,
           class: 'space-users-header px-1',
-          width: '60px'
+          width: '90px'
         },
         {
           text: this.$t('social.spaces.administration.manageSpaces.bindingStatus'),
@@ -200,7 +198,7 @@ export default {
           align: 'center',
           sortable: false,
           class: 'space-group-binding-header px-1',
-          width: '60px'
+          width: '90px'
         },
         {
           text: this.$t('social.spaces.administration.manageSpaces.actions'),
@@ -208,9 +206,16 @@ export default {
           align: 'center',
           sortable: false,
           class: 'space-actions-header px-1',
-          width: '60px'
+          width: '90px'
         },
       ];
+      if (!this.$root.isMobile) {
+        this.$root.tableColumnExtensions.forEach(extension => headers.splice(1, 0, {
+          ...extension.header,
+          text: this.$t(extension.titleKey)
+        }));
+      }
+      return headers;
     },
   },
   watch: {
@@ -240,7 +245,18 @@ export default {
         this.searchSpaces();
       }
     },
-  }, 
+    loading() {
+      this.$emit('loading-spaces', this.loading);
+    },
+    options: {
+      handler () {
+        if (!this.keyword?.length) {
+          this.searchSpaces(true);
+        }
+      },
+      deep: true,
+    },
+  },
   created() {
     this.searchSpaces();
     this.$root.$on('spaces-administration-list-refresh', this.refreshSpaces);
@@ -252,19 +268,44 @@ export default {
     refreshSpaces() {
       this.searchSpaces(true);
     },
-    searchSpaces(refresh) {
+    async searchSpaces(refresh) {
+      if (this.loading) {
+        return;
+      }
       const offset = refresh ? 0 : this.offset;
       const limit = refresh ? this.offset + this.pageSize : this.pageSize;
-      this.$emit('loading-spaces', true);
-      return this.$spaceService.getSpaces(
-        this.keyword,
-        offset,
-        limit,
-        this.filter,
-        this.expand,
-        this.selectedTemplateId && Number(this.selectedTemplateId)
-      )
-        .then(data => {
+      const sortBy = this.options.sortBy[0];
+      const sortDesc = this.options.sortDesc[0];
+
+      this.loading = true;
+      try {
+        const customSort = this.$root.tableColumnExtensions?.find(e => e.sortBy === sortBy)?.customSort;
+        if (customSort
+            && !this.keyword?.length
+            && this.filter === 'all') {
+          this.spaces = await customSort({
+            offset: offset,
+            limit: limit,
+            expand: this.expand,
+            templateId: (this.selectedTemplateId && Number(this.selectedTemplateId)) ? this.selectedTemplateId : null,
+            sortDesc,
+            currentSpaces: this.spaces,
+            currentSpacesSize: this.spacesSize,
+          });
+        } else {
+          if (!offset) {
+            this.spaces = [];
+          }
+          const data = await this.$spaceService.getSpaces(
+            this.keyword,
+            offset,
+            limit,
+            this.filter,
+            this.expand,
+            this.selectedTemplateId && Number(this.selectedTemplateId),
+            'title',
+            sortDesc ? 'desc' : 'asc',
+          );
           if (offset) {
             this.spaces.push(...data.spaces);
           } else {
@@ -272,11 +313,11 @@ export default {
           }
           this.spacesSize = data?.size || 0;
           this.$emit('loaded', this.spacesSize);
-        })
-        .finally(() => {
-          this.$emit('loading-spaces', false);
-          this.initialized = true;
-        });
+        }
+      } finally {
+        this.loading = false;
+        this.initialized = true;
+      }
     },
     loadNextPage() {
       this.offset += this.pageSize;
