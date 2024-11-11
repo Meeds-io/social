@@ -125,30 +125,51 @@ export function getSpaceByGroupSuffix(groupSuffix, expand) {
   });
 }
 
-export function getSpaces(query, offset, limit, filter, expand, templateId) {
-  if (!expand) {
-    expand = filter === 'requests' ? 'pending' : limit && 'managers' || '';
-  }
+export function getSpaces(query, offset, limit, filter, expand, templateId, sortBy, sortDirection) {
+  return getSpacesByFilter({
+    query,
+    offset,
+    limit,
+    filter,
+    expand,
+    templateId,
+    sortBy,
+    sortDirection,
+  });
+}
+
+export function getSpacesByFilter(options) {
   const formData = new FormData();
-  if (query) {
-    formData.append('q', query);
+  if (options.expand) {
+    formData.append('expand', options.expand);
+  } else {
+    formData.append('expand', options.filter === 'requests' ? 'pending' : options.limit && 'managers' || '');
   }
-  if (templateId) {
-    formData.append('templateId', templateId);
+  if (options.query) {
+    formData.append('q', options.query);
   }
-  if (offset) {
-    formData.append('offset', offset);
+  if (options.templateId) {
+    formData.append('templateId', options.templateId);
   }
-  if (limit) {
-    formData.append('limit', limit);
+  if (options.offset) {
+    formData.append('offset', options.offset);
   }
-  if (filter) {
-    formData.append('filterType', filter);
+  if (options.limit) {
+    formData.append('limit', options.limit);
+  }
+  if (options.filter) {
+    formData.append('filterType', options.filter);
+  }
+  if (options.sortBy) {
+    formData.append('sort', options.sortBy);
+  }
+  if (options.sortDirection) {
+    formData.append('order', options.sortDirection);
+  }
+  if (options.excludedIds?.length) {
+    options.excludedIds.forEach(id => formData.append('excludedId', id));
   }
   formData.append('returnSize', true);
-  if (expand) {
-    formData.append('expand', expand);
-  }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces?${urlParams}`, {
     method: 'GET',
