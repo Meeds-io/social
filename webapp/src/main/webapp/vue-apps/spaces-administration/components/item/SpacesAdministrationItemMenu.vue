@@ -36,7 +36,7 @@
       <v-btn
         v-bind="attrs"
         v-on="on"
-        :aria-label="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
+        :title="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
         :loading="loading"
         icon>
         <v-icon size="20">fa-ellipsis-v</v-icon>
