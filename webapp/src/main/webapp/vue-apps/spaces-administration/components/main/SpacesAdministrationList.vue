@@ -28,6 +28,7 @@
     <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
       <v-data-table
         v-if="spacesSize || !initialized"
+        v-model="selectedSpaces"
         :headers="headers"
         :items="spaces"
         :loading="loadingSpaces && !$root.isMobile"
@@ -35,14 +36,32 @@
         :options.sync="options"
         :disable-sort="!canSort || $root.isMobile"
         :must-sort="canSort"
+        :show-select="!$root.isMobile"
+        class="spacesAdministrationTable full-width px-0"
         disable-pagination
-        hide-default-footer
-        class="spacesAdministrationTable full-width px-0">
+        hide-default-footer>
+        <template v-if="selectedSpaces.length" slot="body.prepend">
+          <tr>
+            <td :colspan="headers.length + 1" class="px-0">
+              <v-alert
+                :icon="false"
+                class="ma-0 ps-5 no-border-radius"
+                border="left"
+                type="info"
+                colored-border>
+                <!-- eslint-disable-next-line -->
+                <div v-html="selectionLabel" /> <!-- NOSONAR -->
+              </v-alert>
+            </td>
+          </tr>
+        </template>
         <template slot="item" slot-scope="props">
           <spaces-administration-item
             :key="props.item.id"
             :space="props.item"
-            :headers="headers" />
+            :headers="headers"
+            :selected="props.isSelected"
+            :select="props.select" />
         </template>
       </v-data-table>
       <v-card
@@ -122,6 +141,8 @@ export default {
       sortBy: ['title'],
       sortDesc: [false],
     },
+    allSpacesSelected: false,
+    selectedSpaces: [],
   }),
   computed: {
     canShowMore() {
@@ -217,6 +238,24 @@ export default {
       }
       return headers;
     },
+    selectionLabel() {
+      if (this.allSpacesSelected) {
+        return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
+          0: `<strong>${this.spacesSize}</strong>`,
+        });
+      } else if (this.selectedSpaces.length === this.spaces.length && this.spaces.length < this.spacesSize) {
+        return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
+          0: `<strong>${this.selectedSpaces.length}</strong>`,
+          1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
+          2: this.spacesSize,
+          3: '</a>',
+        });
+      } else {
+        return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+          0: `<strong>${this.selectedSpaces.length}</strong>`,
+        });
+      }
+    },
   },
   watch: {
     keyword() {
@@ -256,12 +295,17 @@ export default {
       },
       deep: true,
     },
+    selectedSpaces() {
+      this.allSpacesSelected = false;
+    },
   },
   created() {
     this.searchSpaces();
+    window.addEventListener('select-all-spaces', this.selectAllSpaces);
     this.$root.$on('spaces-administration-list-refresh', this.refreshSpaces);
   },
   beforeDestroy() {
+    window.removeEventListener('select-all-spaces', this.selectAllSpaces);
     this.$root.$off('spaces-administration-list-refresh', this.refreshSpaces);
   },
   methods: {
@@ -318,6 +362,9 @@ export default {
         this.loading = false;
         this.initialized = true;
       }
+    },
+    selectAllSpaces() {
+      this.allSpacesSelected = true;
     },
     loadNextPage() {
       this.offset += this.pageSize;
