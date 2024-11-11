@@ -229,7 +229,7 @@ public class SpaceServiceImpl implements SpaceService {
       spaceLifeCycle.resetCurrentEvent(Type.SPACE_CREATED);
     }
 
-    long bannerId = spaceTemplateService.getSpaceTemplateBannerId(spaceTemplate.getId());
+    long bannerId = getSpaceTemplateService().getSpaceTemplateBannerId(spaceTemplate.getId());
     if (bannerId > 0) {
       duplicateBannerById(createdSpace, bannerId, username);
     }
@@ -600,6 +600,17 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public boolean canManageSpace(Space space, String username) {
+    if (username == null || space == null) {
+      return false;
+    } else if (isMember(space, username) && isManager(space, username)) {
+      return true;
+    } else {
+      return isSuperManager(space, username);
+    }
+  }
+
+  @Override
   public boolean isInvitedUser(Space space, String username) {
     return space != null && ArrayUtils.contains(space.getInvitedUsers(), username);
   }
@@ -918,6 +929,25 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public boolean isSuperManager(Space space, String username) {
+    if (space == null || space.getTemplateId() == 0) {
+      return isSuperManager(username);
+    } else {
+      SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(space.getTemplateId());
+      org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
+      if (spaceTemplate == null || spaceTemplate.isDeleted()) {
+        return isSuperManager(username);
+      } else {
+        return isSuperManager(username)
+               || (CollectionUtils.isNotEmpty(spaceTemplate.getAdminPermissions())
+                   && spaceTemplate.getAdminPermissions()
+                                   .stream()
+                                   .anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission))));
+      }
+    }
+  }
+
+  @Override
   public boolean canManageSpacePublicSite(Space space, String username) {
     return hasSpacePermission(space,
                               space.getPublicSitePermissions(),
@@ -1080,10 +1110,10 @@ public class SpaceServiceImpl implements SpaceService {
     if (space.getTemplateId() == 0 && CollectionUtils.isEmpty(permissions)) {
       return canManageSpace(space, username);
     } else if (CollectionUtils.isEmpty(permissions)) {
-      return isSuperManager(username);
+      return isSuperManager(space, username);
     } else {
       org.exoplatform.services.security.Identity userIdentity = userAcl.getUserIdentity(username);
-      return isSuperManager(username)
+      return isSuperManager(space, username)
              || (isMember(space, username)
                  && permissions.stream().anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission))));
     }

@@ -132,7 +132,7 @@ export default {
       return this.spaceTemplate?.icon;
     },
     sortedManagers() {
-      const managers = this.space.managers;
+      const managers = this.space.managers.slice();
       managers.sort((a, b) => this.$root.collator.compare(a.fullname.toLowerCase(), b.fullname.toLowerCase()));
       return managers;
     },

@@ -45,7 +45,6 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
-import io.meeds.social.space.template.service.SpaceTemplateService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorizationManagerTest {
@@ -86,9 +85,6 @@ public class AuthorizationManagerTest {
   UserACL                              userAcl;
 
   @Mock
-  SpaceTemplateService                 spaceTemplateService;
-
-  @Mock
   InitParams                           params;
 
   @Mock
@@ -126,7 +122,6 @@ public class AuthorizationManagerTest {
 
     authorizationManager = new AuthorizationManager(params);
     authorizationManager.setSpaceService(spaceService);
-    authorizationManager.setSpaceTemplateService(spaceTemplateService);
   }
 
   @Test
@@ -204,12 +199,6 @@ public class AuthorizationManagerTest {
 
     when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(), ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
     assertTrue(authorizationManager.hasEditPermission(page, identity));
-
-    when(spaceTemplateService.getSpaceTemplateByLayout(SPACE_TEMPLATE_PAGE_KEY.getSite().getName())).thenReturn(spaceTemplate);
-    assertTrue(authorizationManager.hasEditPermission(page, identity));
-
-    when(spaceTemplate.isSystem()).thenReturn(true);
-    assertFalse(authorizationManager.hasEditPermission(page, identity));
   }
 
   @Test
