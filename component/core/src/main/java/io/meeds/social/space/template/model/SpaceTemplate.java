@@ -52,6 +52,8 @@ public class SpaceTemplate implements Cloneable {
 
   private List<String> permissions;
 
+  private List<String> adminPermissions;
+
   private List<String> spaceLayoutPermissions;
 
   private List<String> spaceDeletePermissions;
@@ -78,6 +80,7 @@ public class SpaceTemplate implements Cloneable {
                              system,
                              layout,
                              permissions,
+                             adminPermissions,
                              spaceLayoutPermissions,
                              spaceDeletePermissions,
                              spacePublicSitePermissions,
