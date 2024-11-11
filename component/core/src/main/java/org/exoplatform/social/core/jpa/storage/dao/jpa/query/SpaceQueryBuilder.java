@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.persistence.impl.EntityManagerHolder;
@@ -134,6 +134,10 @@ public final class SpaceQueryBuilder {
     // Space Template
     if (spaceFilter.getTemplateId() > 0) {
       predicates.add(root.get(SpaceEntity_.templateId).in(spaceFilter.getTemplateId()));
+    }
+
+    if (CollectionUtils.isNotEmpty(spaceFilter.getExcludedIds())) {
+      predicates.add(root.get(SpaceEntity_.id).in(spaceFilter.getExcludedIds()).not());
     }
 
     // status
@@ -251,10 +255,10 @@ public final class SpaceQueryBuilder {
   }
 
   private Expression<?> getSortField(Root<SpaceEntity> spaceEntity, SortBy sortBy) {
-    if (sortBy.equals(SortBy.DATE)) {      
+    if (sortBy.equals(SortBy.DATE)) {
       return spaceEntity.get(SpaceEntity_.createdDate);
     } else {
-      return spaceEntity.get(SpaceEntity_.prettyName);
+      return spaceEntity.get(SpaceEntity_.displayName);
     }
   }
 }

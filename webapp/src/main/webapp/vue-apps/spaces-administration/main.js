@@ -43,6 +43,7 @@ export function init() {
       data: {
         spaceTemplates: null,
         mainExtensions: [],
+        tableColumnExtensions: [],
         itemMenuExtensions: [],
         usersPermission: '/platform/users',
         externalsPermission: '/platform/externals',
@@ -57,12 +58,14 @@ export function init() {
       created() {
         document.addEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.addEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
+        document.addEventListener('extension-spaces-administration-table-column-updated', this.refreshExtensions);
         this.refreshSpaceTemplates();
         this.refreshExtensions();
       },
       beforeDestroy() {
         document.removeEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.removeEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
+        document.removeEventListener('extension-spaces-administration-table-column-updated', this.refreshExtensions);
       },
       methods: {
         async refreshSpaceTemplates() {
@@ -71,6 +74,7 @@ export function init() {
         refreshExtensions() {
           this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
           this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
+          this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
         },
       },
       template: `<spaces-administration id="${appId}" />`,

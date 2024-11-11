@@ -20,54 +20,52 @@
 
 -->
 <template>
-  <tr>
-    <!-- name -->
+  <tr :key="space.id">
     <td
-      :width="$root.isMobile && '100%' || 'auto'"
-      align="left">
+      align="left"
+      :width="headers[0].width">
       <space-avatar
         :space="space"
+        text-truncate-class="text-truncate-2"
         link-target="_blank"
         link-style />
     </td>
-    <!-- description -->
+    <template v-if="!$root.isMobile">
+      <td
+        v-for="extension in $root.tableColumnExtensions"
+        :key="extension.name"
+        :width="extension.header.width"
+        :align="extension.header.align || 'left'">
+        <component
+          :is="extension.componentName"
+          :space="space" />
+      </td>
+    </template>
     <td
       v-if="!$root.isMobile"
-      :title="description"
-      align="left">
-      <span v-sanitized-html="description" class="text-truncate-2"></span>
-    </td>
-    <td
-      v-if="!$root.isMobile"
-      :title="!spaceTemplateName && $t('social.spaces.administration.manageSpaces.noTemplate')"
-      align="center"
-      width="70px">
-      <div v-if="spaceTemplateName" class="width-fit-content no-max-width">
+      :title="!spaceTemplateIcon && $t('social.spaces.administration.manageSpaces.noTemplate')"
+      :width="!$root.isMobile && headers[extensionsSize + 1].width"
+      align="center">
+      <v-tooltip
+        v-if="spaceTemplateIcon"
+        bottom>
+        <template #activator="{attrs, on}">
+          <v-icon
+            v-on="on"
+            v-bind="attrs"
+            :aria-label="spaceTemplateName"
+            size="20">
+            {{ spaceTemplateIcon }}
+          </v-icon>
+        </template>
         {{ spaceTemplateName }}
-      </div>
+      </v-tooltip>
       <span v-else>-</span>
     </td>
     <td
       v-if="!$root.isMobile"
+      :width="!$root.isMobile && headers[extensionsSize + 2].width"
       align="center"
-      width="50px">
-      <div class="width-fit-content no-max-width">
-        {{ $t(`social.spaces.administration.manageSpaces.registration.${space.subscription}`) }}
-      </div>
-    </td>
-    <td
-      v-if="!$root.isMobile"
-      align="center"
-      width="50px"
-      class="text-no-wrap">
-      <div class="width-fit-content no-max-width">
-        {{ $t(`social.spaces.administration.manageSpaces.visibility.${space.visibility}`) }}
-      </div>
-    </td>
-    <td
-      v-if="!$root.isMobile"
-      align="center"
-      width="50px"
       class="position-relative text-no-wrap">
       <exo-user-avatars-list
         :users="sortedManagers"
@@ -82,8 +80,8 @@
         @open-detail="$root.$emit('space-administration-managers-drawer-open', sortedManagers, space.displayName)" />
     </td>
     <td
-      align="center"
-      width="50px">
+      :width="headers[$root.isMobile && 1 || (extensionsSize + 3)].width"
+      align="center">
       <number-format
         :title="space.membersCount"
         :value="space.membersCount"
@@ -91,8 +89,8 @@
     </td>
     <td
       v-if="!$root.isMobile"
-      align="center"
-      width="50px">
+      :width="!$root.isMobile && headers[extensionsSize + 4].width"
+      align="center">
       <v-btn
         :title="bindingStatusTitle"
         icon
@@ -101,8 +99,8 @@
       </v-btn>
     </td>
     <td
-      align="center"
-      width="50px">
+      :width="headers[$root.isMobile && 2 || (extensionsSize + 5)].width"
+      align="center">
       <spaces-administration-item-menu :space="space" />
     </td>
   </tr>
@@ -112,6 +110,10 @@ export default {
   props: {
     space: {
       type: Object,
+      default: null,
+    },
+    headers: {
+      type: Array,
       default: null,
     },
   },
@@ -126,8 +128,8 @@ export default {
     spaceTemplateName() {
       return this.spaceTemplate?.name;
     },
-    description() {
-      return this.$utils.htmlToText(this.space?.description || '');
+    spaceTemplateIcon() {
+      return this.spaceTemplate?.icon;
     },
     sortedManagers() {
       const managers = this.space.managers;
@@ -142,6 +144,9 @@ export default {
     },
     bindingStatusTitle() {
       return this.boundToGroup ? this.$t('social.spaces.administration.manageSpaces.bindingStatus.tooltip', {0: this.totalBoundUsers}) : this.$t('social.spaces.administration.manageSpaces.noBindingStatus.tooltip');
+    },
+    extensionsSize() {
+      return this.$root.tableColumnExtensions.length;
     },
   },
   watch: {
