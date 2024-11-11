@@ -20,7 +20,16 @@
 -->
 <template>
   <div class="d-flex flex-column">
-    <div class="font-weight-bold">
+    <help-label
+      v-if="helpLabel"
+      :label="helpLabel"
+      :tooltip="helpTooltip"
+      label-class="font-weight-bold">
+      <template slot="helpContent">
+        <slot name="helpContent"></slot>
+      </template>
+    </help-label>
+    <div v-else class="font-weight-bold">
       {{ $t(label) }}
     </div>
     <v-checkbox
@@ -83,6 +92,14 @@
 export default {
   props: {
     label: {
+      type: String,
+      default: null,
+    },
+    helpLabel: {
+      type: String,
+      default: null,
+    },
+    helpTooltip: {
       type: String,
       default: null,
     },

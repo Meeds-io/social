@@ -53,9 +53,9 @@ public class LikeCommentPlugin extends BaseNotificationPlugin {
     String spaceId = !activity.isComment() ? activity.getSpaceId()
                                            : Utils.getActivityManager().getParentActivity(activity).getSpaceId();
     SpaceService spaceService = Utils.getSpaceService();
-    if (spaceId != null && !spaceService.isSuperManager(likeTo)) {
+    if (spaceId != null) {
       Space space = spaceService.getSpaceById(spaceId);
-      if (!spaceService.isMember(space, likeTo)) {
+      if (!spaceService.isMember(space, likeTo) && !spaceService.isSuperManager(space, likeTo)) {
         return null;
       }
     }

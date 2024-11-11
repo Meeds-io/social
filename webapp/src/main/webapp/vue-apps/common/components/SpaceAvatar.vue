@@ -217,8 +217,7 @@ export default {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
     isSpaceMember() {
-      return eXo.env.portal.isSpacesManager
-        || this.space.isMember
+      return this.space.isMember
         || this.space.canEdit
         || this.space?.members?.includes(eXo.env.portal.userName)
         || this.space?.managers?.includes(eXo.env.portal.userName);

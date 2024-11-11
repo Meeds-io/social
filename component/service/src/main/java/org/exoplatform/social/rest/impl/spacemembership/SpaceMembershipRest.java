@@ -413,7 +413,7 @@ public class SpaceMembershipRest implements ResourceContainer {
   }
 
   private boolean canRetrieveSpaceMemberships(Space space, String targetUser, String authenticatedUser) {
-    if (spaceService.isSuperManager(authenticatedUser)
+    if (spaceService.isSuperManager(space, authenticatedUser)
         || (space == null && StringUtils.equals(targetUser, authenticatedUser))) {
       return true;
     } else if (space == null) {
