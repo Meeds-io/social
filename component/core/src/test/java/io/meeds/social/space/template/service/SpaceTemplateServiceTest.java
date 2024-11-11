@@ -65,49 +65,51 @@ import io.meeds.social.translation.service.TranslationService;
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceTemplateServiceTest {
 
-  private static final String           SPACE_FIELDS                  = "spaceFields";
+  private static final String       SPACE_FIELDS                  = "spaceFields";
 
-  private static final String           SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
+  private static final String       SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
 
-  private static final String           SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
+  private static final String       SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
 
-  private static final String           SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
+  private static final String       SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
 
-  private static final String           CREATE_AND_ACCESS_PERMISSIONS = "permissions";
+  private static final String       CREATE_AND_ACCESS_PERMISSIONS = "permissions";
 
-  private static final String           TEST_USER                     = "testuser";
+  private static final String       ADMIN_PERMISSIONS             = "adminPermissions";
 
-  @Mock
-  protected TranslationService          translationService;
-
-  @Mock
-  protected AttachmentService           attachmentService;
+  private static final String       TEST_USER                     = "testuser";
 
   @Mock
-  protected UserPortalConfigService     userPortalConfigService;
+  protected TranslationService      translationService;
 
   @Mock
-  protected LayoutService               layoutService;
+  protected AttachmentService       attachmentService;
 
   @Mock
-  protected NavigationService           navigationService;
+  protected UserPortalConfigService userPortalConfigService;
 
   @Mock
-  protected ListenerService             listenerService;
+  protected LayoutService           layoutService;
 
   @Mock
-  protected UserACL                     userAcl;
+  protected NavigationService       navigationService;
 
   @Mock
-  private SpaceTemplateStorage          spaceTemplateStorage;
+  protected ListenerService         listenerService;
 
   @Mock
-  private Identity                      userIdentity;
+  protected UserACL                 userAcl;
 
   @Mock
-  private PortalConfig                  portalConfig;
+  private SpaceTemplateStorage      spaceTemplateStorage;
 
-  private SpaceTemplateService          spaceTemplateService;
+  @Mock
+  private Identity                  userIdentity;
+
+  @Mock
+  private PortalConfig              portalConfig;
+
+  private SpaceTemplateService      spaceTemplateService;
 
   @Before
   public void init() {
@@ -282,6 +284,7 @@ public class SpaceTemplateServiceTest {
                              true,
                              "layout",
                              Arrays.asList(CREATE_AND_ACCESS_PERMISSIONS),
+                             Arrays.asList(ADMIN_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
