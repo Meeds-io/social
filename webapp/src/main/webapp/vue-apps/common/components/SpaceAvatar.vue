@@ -15,16 +15,17 @@
         class="my-auto">
         <img
           :src="defaultAvatarUrl"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
       <div
         v-if="fullname || !isMobile"
-        :class="subtitleNewLineClass"
-        class="pull-left text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="pull-left ms-2">
         <p
-          class="text-truncate my-auto hidden-space">
+          :class="textTruncateClass"
+          class="my-auto hidden-space">
           {{ $t('spacesList.label.hiddenSpace') }}
         </p>
       </div>
@@ -46,9 +47,9 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
     </a>
     <a
@@ -61,12 +62,12 @@
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <div
         v-if="displayName || $slots.subTitle"
-        :class="subtitleNewLineClass"
-        class="text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="ms-2">
         <p
           v-if="displayName"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate  my-auto">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textTruncateClass]"
+          class="my-auto">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle my-auto">
@@ -92,18 +93,18 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
-        :class="subtitleNewLineClass"
-        class="text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="ms-2">
         <p
           v-if="displayName"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate my-auto text-body">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textTruncateClass]"
+          class="my-auto text-body">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle my-auto">
@@ -174,6 +175,10 @@ export default {
     extraClass: {
       type: String,
       default: () => '',
+    },
+    textTruncateClass: {
+      type: String,
+      default: () => 'text-truncate',
     },
   },
   data() {
