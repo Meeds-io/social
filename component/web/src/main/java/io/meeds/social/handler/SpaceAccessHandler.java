@@ -132,6 +132,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
                                                    controllerContext.getRequest().getContextPath(),
                                                    spaceLayoutService.getSpacePublicSiteName(space)));
       return true;
+    } else if (username == null) {
+      return false;
     } else {
       processSpaceAccess(controllerContext, username, space);
       return true;

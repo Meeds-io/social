@@ -68,7 +68,11 @@ public class SpaceTemplateEntity {
   @Convert(converter = StringListConverter.class)
   @Column(name = "PERMISSIONS")
   private List<String> permissions;
-  
+
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "ADMIN_PERMISSIONS")
+  private List<String> adminPermissions;
+
   @Convert(converter = StringListConverter.class)
   @Column(name = "SPACE_LAYOUT_PERMISSIONS")
   private List<String> spaceLayoutPermissions;

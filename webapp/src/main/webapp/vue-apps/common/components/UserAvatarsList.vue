@@ -5,7 +5,7 @@
     <template v-for="(user, index) in usersToDisplay">
       <div
         v-if="!retrieveExtraInformation"
-        :key="`${user}_${index}`"
+        :key="user"
         :ripple="clickable"
         color="transparent"
         @click="$emit('open-detail')">
@@ -24,7 +24,7 @@
       </div>
       <div
         v-else
-        :key="`${user}_${index}`"
+        :key="`${user}_withInfo`"
         :ripple="clickable"
         color="transparent py-1 border-box-sizing"
         @click="$emit('open-detail')">

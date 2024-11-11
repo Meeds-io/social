@@ -178,7 +178,7 @@ public class ActivityRest implements ResourceContainer {
     if (!StringUtils.isBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null
-          || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(authenticatedUser))) {
+          || (!spaceService.isMember(space, authenticatedUser) && !spaceService.isSuperManager(space, authenticatedUser))) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
