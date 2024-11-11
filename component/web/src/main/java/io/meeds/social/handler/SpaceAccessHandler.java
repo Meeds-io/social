@@ -88,6 +88,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
     this.layoutService = container.getComponentInstanceOfType(LayoutService.class);
+    this.spaceLayoutService = container.getComponentInstanceOfType(SpaceLayoutService.class);
     this.userAcl = container.getComponentInstanceOfType(UserACL.class);
   }
 
@@ -112,13 +113,15 @@ public class SpaceAccessHandler extends WebRequestHandler {
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
     if (canAccessSpace(space, username)) {
-      HttpSession session = controllerContext.getRequest().getSession();
-      String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
-      if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
-        spaceService.updateSpaceAccessed(username, space);
+      if (spaceService.isMember(space, username)) {
+        HttpSession session = controllerContext.getRequest().getSession();
+        String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
+        if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
+          spaceService.updateSpaceAccessed(username, space);
+        }
+        cleanupSession(controllerContext);
+        session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
       }
-      cleanupSession(controllerContext);
-      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
       return false;
     } else if (space == null || Space.HIDDEN.equals(space.getVisibility())) {
       controllerContext.getResponse()
@@ -132,6 +135,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
                                                    controllerContext.getRequest().getContextPath(),
                                                    spaceLayoutService.getSpacePublicSiteName(space)));
       return true;
+    } else if (username == null) {
+      return false;
     } else {
       processSpaceAccess(controllerContext, username, space);
       return true;
