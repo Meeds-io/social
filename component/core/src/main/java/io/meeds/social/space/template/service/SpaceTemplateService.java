@@ -313,9 +313,12 @@ public class SpaceTemplateService {
     }
     Identity aclIdentity = userAcl.getUserIdentity(username);
     return aclIdentity != null
-           && spaceTemplate.getPermissions()
-                           .stream()
-                           .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
+           && (spaceTemplate.getPermissions()
+                            .stream()
+                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)))
+               || spaceTemplate.getAdminPermissions()
+                               .stream()
+                               .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
   }
 
   private MembershipEntry getMembershipEntry(String expression) {
