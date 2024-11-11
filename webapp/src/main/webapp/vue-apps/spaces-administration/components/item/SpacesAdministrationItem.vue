@@ -21,6 +21,14 @@
 -->
 <template>
   <tr :key="space.id">
+    <td align="center">
+      <v-checkbox
+        :value="selected"
+        on-icon="fas fa-check-square fa-lg primary--text"
+        off-icon="far fa-square fa-lg"
+        class="my-auto pt-2"
+        @change="select($event)" />
+    </td>
     <td
       align="left"
       :width="headers[0].width">
@@ -114,6 +122,14 @@ export default {
     },
     headers: {
       type: Array,
+      default: null,
+    },
+    selected: {
+      type: Boolean,
+      default: false,
+    },
+    select: {
+      type: Object,
       default: null,
     },
   },
