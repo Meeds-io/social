@@ -3,47 +3,50 @@
     <div
       v-if="breadcrumbToDisplay.length"
       id="breadcrumbParent"
-      class="px-2 py-2 application-body d-flex">
+      class="px-2 application-body d-flex">
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"
         :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
-        class="text-truncate text-body-1">
+        class="text-truncate text-body-1 d-flex">
         <v-tooltip
           v-if="breadcrumb.label != ellipsis"
           max-width="300"
           bottom>
           <template #activator="{ on, attrs }">
             <div
-              class="text-truncate d-inline not-clickable"
+              class="text-truncate d-inline"
               v-bind="attrs"
               v-on="on">
-              <v-btn
+              <v-card
                 :href="breadcrumb.uri"
                 :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'"
                 :disabled="!breadcrumb.uri"
+                :class="!breadcrumb.uri && 'text-subtitle-color'"
+                height="52"
                 min-width="45px"
                 max-width="250px"
-                class="pa-0"
-                text>
+                class="pa-0 d-flex align-center"
+                flat>
                 <span class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
-              </v-btn>
+              </v-card>
             </div>
           </template>
           <span class="caption">
             {{ breadcrumb.label }}
           </span>
         </v-tooltip>
-        <v-btn
+        <v-card
           v-else
           disabled
           min-width="45px"
-          class="pa-0 flex-shrink-1"
-          text>
+          height="52"
+          class="pa-0 text-subtitle-color d-flex align-center justify-center flex-shrink-1"
+          flat>
           {{ breadcrumb.label }}
-        </v-btn>
+        </v-card>
         <v-icon
           v-if="index < breadcrumbToDisplay.length-1"
           size="16"
