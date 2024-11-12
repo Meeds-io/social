@@ -53,6 +53,12 @@ extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
+  rank: 10,
+  name: 'sync-members',
+  componentName: 'spaces-administration-bulk-sync-members',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
   rank: 20,
   name: 'apply-template',
   componentName: 'spaces-administration-bulk-apply-template',
