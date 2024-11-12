@@ -63,3 +63,9 @@ extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
   name: 'apply-template',
   componentName: 'spaces-administration-bulk-apply-template',
 });
+
+extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
+  rank: 40,
+  name: 'delete',
+  componentName: 'spaces-administration-bulk-delete',
+});
