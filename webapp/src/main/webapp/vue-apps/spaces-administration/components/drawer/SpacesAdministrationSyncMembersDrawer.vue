@@ -37,17 +37,28 @@
         <v-icon>fa-external-link-alt</v-icon>
       </v-btn>
     </template>
-    <template v-if="drawer && space" #content>
+    <template v-if="drawer && (space || spaces)" #content>
       <div class="pa-4">
         <div class="mb-4">
           {{ $t('social.spaces.administration.manageSpaces.syncMembersDescription') }}
         </div>
-        <div class="text-header mb-1">
+        <div class="text-header mb-2">
           {{ $t('social.spaces.administration.manageSpaces.space') }}
         </div>
         <space-avatar
+          v-if="space"
           :space="space"
           class="mb-4" />
+        <v-chip
+          v-else-if="spaces"
+          class="mb-4 light-grey-color"
+          height="40">
+          <span>
+            {{ $t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+              0: selectionCount,
+            }) }}
+          </span>
+        </v-chip>
         <div class="text-header mb-1">
           {{ $t('social.spaces.administration.manageSpaces.groupSyncedToYourSpace') }}
         </div>
@@ -88,10 +99,14 @@ export default {
     groups: null,
     originalGroups: null,
     bindings: null,
+    spaces: null,
+    selectionCount: null,
+    callback: null,
   }),
   computed: {
     modified() {
-      return JSON.stringify(this.groups) !== JSON.stringify(this.originalGroups);
+      return (this.spaces?.length && this.groups.length)
+        || (!this.spaces?.length && JSON.stringify(this.groups) !== JSON.stringify(this.originalGroups));
     },
   },
   created() {
@@ -101,10 +116,21 @@ export default {
     this.$root.$off('space-administration-sync-members-drawer-open', this.open);
   },
   methods: {
-    async open(space) {
-      this.space = space;
+    async open(obj, selectionCount, callback) {
+      if (obj?.id) {
+        this.space = obj;
+        this.spaces = null;
+        this.selectionCount = 0;
+      } else {
+        this.space = null;
+        this.spaces = obj;
+        this.selectionCount = selectionCount;
+        this.callback = callback;
+        this.spaceTemplateId = null;
+        this.spacePermissions = null;
+      }
       this.$refs.drawer.open();
-      if (this.space.hasBindings) {
+      if (this.space?.hasBindings) {
         this.groups = null;
         this.bindings = null;
         this.originalGroups = null;
@@ -121,15 +147,21 @@ export default {
     async apply() {
       this.saving = true;
       try {
-        await this.$spaceBindingService.saveGroupsSpaceBindings(this.space.id, this.groups);
-        this.$root.$emit('spaces-administration-list-refresh');
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceBindingUpdateSuccess'), 'success');
-        const bindingsToDelete = this.bindings.filter(b => !this.groups.find(g => g === b.group));
-        if (bindingsToDelete.length) {
-          await Promise.all(bindingsToDelete.map(b => this.$spaceBindingService.removeBinding(b.id)));
+        if (this.callback) {
+          this.callback(this.groups);
+        } else {
+          await this.$spaceBindingService.saveGroupsSpaceBindings(this.space.id, this.groups);
+          this.$root.$emit('spaces-administration-list-refresh');
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceBindingUpdateSuccess'), 'success');
+          const bindingsToDelete = this.bindings.filter(b => !this.groups.find(g => g === b.group));
+          if (bindingsToDelete.length) {
+            await Promise.all(bindingsToDelete.map(b => this.$spaceBindingService.removeBinding(b.id)));
+          }
         }
         this.close();
       } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceBindingUpdateError', {0: this.space.displayName}), 'error');
       } finally {
         this.saving = false;
