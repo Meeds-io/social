@@ -24,7 +24,7 @@
     id="SpaceApplyTemplateDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
+    :loading="saving"
     no-x-scroll
     right>
     <template #title>
@@ -280,7 +280,7 @@ export default {
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
           });
-          this.$root.$emit('spaces-administration-list-refresh');
+          this.$root.$emit('spaces-administration-list-refresh', this.$root.isTemplateSelected);
           this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateSuccess'), 'success');
         }
         this.close();

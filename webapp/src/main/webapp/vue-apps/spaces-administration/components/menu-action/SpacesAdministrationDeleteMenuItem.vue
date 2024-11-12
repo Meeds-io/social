@@ -64,6 +64,7 @@ export default {
       window.setTimeout(() => this.dialog = false, 200);
     },
     async deleteSpace() {
+      this.$root.displayLoading();
       this.$emit('loading', true);
       try {
         await this.$spaceService.removeSpace(this.space.id);
@@ -71,6 +72,7 @@ export default {
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletedSuccessfully'), 'success');
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletionError', {0: this.space.displayName}), 'error');
+        this.$root.hideLoading();
       } finally {
         this.$emit('loading', false);
       }
