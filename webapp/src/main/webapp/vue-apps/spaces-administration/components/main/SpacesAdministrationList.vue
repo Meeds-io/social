@@ -31,7 +31,7 @@
         v-model="$root.selectedSpaces"
         :headers="headers"
         :items="$root.spaces"
-        :loading="$root.loadingSpaces && !$root.isMobile"
+        :loading="$root.loading && !$root.isMobile"
         :hide-default-header="$root.isMobile"
         :options.sync="options"
         :disable-sort="!canSort || $root.isMobile"

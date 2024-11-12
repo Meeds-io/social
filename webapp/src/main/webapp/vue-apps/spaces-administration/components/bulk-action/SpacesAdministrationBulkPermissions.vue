@@ -25,9 +25,9 @@
     color="primary"
     elevation="0"
     outlined
-    @click="$root.$emit('space-administration-apply-template-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, applyTemplate)">
-    <v-icon size="16" class="me-2">fa-sitemap</v-icon>
-    {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
+    @click="$root.$emit('space-administration-permissions-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, updatePermissions)">
+    <v-icon size="16" class="me-2">fa-shield-alt</v-icon>
+    {{ $t('social.spaces.administration.manageSpaces.editPermissions') }}
   </v-btn>
 </template>
 <script>
@@ -36,15 +36,21 @@ export default {
     successMessage: null,
   }),
   methods: {
-    applyTemplate(params) {
+    updatePermissions(params) {
       // Workaround for context change, compute success message on processing start
-      this.successMessage = this.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces');
+      this.successMessage = this.$t('social.spaces.administration.manageSpaces.spacesPermissionsUpdatedSuccessfully');
       this.$root.applyOperationInBulk(
-        (space, options) => this.$spaceAdministrationService.applySpaceTemplate(space.id, options),
-        params,
+        async space => {
+          const permissions = {};
+          permissions.layoutPermissions = params.layoutPermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+          permissions.publicSitePermissions = params.publicSitePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+          permissions.deletePermissions = params.deletePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+          await this.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
+        },
+        null,
         () => {
           this.$root.$emit('alert-message', this.successMessage, 'success');
-          this.$root.$emit('spaces-administration-list-refresh', this.$root.isTemplateSelected);
+          this.$root.$emit('spaces-administration-list-refresh');
         });
     },
   },
