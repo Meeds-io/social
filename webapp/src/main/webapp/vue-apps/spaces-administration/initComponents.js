@@ -35,6 +35,9 @@ import SpacesAdministrationPermissionsMenuItem from './components/menu-action/Sp
 import SpacesAdministrationApplyTemplateMenuItem from './components/menu-action/SpacesAdministrationApplyTemplateMenuItem.vue';
 import SpacesAdministrationSaveAsTemplateMenuItem from './components/menu-action/SpacesAdministrationSaveAsTemplateMenuItem.vue';
 
+import SpacesAdministrationProcessingAlert from './components/bulk-action/SpacesAdministrationProcessingAlert.vue';
+import SpacesAdministrationBulkApplyTemplate from './components/bulk-action/SpacesAdministrationBulkApplyTemplate.vue';
+
 import SpacesAdministrationBindingReportItem from './components/binding-report/SpacesAdministrationBindingReportItem.vue';
 import SpacesAdministrationBindingReportList from './components/binding-report/SpacesAdministrationBindingReportList.vue';
 
@@ -65,6 +68,9 @@ const components = {
   'spaces-administration-permissions-menu-item': SpacesAdministrationPermissionsMenuItem,
   'spaces-administration-apply-template-menu-item': SpacesAdministrationApplyTemplateMenuItem,
   'spaces-administration-save-as-template-menu-item': SpacesAdministrationSaveAsTemplateMenuItem,
+
+  'spaces-administration-processing-alert': SpacesAdministrationProcessingAlert,
+  'spaces-administration-bulk-apply-template': SpacesAdministrationBulkApplyTemplate,
 
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
