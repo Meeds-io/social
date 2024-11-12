@@ -137,7 +137,7 @@
             v-model="spaceTemplate.adminPermissions"
             help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
             help-tooltip="spaceTemplate.permissionsStepSpaceAdminsPermissionTooltip"
-            class="mb-4"
+            class="mb-4 font-weight-bold"
             users
             admins>
             <template #helpContent>
