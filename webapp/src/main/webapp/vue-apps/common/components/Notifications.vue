@@ -38,7 +38,7 @@
       :max-width="maxWidth"
       :min-height="minHeight"
       :dense="isMobile"
-      :dismissible="!isMobile"
+      :dismissible="!isMobile && alertDismissible"
       :icon="false"
       :border="!isMobile && 'left' || false"
       :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
@@ -72,6 +72,11 @@
           v-sanitized-html="alertMessage"
           @click="handleAlertClicked">
         </span>
+        <component
+          v-if="alertComponent"
+          :is="alertComponent"
+          v-bind="alertComponentParams"
+          class="text-body flex-grow-1 mx-4" />
         <span v-else class="text-body flex-grow-1 me-4">
           {{ alertMessage }}
         </span>
@@ -90,7 +95,7 @@
           <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
         </v-btn>
       </div>
-      <template v-if="!isMobile" #close="{toggle}">
+      <template v-if="!isMobile && alertDismissible" #close="{toggle}">
         <v-btn
           icon
           @click="dismiss(toggle)">
@@ -112,6 +117,9 @@ export default {
     alertLink: null,
     alertLinkCallback: null,
     alertDismissCallback: null,
+    alertComponent: null,
+    alertComponentParams: null,
+    alertDismissible: true,
     alertLinkIcon: null,
     alertLinkText: null,
     alertLinkTarget: null,
@@ -254,6 +262,10 @@ export default {
         this.alertLinkTooltip = params.alertLinkTooltip || null;
         this.alertLinkCallback = params.alertLinkCallback || null;
         this.alertDismissCallback = params.alertDismissCallback || null;
+        this.alertComponent = params.alertComponent || null;
+        this.alertComponentParams = params.alertComponentParams || null;
+        this.alertDismissible = Object.hasOwn(params, 'alertDismissible') ? params.alertDismissible : true;
+        this.timeout = params.alertTimeout || 10000;
         this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
       });
     },
