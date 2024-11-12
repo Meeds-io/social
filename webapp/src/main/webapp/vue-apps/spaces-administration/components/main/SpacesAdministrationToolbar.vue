@@ -44,7 +44,8 @@
         <component
           v-for="extension in $root.bulkExtensions"
           :key="extension.name"
-          :is="extension.componentName" />
+          :is="extension.componentName"
+          class="me-4" />
       </div>
       <v-btn
         v-else
