@@ -491,8 +491,10 @@ public class EntityBuilder {
       } else {
         userEntity.setPrimaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getPosition())) {
       userEntity.setPrimaryProperty(userEntity.getPosition());
+    } else {
+      userEntity.setPrimaryProperty("");
     }
     if (userCardSecondFieldSetting != null) {
       String propertyName = String.valueOf(userCardSecondFieldSetting.getValue());
@@ -504,8 +506,10 @@ public class EntityBuilder {
       } else {
         userEntity.setSecondaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getTeam())) {
       userEntity.setSecondaryProperty(userEntity.getTeam());
+    } else {
+      userEntity.setSecondaryProperty("");
     }
 
     if (userCardThirdFieldSetting != null) {
@@ -518,8 +522,10 @@ public class EntityBuilder {
       } else {
         userEntity.setTertiaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getCity())) {
       userEntity.setTertiaryProperty(userEntity.getCity());
+    } else {
+      userEntity.setTertiaryProperty("");
     }
 
     return userEntity;
