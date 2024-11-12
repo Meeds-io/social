@@ -40,7 +40,14 @@
     @filter-select-change="$emit('template-changed', $event)"
     @loading="$emit('loading', $event)">
     <template v-if="!$root.isMobile" #left>
+      <div v-if="$root.selectedSpaces.length">
+        <component
+          v-for="extension in $root.bulkExtensions"
+          :key="extension.name"
+          :is="extension.componentName" />
+      </div>
       <v-btn
+        v-else
         id="applicationToolbarLeftButton"
         :aria-label="$t('social.spaces.administration.manageSpaces.spaces.add')"
         :class="$root.isMobile && 'px-0'"

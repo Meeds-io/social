@@ -23,18 +23,13 @@
   <v-app>
     <v-main class="application-body">
       <spaces-administration-toolbar
-        :selected-template-id="selectedTemplateId"
-        @keyword-changed="keyword = $event"
-        @template-changed="selectedTemplateId = $event"
-        @loading="loadingSpaces = loadingSpaces || $event" />
+        :selected-template-id="$root.selectedTemplateId"
+        @keyword-changed="$root.keyword = $event"
+        @template-changed="$root.selectedTemplateId = $event"
+        @loading="$root.loadingSpaces = $root.loadingSpaces || $event" />
       <spaces-administration-list
         ref="spacesList"
-        :keyword="keyword"
-        :loading-spaces="loadingSpaces"
-        :selected-template-id="selectedTemplateId"
-        class="px-5"
-        @loading-spaces="loadingSpaces = $event"
-        @loaded="spacesLoaded" />
+        class="px-5" />
     </v-main>
     <div>
       <component
@@ -58,13 +53,5 @@ export default {
     initialized: false,
     selectedTemplateId: '0',
   }),
-  methods: {
-    spacesLoaded() {
-      if (!this.initialized) {
-        this.$root.$applicationLoaded();
-        this.initialized = true;
-      }
-    }
-  },
 };
 </script>
