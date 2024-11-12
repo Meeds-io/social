@@ -305,6 +305,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    colsAuto: { // Allow columns to be arranged in automatic way, usefull only when no center section
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     expandFilter: false,
@@ -412,7 +416,8 @@ export default {
       return {
         'd-none': this.expandFilter,
         'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
-        'col-6': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-6': !this.expandFilter && !this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-auto': !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
         'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
         'text-truncate': !this.noTextTruncate,
       };
@@ -425,11 +430,12 @@ export default {
                 && 'col-6' || 'col-4'));
     },
     rightCols() {
-      return this.expandFilter && 'col-12'
-        || (!this.showLeftContent && !this.showCenterContent
-            && 'col-12'
-            || ((!this.showLeftContent !== !this.showCenterContent)
-                && 'col-6' || 'col-4'));
+      return {
+        'col-12': this.expandFilter || (!this.showLeftContent && !this.showCenterContent),
+        'col-6': !this.expandFilter && !this.colsAuto && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent !== !this.showCenterContent),
+        'col-auto': !this.expandFilter && this.colsAuto && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent !== !this.showCenterContent),
+        'col-4': !this.expandFilter && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent === !this.showCenterContent),
+      };
     },
   },
   watch: {

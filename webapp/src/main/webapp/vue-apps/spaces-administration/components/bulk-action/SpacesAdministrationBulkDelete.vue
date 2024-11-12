@@ -50,10 +50,10 @@ export default {
     },
   },
   methods: {
-    async openConfirmDialog() {
+    openConfirmDialog() {
       window.setTimeout(() => this.$refs.dialog.open(), 200);
     },
-    async deleteSpaces() {
+    deleteSpaces() {
       // Workaround for context change, compute success message on processing start
       this.successMessage = this.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {
         0: this.spacesCount
