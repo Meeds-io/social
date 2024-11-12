@@ -45,15 +45,16 @@
           v-if="space"
           :space="space"
           class="mb-4" />
-        <v-card
+        <v-chip
           v-else-if="spaces"
-          class="border-color full-width d-flex align-center px-4 mb-4"
-          height="40"
-          flat>
-          {{ $t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
-            0: selectionCount,
-          }) }}
-        </v-card>
+          class="mb-4 light-grey-color"
+          height="40">
+          <span>
+            {{ $t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+              0: selectionCount,
+            }) }}
+          </span>
+        </v-chip>
         <div class="text-header mb-1">
           {{ $t('social.spaces.administration.manageSpaces.selectNewTemplate') }}
         </div>
