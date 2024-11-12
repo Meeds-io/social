@@ -192,7 +192,6 @@ export default {
     spaceTemplateId: null,
     spacePermissions: null,
     accessRules: false,
-    applyOnEmptyTemplate: false,
     editorialMode: false,
     layoutPermissions: false,
     publicSitePermissions: false,
