@@ -24,7 +24,7 @@
     id="SpaceManagersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
+    :loading="saving"
     no-x-scroll
     right>
     <template #title>
