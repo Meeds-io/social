@@ -38,6 +38,7 @@ import SpacesAdministrationSaveAsTemplateMenuItem from './components/menu-action
 import SpacesAdministrationProcessingAlert from './components/bulk-action/SpacesAdministrationProcessingAlert.vue';
 import SpacesAdministrationBulkApplyTemplate from './components/bulk-action/SpacesAdministrationBulkApplyTemplate.vue';
 import SpacesAdministrationBulkSyncMembers from './components/bulk-action/SpacesAdministrationBulkSyncMembers.vue';
+import SpacesAdministrationBulkDelete from './components/bulk-action/SpacesAdministrationBulkDelete.vue';
 
 import SpacesAdministrationBindingReportItem from './components/binding-report/SpacesAdministrationBindingReportItem.vue';
 import SpacesAdministrationBindingReportList from './components/binding-report/SpacesAdministrationBindingReportList.vue';
@@ -73,6 +74,7 @@ const components = {
   'spaces-administration-processing-alert': SpacesAdministrationProcessingAlert,
   'spaces-administration-bulk-apply-template': SpacesAdministrationBulkApplyTemplate,
   'spaces-administration-bulk-sync-members': SpacesAdministrationBulkSyncMembers,
+  'spaces-administration-bulk-delete': SpacesAdministrationBulkDelete,
 
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
