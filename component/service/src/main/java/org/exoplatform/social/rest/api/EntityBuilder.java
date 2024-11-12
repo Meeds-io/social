@@ -1381,8 +1381,12 @@ public class EntityBuilder {
     Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
     while (entries.hasNext()) {
       Map.Entry<String, String> entry = entries.next();
-      if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
-        entry.setValue("");
+      if (entry != null) {
+        if (StringUtils.isBlank(entry.getValue())) {
+          entry.setValue("");
+        } else if (StringUtils.equals(entry.getValue(), "-")) {
+          entry.setValue(null);
+        }
       }
     }
     activity.setTemplateParams(currentTemplateParams);

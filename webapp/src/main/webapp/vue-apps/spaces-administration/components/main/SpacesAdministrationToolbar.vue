@@ -36,11 +36,12 @@
     compact
     class="px-1"
     no-text-truncate
+    cols-auto
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-select-change="$emit('template-changed', $event)"
     @loading="$emit('loading', $event)">
     <template v-if="!$root.isMobile" #left>
-      <div v-if="$root.selectedSpaces.length">
+      <div v-if="$root.selectedSpaces.length && !$root.isMobile">
         <component
           v-for="extension in $root.bulkExtensions"
           :key="extension.name"
