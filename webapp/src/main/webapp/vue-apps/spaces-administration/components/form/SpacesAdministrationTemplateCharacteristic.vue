@@ -32,7 +32,7 @@
       <v-switch v-model="enabled" class="my-0 me-n2" />
     </div>
     <div class="d-flex flex-column mb-4">
-      <div class="d-flex mb-2">
+      <div v-if="$slots.spaceValue" class="d-flex mb-2">
         <div class="col-4 pa-0">
           {{ $t('social.spaces.administration.manageSpaces.spaceCurrentCharacteristic') }}
         </div>
@@ -40,7 +40,7 @@
           <slot name="spaceValue"></slot>
         </div>
       </div>
-      <div class="d-flex">
+      <div v-if="$slots.templateValue" class="d-flex">
         <div class="col-4 pa-0">
           {{ $t('social.spaces.administration.manageSpaces.spaceNewCharacteristic') }}
         </div>

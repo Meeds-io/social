@@ -27,11 +27,11 @@
     flat>
     <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
       <v-data-table
-        v-if="spacesSize || !initialized"
-        v-model="selectedSpaces"
+        v-if="$root.spacesSize || !$root.initialized"
+        v-model="$root.selectedSpaces"
         :headers="headers"
-        :items="spaces"
-        :loading="loadingSpaces && !$root.isMobile"
+        :items="$root.spaces"
+        :loading="$root.loadingSpaces && !$root.isMobile"
         :hide-default-header="$root.isMobile"
         :options.sync="options"
         :disable-sort="!canSort || $root.isMobile"
@@ -40,7 +40,18 @@
         class="spacesAdministrationTable full-width px-0"
         disable-pagination
         hide-default-footer>
-        <template v-if="selectedSpaces.length" slot="body.prepend">
+        <template slot="header.data-table-select" slot-scope="{on, props}">
+          <v-checkbox
+            v-on="on"
+            v-bind="props"
+            :disabled="$root.isBulkProcessing"
+            on-icon="fas fa-check-square fa-lg primary--text"
+            indeterminate-icon="fas fa-minus-square fa-lg"
+            off-icon="far fa-square fa-lg"
+            class="my-auto pt-2"
+            @change="on.input" />
+        </template>
+        <template v-if="$root.selectedSpaces.length && !$root.isBulkProcessing" slot="body.prepend">
           <tr>
             <td :colspan="headers.length + 1" class="px-0">
               <v-alert
@@ -49,8 +60,7 @@
                 border="left"
                 type="info"
                 colored-border>
-                <!-- eslint-disable-next-line -->
-                <div v-html="selectionLabel" /> <!-- NOSONAR -->
+                <div v-html="selectionLabel"></div>
               </v-alert>
             </td>
           </tr>
@@ -65,7 +75,7 @@
         </template>
       </v-data-table>
       <v-card
-        v-else-if="!loadingSpaces"
+        v-else-if="!$root.loadingSpaces"
         min-height="calc(var(--100vh, 100vh) - 280px)"
         class="d-flex text-center noSpacesYetBlock"
         flat>
@@ -100,13 +110,15 @@
         </div>
       </v-card>
     </div>
-    <div id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
+    <div
+      v-if="$root.canShowMore"
+      id="spacesListFooter"
+      class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
       <v-btn
-        v-if="canShowMore"
-        :loading="loadingSpaces"
+        :loading="$root.loadingSpaces"
         class="loadMoreButton border-color elevation-0 ma-auto"
         block
-        @click="loadNextPage">
+        @click="$root.loadNextPage">
         {{ $t('spacesList.button.showMore') }}
       </v-btn>
     </div>
@@ -114,45 +126,19 @@
 </template>
 <script>
 export default {
-  props: {
-    keyword: {
-      type: String,
-      default: null,
-    },
-    loadingSpaces: {
-      type: Boolean,
-      default: false,
-    },
-    selectedTemplateId: {
-      type: String,
-      default: () => '0',
-    },
-  },
   data: () => ({
-    initialized: false,
-    loading: false,
-    offset: 0,
-    pageSize: 25,
-    spacesSize: 0,
-    filter: 'all',
-    expand: 'managers,groupBinding',
-    spaces: [],
+    allowOptionsWatching: true,
     options: {
       sortBy: ['title'],
       sortDesc: [false],
     },
-    allSpacesSelected: false,
-    selectedSpaces: [],
   }),
   computed: {
-    canShowMore() {
-      return this.spaces?.length && this.spacesSize > this.spaces.length;
-    },
     canSort() {
       // Sort is made by pertinence
       // When search by keyword, thus disable
       // when the text search is used
-      return !this.keyword?.length;
+      return !this.$root.keyword?.length && !this.$root.isBulkProcessing;
     },
     headers() {
       const headers = this.$root.isMobile && [
@@ -239,135 +225,63 @@ export default {
       return headers;
     },
     selectionLabel() {
-      if (this.allSpacesSelected) {
+      if (this.$root.allSpacesSelected) {
         return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
-          0: `<strong>${this.spacesSize}</strong>`,
+          0: `<strong>${this.$root.spacesSize}</strong>`,
         });
-      } else if (this.selectedSpaces.length === this.spaces.length && this.spaces.length < this.spacesSize) {
+      } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
         return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
-          0: `<strong>${this.selectedSpaces.length}</strong>`,
+          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
           1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
-          2: this.spacesSize,
+          2: this.$root.spacesSize,
           3: '</a>',
         });
       } else {
         return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
-          0: `<strong>${this.selectedSpaces.length}</strong>`,
+          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
         });
       }
     },
+    selectedSpaces() {
+      return this.$root.selectedSpaces;
+    },
+    isBulkProcessing() {
+      return this.$root.isBulkProcessing;
+    },
+    isAllowOptionsWatching() {
+      return !this.$root.isBulkProcessing && this.allowOptionsWatching;
+    },
   },
   watch: {
-    keyword() {
-      if (this.initialized) {
-        this.offset = 0;
-        this.spaces = [];
-        this.searchSpaces();
+    isBulkProcessing() {
+      if (this.isBulkProcessing) {
+        this.allowOptionsWatching = false;
+      } else {
+        // Differ to not update list right after bulk processing finished
+        this.$nextTick().then(() => window.setTimeout(() => this.allowOptionsWatching = true, 200));
       }
-    },
-    offset() {
-      if (this.initialized) {
-        this.searchSpaces();
-      }
-    },
-    filter() {
-      if (this.initialized) {
-        this.offset = 0;
-        this.spaces = [];
-        this.searchSpaces();
-      }
-    },
-    selectedTemplateId() {
-      if (this.initialized) {
-        this.offset = 0;
-        this.spaces = [];
-        this.searchSpaces();
-      }
-    },
-    loading() {
-      this.$emit('loading-spaces', this.loading);
     },
     options: {
       handler () {
-        if (!this.keyword?.length) {
-          this.searchSpaces(true);
+        if (!this.$root.keyword?.length && this.isAllowOptionsWatching) {
+          this.$root.sortBy = this.options?.sortBy?.[0];
+          this.$root.sortDesc = this.options?.sortDesc?.[0];
+          this.$root.searchSpaces(true);
         }
       },
       deep: true,
     },
-    selectedSpaces() {
-      this.allSpacesSelected = false;
-    },
   },
   created() {
-    this.searchSpaces();
+    this.$root.searchSpaces();
     window.addEventListener('select-all-spaces', this.selectAllSpaces);
-    this.$root.$on('spaces-administration-list-refresh', this.refreshSpaces);
   },
   beforeDestroy() {
     window.removeEventListener('select-all-spaces', this.selectAllSpaces);
-    this.$root.$off('spaces-administration-list-refresh', this.refreshSpaces);
   },
   methods: {
-    refreshSpaces() {
-      this.searchSpaces(true);
-    },
-    async searchSpaces(refresh) {
-      if (this.loading) {
-        return;
-      }
-      const offset = refresh ? 0 : this.offset;
-      const limit = refresh ? this.offset + this.pageSize : this.pageSize;
-      const sortBy = this.options.sortBy[0];
-      const sortDesc = this.options.sortDesc[0];
-
-      this.loading = true;
-      try {
-        const customSort = this.$root.tableColumnExtensions?.find(e => e.sortBy === sortBy)?.customSort;
-        if (customSort
-            && !this.keyword?.length
-            && this.filter === 'all') {
-          this.spaces = await customSort({
-            offset: offset,
-            limit: limit,
-            expand: this.expand,
-            templateId: (this.selectedTemplateId && Number(this.selectedTemplateId)) ? this.selectedTemplateId : null,
-            sortDesc,
-            currentSpaces: this.spaces,
-            currentSpacesSize: this.spacesSize,
-          });
-        } else {
-          if (!offset) {
-            this.spaces = [];
-          }
-          const data = await this.$spaceService.getSpaces(
-            this.keyword,
-            offset,
-            limit,
-            this.filter,
-            this.expand,
-            this.selectedTemplateId && Number(this.selectedTemplateId),
-            'title',
-            sortDesc ? 'desc' : 'asc',
-          );
-          if (offset) {
-            this.spaces.push(...data.spaces);
-          } else {
-            this.spaces = data.spaces || [];
-          }
-          this.spacesSize = data?.size || 0;
-          this.$emit('loaded', this.spacesSize);
-        }
-      } finally {
-        this.loading = false;
-        this.initialized = true;
-      }
-    },
     selectAllSpaces() {
-      this.allSpacesSelected = true;
-    },
-    loadNextPage() {
-      this.offset += this.pageSize;
+      this.$root.allSpacesSelected = true;
     },
   }
 };
