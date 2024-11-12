@@ -22,21 +22,45 @@
 <template>
   <tr :key="space.id">
     <td align="center">
-      <v-icon
+      <v-tooltip
         v-if="bulkOperationStatus === 'done'"
-        class="fa-lg success--text my-auto pt-2">
-        fa-check-circle
-      </v-icon>
-      <v-icon
+        top>
+        <template #activator="{on, attrs}">
+          <v-icon
+            v-on="on"
+            v-bind="attrs"
+            class="fa-lg success--text my-auto pt-2">
+            fa-check-circle
+          </v-icon>
+        </template>
+        <span>{{ $t('social.spaces.administration.manageSpaces.successSpacesBulkOperation') }}</span>
+      </v-tooltip>
+      <v-tooltip
         v-else-if="bulkOperationStatus === 'error'"
-        class="fa-lg error--text my-auto pt-2">
-        fa-exclamation-circle
-      </v-icon>
-      <v-icon
+        top>
+        <template #activator="{on, attrs}">
+          <v-icon
+            v-on="on"
+            v-bind="attrs"
+            class="fa-lg error--text my-auto pt-2">
+            fa-exclamation-circle
+          </v-icon>
+        </template>
+        <span>{{ $t('social.spaces.administration.manageSpaces.errorSpacesBulkOperation') }}</span>
+      </v-tooltip>
+      <v-tooltip
         v-else-if="bulkOperationStatus === 'processing'"
-        class="fa-lg primary--text my-auto pt-2">
-        fa-spinner
-      </v-icon>
+        top>
+        <template #activator="{on, attrs}">
+          <v-icon
+            v-on="on"
+            v-bind="attrs"
+            class="fa-lg primary--text my-auto pt-2">
+            fa-spinner
+          </v-icon>
+        </template>
+        <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation') }}</span>
+      </v-tooltip>
       <v-checkbox
         v-else
         :value="selected || $root.allSpacesSelected"
