@@ -37,6 +37,7 @@
         v-bind="attrs"
         v-on="on"
         :title="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
+        :disabled="$root.isBulkProcessing"
         :loading="loading"
         icon>
         <v-icon size="20">fa-ellipsis-v</v-icon>
