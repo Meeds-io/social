@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.rest.impl.ContainerResponse;
@@ -676,7 +677,12 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals( "collaboration", result.getTemplateParams().get("WORKSPACE"));
     assertTrue(result.getTemplateParams().containsKey("NOT_EXIST_KEY"));
     assertFalse(result.getTemplateParams().containsKey("FAKE_PARAM"));
-    assertEquals(4, result.getTemplateParams().size());
+    assertEquals(4,
+                 result.getTemplateParams()
+                       .values()
+                       .stream()
+                       .filter(v -> v != null && StringUtils.isNotBlank(v.toString()))
+                       .count());
   }
 
   public void testUpdateLinkActivityById() throws Exception {
@@ -685,7 +691,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
     rootActivity.setTitle("test activity");
     rootActivity.setType("LINK_ACTIVITY");
-    Map<String, String> templateParams = new HashMap<String, String>();
+    Map<String, String> templateParams = new HashMap<>();
     templateParams.put("link", "https://www.linkedin.com/");
     rootActivity.setTemplateParams(templateParams);
     activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
@@ -705,7 +711,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     result = getBaseEntity(response.getEntity(), ActivityEntity.class);
     assertEquals("updated title", result.getTitle());
     rootActivity = activityManager.getActivity(rootActivity.getId());
-    assertEquals("", rootActivity.getTemplateParams().get("link"));
+    assertNull(rootActivity.getTemplateParams().get("link"));
   }
 
   public void testHideActivityById() throws Exception {

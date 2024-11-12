@@ -58,6 +58,7 @@ export function init() {
         initialized: false,
         keyword: null,
         loadingSpaces: false,
+        loadingDisplay: false,
         offset: 0,
         pageSize: 25,
         spacesSize: 0,
@@ -75,20 +76,22 @@ export function init() {
         canShowMore() {
           return this.spaces?.length && this.spacesSize > this.spaces.length;
         },
+        isTemplateSelected() {
+          return this.selectedTemplateId && Number(this.selectedTemplateId);
+        },
+        loading() {
+          return this.loadingDisplay || this.loadingSpaces;
+        },
       },
       watch: {
         keyword() {
           if (this.initialized && !this.isBulkProcessing) {
-            this.offset = 0;
-            this.spaces = [];
-            this.searchSpaces();
+            this.searchSpaces(true, true);
           }
         },
         selectedTemplateId() {
           if (this.initialized && !this.isBulkProcessing) {
-            this.offset = 0;
-            this.spaces = [];
-            this.searchSpaces();
+            this.searchSpaces(true, true);
           }
         },
         selectedSpaces() {
@@ -135,6 +138,12 @@ export function init() {
         this.$off('spaces-administration-list-refresh', this.refreshSpaces);
       },
       methods: {
+        displayLoading() {
+          this.loadingDisplay = true;
+        },
+        hideLoading() {
+          this.loadingDisplay = false;
+        },
         async refreshSpaceTemplates() {
           this.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
         },
@@ -144,10 +153,10 @@ export function init() {
           this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
         },
-        refreshSpaces() {
-          this.searchSpaces(true);
+        refreshSpaces(clean) {
+          this.searchSpaces(true, clean);
         },
-        async searchSpaces(refresh) {
+        async searchSpaces(refresh, clean) {
           if (this.loadingSpaces) {
             return;
           }
@@ -155,7 +164,7 @@ export function init() {
             this.allSpacesSelected = false;
             this.selectedSpaces = [];
           }
-          const offset = refresh ? 0 : this.offset;
+          const offset = refresh ? 0 : this.spaces.length;
           const limit = refresh ? this.offset + this.pageSize : this.pageSize;
 
           this.loadingSpaces = true;
@@ -174,7 +183,7 @@ export function init() {
                 currentSpacesSize: this.spacesSize,
               });
             } else {
-              if (!offset) {
+              if (!offset && clean) {
                 this.spaces = [];
               }
               const data = await this.$spaceService.getSpaces(
@@ -197,6 +206,7 @@ export function init() {
             }
           } finally {
             this.loadingSpaces = false;
+            this.loadingDisplay = false;
             this.initialized = true;
           }
         },
