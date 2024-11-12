@@ -21,14 +21,18 @@
 -->
 <template>
   <div class="d-flex justify-center">
-    <v-progress-circular :value="progress" color="primary" class="me-4 my-auto" />
+    <v-progress-circular
+      :value="progress"
+      color="primary"
+      class="me-4 my-auto" />
     <div class="d-flex flex-column me-2">
       <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation1') }}</span>
       <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation2') }}</span>
-      <span v-sanitized-html="$t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation3', {
-        0: `<span class='text-subtitle'>`,
-        1: '</span>',
-      })"></span>
+      <span
+        v-sanitized-html="$t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation3', {
+          0: `<span class='text-subtitle'>`,
+          1: '</span>',
+        })"></span>
     </div>
     <strong class="ms-4 my-auto">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
   </div>
