@@ -30,7 +30,7 @@
     <template #title>
       {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
     </template>
-    <template v-if="drawer && space" #content>
+    <template v-if="drawer && (space || spaces)" #content>
       <div class="pa-4">
         <div class="mb-4">
           {{ $t('social.spaces.administration.manageSpaces.applyTemplateDescription1') }}
@@ -38,12 +38,22 @@
         <div class="mb-4">
           {{ $t('social.spaces.administration.manageSpaces.applyTemplateDescription2') }}
         </div>
-        <div class="mb-1">
+        <div class="text-header mb-2">
           {{ $t('social.spaces.administration.manageSpaces.space') }}
         </div>
         <space-avatar
+          v-if="space"
           :space="space"
           class="mb-4" />
+        <v-card
+          v-else-if="spaces"
+          class="border-color full-width d-flex align-center px-4 mb-4"
+          height="40"
+          flat>
+          {{ $t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+            0: selectionCount,
+          }) }}
+        </v-card>
         <div class="text-header mb-1">
           {{ $t('social.spaces.administration.manageSpaces.selectNewTemplate') }}
         </div>
@@ -58,7 +68,7 @@
             {{ item.text }}
           </option>
         </select>
-        <template v-if="spaceTemplate && spacePermissions">
+        <template v-if="spaceTemplate">
           <div class="text-header mb-4">
             {{ $t('social.spaces.administration.manageSpaces.chooseTemplateCharacteristicsToApply') }}
           </div>
@@ -71,7 +81,7 @@
           <spaces-administration-template-characteristic
             v-model="accessRules"
             title="social.spaces.administration.manageSpaces.accessRules">
-            <template #spaceValue>
+            <template v-if="spacePermissions" #spaceValue>
               <div>
                 {{ $t(`social.spaces.administration.manageSpaces.registration.${space.subscription}`) }}
               </div>
@@ -93,7 +103,7 @@
           <spaces-administration-template-characteristic
             v-model="editorialMode"
             title="social.spaces.administration.manageSpaces.editorialMode">
-            <template #spaceValue>
+            <template v-if="space" #spaceValue>
               <div>
                 {{ $t(`social.spaces.administration.manageSpaces.${space.redactorsCount && 'on' || 'off'}`) }}
               </div>
@@ -107,7 +117,7 @@
           <spaces-administration-template-characteristic
             v-model="layoutPermissions"
             title="social.spaces.administration.manageSpaces.navigationPermission">
-            <template #spaceValue>
+            <template v-if="spacePermissions && space" #spaceValue>
               <spaces-administration-permissions-label
                 :value="spacePermissions.layoutPermissions"
                 :space-admin-membership-type="`manager:${space.groupId}`"
@@ -122,7 +132,7 @@
           <spaces-administration-template-characteristic
             v-model="publicSitePermissions"
             title="social.spaces.administration.manageSpaces.spacePublicSitePermission">
-            <template #spaceValue>
+            <template v-if="spacePermissions" #spaceValue>
               <spaces-administration-permissions-label
                 :value="spacePermissions.publicSitePermissions"
                 :space-admin-membership-type="`manager:${space.groupId}`"
@@ -137,7 +147,7 @@
           <spaces-administration-template-characteristic
             v-model="deletePermissions"
             title="social.spaces.administration.manageSpaces.deletionPermission">
-            <template #spaceValue>
+            <template v-if="spacePermissions" #spaceValue>
               <spaces-administration-permissions-label
                 :value="spacePermissions.deletePermissions"
                 :space-admin-membership-type="`manager:${space.groupId}`"
@@ -181,22 +191,27 @@ export default {
     spaceTemplateId: null,
     spacePermissions: null,
     accessRules: false,
+    applyOnEmptyTemplate: false,
     editorialMode: false,
     layoutPermissions: false,
     publicSitePermissions: false,
     deletePermissions: false,
+    spaces: null,
+    selectionCount: null,
+    callback: null,
   }),
   computed: {
     modified() {
       return this.spaceTemplateId
         && Number(this.spaceTemplateId)
-        && (Number(this.spaceTemplateId) !== this.space.templateId
+        && (this.spaces?.length
+        || (Number(this.spaceTemplateId) !== this.space.templateId
             || this.accessRules
             || this.editorialMode
             || this.layoutPermissions
             || this.publicSitePermissions
             || this.deletePermissions
-        );
+        ));
     },
     spaceTemplate() {
       return this.$root.spaceTemplates.find(t => t.id === Number(this.spaceTemplateId));
@@ -222,33 +237,56 @@ export default {
     this.$root.$off('space-administration-apply-template-drawer-open', this.open);
   },
   methods: {
-    async open(space) {
-      this.space = space;
-      this.spaceTemplateId = space.templateId && `${space.templateId}` || '0';
-      this.spacePermissions = null;
+    async open(obj, selectionCount, callback) {
+      if (obj?.id) {
+        this.space = obj;
+        this.spaces = null;
+        this.selectionCount = 0;
+        this.spaceTemplateId = this.space.templateId && `${this.space.templateId}` || '0';
+        this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+      } else {
+        this.space = null;
+        this.spaces = obj;
+        this.selectionCount = selectionCount;
+        this.callback = callback;
+        this.spaceTemplateId = null;
+        this.spacePermissions = null;
+      }
       this.accessRules = false;
       this.editorialMode = false;
       this.layoutPermissions = false;
       this.publicSitePermissions = false;
       this.deletePermissions = false;
       this.$refs.drawer.open();
-      this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
     },
     async apply() {
       this.saving = true;
       try {
-        await this.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
-          templateId: this.spaceTemplateId,
-          accessRules: this.accessRules,
-          editorialMode: this.editorialMode,
-          layoutPermissions: this.layoutPermissions,
-          publicSitePermissions: this.publicSitePermissions,
-          deletePermissions: this.deletePermissions,
-        });
-        this.$root.$emit('spaces-administration-list-refresh');
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateSuccess'), 'success');
+        if (this.callback) {
+          this.callback({
+            templateId: this.spaceTemplateId,
+            accessRules: this.accessRules,
+            editorialMode: this.editorialMode,
+            layoutPermissions: this.layoutPermissions,
+            publicSitePermissions: this.publicSitePermissions,
+            deletePermissions: this.deletePermissions,
+          });
+        } else {
+          await this.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
+            templateId: this.spaceTemplateId,
+            accessRules: this.accessRules,
+            editorialMode: this.editorialMode,
+            layoutPermissions: this.layoutPermissions,
+            publicSitePermissions: this.publicSitePermissions,
+            deletePermissions: this.deletePermissions,
+          });
+          this.$root.$emit('spaces-administration-list-refresh');
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateSuccess'), 'success');
+        }
         this.close();
       } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error(e);
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateError', {0: this.space.displayName}), 'error');
       } finally {
         this.saving = false;

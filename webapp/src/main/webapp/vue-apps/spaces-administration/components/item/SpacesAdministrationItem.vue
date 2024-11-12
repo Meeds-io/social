@@ -22,12 +22,29 @@
 <template>
   <tr :key="space.id">
     <td align="center">
+      <v-icon
+        v-if="bulkOperationStatus === 'done'"
+        class="fa-lg success--text my-auto pt-2">
+        fa-check-circle
+      </v-icon>
+      <v-icon
+        v-else-if="bulkOperationStatus === 'error'"
+        class="fa-lg error--text my-auto pt-2">
+        fa-exclamation-circle
+      </v-icon>
+      <v-icon
+        v-else-if="bulkOperationStatus === 'processing'"
+        class="fa-lg primary--text my-auto pt-2">
+        fa-spinner
+      </v-icon>
       <v-checkbox
-        :value="selected"
+        v-else
+        :value="selected || $root.allSpacesSelected"
+        :disabled="bulkOperationStatus === 'disabled'"
         on-icon="fas fa-check-square fa-lg primary--text"
         off-icon="far fa-square fa-lg"
         class="my-auto pt-2"
-        @change="select($event)" />
+        @change="changeCheckboxStatus" />
     </td>
     <td
       align="left"
@@ -101,6 +118,7 @@
       align="center">
       <v-btn
         :title="bindingStatusTitle"
+        :disabled="$root.isBulkProcessing"
         icon
         @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
         <v-icon :class="boundToGroup && 'success--text'" size="20">fa-users</v-icon>
@@ -136,6 +154,7 @@ export default {
   data: () => ({
     menu: false,
     hoverMenu: false,
+    bulkOperationStatus: null,
   }),
   computed: {
     spaceTemplate() {
@@ -164,8 +183,19 @@ export default {
     extensionsSize() {
       return this.$root.tableColumnExtensions.length;
     },
+    selectedSpacesOperationStatus() {
+      return this.$root.selectedSpacesOperationStatus;
+    },
   },
   watch: {
+    bulkOperationStatus() {
+      if (this.bulkOperationStatus === 'processing') {
+        this.$el.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+    },
     hoverMenu() {
       if (!this.hoverMenu) {
         window.setTimeout(() => {
@@ -175,6 +205,24 @@ export default {
         }, 200);
       }
     },
+  },
+  created() {
+    this.$root.$on('spaces-administration-bulk-operation-status', this.changeProcessingStatus);
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-administration-bulk-operation-status', this.changeProcessingStatus);
+  },
+  methods: {
+    changeProcessingStatus(id, status) {
+      if (!id || (id === this.space.id)) {
+        this.bulkOperationStatus = status;
+      }
+    },
+    changeCheckboxStatus(status) {
+      if (!this.$root.isBulkProcessing) {
+        this.select(status);
+      }
+    }
   },
 };
 </script>

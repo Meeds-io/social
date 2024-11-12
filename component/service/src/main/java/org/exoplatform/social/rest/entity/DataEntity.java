@@ -19,7 +19,6 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.LinkedHashMap;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import lombok.EqualsAndHashCode;
@@ -30,7 +29,7 @@ public class DataEntity extends LinkedHashMap<String, Object> {
   private static final long serialVersionUID = -7245526640639649852L;
 
   public DataEntity setProperty(String name, Object value) {
-    if (value != null && StringUtils.isNotEmpty(String.valueOf(value))) {
+    if (value != null) {
       put(name, value);
     }
     return this;
