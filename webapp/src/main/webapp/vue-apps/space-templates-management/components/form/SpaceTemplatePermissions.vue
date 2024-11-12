@@ -81,6 +81,7 @@
       :group-member="userGroup"
       :search-options="{filterType: 'all'}"
       name="specificGroupPermissions"
+      class="mb-n3"
       include-spaces
       include-groups
       all-groups-for-admin

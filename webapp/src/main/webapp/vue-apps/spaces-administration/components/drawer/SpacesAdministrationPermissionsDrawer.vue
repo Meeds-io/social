@@ -32,7 +32,12 @@
         0: space.displayName
       }) }}
     </template>
-    <template v-if="drawer" #content>
+    <template v-else-if="selectionCount" #title>
+      {{ $t('social.spaces.administration.manageSpaces.spacesPermissionsDrawerTitle', {
+        0: selectionCount
+      }) }}
+    </template>
+    <template v-if="drawer && (space || spaces)" #content>
       <div class="pa-4 full-wdith">
         <div class="mb-4">
           {{ $t('social.spaces.administration.manageSpaces.permissionsDrawerDescription') }}
@@ -99,10 +104,14 @@ export default {
     originalLayoutPermissions: null,
     originalPublicSitePermissions: null,
     originalDeletePermissions: null,
+    spaces: null,
+    selectionCount: null,
+    callback: null,
   }),
   computed: {
     modified() {
-      return JSON.stringify(this.layoutPermissions) !== JSON.stringify(this.originalLayoutPermissions)
+      return this.selectionCount
+        || JSON.stringify(this.layoutPermissions) !== JSON.stringify(this.originalLayoutPermissions)
         || JSON.stringify(this.publicSitePermissions) !== JSON.stringify(this.originalPublicSitePermissions)
         || JSON.stringify(this.deletePermissions) !== JSON.stringify(this.originalDeletePermissions);
     },
@@ -114,18 +123,33 @@ export default {
     this.$root.$off('space-administration-permissions-drawer-open', this.open);
   },
   methods: {
-    async open(space) {
-      this.space = space;
-      this.$refs.drawer.open();
+    async open(obj, selectionCount, callback) {
+      window.setTimeout(() => this.$refs.drawer.open(), 50);
       this.loading = true;
       try {
-        const permissions = await this.$spaceAdministrationService.getSpacePermission(space.id);
-        this.originalLayoutPermissions = permissions.layoutPermissions;
-        this.originalPublicSitePermissions = permissions.publicSitePermissions;
-        this.originalDeletePermissions = permissions.deletePermissions;
-        this.layoutPermissions = JSON.parse(JSON.stringify(this.originalLayoutPermissions));
-        this.publicSitePermissions = JSON.parse(JSON.stringify(this.originalPublicSitePermissions));
-        this.deletePermissions = JSON.parse(JSON.stringify(this.originalDeletePermissions));
+        if (obj?.id) {
+          this.space = obj;
+          this.spaces = null;
+          this.selectionCount = 0;
+          const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+          this.originalLayoutPermissions = permissions.layoutPermissions;
+          this.originalPublicSitePermissions = permissions.publicSitePermissions;
+          this.originalDeletePermissions = permissions.deletePermissions;
+          this.layoutPermissions = JSON.parse(JSON.stringify(this.originalLayoutPermissions));
+          this.publicSitePermissions = JSON.parse(JSON.stringify(this.originalPublicSitePermissions));
+          this.deletePermissions = JSON.parse(JSON.stringify(this.originalDeletePermissions));
+        } else {
+          this.space = null;
+          this.spaces = obj;
+          this.selectionCount = selectionCount;
+          this.callback = callback;
+          this.originalLayoutPermissions = [];
+          this.originalPublicSitePermissions = [];
+          this.originalDeletePermissions = [];
+          this.layoutPermissions = [];
+          this.publicSitePermissions = [];
+          this.deletePermissions = [];
+        }
       } finally {
         this.loading = false;
       }
@@ -136,12 +160,20 @@ export default {
     async save() {
       this.saving = true;
       try {
-        await this.$spaceAdministrationService.updateSpacePermissions(this.space.id, {
-          layoutPermissions: this.layoutPermissions,
-          publicSitePermissions: this.publicSitePermissions,
-          deletePermissions: this.deletePermissions,
-        });
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateSuccess'), 'success');
+        if (this.callback) {
+          this.callback({
+            layoutPermissions: this.layoutPermissions,
+            publicSitePermissions: this.publicSitePermissions,
+            deletePermissions: this.deletePermissions,
+          });
+        } else {
+          await this.$spaceAdministrationService.updateSpacePermissions(this.space.id, {
+            layoutPermissions: this.layoutPermissions,
+            publicSitePermissions: this.publicSitePermissions,
+            deletePermissions: this.deletePermissions,
+          });
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateSuccess'), 'success');
+        }
         this.close();
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spacePermissionsUpdateError'), 'error');

@@ -127,7 +127,7 @@ export default {
       return !!this.specificGroupEntries?.length;
     },
     spaceAdminMembershipType() {
-      return `manager:${this.space.groupId}`;
+      return this.space && `manager:${this.space.groupId}` || 'spaceAdmin';
     },
     permissions() {
       const permissions = [];

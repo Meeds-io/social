@@ -26,7 +26,7 @@
         :selected-template-id="$root.selectedTemplateId"
         @keyword-changed="$root.keyword = $event"
         @template-changed="$root.selectedTemplateId = $event"
-        @loading="$root.loadingSpaces = $root.loadingSpaces || $event" />
+        @loading="$root.loadingDisplay = $root.loadingDisplay || $event" />
       <spaces-administration-list
         ref="spacesList"
         class="px-5" />

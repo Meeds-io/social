@@ -132,6 +132,7 @@
                   ref="applicationToolbarFilterInput"
                   v-model="term"
                   :placeholder="rightTextFilter.placeholder"
+                  :disabled="rightTextFilter.disabled"
                   :autofocus="autofocusTextFilter"
                   :height="isCompact && 24 || 36"
                   :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
@@ -149,6 +150,7 @@
             v-if="showSelectBoxFilter"
             id="applicationToolbarFilterSelect"
             v-model="select"
+            :disabled="rightSelectBox?.disabled"
             class="flex-grow-0 ignore-vuetify-classes py-2 height-auto width-auto text-truncate my-auto ms-4"
             @change="$emit('filter-select-change', select)">
             <option
@@ -163,6 +165,7 @@
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
             :small="!showRightFilterButtonText"
+            :disabled="rightFilterButton?.disabled"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
@@ -305,6 +308,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    colsAuto: { // Allow columns to be arranged in automatic way, usefull only when no center section
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     expandFilter: false,
@@ -412,7 +419,8 @@ export default {
       return {
         'd-none': this.expandFilter,
         'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
-        'col-6': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-6': !this.expandFilter && !this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+        'col-auto': !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
         'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
         'text-truncate': !this.noTextTruncate,
       };
@@ -425,11 +433,12 @@ export default {
                 && 'col-6' || 'col-4'));
     },
     rightCols() {
-      return this.expandFilter && 'col-12'
-        || (!this.showLeftContent && !this.showCenterContent
-            && 'col-12'
-            || ((!this.showLeftContent !== !this.showCenterContent)
-                && 'col-6' || 'col-4'));
+      return {
+        'col-12': this.expandFilter || (!this.showLeftContent && !this.showCenterContent),
+        'col-4': !this.expandFilter && !this.colsAuto && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent !== !this.showCenterContent),
+        'col-auto': !this.expandFilter && this.colsAuto && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent !== !this.showCenterContent),
+        'col-6': !this.expandFilter && (this.showLeftContent || this.showCenterContent) && (this.showLeftContent === !this.showCenterContent),
+      };
     },
   },
   watch: {
