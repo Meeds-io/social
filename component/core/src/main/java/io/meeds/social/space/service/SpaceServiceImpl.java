@@ -60,6 +60,7 @@ import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.commons.utils.ListAccessImpl;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -69,6 +70,7 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.ResourceBundleService;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -146,11 +148,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getAllSpacesWithListAccess() {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.ALL);
-  }
-
-  @Override
   public Space getSpaceByPrettyName(String spacePrettyName) {
     return spaceStorage.getSpaceByPrettyName(spacePrettyName);
   }
@@ -171,25 +168,226 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public SpaceListAccess getAccessibleSpacesWithListAccess(String username) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.ACCESSIBLE);
+  public ListAccess<Space> getAccessibleSpacesWithListAccess(String username) {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               SpaceListAccessType.ACCESSIBLE);
   }
 
   @Override
-  public SpaceListAccess getVisibleSpacesWithListAccess(String username, SpaceFilter spaceFilter) {
-    if (isSuperManager(username)) {
-      if (spaceFilter == null)
-        return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.ALL);
-      else
-        return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.ALL_FILTER);
+  public ListAccess<Space> getVisibleSpacesWithListAccess(String username, SpaceFilter spaceFilter) {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.VISIBLE);
+  }
+
+  @Override
+  public ListAccess<Space> getPendingSpacesWithListAccess(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               username,
+                               SpaceListAccessType.PENDING);
+  }
+
+  @Override
+  public ListAccess<Space> getAllSpacesWithListAccess() {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               SpaceListAccessType.ALL);
+  }
+
+  @Override
+  public ListAccess<Space> getInvitedSpacesWithListAccess(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               username,
+                               SpaceListAccessType.INVITED);
+  }
+
+  @Override
+  public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               spaceFilter,
+                               spaceFilter == null ? SpaceListAccessType.ACCESSIBLE : SpaceListAccessType.ACCESSIBLE_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter) {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               spaceFilter,
+                               SpaceListAccessType.ALL_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getInvitedSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.INVITED_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getMemberSpaces(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MEMBER);
+  }
+
+  @Override
+  public ListAccess<Space> getMemberSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MEMBER_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getMemberOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.MEMBER_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getManagerSpaces(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MANAGER);
+  }
+
+  @Override
+  public ListAccess<Space> getManagerSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.MANAGER_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getManagerOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.MANAGER_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getFavoriteSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.FAVORITE_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getPendingSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.PENDING_FILTER);
+  }
+
+  @Override
+  public ListAccess<Space> getPendingSpaceRequestsToManage(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.PENDING_REQUESTS);
+  }
+
+  @Override
+  public ListAccess<Space> getLastAccessedSpace(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               SpaceListAccessType.LASTEST_ACCESSED);
+  }
+
+  @Override
+  public ListAccess<Space> getVisitedSpaces(String username) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               username,
+                               SpaceListAccessType.VISITED);
+  }
+
+  @Override
+  public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
+  }
+
+  @Override
+  public List<String> getMemberSpacesIds(String username, int offset, int limit) {
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
+    if (identity == null) {
+      return Collections.emptyList();
     } else {
-      return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.VISIBLE);
+      return this.spaceStorage.getMemberRoleSpaceIds(identity.getId(), offset, limit);
     }
   }
 
   @Override
-  public SpaceListAccess getPendingSpacesWithListAccess(String username) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.PENDING);
+  public List<String> getManagerSpacesIds(String username, int offset, int limit) {
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
+    if (identity == null) {
+      return Collections.emptyList();
+    } else {
+      return this.spaceStorage.getManagerRoleSpaceIds(identity.getId(), offset, limit);
+    }
+  }
+
+  @Override
+  public List<Space> getLastSpaces(int limit) {
+    return spaceStorage.getLastSpaces(limit);
   }
 
   @Override
@@ -490,82 +688,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (isSuperManager(username)) {
-      return new SpaceListAccess(spaceStorage,
-                                 spaceSearchConnector,
-                                 spaceFilter,
-                                 spaceFilter == null ? SpaceListAccessType.ALL : SpaceListAccessType.ALL_FILTER);
-    } else {
-      return new SpaceListAccess(spaceStorage,
-                                 spaceSearchConnector,
-                                 username,
-                                 spaceFilter,
-                                 spaceFilter == null ? SpaceListAccessType.ACCESSIBLE : SpaceListAccessType.ACCESSIBLE_FILTER);
-    }
-  }
-
-  @Override
-  public ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, spaceFilter, SpaceListAccessType.ALL_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getInvitedSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.INVITED_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getMemberSpaces(String username) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MEMBER);
-  }
-
-  @Override
-  public List<String> getMemberSpacesIds(String username, int offset, int limit) {
-    Identity identity = identityManager.getOrCreateUserIdentity(username);
-    if (identity == null) {
-      return Collections.emptyList();
-    } else {
-      return this.spaceStorage.getMemberRoleSpaceIds(identity.getId(), offset, limit);
-    }
-  }
-
-  @Override
-  public List<String> getManagerSpacesIds(String username, int offset, int limit) {
-    Identity identity = identityManager.getOrCreateUserIdentity(username);
-    if (identity == null) {
-      return Collections.emptyList();
-    } else {
-      return this.spaceStorage.getManagerRoleSpaceIds(identity.getId(), offset, limit);
-    }
-  }
-
-  @Override
-  public ListAccess<Space> getManagerSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MANAGER_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getManagerSpaces(String username) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MANAGER);
-  }
-
-  @Override
-  public ListAccess<Space> getMemberSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MEMBER_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getFavoriteSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.FAVORITE_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getPendingSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.PENDING_FILTER);
-  }
-
-  @Override
   public boolean hasSettingPermission(Space space, String username) {
     return canManageSpace(space, username);
   }
@@ -855,35 +977,10 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getInvitedSpacesWithListAccess(String username) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.INVITED);
-  }
-
-  @Override
   public void updateSpaceAccessed(String remoteId, Space space) {
     if (isMember(space, remoteId)) {
       spaceStorage.updateSpaceAccessed(remoteId, space);
     }
-  }
-
-  @Override
-  public List<Space> getLastSpaces(int limit) {
-    return spaceStorage.getLastSpaces(limit);
-  }
-
-  @Override
-  public ListAccess<Space> getLastAccessedSpace(String remoteId) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.LASTEST_ACCESSED);
-  }
-
-  @Override
-  public ListAccess<Space> getVisitedSpaces(String remoteId) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.VISITED);
-  }
-
-  @Override
-  public ListAccess<Space> getPendingSpaceRequestsToManage(String remoteId) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, remoteId, SpaceListAccessType.PENDING_REQUESTS);
   }
 
   @Override
@@ -981,11 +1078,6 @@ public class SpaceServiceImpl implements SpaceService {
     }
     org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(username);
     return identity != null && identity.isMemberOf(PLATFORM_PUBLISHER_GROUP, PUBLISHER);
-  }
-
-  @Override
-  public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
-    return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);
   }
 
   @Override
@@ -1246,10 +1338,11 @@ public class SpaceServiceImpl implements SpaceService {
     return organizationService;
   }
 
-  public SpaceTemplateService getSpaceTemplateService() {
+  private SpaceTemplateService getSpaceTemplateService() {
     if (spaceTemplateService == null) {
       spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
     }
     return spaceTemplateService;
   }
+
 }

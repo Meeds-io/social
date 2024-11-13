@@ -31,6 +31,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
 
@@ -38,8 +39,11 @@ import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 
 public class SpaceListAccess implements ListAccess<Space> {
+
+  private SpaceTemplateService spaceTemplateService;
 
   private SpaceStorage         spaceStorage;
 
@@ -59,6 +63,20 @@ public class SpaceListAccess implements ListAccess<Space> {
 
   public SpaceListAccess(SpaceStorage spaceStorage,
                          SpaceSearchConnector spaceSearchConnector,
+                         SpaceTemplateService spaceTemplateService,
+                         String userId,
+                         SpaceFilter spaceFilter,
+                         SpaceListAccessType type) {
+    this.spaceStorage = spaceStorage;
+    this.spaceSearchConnector = spaceSearchConnector;
+    this.spaceTemplateService = spaceTemplateService;
+    this.userId = StringUtils.firstNonBlank(userId, IdentityConstants.ANONIM);
+    this.spaceFilter = spaceFilter;
+    this.type = type;
+  }
+
+  public SpaceListAccess(SpaceStorage spaceStorage,
+                         SpaceSearchConnector spaceSearchConnector,
                          String userId,
                          SpaceFilter spaceFilter,
                          SpaceListAccessType type) {
@@ -91,10 +109,25 @@ public class SpaceListAccess implements ListAccess<Space> {
 
   public SpaceListAccess(SpaceStorage spaceStorage,
                          SpaceSearchConnector spaceSearchConnector,
+                         SpaceTemplateService spaceTemplateService,
+                         String userId,
+                         SpaceListAccessType type) {
+    this.spaceStorage = spaceStorage;
+    this.spaceSearchConnector = spaceSearchConnector;
+    this.spaceTemplateService = spaceTemplateService;
+    this.userId = userId;
+    this.spaceFilter = new SpaceFilter();
+    this.type = type;
+  }
+
+  public SpaceListAccess(SpaceStorage spaceStorage,
+                         SpaceSearchConnector spaceSearchConnector,
+                         SpaceTemplateService spaceTemplateService,
                          SpaceFilter spaceFilter,
                          SpaceListAccessType type) {
     this.spaceStorage = spaceStorage;
     this.spaceSearchConnector = spaceSearchConnector;
+    this.spaceTemplateService = spaceTemplateService;
     this.spaceFilter = spaceFilter;
     this.type = type;
   }
@@ -114,8 +147,9 @@ public class SpaceListAccess implements ListAccess<Space> {
 
   @Override
   public int getSize() {
-    if (spaceFilter != null && spaceFilter.isFavorite() && StringUtils.isBlank(spaceFilter.getRemoteId())) {
-      spaceFilter.setRemoteId(userId);
+    SpaceFilter filter = getSpaceFilter();
+    if (filter != null && userId != null && StringUtils.isBlank(filter.getRemoteId())) {
+      filter.setRemoteId(userId);
     }
 
     SpaceSearchFilter searchFilter = getSpaceSearchFilter();
@@ -126,37 +160,37 @@ public class SpaceListAccess implements ListAccess<Space> {
       case ALL:
         return spaceStorage.getAllSpacesCount();
       case ALL_FILTER:
-        return spaceStorage.getAllSpacesByFilterCount(this.spaceFilter);
+        return spaceStorage.getAllSpacesByFilterCount(filter);
       case ACCESSIBLE:
-        return spaceStorage.getAccessibleSpacesCount(this.userId);
+        return spaceStorage.getAccessibleSpacesCount(userId);
       case ACCESSIBLE_FILTER:
-        return spaceStorage.getAccessibleSpacesByFilterCount(this.userId, this.spaceFilter);
+        return spaceStorage.getAccessibleSpacesByFilterCount(userId, filter);
       case INVITED:
         return spaceStorage.getInvitedSpacesCount(userId);
       case INVITED_FILTER:
-        return spaceStorage.getInvitedSpacesByFilterCount(userId, spaceFilter);
+        return spaceStorage.getInvitedSpacesByFilterCount(userId, filter);
       case PENDING:
-        return spaceStorage.getPendingSpacesCount(this.userId);
+        return spaceStorage.getPendingSpacesCount(userId);
       case PENDING_FILTER:
-        return spaceStorage.getPendingSpacesByFilterCount(this.userId, this.spaceFilter);
+        return spaceStorage.getPendingSpacesByFilterCount(userId, filter);
       case MEMBER:
-        return spaceStorage.getMemberSpacesCount(this.userId);
+        return spaceStorage.getMemberSpacesCount(userId);
       case MEMBER_FILTER:
-        return spaceStorage.getMemberSpacesByFilterCount(this.userId, this.spaceFilter);
+        return spaceStorage.getMemberSpacesByFilterCount(userId, filter);
       case FAVORITE_FILTER:
-        return spaceStorage.getFavoriteSpacesByFilterCount(this.userId, this.spaceFilter);
+        return spaceStorage.getFavoriteSpacesByFilterCount(userId, filter);
       case MANAGER:
-        return spaceStorage.getManagerSpacesCount(this.userId);
+        return spaceStorage.getManagerSpacesCount(userId);
       case MANAGER_FILTER:
-        return spaceStorage.getManagerSpacesByFilterCount(this.userId, this.spaceFilter);
+        return spaceStorage.getManagerSpacesByFilterCount(userId, filter);
       case VISIBLE:
-        return spaceStorage.getVisibleSpacesCount(this.userId, this.spaceFilter);
+        return spaceStorage.getVisibleSpacesCount(userId, filter);
       case LASTEST_ACCESSED:
-        return spaceStorage.getLastAccessedSpaceCount(this.spaceFilter);
+        return spaceStorage.getLastAccessedSpaceCount(filter);
       case PENDING_REQUESTS:
         return spaceStorage.countPendingSpaceRequestsToManage(userId);
       case COMMON:
-        return spaceStorage.countCommonSpaces(this.userId, this.otherUserId);
+        return spaceStorage.countCommonSpaces(userId, otherUserId);
       default:
         return 0;
       }
@@ -165,12 +199,11 @@ public class SpaceListAccess implements ListAccess<Space> {
 
   @Override
   public Space[] load(int offset, int limit) { // NOSONAR
-    if (spaceFilter != null
-        && StringUtils.isBlank(spaceFilter.getRemoteId())) {
-      spaceFilter.setRemoteId(userId);
+    SpaceFilter filter = getSpaceFilter();
+    if (filter != null && StringUtils.isBlank(filter.getRemoteId())) {
+      filter.setRemoteId(userId);
     }
     List<Space> listSpaces = null;
-
     SpaceSearchFilter searchFilter = getSpaceSearchFilter();
     if (searchFilter != null) {
       List<SpaceSearchResult> spaces = spaceSearchConnector.search(searchFilter, offset, limit);
@@ -185,49 +218,49 @@ public class SpaceListAccess implements ListAccess<Space> {
         listSpaces = spaceStorage.getSpaces(offset, limit);
         break;
       case ALL_FILTER:
-        listSpaces = spaceStorage.getSpacesByFilter(this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getSpacesByFilter(this.getSpaceFilter(), offset, limit);
         break;
       case ACCESSIBLE:
         listSpaces = spaceStorage.getAccessibleSpaces(this.userId, offset, limit);
         break;
       case ACCESSIBLE_FILTER:
-        listSpaces = spaceStorage.getAccessibleSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getAccessibleSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case INVITED:
         listSpaces = spaceStorage.getInvitedSpaces(this.userId, offset, limit);
         break;
       case INVITED_FILTER:
-        listSpaces = spaceStorage.getInvitedSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getInvitedSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case PENDING:
         listSpaces = spaceStorage.getPendingSpaces(this.userId, offset, limit);
         break;
       case PENDING_FILTER:
-        listSpaces = spaceStorage.getPendingSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getPendingSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case MEMBER:
         listSpaces = spaceStorage.getMemberSpaces(this.userId, offset, limit);
         break;
       case MEMBER_FILTER:
-        listSpaces = spaceStorage.getMemberSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getMemberSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case FAVORITE_FILTER:
-        listSpaces = spaceStorage.getFavoriteSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getFavoriteSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case MANAGER:
         listSpaces = spaceStorage.getManagerSpaces(this.userId, offset, limit);
         break;
       case MANAGER_FILTER:
-        listSpaces = spaceStorage.getManagerSpacesByFilter(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getManagerSpacesByFilter(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case VISIBLE:
-        listSpaces = spaceStorage.getVisibleSpaces(this.userId, this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getVisibleSpaces(this.userId, this.getSpaceFilter(), offset, limit);
         break;
       case LASTEST_ACCESSED:
-        listSpaces = spaceStorage.getLastAccessedSpace(this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getLastAccessedSpace(this.getSpaceFilter(), offset, limit);
         break;
       case VISITED:
-        listSpaces = spaceStorage.getVisitedSpaces(this.spaceFilter, offset, limit);
+        listSpaces = spaceStorage.getVisitedSpaces(this.getSpaceFilter(), offset, limit);
         break;
       case COMMON:
         listSpaces = spaceStorage.getCommonSpaces(this.userId, this.otherUserId, offset, limit);
@@ -250,15 +283,16 @@ public class SpaceListAccess implements ListAccess<Space> {
   }
 
   private SpaceSearchFilter getSpaceSearchFilter() {
-    if (spaceFilter == null || !spaceSearchConnector.isEnabled()) {
+    SpaceFilter filter = getSpaceFilter();
+    if (filter == null || !spaceSearchConnector.isEnabled()) {
       return null;
     }
-    String username = StringUtils.firstNonBlank(userId, spaceFilter.getRemoteId());
+    String username = StringUtils.firstNonBlank(userId, filter.getRemoteId());
     if (username == null) {
       return null;
     }
-    SpaceMembershipStatus statusType = getUnifiedSearchStatusType(spaceFilter.getStatus());
-    if (spaceFilter.isUnifiedSearch()
+    SpaceMembershipStatus statusType = getUnifiedSearchStatusType(filter.getStatus());
+    if (filter.isUnifiedSearch()
         && (type == ALL_FILTER
             || type == ALL
             || type == ACCESSIBLE_FILTER
@@ -266,15 +300,27 @@ public class SpaceListAccess implements ListAccess<Space> {
             || type == VISIBLE
             || statusType != null)) {
       return new SpaceSearchFilter(username,
-                                   spaceFilter.getIdentityId(),
-                                   spaceFilter.getTemplateId(),
-                                   spaceFilter.getSpaceNameSearchCondition(),
-                                   spaceFilter.isFavorite(),
-                                   spaceFilter.getTagNames(),
+                                   filter.getIdentityId(),
+                                   filter.getTemplateId(),
+                                   filter.getManagingTemplateIds(),
+                                   filter.getSpaceNameSearchCondition(),
+                                   filter.isFavorite(),
+                                   filter.getTagNames(),
                                    statusType);
     } else {
       return null;
     }
+  }
+
+  private SpaceFilter getSpaceFilter() {
+    if (spaceFilter != null
+        && spaceTemplateService != null
+        && spaceFilter.getManagingTemplateIds() == null
+        && (userId != null || spaceFilter.getRemoteId() != null)) {
+      spaceFilter.setManagingTemplateIds(spaceTemplateService.getManagingSpaceTemplates(StringUtils.firstNonBlank(userId,
+                                                                                                                  spaceFilter.getRemoteId())));
+    }
+    return spaceFilter;
   }
 
   private SpaceMembershipStatus getUnifiedSearchStatusType(SpaceMembershipStatus spaceMembershipStatus) {

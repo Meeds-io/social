@@ -38,6 +38,8 @@ public class SpaceSearchFilter {
 
   private long                  templateId;
 
+  private List<Long>            managingTemplateIds;
+
   private String                term;
 
   private boolean               favorites;
