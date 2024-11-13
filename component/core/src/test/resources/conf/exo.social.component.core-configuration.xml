@@ -109,8 +109,7 @@
   </component>
 
   <component>
-    <key>org.exoplatform.social.core.jpa.storage.dao.SpaceDAO</key>
-    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAOImpl</type>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO</type>
   </component>
 
   <component>

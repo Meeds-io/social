@@ -38,7 +38,6 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
@@ -93,14 +92,12 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     maryIdentity = identityManager.getOrCreateIdentity("organization", "mary");
     demoIdentity = identityManager.getOrCreateIdentity("organization", "demo");
 
-    spaceRestResources =
-                       new SpaceRest(new ActivityRest(activityManager, identityManager, spaceService, null),
-                                     spaceService,
-                                     spaceLayoutService,
-                                     identityManager,
-                                     uploadService,
-                                     imageThumbnailService,
-                                     securitySettingService);
+    spaceRestResources = new SpaceRest(spaceService,
+                                       spaceLayoutService,
+                                       identityManager,
+                                       uploadService,
+                                       imageThumbnailService,
+                                       securitySettingService);
     registry(spaceRestResources);
   }
 

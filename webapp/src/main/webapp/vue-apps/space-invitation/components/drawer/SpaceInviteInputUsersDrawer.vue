@@ -38,6 +38,7 @@
         :disabled="saving"
         :search-options="{
           spaceURL: spacePrettyName,
+          filterType: 'member_or_managing',
         }"
         :items="users"
         name="inviteMembers"
