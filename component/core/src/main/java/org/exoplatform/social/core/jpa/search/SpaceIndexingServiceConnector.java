@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -41,6 +42,10 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
 
 public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnector {
+
+  public static final String TEMPLATE_MANAGER_PREFIX    = "@templateManager@";
+
+  public static final String TEMPLATE_MANAGER_PATTERN   = TEMPLATE_MANAGER_PREFIX + "%s";
 
   public static final String TYPE                       = "space";
 
@@ -98,20 +103,15 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     document.setLastUpdatedDate(createdDate);
     document.setFields(fields);
 
-    document.setPermissions(Space.HIDDEN.equals(space.getVisibility()) ? new HashSet<>(Arrays.asList(space.getMembers())) :
-                                                                       Collections.singleton("all"));
-    document.addListField("member",
-                          new HashSet<>(space.getMembers() == null ? Collections.emptyList() :
-                                                                   Arrays.asList(space.getMembers())));
+    setPermissions(space, document);
+    setMembers(space, document);
+    setManagers(space, document);
     document.addListField("pending",
                           new HashSet<>(space.getPendingUsers() == null ? Collections.emptyList() :
                                                                         Arrays.asList(space.getPendingUsers())));
     document.addListField("invited",
                           new HashSet<>(space.getInvitedUsers() == null ? Collections.emptyList() :
                                                                         Arrays.asList(space.getInvitedUsers())));
-    document.addListField("manager",
-                          new HashSet<>(space.getManagers() == null ? Collections.emptyList() :
-                                                                    Arrays.asList(space.getManagers())));
     document.addListField("publisher",
                           new HashSet<>(space.getPublishers() == null ? Collections.emptyList() :
                                                                       Arrays.asList(space.getPublishers())));
@@ -183,6 +183,33 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     MetadataObject metadataObject = new MetadataObject(SPACE_METADATA_OBJECT_TYPE, spaceId);
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByObject(metadataObject);
     document.setMetadataItems(metadataItems);
+  }
+
+  private void setManagers(Space space, DocumentWithMetadata document) {
+    HashSet<String> managers = new HashSet<>(space.getManagers() == null ? Collections.emptyList() :
+                                                                         Arrays.asList(space.getManagers()));
+    if (space.getTemplateId() > 0) {
+      managers.add(String.format(TEMPLATE_MANAGER_PATTERN, space.getTemplateId()));
+    }
+    document.addListField("manager", managers);
+  }
+
+  private void setMembers(Space space, DocumentWithMetadata document) {
+    HashSet<String> members = new HashSet<>(space.getMembers() == null ? Collections.emptyList() :
+                                                                       Arrays.asList(space.getMembers()));
+    if (space.getTemplateId() > 0) {
+      members.add(String.format(TEMPLATE_MANAGER_PATTERN, space.getTemplateId()));
+    }
+    document.addListField("member", members);
+  }
+
+  private void setPermissions(Space space, DocumentWithMetadata document) {
+    Set<String> permissions = new HashSet<>(Space.HIDDEN.equals(space.getVisibility()) ? Arrays.asList(space.getMembers()) :
+                                                                                       Collections.singleton("all"));
+    if (space.getTemplateId() > 0) {
+      permissions.add(String.format(TEMPLATE_MANAGER_PATTERN, space.getTemplateId()));
+    }
+    document.setPermissions(permissions);
   }
 
   private String htmlToText(String source) {

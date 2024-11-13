@@ -47,6 +47,9 @@
           id="defaultSpacesInput"
           v-model="defaultSpaceIdentities"
           :labels="suggesterLabels"
+          :search-options="{
+            filterType: 'member_or_managing',
+          }"
           name="defaultSpaces"
           height="100"
           include-spaces

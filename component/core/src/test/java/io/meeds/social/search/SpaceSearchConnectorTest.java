@@ -30,6 +30,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Stream;
@@ -48,6 +49,7 @@ import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.container.xml.ValueParam;
+import org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector;
 
 import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
@@ -148,7 +150,7 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testCountFavorites() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, null, true, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, Collections.emptyList(), null, true, null, null);
     when(client.countRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
                                                 && hasPermissionQueryPart(esQuery, MEMBER, 1, USER_NAME)),
                              eq(index))).thenReturn(COUNT_RESULT);
@@ -157,9 +159,26 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testSearchFavorites() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, null, true, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, Collections.emptyList(), null, true, null, null);
     when(client.sendRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, MEMBER, 1, USER_NAME)),
+                            eq(index))).thenReturn(SEARCH_RESULT);
+    List<SpaceSearchResult> search = spaceSearchConnector.search(filter, 0, 10);
+    assertEquals(1, search.size());
+
+    assertNotNull(search.get(0).getNameExcerpts());
+    assertNotNull(search.get(0).getDescriptionExcerpts());
+
+    assertEquals(1, search.get(0).getNameExcerpts().size());
+    assertEquals(1, search.get(0).getDescriptionExcerpts().size());
+  }
+
+  @Test
+  public void testSearchManagingSpaces() {
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, Collections.emptyList(), null, true, null, null);
+    filter.setManagingTemplateIds(Collections.singletonList(2l));
+    when(client.sendRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
+                                               && hasPermissionQueryPart(esQuery, MEMBER, 2, USER_NAME, String.format(SpaceIndexingServiceConnector.TEMPLATE_MANAGER_PATTERN, 2l))),
                             eq(index))).thenReturn(SEARCH_RESULT);
     List<SpaceSearchResult> search = spaceSearchConnector.search(filter, 0, 10);
     assertEquals(1, search.size());
@@ -177,6 +196,7 @@ public class SpaceSearchConnectorTest {
                  () -> spaceSearchConnector.search(new SpaceSearchFilter(USER_NAME,
                                                                          USER_IDENTITY_ID,
                                                                          0,
+                                                                         Collections.emptyList(),
                                                                          null,
                                                                          false,
                                                                          null,
@@ -217,7 +237,7 @@ public class SpaceSearchConnectorTest {
 
   @Test
   public void testSearchSpaceNoMembership() {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, PHRASE, false, null, null);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, Collections.emptyList(), PHRASE, false, null, null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery,
                                                                          PERMISSIONS_FIELD,
@@ -241,6 +261,7 @@ public class SpaceSearchConnectorTest {
                              new SpaceSearchFilter(USER_NAME,
                                                    USER_IDENTITY_ID,
                                                    0,
+                                                   Collections.emptyList(),
                                                    null,
                                                    false,
                                                    Arrays.asList("tag1", "tag2"),
@@ -260,7 +281,7 @@ public class SpaceSearchConnectorTest {
   }
 
   private void checkPermissionField(SpaceMembershipStatus status, String fieldName) {
-    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, TERM, false, null, status);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME, USER_IDENTITY_ID, 0, Collections.emptyList(), TERM, false, null, status);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, fieldName, 1, USER_NAME)),
                             eq(index))).thenReturn(SEARCH_RESULT);
