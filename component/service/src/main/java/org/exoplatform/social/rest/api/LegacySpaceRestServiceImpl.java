@@ -23,6 +23,7 @@ import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -72,12 +73,7 @@ public class LegacySpaceRestServiceImpl implements ResourceContainer {
       if (userId == null) {
         return Response.status(500).cacheControl(cacheControl).build();
       }
-      ListAccess<Space> listAccess = null;
-      if ((keyword == null) || (keyword.equals(""))) {
-        listAccess = spaceService.getMemberSpacesByFilter(userId, null);
-      } else {
-        listAccess = spaceService.getMemberSpacesByFilter(userId, new SpaceFilter(keyword));
-      }
+      ListAccess<Space> listAccess = spaceService.getMemberSpacesByFilter(userId, new SpaceFilter(keyword));
       // --- List of searchedSpaces
       List<Space> spacesSearched = new ArrayList(Arrays.asList(listAccess.load(0, MAX_LOADED_SPACES_BY_REQUEST)));
       // --- List of spaces sorted by access

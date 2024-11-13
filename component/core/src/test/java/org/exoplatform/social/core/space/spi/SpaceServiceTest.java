@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.organization.Group;
@@ -73,8 +74,11 @@ import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
 import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
+import io.meeds.social.space.template.storage.SpaceTemplateStorage;
+import io.meeds.social.space.template.utils.EntityMapper;
 
 import lombok.SneakyThrows;
 
@@ -250,6 +254,185 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("allSpaces.getSize() must return: " + count, count, allSpaces.getSize());
     assertEquals("allSpaces.load(0, 1).length must return: 1", 1, allSpaces.load(0, 1).length);
     assertEquals("allSpaces.load(0, count).length must return: " + count, count, allSpaces.load(0, count).length);
+  }
+
+  public void testGetAllSpacesWithManagingSpaceTemplates() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(TOM_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(null, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+  }
+
+  public void testGetMemberSpacesWithManagingSpaceTemplates() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getMemberSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getMemberSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetMemberOrManagingSpacesWithManagingSpaceTemplates() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getMemberOrManagingSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberOrManagingSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getMemberOrManagingSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberOrManagingSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetManagerSpacesWithManagingSpaceTemplates() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      } else {
+        spaceService.setManager(space, TOM_NAME, false);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getManagerSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getManagerSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetManagerOrManagingSpacesWithManagingSpaceTemplates() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      } else {
+        spaceService.setManager(space, TOM_NAME, false);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getManagerOrManagingSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerOrManagingSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getManagerOrManagingSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerOrManagingSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
   }
 
   public void testGetSpaceMembershipDate() {
@@ -2217,4 +2400,24 @@ public class SpaceServiceTest extends AbstractCoreTest {
     return organizationService.getMembershipHandler().removeMembership(m.getId(), true);
   }
 
+  private SpaceTemplate mockSpaceTemplate() throws ObjectNotFoundException {
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplateStorage spaceTemplateStorage = getService(SpaceTemplateStorage.class);
+    SpaceTemplateDAO spaceTemplateDao = new SpaceTemplateDAO();
+
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    if (spaceTemplateDao.find(spaceTemplate.getId()) == null) {
+      SpaceTemplateEntity spaceTemplateEntity = EntityMapper.toEntity(spaceTemplate);
+      spaceTemplateEntity.setId(null);
+      spaceTemplateEntity = spaceTemplateDao.create(spaceTemplateEntity);
+      if (spaceTemplate.getId() != spaceTemplateEntity.getId()) {
+        spaceTemplate.setId(spaceTemplateEntity.getId());
+        spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
+      }
+    }
+    return spaceTemplate;
+  }
+
+  public static class SpaceTemplateDAO extends GenericDAOJPAImpl<SpaceTemplateEntity, Long> {
+  }
 }

@@ -31,8 +31,6 @@ public class XSpaceFilter extends SpaceFilter {
 
   private boolean     notHidden;
 
-  private boolean     isPublic;
-
   private boolean     lastAccess;
 
   private boolean     visited;
@@ -44,6 +42,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setSorting(spaceFilter.getSorting());
       this.setFavorite(spaceFilter.isFavorite());
       this.setTemplateId(spaceFilter.getTemplateId());
+      this.setManagingTemplateIds(spaceFilter.getManagingTemplateIds());
       this.setExcludedIds(spaceFilter.getExcludedIds());
       if (spaceFilter.getSpaceNameSearchCondition() != null) {
         this.setSpaceNameSearchCondition(spaceFilter.getSpaceNameSearchCondition());
@@ -57,9 +56,6 @@ public class XSpaceFilter extends SpaceFilter {
         this.setNotHidden(filter.isNotHidden());
         this.setLastAccess(filter.isLastAccess());
         this.setVisited(filter.isVisited());
-        if (filter.isPublic()) {
-          this.setPublic(filter.getRemoteId());
-        }
       }
     }
     return this;
@@ -83,15 +79,6 @@ public class XSpaceFilter extends SpaceFilter {
     return notHidden;
   }
 
-  public void setPublic(String userId) {
-    setRemoteId(userId);
-    this.isPublic = (userId != null);
-  }
-
-  public boolean isPublic() {
-    return isPublic;
-  }
-  
   public void setVisited(boolean visited) {
     this.visited = visited;
   }

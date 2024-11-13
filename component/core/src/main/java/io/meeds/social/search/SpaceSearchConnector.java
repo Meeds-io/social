@@ -19,6 +19,9 @@
  */
 package io.meeds.social.search;
 
+import static org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector.TEMPLATE_MANAGER_PATTERN;
+import static org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector.TEMPLATE_MANAGER_PREFIX;
+
 import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -386,13 +389,30 @@ public class SpaceSearchConnector {
 
   private String buildPermissionsQuery(SpaceSearchFilter filter) {
     String permissionField = getPermissionField(filter);
-    String username = filter.getUsername();
 
     return PERMISSIONS_QUERY.replace(PERMISSIONS_FIELD_REPLACEMENT,
                                      permissionField == null ? "permissions" : permissionField)
                             .replace(PERMISSIONS_REPLACEMENT,
-                                     permissionField == null ? String.format("[\"all\", \"%s\"]", username) :
-                                                             String.format("[\"%s\"]", username));
+                                     getPermissionFieldValues(permissionField, filter));
+  }
+
+  private String getPermissionFieldValues(String permissionField, SpaceSearchFilter filter) {
+    String username = filter.getUsername();
+    if (CollectionUtils.isNotEmpty(filter.getManagingTemplateIds())
+        && !username.startsWith(TEMPLATE_MANAGER_PREFIX)) {
+
+      String managingTemplatePermissions = StringUtils.join(filter.getManagingTemplateIds()
+                                                                  .stream()
+                                                                  .map(id -> String.format(TEMPLATE_MANAGER_PATTERN, id))
+                                                                  .toList(),
+                                                            "\",\"");
+
+      return permissionField == null ? String.format("[\"all\", \"%s\", \"%s\"]", username, managingTemplatePermissions) :
+                                     String.format("[\"%s\", \"%s\"]", username, managingTemplatePermissions);
+    } else {
+      return permissionField == null ? String.format("[\"all\", \"%s\"]", username) :
+                                     String.format("[\"%s\"]", username);
+    }
   }
 
   private String buildTemplateIdQueryStatement(SpaceSearchFilter filter) {
