@@ -49,6 +49,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -83,11 +84,9 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
@@ -111,40 +110,42 @@ import lombok.SneakyThrows;
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRest implements ResourceContainer {
 
-  private static final Log             LOG                         = ExoLogger.getLogger(SpaceRest.class);
+  private static final Log             LOG                                   = ExoLogger.getLogger(SpaceRest.class);
 
-  private static final String          SPACE_FILTER_TYPE_ALL       = "all";
+  private static final String          SPACE_FILTER_TYPE_ALL                 = "all";
 
-  private static final String          SPACE_FILTER_TYPE_MEMBER    = "member";
+  private static final String          SPACE_FILTER_TYPE_MEMBER              = "member";
 
-  private static final String          SPACE_FILTER_TYPE_MANAGER   = "manager";
+  private static final String          SPACE_FILTER_TYPE_MEMBER_OR_MANAGING  = "member_or_managing";
 
-  private static final String          SPACE_FILTER_TYPE_PENDING   = "pending";
+  private static final String          SPACE_FILTER_TYPE_MANAGER             = "manager";
 
-  private static final String          SPACE_FILTER_TYPE_INVITED   = "invited";
+  private static final String          SPACE_FILTER_TYPE_MANAGER_OR_MANAGING = "manager_or_managing";
 
-  private static final String          SPACE_FILTER_TYPE_REQUESTS  = "requests";
+  private static final String          SPACE_FILTER_TYPE_PENDING             = "pending";
 
-  private static final String          SPACE_FILTER_TYPE_FAVORITE  = "favorite";
+  private static final String          SPACE_FILTER_TYPE_INVITED             = "invited";
 
-  private static final String          LAST_VISITED_SPACES         = "lastVisited";
+  private static final String          SPACE_FILTER_TYPE_REQUESTS            = "requests";
 
-  private static final CacheControl    CACHE_CONTROL               = new CacheControl();
+  private static final String          SPACE_FILTER_TYPE_FAVORITE            = "favorite";
 
-  private static final CacheControl    CACHE_REVALIDATE_CONTROL    = new CacheControl();
+  private static final String          LAST_VISITED_SPACES                   = "lastVisited";
 
-  public static final String           PROFILE_DEFAULT_BANNER_URL  = "/skin/images/banner/DefaultSpaceBanner.png";
+  private static final CacheControl    CACHE_CONTROL                         = new CacheControl();
 
-  private static final Date            DEFAULT_IMAGES_LAST_MODIFED = new Date();
+  private static final CacheControl    CACHE_REVALIDATE_CONTROL              = new CacheControl();
 
-  private static final long            DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
+  public static final String           PROFILE_DEFAULT_BANNER_URL            = "/skin/images/banner/DefaultSpaceBanner.png";
+
+  private static final Date            DEFAULT_IMAGES_LAST_MODIFED           = new Date();
+
+  private static final long            DEFAULT_IMAGES_HASH                   = DEFAULT_IMAGES_LAST_MODIFED.getTime();
 
   // 7 days
-  private static final int             CACHE_IN_SECONDS            = 7 * 86400;
+  private static final int             CACHE_IN_SECONDS                      = 7 * 86400;
 
-  private static final int             CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
-
-  private final ActivityRest           activityRestResourcesV1;
+  private static final int             CACHE_IN_MILLI_SECONDS                = CACHE_IN_SECONDS * 1000;
 
   private final IdentityManager        identityManager;
 
@@ -158,18 +159,16 @@ public class SpaceRest implements ResourceContainer {
 
   private final ImageThumbnailService  imageThumbnailService;
 
-  private byte[]                       defaultSpaceBanner          = null;
+  private byte[]                       defaultSpaceBanner                    = null;
 
-  private byte[]                       defaultSpaceAvatar          = null;
+  private byte[]                       defaultSpaceAvatar                    = null;
 
-  public SpaceRest(ActivityRest activityRestResourcesV1,
-                   SpaceService spaceService,
+  public SpaceRest(SpaceService spaceService,
                    SpaceLayoutService spaceLayoutService,
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
                    SecuritySettingService securitySettingService) {
-    this.activityRestResourcesV1 = activityRestResourcesV1;
     this.spaceService = spaceService;
     this.spaceLayoutService = spaceLayoutService;
     this.identityManager = identityManager;
@@ -212,7 +211,8 @@ public class SpaceRest implements ResourceContainer {
                             @Schema(defaultValue = "20")
                             @QueryParam("limit")
                             int limit,
-                            @Parameter(description = "Space Template identifier, if equals to 0, it will not be used", required = false)
+                            @Parameter(description = "Space Template identifier, if equals to 0, it will not be used",
+                                       required = false)
                             @QueryParam("templateId")
                             long templateId,
                             @Parameter(description = "Sort", required = false)
@@ -246,6 +246,7 @@ public class SpaceRest implements ResourceContainer {
     if (StringUtils.isBlank(filterType)) {
       filterType = SPACE_FILTER_TYPE_ALL;
     }
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
 
     ListAccess<Space> listAccess = null;
     SpaceFilter spaceFilter = new SpaceFilter();
@@ -267,9 +268,12 @@ public class SpaceRest implements ResourceContainer {
     }
     spaceFilter.setFavorite(favorites);
     spaceFilter.setIdentityId(RestUtils.getCurrentUserIdentityId());
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
       listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER_OR_MANAGING, filterType)) {
+      listAccess = spaceService.getMemberOrManagingSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MANAGER_OR_MANAGING, filterType)) {
+      listAccess = spaceService.getManagerOrManagingSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER, filterType)) {
       listAccess = spaceService.getMemberSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MANAGER, filterType)) {
@@ -771,7 +775,7 @@ public class SpaceRest implements ResourceContainer {
       Locale locale = null;
       try {
         String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
-        locale = new Locale(defaultLanguage);
+        locale = LocaleUtils.toLocale(defaultLanguage);
       } catch (Exception e) {
         LOG.error("Failure to retrieve portal config", e);
       }
@@ -967,78 +971,6 @@ public class SpaceRest implements ResourceContainer {
     }
     boolean isMember = spaceService.isMember(space, userId);
     return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
-  }
-
-  @GET
-  @Path("{id}/activities")
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Gets space activities by space id",
-             method = "GET",
-             description = "This returns the space's activities if the authenticated user is a member of the space or a spaces super manager.")
-  @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  @Deprecated
-  @DeprecatedAPI(value = "Use activityRestResourcesV1.getActivities instead", insist = true)
-  public Response getSpaceActivitiesById(
-                                         @Context
-                                         UriInfo uriInfo,
-                                         @Parameter(description = "Space id", required = true)
-                                         @PathParam("id")
-                                         String id,
-                                         @Parameter(description = "Offset")
-                                         @Schema(defaultValue = "0")
-                                         @QueryParam("offset")
-                                         int offset,
-                                         @Parameter(description = "Limit")
-                                         @Schema(defaultValue = "20")
-                                         @QueryParam("limit")
-                                         int limit,
-                                         @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)")
-                                         @QueryParam("before")
-                                         String before,
-                                         @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)")
-                                         @QueryParam("after")
-                                         String after,
-                                         @Parameter(description = "Returning the number of activities or not")
-                                         @Schema(defaultValue = "false")
-                                         @QueryParam("returnSize")
-                                         boolean returnSize,
-                                         @Parameter(description = "Asking for a full representation of a specific subresource, ex: comments or likes")
-                                         @QueryParam("expand")
-                                         String expand) {
-    return activityRestResourcesV1.getActivities(uriInfo, id, before, after, offset, limit, returnSize, expand, null);
-  }
-
-  @POST
-  @Path("{id}/activities")
-  @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Posts an activity to a specific space",
-             method = "POST",
-             description = "This posts the activity if the authenticated user is a member of the space or a spaces super manager.")
-  @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  @Deprecated
-  @DeprecatedAPI(value = "Use activityRestResourcesV1.postActivity instead", insist = true)
-  public Response postActivityOnSpace(
-                                      @Context
-                                      UriInfo uriInfo,
-                                      @Parameter(description = "Space id", required = true)
-                                      @PathParam("id")
-                                      String id,
-                                      @Parameter(description = "Asking for a full representation of a specific subresource, ex: comments or likes",
-                                                 required = false)
-                                      @QueryParam("expand")
-                                      String expand,
-                                      @Parameter(description = "Activity object to be created", required = true)
-                                      ActivityEntity model) {
-    return activityRestResourcesV1.postActivity(uriInfo, id, expand, model);
   }
 
   @SneakyThrows

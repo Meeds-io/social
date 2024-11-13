@@ -129,6 +129,11 @@ public class SpaceTemplateService {
     }
   }
 
+  public List<Long> getManagingSpaceTemplates(String username) {
+    List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
+    return spaceTemplates.stream().filter(t -> canManageSpacesWithTemplate(t, username)).map(SpaceTemplate::getId).toList();
+  }
+
   public SpaceTemplate getSpaceTemplate(long templateId) {
     return spaceTemplateStorage.getSpaceTemplate(templateId);
   }
@@ -161,6 +166,18 @@ public class SpaceTemplateService {
       return Long.parseLong(attachmentFileIds.get(0));
     } else {
       return 0l;
+    }
+  }
+
+  public boolean canManageSpacesWithTemplate(SpaceTemplate spaceTemplate, String username) {
+    if (canManageTemplates(username)) {
+      return true;
+    } else {
+      Identity aclIdentity = userAcl.getUserIdentity(username);
+      return aclIdentity != null
+             && spaceTemplate.getAdminPermissions()
+                             .stream()
+                             .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
     }
   }
 
