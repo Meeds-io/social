@@ -20,6 +20,6 @@
  */
 package io.meeds.social.space.constant;
 
-public enum Registration {
-  OPEN, VALIDATION, CLOSED
+public enum SpaceVisibility {
+  PUBLIC, PRIVATE, HIDDEN
 }

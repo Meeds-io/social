@@ -49,6 +49,7 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
             || SpaceType.VISITED.equals(spaceFilterKey.getType()));
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public void onSelect(ExoCache<? extends ListSpacesKey, ? extends ListSpacesData> exoCache,
                        ListSpacesKey listSpacesKey,

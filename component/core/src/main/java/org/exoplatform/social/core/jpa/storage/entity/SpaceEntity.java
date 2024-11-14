@@ -25,8 +25,8 @@ import java.util.Set;
 import org.exoplatform.commons.utils.StringListConverter;
 
 import io.meeds.social.space.constant.PublicSiteVisibility;
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -95,7 +95,7 @@ public class SpaceEntity implements Serializable {
   private String                                   displayName;
 
   @Column(name = "REGISTRATION")
-  private Registration                             registration;
+  private SpaceRegistration                        registration;
 
   @Column(name = "DESCRIPTION")
   private String                                   description;
@@ -109,7 +109,7 @@ public class SpaceEntity implements Serializable {
   private Date                                     bannerLastUpdated;
 
   @Column(name = "VISIBILITY")
-  public Visibility                                visibility;
+  public SpaceVisibility                           visibility;
 
   @Column(name = "GROUP_ID")
   public String                                    groupId;
@@ -139,7 +139,7 @@ public class SpaceEntity implements Serializable {
   @Setter
   @Column(name = "PUBLIC_SITE_VISIBILITY", nullable = false)
   private PublicSiteVisibility                     publicSiteVisibility       = PublicSiteVisibility.MANAGER;
-  
+
   @Getter
   @Setter
   @Convert(converter = StringListConverter.class)
@@ -182,11 +182,11 @@ public class SpaceEntity implements Serializable {
     this.displayName = displayName;
   }
 
-  public Registration getRegistration() {
+  public SpaceRegistration getRegistration() {
     return registration;
   }
 
-  public void setRegistration(Registration registration) {
+  public void setRegistration(SpaceRegistration registration) {
     this.registration = registration;
   }
 
@@ -214,11 +214,11 @@ public class SpaceEntity implements Serializable {
     this.bannerLastUpdated = bannerLastUpdated;
   }
 
-  public Visibility getVisibility() {
+  public SpaceVisibility getVisibility() {
     return visibility;
   }
 
-  public void setVisibility(Visibility visibility) {
+  public void setVisibility(SpaceVisibility visibility) {
     this.visibility = visibility;
   }
 

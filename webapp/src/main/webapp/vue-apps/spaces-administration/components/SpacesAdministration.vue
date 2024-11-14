@@ -37,6 +37,7 @@
         :key="extension.name"
         :is="extension.componentName" />
     </div>
+    <spaces-administration-filter-drawer />
     <spaces-administration-managers-drawer />
     <spaces-administration-sync-reports-drawer />
     <spaces-administration-sync-members-drawer />

@@ -25,12 +25,13 @@
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('spacesList.label.filterSpaces'),
-      tooltip: $t('spacesList.label.filterSpaces')
+      tooltip: $t('spacesList.label.filterSpaces'),
+      disabled: $root.isBulkProcessing,
     }"
-    :right-select-box="{
-      hide: $root.isMobile,
-      selected: selectedTemplateId,
-      items: spaceTemplateItems,
+    :right-filter-button="{
+      text: $t('social.spaces.administration.manageSpaces.filter'),
+      disabled: $root.isBulkProcessing,
+      displayText: !$root.isMobile,
     }"
     :filters-count="filtersCount"
     compact
@@ -38,7 +39,7 @@
     no-text-truncate
     cols-auto
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
-    @filter-select-change="$emit('template-changed', $event)"
+    @filter-button-click="$root.$emit('spaces-administration-filter-drawer-open')"
     @loading="$emit('loading', $event)">
     <template v-if="!$root.isMobile" #left>
       <div v-if="$root.selectedSpaces.length && !$root.isMobile">
@@ -70,40 +71,12 @@
 </template>
 <script>
 export default {
-  props: {
-    selectedTemplateId: {
-      type: String,
-      default: () => '0',
-    },
-  },
-  data: () => ({
-    loading: 0,
-  }),
   computed: {
     filtersCount() {
-      return this.selectedTemplateId === '0' ? 0 : 1;
+      return (this.$root.isFilteredByTemplate ? 1 : 0)
+        + (this.$root.isFilteredByRegistration ? 1 : 0)
+        + (this.$root.isFilteredByVisibility ? 1 : 0);
     },
-    spaceTemplateItems() {
-      const spaceTemplateItems = [{
-        text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.all'),
-        value: '0',
-      }];
-      if (this.$root.spaceTemplates?.length) {
-        spaceTemplateItems.push(...this.$root.spaceTemplates.map(t => ({
-          text: t.name,
-          value: t.id,
-        })));
-      }
-      return spaceTemplateItems;
-    },
-  },
-  created() {
-    this.$root.$on('spaces-list-refresh', this.refresh);
-    this.$root.$on('space-list-pending-updated', this.refresh);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-refresh', this.refresh);
-    this.$root.$off('space-list-pending-updated', this.refresh);
   },
 };
 </script>
