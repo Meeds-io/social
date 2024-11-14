@@ -55,8 +55,8 @@ import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
@@ -289,8 +289,8 @@ public class SpaceTemplateServiceTest {
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
-                             Visibility.PRIVATE,
-                             Registration.VALIDATION,
+                             SpaceVisibility.PRIVATE,
+                             SpaceRegistration.VALIDATION,
                              true);
   }
 

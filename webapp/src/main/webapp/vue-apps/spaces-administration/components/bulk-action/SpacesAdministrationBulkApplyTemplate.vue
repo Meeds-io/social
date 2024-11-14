@@ -44,7 +44,7 @@ export default {
         params,
         () => {
           this.$root.$emit('alert-message', this.successMessage, 'success');
-          this.$root.$emit('spaces-administration-list-refresh', this.$root.isTemplateSelected);
+          this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
         });
     },
   },
