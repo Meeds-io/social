@@ -26,6 +26,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -36,7 +37,10 @@ import lombok.Setter;
 public class AuthorizationManager extends UserACL {
 
   @Setter
-  private SpaceService         spaceService;
+  private SpaceService  spaceService;
+
+  @Setter
+  private LayoutService layoutService;
 
   public AuthorizationManager(InitParams params) {
     super(params);
@@ -52,8 +56,8 @@ public class AuthorizationManager extends UserACL {
              && identity != null
              && getSpaceService().canManageSpaceLayout(space, identity.getUserId());
     }
-    return isSpacesAdministrator(identity, ownerType, ownerId)
-           || super.hasEditPermission(identity, ownerType, ownerId, expression);
+    return super.hasEditPermission(identity, ownerType, ownerId, expression)
+           || isSpacesAdministrator(identity, ownerType, ownerId);
   }
 
   @Override
@@ -61,16 +65,23 @@ public class AuthorizationManager extends UserACL {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
       return isAdministrator(identity);
     } else {
-      return isSpacesAdministrator(identity, ownerType, ownerId)
-             || super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream);
+      return super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream)
+             || isSpacesAdministrator(identity, ownerType, ownerId);
     }
   }
 
-  private boolean isSpacesAdministrator(Identity identity, String ownerType, String groupId) {
-    if (isSpaceSite(ownerType, groupId)) {
-      return getSpaceService().isSuperManager(getSpaceService().getSpaceByGroupId(groupId), identity.getUserId());
+  private boolean isSpacesAdministrator(Identity identity, String ownerType, String ownerId) {
+    if (isAdministrator(identity)) {
+      return true;
+    } else if (isSpaceSite(ownerType, ownerId)) {
+      return getSpaceService().isSuperManager(getSpaceService().getSpaceByGroupId(ownerId), identity.getUserId());
+    } else if (isSpacePublicSite(ownerType, ownerId)) {
+      Space space = getSpaceService().getSpaceById(getSpaceIdFromPublicSite(ownerType, ownerId));
+      return space != null
+             && identity != null
+             && getSpaceService().canManageSpacePublicSite(space, identity.getUserId());
     } else {
-      return isAdministrator(identity);
+      return false;
     }
   }
 
@@ -79,11 +90,28 @@ public class AuthorizationManager extends UserACL {
            && StringUtils.startsWith(ownerId, SpaceUtils.SPACE_GROUP_PREFIX);
   }
 
+  private String getSpaceIdFromPublicSite(String ownerType, String ownerId) {
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(ownerType, ownerId);
+    return portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID);
+  }
+
+  private boolean isSpacePublicSite(String ownerType, String ownerId) {
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(ownerType, ownerId);
+    return portalConfig != null && portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID) != null;
+  }
+
   private SpaceService getSpaceService() {
     if (spaceService == null) {
       spaceService = ExoContainerContext.getService(SpaceService.class);
     }
     return spaceService;
+  }
+
+  private LayoutService getLayoutService() {
+    if (layoutService == null) {
+      layoutService = ExoContainerContext.getService(LayoutService.class);
+    }
+    return layoutService;
   }
 
 }
