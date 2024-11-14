@@ -214,10 +214,13 @@ export default {
   watch: {
     bulkOperationStatus() {
       if (this.bulkOperationStatus === 'processing') {
-        this.$el.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
+        const dimensions = this.$el.getBoundingClientRect();
+        if ((dimensions.top + dimensions.height) > (window.innerHeight - 120)) {
+          this.$el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
       }
     },
     hoverMenu() {
