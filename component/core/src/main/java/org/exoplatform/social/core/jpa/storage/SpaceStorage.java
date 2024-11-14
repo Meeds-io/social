@@ -164,26 +164,6 @@ public class SpaceStorage {
     return getAllSpacesByFilterCount(null);
   }
 
-  public List<Space> getEditableSpaces(String userId) throws SpaceStorageException {
-    return getEditableSpaces(userId, 0, -1);
-  }
-
-  public List<Space> getEditableSpaces(String userId, long offset, long limit) throws SpaceStorageException {
-    return getEditableSpacesByFilter(userId, null, offset, limit);
-  }
-
-  public List<Space> getEditableSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, SpaceMembershipStatus.MANAGER, spaceFilter, offset, limit);
-  }
-
-  public int getEditableSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, SpaceMembershipStatus.MANAGER, spaceFilter);
-  }
-
-  public int getEditableSpacesCount(String userId) throws SpaceStorageException {
-    return getEditableSpacesByFilterCount(userId, null);
-  }
-
   public List<Space> getInvitedSpaces(String userId) throws SpaceStorageException {
     return getInvitedSpaces(userId, 0, -1);
   }

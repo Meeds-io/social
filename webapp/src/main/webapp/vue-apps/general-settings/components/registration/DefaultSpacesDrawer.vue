@@ -48,7 +48,7 @@
           v-model="defaultSpaceIdentities"
           :labels="suggesterLabels"
           :search-options="{
-            filterType: 'member_or_managing',
+            filterType: 'accessible',
           }"
           name="defaultSpaces"
           height="100"
