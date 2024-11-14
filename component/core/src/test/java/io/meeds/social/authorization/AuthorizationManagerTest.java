@@ -39,8 +39,10 @@ import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.page.PageContext;
 import org.exoplatform.portal.mop.page.PageKey;
 import org.exoplatform.portal.mop.page.PageState;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -80,6 +82,9 @@ public class AuthorizationManagerTest {
 
   @Mock
   SpaceService                         spaceService;
+
+  @Mock
+  LayoutService                        layoutService;
 
   @Mock
   UserACL                              userAcl;
@@ -122,6 +127,7 @@ public class AuthorizationManagerTest {
 
     authorizationManager = new AuthorizationManager(params);
     authorizationManager.setSpaceService(spaceService);
+    authorizationManager.setLayoutService(layoutService);
   }
 
   @Test
@@ -247,6 +253,24 @@ public class AuthorizationManagerTest {
     when(identity.isMemberOf(ADMIN_SPACES_MEMBERSHIP.getGroup(),
                              ADMIN_SPACES_MEMBERSHIP.getMembershipType())).thenReturn(true);
     assertTrue(authorizationManager.hasAccessPermission(page, identity));
+  }
+
+  @Test
+  public void testCanEditWhenSiteIsSpacePublicSite() {
+    String spaceId = "2";
+
+    when(identity.getUserId()).thenReturn(TEST_USER);
+    when(portalConfig.getType()).thenReturn(PortalConfig.PORTAL_TYPE);
+    when(portalConfig.getName()).thenReturn("publicSite");
+    assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+
+    when(layoutService.getPortalConfig(PortalConfig.PORTAL_TYPE, "publicSite")).thenReturn(portalConfig);
+    when(portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID)).thenReturn(spaceId);
+    when(spaceService.getSpaceById(spaceId)).thenReturn(space);
+    assertFalse(authorizationManager.hasEditPermission(portalConfig, identity));
+
+    when(spaceService.canManageSpacePublicSite(space, TEST_USER)).thenReturn(true);
+    assertTrue(authorizationManager.hasEditPermission(portalConfig, identity));
   }
 
 }
