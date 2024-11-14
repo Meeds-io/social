@@ -32,9 +32,10 @@
     </template>
     <template v-if="space" #titleIcons>
       <v-btn
+        :title="$t('social.spaces.administration.manageSpaces.bindingReports')"
         icon
         @click="$root.$emit('space-administration-sync-reports-drawer-open', space)">
-        <v-icon>fa-external-link-alt</v-icon>
+        <v-icon>fa-chart-bar</v-icon>
       </v-btn>
     </template>
     <template v-if="drawer && (space || spaces)" #content>
