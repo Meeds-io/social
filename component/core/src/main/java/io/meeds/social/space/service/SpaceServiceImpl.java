@@ -169,11 +169,20 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getAccessibleSpacesWithListAccess(String username) {
+    return getAccessibleSpacesByFilter(username, new SpaceFilter());
+  }
+
+  @Override
+  public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
     return new SpaceListAccess(spaceStorage,
                                spaceSearchConnector,
                                getSpaceTemplateService(),
                                username,
-                               SpaceListAccessType.ACCESSIBLE);
+                               spaceFilter,
+                               SpaceListAccessType.ACCESSIBLE_FILTER);
   }
 
   @Override
@@ -205,6 +214,15 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter) {
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               getSpaceTemplateService(),
+                               spaceFilter,
+                               SpaceListAccessType.ALL_FILTER);
+  }
+
+  @Override
   public ListAccess<Space> getInvitedSpacesWithListAccess(String username) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
@@ -213,25 +231,6 @@ public class SpaceServiceImpl implements SpaceService {
                                spaceSearchConnector,
                                username,
                                SpaceListAccessType.INVITED);
-  }
-
-  @Override
-  public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage,
-                               spaceSearchConnector,
-                               getSpaceTemplateService(),
-                               username,
-                               spaceFilter,
-                               spaceFilter == null ? SpaceListAccessType.ACCESSIBLE : SpaceListAccessType.ACCESSIBLE_FILTER);
-  }
-
-  @Override
-  public ListAccess<Space> getAllSpacesByFilter(SpaceFilter spaceFilter) {
-    return new SpaceListAccess(spaceStorage,
-                               spaceSearchConnector,
-                               getSpaceTemplateService(),
-                               spaceFilter,
-                               SpaceListAccessType.ALL_FILTER);
   }
 
   @Override
@@ -259,19 +258,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getMemberOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
-      return new ListAccessImpl<>(Space.class, Collections.emptyList());
-    }
-    return new SpaceListAccess(spaceStorage,
-                               spaceSearchConnector,
-                               getSpaceTemplateService(),
-                               username,
-                               spaceFilter,
-                               SpaceListAccessType.MEMBER_FILTER);
-  }
-
-  @Override
   public ListAccess<Space> getManagerSpaces(String username) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
@@ -292,7 +278,7 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getManagerOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
+  public ListAccess<Space> getEditableSpacesByFilter(String username, SpaceFilter spaceFilter) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }

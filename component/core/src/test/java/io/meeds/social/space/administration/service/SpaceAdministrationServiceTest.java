@@ -33,8 +33,8 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.model.SpacePermissions;
 import io.meeds.social.space.model.SpaceTemplatePatch;
 import io.meeds.social.space.service.SpaceAdministrationServiceImpl;
@@ -118,8 +118,8 @@ public class SpaceAdministrationServiceTest {
     when(spaceTemplate.isDeleted()).thenReturn(false);
     when(spaceTemplate.isEnabled()).thenReturn(true);
     when(spaceTemplate.isSpaceAllowContentCreation()).thenReturn(true);
-    when(spaceTemplate.getSpaceDefaultRegistration()).thenReturn(Registration.OPEN);
-    when(spaceTemplate.getSpaceDefaultVisibility()).thenReturn(Visibility.HIDDEN);
+    when(spaceTemplate.getSpaceDefaultRegistration()).thenReturn(SpaceRegistration.OPEN);
+    when(spaceTemplate.getSpaceDefaultVisibility()).thenReturn(SpaceVisibility.HIDDEN);
 
     when(spaceService.getSpaceById(spaceId)).thenReturn(space);
     when(space.getManagers()).thenReturn(new String[] { TESTUSER_MANAGER });

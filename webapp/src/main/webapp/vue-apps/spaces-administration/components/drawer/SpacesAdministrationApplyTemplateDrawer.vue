@@ -280,7 +280,7 @@ export default {
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
           });
-          this.$root.$emit('spaces-administration-list-refresh', this.$root.isTemplateSelected);
+          this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
           this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateSuccess'), 'success');
         }
         this.close();
