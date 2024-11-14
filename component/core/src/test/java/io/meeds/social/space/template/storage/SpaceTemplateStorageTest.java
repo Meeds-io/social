@@ -39,8 +39,8 @@ import org.springframework.data.domain.Pageable;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.dao.SpaceTemplateDAO;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -176,8 +176,8 @@ public class SpaceTemplateStorageTest {
                                    Arrays.asList(SPACE_DELETE_PERMISSIONS),
                                    Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                                    Arrays.asList(SPACE_FIELDS),
-                                   Visibility.PRIVATE,
-                                   Registration.VALIDATION,
+                                   SpaceVisibility.PRIVATE,
+                                   SpaceRegistration.VALIDATION,
                                    true);
   }
 
@@ -197,8 +197,8 @@ public class SpaceTemplateStorageTest {
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
-                             Visibility.PRIVATE,
-                             Registration.VALIDATION,
+                             SpaceVisibility.PRIVATE,
+                             SpaceRegistration.VALIDATION,
                              true);
   }
 

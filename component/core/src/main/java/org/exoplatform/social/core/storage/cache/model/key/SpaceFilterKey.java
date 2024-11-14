@@ -14,82 +14,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.exoplatform.social.core.storage.cache.model.key;
 
 import java.util.Objects;
 
-import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceFilter;
 
-/**
- * Immutable space filter key. This key is used to cache the search results.
- *
- * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
- * @version $Revision$
- */
+import lombok.Data;
+
+@Data
 public class SpaceFilterKey implements CacheKey {
 
   private static final long serialVersionUID = 2363449672896832814L;
 
-  private String            userId;
+  private final SpaceType   type;
 
-  private String            spaceNameSearchCondition;
-
-  private boolean           favorite;
-
-  private SpaceType         type;
-
-  private Sorting           sorting;
+  private final String      userId;
 
   private final int         hash;
 
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
-    this.userId = userId;
-    if (filter != null) {
-      this.spaceNameSearchCondition = filter.getSpaceNameSearchCondition();
-      this.sorting = filter.getSorting();
-      this.favorite = filter.isFavorite();
-      if (userId == null) {
-        this.userId = filter.getRemoteId();
-      }
-    }
+    this.hash = Objects.hash(filter);
     this.type = type;
-    this.hash = Objects.hash(this.userId, filter, this.type, this.favorite);
-  }
-
-  public String getUserId() {
-    return userId;
-  }
-
-  public String getSpaceNameSearchCondition() {
-    return spaceNameSearchCondition;
-  }
-
-  public SpaceType getType() {
-    return type;
-  }
-
-  public Sorting getSorting() {
-    return sorting;
-  }
-
-  public boolean isFavorite() {
-    return favorite;
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o)
-      return true;
-    if (!(o instanceof SpaceFilterKey))
-      return false;
-    return o.hashCode() == hashCode();
-  }
-
-  @Override
-  public int hashCode() {
-    return hash;
+    this.userId = userId;
   }
 
 }
