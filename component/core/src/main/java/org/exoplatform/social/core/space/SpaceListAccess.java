@@ -22,7 +22,7 @@ package org.exoplatform.social.core.space;
 import static org.exoplatform.social.core.space.SpaceListAccessType.ACCESSIBLE;
 import static org.exoplatform.social.core.space.SpaceListAccessType.ACCESSIBLE_FILTER;
 import static org.exoplatform.social.core.space.SpaceListAccessType.ALL;
-import static org.exoplatform.social.core.space.SpaceListAccessType.ALL_FILTER;
+import static org.exoplatform.social.core.space.SpaceListAccessType.*;
 import static org.exoplatform.social.core.space.SpaceListAccessType.VISIBLE;
 
 import java.util.List;
@@ -294,6 +294,8 @@ public class SpaceListAccess implements ListAccess<Space> {
     SpaceMembershipStatus statusType = getUnifiedSearchStatusType(filter.getStatus());
     if (filter.isUnifiedSearch()
         && (type == ALL_FILTER
+            || type == MEMBER_FILTER
+            || type == MANAGER_FILTER
             || type == ALL
             || type == ACCESSIBLE_FILTER
             || type == ACCESSIBLE
@@ -306,7 +308,9 @@ public class SpaceListAccess implements ListAccess<Space> {
                                    filter.getSpaceNameSearchCondition(),
                                    filter.isFavorite(),
                                    filter.getTagNames(),
-                                   statusType);
+                                   statusType,
+                                   filter.getRegistration(),
+                                   filter.getVisibility());
     } else {
       return null;
     }

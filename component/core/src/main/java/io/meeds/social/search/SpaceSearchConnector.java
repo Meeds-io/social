@@ -53,10 +53,14 @@ import org.exoplatform.social.metadata.tag.TagService;
 import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import lombok.Getter;
 
 public class SpaceSearchConnector {
+
+  private static final String          PREFIX_COMMA_TO_APPEND        = ",%n%s";
 
   public static final String           PERMISSION_FIELD_REDACTOR     = "redactor";
 
@@ -112,6 +116,22 @@ public class SpaceSearchConnector {
       {
         "terms":{
           "templateId": [@templateId@]
+        }
+      }
+      """;
+
+  public static final String           VISIBILITY_QUERY              = """
+      {
+        "terms":{
+          "visibility": ["@visibility@"]
+        }
+      }
+      """;
+
+  public static final String           REGISTRATION_QUERY            = """
+      {
+        "terms":{
+          "registration": ["@registration@"]
         }
       }
       """;
@@ -210,26 +230,51 @@ public class SpaceSearchConnector {
     String templateQuery = buildTemplateIdQueryStatement(filter);
     String permissionsQuery = buildPermissionsQuery(filter);
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
+    String visibilityQuery = buildVisibilityStatement(filter.getVisibility());
+    String registrationQuery = buildRegistrationStatement(filter.getRegistration());
+    boolean noCommaToFavorite = StringUtils.isBlank(templateQuery) || StringUtils.isBlank(favoriteQuery);
+    boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery) || StringUtils.isAllBlank(favoriteQuery, templateQuery);
+    boolean noCommaToVisibility = StringUtils.isBlank(visibilityQuery)
+                                  || StringUtils.isAllBlank(permissionsQuery, favoriteQuery, templateQuery);
+    boolean noCommaToRegistration = StringUtils.isBlank(registrationQuery)
+                                    || StringUtils.isAllBlank(visibilityQuery, permissionsQuery, favoriteQuery, templateQuery);
     return query.replace("@term_query@",
                          termQuery)
                 .replace("@template_query@",
                          templateQuery)
                 .replace("@favorite_query@",
-                         StringUtils.isBlank(templateQuery) || StringUtils.isBlank(favoriteQuery) ? favoriteQuery :
-                                                                                                  String.format(",%n%s",
-                                                                                                                favoriteQuery))
+                         noCommaToFavorite ? favoriteQuery :
+                                           String.format(PREFIX_COMMA_TO_APPEND, favoriteQuery))
                 .replace("@permissions_query@",
-                         StringUtils.isBlank(permissionsQuery)
-                                                || (StringUtils.isBlank(favoriteQuery) && StringUtils.isBlank(templateQuery)) ?
-                                                                                                                              permissionsQuery :
-                                                                                                                              String.format(",%n%s",
-                                                                                                                                            permissionsQuery))
-                .replace("@tags_query@",
-                         tagsQuery)
+                         noCommaToPermission ? permissionsQuery :
+                                             String.format(PREFIX_COMMA_TO_APPEND, permissionsQuery))
+                .replace("@visibility_query@",
+                         noCommaToVisibility ? visibilityQuery :
+                                             String.format(PREFIX_COMMA_TO_APPEND, visibilityQuery))
+                .replace("@registration_query@",
+                         noCommaToRegistration ? registrationQuery :
+                                               String.format(PREFIX_COMMA_TO_APPEND, registrationQuery))
+                .replace("@tags_query@", tagsQuery)
                 .replace("@offset@",
                          String.valueOf(offset))
                 .replace("@limit@",
                          String.valueOf(limit));
+  }
+
+  private String buildRegistrationStatement(SpaceRegistration registration) {
+    if (registration == null) {
+      return StringUtils.EMPTY;
+    } else {
+      return REGISTRATION_QUERY.replace("@registration@", StringUtils.lowerCase(registration.name()));
+    }
+  }
+
+  private String buildVisibilityStatement(SpaceVisibility visibility) {
+    if (visibility == null) {
+      return StringUtils.EMPTY;
+    } else {
+      return VISIBILITY_QUERY.replace("@visibility@", StringUtils.lowerCase(visibility.name()));
+    }
   }
 
   @SuppressWarnings({ "rawtypes", "unchecked" })

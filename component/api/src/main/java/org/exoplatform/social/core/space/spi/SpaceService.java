@@ -138,17 +138,13 @@ public interface SpaceService {
 
   /**
    * Gets a list access containing all spaces that a user has the "manager" role
-   * or is a manager switch the associated Space template.
-   *
-   * This list access matches with the provided space filter.
+   * or is identified as "admin" in the associated Space template.
    *
    * @param username The remote user Id.
    * @param spaceFilter The space filter.
    * @return The list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
    */
-  default ListAccess<Space> getManagerOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
+  default ListAccess<Space> getEditableSpacesByFilter(String username, SpaceFilter spaceFilter) {
     throw new UnsupportedOperationException();
   }
 
@@ -179,22 +175,6 @@ public interface SpaceService {
   }
 
   /**
-   * Gets a list access containing all spaces that a user has the "member" role
-   * or is a manager switch the associated Space template.
-   *
-   * This list access matches with the provided space filter.
-   *
-   * @param username The remote user Id.
-   * @param spaceFilter The space filter.
-   * @return The list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
-   */
-  default ListAccess<Space> getMemberOrManagingSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    throw new UnsupportedOperationException();
-  }
-
-  /**
    * Gets a list of favorite spaces of a user. This list access matches with the
    * provided space filter.
    *
@@ -208,27 +188,23 @@ public interface SpaceService {
   }
 
   /**
-   * Gets a list access containing all spaces that a user has the access
-   * permission.
+   * Gets a list access containing all spaces that a user has the "member" role
+   * or is identified as "admin" in the associated Space template.
    *
    * @param username The remote user Id.
    * @return The space list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
    */
   default ListAccess<Space> getAccessibleSpacesWithListAccess(String username) {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Gets a list access containing all spaces that a user has the access
-   * permission. This list access matches with the provided space filter.
+   * Gets a list access containing all spaces that a user has the "member" role
+   * or is identified as "admin" in the associated Space template.
    *
    * @param username The remote user Id.
    * @param spaceFilter The provided space filter.
    * @return The list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
    */
   default ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
     throw new UnsupportedOperationException();

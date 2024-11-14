@@ -193,7 +193,7 @@
                 :disabled="savingSpace || spaceSaved"
                 :search-options="{
                   spaceURL: space.prettyName,
-                  filterType: 'member_or_managing',
+                  filterType: 'accessible',
                 }"
                 name="inviteMembers"
                 type-of-relations="user_to_invite"

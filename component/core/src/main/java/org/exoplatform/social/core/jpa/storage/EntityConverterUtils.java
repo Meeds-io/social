@@ -38,9 +38,9 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.space.constant.PublicSiteVisibility;
-import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 public class EntityConverterUtils {
 
@@ -289,12 +289,12 @@ public class EntityConverterUtils {
     spaceEntity.setLayoutPermissions(space.getLayoutPermissions());
     spaceEntity.setPublicSitePermissions(space.getPublicSitePermissions());
     if (space.getRegistration() != null) {
-      spaceEntity.setRegistration(Registration.valueOf(space.getRegistration().toUpperCase()));
+      spaceEntity.setRegistration(SpaceRegistration.valueOf(space.getRegistration().toUpperCase()));
     }
     spaceEntity.setUrl(space.getUrl());
-    Visibility visibility = null;
+    SpaceVisibility visibility = null;
     if (space.getVisibility() != null) {
-      visibility = Visibility.valueOf(space.getVisibility().toUpperCase());
+      visibility = SpaceVisibility.valueOf(space.getVisibility().toUpperCase());
     }
     spaceEntity.setVisibility(visibility);
     buildMembers(space, spaceEntity);
