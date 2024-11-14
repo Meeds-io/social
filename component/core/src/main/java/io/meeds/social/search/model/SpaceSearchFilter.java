@@ -22,6 +22,8 @@ package io.meeds.social.search.model;
 import java.util.List;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,5 +49,9 @@ public class SpaceSearchFilter {
   private List<String>          tagNames;
 
   private SpaceMembershipStatus status;
+
+  private SpaceRegistration     registration;
+
+  private SpaceVisibility       visibility;
 
 }

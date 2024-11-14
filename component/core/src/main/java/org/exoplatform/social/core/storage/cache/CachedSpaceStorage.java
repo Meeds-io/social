@@ -484,46 +484,6 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public int getEditableSpacesByFilterCount(final String userId, final SpaceFilter spaceFilter) {
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.EDITABLE);
-    return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getEditableSpacesByFilterCount(userId,
-                                                                                                                    spaceFilter)),
-                                      key)
-                                 .build();
-
-  }
-
-  @Override
-  public List<Space> getEditableSpacesByFilter(String userId,
-                                               SpaceFilter spaceFilter,
-                                               long offset,
-                                               long limit) {
-
-    //
-    SpaceFilterKey key = new SpaceFilterKey(userId, spaceFilter, SpaceType.EDITABLE);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesFutureCache.get(() -> {
-      if (limit == 0) {
-        return buildIds(Collections.emptyList());
-      }
-      List<Space> got =
-                      CachedSpaceStorage.super.getEditableSpacesByFilter(userId,
-                                                                         spaceFilter,
-                                                                         offset,
-                                                                         limit);
-      return buildIds(got);
-    }, listKey);
-
-    //
-    return
-
-    buildSpaces(keys);
-
-  }
-
-  @Override
   public int getAllSpacesByFilterCount(final SpaceFilter spaceFilter) {
     SpaceFilterKey key = new SpaceFilterKey(null, spaceFilter, null);
     return spacesCountFutureCache.get(() -> new IntegerData(CachedSpaceStorage.super.getAllSpacesByFilterCount(spaceFilter)), key)

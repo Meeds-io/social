@@ -49,6 +49,7 @@ import SpacesAdministrationSyncMembersDrawer from './components/drawer/SpacesAdm
 import SpacesAdministrationSyncReportsDrawer from './components/drawer/SpacesAdministrationSyncReportsDrawer.vue';
 import SpacesAdministrationPermissionsDrawer from './components/drawer/SpacesAdministrationPermissionsDrawer.vue';
 import SpacesAdministrationApplyTemplateDrawer from './components/drawer/SpacesAdministrationApplyTemplateDrawer.vue';
+import SpacesAdministrationFilterDrawer from './components/drawer/SpacesAdministrationFilterDrawer.vue';
 
 const components = {
   'spaces-administration': SpacesAdministration,
@@ -83,6 +84,7 @@ const components = {
   'spaces-administration-sync-reports-drawer': SpacesAdministrationSyncReportsDrawer,
   'spaces-administration-permissions-drawer': SpacesAdministrationPermissionsDrawer,
   'spaces-administration-apply-template-drawer': SpacesAdministrationApplyTemplateDrawer,
+  'spaces-administration-filter-drawer': SpacesAdministrationFilterDrawer,
 };
 
 for (const key in components) {

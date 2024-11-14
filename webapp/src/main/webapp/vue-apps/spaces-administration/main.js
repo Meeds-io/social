@@ -50,10 +50,15 @@ export function init() {
         usersPermission: '/platform/users',
         externalsPermission: '/platform/externals',
         administratorsPermission: '/platform/administrators',
-        collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+        collator: new Intl.Collator(eXo.env.portal.language, {
+          numeric: true,
+          sensitivity: 'base'
+        }),
         allSpacesSelected: false,
         selectedSpaces: [],
         selectedTemplateId: '0',
+        selectedRegistration: '',
+        selectedVisibility: '',
         isBulkProcessing: false,
         initialized: false,
         keyword: null,
@@ -65,7 +70,6 @@ export function init() {
         processedSpaces: 0,
         sortBy: 'title',
         sortDesc: false,
-        filter: 'all',
         expand: 'managers,groupBinding',
         spaces: [],
       },
@@ -76,20 +80,21 @@ export function init() {
         canShowMore() {
           return this.spaces?.length && this.spacesSize > this.spaces.length;
         },
-        isTemplateSelected() {
-          return this.selectedTemplateId && Number(this.selectedTemplateId);
-        },
         loading() {
           return this.loadingDisplay || this.loadingSpaces;
+        },
+        isFilteredByTemplate() {
+          return this.selectedTemplateId && Number(this.selectedTemplateId);
+        },
+        isFilteredByRegistration() {
+          return this.selectedRegistration && this.selectedRegistration !== '';
+        },
+        isFilteredByVisibility() {
+          return this.selectedVisibility && this.selectedVisibility !== '';
         },
       },
       watch: {
         keyword() {
-          if (this.initialized && !this.isBulkProcessing) {
-            this.searchSpaces(true, true);
-          }
-        },
-        selectedTemplateId() {
           if (this.initialized && !this.isBulkProcessing) {
             this.searchSpaces(true, true);
           }
@@ -171,8 +176,7 @@ export function init() {
           try {
             const customSort = this.tableColumnExtensions?.find(e => e.sortBy === this.sortBy)?.customSort;
             if (customSort
-                && !this.keyword?.length
-                && this.filter === 'all') {
+                && !this.keyword?.length) {
               this.spaces = await customSort({
                 offset: offset,
                 limit: limit,
@@ -186,16 +190,18 @@ export function init() {
               if (!offset && clean) {
                 this.spaces = [];
               }
-              const data = await this.$spaceService.getSpaces(
-                this.keyword,
-                offset,
-                limit,
-                this.filter,
-                this.expand,
-                this.selectedTemplateId && Number(this.selectedTemplateId),
-                'title',
-                this.sortDesc ? 'desc' : 'asc',
-              );
+              const data = await this.$spaceService.getSpacesByFilter({
+                query: this.keyword,
+                visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
+                registration: this.selectedRegistration?.length ? this.selectedRegistration : null,
+                templateId: this.selectedTemplateId && Number(this.selectedTemplateId),
+                filter: 'all',
+                expand: this.expand,
+                offset: offset,
+                limit: limit,
+                sortBy: 'title',
+                sortDirection: this.sortDesc ? 'desc' : 'asc',
+              });
               if (offset) {
                 this.spaces.push(...data.spaces);
               } else {

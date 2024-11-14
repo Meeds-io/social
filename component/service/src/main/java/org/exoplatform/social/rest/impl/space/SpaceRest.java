@@ -94,6 +94,8 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.util.JsonUtils;
 
@@ -110,42 +112,42 @@ import lombok.SneakyThrows;
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
 public class SpaceRest implements ResourceContainer {
 
-  private static final Log             LOG                                   = ExoLogger.getLogger(SpaceRest.class);
+  private static final Log             LOG                          = ExoLogger.getLogger(SpaceRest.class);
 
-  private static final String          SPACE_FILTER_TYPE_ALL                 = "all";
+  private static final String          SPACE_FILTER_TYPE_ALL        = "all";
 
-  private static final String          SPACE_FILTER_TYPE_MEMBER              = "member";
+  private static final String          SPACE_FILTER_TYPE_MEMBER     = "member";
 
-  private static final String          SPACE_FILTER_TYPE_MEMBER_OR_MANAGING  = "member_or_managing";
+  private static final String          SPACE_FILTER_TYPE_ACCESSIBLE = "accessible";
 
-  private static final String          SPACE_FILTER_TYPE_MANAGER             = "manager";
+  private static final String          SPACE_FILTER_TYPE_MANAGER    = "manager";
 
-  private static final String          SPACE_FILTER_TYPE_MANAGER_OR_MANAGING = "manager_or_managing";
+  private static final String          SPACE_FILTER_TYPE_EDITABLE   = "editable";
 
-  private static final String          SPACE_FILTER_TYPE_PENDING             = "pending";
+  private static final String          SPACE_FILTER_TYPE_PENDING    = "pending";
 
-  private static final String          SPACE_FILTER_TYPE_INVITED             = "invited";
+  private static final String          SPACE_FILTER_TYPE_INVITED    = "invited";
 
-  private static final String          SPACE_FILTER_TYPE_REQUESTS            = "requests";
+  private static final String          SPACE_FILTER_TYPE_REQUESTS   = "requests";
 
-  private static final String          SPACE_FILTER_TYPE_FAVORITE            = "favorite";
+  private static final String          SPACE_FILTER_TYPE_FAVORITE   = "favorite";
 
-  private static final String          LAST_VISITED_SPACES                   = "lastVisited";
+  private static final String          LAST_VISITED_SPACES          = "lastVisited";
 
-  private static final CacheControl    CACHE_CONTROL                         = new CacheControl();
+  private static final CacheControl    CACHE_CONTROL                = new CacheControl();
 
-  private static final CacheControl    CACHE_REVALIDATE_CONTROL              = new CacheControl();
+  private static final CacheControl    CACHE_REVALIDATE_CONTROL     = new CacheControl();
 
-  public static final String           PROFILE_DEFAULT_BANNER_URL            = "/skin/images/banner/DefaultSpaceBanner.png";
+  public static final String           PROFILE_DEFAULT_BANNER_URL   = "/skin/images/banner/DefaultSpaceBanner.png";
 
-  private static final Date            DEFAULT_IMAGES_LAST_MODIFED           = new Date();
+  private static final Date            DEFAULT_IMAGES_LAST_MODIFED  = new Date();
 
-  private static final long            DEFAULT_IMAGES_HASH                   = DEFAULT_IMAGES_LAST_MODIFED.getTime();
+  private static final long            DEFAULT_IMAGES_HASH          = DEFAULT_IMAGES_LAST_MODIFED.getTime();
 
   // 7 days
-  private static final int             CACHE_IN_SECONDS                      = 7 * 86400;
+  private static final int             CACHE_IN_SECONDS             = 7 * 86400;
 
-  private static final int             CACHE_IN_MILLI_SECONDS                = CACHE_IN_SECONDS * 1000;
+  private static final int             CACHE_IN_MILLI_SECONDS       = CACHE_IN_SECONDS * 1000;
 
   private final IdentityManager        identityManager;
 
@@ -159,9 +161,9 @@ public class SpaceRest implements ResourceContainer {
 
   private final ImageThumbnailService  imageThumbnailService;
 
-  private byte[]                       defaultSpaceBanner                    = null;
+  private byte[]                       defaultSpaceBanner           = null;
 
-  private byte[]                       defaultSpaceAvatar                    = null;
+  private byte[]                       defaultSpaceAvatar           = null;
 
   public SpaceRest(SpaceService spaceService,
                    SpaceLayoutService spaceLayoutService,
@@ -198,6 +200,14 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Space name search information", required = false)
                             @QueryParam("q")
                             String q,
+                            @Parameter(description = "Filter by Space registration",
+                                       required = false)
+                            @QueryParam("registration")
+                            SpaceRegistration registration,
+                            @Parameter(description = "Filter by Space visibility",
+                                       required = false)
+                            @QueryParam("visibility")
+                            SpaceVisibility visibility,
                             @Parameter(description = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests",
                                        required = false)
                             @Schema(defaultValue = SPACE_FILTER_TYPE_ALL)
@@ -257,6 +267,8 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setTagNames(tagNames);
     spaceFilter.setTemplateId(templateId);
     spaceFilter.setExcludedIds(excludedIds);
+    spaceFilter.setRegistration(registration);
+    spaceFilter.setVisibility(visibility);
 
     if (StringUtils.isNotBlank(sort)) {
       SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
@@ -270,10 +282,10 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setIdentityId(RestUtils.getCurrentUserIdentityId());
     if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ALL, filterType)) {
       listAccess = spaceService.getVisibleSpacesWithListAccess(authenticatedUser, spaceFilter);
-    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER_OR_MANAGING, filterType)) {
-      listAccess = spaceService.getMemberOrManagingSpacesByFilter(authenticatedUser, spaceFilter);
-    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MANAGER_OR_MANAGING, filterType)) {
-      listAccess = spaceService.getManagerOrManagingSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_ACCESSIBLE, filterType)) {
+      listAccess = spaceService.getAccessibleSpacesByFilter(authenticatedUser, spaceFilter);
+    } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_EDITABLE, filterType)) {
+      listAccess = spaceService.getEditableSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MEMBER, filterType)) {
       listAccess = spaceService.getMemberSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_MANAGER, filterType)) {

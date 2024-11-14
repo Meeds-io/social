@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,8 @@ import org.exoplatform.social.core.search.Sorting.SortBy;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Tuple;
@@ -44,31 +46,43 @@ import jakarta.persistence.TypedQuery;
 
 public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
-  private static final String        PARAM_PUBLIC_VISIBILITY     = "publicVisibility";
+  /**
+   * Statuses making a hidden space visible to a user
+   */
+  private static final List<SpaceMembershipStatus> VISIBLE_STATUSES            = Arrays.asList(SpaceMembershipStatus.MEMBER,
+                                                                                               SpaceMembershipStatus.INVITED);
 
-  private static final String        PARAM_IDS                   = "ids";
+  private static final String                      PARAM_PUBLIC_VISIBILITY     = "publicVisibility";
 
-  private static final String        PARAM_TEMPLATE_ID           = "templateId";
+  private static final String                      PARAM_IDS                   = "ids";
 
-  private static final String        PARAM_EXCLUDED_IDS          = "excludedIds";
+  private static final String                      PARAM_TEMPLATE_ID           = "templateId";
 
-  private static final String        PARAM_PRIVATE_VISIBILITY    = "privateVisibility";
+  private static final String                      PARAM_EXCLUDED_IDS          = "excludedIds";
 
-  private static final String        PARAM_USER_ID               = "userId";
+  private static final String                      PARAM_PRIVATE_VISIBILITY    = "privateVisibility";
 
-  private static final String        PARAM_STATUSES              = "statuses";
+  private static final String                      PARAM_USER_ID               = "userId";
 
-  private static final String        PARAM_MANAGING_TEMPLATE_IDS = "managingTemplateIds";
+  private static final String                      PARAM_STATUSES              = "statuses";
 
-  private static final String        PARAM_KEYWORD               = "keyword";
+  private static final String                      PARAM_VISIBLE_STATUSES      = "visibleStatuses";
 
-  private static final String        PARAM_HIDDEN_VISIBILITY     = "hiddenVisibility";
+  private static final String                      PARAM_MANAGING_TEMPLATE_IDS = "managingTemplateIds";
 
-  private static final String        QUERY_FILTER_FIND_PREFIX    = "Space.findSpaces";
+  private static final String                      PARAM_KEYWORD               = "keyword";
 
-  private static final String        QUERY_FILTER_COUNT_PREFIX   = "Space.countSpaces";
+  private static final String                      PARAM_VISIBILITY            = "visibility";
 
-  private final Map<String, Boolean> filterNamedQueries          = new ConcurrentHashMap<>();
+  private static final String                      PARAM_REGISTRATION          = "registration";
+
+  private static final String                      PARAM_HIDDEN_VISIBILITY     = "hiddenVisibility";
+
+  private static final String                      QUERY_FILTER_FIND_PREFIX    = "Space.findSpaces";
+
+  private static final String                      QUERY_FILTER_COUNT_PREFIX   = "Space.countSpaces";
+
+  private final Map<String, Boolean>               filterNamedQueries          = new ConcurrentHashMap<>();
 
   public List<Long> getLastSpaces(int limit) {
     TypedQuery<Tuple> query = getEntityManager().createNamedQuery("SpaceEntity.getLastSpaces", Tuple.class);
@@ -195,7 +209,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (filterNamedQueries.containsKey(queryName)) {
       query = getEntityManager().createNamedQuery(queryName, clazz);
     } else {
-      String queryContent = getQueryFilterContent(filter, predicates, count);
+      String queryContent = getQueryFilterContent(filter, predicates, parameterNames, count);
       query = getEntityManager().createQuery(queryContent, clazz);
       getEntityManager().getEntityManagerFactory().addNamedQuery(queryName, query);
       filterNamedQueries.put(queryName, true);
@@ -210,13 +224,13 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       query.setParameter(PARAM_KEYWORD, "%" + StringUtils.lowerCase(filter.getSpaceNameSearchCondition()) + "%");
     }
     if (parameterNames.contains(PARAM_PUBLIC_VISIBILITY)) {
-      query.setParameter(PARAM_PUBLIC_VISIBILITY, Visibility.PUBLIC);
+      query.setParameter(PARAM_PUBLIC_VISIBILITY, SpaceVisibility.PUBLIC);
     }
     if (parameterNames.contains(PARAM_PRIVATE_VISIBILITY)) {
-      query.setParameter(PARAM_PRIVATE_VISIBILITY, Visibility.PRIVATE);
+      query.setParameter(PARAM_PRIVATE_VISIBILITY, SpaceVisibility.PRIVATE);
     }
     if (parameterNames.contains(PARAM_HIDDEN_VISIBILITY)) {
-      query.setParameter(PARAM_HIDDEN_VISIBILITY, Visibility.HIDDEN);
+      query.setParameter(PARAM_HIDDEN_VISIBILITY, SpaceVisibility.HIDDEN);
     }
     if (parameterNames.contains(PARAM_IDS)) {
       if (CollectionUtils.isNotEmpty(filter.getIds())) {
@@ -241,8 +255,17 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (parameterNames.contains(PARAM_STATUSES)) {
       query.setParameter(PARAM_STATUSES, filter.getStatusList());
     }
+    if (parameterNames.contains(PARAM_VISIBLE_STATUSES)) {
+      query.setParameter(PARAM_VISIBLE_STATUSES, VISIBLE_STATUSES);
+    }
     if (parameterNames.contains(PARAM_MANAGING_TEMPLATE_IDS)) {
       query.setParameter(PARAM_MANAGING_TEMPLATE_IDS, filter.getManagingTemplateIds());
+    }
+    if (parameterNames.contains(PARAM_VISIBILITY)) {
+      query.setParameter(PARAM_VISIBILITY, filter.getVisibility());
+    }
+    if (parameterNames.contains(PARAM_REGISTRATION)) {
+      query.setParameter(PARAM_REGISTRATION, filter.getRegistration());
     }
   }
 
@@ -258,12 +281,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private String getQueryFilterContent(SpaceFilter spaceFilter,
                                        List<String> predicates,
+                                       List<String> parameterNames,
                                        boolean count) {
     String querySelect = count ? "SELECT COUNT(DISTINCT s.id) FROM SocSpaceEntity s " :
                                "SELECT DISTINCT(s.id, " + getSortField(spaceFilter.getSorting()) + ") FROM SocSpaceEntity s ";
-    if (CollectionUtils.isNotEmpty(spaceFilter.getStatusList())
-        && spaceFilter.getRemoteId() != null
-        && !StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM)) {
+    if (parameterNames.contains(PARAM_USER_ID)) {
       querySelect += " INNER JOIN s.members sm ";
     }
 
@@ -280,21 +302,32 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     return queryContent;
   }
 
-  private void buildPredicates(XSpaceFilter spaceFilter, // NOSONAR
+  private void buildPredicates(XSpaceFilter spaceFilter,
                                List<String> suffixes,
                                List<String> predicates,
                                List<String> parameterNames) {
-    if (CollectionUtils.isNotEmpty(spaceFilter.getIds())
-        || CollectionUtils.isNotEmpty(spaceFilter.getIncludeSpaces())) {
-      suffixes.add("SpaceIds");
-      predicates.add("s.id IN :ids");
-      parameterNames.add(PARAM_IDS);
-    }
-
     if (spaceFilter.getTemplateId() > 0) {
       suffixes.add("TemplateId");
       predicates.add("s.templateId = :templateId");
       parameterNames.add(PARAM_TEMPLATE_ID);
+    }
+
+    if (spaceFilter.getVisibility() != null) {
+      suffixes.add("Visibility");
+      predicates.add("s.visibility = :visibility");
+      parameterNames.add(PARAM_VISIBILITY);
+    }
+
+    if (spaceFilter.getRegistration() != null) {
+      suffixes.add("Registration");
+      predicates.add("s.registration = :registration");
+      parameterNames.add(PARAM_REGISTRATION);
+    }
+
+    if (CollectionUtils.isNotEmpty(spaceFilter.getIds()) || CollectionUtils.isNotEmpty(spaceFilter.getIncludeSpaces())) {
+      suffixes.add("SpaceIds");
+      predicates.add("s.id IN :ids");
+      parameterNames.add(PARAM_IDS);
     }
 
     if (CollectionUtils.isNotEmpty(spaceFilter.getExcludedIds())) {
@@ -303,13 +336,28 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       parameterNames.add(PARAM_EXCLUDED_IDS);
     }
 
+    if (StringUtils.isNotBlank(spaceFilter.getSpaceNameSearchCondition())) {
+      // Shouldn't be used in real case since
+      // the search by keyword will be made using ES in runtime
+      suffixes.add("Keyword");
+      predicates.add("(s.prettyName LIKE :keyword OR s.displayName LIKE :keyword OR s.description LIKE :keyword)");
+      parameterNames.add(PARAM_KEYWORD);
+    }
+
+    buildPermissionPredicates(spaceFilter, suffixes, predicates, parameterNames);
+    buildSortSuffixes(spaceFilter, suffixes);
+  }
+
+  private void buildPermissionPredicates(XSpaceFilter spaceFilter, // NOSONAR
+                                         List<String> suffixes,
+                                         List<String> predicates,
+                                         List<String> parameterNames) {
     if (CollectionUtils.isNotEmpty(spaceFilter.getStatusList())) {
       if (spaceFilter.isIncludePrivate() || spaceFilter.isNotHidden()) {
-        if ((spaceFilter.getRemoteId() == null
-             || StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM))) {
+        if ((spaceFilter.getRemoteId() == null || StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM))) {
           suffixes.add("SpacePrivate");
-          predicates.add("s.visibility <> :hiddenVisibility");
-          parameterNames.add(PARAM_HIDDEN_VISIBILITY);
+          predicates.add("s.visibility = :publicVisibility"); // NOSONAR
+          parameterNames.add(PARAM_PUBLIC_VISIBILITY);
         } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
           suffixes.add("SpacePrivateOrStatuses");
           predicates.add("(s.visibility <> :hiddenVisibility OR (sm.userId = :userId AND sm.status IN :statuses))");
@@ -327,11 +375,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       } else {
         if ((spaceFilter.getRemoteId() == null || StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM))) {
           suffixes.add("SpacePublic");
-          predicates.add("s.visibility = :publicVisibility");
+          predicates.add("s.visibility = :publicVisibility"); // NOSONAR
           parameterNames.add(PARAM_PUBLIC_VISIBILITY);
         } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
           suffixes.add("SpaceWithStatuses");
-          predicates.add("(sm.userId = :userId AND sm.status IN :statuses)");
+          predicates.add("sm.userId = :userId AND sm.status IN :statuses");
           parameterNames.add(PARAM_USER_ID);
           parameterNames.add(PARAM_STATUSES);
         } else {
@@ -342,14 +390,29 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
           parameterNames.add(PARAM_MANAGING_TEMPLATE_IDS);
         }
       }
+    } else if (spaceFilter.getRemoteId() != null) {
+      if (StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM)) {
+        suffixes.add("SpacePublic");
+        predicates.add("s.visibility = :publicVisibility");
+        parameterNames.add(PARAM_PUBLIC_VISIBILITY);
+      } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
+        suffixes.add("SpaceWithVisibleStatus");
+        predicates.add("(s.visibility <> :hiddenVisibility OR (sm.userId = :userId AND sm.status IN :visibleStatuses))");
+        parameterNames.add(PARAM_HIDDEN_VISIBILITY);
+        parameterNames.add(PARAM_USER_ID);
+        parameterNames.add(PARAM_VISIBLE_STATUSES);
+      } else {
+        suffixes.add("SpaceWithVisibleStatusOrManaging");
+        predicates.add("(s.visibility <> :hiddenVisibility OR s.templateId IN :managingTemplateIds OR (sm.userId = :userId AND sm.status IN :visibleStatuses))");
+        parameterNames.add(PARAM_HIDDEN_VISIBILITY);
+        parameterNames.add(PARAM_MANAGING_TEMPLATE_IDS);
+        parameterNames.add(PARAM_USER_ID);
+        parameterNames.add(PARAM_VISIBLE_STATUSES);
+      }
     }
+  }
 
-    if (StringUtils.isNotBlank(spaceFilter.getSpaceNameSearchCondition())) {
-      suffixes.add("Keyword");
-      predicates.add("(s.prettyName LIKE :keyword OR s.displayName LIKE :keyword OR s.description LIKE :keyword)");
-      parameterNames.add(PARAM_KEYWORD);
-    }
-
+  private void buildSortSuffixes(XSpaceFilter spaceFilter, List<String> suffixes) {
     Sorting sorting = spaceFilter.getSorting();
     String sortField = getSortField(spaceFilter.getSorting());
     suffixes.add("OrderBy");

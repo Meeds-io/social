@@ -42,14 +42,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
 
   private SocialStorageCacheService cacheService;
 
-  private Identity                  rootIdentity;
-
-  private Identity                  johnIdentity;
-
-  private Identity                  maryIdentity;
-
-  private Identity                  demoIdentity;
-
   @Override
   protected void setUp() throws Exception {
     super.setUp();
@@ -57,10 +49,10 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     identityStorage = getService(IdentityStorage.class);
     cacheService = getService(SocialStorageCacheService.class);
 
-    rootIdentity = createIdentity("root");
-    johnIdentity = createIdentity("john");
-    maryIdentity = createIdentity("mary");
-    demoIdentity = createIdentity("demo");
+    createIdentity("root");
+    createIdentity("john");
+    createIdentity("mary");
+    createIdentity("demo");
   }
 
   /**
@@ -443,144 +435,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     List<Space> accessibleSpaces = spaceStorage.getAccessibleSpaces("demo", 0, 5);
     assertNotNull("accessibleSpaces must not be  null", accessibleSpaces);
     assertEquals("accessibleSpaces.size() must return: " + 5, 5, accessibleSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getEditableSpaces(String)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetEditableSpaces() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> editableSpaces = spaceStorage.getEditableSpaces("demo");
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpaces("top");
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpaces("dragon");
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getEditableSpacesByFilter(String, org.exoplatform.social.core.space.SpaceFilter, long, long)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetEditableSpacesByFilter() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter("add new"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter("m"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter("M"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter(), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter(), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("demo", new SpaceFilter("add new"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("top", new SpaceFilter("my space test"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpacesByFilter("dragon", new SpaceFilter("m"), 0, 10);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getEditableSpacesByFilterCount(String, org.exoplatform.social.core.space.SpaceFilter)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetEditableSpacesByFilterCount() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    int editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter("add new"));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter("m"));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("demo", new SpaceFilter("M"));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("tom", new SpaceFilter("add new"));
-    assertEquals("editableSpacesCount must be: " + countSpace, countSpace, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("top", new SpaceFilter("my space test"));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-
-    editableSpacesCount = spaceStorage.getEditableSpacesByFilterCount("dragon", new SpaceFilter("m"));
-    assertEquals("editableSpacesCount must be: " + 0, 0, editableSpacesCount);
-  }
-
-  /**
-   * Test
-   * {@link org.exoplatform.social.core.storage.SpaceStorage#getEditableSpaces(String, long, long)}
-   *
-   * @throws Exception
-   * @since 1.2.0-GA
-   */
-  public void testGetEditableSpacesWithListAccess() throws Exception {
-    int countSpace = 10;
-    Space[] listSpace = new Space[10];
-    for (int i = 0; i < countSpace; i++) {
-      listSpace[i] = this.getSpaceInstance(i);
-      spaceStorage.saveSpace(listSpace[i], true);
-      persist();
-    }
-    List<Space> editableSpaces = spaceStorage.getEditableSpaces("demo", 0, countSpace);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + countSpace, countSpace, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpaces("top", 0, countSpace);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
-
-    editableSpaces = spaceStorage.getEditableSpaces("dragon", 0, 5);
-    assertNotNull("editableSpaces must not be  null", editableSpaces);
-    assertEquals("editableSpaces.size() must return: " + 0, 0, editableSpaces.size());
   }
 
   /**
