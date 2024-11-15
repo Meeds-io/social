@@ -46,8 +46,6 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String EMAIL                   = "email";
 
-  public static final String GENDER                  = "gender";
-
   public static final String FULLNAME                = "fullname";
 
   public static final String LASTNAME                = "lastname";
@@ -309,15 +307,6 @@ public class ProfileEntity extends BaseEntity {
 
   public String getFullname() {
     return getString(FULLNAME);
-  }
-
-  public ProfileEntity setGender(String gender) {
-    setProperty(GENDER, gender);
-    return this;
-  }
-
-  public String getGender() {
-    return getString(GENDER);
   }
 
   public ProfileEntity setEmail(String email) {
@@ -607,8 +596,6 @@ public class ProfileEntity extends BaseEntity {
       return Profile.FULL_NAME;
     } else if (StringUtils.equals(EMAIL, name)) {
       return Profile.EMAIL;
-    } else if (StringUtils.equals(GENDER, name)) {
-      return Profile.GENDER;
     } else if (StringUtils.equals(POSITION, name)) {
       return Profile.POSITION;
     } else if (StringUtils.equals(AVATAR, name)) {
