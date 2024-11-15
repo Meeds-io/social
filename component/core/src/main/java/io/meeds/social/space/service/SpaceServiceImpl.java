@@ -326,7 +326,6 @@ public class SpaceServiceImpl implements SpaceService {
     }
     return new SpaceListAccess(spaceStorage,
                                spaceSearchConnector,
-                               getSpaceTemplateService(),
                                username,
                                SpaceListAccessType.LASTEST_ACCESSED);
   }
