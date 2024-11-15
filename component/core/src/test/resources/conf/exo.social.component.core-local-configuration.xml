@@ -1040,6 +1040,108 @@
                     </field>
                   </object>
                 </value>
+                <value>
+                  <object type="org.exoplatform.social.core.profileproperty.ProfileProperty">
+                    <field  name="propertyName">
+                      <string>aboutMe</string>
+                    </field>
+                    <field  name="visible">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="editable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="active">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="required">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="multiValued">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
+                    <field  name="order">
+                      <int>25</int>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.social.core.profileproperty.ProfileProperty">
+                    <field  name="propertyName">
+                      <string>experiences</string>
+                    </field>
+                    <field  name="visible">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="editable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="active">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="required">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="multiValued">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
+                    <field  name="order">
+                      <int>26</int>
+                    </field>
+                  </object>
+                </value>
+                <value>
+                  <object type="org.exoplatform.social.core.profileproperty.ProfileProperty">
+                    <field  name="propertyName">
+                      <string>gender</string>
+                    </field>
+                    <field  name="visible">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="editable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="active">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="required">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="multiValued">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="groupSynchronized">
+                      <boolean>false</boolean>
+                    </field>
+                    <field  name="hiddenable">
+                      <boolean>true</boolean>
+                    </field>
+                    <field  name="propertyType">
+                      <string>text</string>
+                    </field>
+                    <field  name="order">
+                      <int>27</int>
+                    </field>
+                  </object>
+                </value>
               </collection>
             </field>
           </object>
