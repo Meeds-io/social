@@ -34,7 +34,6 @@ import org.exoplatform.social.core.jpa.search.XSpaceFilter;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.search.Sorting.SortBy;
-import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
@@ -279,13 +278,13 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     return queryName;
   }
 
-  private String getQueryFilterContent(SpaceFilter spaceFilter,
+  private String getQueryFilterContent(XSpaceFilter spaceFilter,
                                        List<String> predicates,
                                        List<String> parameterNames,
                                        boolean count) {
     String querySelect = count ? "SELECT COUNT(DISTINCT s.id) FROM SocSpaceEntity s " :
-                               "SELECT DISTINCT(s.id, " + getSortField(spaceFilter.getSorting()) + ") FROM SocSpaceEntity s ";
-    if (parameterNames.contains(PARAM_USER_ID)) {
+                               "SELECT DISTINCT(s.id, " + getSortField(spaceFilter) + ") FROM SocSpaceEntity s ";
+    if (parameterNames.contains(PARAM_USER_ID) || spaceFilter.isLastAccess()) {
       querySelect += " INNER JOIN s.members sm ";
     }
 
@@ -296,8 +295,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       queryContent = querySelect + " WHERE " + StringUtils.join(predicates, " AND ");
     }
     if (!count) {
-      queryContent += " ORDER BY " + getSortField(spaceFilter.getSorting()) +
-          (spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC) ? " DESC " : " ASC ");
+      queryContent += " ORDER BY " + getSortField(spaceFilter) +
+          (spaceFilter.isLastAccess() || spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC) ? " DESC " : " ASC ");
     }
     return queryContent;
   }
@@ -414,9 +413,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private void buildSortSuffixes(XSpaceFilter spaceFilter, List<String> suffixes) {
     Sorting sorting = spaceFilter.getSorting();
-    String sortField = getSortField(spaceFilter.getSorting());
+    String sortField = getSortField(spaceFilter);
     suffixes.add("OrderBy");
-    suffixes.add(StringUtils.capitalize(sortField.replace("s.", "")));
+    suffixes.add(StringUtils.capitalize(sortField.replace("s.", "").replace("sm.", "")));
     if (sorting.orderBy.equals(Sorting.OrderBy.DESC)) {
       suffixes.add("DESC");
     } else {
@@ -424,8 +423,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
   }
 
-  private String getSortField(Sorting sorting) {
-    if (sorting.sortBy.equals(SortBy.DATE)) {
+  private String getSortField(XSpaceFilter spaceFilter) {
+    Sorting sorting = spaceFilter.getSorting();
+    if (spaceFilter.isLastAccess()) {
+      return "sm.lastAccess";
+    } else if (sorting.sortBy.equals(SortBy.DATE)) {
       return "s.createdDate";
     } else {
       return "s.displayName";
