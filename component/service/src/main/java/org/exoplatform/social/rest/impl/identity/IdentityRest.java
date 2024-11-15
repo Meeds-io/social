@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
@@ -59,7 +58,6 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.IdentityEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -82,9 +80,7 @@ public class IdentityRest implements ResourceContainer {
     this.identityManager = identityManager;
     this.profilePropertyService = profilePropertyService;
   }
-  /**
-   * {@inheritDoc}
-   */
+
   @GET
   @RolesAllowed("users")
   @Operation(
@@ -105,7 +101,6 @@ public class IdentityRest implements ResourceContainer {
       offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
       limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
       
-      IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
       String providerId = (type != null && type.equals("space")) ? SpaceIdentityProvider.NAME : OrganizationIdentityProvider.NAME;
       ListAccess<Identity> listAccess = identityManager.getIdentitiesByProfileFilter(providerId, new ProfileFilter(), true);
       Identity[] identities = listAccess.load(offset, limit);
@@ -124,9 +119,6 @@ public class IdentityRest implements ResourceContainer {
     }
   }
   
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}")
   @RolesAllowed("users")
@@ -142,7 +134,7 @@ public class IdentityRest implements ResourceContainer {
   public Response getIdentityById(@Context UriInfo uriInfo,
                                   @Context Request request,
                                   @Parameter(description = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) {
     Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -263,13 +255,6 @@ public class IdentityRest implements ResourceContainer {
     return builder.build();
   }
 
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/avatar")
   @RolesAllowed("users")
@@ -286,7 +271,7 @@ public class IdentityRest implements ResourceContainer {
                                         @Context Request request,
                                         @Parameter(description = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
   
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -319,13 +304,6 @@ public class IdentityRest implements ResourceContainer {
     return builder.cacheControl(cc).build();
   }
 
-  /**
-   *
-   * @param uriInfo
-   * @param id
-   * @return
-   * @throws IOException
-   */
   @GET
   @Path("{id}/banner")
   @RolesAllowed("users")
@@ -342,7 +320,7 @@ public class IdentityRest implements ResourceContainer {
                                         @Context Request request,
                                         @Parameter(description = "Identity id which is a UUID", required = true)@PathParam("id") String id) throws IOException {
 
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -374,31 +352,7 @@ public class IdentityRest implements ResourceContainer {
     builder.cacheControl(cc);
     return builder.cacheControl(cc).build();
   }
-  
-  private Profile fillProfileFromEntity(ProfileEntity model, Identity identity) {
-    Profile profile = identity.getProfile();
-    setProperty(profile, Profile.FIRST_NAME, model.getFirstname());
-    setProperty(profile, Profile.LAST_NAME, model.getLastname());
-    setProperty(profile, Profile.EMAIL, model.getEmail());
-    setProperty(profile, Profile.POSITION, model.getPosition());
-    setProperty(profile, Profile.GENDER, model.getGender());
-//    setProperty(profile, Profile.CONTACT_PHONES, model.getPhones());
-//    setProperty(profile, Profile.CONTACT_IMS, model.getIMs());
-//    setProperty(profile, Profile.CONTACT_URLS, model.getUrls());
-    setProperty(profile, Profile.DELETED, model.getDeleted());
-    return profile;
-  }
 
-  private Profile setProperty(Profile profile, String key, Object value) {
-    if (value != null) {
-      profile.setProperty(key, value);
-    }
-    return profile;
-  }
-  
-  /**
-   * {@inheritDoc}
-   */
   @GET
   @Path("{id}/relationships")
   @RolesAllowed("users")
@@ -419,13 +373,12 @@ public class IdentityRest implements ResourceContainer {
                                              @Schema(defaultValue = "0")  @QueryParam("offset") int offset,
                                              @Parameter(description = "Limit", required = false)
                                              @Schema(defaultValue = "20")  @QueryParam("limit") int limit,
-                                             @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+                                             @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) {
     
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
     
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity identity = identityManager.getIdentity(id, true);
+    Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -433,7 +386,7 @@ public class IdentityRest implements ResourceContainer {
     RelationshipManager relationshipManager = CommonsUtils.getService(RelationshipManager.class);
     
     if (with != null && with.length() > 0) {
-      Identity withUser = identityManager.getIdentity(with, true);
+      Identity withUser = identityManager.getIdentity(with);
       if (withUser == null) {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
@@ -485,14 +438,14 @@ public class IdentityRest implements ResourceContainer {
 
     List<Identity> currentUserConnections = Arrays.asList(relationshipManager.getConnections(authenticatedUser).load(0, 0));
 
-    Identity withIdentity = CommonsUtils.getService(IdentityManager.class).getIdentity(id, true);
+    Identity withIdentity = CommonsUtils.getService(IdentityManager.class).getIdentity(id);
     List<Identity> withConnections = Arrays.asList(relationshipManager.getConnections(withIdentity).load(0, 0));
 
     List<Identity> commonConnections = currentUserConnections.stream()
                                                              .filter(withConnections::contains)
-                                                             .collect(Collectors.toList());
+                                                             .toList();
 
-    List<DataEntity> identityEntities = new ArrayList<DataEntity>();
+    List<DataEntity> identityEntities = new ArrayList<>();
     for (Identity identity : commonConnections) {
       identityEntities.add(EntityBuilder.buildEntityIdentity(identity, uriInfo.getPath(), expand).getDataEntity());
     }
