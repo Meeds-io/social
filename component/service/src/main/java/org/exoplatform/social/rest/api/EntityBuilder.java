@@ -297,7 +297,7 @@ public class EntityBuilder {
     return buildEntityProfile(profile, null, expand);
   }
 
-  public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) {
+  public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) { // NOSONAR
     ProfileEntity userEntity = new ProfileEntity(profile.getId());
     userEntity.setHref(RestUtils.getRestUrl(USERS_TYPE, profile.getIdentity().getRemoteId(), restPath));
     userEntity.setIdentity(RestUtils.getRestUrl(IDENTITIES_TYPE, profile.getIdentity().getId(), restPath));
@@ -318,19 +318,14 @@ public class EntityBuilder {
     if (canViewProperties || isProfilePropertyVisible(Profile.FULL_NAME)) {
       userEntity.setFullname(profile.getFullName());
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.GENDER)) {
-      userEntity.setGender(profile.getGender());
-    }
     if (canViewProperties || isProfilePropertyVisible(Profile.POSITION)) {
       userEntity.setPosition(profile.getPosition());
     }
     if (canViewProperties || isProfilePropertyVisible(Profile.EMAIL)) {
       userEntity.setEmail(profile.getEmail());
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.ABOUT_ME)) {
-      userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
-    }
 
+    userEntity.setAboutMe((String) profile.getProperty(Profile.ABOUT_ME));
     userEntity.setAvatar(profile.getAvatarUrl());
     userEntity.setBanner(profile.getBannerUrl());
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
@@ -367,9 +362,7 @@ public class EntityBuilder {
     if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_URLS)) {
       buildUrlEntities(profile, userEntity);
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.EXPERIENCES)) {
-      buildExperienceEntities(profile, userEntity);
-    }
+    buildExperienceEntities(profile, userEntity);
     userEntity.setDeleted(profile.getIdentity().isDeleted());
     userEntity.setEnabled(profile.getIdentity().isEnable());
     if (profile.getProperty(Profile.EXTERNAL) != null) {
