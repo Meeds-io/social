@@ -109,8 +109,7 @@
   </component>
 
   <component>
-    <key>org.exoplatform.social.core.jpa.storage.dao.SpaceDAO</key>
-    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAOImpl</type>
+    <type>org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO</type>
   </component>
 
   <component>
@@ -356,11 +355,6 @@
 
   <component>
     <type>io.meeds.social.space.template.service.SpaceTemplateService</type>
-  </component>
-
-  <component>
-    <key>org.exoplatform.social.core.space.SpacesAdministrationService</key>
-    <type>org.exoplatform.social.core.space.impl.SpacesAdministrationServiceImpl</type>
   </component>
 
   <component>
@@ -909,7 +903,7 @@
                       <string>john@platform.com</string>
                     </field>
                     <field name="groups">
-                      <string>member:/platform/administrators,member:/platform/users</string>
+                      <string>manager:/platform/administrators,member:/platform/users</string>
                     </field>
                   </object>
                 </value>

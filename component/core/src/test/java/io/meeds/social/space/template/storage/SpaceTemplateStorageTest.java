@@ -39,8 +39,8 @@ import org.springframework.data.domain.Pageable;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.dao.SpaceTemplateDAO;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -51,6 +51,8 @@ public class SpaceTemplateStorageTest {
   private static final String  SPACE_FIELDS                  = "spaceFields";
 
   private static final String  SPACE_CREATE_PERMISSIONS      = "permissions";
+
+  private static final String  SPACE_ADMIN_PERMISSIONS       = "adminPermissions";
 
   private static final String  SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
 
@@ -147,6 +149,8 @@ public class SpaceTemplateStorageTest {
     assertEquals(spaceTemplateEntity.isSystem(), spaceTemplate.isSystem());
     assertEquals(spaceTemplateEntity.getPermissions(), spaceTemplate.getPermissions());
     assertEquals(SPACE_CREATE_PERMISSIONS, spaceTemplate.getPermissions().get(0));
+    assertEquals(spaceTemplateEntity.getAdminPermissions(), spaceTemplate.getAdminPermissions());
+    assertEquals(SPACE_ADMIN_PERMISSIONS, spaceTemplate.getAdminPermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceDeletePermissions(), spaceTemplate.getSpaceDeletePermissions());
     assertEquals(SPACE_DELETE_PERMISSIONS, spaceTemplate.getSpaceDeletePermissions().get(0));
     assertEquals(spaceTemplateEntity.getSpaceLayoutPermissions(), spaceTemplate.getSpaceLayoutPermissions());
@@ -167,12 +171,13 @@ public class SpaceTemplateStorageTest {
                                    true,
                                    "layout",
                                    Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                                   Arrays.asList(SPACE_ADMIN_PERMISSIONS),
                                    Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                                    Arrays.asList(SPACE_DELETE_PERMISSIONS),
                                    Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                                    Arrays.asList(SPACE_FIELDS),
-                                   Visibility.PRIVATE,
-                                   Registration.VALIDATION,
+                                   SpaceVisibility.PRIVATE,
+                                   SpaceRegistration.VALIDATION,
                                    true);
   }
 
@@ -187,12 +192,13 @@ public class SpaceTemplateStorageTest {
                              true,
                              "layout",
                              Arrays.asList(SPACE_CREATE_PERMISSIONS),
+                             Arrays.asList(SPACE_ADMIN_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
-                             Visibility.PRIVATE,
-                             Registration.VALIDATION,
+                             SpaceVisibility.PRIVATE,
+                             SpaceRegistration.VALIDATION,
                              true);
   }
 

@@ -69,6 +69,22 @@ public interface SpaceService {
    * @since 1.2.0-GA
    */
   default Space getSpaceById(String spaceId) {
+    try {
+      return getSpaceById(Long.parseLong(spaceId));
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Gets a space by its Id.
+   *
+   * @param spaceId Id of the space.
+   * @return The space.
+   * @LevelAPI Platform
+   * @since 1.2.0-GA
+   */
+  default Space getSpaceById(long spaceId) {
     throw new UnsupportedOperationException();
   }
 
@@ -121,6 +137,18 @@ public interface SpaceService {
   }
 
   /**
+   * Gets a list access containing all spaces that a user has the "manager" role
+   * or is identified as "admin" in the associated Space template.
+   *
+   * @param username The remote user Id.
+   * @param spaceFilter The space filter.
+   * @return The list access.
+   */
+  default ListAccess<Space> getEditableSpacesByFilter(String username, SpaceFilter spaceFilter) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets a list access containing all spaces that a user has the "member" role.
    *
    * @param username The remote user Id.
@@ -160,27 +188,23 @@ public interface SpaceService {
   }
 
   /**
-   * Gets a list access containing all spaces that a user has the access
-   * permission.
+   * Gets a list access containing all spaces that a user has the "member" role
+   * or is identified as "admin" in the associated Space template.
    *
    * @param username The remote user Id.
    * @return The space list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
    */
   default ListAccess<Space> getAccessibleSpacesWithListAccess(String username) {
     throw new UnsupportedOperationException();
   }
 
   /**
-   * Gets a list access containing all spaces that a user has the access
-   * permission. This list access matches with the provided space filter.
+   * Gets a list access containing all spaces that a user has the "member" role
+   * or is identified as "admin" in the associated Space template.
    *
    * @param username The remote user Id.
    * @param spaceFilter The provided space filter.
    * @return The list access.
-   * @LevelAPI Platform
-   * @since 1.2.0-GA
    */
   default ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
     throw new UnsupportedOperationException();
@@ -542,7 +566,7 @@ public interface SpaceService {
                    || isManager(space, username))) {
       return true;
     } else {
-      return isSuperManager(username);
+      return isSuperManager(space, username);
     }
   }
 
@@ -560,7 +584,7 @@ public interface SpaceService {
                && (isPublisher(space, username) || isManager(space, username))) {
       return true;
     } else {
-      return isSuperManager(username) || isContentPublisher(username);
+      return isSuperManager(space, username) || isContentPublisher(username);
     }
   }
 
@@ -577,7 +601,7 @@ public interface SpaceService {
     } else if (isMember(space, username) && isManager(space, username)) {
       return true;
     } else {
-      return isSuperManager(username);
+      return isSuperManager(space, username);
     }
   }
 
@@ -625,7 +649,7 @@ public interface SpaceService {
     } else if (isMember(space, username)) {
       return true;
     } else {
-      return isSuperManager(username);
+      return isSuperManager(space, username);
     }
   }
 
@@ -928,6 +952,28 @@ public interface SpaceService {
    */
   default boolean isSuperManager(String username) {
     throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Checks if the user is a super manager of designated space or not
+   *
+   * @param spaceId used {@link Space} identifier to check permissions
+   * @param username user name
+   * @return true if the user is a super manager, else false
+   */
+  default boolean isSuperManager(long spaceId, String username) {
+    return isSuperManager(getSpaceById(spaceId), username);
+  }
+
+  /**
+   * Checks if the user is a super manager of designated space or not
+   *
+   * @param space used {@link Space} to check permissions
+   * @param username user name
+   * @return true if the user is a super manager, else false
+   */
+  default boolean isSuperManager(Space space, String username) {
+    return isSuperManager(username);
   }
 
   /**

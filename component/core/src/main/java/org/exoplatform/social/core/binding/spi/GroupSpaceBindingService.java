@@ -110,6 +110,14 @@ public interface GroupSpaceBindingService {
   List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations();
 
   /**
+   * Gets all the GroupSpaceBindingOperations Report.
+   * 
+   * @param spaceId Space identifier
+   * @return {@link List} of {@link GroupSpaceBindingOperationReport}
+   */
+  List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations(String spaceId);
+
+  /**
    * Saves a group space binding queue
    *
    * @param groupSpaceBindingsQueue The group space binding queue to save
@@ -254,4 +262,5 @@ public interface GroupSpaceBindingService {
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
 
   List<GroupSpaceBindingQueue> getAllFromBindingQueue();
+
 }

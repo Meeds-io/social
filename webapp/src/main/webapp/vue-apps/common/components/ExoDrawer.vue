@@ -33,7 +33,7 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content class="drawerTitle align-start text-header-title">
-                <div class="text-truncate d-flex full-width">
+                <div class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
               </v-list-item-content>
@@ -136,6 +136,10 @@ export default {
       default: () => '420px',
     },
     allowExpand: {
+      type: Boolean,
+      default: false,
+    },
+    expanded: {
       type: Boolean,
       default: false,
     },
@@ -246,7 +250,7 @@ export default {
         }
       }
       this.$emit('input', this.drawer);
-      this.expand = false;
+      this.expand = this.expanded;
     },
   },
   created() {
@@ -284,6 +288,7 @@ export default {
         // opened drawers
         this.mountOnParent();
         this.$nextTick().then(() => this.drawer = true);
+        this.expand = this.expanded;
       } else {
         this.drawer = true;
       }

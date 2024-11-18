@@ -20,7 +20,16 @@
 -->
 <template>
   <div class="d-flex flex-column">
-    <div class="font-weight-bold">
+    <help-label
+      v-if="helpLabel"
+      :label="helpLabel"
+      :tooltip="helpTooltip"
+      label-class="font-weight-bold">
+      <template slot="helpContent">
+        <slot name="helpContent"></slot>
+      </template>
+    </help-label>
+    <div v-else class="font-weight-bold">
       {{ $t(label) }}
     </div>
     <v-checkbox
@@ -72,6 +81,7 @@
       :group-member="userGroup"
       :search-options="{filterType: 'all'}"
       name="specificGroupPermissions"
+      class="mb-n3"
       include-spaces
       include-groups
       all-groups-for-admin
@@ -83,6 +93,14 @@
 export default {
   props: {
     label: {
+      type: String,
+      default: null,
+    },
+    helpLabel: {
+      type: String,
+      default: null,
+    },
+    helpTooltip: {
       type: String,
       default: null,
     },
@@ -151,6 +169,7 @@ export default {
 
     const specificGroupEntries = permissions?.filter?.(p =>
       p !== this.$root.administratorsPermission
+      && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
       && (!this.users || p !== this.$root.usersPermission)
       && (!this.spaceAdmin || p !== 'spaceAdmin')
     ) || null;

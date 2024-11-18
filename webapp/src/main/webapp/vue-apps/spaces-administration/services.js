@@ -17,8 +17,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import * as spacesAdministrationServices from './js/SpacesAdministrationServices.js';
+import * as spaceBindingService from './js/SpaceBindingService.js';
+import * as spaceAdministrationService from './js/SpaceAdministrationService.js';
+import * as spaceTemplateService from '../space-templates-management/js/SpaceTemplateService.js';
 
-window.Object.defineProperty(Vue.prototype, '$spacesAdministrationServices', {
-  value: spacesAdministrationServices,
-});
+if (!Vue.prototype.$spaceBindingService) {
+  window.Object.defineProperty(Vue.prototype, '$spaceBindingService', {
+    value: spaceBindingService,
+  });
+}
+
+if (!Vue.prototype.$spaceTemplateService) {
+  window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
+    value: spaceTemplateService,
+  });
+}
+
+if (!Vue.prototype.$spaceAdministrationService) {
+  window.Object.defineProperty(Vue.prototype, '$spaceAdministrationService', {
+    value: spaceAdministrationService,
+  });
+}
+

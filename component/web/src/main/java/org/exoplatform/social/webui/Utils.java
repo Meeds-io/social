@@ -716,11 +716,6 @@ public class Utils {
     return (space != null ? space.getId() : null);
   }
 
-  public static boolean isSpacesManager(Identity userIdentity) {
-    String username = userIdentity == null || !userIdentity.isUser() ? null : userIdentity.getRemoteId();
-    return StringUtils.isNotBlank(username) && ExoContainerContext.getService(SpaceService.class).isSuperManager(username);
-  }
-
   /**
    * @return Current {@link Space}
    * @deprecated should use {@link SpaceUtils#getSpaceByContext()} instead

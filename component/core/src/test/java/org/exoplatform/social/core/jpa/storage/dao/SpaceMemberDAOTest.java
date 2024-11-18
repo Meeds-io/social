@@ -23,14 +23,15 @@ import java.util.List;
 
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.entity.IdentityEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
 import org.exoplatform.social.core.jpa.test.BaseCoreTest;
 
-import io.meeds.social.space.constant.Registration;
+import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 public class SpaceMemberDAOTest extends BaseCoreTest {
 
@@ -120,9 +121,9 @@ public class SpaceMemberDAOTest extends BaseCoreTest {
     spaceEntity.setDisplayName(name);
     spaceEntity.setGroupId(name+"GroupId");
     spaceEntity.setPrettyName(name);
-    spaceEntity.setRegistration(Registration.OPEN);
+    spaceEntity.setRegistration(SpaceRegistration.OPEN);
     spaceEntity.setUrl("testUrl");
-    spaceEntity.setVisibility(Visibility.PRIVATE);
+    spaceEntity.setVisibility(SpaceVisibility.PRIVATE);
     spaceEntity.setBannerLastUpdated(new Date());
     return spaceEntity;
   }

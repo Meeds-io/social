@@ -38,6 +38,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.social.core.identity.SpaceMemberFilterListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -186,7 +187,7 @@ public class SpaceMembershipRest implements ResourceContainer {
       }
     } else {
       SpaceFilter spaceFilter = new SpaceFilter();
-      spaceFilter.setRemoteId(user);
+      spaceFilter.setRemoteId(StringUtils.firstNonBlank(user, IdentityConstants.ANONIM));
       spaceFilter.setStatus(membershipType.getStatus());
       // 2. Search for spaces using a specific user (either space or user aren't
       // null)
@@ -413,7 +414,7 @@ public class SpaceMembershipRest implements ResourceContainer {
   }
 
   private boolean canRetrieveSpaceMemberships(Space space, String targetUser, String authenticatedUser) {
-    if (spaceService.isSuperManager(authenticatedUser)
+    if (spaceService.isSuperManager(space, authenticatedUser)
         || (space == null && StringUtils.equals(targetUser, authenticatedUser))) {
       return true;
     } else if (space == null) {

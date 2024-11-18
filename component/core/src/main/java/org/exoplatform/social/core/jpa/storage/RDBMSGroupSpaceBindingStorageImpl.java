@@ -35,8 +35,8 @@ import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingDAO;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingQueueDAO;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportUserDAO;
-import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.dao.UserSpaceBindingDAO;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingQueueEntity;
 import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
@@ -55,20 +55,20 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   /**
    * Logger
    */
-  private static final Log                                           LOG =
-                                                                         ExoLogger.getLogger(RDBMSGroupSpaceBindingStorageImpl.class);
+  private static final Log                 LOG =
+                                               ExoLogger.getLogger(RDBMSGroupSpaceBindingStorageImpl.class);
 
-  private final org.exoplatform.social.core.jpa.storage.dao.SpaceDAO spaceDAO;
+  private SpaceDAO                         spaceDAO;
 
-  private GroupSpaceBindingDAO                                       groupSpaceBindingDAO;
+  private GroupSpaceBindingDAO             groupSpaceBindingDAO;
 
-  private GroupSpaceBindingQueueDAO                                  groupSpaceBindingQueueDAO;
+  private GroupSpaceBindingQueueDAO        groupSpaceBindingQueueDAO;
 
-  private UserSpaceBindingDAO                                        userSpaceBindingDAO;
+  private UserSpaceBindingDAO              userSpaceBindingDAO;
 
-  private GroupSpaceBindingReportActionDAO                           groupSpaceBindingReportActionDAO;
+  private GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO;
 
-  private GroupSpaceBindingReportUserDAO                             groupSpaceBindingReportUserDAO;
+  private GroupSpaceBindingReportUserDAO   groupSpaceBindingReportUserDAO;
 
   public RDBMSGroupSpaceBindingStorageImpl(SpaceDAO spaceDAO,
                                            GroupSpaceBindingDAO groupSpaceBindingDAO,
@@ -130,16 +130,17 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   @ExoTransactional
   public GroupSpaceBindingQueue createGroupSpaceBindingQueue(GroupSpaceBindingQueue bindingQueue) throws GroupSpaceBindingStorageException {
-    GroupSpaceBindingQueueEntity entity=groupSpaceBindingQueueDAO.create(buildEntityGroupBindingQueueFrom(bindingQueue));
+    GroupSpaceBindingQueueEntity entity = groupSpaceBindingQueueDAO.create(buildEntityGroupBindingQueueFrom(bindingQueue));
     return fillGroupBindingQueueFromEntity(entity);
   }
 
   @ExoTransactional
   public UserSpaceBinding saveUserBinding(UserSpaceBinding userSpaceBinding) throws GroupSpaceBindingStorageException {
-    UserSpaceBindingEntity entity=
-        userSpaceBindingDAO.findUserBindingByGroupBindingIdAndUsername(userSpaceBinding.getGroupBinding().getId(),
-                                                                    userSpaceBinding.getUser());
-    if (entity==null) {
+    UserSpaceBindingEntity entity =
+                                  userSpaceBindingDAO.findUserBindingByGroupBindingIdAndUsername(userSpaceBinding.getGroupBinding()
+                                                                                                                 .getId(),
+                                                                                                 userSpaceBinding.getUser());
+    if (entity == null) {
       entity = userSpaceBindingDAO.create(buildEntityUserBindingFrom(userSpaceBinding));
     }
     return fillUserBindingFromEntity(entity);
@@ -148,7 +149,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   @ExoTransactional
   public GroupSpaceBindingReportAction saveGroupSpaceBindingReport(GroupSpaceBindingReportAction groupSpaceBindingReportAction) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingReportActionEntity entity =
-        groupSpaceBindingReportActionDAO.create(buildEntityGroupSpaceBindingReportActionFrom(groupSpaceBindingReportAction));
+                                               groupSpaceBindingReportActionDAO.create(buildEntityGroupSpaceBindingReportActionFrom(groupSpaceBindingReportAction));
     return fillGroupBindingReportActionFromEntity(entity);
   }
 
@@ -175,7 +176,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     List<GroupSpaceBindingQueueEntity> bindingQueueEntities = groupSpaceBindingQueueDAO.getAllFromBindingQueue();
     return buildGroupSpaceBindingQueueListFromEntities(bindingQueueEntities);
   }
-  
+
   @Override
   public List<GroupSpaceBinding> findAllGroupSpaceBinding() {
     return groupSpaceBindingDAO.findAll()
@@ -183,15 +184,15 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                .map(groupSpaceBindingEntity -> fillGroupBindingFromEntity(groupSpaceBindingEntity))
                                .collect(Collectors.toList());
   }
-  
+
   @Override
   public List<UserSpaceBinding> findAllUserSpaceBinding() {
     return userSpaceBindingDAO.findAll()
-                               .stream()
-                               .map(userSpaceBindingEntity -> fillUserBindingFromEntity(userSpaceBindingEntity))
-                               .collect(Collectors.toList());
+                              .stream()
+                              .map(userSpaceBindingEntity -> fillUserBindingFromEntity(userSpaceBindingEntity))
+                              .collect(Collectors.toList());
   }
-  
+
   @Override
   public List<GroupSpaceBindingQueue> findAllGroupSpaceBindingQueue() {
     return groupSpaceBindingQueueDAO.findAll()
@@ -199,23 +200,23 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                     .map(groupSpaceBindingQueueEntity -> fillGroupBindingQueueFromEntity(groupSpaceBindingQueueEntity))
                                     .collect(Collectors.toList());
   }
-  
+
   @Override
   public List<GroupSpaceBindingReportAction> findAllGroupSpaceBindingReportAction() {
     return groupSpaceBindingReportActionDAO.findAll()
-                                          .stream()
-                                          .map(groupSpaceBindingReportActionEntity -> fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionEntity))
-                                          .collect(Collectors.toList());
+                                           .stream()
+                                           .map(groupSpaceBindingReportActionEntity -> fillGroupBindingReportActionFromEntity(groupSpaceBindingReportActionEntity))
+                                           .collect(Collectors.toList());
   }
-  
+
   @Override
   public List<GroupSpaceBindingReportUser> findAllGroupSpaceBindingReportUser() {
     return groupSpaceBindingReportUserDAO.findAll()
-                                           .stream()
-                                           .map(groupSpaceBindingReportUserEntity -> fillGroupBindingReportUserFromEntity(groupSpaceBindingReportUserEntity))
-                                           .collect(Collectors.toList());
+                                         .stream()
+                                         .map(groupSpaceBindingReportUserEntity -> fillGroupBindingReportUserFromEntity(groupSpaceBindingReportUserEntity))
+                                         .collect(Collectors.toList());
   }
-  
+
   @ExoTransactional
   public void deleteGroupBinding(long id) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingEntity bindingEntity = groupSpaceBindingDAO.find(id);
@@ -231,11 +232,13 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     groupSpaceBindingReportActionDAO.delete(groupSpaceBindingReportActionDAO.find(id));
 
   }
+
   @Override
   public void deleteGroupBindingReportUser(long id) throws GroupSpaceBindingStorageException {
     groupSpaceBindingReportUserDAO.delete(groupSpaceBindingReportUserDAO.find(id));
-    
+
   }
+
   @ExoTransactional
   public void deleteGroupBindingQueue(long id) throws GroupSpaceBindingStorageException {
     groupSpaceBindingQueueDAO.delete(groupSpaceBindingQueueDAO.find(id));
@@ -296,19 +299,24 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   public List<GroupSpaceBindingReportUser> findReportsForCsv(long spaceId,
-                                                               long groupSpaceBindingId,
-                                                               String group,
-                                                               String action) {
+                                                             long groupSpaceBindingId,
+                                                             String group,
+                                                             String action) {
 
     return buildGroupBindingReportUserListFromEntities(groupSpaceBindingReportUserDAO.findReportsForCSV(spaceId,
-                                                                                                      groupSpaceBindingId,
-                                                                                                      group,
-                                                                                                      action));
+                                                                                                        groupSpaceBindingId,
+                                                                                                        group,
+                                                                                                        action));
   }
 
   @Override
   public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations() {
     return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate();
+  }
+
+  @Override
+  public List<GroupSpaceBindingOperationReport> getGroupSpaceBindingReportOperations(String spaceId) {
+    return groupSpaceBindingReportActionDAO.getGroupSpaceBindingReportActionsOrderedByEndDate(spaceId);
   }
 
   private List<GroupSpaceBindingReportAction> buildGroupBindingReportListFromEntities(List<GroupSpaceBindingReportActionEntity> entities) {
@@ -445,8 +453,8 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   /**
-   * build {@link GroupSpaceBinding}'s list from {@link GroupSpaceBindingEntity}'s
-   * list.
+   * build {@link GroupSpaceBinding}'s list from
+   * {@link GroupSpaceBindingEntity}'s list.
    *
    * @param entities the list of entities
    */
@@ -488,7 +496,8 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   /**
-   * build {@link GroupSpaceBindingEntity} from {@link GroupSpaceBinding} object.
+   * build {@link GroupSpaceBindingEntity} from {@link GroupSpaceBinding}
+   * object.
    *
    * @param groupSpaceBinding the GroupSpaceBinding object
    */

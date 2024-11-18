@@ -41,7 +41,6 @@ import org.exoplatform.services.log.Log;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
@@ -53,37 +52,35 @@ import io.meeds.social.translation.service.TranslationService;
 @Service
 public class SpaceTemplateService {
 
-  public static final String          SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
+  public static final String      SPACE_TEMPLATE_CREATED_EVENT  = "space.template.created";
 
-  public static final String          SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
+  public static final String      SPACE_TEMPLATE_UPDATED_EVENT  = "space.template.updated";
 
-  public static final String          SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
+  public static final String      SPACE_TEMPLATE_DELETED_EVENT  = "space.template.deleted";
 
-  public static final String          SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
+  public static final String      SPACE_TEMPLATE_SITE_PROP_NAME = "SPACE_TEMPLATE";
 
-  public static final String          SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
+  public static final String      SPACE_TEMPLATE_ID_PROP_NAME   = "SPACE_TEMPLATE_ID";
 
-  public static final String          DEFAULT_SITE_TEMPLATE         = "space";
+  public static final String      DEFAULT_SITE_TEMPLATE         = "space";
 
-  private static final Log            LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
+  private static final Log        LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
 
-  private TranslationService          translationService;
+  private TranslationService      translationService;
 
-  private AttachmentService           attachmentService;
+  private AttachmentService       attachmentService;
 
-  private SpacesAdministrationService spacesAdministrationService;
+  private UserACL                 userAcl;
 
-  private UserACL                     userAcl;
+  private SpaceTemplateStorage    spaceTemplateStorage;
 
-  private SpaceTemplateStorage        spaceTemplateStorage;
+  private UserPortalConfigService userPortalConfigService;
 
-  private UserPortalConfigService     userPortalConfigService;
+  private LayoutService           layoutService;
 
-  private LayoutService               layoutService;
+  private NavigationService       navigationService;
 
-  private NavigationService           navigationService;
-
-  private ListenerService             listenerService;
+  private ListenerService         listenerService;
 
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
@@ -92,13 +89,11 @@ public class SpaceTemplateService {
                               NavigationService navigationService,
                               ListenerService listenerService,
                               UserACL userAcl,
-                              SpacesAdministrationService spacesAdministrationService,
                               SpaceTemplateStorage spaceTemplateStorage) {
     this.userPortalConfigService = userPortalConfigService;
     this.translationService = translationService;
     this.attachmentService = attachmentService;
     this.userAcl = userAcl;
-    this.spacesAdministrationService = spacesAdministrationService;
     this.spaceTemplateStorage = spaceTemplateStorage;
     this.layoutService = layoutService;
     this.navigationService = navigationService;
@@ -132,6 +127,11 @@ public class SpaceTemplateService {
                            .filter(Objects::nonNull)
                            .toList();
     }
+  }
+
+  public List<Long> getManagingSpaceTemplates(String username) {
+    List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
+    return spaceTemplates.stream().filter(t -> canManageSpacesWithTemplate(t, username)).map(SpaceTemplate::getId).toList();
   }
 
   public SpaceTemplate getSpaceTemplate(long templateId) {
@@ -169,8 +169,20 @@ public class SpaceTemplateService {
     }
   }
 
+  public boolean canManageSpacesWithTemplate(SpaceTemplate spaceTemplate, String username) {
+    if (canManageTemplates(username)) {
+      return true;
+    } else {
+      Identity aclIdentity = userAcl.getUserIdentity(username);
+      return aclIdentity != null
+             && spaceTemplate.getAdminPermissions()
+                             .stream()
+                             .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
+    }
+  }
+
   public boolean canManageTemplates(String username) {
-    return spacesAdministrationService.isSuperManager(username);
+    return userAcl.isAdministrator(userAcl.getUserIdentity(username));
   }
 
   public boolean canViewTemplate(long templateId, String username) {
@@ -201,9 +213,11 @@ public class SpaceTemplateService {
     if (spaceTemplate.getId() != 0) {
       throw new IllegalArgumentException("Space template to create shouldn't have an id");
     }
-    String layout = StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE);
-    if (layoutService.getPortalConfig(SiteKey.groupTemplate(layout)) == null) {
-      throw new ObjectNotFoundException(String.format("Space Template layout '%s' wasn't found", layout));
+    String sourceLayout = StringUtils.firstNonBlank(spaceTemplate.getLayout(), DEFAULT_SITE_TEMPLATE);
+    SiteKey sourceSiteKey = sourceLayout.contains("::") ? new SiteKey(sourceLayout.split("::")[0], sourceLayout.split("::")[1]) :
+                                                        SiteKey.groupTemplate(sourceLayout);
+    if (layoutService.getPortalConfig(sourceSiteKey) == null) {
+      throw new ObjectNotFoundException(String.format("Space Template layout '%s' wasn't found", sourceLayout));
     }
 
     SpaceTemplate spaceTemplateToCreate = spaceTemplate.clone();
@@ -211,7 +225,7 @@ public class SpaceTemplateService {
     spaceTemplateToCreate.setDeleted(false);
     spaceTemplateToCreate.setLayout(null);
     SpaceTemplate createdSpaceTemplate = spaceTemplateStorage.createSpaceTemplate(spaceTemplateToCreate);
-    createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, layout);
+    createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, sourceSiteKey);
     listenerService.broadcast(SPACE_TEMPLATE_CREATED_EVENT, spaceTemplate, createdSpaceTemplate);
     return createdSpaceTemplate;
   }
@@ -279,8 +293,7 @@ public class SpaceTemplateService {
   }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
-                                                  String sourceLayout) throws ObjectNotFoundException {
-    SiteKey sourceSiteKey = SiteKey.groupTemplate(sourceLayout);
+                                                  SiteKey sourceSiteKey) throws ObjectNotFoundException {
     SiteKey targetSiteKey = SiteKey.groupTemplate(String.valueOf(spaceTemplate.getId()));
     userPortalConfigService.createSiteFromTemplate(sourceSiteKey, targetSiteKey);
     PortalConfig targetPortalConfig = layoutService.getPortalConfig(targetSiteKey);
@@ -317,9 +330,12 @@ public class SpaceTemplateService {
     }
     Identity aclIdentity = userAcl.getUserIdentity(username);
     return aclIdentity != null
-           && spaceTemplate.getPermissions()
-                           .stream()
-                           .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)));
+           && (spaceTemplate.getPermissions()
+                            .stream()
+                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)))
+               || spaceTemplate.getAdminPermissions()
+                               .stream()
+                               .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
   }
 
   private MembershipEntry getMembershipEntry(String expression) {

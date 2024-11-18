@@ -29,27 +29,23 @@ import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.model.Space;
 
 import io.meeds.social.space.constant.SpaceMembershipStatus;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-/**
- * @author <a href="http://hoatle.net">hoatle (hoatlevan at gmail dot com)</a>
- * @since 1.2.0-GA
- */
+@Data
+@NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode
-@Getter
-@Setter
 public class SpaceFilter implements Cloneable {
 
   private String                spaceNameSearchCondition;
 
   private List<Space>           includeSpaces;
 
-  private List<Space>           exclusions;
+  private List<Long>            excludedIds;
 
   private String                remoteId;
 
@@ -57,21 +53,21 @@ public class SpaceFilter implements Cloneable {
 
   private long                  templateId;
 
+  private List<Long>            managingTemplateIds;
+
   private SpaceMembershipStatus status;
 
   private SpaceMembershipStatus extraStatus;
+
+  private SpaceRegistration     registration;
+
+  private SpaceVisibility       visibility;
 
   private Sorting               sorting;
 
   private boolean               favorite;
 
-  @Getter
-  @Setter
   private List<String>          tagNames;
-
-  public SpaceFilter() {
-    this.spaceNameSearchCondition = null;
-  }
 
   public SpaceFilter(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
@@ -102,12 +98,15 @@ public class SpaceFilter implements Cloneable {
   public SpaceFilter clone() { // NOSONAR
     return new SpaceFilter(spaceNameSearchCondition,
                            includeSpaces,
-                           exclusions,
+                           excludedIds,
                            remoteId,
                            identityId,
                            templateId,
+                           managingTemplateIds,
                            status,
                            extraStatus,
+                           registration,
+                           visibility,
                            sorting,
                            favorite,
                            tagNames == null ? null : new ArrayList<>(tagNames));

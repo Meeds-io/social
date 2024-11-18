@@ -367,6 +367,8 @@ public class EntityBuilder {
     userEntity.setEnabled(profile.getIdentity().isEnable());
     if (profile.getProperty(Profile.EXTERNAL) != null) {
       userEntity.setIsExternal((String) profile.getProperty(Profile.EXTERNAL));
+    } else {
+      userEntity.setIsExternal("false");
     }
     if (canViewProperties || isProfilePropertyVisible(Profile.COMPANY)) {
       userEntity.setCompany((String) profile.getProperty(Profile.COMPANY));
@@ -482,8 +484,10 @@ public class EntityBuilder {
       } else {
         userEntity.setPrimaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getPosition())) {
       userEntity.setPrimaryProperty(userEntity.getPosition());
+    } else {
+      userEntity.setPrimaryProperty("");
     }
     if (userCardSecondFieldSetting != null) {
       String propertyName = String.valueOf(userCardSecondFieldSetting.getValue());
@@ -495,8 +499,10 @@ public class EntityBuilder {
       } else {
         userEntity.setSecondaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getTeam())) {
       userEntity.setSecondaryProperty(userEntity.getTeam());
+    } else {
+      userEntity.setSecondaryProperty("");
     }
 
     if (userCardThirdFieldSetting != null) {
@@ -509,8 +515,10 @@ public class EntityBuilder {
       } else {
         userEntity.setTertiaryProperty("");
       }
-    } else {
+    } else if (StringUtils.isNotBlank(userEntity.getCity())) {
       userEntity.setTertiaryProperty(userEntity.getCity());
+    } else {
+      userEntity.setTertiaryProperty("");
     }
 
     return userEntity;
@@ -837,12 +845,15 @@ public class EntityBuilder {
         }
         spaceEntity.setIdentity(identity);
         spaceEntity.setIdentityId(spaceIdentity.getId());
-        spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
 
-        boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
-        spaceEntity.setHasBindings(hasBindings);
-        if (hasBindings) {
-          spaceEntity.setIsUserBound(groupSpaceBindingService.countUserBindings(space.getId(), userId) > 0);
+        if (expandFields.contains(RestProperties.GROUP_BINDING)
+            && spaceService.canViewSpace(space, userId)) {
+          spaceEntity.setTotalBoundUsers(groupSpaceBindingService.countBoundUsers(space.getId()));
+          boolean hasBindings = groupSpaceBindingService.isBoundSpace(space.getId());
+          spaceEntity.setHasBindings(hasBindings);
+          if (hasBindings) {
+            spaceEntity.setIsUserBound(groupSpaceBindingService.countUserBindings(space.getId(), userId) > 0);
+          }
         }
 
         LinkEntity managers;
@@ -1363,8 +1374,12 @@ public class EntityBuilder {
     Iterator<Entry<String, String>> entries = currentTemplateParams.entrySet().iterator();
     while (entries.hasNext()) {
       Map.Entry<String, String> entry = entries.next();
-      if (entry != null && (StringUtils.isBlank(entry.getValue()) || StringUtils.equals(entry.getValue(), "-"))) {
-        entry.setValue("");
+      if (entry != null) {
+        if (StringUtils.isBlank(entry.getValue())) {
+          entry.setValue("");
+        } else if (StringUtils.equals(entry.getValue(), "-")) {
+          entry.setValue(null);
+        }
       }
     }
     activity.setTemplateParams(currentTemplateParams);
@@ -2190,9 +2205,6 @@ public class EntityBuilder {
     }
     SiteType siteType = SiteType.valueOf(site.getType().toUpperCase());
     String siteName = site.getName();
-    if (SiteType.GROUP.equals(siteType) && !isMemberOf(siteName)) {
-      return null;
-    }
     SiteKey siteKey = new SiteKey(siteType, siteName);
 
     UserPortalConfig userPortalConfig = getUserPortalConfig(request, site, siteType);
@@ -2253,11 +2265,6 @@ public class EntityBuilder {
 
   private static String getSiteLabel(SiteKey siteKey, UserPortal userPortal) {
     return userPortal == null ? siteKey.getName() : userPortal.getPortalLabel(siteKey);
-  }
-
-  private static boolean isMemberOf(String groupId) {
-    org.exoplatform.services.security.Identity identity = getCurrentUserIdentity();
-    return identity != null && identity.isMemberOf(groupId);
   }
 
   private static UserPortalConfig getUserPortalConfig(HttpServletRequest request,

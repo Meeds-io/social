@@ -45,10 +45,9 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.XSpaceFilter;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
-import org.exoplatform.social.core.jpa.storage.dao.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceExternalInvitationDAO;
 import org.exoplatform.social.core.jpa.storage.dao.SpaceMemberDAO;
-import org.exoplatform.social.core.jpa.storage.dao.jpa.query.SpaceQueryBuilder;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity;
 import org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity;
@@ -163,26 +162,6 @@ public class SpaceStorage {
 
   public int getAllSpacesCount() throws SpaceStorageException {
     return getAllSpacesByFilterCount(null);
-  }
-
-  public List<Space> getEditableSpaces(String userId) throws SpaceStorageException {
-    return getEditableSpaces(userId, 0, -1);
-  }
-
-  public List<Space> getEditableSpaces(String userId, long offset, long limit) throws SpaceStorageException {
-    return getEditableSpacesByFilter(userId, null, offset, limit);
-  }
-
-  public List<Space> getEditableSpacesByFilter(String userId, SpaceFilter spaceFilter, long offset, long limit) {
-    return getSpaces(userId, SpaceMembershipStatus.MANAGER, spaceFilter, offset, limit);
-  }
-
-  public int getEditableSpacesByFilterCount(String userId, SpaceFilter spaceFilter) {
-    return getSpacesCount(userId, SpaceMembershipStatus.MANAGER, spaceFilter);
-  }
-
-  public int getEditableSpacesCount(String userId) throws SpaceStorageException {
-    return getEditableSpacesByFilterCount(userId, null);
   }
 
   public List<Space> getInvitedSpaces(String userId) throws SpaceStorageException {
@@ -366,13 +345,7 @@ public class SpaceStorage {
     return fillSpaceFromEntity(entity);
   }
 
-  public Space getSpaceById(String id) throws SpaceStorageException {
-    Long spaceId;
-    try {
-      spaceId = Long.parseLong(id);
-    } catch (Exception ex) {
-      return null;
-    }
+  public Space getSpaceById(long spaceId) throws SpaceStorageException {
     SpaceEntity entity = spaceDAO.find(spaceId);
     return fillSpaceFromEntity(entity);
   }
@@ -508,7 +481,7 @@ public class SpaceStorage {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
       }
     }
-    return getSpaceById(String.valueOf(entity.getId()));
+    return getSpaceById(entity.getId());
   }
 
   @ExoTransactional
@@ -688,16 +661,8 @@ public class SpaceStorage {
       }
     }
 
-    SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter).offset(offset).limit(limit);
-    List<Tuple> entities = query.build().getResultList();
-    if (entities == null || entities.isEmpty()) {
-      return Collections.emptyList();
-    } else {
-      List<Long> ids = entities.stream()
-                               .map(tuple -> tuple.get(0, Long.class))
-                               .toList();
-      return buildList(ids);
-    }
+    List<Long> spaceIds = spaceDAO.getSpaceIdsByFilter(filter, offset, limit);
+    return spaceIds.stream().map(this::getSpaceById).toList();
   }
 
   private int getSpacesCount(String userId,
@@ -726,8 +691,7 @@ public class SpaceStorage {
       }
     }
 
-    SpaceQueryBuilder query = SpaceQueryBuilder.builder().filter(filter);
-    return query.buildCount().getSingleResult().intValue();
+    return spaceDAO.getSpacesCountByFilter(filter);
   }
 
   private void addFavoriteSpaceIdsToFilter(XSpaceFilter filter) {
@@ -749,7 +713,7 @@ public class SpaceStorage {
     List<Space> spaces = new LinkedList<>();
     if (ids != null) {
       for (Long id : ids) {
-        spaces.add(getSpaceById(String.valueOf(id)));
+        spaces.add(getSpaceById(id));
       }
     }
     return spaces;

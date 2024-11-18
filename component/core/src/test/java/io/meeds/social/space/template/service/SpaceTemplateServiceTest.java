@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,10 +54,9 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.model.SpaceTemplateFilter;
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
@@ -65,52 +65,51 @@ import io.meeds.social.translation.service.TranslationService;
 @RunWith(MockitoJUnitRunner.class)
 public class SpaceTemplateServiceTest {
 
-  private static final String           SPACE_FIELDS                  = "spaceFields";
+  private static final String       SPACE_FIELDS                  = "spaceFields";
 
-  private static final String           SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
+  private static final String       SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
 
-  private static final String           SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
+  private static final String       SPACE_LAYOUT_PERMISSIONS      = "spaceLayoutPermissions";
 
-  private static final String           SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
+  private static final String       SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
 
-  private static final String           CREATE_AND_ACCESS_PERMISSIONS = "permissions";
+  private static final String       CREATE_AND_ACCESS_PERMISSIONS = "permissions";
 
-  private static final String           TEST_USER                     = "testuser";
+  private static final String       ADMIN_PERMISSIONS             = "adminPermissions";
 
-  @Mock
-  protected TranslationService          translationService;
-
-  @Mock
-  protected AttachmentService           attachmentService;
+  private static final String       TEST_USER                     = "testuser";
 
   @Mock
-  protected UserPortalConfigService     userPortalConfigService;
+  protected TranslationService      translationService;
 
   @Mock
-  protected SpacesAdministrationService spacesAdministrationService;
+  protected AttachmentService       attachmentService;
 
   @Mock
-  protected LayoutService               layoutService;
+  protected UserPortalConfigService userPortalConfigService;
 
   @Mock
-  protected NavigationService           navigationService;
+  protected LayoutService           layoutService;
 
   @Mock
-  protected ListenerService             listenerService;
+  protected NavigationService       navigationService;
 
   @Mock
-  protected UserACL                     userAcl;
+  protected ListenerService         listenerService;
 
   @Mock
-  private SpaceTemplateStorage          spaceTemplateStorage;
+  protected UserACL                 userAcl;
 
   @Mock
-  private Identity                      userIdentity;
+  private SpaceTemplateStorage      spaceTemplateStorage;
 
   @Mock
-  private PortalConfig                  portalConfig;
+  private Identity                  userIdentity;
 
-  private SpaceTemplateService          spaceTemplateService;
+  @Mock
+  private PortalConfig              portalConfig;
+
+  private SpaceTemplateService      spaceTemplateService;
 
   @Before
   public void init() {
@@ -121,7 +120,6 @@ public class SpaceTemplateServiceTest {
                                                     navigationService,
                                                     listenerService,
                                                     userAcl,
-                                                    spacesAdministrationService,
                                                     spaceTemplateStorage);
   }
 
@@ -270,7 +268,9 @@ public class SpaceTemplateServiceTest {
   }
 
   private void setCanManageTemplate(boolean hasAccess) {
-    when(spacesAdministrationService.isSuperManager(TEST_USER)).thenReturn(hasAccess);
+    Identity identity = mock(Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER)).thenReturn(identity);
+    when(userAcl.isAdministrator(identity)).thenReturn(hasAccess);
   }
 
   private SpaceTemplate newSpaceTemplate(long id) {
@@ -284,12 +284,13 @@ public class SpaceTemplateServiceTest {
                              true,
                              "layout",
                              Arrays.asList(CREATE_AND_ACCESS_PERMISSIONS),
+                             Arrays.asList(ADMIN_PERMISSIONS),
                              Arrays.asList(SPACE_LAYOUT_PERMISSIONS),
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
-                             Visibility.PRIVATE,
-                             Registration.VALIDATION,
+                             SpaceVisibility.PRIVATE,
+                             SpaceRegistration.VALIDATION,
                              true);
   }
 

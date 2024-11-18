@@ -56,10 +56,6 @@ export default {
       type: String,
       default: null,
     },
-    appId: {
-      type: String,
-      default: null,
-    },
   },
   data: () => ({
     keyword: null,
@@ -83,4 +79,3 @@ export default {
   },
 };
 </script>
-

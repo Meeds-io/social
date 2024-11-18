@@ -18,38 +18,29 @@
  */
 package io.meeds.social.authorization;
 
-import java.util.List;
 import java.util.stream.Stream;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-
-import io.meeds.social.space.template.model.SpaceTemplate;
-import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import lombok.Setter;
 
 public class AuthorizationManager extends UserACL {
 
   @Setter
-  private SpacesAdministrationService spacesAdministrationService;
+  private SpaceService  spaceService;
 
   @Setter
-  private SpaceService                spaceService;
-
-  @Setter
-  private SpaceTemplateService        spaceTemplateService;
+  private LayoutService layoutService;
 
   public AuthorizationManager(InitParams params) {
     super(params);
@@ -58,40 +49,39 @@ public class AuthorizationManager extends UserACL {
   @Override
   public boolean hasEditPermission(Identity identity, String ownerType, String ownerId, String expression) {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
-      SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplateByLayout(ownerId);
-      return spaceTemplate == null ? isAdministrator(identity) : !spaceTemplate.isSystem() && isSpacesAdministrator(identity);
+      return isAdministrator(identity);
     } else if (isSpaceSite(ownerType, ownerId)) {
       Space space = getSpaceService().getSpaceByGroupId(ownerId);
       return space != null
              && identity != null
              && getSpaceService().canManageSpaceLayout(space, identity.getUserId());
     }
-    return isSpacesAdministrator(identity, ownerType, ownerId)
-           || super.hasEditPermission(identity, ownerType, ownerId, expression);
+    return super.hasEditPermission(identity, ownerType, ownerId, expression)
+           || isSpacesAdministrator(identity, ownerType, ownerId);
   }
 
   @Override
   public boolean hasAccessPermission(Identity identity, String ownerType, String ownerId, Stream<String> expressionsStream) {
     if (PortalConfig.GROUP_TEMPLATE.equalsIgnoreCase(ownerType)) {
-      SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplateByLayout(ownerId);
-      return spaceTemplate == null ? isAdministrator(identity) : isSpacesAdministrator(identity);
+      return isAdministrator(identity);
+    } else {
+      return super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream)
+             || isSpacesAdministrator(identity, ownerType, ownerId);
     }
-    return isSpacesAdministrator(identity, ownerType, ownerId)
-           || super.hasAccessPermission(identity, ownerType, ownerId, expressionsStream);
   }
 
   private boolean isSpacesAdministrator(Identity identity, String ownerType, String ownerId) {
-    return isSpaceSite(ownerType, ownerId) && isSpacesAdministrator(identity);
-  }
-
-  private boolean isSpacesAdministrator(Identity identity) {
     if (isAdministrator(identity)) {
       return true;
+    } else if (isSpaceSite(ownerType, ownerId)) {
+      return getSpaceService().isSuperManager(getSpaceService().getSpaceByGroupId(ownerId), identity.getUserId());
+    } else if (isSpacePublicSite(ownerType, ownerId)) {
+      Space space = getSpaceService().getSpaceById(getSpaceIdFromPublicSite(ownerType, ownerId));
+      return space != null
+             && identity != null
+             && getSpaceService().canManageSpacePublicSite(space, identity.getUserId());
     } else {
-      List<MembershipEntry> spacesAdministrators = getSpacesAdministrationService().getSpacesAdministratorsMemberships();
-      return CollectionUtils.isNotEmpty(spacesAdministrators)
-             && spacesAdministrators.stream()
-                                    .anyMatch(permission -> isMemberOf(identity, permission.toString()));
+      return false;
     }
   }
 
@@ -100,11 +90,14 @@ public class AuthorizationManager extends UserACL {
            && StringUtils.startsWith(ownerId, SpaceUtils.SPACE_GROUP_PREFIX);
   }
 
-  private SpacesAdministrationService getSpacesAdministrationService() {
-    if (spacesAdministrationService == null) {
-      spacesAdministrationService = ExoContainerContext.getService(SpacesAdministrationService.class);
-    }
-    return spacesAdministrationService;
+  private String getSpaceIdFromPublicSite(String ownerType, String ownerId) {
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(ownerType, ownerId);
+    return portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID);
+  }
+
+  private boolean isSpacePublicSite(String ownerType, String ownerId) {
+    PortalConfig portalConfig = getLayoutService().getPortalConfig(ownerType, ownerId);
+    return portalConfig != null && portalConfig.getProperty(SpaceUtils.PUBLIC_SITE_SPACE_ID) != null;
   }
 
   private SpaceService getSpaceService() {
@@ -114,10 +107,11 @@ public class AuthorizationManager extends UserACL {
     return spaceService;
   }
 
-  public SpaceTemplateService getSpaceTemplateService() {
-    if (spaceTemplateService == null) {
-      spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
+  private LayoutService getLayoutService() {
+    if (layoutService == null) {
+      layoutService = ExoContainerContext.getService(LayoutService.class);
     }
-    return spaceTemplateService;
+    return layoutService;
   }
+
 }

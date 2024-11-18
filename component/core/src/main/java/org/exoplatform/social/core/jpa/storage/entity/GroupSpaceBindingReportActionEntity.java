@@ -32,7 +32,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
@@ -42,24 +41,37 @@ import jakarta.persistence.TemporalType;
 
 @Entity(name = "SocGroupSpaceBindingReportAction")
 @Table(name = "SOC_GROUP_SPACE_BINDING_REPORT_ACTION")
-@NamedQueries({
-    @NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
-        + " WHERE report.groupSpaceBindingId = :bindingId AND report.action = :action "),
-    @NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperations",
-        query = "SELECT NEW org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport("
-            + " report.space.id,"
-            + " report.group,"
-            + " report.action,"
-            + " report.groupSpaceBindingId,"
-            + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_ADD_USER+"' then 1 else 0 end) as COUNT_ADD,"
-            + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_REMOVE_USER+"' AND reportUsers.stillInSpace = false then 1 else 0 end) as COUNT_REMOVED,"
-            + " report.startDate,"
-            + " report.endDate)"
-            + " FROM SocGroupSpaceBindingReportAction as report "
-            + " LEFT JOIN report.bindingReportUserEntities reportUsers"
-            + " GROUP BY report.id "
-            + " ORDER BY report.endDate DESC NULLS FIRST")}
-)
+@NamedQuery(name = "SocGroupSpaceBindingReportAction.findGroupSpaceBindingReportAction", query = "SELECT report FROM SocGroupSpaceBindingReportAction report "
+    + " WHERE report.groupSpaceBindingId = :bindingId AND report.action = :action ")
+@NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperations",
+query = "SELECT NEW org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport("
+    + " report.space.id,"
+    + " report.group,"
+    + " report.action,"
+    + " report.groupSpaceBindingId,"
+    + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_ADD_USER+"' then 1 else 0 end) as COUNT_ADD,"
+    + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_REMOVE_USER+"' AND reportUsers.stillInSpace = false then 1 else 0 end) as COUNT_REMOVED,"
+    + " report.startDate,"
+    + " report.endDate)"
+    + " FROM SocGroupSpaceBindingReportAction as report "
+    + " LEFT JOIN report.bindingReportUserEntities reportUsers"
+    + " GROUP BY report.id "
+    + " ORDER BY report.endDate DESC NULLS FIRST")
+@NamedQuery(name = "SocGroupSpaceBindingReportAction.getGroupSpaceBindingReportOperationsBySpaceId",
+    query = "SELECT NEW org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport("
+        + " report.space.id,"
+        + " report.group,"
+        + " report.action,"
+        + " report.groupSpaceBindingId,"
+        + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_ADD_USER+"' then 1 else 0 end) as COUNT_ADD,"
+        + " SUM(case when reportUsers.action = '"+ GroupSpaceBindingReportUser.ACTION_REMOVE_USER+"' AND reportUsers.stillInSpace = false then 1 else 0 end) as COUNT_REMOVED,"
+        + " report.startDate,"
+        + " report.endDate)"
+        + " FROM SocGroupSpaceBindingReportAction as report "
+        + " LEFT JOIN report.bindingReportUserEntities reportUsers"
+        + " WHERE report.space.id = :spaceId"
+        + " GROUP BY report.id "
+        + " ORDER BY report.endDate DESC NULLS FIRST")
 public class GroupSpaceBindingReportActionEntity implements Serializable {
   @Id
   @SequenceGenerator(name = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", sequenceName = "SEQ_SOC_GROUP_SPACE_BINDING_REPORT_ACTION_ID", allocationSize = 1)

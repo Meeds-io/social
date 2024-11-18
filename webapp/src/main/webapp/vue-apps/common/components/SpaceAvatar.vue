@@ -15,16 +15,17 @@
         class="my-auto">
         <img
           :src="defaultAvatarUrl"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
       <div
         v-if="fullname || !isMobile"
-        :class="subtitleNewLineClass"
-        class="pull-left text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="pull-left ms-2">
         <p
-          class="text-truncate my-auto hidden-space">
+          :class="textTruncateClass"
+          class="my-auto hidden-space">
           {{ $t('spacesList.label.hiddenSpace') }}
         </p>
       </div>
@@ -35,6 +36,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
@@ -45,9 +47,9 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
     </a>
     <a
@@ -56,15 +58,16 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <div
         v-if="displayName || $slots.subTitle"
-        :class="subtitleNewLineClass"
-        class="text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="ms-2">
         <p
           v-if="displayName"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate  my-auto">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textTruncateClass]"
+          class="my-auto">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle my-auto">
@@ -79,6 +82,7 @@
       v-on="on"
       :id="id"
       :href="url"
+      :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
@@ -89,18 +93,18 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
+          :alt="displayName"
           class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
+          loading="lazy">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"
-        :class="subtitleNewLineClass"
-        class="text-truncate ms-2">
+        :class="[subtitleNewLineClass, textTruncateClass]"
+        class="ms-2">
         <p
           v-if="displayName"
-          :class="[fullnameStyle, linkStyle && 'primary--text' || '']"
-          class="text-truncate my-auto text-body">
+          :class="[fullnameStyle, linkStyle && 'primary--text' || '', textTruncateClass]"
+          class="my-auto text-body">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle my-auto">
@@ -143,6 +147,10 @@ export default {
       type: Boolean,
       default: () => false,
     },
+    linkTarget: {
+      type: String,
+      default: () => '_self',
+    },
     smallFontSize: {
       type: Boolean,
       default: () => false,
@@ -167,6 +175,10 @@ export default {
     extraClass: {
       type: String,
       default: () => '',
+    },
+    textTruncateClass: {
+      type: String,
+      default: () => 'text-truncate',
     },
   },
   data() {
@@ -205,8 +217,7 @@ export default {
       return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
     },
     isSpaceMember() {
-      return eXo.env.portal.isSpacesManager
-        || this.space.isMember
+      return this.space.isMember
         || this.space.canEdit
         || this.space?.members?.includes(eXo.env.portal.userName)
         || this.space?.managers?.includes(eXo.env.portal.userName);

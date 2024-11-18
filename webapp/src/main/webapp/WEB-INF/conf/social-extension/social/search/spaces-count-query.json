@@ -3,8 +3,11 @@
     "bool":{
       @term_query@
       "filter":[
+        @template_query@
         @favorite_query@
         @permissions_query@
+        @visibility_query@
+        @registration_query@
       ]
       @tags_query@
     }

@@ -1120,4 +1120,10 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-121">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="ADMIN_PERMISSIONS" type="NVARCHAR(2000)" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

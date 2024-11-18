@@ -47,6 +47,9 @@
           id="defaultSpacesInput"
           v-model="defaultSpaceIdentities"
           :labels="suggesterLabels"
+          :search-options="{
+            filterType: 'accessible',
+          }"
           name="defaultSpaces"
           height="100"
           include-spaces

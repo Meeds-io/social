@@ -20,8 +20,8 @@ package io.meeds.social.space.template.model;
 
 import java.util.List;
 
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,39 +32,41 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SpaceTemplate implements Cloneable {
 
-  private long         id;
+  private long              id;
 
-  private String       name;
+  private String            name;
 
-  private String       description;
+  private String            description;
 
-  private long         bannerFileId;
+  private long              bannerFileId;
 
-  private String       icon;
+  private String            icon;
 
-  private boolean      enabled;
+  private boolean           enabled;
 
-  private boolean      deleted;
+  private boolean           deleted;
 
-  private boolean      system;
+  private boolean           system;
 
-  private String       layout;
+  private String            layout;
 
-  private List<String> permissions;
+  private List<String>      permissions;
 
-  private List<String> spaceLayoutPermissions;
+  private List<String>      adminPermissions;
 
-  private List<String> spaceDeletePermissions;
+  private List<String>      spaceLayoutPermissions;
 
-  private List<String> spacePublicSitePermissions;
+  private List<String>      spaceDeletePermissions;
 
-  private List<String> spaceFields;
+  private List<String>      spacePublicSitePermissions;
 
-  private Visibility   spaceDefaultVisibility;
+  private List<String>      spaceFields;
 
-  private Registration spaceDefaultRegistration;
+  private SpaceVisibility   spaceDefaultVisibility;
 
-  private boolean      spaceAllowContentCreation;
+  private SpaceRegistration spaceDefaultRegistration;
+
+  private boolean           spaceAllowContentCreation;
 
   @Override
   public SpaceTemplate clone() { // NOSONAR
@@ -78,6 +80,7 @@ public class SpaceTemplate implements Cloneable {
                              system,
                              layout,
                              permissions,
+                             adminPermissions,
                              spaceLayoutPermissions,
                              spaceDeletePermissions,
                              spacePublicSitePermissions,

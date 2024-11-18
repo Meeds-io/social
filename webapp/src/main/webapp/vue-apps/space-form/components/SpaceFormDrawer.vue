@@ -53,9 +53,6 @@
               <input
                 ref="autoFocusInput1"
                 v-model="space.displayName"
-                v-bind="nameIsRequired && {
-                  required: 'required',
-                }"
                 :aria-label="$t('spacesList.label.displayName')"
                 :placeholder="$t('spacesList.label.displayName')"
                 type="text"
@@ -194,9 +191,9 @@
                 v-model="space.invitedMembers"
                 :labels="suggesterLabels"
                 :disabled="savingSpace || spaceSaved"
-                :required="invitationIsRequired"
                 :search-options="{
                   spaceURL: space.prettyName,
+                  filterType: 'accessible',
                 }"
                 name="inviteMembers"
                 type-of-relations="user_to_invite"
@@ -269,8 +266,7 @@ export default {
       return this.savingSpace
         || this.spaceSaved
         || this.stepper < 3 && !this.space.id
-        || (this.space.description?.length || 0) > this.maxDescriptionLength
-        || (this.invitationIsRequired && !this.space.invitedMembers?.length);
+        || (this.space.description?.length || 0) > this.maxDescriptionLength;
     },
     sortedTemplates() {
       const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
@@ -284,12 +280,6 @@ export default {
     },
     spaceTemplate() {
       return this.templates?.find?.(temp => temp.id === this.templateId);
-    },
-    nameIsRequired() {
-      return this.spaceTemplate?.spaceFields?.includes?.('name');
-    },
-    invitationIsRequired() {
-      return this.spaceTemplate?.spaceFields?.includes?.('invitation');
     },
     displayedForm() {
       return this.$refs && this.$refs[`form${this.stepper}`];
@@ -411,7 +401,7 @@ export default {
         return;
       }
       this.spaceToUpdate = space;
-      this.space = Object.assign({}, space);
+      this.space = {...space};
       this.templateId = this.space.templateId;
       this.title = this.$t('spacesList.label.editSpace', { 0: this.space.displayName });
       this.$spaceTemplateService.getSpaceTemplates()

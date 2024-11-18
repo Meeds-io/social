@@ -67,7 +67,7 @@
             1
           </v-card>
           <div class="text-header mx-3">
-            {{ $t('spaceTemplate.mandatoryCreationStep') }}
+            {{ $t('spaceTemplate.creationStep') }}
           </div>
         </v-card>
         <div v-if="step === 1" class="d-flex flex-column mb-4">
@@ -123,10 +123,66 @@
             2
           </v-card>
           <div class="text-header mx-3">
+            {{ $t('spaceTemplate.spaceTemplateManagement') }}
+          </div>
+        </v-card>
+        <div v-if="step === 2" class="mb-4">
+          <space-templates-management-permissions
+            v-model="spaceTemplate.permissions"
+            label="spaceTemplate.permissionsStepCreateSpacePermissionLabel"
+            class="mb-4"
+            users
+            admins />
+          <space-templates-management-permissions
+            v-model="spaceTemplate.adminPermissions"
+            help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
+            help-tooltip="spaceTemplate.permissionsStepSpaceAdminsPermissionTooltip"
+            class="mb-4 font-weight-bold"
+            users
+            admins>
+            <template #helpContent>
+              <div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent1') }}
+                </div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent2') }}
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent3') }}
+                  </div>
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent4') }}
+                  </div>
+                  <div>
+                    {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent5') }}
+                  </div>
+                </div>
+                <div class="mb-2">
+                  {{ $t('spaceTemplate.permissionsStepSpaceAdminsPermissionHelpContent6') }}
+                </div>
+              </div>
+            </template>
+          </space-templates-management-permissions>
+        </div>
+        <v-card
+          v-on="step3Enabled && {
+            click: () => step = 3,
+          }"
+          class="d-flex mb-4"
+          flat>
+          <v-card
+            :class="step > 2 ? 'tertiary' : 'mask-color'"
+            height="24"
+            width="24"
+            class="d-flex align-center justify-center border-radius-circle white--text"
+            flat>
+            3
+          </v-card>
+          <div class="text-header mx-3">
             {{ $t('spaceTemplate.defaultSpaceConfigurationStep') }}
           </div>
         </v-card>
-        <div v-show="step === 2" class="mb-4">
+        <div v-show="step === 3" class="mb-4">
           <div class="d-flex flex-column">
             <span class="mb-4">
               {{ $t('spaceTemplate.defaultSpaceConfigurationStepDescription') }}
@@ -150,34 +206,28 @@
           </div>
         </div>
         <v-card
-          v-on="step3Enabled && {
-            click: () => step = 3,
+          v-on="step4Enabled && {
+            click: () => step = 4,
           }"
           class="d-flex mb-4"
           flat>
           <v-card
-            :class="step > 2 ? 'tertiary' : 'mask-color'"
+            :class="step > 3 ? 'tertiary' : 'mask-color'"
             height="24"
             width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
             flat>
-            3
+            4
           </v-card>
           <div class="text-header mx-3">
-            {{ $t('spaceTemplate.permissionsStep') }}
+            {{ $t('spaceTemplate.spacePermissionsStep') }}
           </div>
         </v-card>
-        <div v-if="step === 3" class="d-flex flex-column mb-4">
+        <div v-if="step === 4" class="d-flex flex-column mb-4">
           <span v-sanitized-html="permissionsStepDescription1" class="mb-2"></span>
           <span class="mb-4">
             {{ $t('spaceTemplate.permissionsStepDescription2') }}
           </span>
-          <space-templates-management-permissions
-            v-model="spaceTemplate.permissions"
-            label="spaceTemplate.permissionsStepCreateSpacePermissionLabel"
-            class="mb-4"
-            users
-            admins />
           <space-templates-management-permissions
             v-model="spaceTemplate.spaceLayoutPermissions"
             label="spaceTemplate.permissionsStepEditSpaceLayoutPermissionLabel"
@@ -216,15 +266,15 @@
           {{ $t('spaceTemplate.cancel') }}
         </v-btn>
         <v-btn
-          v-if="step < 3"
-          :disabled="disabledFirstStep"
+          v-if="step < 4"
+          :disabled="disabledNextStep"
           :loading="saving"
           class="btn primary"
           @click="step++">
           {{ $t('spaceTemplate.next') }}
         </v-btn>
         <v-btn
-          v-else-if="step > 2"
+          v-else-if="step > 3"
           :disabled="disabled"
           :loading="saving"
           class="btn primary"
@@ -285,6 +335,22 @@ export default {
     },
     step3Enabled() {
       return this.step2Enabled;
+    },
+    step4Enabled() {
+      return this.step3Enabled;
+    },
+    disabledNextStep() {
+      if (this.step === 1) {
+        return this.disabledFirstStep;
+      } else if (this.step === 2) {
+        return !this.step2Enabled;
+      } else if (this.step === 3) {
+        return !this.step3Enabled;
+      } else if (this.step === 4) {
+        return !this.step4Enabled;
+      } else {
+        return false;
+      }
     },
     modified() {
       return this.isNew

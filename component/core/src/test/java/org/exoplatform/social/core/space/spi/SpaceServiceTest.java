@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
+import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.organization.Group;
@@ -65,7 +66,6 @@ import org.exoplatform.social.core.model.SpaceExternalInvitation;
 import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceUtils;
-import org.exoplatform.social.core.space.SpacesAdministrationService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
@@ -73,124 +73,126 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.service.SpaceLayoutService;
+import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
+import io.meeds.social.space.template.storage.SpaceTemplateStorage;
+import io.meeds.social.space.template.utils.EntityMapper;
 
 import lombok.SneakyThrows;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
-  private static final String           EXTERNAL3_USER_EMAIL         = "external3@external3.com";
+  private static final String EXTERNAL3_USER_EMAIL         = "external3@external3.com";
 
-  private static final String           EXTERNAL2_USER_EMAIL         = "external2@external2.com";
+  private static final String EXTERNAL2_USER_EMAIL         = "external2@external2.com";
 
-  private static final String           EXTERNAL1_USER_EMAIL         = "external1@external1.com";
+  private static final String EXTERNAL1_USER_EMAIL         = "external1@external1.com";
 
-  private static final String           EXTERNAL_USER_EMAIL          = "external@external.com";
+  private static final String EXTERNAL_USER_EMAIL          = "external@external.com";
 
-  private static final String           OTHER_USER_NAME              = "otherUser";
+  private static final String OTHER_USER_NAME              = "otherUser";
 
-  private static final String           MY_SPACE_0_PRETTY_NAME       = "my_space_0";
+  private static final String MY_SPACE_0_PRETTY_NAME       = "my_space_0";
 
-  private static final String           MY_SPACE_DISPLAY_NAME_PREFIX = "my space ";
+  private static final String MY_SPACE_DISPLAY_NAME_PREFIX = "my space ";
 
-  private static final String           TEST_SPACE_DESCRIPTION       = "Space Description for Testing";
+  private static final String TEST_SPACE_DESCRIPTION       = "Space Description for Testing";
 
-  private static final String           TEST_SPACE_DISPLAY_NAME      = "testSpace";
+  private static final String TEST_SPACE_DISPLAY_NAME      = "testSpace";
 
-  private static final String           SPACES_GROUP_PREFIX          = "/spaces/";
+  private static final String SPACES_GROUP_PREFIX          = "/spaces/";
 
-  private static final String           SPACE_DESCRIPTION            = "add new space ";
+  private static final String SPACE_DESCRIPTION            = "add new space ";
 
-  private static final String           SPACE2_DISPLAY_NAME          = "Space2";
+  private static final String SPACE2_DISPLAY_NAME          = "Space2";
 
-  private static final String           SPACE1_DISPLAY_NAME          = "Space1";
+  private static final String SPACE1_DISPLAY_NAME          = "Space1";
 
-  private static final String           SPACE1_NAME                  = "space1";
+  private static final String SPACE1_NAME                  = "space1";
 
-  private static final String           JAMES_NAME                   = "james";
+  private static final String JAMES_NAME                   = "james";
 
-  private static final String           PLATFORM_ADMINISTRATORS      = "/platform/administrators";
+  private static final String PLATFORM_ADMINISTRATORS      = "/platform/administrators";
 
-  private static final String           MEMBER3_NAME                 = "member3";
+  private static final String MEMBER3_NAME                 = "member3";
 
-  private static final String           NEW_PENDING_USER_NAME        = "newPendingUser";
+  private static final String NEW_PENDING_USER_NAME        = "newPendingUser";
 
-  private static final String           NEW_INVITED_USER_NAME        = "newInvitedUser";
+  private static final String NEW_INVITED_USER_NAME        = "newInvitedUser";
 
-  private static final String           HEAR_BREAKER_NAME            = "hearBreaker";
+  private static final String HEAR_BREAKER_NAME            = "hearBreaker";
 
-  private static final String           PAUL_NAME                    = "paul";
+  private static final String PAUL_NAME                    = "paul";
 
-  private static final String           JAME_NAME                    = "jame";
+  private static final String JAME_NAME                    = "jame";
 
-  private static final String           ROOT_NAME                    = "root";
+  private static final String ROOT_NAME                    = "root";
 
-  private static final String           JOHN_NAME                    = "john";
+  private static final String JOHN_NAME                    = "john";
 
-  private static final String           MARY_NAME                    = "mary";
+  private static final String MARY_NAME                    = "mary";
 
-  private static final String           REGISTER1_NAME               = "register1";
+  private static final String REGISTER1_NAME               = "register1";
 
-  private static final String           DRAGON_NAME                  = "dragon";
+  private static final String DRAGON_NAME                  = "dragon";
 
-  private static final String           GHOST_NAME                   = "ghost";
+  private static final String GHOST_NAME                   = "ghost";
 
-  private static final String           RAUL_NAME                    = "raul";
+  private static final String RAUL_NAME                    = "raul";
 
-  private static final String           TOM_NAME                     = "tom";
+  private static final String TOM_NAME                     = "tom";
 
-  private static final String           DEMO_NAME                    = "demo";
+  private static final String DEMO_NAME                    = "demo";
 
-  private static final String           USER_DOT_NEW_NAME            = "user.new";
+  private static final String USER_DOT_NEW_NAME            = "user.new";
 
-  private static final String           USER_NEW_1_NAME              = "user-new.1";
+  private static final String USER_NEW_1_NAME              = "user-new.1";
 
-  private static final String           USER_NEW_NAME                = "user-new";
+  private static final String USER_NEW_NAME                = "user-new";
 
-  private static final String           MEMBER2_NAME                 = "member2";
+  private static final String MEMBER2_NAME                 = "member2";
 
-  private static final String           MEMBER1_NAME                 = "member1";
+  private static final String MEMBER1_NAME                 = "member1";
 
-  private static final String           MANAGER_NAME                 = "manager";
+  private static final String MANAGER_NAME                 = "manager";
 
-  private static final String           HACKER_NAME                  = "hacker";
+  private static final String HACKER_NAME                  = "hacker";
 
-  private static final String           EXTERNAL_USER_NAME           = "externalUser";
+  private static final String EXTERNAL_USER_NAME           = "externalUser";
 
-  private IdentityStorage               identityStorage;
+  private IdentityStorage     identityStorage;
 
-  private OrganizationService           organizationService;
+  private OrganizationService organizationService;
 
-  protected SpacesAdministrationService spacesAdministrationService;
+  private SpaceLayoutService  spaceLayoutService;
 
-  protected SpaceLayoutService          spaceLayoutService;
+  private Identity            tom;
 
-  private Identity                      tom;
+  private Identity            dragon;
 
-  private Identity                      dragon;
+  private Identity            john;
 
-  private Identity                      john;
+  private Identity            mary;
 
-  private Identity                      mary;
+  private Identity            root;
 
-  private Identity                      root;
+  private Identity            hearBreaker;
 
-  private Identity                      hearBreaker;
+  private Identity            newInvitedUser;
 
-  private Identity                      newInvitedUser;
+  private Identity            newPendingUser;
 
-  private Identity                      newPendingUser;
-
-  private Identity                      externalUser;
+  private Identity            externalUser;
 
   @Override
   public void setUp() throws Exception {
     super.setUp();
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
-    spacesAdministrationService = getContainer().getComponentInstanceOfType(SpacesAdministrationService.class);
     spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
 
     Identity userNew = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_NAME);
@@ -256,6 +258,236 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("allSpaces.load(0, count).length must return: " + count, count, allSpaces.load(0, count).length);
   }
 
+  public void testGetVisibleSpacesWithSpaceTemplateAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(TOM_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(null, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+  }
+
+  public void testGetMemberSpacesWithSpaceTemplateAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getMemberSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getMemberSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getMemberSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetAccessibleSpacesWithSpaceTemplateAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getAccessibleSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getAccessibleSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(2, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getAccessibleSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getAccessibleSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetManagerSpacesWithSpaceTemplateAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      } else {
+        spaceService.setManager(space, TOM_NAME, false);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getManagerSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getManagerSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(3, allSpaces.getSize());
+
+    allSpaces = spaceService.getManagerSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetEditableSpacesWithSpaceTemplateAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      } else {
+        spaceService.setManager(space, TOM_NAME, false);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getEditableSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getEditableSpacesByFilter(TOM_NAME, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+
+    firstSpace.setVisibility(Space.HIDDEN); // NOSONAR
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getEditableSpacesByFilter(DEMO_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    allSpaces = spaceService.getEditableSpacesByFilter(null, new SpaceFilter());
+    assertEquals(0, allSpaces.getSize());
+  }
+
+  public void testGetVisibleSpacesByRegistration() throws Exception {
+    int count = 5;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        space.setRegistration(Space.OPEN);
+        spaceService.updateSpace(space);
+      } else if (i % 2 == 0) {
+        space.setRegistration(Space.VALIDATION);
+        spaceService.updateSpace(space);
+      } else {
+        space.setRegistration(Space.CLOSED);
+        spaceService.updateSpace(space);
+      }
+    }
+    SpaceFilter spaceFilter = new SpaceFilter();
+    spaceFilter.setRegistration(SpaceRegistration.CLOSED);
+    ListAccess<Space> allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(2, allSpaces.getSize());
+
+    spaceFilter.setRegistration(SpaceRegistration.VALIDATION);
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(TOM_NAME, spaceFilter);
+    assertEquals(2, allSpaces.getSize());
+
+    spaceFilter.setRegistration(SpaceRegistration.OPEN);
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(TOM_NAME, spaceFilter);
+    assertEquals(1, allSpaces.getSize());
+  }
+
+  public void testGetVisibleSpacesByVisibility() throws Exception {
+    int count = 5;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i % 2 == 0) {
+        space.setVisibility(Space.PRIVATE);
+        spaceService.updateSpace(space);
+      } else {
+        space.setVisibility(Space.HIDDEN);
+        spaceService.updateSpace(space);
+      }
+    }
+    SpaceFilter spaceFilter = new SpaceFilter();
+    spaceFilter.setVisibility(SpaceVisibility.HIDDEN);
+    ListAccess<Space> allSpaces = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(2, allSpaces.getSize());
+
+    spaceFilter.setVisibility(SpaceVisibility.PRIVATE);
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(TOM_NAME, spaceFilter);
+    assertEquals(3, allSpaces.getSize());
+  }
+
   public void testGetSpaceMembershipDate() {
     Space space = populateData();
     assertNotNull(spaceService.getSpaceMembershipDate(Long.parseLong(space.getId()), ROOT_NAME));
@@ -303,6 +535,22 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(EntityConverterUtils.DEFAULT_AVATAR, avatarFile.getFileInfo().getName());
     profile = identityStorage.loadProfile(profile);
     assertTrue(profile.isDefaultAvatar());
+  }
+
+  public void testGetSpacesWithExcludedIds() throws Exception {
+    SpaceFilter spaceFilter = new SpaceFilter();
+    ArrayList<Long> excludedIds = new ArrayList<>();
+    for (int i = 0; i < 6; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i % 2 == 0) {
+        excludedIds.add(Long.parseLong(space.getId()));
+      }
+    }
+    ListAccess<Space> spaces = spaceService.getAllSpacesByFilter(spaceFilter);
+    int size = spaces.getSize();
+    spaceFilter.setExcludedIds(excludedIds);
+    spaces = spaceService.getAllSpacesByFilter(spaceFilter);
+    assertEquals(size - 3, spaces.getSize());
   }
 
   public void testUpdateSpaceAvatar() throws IOException {
@@ -838,7 +1086,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
   public void testCreateSpaceExceedingNameLimit() {
     Space space = new Space();
     String spaceDisplayName =
-        "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
+                            "zzz0123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920012345679101112131415161718192001234567910111213141516171819200123456791011121314151617181920";
     space.setDisplayName(spaceDisplayName);
     space.setRegistration(Space.OPEN);
     space.setDescription(SPACE_DESCRIPTION);
@@ -858,29 +1106,15 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
   }
 
-  public void testCreateSpaceWithNoNameWhenSpaceTemplateAllowsIt() throws ObjectNotFoundException {
-    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
-    List<String> originalSpaceFields = spaceTemplate.getSpaceFields();
-
-    try {
-      Space space = new Space();
-      space.setRegistration(Space.OPEN);
-      space.setDescription(SPACE_DESCRIPTION);
-      space.setVisibility(Space.PUBLIC);
-      space.setRegistration(Space.VALIDATION);
-      assertThrows(SpaceException.class, () -> spaceService.createSpace(space, ROOT_NAME));
-
-      spaceTemplate.setSpaceFields(Collections.singletonList("invitation"));
-      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
-
-      Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
-      assertNotNull(createdSpace);
-      assertEquals("Dragon Ball", createdSpace.getDisplayName());
-    } finally {
-      spaceTemplate.setSpaceFields(originalSpaceFields);
-      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
-    }
+  public void testCreateSpaceWithNoName() {
+    Space space = new Space();
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(createdSpace);
+    assertEquals("Dragon Ball", createdSpace.getDisplayName());
   }
 
   public void testCreateSpaceWithTemplateCharacteristics() throws ObjectNotFoundException, SpaceException {
@@ -903,6 +1137,46 @@ public class SpaceServiceTest extends AbstractCoreTest {
       assertEquals(SpaceUtils.MANAGER + ":" + createdSpace.getGroupId(), createdSpace.getPublicSitePermissions().get(0));
     } finally {
       spaceTemplate.setSpaceFields(originalSpaceFields);
+      spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+    }
+  }
+
+  public void testIsSuperManagerBySpaceTemplate() throws ObjectNotFoundException {
+    Space raulSpace = createSpace("raulSpace", RAUL_NAME);
+    Space rootSpace = createSpace("rootSpace", ROOT_NAME);
+    assertFalse(spaceService.isSuperManager(rootSpace.getSpaceId(), RAUL_NAME));
+
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    List<String> originalSpaceAdminPermissions = spaceTemplate.getAdminPermissions();
+    spaceTemplate.setAdminPermissions(Collections.singletonList(raulSpace.getGroupId()));
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+    try {
+      assertFalse(spaceService.isSuperManager(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canManageSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canDeleteSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canManageSpaceLayout(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canPublishOnSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canRedactOnSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.canViewSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isMember(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isManager(rootSpace, RAUL_NAME));
+
+      restartTransaction();
+      rootSpace = spaceService.getSpaceById(rootSpace.getSpaceId());
+      rootSpace.setTemplateId(spaceTemplate.getId());
+
+      assertTrue(spaceService.isSuperManager(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canManageSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canDeleteSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canManageSpaceLayout(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canPublishOnSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canRedactOnSpace(rootSpace, RAUL_NAME));
+      assertTrue(spaceService.canViewSpace(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isMember(rootSpace, RAUL_NAME));
+      assertFalse(spaceService.isManager(rootSpace, RAUL_NAME));
+    } finally {
+      spaceTemplate.setAdminPermissions(originalSpaceAdminPermissions);
       spaceTemplateService.updateSpaceTemplate(spaceTemplate);
     }
   }
@@ -1819,17 +2093,11 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse(spaceService.isSuperManager(username));
 
     // Create Super managers group
-    Group group = organizationService.getGroupHandler().createGroupInstance();
-    group.setGroupName("space-managers");
-    organizationService.getGroupHandler().addChild(null, group, true);
-    MembershipType msType = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
-    msType.setName("test-ms");
-    organizationService.getMembershipTypeHandler().createMembershipType(msType, true);
-    // Add user to super managers
+    Group group = organizationService.getGroupHandler().findGroupById(PLATFORM_ADMINISTRATORS);
+    MembershipType msType = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MANAGER);
     organizationService.getMembershipHandler().linkMembership(superManager, group, msType, true);
-    // Register group as super administrators
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/space-managers",
-                                                                                                        "test-ms")));
+    restartTransaction();
+
     assertTrue(spaceService.isSuperManager(username));
 
     Space space = createSpace("spacename1", ROOT_NAME);
@@ -1922,21 +2190,14 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     User user = organizationService.getUserHandler().createUserInstance("user-space-admin");
     organizationService.getUserHandler().createUser(user, false);
-    Group group = organizationService.getGroupHandler().createGroupInstance();
-    group.setGroupName("testgroup");
-    organizationService.getGroupHandler().addChild(null, group, true);
-    MembershipType mstype = organizationService.getMembershipTypeHandler().createMembershipTypeInstance();
-    mstype.setName("mstypetest");
-    organizationService.getMembershipTypeHandler().createMembershipType(mstype, true);
-
+    Group group = organizationService.getGroupHandler().findGroupById(PLATFORM_ADMINISTRATORS);
+    MembershipType mstype = organizationService.getMembershipTypeHandler().findMembershipType(SpaceUtils.MANAGER);
     organizationService.getMembershipHandler().linkMembership(user, group, mstype, true);
+    restartTransaction();
 
     String userName = user.getUserName();
 
     assertEquals(6, spaceService.getAllSpacesWithListAccess().getSize());
-    assertFalse(spaceService.isSuperManager(userName));
-    spacesAdministrationService.updateSpacesAdministratorsMemberships(Arrays.asList(new MembershipEntry("/testgroup",
-                                                                                                        "mstypetest")));
     assertTrue(spaceService.isSuperManager(userName));
   }
 
@@ -2192,4 +2453,24 @@ public class SpaceServiceTest extends AbstractCoreTest {
     return organizationService.getMembershipHandler().removeMembership(m.getId(), true);
   }
 
+  private SpaceTemplate mockSpaceTemplate() throws ObjectNotFoundException {
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplateStorage spaceTemplateStorage = getService(SpaceTemplateStorage.class);
+    SpaceTemplateDAO spaceTemplateDao = new SpaceTemplateDAO();
+
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    if (spaceTemplateDao.find(spaceTemplate.getId()) == null) {
+      SpaceTemplateEntity spaceTemplateEntity = EntityMapper.toEntity(spaceTemplate);
+      spaceTemplateEntity.setId(null);
+      spaceTemplateEntity = spaceTemplateDao.create(spaceTemplateEntity);
+      if (spaceTemplate.getId() != spaceTemplateEntity.getId()) {
+        spaceTemplate.setId(spaceTemplateEntity.getId());
+        spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
+      }
+    }
+    return spaceTemplate;
+  }
+
+  public static class SpaceTemplateDAO extends GenericDAOJPAImpl<SpaceTemplateEntity, Long> {
+  }
 }

@@ -54,8 +54,8 @@ import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
 import org.exoplatform.upload.UploadResource;
 
 import io.meeds.common.ContainerTransactional;
-import io.meeds.social.space.constant.Registration;
-import io.meeds.social.space.constant.Visibility;
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPlugin;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPlugin;
@@ -211,8 +211,8 @@ public class SpaceTemplateImportService {
     spaceTemplate.setSpaceLayoutPermissions(d.getSpaceLayoutPermissions());
     spaceTemplate.setSpacePublicSitePermissions(d.getSpacePublicSitePermissions());
     spaceTemplate.setSpaceDeletePermissions(d.getSpaceDeletePermissions());
-    spaceTemplate.setSpaceDefaultRegistration(Registration.valueOf(d.getSpaceDefaultRegistration().toUpperCase()));
-    spaceTemplate.setSpaceDefaultVisibility(Visibility.valueOf(d.getSpaceDefaultVisibility().toUpperCase()));
+    spaceTemplate.setSpaceDefaultRegistration(SpaceRegistration.valueOf(d.getSpaceDefaultRegistration().toUpperCase()));
+    spaceTemplate.setSpaceDefaultVisibility(SpaceVisibility.valueOf(d.getSpaceDefaultVisibility().toUpperCase()));
     spaceTemplate.setSpaceAllowContentCreation(d.isSpaceAllowContentCreation());
     if (isNew) {
       return spaceTemplateStorage.createSpaceTemplate(spaceTemplate);
