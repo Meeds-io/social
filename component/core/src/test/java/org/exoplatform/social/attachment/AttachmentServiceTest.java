@@ -66,6 +66,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
   private static final String   OBJECT_TYPE          = "objectType";
 
+  private static final String   DEST_OBJECT_TYPE     = "destinationObjectType";
+
   private static final Random   RANDOM               = new Random();
 
   private Map<String, Long>     eventCounts          = new HashMap<>();
@@ -388,6 +390,51 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(deletedCount, eventCounts.getOrDefault(ATTACHMENT_DELETED_EVENT, 0l).longValue());
     assertEquals(updatedListCount, eventCounts.getOrDefault(ATTACHMENTS_UPDATED_EVENT, 0l).longValue());
     assertEquals(deletedListCount, eventCounts.getOrDefault(ATTACHMENTS_DELETED_EVENT, 0l).longValue());
+  }
+
+  public void testMoveAttachments() throws Exception { // NOSONAR
+    startSessionAndRegisterAs(USERNAME);
+    String identityId = identityManager.getOrCreateUserIdentity(USERNAME).getId();
+    String fileId = createAttachment(USERNAME);
+
+    String destinationObjectId = "destinationObjectId" + System.currentTimeMillis();
+    String destinationParentObjectId = null;
+
+    attachmentService.moveAttachments(OBJECT_TYPE, objectId, DEST_OBJECT_TYPE, destinationObjectId, destinationParentObjectId, Long.parseLong(identityId));
+
+    // Verify the attachments are moved to the destination object
+    ObjectAttachmentList destinationObjectAttachmentList = attachmentService.getAttachments(DEST_OBJECT_TYPE, destinationObjectId);
+    assertNotNull(destinationObjectAttachmentList);
+    assertEquals(1, destinationObjectAttachmentList.getAttachments().size());
+    assertEquals(fileId, destinationObjectAttachmentList.getAttachments().get(0).getId());
+
+    // Verify the attachments are removed from the source object
+    ObjectAttachmentList sourceObjectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
+    assertNotNull(sourceObjectAttachmentList);
+    assertEquals(0, sourceObjectAttachmentList.getAttachments().size());
+  }
+
+  public void testCopyAttachments() throws Exception { // NOSONAR
+    startSessionAndRegisterAs(USERNAME);
+    String identityId = identityManager.getOrCreateUserIdentity(USERNAME).getId();
+    String fileId = createAttachment(USERNAME);
+
+    String destinationObjectId = "destinationObjectId" + System.currentTimeMillis();
+    String destinationParentObjectId = null;
+
+    attachmentService.copyAttachments(OBJECT_TYPE, objectId, DEST_OBJECT_TYPE, destinationObjectId, destinationParentObjectId, Long.parseLong(identityId));
+
+    // Verify the attachments are copied to the destination object
+    ObjectAttachmentList destinationObjectAttachmentList = attachmentService.getAttachments(DEST_OBJECT_TYPE, destinationObjectId);
+    assertNotNull(destinationObjectAttachmentList);
+    assertEquals(1, destinationObjectAttachmentList.getAttachments().size());
+    assertEquals(fileId, destinationObjectAttachmentList.getAttachments().get(0).getId());
+
+    // Verify the attachments are still present in the source object
+    ObjectAttachmentList sourceObjectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
+    assertNotNull(sourceObjectAttachmentList);
+    assertEquals(1, sourceObjectAttachmentList.getAttachments().size());
+    assertEquals(fileId, destinationObjectAttachmentList.getAttachments().get(0).getId());
   }
 
 }

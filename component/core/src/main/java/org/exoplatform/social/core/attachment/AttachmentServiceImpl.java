@@ -59,7 +59,11 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceImpl implements AttachmentService {
 
-  private static final Log                    LOG               = ExoLogger.getLogger(AttachmentServiceImpl.class);
+  private static final Log                    LOG                 = ExoLogger.getLogger(AttachmentServiceImpl.class);
+
+  private static final String                 ATTACHMENT_ALT_TEXT = "alt";
+
+  private static final String                 ATTACHMENT_FORMAT   = "format";
 
   private final Map<String, AttachmentPlugin> attachmentPlugins = new HashMap<>();
 
@@ -163,8 +167,8 @@ public class AttachmentServiceImpl implements AttachmentService {
     String altText = uploadedAttachmentDetail.getAltText();
     String format = uploadedAttachmentDetail.getFormat();
     Map<String, String> properties = new HashMap<>();
-    properties.put("alt", altText);
-    properties.put("format", format);
+    properties.put(ATTACHMENT_ALT_TEXT, altText);
+    properties.put(ATTACHMENT_FORMAT, format);
 
     Long attachmentId =
                       !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ?
@@ -187,6 +191,7 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                            userIdentityId);
         if (attachmentId == null) {
           createAttachment(fileId, objectType, objectId, parentObjectId, userIdentityId, properties);
+          uploadedAttachmentDetail.setId(fileId);
         } else {
           updateAttachment(fileId, objectType, objectId, userIdentityId, properties);
         }
@@ -254,10 +259,10 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                                                                          0,
                                                                                                          0);
         if (CollectionUtils.isNotEmpty(attachmentItem) && attachmentItem.get(0).getProperties() != null
-            && attachmentItem.get(0).getProperties().containsKey("alt")) {
+            && attachmentItem.get(0).getProperties().containsKey(ATTACHMENT_ALT_TEXT)) {
           Map<String, String> metadataItemProperties = attachmentItem.get(0).getProperties();
-          attachment.setAltText(metadataItemProperties.get("alt"));
-          attachment.setFormat(metadataItemProperties.get("format"));
+          attachment.setAltText(metadataItemProperties.get(ATTACHMENT_ALT_TEXT));
+          attachment.setFormat(metadataItemProperties.get(ATTACHMENT_FORMAT));
         }
       });
     }
@@ -320,6 +325,82 @@ public class AttachmentServiceImpl implements AttachmentService {
   public boolean hasEditPermission(Identity userIdentity, String objectType, String objectId) throws ObjectNotFoundException {
     AttachmentPlugin attachmentPlugin = this.attachmentPlugins.get(objectType);
     return attachmentPlugin != null && attachmentPlugin.hasEditPermission(userIdentity, objectId);
+  }
+
+  @Override
+  public void copyAttachments(String sourceObjectType,
+                              String sourceObjectId,
+                              String destinationObjectType,
+                              String destinationObjectId,
+                              String destinationParentObjectId,
+                              long userIdentityId) {
+    ObjectAttachmentList objectAttachmentList = getAttachments(sourceObjectType, sourceObjectId);
+    List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
+    if (CollectionUtils.isNotEmpty(attachments)) {
+      attachments.forEach(attachment -> {
+        String altText = attachment.getAltText();
+        String format = attachment.getFormat();
+        Map<String, String> properties = new HashMap<>();
+        properties.put(ATTACHMENT_ALT_TEXT, altText);
+        properties.put(ATTACHMENT_FORMAT, format);
+        try {
+          createAttachment(attachment.getId(),
+                           destinationObjectType,
+                           destinationObjectId,
+                           destinationParentObjectId,
+                           userIdentityId,
+                           properties);
+        } catch (Exception e) {
+          LOG.error("Error when creating attachment", e);
+        }
+      });
+    }
+  }
+
+  @Override
+  public void moveAttachments(String sourceObjectType,
+                              String sourceObjectId,
+                              String destinationObjectType,
+                              String destinationObjectId,
+                              String destinationParentObjectId,
+                              long userIdentityId) {
+    ObjectAttachmentList objectAttachmentList = getAttachments(sourceObjectType, sourceObjectId);
+    List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
+    if (CollectionUtils.isNotEmpty(attachments)) {
+      attachments.forEach(attachment -> {
+        String altText = attachment.getAltText();
+        String format = attachment.getFormat();
+        Map<String, String> properties = new HashMap<>();
+        properties.put(ATTACHMENT_ALT_TEXT, altText);
+        properties.put(ATTACHMENT_FORMAT, format);
+        try {
+          createAttachment(attachment.getId(),
+                           destinationObjectType,
+                           destinationObjectId,
+                           destinationParentObjectId,
+                           userIdentityId,
+                           properties);
+          List<MetadataItem> metadataItemToDelete =
+                                                  metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
+                                                                                                                 AttachmentService.METADATA_TYPE.getName(),
+                                                                                                                 sourceObjectType,
+                                                                                                                 sourceObjectId,
+                                                                                                                 0,
+                                                                                                                 0);
+          if (CollectionUtils.isNotEmpty(metadataItemToDelete)) {
+            metadataItemToDelete.forEach(metadataItem -> {
+              try {
+                metadataService.deleteMetadataItem(metadataItem.getId(), true);
+              } catch (ObjectNotFoundException e) {
+                LOG.error("Error when deleting metadata item", e);
+              }
+            });
+          }
+        } catch (Exception e) {
+          LOG.error("Error when creating attachment", e);
+        }
+      });
+    }
   }
 
   private org.exoplatform.social.core.identity.model.Identity checkAccessPermission(String objectType,
