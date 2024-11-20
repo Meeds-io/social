@@ -43,6 +43,7 @@ export function init(publicSiteVisible, publicSiteId) {
     .then(i18n =>
       Vue.createApp({
         data: {
+          branding: null,
           selectedTab: null,
           loading: false,
           publicSiteVisible,
@@ -69,6 +70,10 @@ export function init(publicSiteVisible, publicSiteId) {
             } else if (this.selectedTab === 'branding') {
               if (window.location.hash !== '#display') {
                 window.location.hash = '#display';
+              }
+            } else if (this.selectedTab === 'navigation') {
+              if (window.location.hash !== '#navigation') {
+                window.location.hash = '#navigation';
               }
             } else if (this.selectedTab === 'login') {
               if (window.location.hash !== '#logincustomization') {

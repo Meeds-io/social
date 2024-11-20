@@ -39,6 +39,14 @@ import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.v
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
 import DefaultLanguageDrawer from './components/language/DefaultLanguageDrawer.vue';
 
+import NavigationSettings from './components/navigation/NavigationSettings.vue';
+
+import NavigationSettingsTopbar from './components/navigation/topbar/NavigationSettingsTopbar.vue';
+import NavigationSettingsTopbarPreview from './components/navigation/topbar/NavigationSettingsTopbarPreview.vue';
+
+import NavigationSettingsSidebar from './components/navigation/sidebar/NavigationSettingsSidebar.vue';
+import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
+
 const components = {
   'portal-general-settings': GeneralSettings,
   'portal-general-settings-branding-site-window': SiteBrandingWindow,
@@ -57,6 +65,11 @@ const components = {
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
   'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
   'portal-general-settings-default-language-drawer': DefaultLanguageDrawer,
+  'portal-general-settings-navigation-settings': NavigationSettings,
+  'portal-general-settings-navigation-settings-topbar': NavigationSettingsTopbar,
+  'portal-general-settings-navigation-settings-topbar-preview': NavigationSettingsTopbarPreview,
+  'portal-general-settings-navigation-settings-sidebar': NavigationSettingsSidebar,
+  'portal-general-settings-navigation-settings-sidebar-preview': NavigationSettingsSidebarPreview,
 };
 
 for (const key in components) {
