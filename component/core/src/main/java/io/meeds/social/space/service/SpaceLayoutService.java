@@ -78,6 +78,9 @@ public class SpaceLayoutService {
    */
   public void createSpaceSite(Space space) throws ObjectNotFoundException {
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(space.getTemplateId());
+    if (spaceTemplate == null || !spaceTemplate.isEnabled() || spaceTemplate.isDeleted()) {
+      throw new ObjectNotFoundException(String.format("Enabled Space Template with id %s not found", space.getTemplateId()));
+    }
     portalConfigService.createSiteFromTemplate(SiteKey.groupTemplate(StringUtils.firstNonBlank(spaceTemplate.getLayout(),
                                                                                                DEFAULT_SITE_TEMPLATE)),
                                                SiteKey.group(space.getGroupId()),
