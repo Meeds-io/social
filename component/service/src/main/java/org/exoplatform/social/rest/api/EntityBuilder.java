@@ -2269,7 +2269,7 @@ public class EntityBuilder {
 
   private static UserPortalConfig getUserPortalConfig(HttpServletRequest request,
                                                       PortalConfig portalConfig,
-                                                      SiteType siteType) throws Exception {
+                                                      SiteType siteType) {
     String portalName = siteType == SiteType.PORTAL ? portalConfig.getName() : getUserPortalConfigService().getMetaPortal();
     return getUserPortalConfigService().getUserPortalConfig(portalName,
                                                             request.getRemoteUser());

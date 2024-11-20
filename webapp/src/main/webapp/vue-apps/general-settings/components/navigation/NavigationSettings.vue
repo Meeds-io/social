@@ -1,0 +1,84 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
+<template>
+  <div v-if="navigationSettings" class="pa-0 mb-4 pb-5">
+    <portal-general-settings-navigation-settings-topbar
+      :settings="navigationSettings"
+      @changed="navigationSettings.topbar = $event" />
+    <v-divider class="my-8" />
+    <portal-general-settings-navigation-settings-sidebar
+      :settings="navigationSettings"
+      @changed="navigationSettings.sidebar = $event" />
+    <div class="d-flex justify-end mt-4">
+      <v-btn
+        :aria-label="$t('generalSettings.cancel')"
+        :disabled="loading"
+        class="btn cancel-button me-4"
+        elevation="0"
+        @click="$emit('close')">
+        <span class="text-none">
+          {{ $t('generalSettings.cancel') }}
+        </span>
+      </v-btn>
+      <v-btn
+        :aria-label="$t('generalSettings.apply')"
+        :loading="loading"
+        color="primary"
+        elevation="0"
+        @click="save">
+        <span class="text-none">
+          {{ $t('generalSettings.apply') }}
+        </span>
+      </v-btn>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  data: () => ({
+    navigationSettings: null,
+    loading: false,
+  }),
+  created() {
+    this.refresh();
+  },
+  methods: {
+    async refresh() {
+      this.loading = true;
+      try {
+        this.navigationSettings = await this.$navigationConfigurationService.getConfiguration();
+      } finally {
+        this.loading = false;
+      }
+    },
+    save() {
+      this.loading = true;
+      try {
+        this.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
+      } finally {
+        this.$root.$emit('alert-message', this.$t('generalSettings.navigationSettingsUpdatedSuccessfully'), 'success');
+        window.setTimeout(() => this.loading = false, 200);
+      }
+    },
+  },
+};
+</script>
