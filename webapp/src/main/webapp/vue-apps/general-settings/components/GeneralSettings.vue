@@ -58,6 +58,9 @@
                       <template v-else-if="$root.selectedTab === 'access'">
                         {{ $t('generalSettings.access') }}
                       </template>
+                      <template v-else-if="$root.selectedTab === 'navigation'">
+                        {{ $t('generalSettings.navigationCharacteristics') }}
+                      </template>
                     </div>
                   </v-card>
                 </v-list-item-title>
@@ -81,8 +84,14 @@
               @close="close" />
             <portal-general-settings-hub-access
               v-else-if="$root.selectedTab === 'access'"
-              ref="loginSettings"
+              ref="registrationSettings"
               :registration-settings="registrationSettings"
+              @saved="init"
+              @changed="changed = $event"
+              @close="close" />
+            <portal-general-settings-navigation-settings
+              v-else-if="$root.selectedTab === 'navigation'"
+              ref="navigationSettings"
               @saved="init"
               @changed="changed = $event"
               @close="close" />
@@ -100,6 +109,23 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'branding'">
+                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                  </v-btn>
+                </v-list-item-action>
+              </v-list-item>
+              <v-list-item class="px-0" two-line>
+                <v-list-item-content>
+                  <v-list-item-title class="text-title">
+                    {{ $t('generalSettings.navigationCharacteristics') }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle>
+                    {{ $t('generalSettings.subtitle.navigationCharacteristics') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+                <v-list-item-action>
+                  <v-btn
+                    icon
+                    @click="$root.selectedTab = 'navigation'">
                     <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
@@ -201,6 +227,9 @@ export default {
     changed: false,
   }),
   watch: {
+    branding() {
+      this.$root.branding = this.branding;
+    },
     errorMessage() {
       if (this.errorMessage) {
         this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
@@ -214,6 +243,8 @@ export default {
       this.$root.selectedTab = 'access';
     } else if (window.location.hash === '#display') {
       this.$root.selectedTab = 'branding';
+    } else if (window.location.hash === '#navigation') {
+      this.$root.selectedTab = 'navigation';
     } else if (window.location.hash === '#logincustomization') {
       this.$root.selectedTab = 'login';
     }

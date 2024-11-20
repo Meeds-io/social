@@ -395,6 +395,9 @@ public class SpaceServiceImpl implements SpaceService {
     spaceToCreate.setManagers(new String[] { username });
 
     SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(spaceToCreate.getTemplateId());
+    if (spaceTemplate == null || !spaceTemplate.isEnabled() || spaceTemplate.isDeleted()) {
+      throw new SpaceException(Code.UNKNOWN_SPACE_TEMPLATE);
+    }
     copySpaceTemplateProperties(spaceToCreate, spaceTemplate, username, getUsersToInvite(identitiesToInvite));
 
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
