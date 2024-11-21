@@ -56,7 +56,7 @@ public class NavigationConfigurationStorage {
     if (navigationConfiguration == null) {
       navigationConfiguration = retrieveNavigationConfiguration(defaultApplications);
     }
-    return navigationConfiguration == NULL_VALUE ? null : navigationConfiguration;
+    return navigationConfiguration == NULL_VALUE ? null : navigationConfiguration.clone();
   }
 
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
