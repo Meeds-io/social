@@ -126,7 +126,8 @@
       </v-data-table>
     </div>
     <portal-general-settings-navigation-settings-sidebar-preview
-      class="flex-grow-0 flex-shrink-0 elevation-3" />
+      :settings="menuSettings"
+      class="flex-grow-0 flex-shrink-1 elevation-3 ms-8" />
   </div>
 </template>
 <script>
