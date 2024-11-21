@@ -46,6 +46,7 @@ import NavigationSettingsTopbarPreview from './components/navigation/topbar/Navi
 
 import NavigationSettingsSidebar from './components/navigation/sidebar/NavigationSettingsSidebar.vue';
 import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
+import NavigationSettingsSidebarPreviewItem from './components/navigation/sidebar/NavigationSettingsSidebarPreviewItem.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -70,6 +71,7 @@ const components = {
   'portal-general-settings-navigation-settings-topbar-preview': NavigationSettingsTopbarPreview,
   'portal-general-settings-navigation-settings-sidebar': NavigationSettingsSidebar,
   'portal-general-settings-navigation-settings-sidebar-preview': NavigationSettingsSidebarPreview,
+  'portal-general-settings-navigation-settings-sidebar-preview-item': NavigationSettingsSidebarPreviewItem,
 };
 
 for (const key in components) {
