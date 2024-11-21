@@ -52,6 +52,9 @@
         </span>
       </v-btn>
     </div>
+    <portal-general-settings-navigation-settings-sidebar-add-link-drawer />
+    <portal-general-settings-navigation-settings-sidebar-add-site-drawer />
+    <portal-general-settings-navigation-settings-sidebar-add-spaces-drawer />
   </div>
 </template>
 <script>

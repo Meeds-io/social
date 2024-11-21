@@ -59,7 +59,7 @@
         </div>
       </template>
       <template slot="item.description" slot-scope="{item}">
-        <div class="d-flex align-center ms-n4 text-truncate-2">
+        <div class="d-flex align-center text-start ms-n4 text-truncate-2">
           {{ $t(item.description) }}
         </div>
       </template>
