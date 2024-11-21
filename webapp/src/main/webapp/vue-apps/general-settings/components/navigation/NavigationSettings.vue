@@ -41,8 +41,10 @@
       </v-btn>
       <v-btn
         :aria-label="$t('generalSettings.apply')"
+        :disabled="!modified"
         :loading="loading"
         color="primary"
+        class="btn btn-primary"
         elevation="0"
         @click="save">
         <span class="text-none">
@@ -68,9 +70,15 @@ export default {
         allowedModes: ['HIDDEN','ICON','STICKY'],
       },
     },
+    originalNavigationSettings: null,
     loading: false,
     initialized: false,
   }),
+  computed: {
+    modified() {
+      return JSON.stringify(this.originalNavigationSettings) !== JSON.stringify(this.navigationSettings);
+    },
+  },
   async created() {
     await this.refresh();
     this.initialized = true;
@@ -80,6 +88,7 @@ export default {
       this.loading = true;
       try {
         this.navigationSettings = await this.$navigationConfigurationService.getConfiguration();
+        this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
       } finally {
         this.loading = false;
       }
