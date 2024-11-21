@@ -192,7 +192,7 @@ export default {
   },
   methods: {
     changeAllowedMode(mode, enable) {
-      this.menuSettings.allowedModes = this.allModes.filter(m => (enable && this.allowedModes.indexOf(m) >= 0 || m === mode) || (!enable && this.allowedModes.indexOf(m) >= 0 && m !== mode));
+      this.menuSettings.allowedModes = this.allModes.filter(m => (enable && (this.allowedModes.indexOf(m) >= 0 || m === mode)) || (!enable && this.allowedModes.indexOf(m) >= 0 && m !== mode));
     },
     moveUp(index) {
       const item = this.menuSettings.items[index];
