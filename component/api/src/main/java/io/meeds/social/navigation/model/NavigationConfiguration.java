@@ -25,10 +25,16 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class NavigationConfiguration {
+public class NavigationConfiguration implements Cloneable {
 
   private TopbarConfiguration  topbar;
 
   private SidebarConfiguration sidebar;
+
+  @Override
+  public NavigationConfiguration clone() { // NOSONAR
+    return new NavigationConfiguration(topbar == null ? null : topbar.clone(),
+                                       sidebar == null ? null : sidebar.clone());
+  }
 
 }

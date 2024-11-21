@@ -73,6 +73,7 @@
       <v-data-table
         :headers="headers"
         :items="menuItems"
+        mobile-breakpoint="0"
         hide-default-footer
         disable-sort
         disable-pagination
