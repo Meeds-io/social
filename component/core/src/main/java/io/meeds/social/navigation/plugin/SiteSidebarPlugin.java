@@ -18,7 +18,11 @@
  */
 package io.meeds.social.navigation.plugin;
 
+import static io.meeds.social.navigation.plugin.PageSidebarPlugin.*;
+
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -43,10 +47,12 @@ import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.NodeContext;
 import org.exoplatform.portal.mop.navigation.NodeData;
 import org.exoplatform.portal.mop.navigation.NodeState;
+import org.exoplatform.portal.mop.service.DescriptionService;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.LocaleContextInfo;
 import org.exoplatform.services.resources.ResourceBundleManager;
 import org.exoplatform.services.resources.ResourceBundleService;
@@ -61,17 +67,17 @@ import lombok.SneakyThrows;
 @Order(10)
 public class SiteSidebarPlugin implements SidebarPlugin {
 
-  private static final String     SITE_EXPAND_PAGES_PROP_NAME = "expandPages";
+  public static final String      SITE_EXPAND_PAGES_PROP_NAME = "expandPages";
 
-  private static final String     SITE_NAME_PROP_NAME         = "siteName";
+  public static final String      SITE_NAME_PROP_NAME         = "siteName";
 
-  private static final String     SITE_ID_PROP_NAME           = "siteId";
+  public static final String      SITE_ID_PROP_NAME           = "siteId";
 
-  private static final String     SITE_TYPE_PROP_NAME         = "siteType";
+  public static final String      SITE_TYPE_PROP_NAME         = "siteType";
 
-  private static final String     SITE_OBJECT_TYPE            = "site";
+  public static final String      SITE_OBJECT_TYPE            = "site";
 
-  private static final String     SITE_LABEL_FIELD_NAME       = "label";
+  public static final String      SITE_LABEL_FIELD_NAME       = "label";
 
   @Autowired
   private TranslationService      translationService;
@@ -87,6 +93,12 @@ public class SiteSidebarPlugin implements SidebarPlugin {
 
   @Autowired
   private ResourceBundleManager   resourceBundleManager;
+
+  @Autowired
+  private DescriptionService      descriptionService;
+
+  @Autowired
+  private LocaleConfigService     localeConfigService;
 
   @Override
   public SidebarItemType getType() {
@@ -119,6 +131,28 @@ public class SiteSidebarPlugin implements SidebarPlugin {
           && firstNode.getData().getState().getIcon() != null) {
         item.setIcon(firstNode.getData().getState().getIcon());
       }
+      if (StringUtils.equals(item.getProperties().get(SITE_EXPAND_PAGES_PROP_NAME), "true")) {
+        Collection<NodeContext<Object>> nodes = rootNode.getNodes();
+        item.setItems(new ArrayList<>());
+        nodes.forEach(node -> {
+          if (node.getData() != null
+              && node.getData().getState() != null
+              && isVisibilityEligible(node.getData().getState())) {
+            SidebarItem pageItem = new SidebarItem(SidebarItemType.PAGE);
+            pageItem.setProperties(Collections.singletonMap(NODE_ID_PROP_NAME, node.getData().getId()));
+            pageItem.setUrl(node.getData().getName());
+            PageSidebarPlugin.resolveProperties(navigationService,
+                                                layoutService,
+                                                translationService,
+                                                descriptionService,
+                                                resourceBundleManager,
+                                                localeConfigService,
+                                                pageItem,
+                                                locale);
+            item.getItems().add(pageItem);
+          }
+        });
+      }
     }
     return item;
   }
@@ -145,26 +179,25 @@ public class SiteSidebarPlugin implements SidebarPlugin {
     return layoutService.getPortalConfig(siteType, siteName) != null;
   }
 
-  private SidebarItem toSidebarItem(SiteKey siteKey) {
+  protected SidebarItem toSidebarItem(SiteKey siteKey) {
     return new SidebarItem(siteKey.getName(),
-                                 "/portal/" + siteKey.getName(),
-                                 null,
-                                 null,
-                                 getSiteIcon(siteKey),
-                                 SidebarItemType.SITE,
-                                 null,
-                                 buildSiteProperties(siteKey));
+                           "/portal/" + siteKey.getName(),
+                           null,
+                           null,
+                           getSiteIcon(navigationService, siteKey),
+                           SidebarItemType.SITE,
+                           null,
+                           buildSiteProperties(siteKey));
   }
 
-  private String getSiteIcon(SiteKey siteKey) {
+  public static String getSiteIcon(NavigationService navigationService, SiteKey siteKey) {
     NodeContext<NodeContext<Object>> rootNode = navigationService.loadNode(siteKey);
     if (rootNode != null && rootNode.getSize() > 0) {
       Collection<NodeContext<Object>> nodes = rootNode.getNodes();
       return nodes.stream().map(node -> {
         NodeData data = node.getData();
         NodeState state = data.getState();
-        if ((state.getVisibility() == Visibility.DISPLAYED
-             || state.getVisibility() == Visibility.TEMPORAL)
+        if (isVisibilityEligible(state)
             && state.getPageRef() != null
             && StringUtils.isNotBlank(state.getIcon())) {
           return state.getIcon();
@@ -184,8 +217,10 @@ public class SiteSidebarPlugin implements SidebarPlugin {
     Map<String, String> properties = new HashMap<>();
     properties.put(SITE_TYPE_PROP_NAME, siteKey.getTypeName());
     properties.put(SITE_NAME_PROP_NAME, siteKey.getName());
-    properties.put(SITE_EXPAND_PAGES_PROP_NAME, String.valueOf(isMetaSite));
     properties.put(SITE_ID_PROP_NAME, String.valueOf(siteId));
+    if (isMetaSite) {
+      properties.put(SITE_EXPAND_PAGES_PROP_NAME, "true");
+    }
     return properties;
   }
 
@@ -229,6 +264,16 @@ public class SiteSidebarPlugin implements SidebarPlugin {
     return resourceBundleManager.getNavigationResourceBundle(LocaleContextInfo.getLocaleAsString(locale),
                                                              siteType,
                                                              siteName);
+  }
+
+  private static boolean isVisibilityEligible(NodeState state) {
+    if (state.getVisibility() == Visibility.DISPLAYED) {
+      return true;
+    } else if (state.getVisibility() == Visibility.TEMPORAL) {
+      return (state.getEndPublicationTime() == 0 || state.getEndPublicationTime() < System.currentTimeMillis())
+             && (state.getStartPublicationTime() == 0 || state.getStartPublicationTime() > System.currentTimeMillis());
+    }
+    return false;
   }
 
 }
