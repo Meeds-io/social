@@ -30,7 +30,7 @@
     <v-list class="d-flex flex-column overflow-hidden pb-0 flex-grow-1 flex-shrink-1" dense>
       <div class="flex-grow-0 flex-shrink-0">
         <v-list-item class="d-flex" dense>
-          <v-list-item-avatar min-width="36">
+          <v-list-item-avatar size="36" tile>
             <img
               src="/portal/rest/v1/platform/branding/logo"
               height="36px"
@@ -60,7 +60,7 @@
             <v-avatar
               class="userAvatar mx-3"
               size="36">
-              <v-img :src="avatarUrl" />
+              <v-img :src="avatarUrl" contain />
             </v-avatar>
             <v-btn
               class="userSettingsLink me-3"

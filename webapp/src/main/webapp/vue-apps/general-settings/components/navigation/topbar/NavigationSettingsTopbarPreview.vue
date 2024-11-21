@@ -24,17 +24,18 @@
     class="d-flex align-center px-4"
     height="56">
     <div v-if="displayCompanyName || !displaySiteName" class="d-flex">
-      <v-card
-        min-width="36"
-        class="pe-3 flex-shrink-0"
-        flat>
+      <v-avatar
+        class="me-3 flex-shrink-0"
+        size="36"
+        width="auto"
+        tile>
         <img
           src="/portal/rest/v1/platform/branding/logo"
           height="36px"
           width="auto"
           alt="">
-      </v-card>
-      <div v-if="displayCompanyName" class="ps-2 align-self-center d-none d-sm-flex">
+      </v-avatar>
+      <div v-if="displayCompanyName" class="align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ $root.branding?.companyName }}
         </div>
@@ -46,7 +47,7 @@
       </v-icon>
     </div>
     <div v-if="displaySiteName" class="d-flex">
-      <div class="pe-3">
+      <div class="me-3">
         <v-icon size="33">{{ firstSidebarSiteIcon }}</v-icon>
       </div>
       <div class="ps-2 align-self-center d-none d-sm-flex">
