@@ -47,13 +47,14 @@
     <v-data-table
       :headers="headers"
       :items="applications"
+      mobile-breakpoint="0"
       hide-default-footer
       disable-sort
       disable-pagination
       disable-filtering>
       <template slot="item.name" slot-scope="{item}">
-        <div class="d-flex align-center ms-n4 text-truncate">
-          <v-icon size="20" class="me-4">{{ item.icon }}</v-icon>
+        <div class="d-flex flex-column flex-sm-row align-center ms-n4 text-truncate">
+          <v-icon size="20" class="me-0 me-sm-4">{{ item.icon }}</v-icon>
           {{ $t(item.name) }}
         </div>
       </template>
@@ -111,7 +112,25 @@ export default {
   }),
   computed: {
     headers() {
-      return [{
+      return this.$root.isMobile && [{
+        text: this.$t('generalSettings.header.topbarApplicationName'),
+        value: 'name',
+        align: 'left',
+        width: '35%',
+        class: 'ps-0 text-no-wrap',
+      }, {
+        text: this.$t('generalSettings.header.topbarApplicationMove'),
+        value: 'move',
+        align: 'center',
+        width: '30%',
+        class: 'text-no-wrap',
+      }, {
+        text: this.$t('generalSettings.header.topbarApplicationMobile'),
+        value: 'mobile',
+        align: 'center',
+        width: '30%',
+        class: 'text-no-wrap',
+      }] || [{
         text: this.$t('generalSettings.header.topbarApplicationName'),
         value: 'name',
         align: 'left',

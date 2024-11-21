@@ -18,6 +18,7 @@
  */
 package io.meeds.social.navigation.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.meeds.social.navigation.constant.SidebarMode;
@@ -29,14 +30,22 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SidebarConfiguration {
+public class SidebarConfiguration implements Cloneable {
 
-  private boolean                 allowUserCustomHome;
+  private boolean           allowUserCustomHome;
 
   private SidebarMode       defaultMode;
 
   private List<SidebarMode> allowedModes;
 
   private List<SidebarItem> items;
+
+  @Override
+  public SidebarConfiguration clone() { // NOSONAR
+    return new SidebarConfiguration(allowUserCustomHome,
+                                    defaultMode,
+                                    new ArrayList<>(allowedModes),
+                                    new ArrayList<>(items));
+  }
 
 }

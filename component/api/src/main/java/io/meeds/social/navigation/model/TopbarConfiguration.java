@@ -18,6 +18,7 @@
  */
 package io.meeds.social.navigation.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -27,12 +28,19 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TopbarConfiguration {
+public class TopbarConfiguration implements Cloneable {
 
   private boolean                 displayCompanyName;
 
   private boolean                 displaySiteName;
 
   private List<TopbarApplication> applications;
+
+  @Override
+  public TopbarConfiguration clone() { // NOSONAR
+    return new TopbarConfiguration(displayCompanyName,
+                                   displaySiteName,
+                                   new ArrayList<>(applications));
+  }
 
 }
