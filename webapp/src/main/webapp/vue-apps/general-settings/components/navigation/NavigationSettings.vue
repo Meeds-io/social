@@ -28,7 +28,7 @@
     <portal-general-settings-navigation-settings-sidebar
       :settings="navigationSettings"
       @changed="navigationSettings.sidebar = $event" />
-    <div class="d-flex justify-end mt-4">
+    <div class="d-flex justify-end mt-8">
       <v-btn
         :aria-label="$t('generalSettings.cancel')"
         :disabled="loading"
@@ -99,6 +99,7 @@ export default {
         this.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
       } finally {
         this.$root.$emit('alert-message', this.$t('generalSettings.navigationSettingsUpdatedSuccessfully'), 'success');
+        this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
         window.setTimeout(() => this.loading = false, 200);
       }
     },
