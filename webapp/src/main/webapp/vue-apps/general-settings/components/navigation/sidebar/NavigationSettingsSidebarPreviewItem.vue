@@ -21,12 +21,19 @@
 -->
 <template>
   <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
+  <div v-else-if="item.type === 'SITE' && item?.items?.length && item.properties.expandPages === 'true'">
+    <portal-general-settings-navigation-settings-sidebar-preview-item
+      v-for="(subItem, index) in item.items"
+      :key="index"
+      :settings="settings"
+      :item="subItem" />
+  </div>
   <v-list-item
     v-else
     class="d-flex"
     dense>
     <v-list-item-avatar min-width="36">
-      <v-icon size="18">{{ item.icon }}</v-icon>
+      <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="logoTitle menu-text-color text-truncate">

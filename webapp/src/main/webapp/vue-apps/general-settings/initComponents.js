@@ -47,6 +47,11 @@ import NavigationSettingsTopbarPreview from './components/navigation/topbar/Navi
 import NavigationSettingsSidebar from './components/navigation/sidebar/NavigationSettingsSidebar.vue';
 import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
 import NavigationSettingsSidebarPreviewItem from './components/navigation/sidebar/NavigationSettingsSidebarPreviewItem.vue';
+import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/NavigationSettingsSidebarAddButton.vue';
+
+import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
+import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
+import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -72,6 +77,10 @@ const components = {
   'portal-general-settings-navigation-settings-sidebar': NavigationSettingsSidebar,
   'portal-general-settings-navigation-settings-sidebar-preview': NavigationSettingsSidebarPreview,
   'portal-general-settings-navigation-settings-sidebar-preview-item': NavigationSettingsSidebarPreviewItem,
+  'portal-general-settings-navigation-settings-sidebar-add-button': NavigationSettingsSidebarAddButton,
+  'portal-general-settings-navigation-settings-sidebar-add-link-drawer': NavigationSettingsAddSidebarLinkDrawer,
+  'portal-general-settings-navigation-settings-sidebar-add-site-drawer': NavigationSettingsAddSidebarSiteDrawer,
+  'portal-general-settings-navigation-settings-sidebar-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
 };
 
 for (const key in components) {
