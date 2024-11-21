@@ -22,14 +22,17 @@
 <template>
   <v-card height="56" class="d-flex align-center px-4">
     <div v-if="displayCompanyName || !displaySiteName" class="d-flex">
-      <a class="pe-3">
+      <v-card
+        min-width="36"
+        class="pe-3 flex-shrink-0"
+        flat>
         <img
           src="/portal/rest/v1/platform/branding/logo"
           height="36px"
           width="auto"
           alt="">
-      </a>
-      <a v-if="displayCompanyName" class="ps-2 align-self-center">
+      </v-card>
+      <a v-if="displayCompanyName" class="ps-2 align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ $root.branding?.companyName }}
         </div>
@@ -44,7 +47,7 @@
       <a class="pe-3">
         <v-icon size="33">{{ firstSidebarSiteIcon }}</v-icon>
       </a>
-      <a class="ps-2 align-self-center">
+      <a class="ps-2 align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ firstSidebarSiteName }}
         </div>
@@ -56,6 +59,9 @@
         v-for="(app, index) in enabledApplications"
         :key="`${app.name}_${index}`"
         :title="app.name"
+        :class="{
+          'hidden-xs-only': !app.mobile,
+        }"
         icon
         class="ms-2">
         <v-icon size="22">{{ app.icon }}</v-icon>
