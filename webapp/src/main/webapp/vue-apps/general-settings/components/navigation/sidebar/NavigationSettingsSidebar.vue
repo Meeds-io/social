@@ -113,14 +113,22 @@
             </v-card>
           </div>
         </template>
-        <template slot="item.enabled" slot-scope="{item}">
-          <div class="d-flex justify-center">
-            <v-switch v-model="item.enabled" class="ma-auto" />
-          </div>
-        </template>
-        <template slot="item.mobile" slot-scope="{item}">
-          <div class="d-flex justify-center">
-            <v-switch v-model="item.mobile" class="ma-auto" />
+        <template slot="item.action" slot-scope="{item}">
+          <div class="d-flex justify-end">
+            <v-btn
+              v-if="item.type !== 'SEPARATOR'"
+              :title="$t('generalSettings.editSideBarItem')"
+              class="me-2"
+              icon>
+              <v-icon size="20">fa-edit</v-icon>
+            </v-btn>
+            <v-btn
+              :title="$t('generalSettings.removeSideBarItem')"
+              color="error"
+              icon
+              @click="remove(item)">
+              <v-icon size="20">fa-trash</v-icon>
+            </v-btn>
           </div>
         </template>
       </v-data-table>
@@ -194,6 +202,9 @@ export default {
   methods: {
     changeAllowedMode(mode, enable) {
       this.menuSettings.allowedModes = this.allModes.filter(m => (enable && (this.allowedModes.indexOf(m) >= 0 || m === mode)) || (!enable && this.allowedModes.indexOf(m) >= 0 && m !== mode));
+    },
+    remove(item) {
+      this.menuSettings.items.splice(this.menuSettings.items.indexOf(item), 1);
     },
     moveUp(index) {
       const item = this.menuSettings.items[index];
