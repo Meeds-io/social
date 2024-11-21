@@ -81,11 +81,14 @@ export default {
     },
   },
   computed: {
+    firstSidebarItem() {
+      return this.settings?.sidebar?.items?.[0];
+    },
     firstSidebarSiteIcon() {
-      return this.settings?.sidebar?.items?.[0]?.icon;
+      return this.firstSidebarItem?.properties?.siteIcon || this.firstSidebarItem?.icon;
     },
     firstSidebarSiteName() {
-      return this.settings?.sidebar?.items?.[0]?.name;
+      return this.firstSidebarItem?.properties?.siteDisplayName || this.firstSidebarItem?.name;
     },
     enabledApplications() {
       return this.settings?.topbar?.applications?.filter?.(a => a.enabled);
