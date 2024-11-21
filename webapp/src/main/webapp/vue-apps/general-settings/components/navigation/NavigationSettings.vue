@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <div v-if="navigationSettings" class="pa-0 mb-4 pb-5">
+  <div v-if="initialized" class="pa-0 mb-4 pb-5">
     <portal-general-settings-navigation-settings-topbar
       :settings="navigationSettings"
       @changed="navigationSettings.topbar = $event" />
@@ -55,11 +55,25 @@
 <script>
 export default {
   data: () => ({
-    navigationSettings: null,
+    navigationSettings: {
+      topbar: {
+        applications: [],
+        displayCompanyName: true,
+        displaySiteName: true,
+      },
+      sidebar: {
+        items: [],
+        allowUserCustomHome: false,
+        defaultMode: 'HIDDEN',
+        allowedModes: ['HIDDEN','ICON','STICKY'],
+      },
+    },
     loading: false,
+    initialized: false,
   }),
-  created() {
-    this.refresh();
+  async created() {
+    await this.refresh();
+    this.initialized = true;
   },
   methods: {
     async refresh() {
