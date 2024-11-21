@@ -67,8 +67,13 @@
           </v-radio-group>
         </div>
       </div>
-      <div class="font-weight-bold mb-2">
-        {{ $t('generalSettings.sidebarItemsOrganization') }}
+      <div class="d-flex">
+        <div class="d-flex align-center font-weight-bold">
+          {{ $t('generalSettings.sidebarItemsOrganization') }}
+        </div>
+        <v-spacer />
+        <portal-general-settings-navigation-settings-sidebar-add-button
+          :settings="settings" />
       </div>
       <v-data-table
         :headers="headers"
@@ -119,7 +124,8 @@
               v-if="item.type !== 'SEPARATOR'"
               :title="$t('generalSettings.editSideBarItem')"
               class="me-2"
-              icon>
+              icon
+              @click="edit(item)">
               <v-icon size="20">fa-edit</v-icon>
             </v-btn>
             <v-btn
@@ -199,6 +205,12 @@ export default {
       },
     },
   },
+  created() {
+    this.$root.$on('sidebar-item-add-separator', this.addSeparator);
+  },
+  beforeDestroy() {
+    this.$root.$off('sidebar-item-add-separator', this.addSeparator);
+  },
   methods: {
     changeAllowedMode(mode, enable) {
       this.menuSettings.allowedModes = this.allModes.filter(m => (enable && (this.allowedModes.indexOf(m) >= 0 || m === mode)) || (!enable && this.allowedModes.indexOf(m) >= 0 && m !== mode));
@@ -206,10 +218,24 @@ export default {
     remove(item) {
       this.menuSettings.items.splice(this.menuSettings.items.indexOf(item), 1);
     },
+    edit(item) {
+      if (item.type === 'SITE' || item.type === 'PAGE') {
+        this.$root.$emit('sidebar-item-edit-site', this.settings, item);
+      } else if (item.type === 'LINK') {
+        this.$root.$emit('sidebar-item-edit-link', this.settings, item);
+      } else if (item.type === 'SPACES' || item.type === 'SPACE_TEMPLATE') {
+        this.$root.$emit('sidebar-item-edit-spaces', this.settings, item);
+      }
+    },
     moveUp(index) {
       const item = this.menuSettings.items[index];
       this.menuSettings.items.splice(index, 1);
       this.menuSettings.items.splice(index - 1, 0, item);
+    },
+    addSeparator() {
+      this.menuSettings.items.push({
+        type: 'SEPARATOR',
+      });
     },
     moveDown(index) {
       const item = this.menuSettings.items[index];
