@@ -20,13 +20,25 @@
 import * as registrationService from './js/RegistrationService.js';
 import * as languageSettingService from './js/LanguageSettingService.js';
 import * as navigationConfigurationService from './js/NavigationConfigurationService.js';
+import * as spaceTemplateService from '../space-templates-management/js/SpaceTemplateService.js';
 
-window.Object.defineProperty(Vue.prototype, '$registrationService', {
-  value: registrationService,
-});
-window.Object.defineProperty(Vue.prototype, '$languageSettingService', {
-  value: languageSettingService,
-});
-window.Object.defineProperty(Vue.prototype, '$navigationConfigurationService', {
-  value: navigationConfigurationService,
-});
+if (!Vue.prototype.$registrationService) {
+  window.Object.defineProperty(Vue.prototype, '$registrationService', {
+    value: registrationService,
+  });
+}
+if (!Vue.prototype.$languageSettingService) {
+  window.Object.defineProperty(Vue.prototype, '$languageSettingService', {
+    value: languageSettingService,
+  });
+}
+if (!Vue.prototype.$navigationConfigurationService) {
+  window.Object.defineProperty(Vue.prototype, '$navigationConfigurationService', {
+    value: navigationConfigurationService,
+  });
+}
+if (!Vue.prototype.$spaceTemplateService) {
+  window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
+    value: spaceTemplateService,
+  });
+}
