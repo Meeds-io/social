@@ -95,6 +95,10 @@
             outlined
             dense />
         </template>
+        <font-icon-input
+          v-model="icon"
+          :label="$t('generalSettings.sidebar.linkIcon')"
+          class="mt-4 mb-2" />
       </div>
     </template>
     <template #footer>
@@ -127,7 +131,9 @@ export default {
     settings: null,
     option: null,
     item: null,
+    icon: null,
     siteId: null,
+    nodeId: null,
     sites: null,
     isNew: true,
     excludeSpaceSites: true,
@@ -155,7 +161,13 @@ export default {
       return this.site?.siteType;
     },
     siteIcon() {
-      return this.site?.siteNavigations && this.getFirstIcon(this.site.siteNavigations) || null;
+      return !this.loading
+          && this.site?.siteNavigations
+          && this.getFirstIcon(this.site.siteNavigations)
+          || null;
+    },
+    pageIcon() {
+      return this.nodeId && this.page?.icon || null;
     },
     modified() {
       return this.isNew
@@ -183,7 +195,7 @@ export default {
       }
     },
     page() {
-      return this.pages?.find?.(p => p.id === this.nodeId);
+      return this.pages?.find?.(p => Number(p.id) === Number(this.nodeId));
     },
   },
   watch: {
@@ -203,6 +215,16 @@ export default {
       if (this.drawer && this.initialized) {
         this.nodeId = null;
         this.retrieveSite();
+      }
+    },
+    siteIcon() {
+      if (this.drawer && this.isSiteOption) {
+        this.icon = this.siteIcon || this.icon || 'fa-project-diagram';
+      }
+    },
+    pageIcon() {
+      if (this.drawer && this.isPageOption) {
+        this.icon = this.pageIcon || this.icon || 'fa-project-diagram';
       }
     },
   },
@@ -228,6 +250,7 @@ export default {
         properties: {},
       };
       this.isNew = !item;
+      this.icon = this.item.icon || 'fa-project-diagram';
       this.initialized = false;
       if (!this.item.properties) {
         this.item.properties = {};
@@ -264,11 +287,10 @@ export default {
       this.saving = true;
       try {
         await this.retrieveSite();
-        const siteIcon = this.site?.siteNavigations && this.getFirstIcon(this.site.siteNavigations) || null;
         this.item.name = this.isPageOption ? this.page.label : this.site.displayName;
         this.item.url = this.isPageOption ? `/portal/${this.siteName}/${this.page.uri}` : `/portal/${this.siteName}`;
         this.item.target = this.isPageOption ? this.page.target : null;
-        this.item.icon = this.isPageOption ? this.page.icon : siteIcon;
+        this.item.icon = this.icon;
         this.item.type = this.isPageOption ? 'PAGE' : 'SITE';
         this.item.properties = this.isPageOption ? {
           siteId: this.siteId,
