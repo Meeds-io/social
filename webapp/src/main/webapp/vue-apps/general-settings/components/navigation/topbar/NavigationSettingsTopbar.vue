@@ -123,7 +123,7 @@ export default {
         value: 'move',
         align: 'center',
         width: '30%',
-        class: 'text-no-wrap',
+        class: 'ps-0 text-no-wrap',
       }, {
         text: this.$t('generalSettings.header.topbarApplicationMobile'),
         value: 'mobile',
