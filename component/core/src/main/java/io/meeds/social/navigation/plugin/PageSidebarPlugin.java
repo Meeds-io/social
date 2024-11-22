@@ -33,12 +33,13 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.utils.ExpressionUtil;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.State;
@@ -81,6 +82,9 @@ public class PageSidebarPlugin implements SidebarPlugin {
 
   @Autowired
   private ResourceBundleManager resourceBundleManager;
+
+  @Autowired
+  private UserACL               userAcl;
 
   public static SidebarItem resolveProperties(NavigationService navigationService, // NOSONAR
                                               LayoutService layoutService,
@@ -159,7 +163,7 @@ public class PageSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public SidebarItem resolveProperties(SidebarItem item, Locale locale) {
+  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
     return resolveProperties(navigationService,
                              layoutService,
                              translationService,
@@ -176,9 +180,29 @@ public class PageSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public boolean itemExists(SidebarItem item) {
-    String nodeId = item.getProperties().get(NODE_ID_PROP_NAME);
-    return StringUtils.isNoneBlank(nodeId) && navigationService.getNodeById(Long.parseLong(nodeId)) != null;
+  public boolean itemExists(SidebarItem item, String username) {
+    String nodeIdProperty = item.getProperties().get(NODE_ID_PROP_NAME);
+    long nodeId = Long.parseLong(nodeIdProperty);
+    NodeData node = navigationService.getNodeById(nodeId);
+    if (node == null) {
+      return false;
+    } else {
+      PortalConfig site = layoutService.getPortalConfig(node.getSiteKey());
+      if (!userAcl.hasAccessPermission(site, userAcl.getUserIdentity(username))) {
+        return false;
+      } else if (node.getState() == null
+                 || node.getState().getPageRef() == null
+                 || !SiteSidebarPlugin.isVisibilityEligible(node.getState())) {
+        return false;
+      } else {
+        Page page = layoutService.getPage(node.getState().getPageRef());
+        if (page == null) {
+          return false;
+        } else {
+          return userAcl.hasAccessPermission(page, userAcl.getUserIdentity(username));
+        }
+      }
+    }
   }
 
   private static String getLocaleName(Locale locale) {
