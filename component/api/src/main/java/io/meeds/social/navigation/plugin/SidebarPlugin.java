@@ -29,18 +29,30 @@ import io.meeds.social.navigation.model.SidebarItem;
  */
 public interface SidebarPlugin {
 
+  /**
+   * @return {@link SidebarItemType} managed by the implementing plugin
+   */
   SidebarItemType getType();
 
   /**
    * Resolves Item Name and Icon when storage is maintained
    * 
    * @param item
+   * @param username
    * @param locale
    */
-  SidebarItem resolveProperties(SidebarItem item, Locale locale);
+  SidebarItem resolveProperties(SidebarItem item, String username, Locale locale);
 
+  /**
+   * @return {@link List} of {@link SidebarItem} to inject on startup
+   */
   List<SidebarItem> getDefaultItems();
 
-  boolean itemExists(SidebarItem item);
+  /**
+   * @param item {@link SidebarItem}
+   * @param username User name
+   * @return true if the item exists and the user has access to it, else false
+   */
+  boolean itemExists(SidebarItem item, String username);
 
 }
