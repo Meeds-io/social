@@ -104,9 +104,6 @@ public class PageSidebarPlugin implements SidebarPlugin {
                                 Long.parseLong(nodeId),
                                 locale));
       item.setTarget(node.getState().getTarget());
-      if (node.getState() != null && node.getState().getIcon() != null) {
-        item.setIcon(node.getState().getIcon());
-      }
       SiteKey siteKey = node.getState().getSiteKey();
       PortalConfig site = layoutService.getPortalConfig(siteKey);
       if (site != null) {
