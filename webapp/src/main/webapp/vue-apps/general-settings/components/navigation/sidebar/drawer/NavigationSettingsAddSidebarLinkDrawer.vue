@@ -30,6 +30,57 @@
       {{ $t(isNew && 'generalSettings.addSideBarItemLink.drawerTitle' || 'generalSettings.updateSideBarItemLink.drawerTitle') }}
     </template>
     <template v-if="drawer" #content>
+      <div class="pa-4">
+        <div class="mb-2">
+          {{ $t('generalSettings.sidebar.linkName') }}
+        </div>
+        <translation-text-field
+          v-model="names"
+          :placeholder="$t('generalSettings.sidebar.linkNamePlaceHolder')"
+          :maxlength="maxNameLength"
+          :rules="rules.name"
+          drawer-title="generalSettings.sidebar.linkNameDrawerTitle" />
+        <div class="mt-4 mb-2">
+          {{ $t('generalSettings.sidebar.linkDescription') }}
+        </div>
+        <translation-text-field
+          v-model="descriptions"
+          :rules="rules.description"
+          :placeholder="$t('generalSettings.sidebar.linkDescriptionPlaceHolder')"
+          :maxlength="50"
+          :required="false"
+          drawer-title="generalSettings.sidebar.linkDescriptionDrawerTitle"
+          class="width-auto flex-grow-1 mb-4"
+          no-expand-icon
+          back-icon />
+        <div class="mt-4 mb-2">
+          {{ $t('generalSettings.sidebar.linkLabel') }}
+        </div>
+        <v-text-field
+          name="link"
+          v-model="link"
+          :placeholder="$t('generalSettings.sidebar.linkPlaceholder')"
+          :rules="rules.url"
+          class="border-box-sizing width-auto pt-0"
+          type="text"
+          outlined
+          dense
+          mandatory />
+        <div class="d-flex align-center justify-space-between full-width mt-4 mb-2">
+          <div>
+            {{ $t('generalSettings.sidebar.linkTarget') }}
+          </div>
+          <v-switch
+            v-model="target"
+            true-value="_self"
+            false-value="_blank"
+            class="ma-0 width-fit-content" />
+        </div>
+        <font-icon-input
+          v-model="icon"
+          :label="$t('generalSettings.sidebar.linkIcon')"
+          class="mt-4 mb-2" />
+      </div>
     </template>
     <template #footer>
       <div class="d-flex">
@@ -41,7 +92,7 @@
         </v-btn>
         <v-btn
           :loading="saving"
-          :disabled="!modified"
+          :disabled="disabled"
           class="btn-primary"
           elevation="0"
           @click="apply">
@@ -56,11 +107,60 @@ export default {
   data: () => ({
     drawer: false,
     settings: null,
+    isNew: false,
     item: null,
+    names: {},
+    descriptions: {},
+    link: null,
+    icon: null,
+    target: null,
+    maxNameLength: 50,
+    maxDescriptionLength: 50,
   }),
   computed: {
-    isNew() {
-      return this.settings?.sidebar?.items?.indexOf?.(this.item) < 0;
+    modified() {
+      return this.drawer
+        || this.isNew
+        || this.link !== this.item?.url
+        || this.icon !== this.item?.icon
+        || this.target !== this.item?.target
+        || JSON.stringify(this.names) !== this.item?.properties?.names;
+    },
+    isValidLink() {
+      try {
+        return !!this.$utils.toLinkUrl(this.link)?.length;
+      } catch (e) {
+        return false;
+      }
+    },
+    disabled() {
+      return !this.modified
+        || !this.isValidLink
+        || !this.icon
+        || !this.target
+        || !this.names
+        || !this.names[eXo.env.portal.defaultLanguage]?.trim?.()?.length
+        || Object.values(this.names).find(name => name?.length > this.maxNameLength)
+        || (this.descriptions && Object.values(this.descriptions).find(description => description?.length > this.maxDescriptionLength));
+    },
+    rules() {
+      return {
+        name: [
+          v => !!v?.length || ' ',
+          v => !v?.length || v.length < this.maxNameLength || this.$t('generalSettings.sidebar.exceedsMaxLength', {
+            0: this.maxNameLength,
+          }),
+        ],
+        description: [
+          v => !v?.length || v.length < this.maxDescriptionLength || this.$t('generalSettings.sidebar.exceedsMaxLength', {
+            0: this.maxDescriptionLength,
+          }),
+        ],
+        url: [
+          v => !!v?.length || ' ',
+          () => this.isValidLink || this.$t('generalSettings.sidebar.invalidLink'),
+        ],
+      };
     },
   },
   created() {
@@ -80,13 +180,39 @@ export default {
         target: null,
         avatar: null,
         icon: null,
-        type: null,
+        type: 'LINK',
         items: null,
-        properties: null,
+        properties: {},
       };
+      this.isNew = !item;
+      this.reset(this.item);
       this.$refs.drawer.open();
     },
+    reset(item) {
+      this.modified = false;
+      this.link = item?.url;
+      this.icon = item?.icon || 'fa-globe';
+      this.target = item?.target || '_self';
+      this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
+      this.descriptions = item?.properties?.descriptions && JSON.parse(item?.properties?.descriptions) || {};
+    },
     apply() {
+      this.item.name = this.names[eXo.env.portal.language] || this.names[eXo.env.portal.defaultLanguage];
+      this.item.icon = this.icon || 'fa-globe';
+      this.item.url = this.link;
+      this.item.target = this.target === '_blank' ? '_blank' : null;
+      Object.keys(this.names).forEach(k => {
+        if (!this.names[k]?.trim?.()?.length) {
+          delete this.names[k];
+        }
+      });
+      this.item.properties = {
+        names: JSON.stringify(this.names),
+        descriptions: JSON.stringify(this.descriptions),
+      };
+      if (this.isNew) {
+        this.settings.sidebar.items.push(this.item);
+      }
       this.close();
     },
     close() {
