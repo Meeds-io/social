@@ -916,6 +916,15 @@ public interface SpaceService {
   }
 
   /**
+   * @param username
+   * @param spaceFilter
+   * @return
+   */
+  default ListAccess<Space> getLastAccessedSpaceByFilter(String username, SpaceFilter spaceFilter) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Registers a space lifecycle listener.
    *
    * @param listener The space lifecycle listener to be registered.
