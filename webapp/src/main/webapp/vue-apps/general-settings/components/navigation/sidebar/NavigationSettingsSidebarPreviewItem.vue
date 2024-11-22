@@ -21,7 +21,7 @@
 -->
 <template>
   <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
-  <div v-else-if="item.type === 'SITE' && item?.items?.length && item.properties.expandPages === 'true'">
+  <div v-else-if="isSitePages">
     <portal-general-settings-navigation-settings-sidebar-preview-item
       v-for="(subItem, index) in item.items"
       :key="index"
@@ -52,6 +52,11 @@ export default {
     item: {
       type: Object,
       default: null,
+    },
+  },
+  computed: {
+    isSitePages() {
+      return this.item.type === 'SITE' && this.item?.items?.length && this.item.properties.expandPages === 'true';
     },
   },
 };
