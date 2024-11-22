@@ -174,7 +174,7 @@ export default {
           v => !!v?.length || ' ',
           v => {
             try {
-              return !!this.$linkService.toLinkUrl(v)?.length || this.$t('links.input.invalidLink');
+              return !!this.$utils.toLinkUrl(v)?.length || this.$t('links.input.invalidLink');
             } catch (e) {
               return this.$t('links.input.invalidLink');
             }
