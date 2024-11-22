@@ -22,18 +22,53 @@
 <template>
   <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
   <div v-else-if="isSitePages">
-    <portal-general-settings-navigation-settings-sidebar-preview-item
-      v-for="(subItem, index) in item.items"
-      :key="index"
-      :settings="settings"
-      :item="subItem" />
+    <template v-if="item?.items?.length">
+      <portal-general-settings-navigation-settings-sidebar-preview-item
+        v-for="(subItem, index) in item.items"
+        :key="`${subItem.name}_${subItem.icon}_${index}`"
+        :settings="settings"
+        :item="subItem" />
+    </template>
+  </div>
+  <div v-else-if="isSpaces || isSpaceTemplate">
+    <template v-if="item?.items?.length">
+      <v-list-item class="d-flex" dense>
+        <v-list-item-avatar min-width="36">
+          <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title class="logoTitle menu-text-color text-truncate">
+            {{ item.name }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <portal-general-settings-navigation-settings-sidebar-preview-item
+        v-for="(subItem, index) in item.items"
+        :key="`${subItem.name}_${subItem.icon}_${index}`"
+        :settings="settings"
+        :item="subItem" />
+    </template>
   </div>
   <v-list-item
     v-else
     class="d-flex"
     dense>
     <v-list-item-avatar min-width="36">
-      <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+      <v-icon v-if="!item.avatar" size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+    </v-list-item-avatar>
+    <v-list-item-avatar
+      v-if="item.avatar"
+      class="me-4"
+      min-width="36"
+      width="36"
+      height="36"
+      tile>
+      <img
+        :src="item.avatar"
+        :alt="item.name"
+        class="border-radius"
+        width="36"
+        height="auto">
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="logoTitle menu-text-color text-truncate">
@@ -56,7 +91,13 @@ export default {
   },
   computed: {
     isSitePages() {
-      return this.item.type === 'SITE' && this.item?.items?.length && this.item.properties.expandPages === 'true';
+      return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
+    },
+    isSpaces() {
+      return this.item.type === 'SPACES';
+    },
+    isSpaceTemplate() {
+      return this.item.type === 'SPACE_TEMPLATE';
     },
   },
 };
