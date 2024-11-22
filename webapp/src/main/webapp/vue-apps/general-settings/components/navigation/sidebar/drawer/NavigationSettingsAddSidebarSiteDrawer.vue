@@ -34,7 +34,7 @@
       <div class="pa-4">
         <v-radio-group
           v-model="option"
-          class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
+          class="mt-0 mb-4 ms-n1 text-no-wrap flex-grow-1 flex-shrink-0"
           mandatory>
           <v-radio
             value="SITE"
@@ -51,7 +51,7 @@
             </template>
           </v-radio>
         </v-radio-group>
-        <div class="mt-4 mb-2">
+        <div class="mb-2">
           {{ $t('generalSettings.selectASite') }}
         </div>
         <v-autocomplete
@@ -122,6 +122,7 @@ export default {
   data: () => ({
     drawer: false,
     loading: false,
+    saving: false,
     initialized: false,
     settings: null,
     option: null,
@@ -259,54 +260,61 @@ export default {
         }
       }
     },
-    apply() {
-      this.item.name = this.isPageOption ? this.page.label : this.site.displayName;
-      this.item.url = this.isPageOption ? `/portal/${this.siteName}/${this.page.uri}` : `/portal/${this.siteName}`;
-      this.item.target = this.isPageOption ? this.page.target : null;
-      this.item.icon = this.isPageOption ? this.page.icon : this.siteIcon;
-      this.item.type = this.isPageOption ? 'PAGE' : 'SITE';
-      this.item.properties = this.isPageOption ? {
-        siteId: this.siteId,
-        siteType: this.siteType,
-        siteName: this.siteName,
-        siteIcon: this.siteIcon,
-        siteDisplayName: this.site.displayName,
-        navigationNodeId: this.nodeId,
-      } : {
-        siteId: this.siteId,
-        siteType: this.siteType,
-        siteName: this.siteName,
-        expandPages: this.expandPages,
-      };
-      if (this.isSiteOption && this.expandPages === 'true') {
-        this.item.items = this.site.siteNavigations.map(n => (n.visibility?.toLowerCase?.() === 'displayed' || n.visibility?.toLowerCase?.() === 'temporal') && {
-          name: n.label,
-          url: `/portal/${this.siteName}/${n.uri}`,
-          target: n.target,
-          icon: n.icon,
-          type: 'PAGE',
-          properties: {
-            siteId: this.siteId,
-            siteType: this.siteType,
-            siteName: this.siteName,
-            siteIcon: this.siteIcon,
-            siteDisplayName: this.site.displayName,
-            navigationNodeId: n.id,
-          },
-        }).filter(n => n);
-      } else {
-        delete this.item.items;
+    async apply() {
+      this.saving = true;
+      try {
+        await this.retrieveSite();
+        const siteIcon = this.site?.siteNavigations && this.getFirstIcon(this.site.siteNavigations) || null;
+        this.item.name = this.isPageOption ? this.page.label : this.site.displayName;
+        this.item.url = this.isPageOption ? `/portal/${this.siteName}/${this.page.uri}` : `/portal/${this.siteName}`;
+        this.item.target = this.isPageOption ? this.page.target : null;
+        this.item.icon = this.isPageOption ? this.page.icon : siteIcon;
+        this.item.type = this.isPageOption ? 'PAGE' : 'SITE';
+        this.item.properties = this.isPageOption ? {
+          siteId: this.siteId,
+          siteType: this.siteType,
+          siteName: this.siteName,
+          siteIcon: this.siteIcon,
+          siteDisplayName: this.site.displayName,
+          navigationNodeId: this.nodeId,
+        } : {
+          siteId: this.siteId,
+          siteType: this.siteType,
+          siteName: this.siteName,
+          expandPages: this.expandPages,
+        };
+        if (this.isSiteOption && this.expandPages === 'true') {
+          this.item.items = this.site.siteNavigations.map(n => (n.visibility?.toLowerCase?.() === 'displayed' || n.visibility?.toLowerCase?.() === 'temporal') && {
+            name: n.label,
+            url: `/portal/${this.siteName}/${n.uri}`,
+            target: n.target,
+            icon: n.icon,
+            type: 'PAGE',
+            properties: {
+              siteId: this.siteId,
+              siteType: this.siteType,
+              siteName: this.siteName,
+              siteIcon: this.siteIcon,
+              siteDisplayName: this.site.displayName,
+              navigationNodeId: n.id,
+            },
+          }).filter(n => n);
+        } else {
+          delete this.item.items;
+        }
+        if (this.isNew) {
+          this.settings.sidebar.items.push(this.item);
+        }
+        this.close();
+      } finally {
+        this.saving = false;
       }
-      if (this.isNew) {
-        this.settings.sidebar.items.push(this.item);
-      }
-      this.close();
     },
     async retrieveSite() {
       this.site = null;
       if (this.siteId && this.sites) {
         const site = this.sites.find(s => s.siteId === this.siteId);
-        if (site && !site.navigationsRetrieved && this.option === 'PAGE') {
+        if (site && !site.navigationsRetrieved) {
           this.loading = true;
           try {
             const siteWithNavigations = await this.$siteService.getSite(site.siteType, site.name, {
