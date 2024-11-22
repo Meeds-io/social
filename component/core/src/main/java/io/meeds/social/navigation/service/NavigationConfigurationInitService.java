@@ -75,7 +75,7 @@ public class NavigationConfigurationInitService {
   @Value("${navigation.configuration.allowUserCustomHome:true}")
   private boolean                        allowUserCustomHome;
 
-  @Value("${navigation.configuration.defaultMode:HIDDEN}")
+  @Value("${navigation.configuration.defaultMode:ICON}")
   private SidebarMode                    defaultMode;
 
   private List<TopbarApplication>        defaultTopbarApplications;

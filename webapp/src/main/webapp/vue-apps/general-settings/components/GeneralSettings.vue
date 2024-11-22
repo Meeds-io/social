@@ -22,14 +22,14 @@
   <v-app>
     <v-main>
       <v-card
-        class="px-6 application-body"
+        class="py-2 px-6 application-body"
         flat>
         <template v-if="intialized">
           <v-expand-transition>
             <v-list-item
               v-if="$root.selectedTab"
               dense
-              class="px-0 mb-4">
+              class="px-0 py-1 mb-4">
               <v-list-item-action class="my-auto me-0 ms-n2">
                 <v-btn
                   :title="$t('generalSettings.access.backToMain')"
