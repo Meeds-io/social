@@ -18,7 +18,7 @@
  */
 package io.meeds.social.navigation.plugin;
 
-import static io.meeds.social.navigation.plugin.PageSidebarPlugin.*;
+import static io.meeds.social.navigation.plugin.PageSidebarPlugin.NODE_ID_PROP_NAME;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.utils.ExpressionUtil;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
@@ -100,13 +101,16 @@ public class SiteSidebarPlugin implements SidebarPlugin {
   @Autowired
   private LocaleConfigService     localeConfigService;
 
+  @Autowired
+  private UserACL                 userAcl;
+
   @Override
   public SidebarItemType getType() {
     return SidebarItemType.SITE;
   }
 
   @Override
-  public SidebarItem resolveProperties(SidebarItem item, Locale locale) {
+  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
     String siteId = item.getProperties().get(SITE_ID_PROP_NAME);
     String label = translationService.getTranslationLabelOrDefault(SITE_OBJECT_TYPE,
                                                                    Long.parseLong(siteId),
@@ -173,10 +177,11 @@ public class SiteSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public boolean itemExists(SidebarItem item) {
+  public boolean itemExists(SidebarItem item, String username) {
     String siteType = item.getProperties().get(SITE_TYPE_PROP_NAME);
     String siteName = item.getProperties().get(SITE_NAME_PROP_NAME);
-    return layoutService.getPortalConfig(siteType, siteName) != null;
+    PortalConfig site = layoutService.getPortalConfig(siteType, siteName);
+    return site != null && userAcl.hasAccessPermission(site, userAcl.getUserIdentity(username));
   }
 
   protected SidebarItem toSidebarItem(SiteKey siteKey) {
@@ -266,7 +271,7 @@ public class SiteSidebarPlugin implements SidebarPlugin {
                                                              siteName);
   }
 
-  private static boolean isVisibilityEligible(NodeState state) {
+  public static boolean isVisibilityEligible(NodeState state) {
     if (state.getVisibility() == Visibility.DISPLAYED) {
       return true;
     } else if (state.getVisibility() == Visibility.TEMPORAL) {

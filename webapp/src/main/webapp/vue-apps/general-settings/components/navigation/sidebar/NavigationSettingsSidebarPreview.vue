@@ -47,7 +47,7 @@
       <div class="flex-grow-1 flex-shrink-1 overflow-x-hidden overflow-y-auto">
         <portal-general-settings-navigation-settings-sidebar-preview-item
           v-for="(item, index) in menuItems"
-          :key="index"
+          :key="`${item.name}_${item.icon}_${index}`"
           :settings="settings"
           :item="item" />
       </div>

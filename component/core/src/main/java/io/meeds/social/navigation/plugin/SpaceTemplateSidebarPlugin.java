@@ -28,6 +28,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.social.core.space.SpaceFilter;
+
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -35,18 +37,9 @@ import io.meeds.social.space.template.service.SpaceTemplateService;
 
 @Component
 @Order(30)
-public class SpaceSidebarPlugin implements SidebarPlugin {
+public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   private static final String  SPACE_TEMPLATE_ID_PROP_NAME = "spaceTemplateId";
-
-  private static final long    SPACES_LIMIT_DEFAULT        = 4;
-
-  private static final String  SPACES_LIMIT                = "limit";
-
-  private static final String  SPACES_SORT_BY              = "sortBy";
-
-  @SuppressWarnings("unused")
-  private static final String  SPACES_NAMES                = "names";
 
   @Autowired
   private SpaceTemplateService spaceTemplateService;
@@ -57,12 +50,19 @@ public class SpaceSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public SidebarItem resolveProperties(SidebarItem item, Locale locale) {
+  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+    String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
+    spaceFilter.setTemplateId(Long.parseLong(spaceTemplateId));
+  }
+
+  @Override
+  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
     String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(Long.parseLong(spaceTemplateId), locale, true);
     if (spaceTemplate != null) {
       item.setName(spaceTemplate.getName());
       item.setIcon(spaceTemplate.getIcon());
+      item.setItems(getSpaces(item, username));
     }
     return item;
   }
@@ -77,9 +77,10 @@ public class SpaceSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public boolean itemExists(SidebarItem item) {
-    String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(Long.parseLong(spaceTemplateId));
+  public boolean itemExists(SidebarItem item, String username) {
+    String spaceTemplateIdProperty = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
+    long spaceTemplateId = Long.parseLong(spaceTemplateIdProperty);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(spaceTemplateId);
     return spaceTemplate != null && spaceTemplate.isEnabled() && !spaceTemplate.isDeleted();
   }
 
@@ -98,12 +99,8 @@ public class SpaceSidebarPlugin implements SidebarPlugin {
     Map<String, String> properties = new HashMap<>();
     properties.put(SPACE_TEMPLATE_ID_PROP_NAME, String.valueOf(spaceTemplate.getId()));
     properties.put(SPACES_LIMIT, String.valueOf(SPACES_LIMIT_DEFAULT));
-    properties.put(SPACES_SORT_BY, SortBy.TITLE.name());
+    properties.put(SPACES_SORT_BY, SidebarSpaceSortBy.LAST_ACCESS.name());
     return properties;
-  }
-
-  enum SortBy {
-    TITLE, FAVORITE, LAST_ACCESS;
   }
 
 }
