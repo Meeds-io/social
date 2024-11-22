@@ -128,35 +128,29 @@ public class SiteSidebarPlugin implements SidebarPlugin {
                                                                                            .get(SITE_TYPE_PROP_NAME),
                                                                                        item.getProperties()
                                                                                            .get(SITE_NAME_PROP_NAME)));
-    if (rootNode != null && rootNode.getSize() > 0) {
-      NodeContext<NodeContext<Object>> firstNode = rootNode.get(0);
-      if (firstNode.getData() != null
-          && firstNode.getData().getState() != null
-          && firstNode.getData().getState().getIcon() != null) {
-        item.setIcon(firstNode.getData().getState().getIcon());
-      }
-      if (StringUtils.equals(item.getProperties().get(SITE_EXPAND_PAGES_PROP_NAME), "true")) {
-        Collection<NodeContext<Object>> nodes = rootNode.getNodes();
-        item.setItems(new ArrayList<>());
-        nodes.forEach(node -> {
-          if (node.getData() != null
-              && node.getData().getState() != null
-              && isVisibilityEligible(node.getData().getState())) {
-            SidebarItem pageItem = new SidebarItem(SidebarItemType.PAGE);
-            pageItem.setProperties(Collections.singletonMap(NODE_ID_PROP_NAME, node.getData().getId()));
-            pageItem.setUrl(node.getData().getName());
-            PageSidebarPlugin.resolveProperties(navigationService,
-                                                layoutService,
-                                                translationService,
-                                                descriptionService,
-                                                resourceBundleManager,
-                                                localeConfigService,
-                                                pageItem,
-                                                locale);
-            item.getItems().add(pageItem);
-          }
-        });
-      }
+    if (rootNode != null
+        && rootNode.getSize() > 0
+        && StringUtils.equals(item.getProperties().get(SITE_EXPAND_PAGES_PROP_NAME), "true")) {
+      Collection<NodeContext<Object>> nodes = rootNode.getNodes();
+      item.setItems(new ArrayList<>());
+      nodes.forEach(node -> {
+        if (node.getData() != null
+            && node.getData().getState() != null
+            && isVisibilityEligible(node.getData().getState())) {
+          SidebarItem pageItem = new SidebarItem(SidebarItemType.PAGE);
+          pageItem.setProperties(Collections.singletonMap(NODE_ID_PROP_NAME, node.getData().getId()));
+          pageItem.setUrl(node.getData().getName());
+          PageSidebarPlugin.resolveProperties(navigationService,
+                                              layoutService,
+                                              translationService,
+                                              descriptionService,
+                                              resourceBundleManager,
+                                              localeConfigService,
+                                              pageItem,
+                                              locale);
+          item.getItems().add(pageItem);
+        }
+      });
     }
     return item;
   }
