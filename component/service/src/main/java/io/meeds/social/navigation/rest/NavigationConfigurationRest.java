@@ -45,15 +45,15 @@ public class NavigationConfigurationRest {
   private NavigationConfigurationService navigationConfigurationService;
 
   @GetMapping
-  @Secured("administrators")
+  @Secured("users")
   @Operation(summary = "Retrieve Topbar and Sidebar settings",
              method = "GET",
              description = "This retrieves the complete configuration of Topbar and Sidebar")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
   public NavigationConfiguration getNavigationConfiguration(HttpServletRequest request) {
-    return navigationConfigurationService.getConfiguration(request.getLocale(), true);
+    return navigationConfigurationService.getConfiguration(request.getRemoteUser(), request.getLocale(), true);
   }
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
