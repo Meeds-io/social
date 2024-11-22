@@ -70,6 +70,7 @@
           <translation-text-field
             v-model="names"
             :placeholder="$t('generalSettings.sidebar.spacesNamesPlaceHolder')"
+            :maxlength="50"
             drawer-title="generalSettings.sidebar.spacesNamesDrawerTitle" />
         </div>
         <div class="d-flex align-center mb-2">
@@ -95,9 +96,9 @@
           <v-spacer />
           <number-input
             v-model="limit"
-            step="1"
-            min="1"
-            max="10" />
+            :step="1"
+            :min="minSpaces"
+            :max="10" />
         </div>
       </div>
     </template>
@@ -126,13 +127,13 @@ export default {
   data: () => ({
     drawer: false,
     isNew: false,
+    modified: false,
     names: {},
     settings: null,
     option: null,
     item: null,
     spaceTemplates: null,
     spaceTemplateId: null,
-    icon: 'fa-layers-group',
     sortBy: 'TITLE',
     limit: 4,
   }),
@@ -140,12 +141,44 @@ export default {
     spaceTemplate() {
       return this.spaceTemplateId && this.spaceTemplates?.find?.(t => Number(t.id) === Number(this.spaceTemplateId)) || null;
     },
+    minSpaces() {
+      return this.option === 'SPACES' ? 0 : 1;
+    },
+    disabled() {
+      return !this.modified
+        || (this.option === 'SPACE_TEMPLATE' && !this.spaceTemplteId)
+        || (this.option === 'SPACES' && (!this.names || !this.names[eXo.env.portal.defaultLanguage]?.trim?.()?.length || Object.values(this.names).find(name => name?.length > 50)))
+        || !this.sortBy;
+    },
   },
   watch: {
     option() {
       if (this.drawer) {
-        this.reset();
+        this.modified = true;
       }
+    },
+    spaceTemplate() {
+      if (this.drawer) {
+        this.modified = true;
+      }
+    },
+    limit() {
+      if (this.drawer) {
+        this.modified = true;
+      }
+    },
+    sortBy() {
+      if (this.drawer) {
+        this.modified = true;
+      }
+    },
+    names: {
+      deep: true,
+      handler() {
+        if (this.drawer) {
+          this.modified = true;
+        }
+      },
     },
   },
   created() {
@@ -173,7 +206,7 @@ export default {
         },
       };
       this.isNew = !item;
-      this.reset(item);
+      this.reset(this.item);
       this.$refs.drawer.open();
       this.refreshSpaceTemplates();
     },
@@ -183,16 +216,77 @@ export default {
       }
     },
     reset(item) {
-      if (item) {
-        this.option = this.isNew ? 'SPACE_TEMPLATE' : item.type;
-      }
-      this.spaceTemplateId = this.option === 'SPACE_TEMPLATE' && item?.properties?.spaceTemplateId || null;
-      this.icon = this.option === 'SPACE_TEMPLATE' && (this.spaceTemplate?.icon || item?.icon) || 'fa-layers-group';
-      this.sortBy = item?.properties?.sortBy || this.sortBy || 'TITLE';
-      this.limit = item?.properties?.limit || this.limit || 4;
+      this.modified = false;
+      this.option = this.isNew ? 'SPACE_TEMPLATE' : item.type;
+      this.spaceTemplateId = item?.properties?.spaceTemplateId && Number(item.properties.spaceTemplateId) || null;
+      this.sortBy = item?.properties?.sortBy || 'TITLE';
+      this.limit = item?.properties?.limit && Number(item.properties.limit) || 4;
+      this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
     },
-    apply() {
+    async apply() {
+      this.item.type = this.option;
+      if (this.option === 'SPACE_TEMPLATE') {
+        this.item.name = this.spaceTemplate.name;
+        this.item.icon = this.spaceTemplate.icon;
+        this.item.properties = {
+          spaceTemplateId: this.spaceTemplateId,
+          sortBy: this.sortBy,
+          limit: this.limit,
+        };
+      } else {
+        this.item.name = this.names[eXo.env.portal.language] || this.names[eXo.env.portal.defaultLanguage];
+        this.item.icon = 'fa-layer-group';
+        Object.keys(this.names).forEach(k => {
+          if (!this.names[k]?.trim?.()?.length) {
+            delete this.names[k];
+          }
+        });
+        this.item.properties = {
+          names: JSON.stringify(this.names),
+          sortBy: this.sortBy,
+          limit: this.limit,
+        };
+      }
+      const data = await this.$spaceService.getSpacesByFilter({
+        templateId: this.option === 'SPACE_TEMPLATE' ? this.spaceTemplateId : null,
+        offset: 0,
+        limit: this.limit,
+        filter: this.getSpacesFilterType(this.sortBy),
+        sortBy: this.getSpacesSortField(this.sortBy),
+        sortDirection: this.getSpacesSortDirection(this.sortBy),
+      });
+      this.item.items = data?.spaces?.map?.(s => ({
+        name: s.displayName,
+        avatar: s.avatarUrl,
+        url: `/portal/s/${s.id}`,
+        type: 'SPACE',
+        properties: {
+          id: s.id,
+        },
+      })) || [];
+      if (this.isNew) {
+        this.settings.sidebar.items.push(this.item);
+      }
       this.close();
+    },
+    getSpacesFilterType(sortBy) {
+      if (sortBy === 'LAST_ACCESS') {
+        return 'lastVisited';
+      } else if (sortBy === 'FAVORITE') {
+        return 'favorite';
+      } else {
+        return 'member';
+      }
+    },
+    getSpacesSortField() {
+      return 'title';
+    },
+    getSpacesSortDirection(sortBy) {
+      if (sortBy === 'LAST_ACCESS') {
+        return 'DESC';
+      } else {
+        return 'ASC';
+      }
     },
     close() {
       this.$refs.drawer.close();

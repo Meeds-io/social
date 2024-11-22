@@ -18,23 +18,40 @@
  */
 package io.meeds.social.navigation.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class NavigationConfiguration implements Cloneable {
 
   private TopbarConfiguration  topbar;
 
   private SidebarConfiguration sidebar;
 
+  private final long           lastModified;
+
+  public NavigationConfiguration() {
+    this.lastModified = System.currentTimeMillis();
+  }
+
+  public NavigationConfiguration(TopbarConfiguration topbar, SidebarConfiguration sidebar) {
+    this.topbar = topbar;
+    this.sidebar = sidebar;
+    this.lastModified = System.currentTimeMillis();
+  }
+
+  public NavigationConfiguration(TopbarConfiguration topbar,
+                                 SidebarConfiguration sidebar,
+                                 long lastModified) {
+    this.topbar = topbar;
+    this.sidebar = sidebar;
+    this.lastModified = lastModified;
+  }
+
   @Override
   public NavigationConfiguration clone() { // NOSONAR
     return new NavigationConfiguration(topbar == null ? null : topbar.clone(),
-                                       sidebar == null ? null : sidebar.clone());
+                                       sidebar == null ? null : sidebar.clone(),
+                                       lastModified);
   }
 
 }
