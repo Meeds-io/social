@@ -18,7 +18,7 @@
  */
 package io.meeds.social.navigation.plugin;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -35,9 +35,18 @@ import io.meeds.social.space.template.service.SpaceTemplateService;
 
 @Component
 @Order(30)
-public class SpaceTemplateSidebarPlugin implements SidebarPlugin {
+public class SpaceSidebarPlugin implements SidebarPlugin {
 
   private static final String  SPACE_TEMPLATE_ID_PROP_NAME = "spaceTemplateId";
+
+  private static final long    SPACES_LIMIT_DEFAULT        = 4;
+
+  private static final String  SPACES_LIMIT                = "limit";
+
+  private static final String  SPACES_SORT_BY              = "sortBy";
+
+  @SuppressWarnings("unused")
+  private static final String  SPACES_NAMES                = "names";
 
   @Autowired
   private SpaceTemplateService spaceTemplateService;
@@ -86,8 +95,15 @@ public class SpaceTemplateSidebarPlugin implements SidebarPlugin {
   }
 
   private Map<String, String> buildSpaceTemplateProperties(SpaceTemplate spaceTemplate) {
-    return Collections.singletonMap(SPACE_TEMPLATE_ID_PROP_NAME,
-                                    String.valueOf(spaceTemplate.getId()));
+    Map<String, String> properties = new HashMap<>();
+    properties.put(SPACE_TEMPLATE_ID_PROP_NAME, String.valueOf(spaceTemplate.getId()));
+    properties.put(SPACES_LIMIT, String.valueOf(SPACES_LIMIT_DEFAULT));
+    properties.put(SPACES_SORT_BY, SortBy.TITLE.name());
+    return properties;
+  }
+
+  enum SortBy {
+    TITLE, FAVORITE, LAST_ACCESS;
   }
 
 }
