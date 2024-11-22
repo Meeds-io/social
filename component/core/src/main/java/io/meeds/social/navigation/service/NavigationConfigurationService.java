@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.navigation.model.NavigationConfiguration;
+import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.navigation.model.TopbarApplication;
 import io.meeds.social.navigation.plugin.DefaultSidebarPlugin;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
@@ -57,7 +57,7 @@ public class NavigationConfigurationService {
    *         Navigation
    */
   public NavigationConfiguration getConfiguration() {
-    return getConfiguration(null, false);
+    return getConfiguration(null, null, false);
   }
 
   /**
@@ -65,7 +65,7 @@ public class NavigationConfigurationService {
    * @return {@link NavigationConfiguration} with the complete configuration of
    *         Navigation
    */
-  public NavigationConfiguration getConfiguration(Locale locale, boolean resolve) {
+  public NavigationConfiguration getConfiguration(String username, Locale locale, boolean resolve) {
     NavigationConfiguration configuration = navigationConfigurationStorage.getConfiguration(defaultTopbarApplications);
     if (configuration == null) {
       return null;
@@ -74,8 +74,8 @@ public class NavigationConfigurationService {
                    .setItems(configuration.getSidebar()
                                           .getItems()
                                           .stream()
-                                          .filter(item -> getPlugin(item.getType()).itemExists(item))
-                                          .map(item -> resolve ? expandSidebarItem(item, locale) : item)
+                                          .filter(item -> getPlugin(item.getType()).itemExists(item, username))
+                                          .map(item -> resolve ? expandSidebarItem(item, username, locale) : item)
                                           .toList());
       return configuration;
     }
@@ -91,8 +91,8 @@ public class NavigationConfigurationService {
   }
 
   @SneakyThrows
-  private SidebarItem expandSidebarItem(SidebarItem item, Locale locale) {
-    return getPlugin(item.getType()).resolveProperties(item, locale);
+  private SidebarItem expandSidebarItem(SidebarItem item, String username, Locale locale) {
+    return getPlugin(item.getType()).resolveProperties(item, username, locale);
   }
 
   private SidebarPlugin getPlugin(SidebarItemType type) {

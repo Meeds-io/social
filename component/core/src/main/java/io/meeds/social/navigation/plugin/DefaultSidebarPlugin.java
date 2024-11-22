@@ -38,13 +38,12 @@ public class DefaultSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public SidebarItem resolveProperties(SidebarItem item, Locale locale) {
+  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
     return item;
   }
 
   @Override
-  public boolean itemExists(SidebarItem item) {
+  public boolean itemExists(SidebarItem item, String username) {
     return true;
   }
-
 }
