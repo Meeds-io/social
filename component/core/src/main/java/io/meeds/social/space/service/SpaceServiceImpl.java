@@ -331,6 +331,18 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public ListAccess<Space> getLastAccessedSpaceByFilter(String username, SpaceFilter spaceFilter) {
+    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+      return new ListAccessImpl<>(Space.class, Collections.emptyList());
+    }
+    return new SpaceListAccess(spaceStorage,
+                               spaceSearchConnector,
+                               username,
+                               spaceFilter,
+                               SpaceListAccessType.LASTEST_ACCESSED);
+  }
+
+  @Override
   public ListAccess<Space> getVisitedSpaces(String username) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
