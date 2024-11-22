@@ -121,7 +121,7 @@ export default {
       return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
     },
     seeMoreUrl() {
-      return this.$linkService.toLinkUrl(this.settings?.seeMore);
+      return this.$utils.toLinkUrl(this.settings?.seeMore);
     },
   },
 };
