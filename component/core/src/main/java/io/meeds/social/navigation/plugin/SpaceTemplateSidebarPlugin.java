@@ -103,7 +103,7 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
     Map<String, String> properties = new HashMap<>();
     properties.put(SPACE_TEMPLATE_ID_PROP_NAME, String.valueOf(spaceTemplate.getId()));
     properties.put(SPACES_LIMIT, String.valueOf(SPACES_LIMIT_DEFAULT));
-    properties.put(SPACES_SORT_BY, SidebarSpaceSortBy.TITLE.name());
+    properties.put(SPACES_SORT_BY, SidebarSpaceSortBy.LAST_ACCESS.name());
     return properties;
   }
 

@@ -31,8 +31,10 @@
     </template>
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <template v-if="item?.items?.length">
-      <v-list-item class="d-flex" dense>
+    <template v-if="item?.items?.length || isSpaces">
+      <v-list-item
+        class="d-flex"
+        dense>
         <v-list-item-avatar min-width="36">
           <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
         </v-list-item-avatar>
@@ -42,11 +44,13 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <portal-general-settings-navigation-settings-sidebar-preview-item
-        v-for="(subItem, index) in item.items"
-        :key="`${subItem.name}_${subItem.icon}_${index}`"
-        :settings="settings"
-        :item="subItem" />
+      <template v-if="item?.items?.length">
+        <portal-general-settings-navigation-settings-sidebar-preview-item
+          v-for="(subItem, index) in item.items"
+          :key="`${subItem.name}_${subItem.icon}_${index}`"
+          :settings="settings"
+          :item="subItem" />
+      </template>
     </template>
   </div>
   <v-list-item

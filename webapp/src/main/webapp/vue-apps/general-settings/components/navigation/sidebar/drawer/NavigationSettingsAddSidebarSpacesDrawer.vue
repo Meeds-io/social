@@ -97,7 +97,7 @@
           <number-input
             v-model="limit"
             :step="1"
-            :min="1"
+            :min="minSpaces"
             :max="10" />
         </div>
       </div>
@@ -140,6 +140,9 @@ export default {
   computed: {
     spaceTemplate() {
       return this.spaceTemplateId && this.spaceTemplates?.find?.(t => Number(t.id) === Number(this.spaceTemplateId)) || null;
+    },
+    minSpaces() {
+      return this.option === 'SPACES' ? 0 : 1;
     },
     disabled() {
       return !this.modified
