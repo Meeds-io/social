@@ -25,15 +25,19 @@ import java.util.Locale;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 
 import org.exoplatform.services.resources.LocaleConfigService;
 
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
 
+@Component
+@Order(50)
 public class LinkSidebarPlugin implements SidebarPlugin {
 
-  private static final String LINK_NAMES = "names";
+  public static final String LINK_NAMES = "names";
 
   @Autowired
   private LocaleConfigService localeConfigService;
