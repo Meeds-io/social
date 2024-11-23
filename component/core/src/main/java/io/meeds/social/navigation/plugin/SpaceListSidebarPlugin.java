@@ -19,8 +19,10 @@
 package io.meeds.social.navigation.plugin;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -74,7 +76,18 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   @Override
   public List<SidebarItem> getDefaultItems() {
-    return Collections.emptyList();
+    Map<String, String> properties = new HashMap<>();
+    properties.put(SPACES_NAMES, "{\"en\": \"sidebar.viewAllSpaces\"}");
+    properties.put(SPACES_LIMIT, "0");
+    properties.put(SPACES_SORT_BY, "TITLE");
+    return Collections.singletonList(new SidebarItem(null,
+                                                     null,
+                                                     null,
+                                                     null,
+                                                     "fa-layer-group",
+                                                     SidebarItemType.SPACES,
+                                                     null,
+                                                     properties));
   }
 
   @Override
