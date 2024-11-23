@@ -18,6 +18,7 @@
  */
 package io.meeds.social.navigation.plugin;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,7 +33,9 @@ public interface SidebarPlugin {
   /**
    * @return {@link SidebarItemType} managed by the implementing plugin
    */
-  SidebarItemType getType();
+  default SidebarItemType getType() {
+    return null;
+  }
 
   /**
    * Resolves Item Name and Icon when storage is maintained
@@ -41,18 +44,24 @@ public interface SidebarPlugin {
    * @param username
    * @param locale
    */
-  SidebarItem resolveProperties(SidebarItem item, String username, Locale locale);
+  default SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
+    return item;
+  }
 
   /**
    * @return {@link List} of {@link SidebarItem} to inject on startup
    */
-  List<SidebarItem> getDefaultItems();
+  default List<SidebarItem> getDefaultItems() {
+    return Collections.emptyList();
+  }
 
   /**
    * @param item {@link SidebarItem}
    * @param username User name
    * @return true if the item exists and the user has access to it, else false
    */
-  boolean itemExists(SidebarItem item, String username);
+  default boolean itemExists(SidebarItem item, String username) {
+    return true;
+  }
 
 }
