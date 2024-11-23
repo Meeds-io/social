@@ -40,7 +40,7 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="logoTitle menu-text-color text-truncate">
-            {{ item.name }}
+            {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
