@@ -27,12 +27,42 @@
       </div>
       <v-switch
         v-model="menuSettings.allowUserCustomHome"
-        :label="$t('generalSettings.allowUserCustomHome')"
-        class="mt-0 mb-4 width-fit-content" />
+        class="mt-0 mb-4 width-fit-content">
+        <template #label>
+          <help-label
+            label="generalSettings.allowUserCustomHome"
+            label-class="text-body"
+            tooltip="generalSettings.whatIsUserCustomHome">
+            <template slot="helpContent">
+              <p>
+                {{ $t('generalSettings.whatIsUserCustomHomeDescription') }}
+              </p>
+            </template>
+          </help-label>
+        </template>
+      </v-switch>
       <div class="d-flex width-fit-content">
         <div class="mb-4 me-8">
-          <div class="font-weight-bold mb-2">
-            {{ $t('generalSettings.sidebarAllowedModes') }}
+          <div class="mb-2">
+            <help-label
+              label="generalSettings.sidebarAllowedModes"
+              label-class="text-body font-weight-bold"
+              tooltip="generalSettings.whatIsSidebarAllowedModes">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarAllowedModesDescription1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarAllowedModesDescription2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarAllowedModesDescription3') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarAllowedModesDescription4') }}
+                </p>
+              </template>
+            </help-label>
           </div>
           <v-checkbox
             v-for="mode in allModes"
@@ -48,8 +78,20 @@
           </v-checkbox>
         </div>
         <div>
-          <div class="font-weight-bold mb-2">
-            {{ $t('generalSettings.sidebarDefaultMode') }}
+          <div class="mb-2">
+            <help-label
+              label="generalSettings.sidebarDefaultMode"
+              label-class="text-body font-weight-bold"
+              tooltip="generalSettings.whatIsSidebarDefaultMode">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarDefaultModeDescription1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.whatIsSidebarDefaultModeDescription2') }}
+                </p>
+              </template>
+            </help-label>
           </div>
           <v-radio-group
             v-model="menuSettings.defaultMode"
