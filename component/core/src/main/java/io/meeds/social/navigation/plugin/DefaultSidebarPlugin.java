@@ -18,32 +18,5 @@
  */
 package io.meeds.social.navigation.plugin;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
-
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
-
 public class DefaultSidebarPlugin implements SidebarPlugin {
-
-  @Override
-  public SidebarItemType getType() {
-    return null;
-  }
-
-  @Override
-  public List<SidebarItem> getDefaultItems() {
-    return Collections.emptyList();
-  }
-
-  @Override
-  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
-    return item;
-  }
-
-  @Override
-  public boolean itemExists(SidebarItem item, String username) {
-    return true;
-  }
 }
