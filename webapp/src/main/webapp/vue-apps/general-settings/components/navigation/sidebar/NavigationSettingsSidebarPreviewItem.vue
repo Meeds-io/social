@@ -32,10 +32,8 @@
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
     <template v-if="item?.items?.length || isSpaces">
-      <v-list-item
-        class="d-flex"
-        dense>
-        <v-list-item-avatar min-width="36">
+      <v-list-item class="d-flex">
+        <v-list-item-avatar class="me-2 my-auto" min-width="36">
           <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -55,14 +53,13 @@
   </div>
   <v-list-item
     v-else
-    class="d-flex"
-    dense>
-    <v-list-item-avatar min-width="36">
+    class="d-flex">
+    <v-list-item-avatar class="me-2 my-auto" min-width="36">
       <v-icon v-if="!item.avatar" size="18">{{ item.icon || 'fa-folder' }}</v-icon>
     </v-list-item-avatar>
     <v-list-item-avatar
       v-if="item.avatar"
-      class="me-4"
+      class="me-2 my-auto"
       min-width="36"
       width="36"
       height="36"
