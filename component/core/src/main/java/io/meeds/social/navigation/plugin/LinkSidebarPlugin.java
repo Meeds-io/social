@@ -18,12 +18,12 @@
  */
 package io.meeds.social.navigation.plugin;
 
+import static io.meeds.social.navigation.plugin.SidebarPluginUtils.getNameFromProperties;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -37,7 +37,7 @@ import io.meeds.social.navigation.model.SidebarItem;
 @Order(50)
 public class LinkSidebarPlugin implements SidebarPlugin {
 
-  public static final String LINK_NAMES = "names";
+  public static final String  LINK_NAMES = "names";
 
   @Autowired
   private LocaleConfigService localeConfigService;
@@ -49,19 +49,7 @@ public class LinkSidebarPlugin implements SidebarPlugin {
 
   @Override
   public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
-    String names = item.getProperties().get(LINK_NAMES);
-    JSONObject jsonObject = new JSONObject(names);
-    String lang = getLang(locale);
-    Object name = getName(jsonObject, lang);
-    if (name == null) {
-      lang = getLang(localeConfigService.getDefaultLocaleConfig().getLocale());
-      name = getName(jsonObject, lang);
-      if (name == null) {
-        lang = jsonObject.keys().next();
-        name = getName(jsonObject, lang);
-      }
-    }
-    item.setName(String.valueOf(name));
+    item.setName(getNameFromProperties(localeConfigService, item, LINK_NAMES, locale));
     return item;
   }
 
@@ -73,18 +61,6 @@ public class LinkSidebarPlugin implements SidebarPlugin {
   @Override
   public boolean itemExists(SidebarItem item, String username) {
     return true;
-  }
-
-  private String getLang(Locale locale) {
-    return locale.toLanguageTag().replace("-", "_");
-  }
-
-  private Object getName(JSONObject jsonObject, String lang) {
-    try {
-      return jsonObject.get(lang);
-    } catch (JSONException e) {
-      return null;
-    }
   }
 
 }

@@ -39,7 +39,7 @@ import io.meeds.social.space.template.service.SpaceTemplateService;
 @Order(30)
 public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  private static final String  SPACE_TEMPLATE_ID_PROP_NAME = "spaceTemplateId";
+  public static final String   SPACE_TEMPLATE_ID_PROP_NAME = "spaceTemplateId";
 
   @Autowired
   private SpaceTemplateService spaceTemplateService;
@@ -50,9 +50,14 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
-    String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
-    spaceFilter.setTemplateId(Long.parseLong(spaceTemplateId));
+  public boolean itemExists(SidebarItem item, String username) {
+    if (item == null || item.getProperties() == null) {
+      return false;
+    }
+    String spaceTemplateIdProperty = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
+    long spaceTemplateId = Long.parseLong(spaceTemplateIdProperty);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(spaceTemplateId);
+    return spaceTemplate != null && spaceTemplate.isEnabled() && !spaceTemplate.isDeleted();
   }
 
   @Override
@@ -77,11 +82,9 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  public boolean itemExists(SidebarItem item, String username) {
-    String spaceTemplateIdProperty = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
-    long spaceTemplateId = Long.parseLong(spaceTemplateIdProperty);
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(spaceTemplateId);
-    return spaceTemplate != null && spaceTemplate.isEnabled() && !spaceTemplate.isDeleted();
+  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+    String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
+    spaceFilter.setTemplateId(Long.parseLong(spaceTemplateId));
   }
 
   private SidebarItem toSidebarItem(SpaceTemplate spaceTemplate) {
