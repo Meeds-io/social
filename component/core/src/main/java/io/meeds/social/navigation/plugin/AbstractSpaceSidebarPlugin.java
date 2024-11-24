@@ -21,6 +21,7 @@ package io.meeds.social.navigation.plugin;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +59,10 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
     buildSpaceFilter(item, spaceFilter);
     int limit = getLimit(item);
     Space[] spaces = getSpaces(item, spaceFilter, username, sortBy, limit);
-    return Arrays.stream(spaces).map(this::toSidebarItem).toList();
+    return Arrays.stream(spaces)
+                 .filter(Objects::nonNull)
+                 .map(this::toSidebarItem)
+                 .toList();
   }
 
   protected SidebarItem toSidebarItem(Space space) {
