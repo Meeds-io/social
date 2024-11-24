@@ -18,91 +18,33 @@
  */
 package io.meeds.social.navigation.plugin;
 
-import static io.meeds.social.navigation.plugin.PageSidebarPlugin.NODE_ID_PROP_NAME;
-
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-import org.exoplatform.commons.utils.ExpressionUtil;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
-import org.exoplatform.portal.mop.Visibility;
 import org.exoplatform.portal.mop.navigation.NodeContext;
-import org.exoplatform.portal.mop.navigation.NodeData;
-import org.exoplatform.portal.mop.navigation.NodeState;
-import org.exoplatform.portal.mop.service.DescriptionService;
-import org.exoplatform.portal.mop.service.LayoutService;
-import org.exoplatform.portal.mop.service.NavigationService;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.resources.LocaleConfigService;
-import org.exoplatform.services.resources.LocaleContextInfo;
-import org.exoplatform.services.resources.ResourceBundleManager;
-import org.exoplatform.services.resources.ResourceBundleService;
 
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.translation.service.TranslationService;
-
-import lombok.SneakyThrows;
 
 @Component
 @Order(10)
-public class SiteSidebarPlugin implements SidebarPlugin {
-
-  public static final String      SITE_EXPAND_PAGES_PROP_NAME = "expandPages";
-
-  public static final String      SITE_NAME_PROP_NAME         = "siteName";
-
-  public static final String      SITE_ID_PROP_NAME           = "siteId";
-
-  public static final String      SITE_TYPE_PROP_NAME         = "siteType";
-
-  public static final String      SITE_OBJECT_TYPE            = "site";
-
-  public static final String      SITE_LABEL_FIELD_NAME       = "label";
-
-  @Autowired
-  private TranslationService      translationService;
+public class SiteSidebarPlugin extends AbstractLayoutSidebarPlugin {
 
   @Autowired
   private UserPortalConfigService userPortalConfigService;
-
-  @Autowired
-  private LayoutService           layoutService;
-
-  @Autowired
-  private NavigationService       navigationService;
-
-  @Autowired
-  private ResourceBundleManager   resourceBundleManager;
-
-  @Autowired
-  private DescriptionService      descriptionService;
-
-  @Autowired
-  private LocaleConfigService     localeConfigService;
-
-  @Autowired
-  private UserACL                 userAcl;
 
   @Override
   public SidebarItemType getType() {
@@ -110,47 +52,37 @@ public class SiteSidebarPlugin implements SidebarPlugin {
   }
 
   @Override
-  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
-    String siteId = item.getProperties().get(SITE_ID_PROP_NAME);
-    String label = translationService.getTranslationLabelOrDefault(SITE_OBJECT_TYPE,
-                                                                   Long.parseLong(siteId),
-                                                                   SITE_LABEL_FIELD_NAME,
-                                                                   locale);
-    if (StringUtils.isBlank(label)) {
-      String siteType = item.getProperties().get(SITE_TYPE_PROP_NAME);
-      String siteName = item.getProperties().get(SITE_NAME_PROP_NAME);
-      item.setName(getSiteLabel(new SiteKey(siteType, siteName), locale));
-    } else {
-      item.setName(label);
+  public boolean itemExists(SidebarItem item, String username) {
+    if (item == null || item.getProperties() == null) {
+      return false;
     }
+    PortalConfig site = layoutService.getPortalConfig(getSiteKey(item));
+    return site != null && userAcl.hasAccessPermission(site, userAcl.getUserIdentity(username));
+  }
 
-    NodeContext<NodeContext<Object>> rootNode = navigationService.loadNode(new SiteKey(item.getProperties()
-                                                                                           .get(SITE_TYPE_PROP_NAME),
-                                                                                       item.getProperties()
-                                                                                           .get(SITE_NAME_PROP_NAME)));
-    if (rootNode != null
-        && rootNode.getSize() > 0
-        && StringUtils.equals(item.getProperties().get(SITE_EXPAND_PAGES_PROP_NAME), "true")) {
-      Collection<NodeContext<Object>> nodes = rootNode.getNodes();
-      item.setItems(new ArrayList<>());
-      nodes.forEach(node -> {
-        if (node.getData() != null
-            && node.getData().getState() != null
-            && isVisibilityEligible(node.getData().getState())) {
-          SidebarItem pageItem = new SidebarItem(SidebarItemType.PAGE);
-          pageItem.setProperties(Collections.singletonMap(NODE_ID_PROP_NAME, node.getData().getId()));
-          pageItem.setUrl(node.getData().getName());
-          PageSidebarPlugin.resolveProperties(navigationService,
-                                              layoutService,
-                                              translationService,
-                                              descriptionService,
-                                              resourceBundleManager,
-                                              localeConfigService,
-                                              pageItem,
-                                              locale);
-          item.getItems().add(pageItem);
-        }
-      });
+  @Override
+  public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
+    SiteKey siteKey = getSiteKey(item);
+    item.setName(getSiteLabel(siteKey, locale));
+    if (StringUtils.isBlank(item.getIcon())) {
+      item.setIcon(getSiteIcon(siteKey));
+    }
+    if (StringUtils.isBlank(item.getUrl())) {
+      item.setUrl("/portal/" + siteKey.getName());
+    }
+    if (StringUtils.equals(item.getProperties().get(SITE_EXPAND_PAGES_PROP_NAME), "true")) {
+      NodeContext<NodeContext<Object>> rootNode = navigationService.loadNode(siteKey);
+      if (rootNode != null && rootNode.getSize() > 0) {
+        item.setItems(rootNode.getNodes()
+                              .stream()
+                              .filter(n -> isEligiblePage(Long.parseLong(n.getId()), username))
+                              .map(node -> {
+                                SidebarItem pageItem = new SidebarItem(SidebarItemType.PAGE);
+                                pageItem.setProperties(Collections.singletonMap(NODE_ID_PROP_NAME, node.getData().getId()));
+                                return resolvePageItemProperties(pageItem, locale);
+                              })
+                              .toList());
+      }
     }
     return item;
   }
@@ -170,42 +102,15 @@ public class SiteSidebarPlugin implements SidebarPlugin {
                 .toList();
   }
 
-  @Override
-  public boolean itemExists(SidebarItem item, String username) {
-    String siteType = item.getProperties().get(SITE_TYPE_PROP_NAME);
-    String siteName = item.getProperties().get(SITE_NAME_PROP_NAME);
-    PortalConfig site = layoutService.getPortalConfig(siteType, siteName);
-    return site != null && userAcl.hasAccessPermission(site, userAcl.getUserIdentity(username));
-  }
-
   protected SidebarItem toSidebarItem(SiteKey siteKey) {
     return new SidebarItem(siteKey.getName(),
                            "/portal/" + siteKey.getName(),
                            null,
                            null,
-                           getSiteIcon(navigationService, siteKey),
+                           getSiteIcon(siteKey),
                            SidebarItemType.SITE,
                            null,
                            buildSiteProperties(siteKey));
-  }
-
-  public static String getSiteIcon(NavigationService navigationService, SiteKey siteKey) {
-    NodeContext<NodeContext<Object>> rootNode = navigationService.loadNode(siteKey);
-    if (rootNode != null && rootNode.getSize() > 0) {
-      Collection<NodeContext<Object>> nodes = rootNode.getNodes();
-      return nodes.stream().map(node -> {
-        NodeData data = node.getData();
-        NodeState state = data.getState();
-        if (isVisibilityEligible(state)
-            && state.getPageRef() != null
-            && StringUtils.isNotBlank(state.getIcon())) {
-          return state.getIcon();
-        } else {
-          return null;
-        }
-      }).filter(Objects::nonNull).findFirst().orElse(null);
-    }
-    return null;
   }
 
   private Map<String, String> buildSiteProperties(SiteKey siteKey) {
@@ -223,56 +128,9 @@ public class SiteSidebarPlugin implements SidebarPlugin {
     return properties;
   }
 
-  @SneakyThrows
-  private String getSiteLabel(SiteKey siteKey, Locale locale) {
-    PortalConfig site = layoutService.getPortalConfig(siteKey);
-    String label = site == null ?
-                                siteKey.getName() :
-                                StringUtils.firstNonBlank(site.getLabel(),
-                                                          site.getName(),
-                                                          siteKey.getName());
-    if (siteKey.getType() == SiteType.PORTAL) {
-      return StringUtils.firstNonBlank(getLabel(siteKey, label, locale),
-                                       siteKey.getName());
-    } else if (siteKey.getType() == SiteType.GROUP) {
-      Group siteGroup = ExoContainerContext.getService(OrganizationService.class)
-                                           .getGroupHandler()
-                                           .findGroupById(siteKey.getName());
-      if (siteGroup != null) {
-        return siteGroup.getLabel();
-      }
-    }
-    return label;
-  }
-
-  private String getLabel(SiteKey siteKey, String label, Locale locale) {
-    if (ExpressionUtil.isResourceBindingExpression(label)) {
-      return Stream.of(locale, ResourceBundleService.DEFAULT_CROWDIN_LOCALE)
-                   .map(l -> getBundle(siteKey.getTypeName(), siteKey.getName(), locale))
-                   .filter(Objects::nonNull)
-                   .map(b -> ExpressionUtil.getExpressionValue(b, label))
-                   .filter(StringUtils::isNotBlank)
-                   .findFirst()
-                   .orElse(label);
-    } else {
-      return label;
-    }
-  }
-
-  private ResourceBundle getBundle(String siteType, String siteName, Locale locale) {
-    return resourceBundleManager.getNavigationResourceBundle(LocaleContextInfo.getLocaleAsString(locale),
-                                                             siteType,
-                                                             siteName);
-  }
-
-  public static boolean isVisibilityEligible(NodeState state) {
-    if (state.getVisibility() == Visibility.DISPLAYED) {
-      return true;
-    } else if (state.getVisibility() == Visibility.TEMPORAL) {
-      return (state.getEndPublicationTime() == 0 || state.getEndPublicationTime() < System.currentTimeMillis())
-             && (state.getStartPublicationTime() == 0 || state.getStartPublicationTime() > System.currentTimeMillis());
-    }
-    return false;
+  private SiteKey getSiteKey(SidebarItem item) {
+    return new SiteKey(item.getProperties().get(SITE_TYPE_PROP_NAME),
+                       item.getProperties().get(SITE_NAME_PROP_NAME));
   }
 
 }
