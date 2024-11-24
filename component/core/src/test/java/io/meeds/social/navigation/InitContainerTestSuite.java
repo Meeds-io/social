@@ -16,39 +16,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.upgrade;
+package io.meeds.social.navigation;
 
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
-import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
-import org.exoplatform.commons.testing.ConfigTestCase;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 
-import io.meeds.social.space.service.SpaceLayoutServiceTest;
+import io.meeds.social.navigation.plugin.LinkSidebarPluginTest;
+import io.meeds.social.navigation.plugin.PageSidebarPluginTest;
+import io.meeds.social.navigation.plugin.SiteSidebarPluginTest;
+import io.meeds.social.navigation.plugin.SpaceListSidebarPluginTest;
+import io.meeds.social.navigation.plugin.SpaceTemplateSidebarPluginTest;
+import io.meeds.social.navigation.service.NavigationConfigurationServiceTest;
 
+@RunWith(Suite.class)
 @SuiteClasses({
-  LayoutUpgradePluginTest.class,
-  SpaceSettingPermissionUpgradePluginTest.class,
-  SpaceLayoutServiceTest.class,
+  LinkSidebarPluginTest.class,
+  PageSidebarPluginTest.class,
+  SiteSidebarPluginTest.class,
+  SpaceListSidebarPluginTest.class,
+  SpaceTemplateSidebarPluginTest.class,
+  NavigationConfigurationServiceTest.class,
 })
-@ConfigTestCase(SpaceLayoutServiceTest.class)
-public class InitContainerTestSuite extends BaseExoContainerTestSuite {
+public class InitContainerTestSuite {
 
   @BeforeClass
-  public static void setUp() throws Exception {
+  public static void setUp() {
     if (PortalContainer.getInstanceIfPresent() != null) {
       PortalContainer.getInstance().stop();
       ExoContainerContext.setCurrentContainer(null);
     }
-    initConfiguration(InitContainerTestSuite.class);
-    beforeSetup();
   }
 
-  @AfterClass
-  public static void tearDown() {
-    afterTearDown();
-  }
 }

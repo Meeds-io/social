@@ -18,14 +18,14 @@
  */
 package io.meeds.social.navigation.plugin;
 
+import static io.meeds.social.navigation.plugin.SidebarPluginUtils.getNameFromProperties;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -40,7 +40,7 @@ import io.meeds.social.navigation.model.SidebarItem;
 @Order(40)
 public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  private static final String SPACES_NAMES = "names";
+  public static final String SPACES_NAMES = "names";
 
   @Autowired
   private LocaleConfigService localeConfigService;
@@ -51,25 +51,19 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
-    // No specific space filter
+  public boolean itemExists(SidebarItem item, String username) {
+    if (item == null || item.getProperties() == null) {
+      return false;
+    }
+    return item.getProperties().containsKey(SPACES_NAMES);
   }
 
   @Override
   public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
-    String spaceNames = item.getProperties().get(SPACES_NAMES);
-    JSONObject jsonObject = new JSONObject(spaceNames);
-    String lang = getLang(locale);
-    Object name = getName(jsonObject, lang);
-    if (name == null) {
-      lang = getLang(localeConfigService.getDefaultLocaleConfig().getLocale());
-      name = getName(jsonObject, lang);
-      if (name == null) {
-        lang = jsonObject.keys().next();
-        name = getName(jsonObject, lang);
-      }
-    }
-    item.setName(String.valueOf(name));
+    item.setName(getNameFromProperties(localeConfigService,
+                                       item,
+                                       SPACES_NAMES,
+                                       locale));
     item.setItems(getSpaces(item, username));
     return item;
   }
@@ -91,20 +85,8 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  public boolean itemExists(SidebarItem item, String username) {
-    return item.getProperties().get(SPACES_NAMES) != null;
-  }
-
-  private String getLang(Locale locale) {
-    return locale.toLanguageTag().replace("-", "_");
-  }
-
-  private Object getName(JSONObject jsonObject, String lang) {
-    try {
-      return jsonObject.get(lang);
-    } catch (JSONException e) {
-      return null;
-    }
+  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+    // No specific space filter
   }
 
 }
