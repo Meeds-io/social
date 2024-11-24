@@ -2309,7 +2309,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Space space = new Space();
     space.setDisplayName(MY_SPACE_DISPLAY_NAME_PREFIX + number);
     space.setPrettyName(space.getDisplayName());
-    space.setRegistration(Space.OPEN);
     space.setDescription(SPACE_DESCRIPTION + number);
     space.setVisibility(Space.PUBLIC);
     space.setRegistration(Space.VALIDATION);
