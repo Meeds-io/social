@@ -29,12 +29,19 @@
     flat>
     <v-list class="d-flex flex-column overflow-hidden pb-0 flex-grow-1 flex-shrink-1" dense>
       <div class="flex-grow-0 flex-shrink-0">
-        <v-list-item class="d-flex" dense>
-          <v-list-item-avatar size="36" tile>
+        <v-list-item class="d-flex">
+          <v-list-item-avatar
+            class="my-auto me-2"
+            min-width="40"
+            max-width="40"
+            min-height="36"
+            height="auto"
+            max-height="36"
+            tile>
             <img
               src="/portal/rest/v1/platform/branding/logo"
-              height="36px"
-              width="auto"
+              height="auto"
+              width="36px"
               alt="">
           </v-list-item-avatar>
           <v-list-item-content>
