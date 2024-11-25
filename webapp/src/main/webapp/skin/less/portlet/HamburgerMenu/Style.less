@@ -22,27 +22,17 @@
 @import "../../mixins.less";
 @import "../../common/siteDetails/Style.less";
 
-@media (min-width: @minTabletWidth) {
-  #StickyHamburgerMenu, #HamburgerNavigationMenu .v-navigation-drawer__content {
-    .specific-scrollbar()
-  }
-}
-
 .HamburgerNavigationMenu {
-  .spacesIcon {
-    .fa();
-    .fa-history();
-  }
 
   .UserPageLink .UserPageHome, .UserPageLinkHome .UserPageHome {
     .fa();
     .fa-house-user();
   }
-  
+
   .UserPageLink .homePage {
     display: none;
   }
-  
+
   .UserPageLink:hover .homePage, .UserPageLink:focus .homePage, .UserPageLink button:focus .homePage {
     display: flex;
   }
@@ -96,41 +86,14 @@
       }
     }
   }
-  .v-list-item {
-    position: relative;
-
-    .v-list-item__icon {
-      min-width: 28px;
-      margin-right: 20px ~'!important; /** orientation=lt */ ';
-      margin-left: 20px ~'!important; /** orientation=rt */ ';
-
-      i {
-        color: @toolbarLightIconColor;
-        font-size: 20px;
-        text-align: center;
-        margin: 0 auto;
-      }
-    }
-  }
-  .v-list-item--active {
-    color: @textLightColor!important;
-    background: @greyColorLighten1Opacity1;
-    &:before {
-      content: '';
-      width: 8px;
-      background:@secondaryColor;
-      position: absolute;
-      left: 0;
-      opacity: 1!important;
-    }
-    .v-list-item__icon {
-      i {
-        color: @toolbarLightIconColor !important;
-      }
-      .spaceRightArrow {
-        color: @toolbarDarkLinkHoverColor !important;
-      }
-    }
+  .v-list-item--active:before {
+    content: '';
+    width: 8px;
+    background:@secondaryColor;
+    position: absolute;
+    left: 0 ~'; /** orientation=lt */ ';
+    right: 0 ~'; /** orientation=rt */ ';
+    opacity: 1 !important;
   }
 }
 

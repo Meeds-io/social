@@ -30,7 +30,6 @@
     hide-overlay>
     <template v-if="drawer">
       <space-panel-hamburger-navigation
-        :display-sequentially="displaySequentially"
         :space="openedSpace"
         :home-link="homeLink"
         :opened-space="openedSpace"
@@ -42,10 +41,6 @@
 export default {
   props: {
     value: {
-      type: Boolean,
-      default: false,
-    },
-    displaySequentially: {
       type: Boolean,
       default: false,
     },
@@ -67,7 +62,7 @@ export default {
   }),
   computed: {
     drawerOffset() {
-      return this.displaySequentially && this.drawerWidth * 2 || 0;
+      return this.$root.displaySequentially && this.drawerWidth * 2 || 0;
     },
     drawerOffsetStyle() {
       return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;

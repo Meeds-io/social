@@ -14,12 +14,14 @@ import org.exoplatform.social.core.storage.cache.model.key.SpaceKey;
 import org.exoplatform.social.core.storage.cache.model.key.SpaceType;
 
 /**
- * Cache selector for last accessed spaces.
- * It select all cache entries for the given userId and for space type LATEST_ACCESSED or VISITED.
+ * Cache selector for last accessed spaces. It select all cache entries for the
+ * given userId and for space type LATEST_ACCESSED or VISITED.
  */
 public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey, ListSpacesData> {
 
   private String                    remoteId;
+
+  private long                      templateId;
 
   private Space                     space;
 
@@ -35,18 +37,13 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
 
   @Override
   public boolean select(ListSpacesKey listSpacesKey, ObjectCacheInfo<? extends ListSpacesData> objectCacheInfo) {
-    if(listSpacesKey == null) {
+    if (listSpacesKey == null || listSpacesKey.getKey() == null) {
       return false;
+    } else {
+      SpaceFilterKey spaceFilterKey = listSpacesKey.getKey();
+      return remoteId.equals(spaceFilterKey.getUserId())
+             && SpaceType.LATEST_ACCESSED.equals(spaceFilterKey.getType());
     }
-
-    SpaceFilterKey spaceFilterKey = listSpacesKey.getKey();
-    if(spaceFilterKey == null) {
-      return false;
-    }
-
-    return remoteId.equals(spaceFilterKey.getUserId())
-            && (SpaceType.LATEST_ACCESSED.equals(spaceFilterKey.getType())
-            || SpaceType.VISITED.equals(spaceFilterKey.getType()));
   }
 
   @SuppressWarnings("unchecked")
@@ -62,7 +59,9 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
           updateStore = false;
           return;
         } else if (listSpacesKey.getOffset() == 0
-                   && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())) {
+                   && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())
+                   && (listSpacesKey.getKey().getTemplateId() == 0
+                       || templateId == listSpacesKey.getKey().getTemplateId())) {
           SpaceKey spaceKey = new SpaceKey(space.getSpaceId());
           ids = new ArrayList<>(ids);
           if (ids.contains(spaceKey)) {

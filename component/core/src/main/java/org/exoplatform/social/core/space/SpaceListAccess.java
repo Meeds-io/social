@@ -259,9 +259,6 @@ public class SpaceListAccess implements ListAccess<Space> {
       case LASTEST_ACCESSED:
         listSpaces = spaceStorage.getLastAccessedSpace(this.getSpaceFilter(), offset, limit);
         break;
-      case VISITED:
-        listSpaces = spaceStorage.getVisitedSpaces(this.getSpaceFilter(), offset, limit);
-        break;
       case COMMON:
         listSpaces = spaceStorage.getCommonSpaces(this.userId, this.otherUserId, offset, limit);
         break;
