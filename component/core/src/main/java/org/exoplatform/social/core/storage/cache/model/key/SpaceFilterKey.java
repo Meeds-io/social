@@ -31,10 +31,13 @@ public class SpaceFilterKey implements CacheKey {
 
   private final String      userId;
 
+  private long              templateId;
+
   private final int         hash;
 
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
     this.hash = Objects.hash(filter);
+    this.templateId = filter == null ? 0 : filter.getTemplateId();
     this.type = type;
     this.userId = userId;
   }

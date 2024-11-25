@@ -17,6 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
+import './services.js';
 import './extensions.js';
 
 // get overrided components if exists
@@ -38,18 +39,44 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'HamburgerNavigationMenu';
 
-export function init(canAddSpaces) {
+export function init(canAddSpaces, defaultUserPath, unreadPerSpace, avatarUrl) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
         data: {
           canAddSpaces,
+          defaultUserPath,
+          unreadPerSpace,
+          avatarUrl,
+          openedSiteName: null,
+          sites: null,
+          settings: null,
           rtl: eXo.env.portal.orientation === 'rtl',
           ltr: eXo.env.portal.orientation === 'ltr',
         },
+        computed: {
+          stickyAllowed() {
+            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+          },
+          displaySequentially() {
+            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+          },
+        },
+        created() {
+          this.init();
+        },
         mounted() {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        },
+        methods: {
+          async init() {
+            try {
+              this.settings = await this.$navigationSettingService.getSidebarConfiguration();
+            } finally {
+              this.$root.$applicationLoaded();
+            }
+          },
         },
         template: `<hamburger-menu-navigation id="${appId}" />`,
         i18n,
