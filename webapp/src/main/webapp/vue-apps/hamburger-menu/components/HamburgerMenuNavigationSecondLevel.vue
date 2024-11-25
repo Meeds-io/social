@@ -32,19 +32,16 @@
     <template v-if="drawer">
       <recent-spaces-hamburger-navigation
         v-if="secondLevel === 'recentSpaces'"
-        :display-sequentially="displaySequentially"
         :opened-space="thirdLevelDrawer && openedSpace"
         @close="drawer = false" />
       <space-panel-hamburger-navigation
         v-else-if="secondLevel === 'spaceMenu'"
-        :display-sequentially="displaySequentially"
         :space="openedSpace"
         :home-link="homeLink"
         @close="drawer = false" />
       <site-details
         v-else-if="secondLevel === 'site'"
         :site="site"
-        :display-sequentially="displaySequentially"
         enable-change-home
         @close="drawer = false" />
     </template>
@@ -54,10 +51,6 @@
 export default {
   props: {
     value: {
-      type: Boolean,
-      default: false,
-    },
-    displaySequentially: {
       type: Boolean,
       default: false,
     },
@@ -91,7 +84,7 @@ export default {
   }),
   computed: {
     drawerOffset() {
-      return this.displaySequentially && this.drawerWidth || 0;
+      return this.$root.displaySequentially && this.drawerWidth || 0;
     },
     drawerOffsetStyle() {
       return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;

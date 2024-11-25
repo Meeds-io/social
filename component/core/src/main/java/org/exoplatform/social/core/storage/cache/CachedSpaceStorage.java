@@ -601,7 +601,7 @@ public class CachedSpaceStorage extends SpaceStorage {
       spacesCache.select(selector);
     } catch (Exception e) {
       LOG.error("Error while removing cache entries for remoteId=" + remoteId + ", space=" + space.getDisplayName() +
-          " and type=" + SpaceType.LATEST_ACCESSED.name() + " or type=" + SpaceType.VISITED, e);
+          " and type=" + SpaceType.LATEST_ACCESSED.name(), e);
     }
   }
 
@@ -643,25 +643,6 @@ public class CachedSpaceStorage extends SpaceStorage {
       return buildIds(got);
     },
                                                 listKey);
-
-    //
-    return buildSpaces(keys);
-  }
-
-  @Override
-  public List<Space> getVisitedSpaces(final SpaceFilter filter, final int offset, final int limit) throws SpaceStorageException {
-    //
-    SpaceFilterKey key = new SpaceFilterKey(filter.getRemoteId(), filter, SpaceType.VISITED);
-    ListSpacesKey listKey = new ListSpacesKey(key, offset, limit);
-
-    //
-    ListSpacesData keys = spacesFutureCache.get(() -> {
-      if (limit == 0) {
-        return buildIds(Collections.emptyList());
-      }
-      List<Space> got = CachedSpaceStorage.super.getVisitedSpaces(filter, offset, limit);
-      return buildIds(got);
-    }, listKey);
 
     //
     return buildSpaces(keys);

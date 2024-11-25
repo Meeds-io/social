@@ -34,7 +34,7 @@
           1: '</span>',
         })"></span>
     </div>
-    <strong class="ms-4 my-auto">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
+    <strong class="ms-4 my-auto text-no-wrap">{{ processedSpaces }} / {{ selectedSpacesCount }}</strong>
   </div>
 </template>
 <script>

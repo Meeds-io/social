@@ -1545,29 +1545,6 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     }
   }
 
-  public void testVisited() throws Exception {
-    Space space0 = getSpaceInstance(5);
-    spaceStorage.saveSpace(space0, true);
-    Space space1 = getSpaceInstance(6);
-    spaceStorage.saveSpace(space1, true);
-
-    SpaceFilter filter = new SpaceFilter();
-    filter.setRemoteId("ghost");
-
-    List<Space> result = spaceStorage.getVisitedSpaces(filter, 0, -1);
-    assertEquals(2, result.size());
-    assertEquals(space0.getId(), result.get(0).getId());
-
-    restartTransaction();
-    spaceStorage.updateSpaceAccessed("ghost", space1);
-
-    // getVisitedSpaces return a list of spaces that
-    // order by visited space then others
-    result = spaceStorage.getVisitedSpaces(filter, 0, -1);
-    assertEquals(2, result.size());
-    assertEquals(space1.getId(), result.get(0).getId());
-  }
-
   public void testLastAccess() throws Exception {
     Space space2 = getSpaceInstance(7);
     spaceStorage.saveSpace(space2, true);
