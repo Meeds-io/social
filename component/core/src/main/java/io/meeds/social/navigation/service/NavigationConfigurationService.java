@@ -26,8 +26,10 @@ import org.springframework.stereotype.Service;
 
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.NavigationConfiguration;
+import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.navigation.model.TopbarApplication;
+import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.plugin.DefaultSidebarPlugin;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorage;
@@ -79,6 +81,26 @@ public class NavigationConfigurationService {
                                           .toList());
       return configuration;
     }
+  }
+
+  /**
+   * @param username User name
+   * @param locale {@link Locale} to compute Menu item names
+   * @return {@link TopbarConfiguration} switch user role and customized
+   *         settings
+   */
+  public TopbarConfiguration getTopbarConfiguration(String username, Locale locale) {
+    return getConfiguration(username, locale, true).getTopbar();
+  }
+
+  /**
+   * @param username User name
+   * @param locale {@link Locale} to compute Menu item names
+   * @return {@link SidebarConfiguration} switch user role and customized
+   *         settings
+   */
+  public SidebarConfiguration getSidebarConfiguration(String username, Locale locale) {
+    return getConfiguration(username, locale, true).getSidebar();
   }
 
   /**

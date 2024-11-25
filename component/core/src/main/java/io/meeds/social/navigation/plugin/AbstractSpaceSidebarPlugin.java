@@ -19,8 +19,9 @@
 package io.meeds.social.navigation.plugin;
 
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
@@ -65,7 +66,10 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
                  .toList();
   }
 
-  protected SidebarItem toSidebarItem(Space space) {
+  private SidebarItem toSidebarItem(Space space) {
+    Map<String, String> properties = new HashMap<>();
+    properties.put("id", space.getId());
+    properties.put("groupId", space.getGroupId());
     return new SidebarItem(space.getDisplayName(),
                            "/portal/s/" + space.getId(),
                            null,
@@ -73,7 +77,7 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
                            null,
                            SidebarItemType.SPACE,
                            null,
-                           Collections.singletonMap("id", space.getId()));
+                           properties);
   }
 
   private SortBy getSortField(SidebarItem item, SidebarSpaceSortBy sortBy) { // NOSONAR

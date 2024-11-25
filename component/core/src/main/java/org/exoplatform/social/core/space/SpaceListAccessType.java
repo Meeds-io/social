@@ -52,8 +52,6 @@ public enum SpaceListAccessType {
   LASTEST_ACCESSED,
   /** Provides Relationship of Users requesting to join a Space */
   PENDING_REQUESTS,
-  /** Gets the spaces which are visited at least once */
-  VISITED,
   /** Gets the common spaces between two users */
   COMMON
 }

@@ -20,7 +20,7 @@
 -->
 <template>
   <v-list-item
-    v-if="!displaySequentially"
+    v-if="!$root.displaySequentially"
     :class="isCurrentSite && ' v-item--active v-list-item--active ' || ' '"
     role="button"
     @click="openOrCloseDrawer">
@@ -120,9 +120,6 @@ export default {
     },
     arrowIconRight() {
       return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
-    },
-    displaySequentially() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
     isCurrentSite() {
       return this.currentPortal === this.site.name;
