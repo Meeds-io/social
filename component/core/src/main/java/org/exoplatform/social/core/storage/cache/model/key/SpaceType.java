@@ -31,7 +31,6 @@ public enum SpaceType {
   VISIBLE,
   ALL,
   LATEST_ACCESSED,
-  VISITED,
   MEMBER_IDENTITY_IDS,
   MEMBER_IDS
 }

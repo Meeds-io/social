@@ -30,7 +30,6 @@
     @closed="$emit('firstLevelDrawer', false)">
     <v-card
       :aria-label="$t('menu.role.navigation.first.level')"
-      :min-width="drawerWidth"
       :max-width="drawerWidth"
       max-height="var(--100vh, 100vh)"
       class="d-flex flex-column fill-height HamburgerNavigationMenu"
@@ -38,37 +37,7 @@
       color="white"
       flat
       tile>
-      <profile-hamburger-navigation
-        :value="stickyPreference"
-        :sticky-allowed="stickyAllowed"
-        class="flex-grow-0 flex-shrink-0"
-        @input="$emit('stickyPreference', $event)" />
-      <v-sheet
-        id="StickyHamburgerMenu"
-        :aria-label="$t('menu.role.navigation.first.level')"
-        max-height="calc(100vh - 115px)"
-        max-width="100%"
-        class="overflow-y-overlay overflow-x-hidden flex-grow-1 flex-shrink-1 pt-5"
-        flat
-        tile>
-        <sites-hamburger
-          :sites="sites"
-          :opened-site="openedSite" />
-        <spaces-hamburger-navigation
-          :recent-spaces="recentSpaces"
-          :recent-spaces-drawer-opened="recentSpacesDrawerOpened"
-          :opened-space="openedSpace"
-          :third-level="thirdLevelDrawer" />
-      </v-sheet>
-      <v-app-bar
-        color="white"
-        scroll-target="#StickyHamburgerMenu"
-        height="50px"
-        absolute
-        elevate-on-scroll
-        bottom>
-        <user-hamburger-navigation />
-      </v-app-bar>
+      <sidebar-menu />
     </v-card>
   </component>
 </template>
