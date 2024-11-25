@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.social.core.space.SpaceFilter;
 
@@ -40,10 +41,13 @@ import io.meeds.social.navigation.model.SidebarItem;
 @Order(40)
 public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  public static final String SPACES_NAMES = "names";
+  public static final String      SPACES_NAMES = "names";
 
   @Autowired
-  private LocaleConfigService localeConfigService;
+  private LocaleConfigService     localeConfigService;
+
+  @Autowired
+  private UserPortalConfigService portalConfigService;
 
   @Override
   public SidebarItemType getType() {
@@ -65,6 +69,7 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
                                        SPACES_NAMES,
                                        locale));
     item.setItems(getSpaces(item, username));
+    item.setUrl(String.format("/portal/%s/spaces", portalConfigService.getMetaPortal()));
     return item;
   }
 

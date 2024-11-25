@@ -26,6 +26,7 @@ import HamburgerMenuNavigationThirdLevel from './components/HamburgerMenuNavigat
 import ProfileHamburgerNavigation from './components/profile/ProfileHamburgerNavigation.vue';
 import RecentSpacesHamburgerNavigation from './components/recent-spaces/RecentSpacesHamburgerNavigation.vue';
 import SpaceNavigationItem from './components/recent-spaces/SpaceNavigationItem.vue';
+import SpaceUnreadBadge from './components/recent-spaces/SpaceUnreadBadge.vue';
 import SpacePanelHamburgerNavigation from './components/recent-spaces/SpacePanelHamburgerNavigation.vue';
 import SpacesHamburgerNavigation from './components/recent-spaces/SpacesHamburgerNavigation.vue';
 import SpacesNavigationContent from './components/recent-spaces/SpacesNavigationContent.vue';
@@ -35,6 +36,9 @@ import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.v
 import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.vue';
 import SitesHamburger from './components/site/SitesHamburger.vue';
 import SiteHamburgerItem from './components/site/SiteHamburgerItem.vue';
+
+import SidebarMenu from './components/SidebarMenu.vue';
+import SidebarMenuItem from './components/SidebarMenuItem.vue';
 
 const components = {
   'hamburger-menu-navigation': HamburgerMenuNavigation,
@@ -48,6 +52,7 @@ const components = {
   'spaces-hamburger-navigation': SpacesHamburgerNavigation,
   'recent-spaces-hamburger-navigation': RecentSpacesHamburgerNavigation,
   'space-navigation-item': SpaceNavigationItem,
+  'space-unread-badge': SpaceUnreadBadge,
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
   'spaces-navigation-content': SpacesNavigationContent,
   'spaces-navigation-empty': SpacesNavigationEmpty,
@@ -56,6 +61,8 @@ const components = {
   'user-hamburger-navigation': UserHamburgerNavigation,
   'sites-hamburger': SitesHamburger,
   'site-hamburger-item': SiteHamburgerItem,
+  'sidebar-menu': SidebarMenu,
+  'sidebar-menu-item': SidebarMenuItem,
 };
 
 for (const key in components) {

@@ -22,7 +22,7 @@
   <v-container class="recentDrawer" flat>
     <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
       <v-list-item-icon
-        v-if="!displaySequentially"
+        v-if="!$root.displaySequentially"
         class="backToMenu my-5 mx-2 icon-default-color justify-center"
         @click="$emit('close')">
         <v-icon
@@ -98,10 +98,6 @@ export default {
     openedSpace: {
       type: Object,
       default: null,
-    },
-    displaySequentially: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({
