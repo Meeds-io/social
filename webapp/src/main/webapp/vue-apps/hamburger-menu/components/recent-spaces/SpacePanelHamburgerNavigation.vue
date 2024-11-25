@@ -22,7 +22,7 @@
   <v-container class="recentDrawer" flat>
     <v-flex class="d-flex pa-0">
       <v-list-item-icon
-        v-if="!displaySequentially"
+        v-if="!$root.displaySequentially"
         class="backToMenu my-5 mx-2 icon-default-color justify-center"
         @click="$emit('close')">
         <v-icon
@@ -145,10 +145,6 @@ export default {
     homeLink: {
       type: String,
       default: null
-    },
-    displaySequentially: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({
