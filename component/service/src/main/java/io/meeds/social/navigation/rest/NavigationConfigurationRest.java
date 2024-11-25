@@ -28,6 +28,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.meeds.social.navigation.model.NavigationConfiguration;
+import io.meeds.social.navigation.model.SidebarConfiguration;
+import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.service.NavigationConfigurationService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,6 +56,30 @@ public class NavigationConfigurationRest {
   })
   public NavigationConfiguration getNavigationConfiguration(HttpServletRequest request) {
     return navigationConfigurationService.getConfiguration(request.getRemoteUser(), request.getLocale(), true);
+  }
+
+  @GetMapping("/topbar")
+  @Secured("users")
+  @Operation(summary = "Retrieve Topbar settings",
+  method = "GET",
+  description = "This retrieves the configuration of Topbar switch user roles")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public TopbarConfiguration getTopbarConfiguration(HttpServletRequest request) {
+    return navigationConfigurationService.getTopbarConfiguration(request.getRemoteUser(), request.getLocale());
+  }
+
+  @GetMapping("/sidebar")
+  @Secured("users")
+  @Operation(summary = "Retrieve Sidebar settings",
+             method = "GET",
+             description = "This retrieves the configuration of Sidebar switch user roles")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public SidebarConfiguration getSidebarConfiguration(HttpServletRequest request) {
+    return navigationConfigurationService.getSidebarConfiguration(request.getRemoteUser(), request.getLocale());
   }
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

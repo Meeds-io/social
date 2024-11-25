@@ -1164,6 +1164,7 @@ public class SpaceRest implements ResourceContainer {
     }
 
     SpaceEntity spaceEntity = EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand);
+    EntityBuilder.buildSpaceUnread(spaceEntity, authenticatedUser, expand);
     EntityTag eTag = new EntityTag(String.valueOf(spaceEntity.hashCode()));
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
