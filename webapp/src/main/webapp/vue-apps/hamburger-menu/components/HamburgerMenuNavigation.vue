@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -30,18 +31,16 @@
     <div
       @mouseenter="hover = true"
       @mouseleave="hover = false">
-      <template v-if="displaySequentially">
+      <template v-if="$root.displaySequentially">
         <hamburger-menu-navigation-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
-          :display-sequentially="displaySequentially"
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth" />
         <hamburger-menu-navigation-second-level
           v-if="allowDisplayLevels"
           v-model="secondLevelDrawer"
-          :display-sequentially="displaySequentially"
           :second-level="secondLevel"
           :third-level-drawer="thirdLevelDrawer"
           :opened-space="space"
@@ -54,7 +53,6 @@
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
-          :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
@@ -70,7 +68,6 @@
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
-          :sites="sites"
           :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
@@ -81,7 +78,6 @@
         <hamburger-menu-navigation-second-level
           v-if="allowDisplayLevels"
           v-model="secondLevelDrawer"
-          :display-sequentially="displaySequentially"
           :second-level="secondLevel"
           :third-level-drawer="thirdLevelDrawer"
           :opened-space="space"
@@ -91,7 +87,6 @@
         <hamburger-menu-navigation-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
-          :display-sequentially="displaySequentially"
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth" />
@@ -110,7 +105,6 @@ export default {
     drawerWidth: 310,
     space: null,
     site: null,
-    sites: [],
     initStep: 0,
     recentSpaces: null,
     limit: 7,
@@ -132,25 +126,14 @@ export default {
     showOverlay() {
       return this.stickyDisplay && this.levelsOpened;
     },
-    displaySequentially() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
-    },
     stickyAllowed() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
     stickyDisplay() {
       return this.stickyPreference && this.stickyAllowed;
     },
-    initialized() {
-      return this.initStep === 2;
-    },
   },
   watch: {
-    initialized() {
-      if (this.initialized) {
-        this.$root.$applicationLoaded();
-      }
-    },
     showOverlay() {
       if (this.showOverlay) {
         document.dispatchEvent(new CustomEvent('drawerOpened'));
@@ -201,9 +184,13 @@ export default {
       }
     },
     stickyPreference() {
-      if (this.initialized) {
-        document.dispatchEvent(new CustomEvent('left-menu-stickiness', {detail: this.stickyPreference}));
-      }
+      document.dispatchEvent(new CustomEvent('left-menu-stickiness', {detail: this.stickyPreference}));
+    },
+    site() {
+      this.$root.openedSiteName = this.site?.name;
+    },
+    space() {
+      this.$root.openedSpaceId = this.space?.id;
     },
   },
   created() {
@@ -218,18 +205,8 @@ export default {
     this.$root.$on('menu-opened', () => this.allowClosing = false);
     this.$root.$on('menu-closed', () => this.allowClosing = true);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
-    this.init();
-  },
-  mounted() {
-    this.initStep++;
   },
   methods: {
-    init() {
-      return Promise.all([
-        this.retrieveSites(),
-        this.retrieveRecentSpaces(),
-      ]).finally(() => this.initStep++);
-    },
     openFirstLevel(mouseEvent) {
       this.mouseEvent = mouseEvent;
       this.firstLevelDrawer = true;
@@ -302,18 +279,6 @@ export default {
       this.site = null;
       this.secondLevel = null;
       window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
-    },
-    retrieveSites(){
-      return this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal'])
-        .then(data => this.sites = data || []);
-    },
-    retrieveRecentSpaces() {
-      return this.$spaceService.getSpaces('', this.offset, this.limit, 'lastVisited', 'member,managers,favorite,unread,muted')
-        .then(data => {
-          this.recentSpaces = data && data.spaces || [];
-          this.unreadPerSpace = data && data.unreadPerSpace;
-          return this.$nextTick();
-        });
     },
   },
 };

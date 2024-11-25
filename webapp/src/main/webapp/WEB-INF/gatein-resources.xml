@@ -1436,9 +1436,6 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
-        <module>notificationExtensions</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1454,7 +1451,6 @@
   <portlet>
     <name>TopBarFavorites</name>
     <module>
-      <load-group>FavoriteDrawerGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/topBarFavorites.bundle.js</path>
@@ -2687,6 +2683,26 @@
     <depends>
       <module>jquery</module>
       <as>$</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>favoriteDrawerExtensions</name>
+    <load-group>FavoriteDrawerGRP</load-group>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
     </depends>
   </module>
 

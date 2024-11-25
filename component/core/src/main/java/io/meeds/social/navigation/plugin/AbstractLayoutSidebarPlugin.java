@@ -115,7 +115,9 @@ public abstract class AbstractLayoutSidebarPlugin implements SidebarPlugin {
     long siteId = getSiteId(siteKey);
 
     item.setName(getNodeLabel(Long.parseLong(nodeId), locale));
-    item.setIcon(node.getState().getIcon());
+    if (item.getIcon() == null) {
+      item.setIcon(node.getState().getIcon());
+    }
 
     item.setProperties(new HashMap<>(item.getProperties()));
     item.getProperties().put(SITE_ID_PROP_NAME, String.valueOf(siteId));
@@ -124,12 +126,14 @@ public abstract class AbstractLayoutSidebarPlugin implements SidebarPlugin {
     item.getProperties().put(SITE_ICON_PROP_NAME, getSiteIcon(siteKey));
     item.getProperties().put(SITE_DISPLAY_NAME_PROP_NAME, getSiteLabel(siteKey, locale));
 
-    Page page = layoutService.getPage(node.getState().getPageRef());
-    if (PageType.LINK.name().equals(page.getType())) {
-      item.setUrl(page.getLink());
-      item.setTarget(node.getState().getTarget());
-    } else {
-      item.setUrl(getNodeUri(node));
+    if (node.getState().getPageRef() != null) {
+      Page page = layoutService.getPage(node.getState().getPageRef());
+      if (PageType.LINK.name().equals(page.getType())) {
+        item.setUrl(page.getLink());
+        item.setTarget(node.getState().getTarget());
+      } else {
+        item.setUrl(getNodeUri(node));
+      }
     }
     return item;
   }
@@ -207,8 +211,7 @@ public abstract class AbstractLayoutSidebarPlugin implements SidebarPlugin {
       PortalConfig site = layoutService.getPortalConfig(node.getSiteKey());
       if (!userAcl.hasAccessPermission(site, userAcl.getUserIdentity(username))) {
         return false;
-      } else if (node.getState() == null
-                 || !isVisibilityEligible(node.getState())) {
+      } else if (node.getState() == null || !isVisibilityEligible(node.getState())) {
         return false;
       } else if (node.getState().getPageRef() == null) {
         return node.iterator(false).hasNext();

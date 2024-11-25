@@ -343,18 +343,6 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getVisitedSpaces(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
-      return new ListAccessImpl<>(Space.class, Collections.emptyList());
-    }
-    return new SpaceListAccess(spaceStorage,
-                               spaceSearchConnector,
-                               getSpaceTemplateService(),
-                               username,
-                               SpaceListAccessType.VISITED);
-  }
-
-  @Override
   public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());

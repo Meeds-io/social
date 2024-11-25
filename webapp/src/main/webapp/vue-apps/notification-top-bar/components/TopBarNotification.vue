@@ -74,7 +74,11 @@ export default {
     openDrawer() {
       this.$root.initialized = false;
       this.$root.lastLoadedNotificationIndex = 0;
-      this.open = true;
+      window.require(['SHARED/notificationExtensions'], () => {
+        this.$utils.includeExtensions('NotificationPopoverExtension');
+        this.$utils.includeExtensions('NotificationExtension');
+        this.open = true;
+      });
     },
     updateBadgeByEvent(event) {
       this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
