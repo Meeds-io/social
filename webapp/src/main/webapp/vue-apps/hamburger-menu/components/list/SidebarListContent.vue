@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <div class="flex-grow-1 flex-shrink-1 overflow-x-hidden overflow-y-auto specific-scrollbar">
+  <div>
     <v-list-item-group v-if="menuItems" :value="activeMenu">
       <sidebar-list-item
         v-for="(item, index) in menuItems"
@@ -31,16 +31,6 @@
 </template>
 <script>
 export default {
-  props: {
-    hover: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    scrollTop: false,
-    scrollBottom: false,
-  }),
   computed: {
     menuItems() {
       return this.$root.settings?.items;
@@ -55,30 +45,8 @@ export default {
       }
     },
   },
-  watch: {
-    hover() {
-      this.computeScollPosition();
-    },
-    scrollTop() {
-      this.$emit('scroll-top', this.scrollTop);
-    },
-    scrollBottom() {
-      this.$emit('scroll-bottom', this.scrollBottom);
-    },
-  },
   created() {
     this.$socialWebSocket.initCometd('/SpaceWebNotification');
   },
-  mounted() {
-    this.$el.addEventListener('scroll', this.computeScollPosition, false);
-  },
-  methods: {
-    computeScollPosition() {
-      if (this.$el) {
-        this.scrollTop = !!this.$el.scrollTop;
-        this.scrollBottom = parseInt(this.$el.scrollHeight - this.$el.offsetHeight - this.$el.scrollTop) > 2;
-      }
-    },
-  }
 };
 </script>
