@@ -24,7 +24,7 @@
     :absolute="false"
     :close-on-click="false"
     :close-on-content-click="false"
-    :content-class="`overflow-hidden elevation-0 fill-height application-menu ${extraClass} ${componentId}`"
+    :content-class="`overflow-hidden elevation-0 fill-height application-menu ${menuContentClass} ${componentId}`"
     :min-width="drawerWidth"
     :role="null"
     max-width="none"
@@ -56,15 +56,23 @@ export default {
     open: false,
     menu: true,
     componentId: `sticky-menu-${parseInt(Math.random() * 65536)}`,
-    extraClass: '',
+    zIndexClass: '',
   }),
+  computed: {
+    stickyModeClass() {
+      return this.$root.sticky && 'position-relative' || '';
+    },
+    menuContentClass() {
+      return `${this.stickyModeClass} ${this.zIndexClass}`;
+    },
+  },
   watch: {
     levelsOpened() {
       if (this.levelsOpened) {
-        this.extraClass = 'z-index-drawer';
+        this.zIndexClass = 'z-index-drawer';
       } else {
         window.setTimeout(() => {
-          this.extraClass = '';
+          this.zIndexClass = '';
         }, 300);
       }
     },

@@ -128,7 +128,6 @@
         <site-navigation-tree
           :navigations="spaceNavigations"
           :site-name="spaceGroupId"
-          :space-unread-items="spaceUnreadItems"
           :selected-name="selectedNavigationName"
           collapsed />
       </v-list>
@@ -150,7 +149,6 @@ export default {
   data: () => ({
     spaceNavigations: null,
     externalExtensions: [],
-    spaceUnreadItems: null,
     selectedNavigationName: null,
     loading: false,
   }),
@@ -222,7 +220,7 @@ export default {
       return this.isMobile && '45' || '60';
     },
     hasUnreadItems() {
-      return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) > 0;
+      return this.$root?.unreadPerSpace?.[this.space?.id];
     },
     markAsReadDisabled() {
       return !this.hasUnreadItems;
@@ -241,30 +239,13 @@ export default {
         }
       },
     },
-    space: {
-      deep: true,
-      immediate: true,
-      handler: function() {
-        this.spaceUnreadItems = this.space?.unread;
-      },
-    },
   },
   created() {
-    document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
     this.retrieveSpaceNavigations(this.spaceId);
     this.selectedNavigationName = eXo.env.portal.siteKeyName === this.spaceGroupId
       && eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
   },
   methods: {
-    applySpaceUnreadChanges(event) {
-      if (!event?.detail) {
-        return;
-      }
-      const {spaceId, unread} = event.detail;
-      if (this.spaceId === spaceId) {
-        this.spaceUnreadItems = unread;
-      }
-    },
     retrieveSpaceNavigations() {
       if (this.loading) {
         return;

@@ -40,27 +40,11 @@
 </template>
 <script>
 export default {
-  props: {
-    unreadPerSpace: {
-      type: Object,
-      default: () => ({})
-    }
-  },
-  data: () => ({
-    unread: {},
-  }),
   computed: {
     showBadge() {
-      return this.unread && Object.values(this.unread).reduce((sum, v) => sum += v, 0) > 0;
-    }
-  },
-  watch: {
-    unreadPerSpace() {
-      this.initUnread();
+      return this.$root.unreadPerSpace
+        && Object.values(this.$root.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
     },
-  },
-  created() {
-    this.initUnread();
   },
   mounted() {
     document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
@@ -82,23 +66,20 @@ export default {
       }
       const spaceId = spaceWebNotificationItem?.spaceId;
       if (wsEventName === 'notification.unread.item') {
-        if (spaceId && this.unread && this.unread[spaceId]) {
-          this.unread[spaceId] ++;
+        if (spaceId && this.$root.unreadPerSpace[spaceId]) {
+          this.$root.unreadPerSpace[spaceId]++;
         } else {
-          this.$set(this.unread, spaceId, 1);
+          this.$set(this.$root.unreadPerSpace, spaceId, 1);
         }
       }  else if (wsEventName === 'notification.read.item') {
-        if (spaceId && this.unread && this.unread[spaceId] > 0) {
-          this.unread[spaceId] --;
+        if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
+          this.$root.unreadPerSpace[spaceId]--;
         }
       } else if (wsEventName === 'notification.read.allItems') {
-        if (spaceId && this.unread && this.unread[spaceId] > 0) {
-          this.unread[spaceId] = 0;
+        if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
+          this.$root.unreadPerSpace[spaceId] = 0;
         }
       }
-    },
-    initUnread() {
-      this.unread = this.unreadPerSpace && Object.assign({}, this.unreadPerSpace) || {};
     },
   }
 };

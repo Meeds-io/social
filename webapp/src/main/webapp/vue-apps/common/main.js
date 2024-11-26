@@ -154,7 +154,7 @@ export function init(i18n) {
         }).$mount(drawersOverlayElement);
       }
     }
-    let parentNotificationsElement = document.querySelector('#bottom-all-container');
+    let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#bottom-all-container');
     let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
     if (!alertNotificationsElement) {
       if (!parentNotificationsElement) {
