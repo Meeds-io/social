@@ -20,12 +20,13 @@
 -->
 <template>
   <exo-drawer
-    v-model="hamburgerMenu"
-    :drawer-width="drawerWidth"
-    :style="hamburgerMenuStyle"
+    v-model="drawer"
+    ref="drawer"
+    :drawer-width="width"
+    :style="drawerStyle"
+    :permanent="$root.icon"
     attached
-    left
-    eager>
+    left>
     <template #content>
       <slot></slot>
     </template>
@@ -42,25 +43,45 @@ export default {
       type: String,
       default: null,
     },
-    hamburgerMenuStyle: {
+    drawerStyle: {
       type: String,
       default: null,
     },
   },
   data: () => ({
-    hamburgerMenu: false,
+    drawer: false,
   }),
+  computed: {
+    width() {
+      return this.$root.expand ? this.drawerWidth : 67;
+    },
+    stickyAllowed() {
+      return this.$root.stickyAllowed;
+    },
+  },
   watch: {
-    hamburgerMenu() {
-      if (this.value !== this.hamburgerMenu) {
-        this.$emit('input', this.hamburgerMenu);
+    stickyAllowed() {
+      if (!this.stickyAllowed && this.drawer) {
+        this.drawer = false;
+      } else if (this.$root.icon && !this.drawer) {
+        this.drawer = true;
+      }
+    },
+    drawer() {
+      if (!this.drawer && this.$root.icon) {
+        this.$nextTick().then(() => this.drawer = true);
+      } else if (this.value !== this.drawer) {
+        this.$emit('input', this.drawer);
       }
     },
     value() {
-      if (this.value !== this.hamburgerMenu) {
-        this.hamburgerMenu = this.value;
+      if (this.value !== this.drawer) {
+        this.drawer = this.value;
       }
     },
-  }
+  },
+  mounted() {
+    this.drawer = this.value;
+  },
 };
 </script>

@@ -1,3 +1,5 @@
+<%@page import="io.meeds.social.navigation.constant.SidebarMode"%>
+<%@page import="io.meeds.social.navigation.service.NavigationConfigurationService"%>
 <%@page import="org.exoplatform.social.core.identity.model.Identity"%>
 <%@page import="io.meeds.social.util.JsonUtils"%>
 <%@page import="org.exoplatform.social.notification.service.SpaceWebNotificationService"%>
@@ -12,44 +14,38 @@
 <%@page import="org.exoplatform.commons.api.settings.SettingService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
-<%@ page import="org.exoplatform.social.webui.Utils"%>
+<%@page import="org.exoplatform.social.webui.Utils"%>
 <%
-  boolean canCreateSpace = ExoContainerContext.getService(SpaceTemplateService.class).canCreateSpace(request.getRemoteUser());
-  SettingValue stickySettingValue = ExoContainerContext.getService(SettingService.class).get(Context.USER.id(request.getRemoteUser()), Scope.APPLICATION.id("HamburgerMenu"), "Sticky");
-  boolean sticky = stickySettingValue == null ? Boolean.parseBoolean(System.getProperty("io.meeds.userPrefs.HamburgerMenu.sticky", "false")) : Boolean.parseBoolean(stickySettingValue.getValue().toString());
-
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
-  PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
-  if (rcontext.getRequest().getParameter("sticky") != null) {
-    sticky = StringUtils.equals("true", rcontext.getRequest().getParameter("sticky"));
-  }
   UserPortalConfigService portalConfigService = ExoContainerContext.getService(UserPortalConfigService.class);
-  SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
+
+  SidebarMode mode = ExoContainerContext.getService(NavigationConfigurationService.class).getSidebarUserMode(request.getRemoteUser());
+
   Identity viewerIdentity = Utils.getViewerIdentity();
   String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
 
-  Map<Long, Long> unreadPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(request.getRemoteUser());
+  Map<Long, Long> unreadPerSpace = ExoContainerContext.getService(SpaceWebNotificationService.class)
+    .countUnreadItemsBySpace(request.getRemoteUser());
 
-  String defaultHomePath = "/portal/" + rcontext.getPortalOwner();
-  String defaultUserPath = defaultHomePath;
+  String defaultUserPath;
   if (StringUtils.equals(rcontext.getPortalOwner(), "public")) {
     defaultUserPath = "/portal/public";
   } else {
     defaultUserPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (defaultUserPath == null) {
       defaultUserPath = portalConfigService.computePortalPath(rcontext.getRequest());
-      if (defaultUserPath == null) {
-        defaultUserPath = defaultHomePath;
-      }
     }
   }
+  if (defaultUserPath == null) {
+    defaultUserPath = "/portal/" + rcontext.getPortalOwner();
+  }
 
-  responseWrapper.addHeader("Link", "</social/rest/navigation/settings/sidebar>; rel=preload; as=fetch; crossorigin=use-credentials", false);
+  ((PortalHttpServletResponseWrapper) rcontext.getResponse()).addHeader("Link", "</social/rest/navigation/settings/sidebar>; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
     <div class="v-application--wrap">
-      <% if (sticky) { %>
+      <% if (mode != SidebarMode.HIDDEN) { %>
       <script type="text/javascript">
         if (!window.siteStickyMenuLoaded) {
           window.siteStickyMenuLoaded = true;
@@ -81,10 +77,7 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      if (!window.siteStickyMenuInitialized) {
-        window.siteStickyMenuInitialized = true;
-        require(['PORTLET/social/HamburgerMenu'], app => app.init(<%=canCreateSpace%>, '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>'));
-      }
+      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>'));
     </script>
   </div>
 </div>

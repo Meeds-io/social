@@ -24,14 +24,9 @@
     <div class="my-6">
       {{ $t('menu.spaces.noSpacesFound') }}
     </div>
-    <template v-if="!keyword">
-      <div v-if="$root.canAddSpaces">
-        {{ $t('menu.spaces.joinOrCreateSpace') }}
-      </div>
-      <div v-else>
-        {{ $t('menu.spaces.joinSpace') }}
-      </div>
-    </template>
+    <div v-if="!keyword">
+      {{ $t('menu.spaces.joinSpace') }}
+    </div>
     <v-btn
       :href="spacesLink"
       :title="$t('menu.spaces.exploreSpaces')"
