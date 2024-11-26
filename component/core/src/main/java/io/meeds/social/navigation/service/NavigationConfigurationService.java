@@ -21,10 +21,12 @@ package io.meeds.social.navigation.service;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import io.meeds.social.navigation.constant.SidebarItemType;
+import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.SidebarItem;
@@ -100,7 +102,33 @@ public class NavigationConfigurationService {
    *         settings
    */
   public SidebarConfiguration getSidebarConfiguration(String username, Locale locale) {
-    return getConfiguration(username, locale, true).getSidebar();
+    SidebarConfiguration sidebarConfiguration = getConfiguration(username, locale, true).getSidebar();
+    if (StringUtils.isNotBlank(username)) {
+      SidebarMode mode = getSidebarUserMode(username, sidebarConfiguration);
+      sidebarConfiguration.setUserMode(mode);
+    }
+    return sidebarConfiguration;
+  }
+
+  /**
+   * Retrieves the preferred mode of sidebar by a user
+   * 
+   * @param username User name as identifier
+   * @return preferred {@link SidebarMode} or default if not set by user yet
+   */
+  public SidebarMode getSidebarUserMode(String username) {
+    NavigationConfiguration configuration = navigationConfigurationStorage.getConfiguration(defaultTopbarApplications);
+    return getSidebarUserMode(username, configuration.getSidebar());
+  }
+
+  /**
+   * Updates the preferred mode of sidebar by the user
+   * 
+   * @param username User name as identifier
+   * @param mode Preferred {@link SidebarMode} by the user
+   */
+  public void updateSidebarUserMode(String username, SidebarMode mode) {
+    navigationConfigurationStorage.updateSidebarUserMode(username, mode);
   }
 
   /**
@@ -110,6 +138,16 @@ public class NavigationConfigurationService {
    */
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
     navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
+  }
+
+  private SidebarMode getSidebarUserMode(String username, SidebarConfiguration sidebarConfiguration) {
+    SidebarMode mode = navigationConfigurationStorage.getSidebarUserMode(username);
+    if (sidebarConfiguration != null
+        && (mode == null
+            || !sidebarConfiguration.getAllowedModes().contains(mode))) {
+      mode = sidebarConfiguration.getDefaultMode();
+    }
+    return mode;
   }
 
   @SneakyThrows
