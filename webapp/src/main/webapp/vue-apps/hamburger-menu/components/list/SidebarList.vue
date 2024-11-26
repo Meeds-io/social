@@ -28,16 +28,9 @@
       max-height="100%"
       flat>
       <v-list class="list-border-active d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
-        <sidebar-list-header
-          :elevate="elevateTop"
-          class="flex-grow-0 flex-shrink-0" />
-        <sidebar-list-content
-          :hover="hover"
-          @scroll-top="scrollTop = $event"
-          @scroll-bottom="scrollBottom = $event" />
-        <sidebar-list-footer
-          :elevate="elevateBottom"
-          class="flex-grow-0 flex-shrink-0" />
+        <sidebar-list-header class="flex-grow-0 flex-shrink-0" />
+        <sidebar-list-content class="flex-grow-1 flex-shrink-1 overflow-x-hidden overflow-y-auto specific-scrollbar" />
+        <sidebar-list-footer class="flex-grow-0 flex-shrink-0" />
       </v-list>
       <sidebar-home-dialog />
     </v-card>
@@ -46,17 +39,7 @@
 <script>
 export default {
   data: () => ({
-    scrollTop: false,
-    scrollBottom: false,
     hover: false,
   }),
-  computed: {
-    elevateTop() {
-      return this.hover && this.scrollTop;
-    },
-    elevateBottom() {
-      return this.hover && this.scrollBottom;
-    },
-  },
 };
 </script>
