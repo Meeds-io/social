@@ -328,36 +328,6 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
-  public void copyAttachments(String sourceObjectType,
-                              String sourceObjectId,
-                              String destinationObjectType,
-                              String destinationObjectId,
-                              String destinationParentObjectId,
-                              long userIdentityId) {
-    ObjectAttachmentList objectAttachmentList = getAttachments(sourceObjectType, sourceObjectId);
-    List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
-    if (CollectionUtils.isNotEmpty(attachments)) {
-      attachments.forEach(attachment -> {
-        String altText = attachment.getAltText();
-        String format = attachment.getFormat();
-        Map<String, String> properties = new HashMap<>();
-        properties.put(ATTACHMENT_ALT_TEXT, altText);
-        properties.put(ATTACHMENT_FORMAT, format);
-        try {
-          createAttachment(attachment.getId(),
-                           destinationObjectType,
-                           destinationObjectId,
-                           destinationParentObjectId,
-                           userIdentityId,
-                           properties);
-        } catch (Exception e) {
-          LOG.error("Error when creating attachment", e);
-        }
-      });
-    }
-  }
-
-  @Override
   public void moveAttachments(String sourceObjectType,
                               String sourceObjectId,
                               String destinationObjectType,
