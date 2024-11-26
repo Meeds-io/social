@@ -28,13 +28,15 @@
     class="HamburgerMenuThirdLevelParent border-box-sizing"
     max-width="100%"
     hide-overlay>
-    <template v-if="drawer">
-      <space-panel-hamburger-navigation
-        :space="openedSpace"
-        :home-link="homeLink"
-        :opened-space="openedSpace"
-        @close="drawer = false" />
-    </template>
+    <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
+      <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
+        <space-panel-hamburger-navigation
+          :space="openedSpace"
+          :home-link="homeLink"
+          :opened-space="openedSpace"
+          @close="drawer = false" />
+      </div>
+    </v-hover>
   </v-navigation-drawer>
 </template>
 <script>
@@ -67,8 +69,20 @@ export default {
     drawerOffsetStyle() {
       return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;
     },
+    expand() {
+      return this.$root.expand;
+    },
   },
   watch: {
+    expand() {
+      if (!this.expand) {
+        this.$nextTick().then(() => {
+          if (!this.expand && this.drawer) {
+            this.drawer = false;
+          }
+        });
+      }
+    },
     drawer() {
       this.$emit('input', this.drawer);
     },

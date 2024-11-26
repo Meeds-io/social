@@ -89,14 +89,23 @@ export default {
         }
         this.setMenuVisibility(this.menu);
       }
+      // Workaround to fix closing menu when clicking outside
+      if (this.menu) {
+        document.addEventListener('mousedown', this.closeMenuAsync);
+      } else {
+        document.removeEventListener('mousedown', this.closeMenuAsync);
+      }
     },
   },
   created() {
     document.addEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
+    document.addEventListener('drawerClosed', this.closeMenuAsync);
     this.refreshExtensions();
   },
   beforeDestroy() {
     document.removeEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
+    document.removeEventListener('drawerClosed', this.closeMenuAsync);
+    window.setTimeout(() => this.$root.hoverMenu = false, 50);
   },
   methods: {
     refreshExtensions() {
@@ -105,9 +114,19 @@ export default {
     setMenuVisibility(visible) {
       if (visible) {
         this.$root.$emit('menu-opened');
+        this.$root.hoverMenu = visible;
       } else if (!this.conserveHover) {
         this.$root.$emit('menu-closed');
+        window.setTimeout(() => this.$root.hoverMenu = visible, 50);
       }
+    },
+    closeMenu() {
+      this.menu = false;
+    },
+    closeMenuAsync() {
+      window.setTimeout(() => {
+        this.menu = false;
+      }, 200);
     },
     clickButton(extension, event) {
       this.conserveHover = extension.conserveHover;

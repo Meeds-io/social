@@ -42,7 +42,6 @@
       v-if="spaceUnreadCount"
       class="me-2 my-auto align-center">
       <v-chip
-        v-if="spaceUnreadCount"
         color="error-color-background"
         min-width="22"
         height="22"
@@ -138,7 +137,6 @@ export default {
   data: () => ({
     showItemActions: false,
     spaceUnreadItems: null,
-    webSocketSpaceUnreadItems: {},
   }),
   computed: {
     spaceId() {
@@ -154,7 +152,7 @@ export default {
       return this.space?.displayName;
     },
     spaceUnreadCount() {
-      return this.spaceUnreadItems && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0) || 0;
+      return this.$root?.unreadPerSpace?.[this.space?.id];
     },
     toggleArrow() {
       return this.showItemActions || this.drawerOpened;
@@ -186,69 +184,7 @@ export default {
       },
     },
   },
-  created() {
-    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  beforeDestroy() {
-    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
   methods: {
-    handleUpdatesFromWebSocket(event) {
-      const data = event?.detail;
-      const wsEventName = data?.wsEventName || '';
-      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
-      if (spaceWebNotificationItem?.length) {
-        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
-      }
-      const applicationName = spaceWebNotificationItem?.applicationName;
-      const applicationItemId = spaceWebNotificationItem?.applicationItemId;
-      const spaceId = spaceWebNotificationItem?.spaceId;
-      const itemRef = `${applicationName}-${applicationItemId}`;
-      if (!this.webSocketSpaceUnreadItems[spaceId]) {
-        this.webSocketSpaceUnreadItems[spaceId] = {};
-      }
-      if (spaceId && Number(this.spaceId) === Number(spaceId)) {
-        if (!this.spaceUnreadItems) {
-          this.space.unread = {};
-          this.spaceUnreadItems = this.space.unread;
-        }
-        if (!this.spaceUnreadItems[applicationName]) {
-          this.spaceUnreadItems[applicationName] = 0;
-        }
-        if (wsEventName === 'notification.unread.item') {
-          if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== true) {
-            this.webSocketSpaceUnreadItems[spaceId][itemRef] = true;
-            this.spaceUnreadItems[applicationName]++;
-          }
-        } else if (wsEventName === 'notification.read.item') {
-          if (this.spaceUnreadItems[applicationName] > 0) {
-            if (this.webSocketSpaceUnreadItems[spaceId][itemRef] !== false) {
-              this.webSocketSpaceUnreadItems[spaceId][itemRef] = false;
-              this.spaceUnreadItems[applicationName]--;
-            }
-          }
-        } else if (wsEventName === 'notification.read.allItems') {
-          this.spaceUnreadItems = null;
-          this.webSocketSpaceUnreadItems[spaceId] = {};
-        }
-        this.refreshUnreadItems();
-      } else if (!spaceWebNotificationItem?.spaceId && wsEventName === 'notification.read.allItems') {
-        this.spaceUnreadItems = null;
-        this.webSocketSpaceUnreadItems[this.spaceId] = {};
-        this.refreshUnreadItems();
-      }
-    },
-    refreshUnreadItems() {
-      this.spaceUnreadItems = this.spaceUnreadItems && Object.assign({}, this.spaceUnreadItems) || null;
-      document.dispatchEvent(new CustomEvent('space-unread-activities-updated', {detail: {
-        spaceId: this.spaceId,
-        unread: this.spaceUnreadItems,
-      }}));
-    },
     openOrCloseDrawer(event) {
       if (event) {
         event.preventDefault();

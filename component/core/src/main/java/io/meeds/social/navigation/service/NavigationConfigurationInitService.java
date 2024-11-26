@@ -95,6 +95,7 @@ public class NavigationConfigurationInitService {
                                                                       getDefaultTopbarApplications());
     SidebarConfiguration sidebarConfiguration = new SidebarConfiguration(allowUserCustomHome,
                                                                          defaultMode,
+                                                                         null,
                                                                          Arrays.asList(SidebarMode.values()),
                                                                          getDefaultNavigations());
     return new NavigationConfiguration(topbarConfiguration, sidebarConfiguration);

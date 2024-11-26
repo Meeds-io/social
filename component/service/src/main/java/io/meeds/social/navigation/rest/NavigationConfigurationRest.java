@@ -25,14 +25,17 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.service.NavigationConfigurationService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,15 +74,25 @@ public class NavigationConfigurationRest {
   }
 
   @GetMapping("/sidebar")
-  @Secured("users")
-  @Operation(summary = "Retrieve Sidebar settings",
-             method = "GET",
-             description = "This retrieves the configuration of Sidebar switch user roles")
+  @Operation(summary = "Retrieve Sidebar settings", method = "GET", description = "This retrieves the configuration of Sidebar switch user roles")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
   public SidebarConfiguration getSidebarConfiguration(HttpServletRequest request) {
     return navigationConfigurationService.getSidebarConfiguration(request.getRemoteUser(), request.getLocale());
+  }
+
+  @PutMapping(path = "/sidebar/mode", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+  @Secured("users")
+  @Operation(summary = "Retrieve Sidebar settings", method = "GET", description = "This retrieves the configuration of Sidebar switch user roles")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public void updateSidebarUserMode(HttpServletRequest request,
+                                    @Parameter(description = "User preferred Sidebar Mode")
+                                    @RequestParam("mode")
+                                    SidebarMode mode) {
+    navigationConfigurationService.updateSidebarUserMode(request.getRemoteUser(), mode);
   }
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)

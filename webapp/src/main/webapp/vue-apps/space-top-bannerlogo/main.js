@@ -50,8 +50,12 @@ export function init(params) {
                    class="full-height" />`,
       created() {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
+        document.addEventListener('homeLinkUpdated', this.updateUserHome);
       },
       methods: {
+        updateUserHome(event) {
+          this.homePath = event?.detail;
+        },
         refreshSpaceSettings(event) {
           const space = event?.detail;
           if (space) {
