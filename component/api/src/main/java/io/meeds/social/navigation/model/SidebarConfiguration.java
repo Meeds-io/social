@@ -36,6 +36,8 @@ public class SidebarConfiguration implements Cloneable {
 
   private SidebarMode       defaultMode;
 
+  private SidebarMode       userMode;
+
   private List<SidebarMode> allowedModes;
 
   private List<SidebarItem> items;
@@ -44,6 +46,7 @@ public class SidebarConfiguration implements Cloneable {
   public SidebarConfiguration clone() { // NOSONAR
     return new SidebarConfiguration(allowUserCustomHome,
                                     defaultMode,
+                                    userMode,
                                     new ArrayList<>(allowedModes),
                                     new ArrayList<>(items));
   }
