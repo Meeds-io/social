@@ -21,9 +21,6 @@
 -->
 <template>
   <v-card
-    :style="elevate && {
-      'box-shadow' : 'rgb(0 0 0 / 30%) 0 6px 4px -4px',
-    }"
     class="no-border-radius"
     min-height="57"
     flat>
@@ -43,48 +40,68 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action v-if="$root.expand && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
-        <v-btn
-          v-if="!$root.sticky"
-          :title="$t('menu.expand')"
-          :aria-label="$t('menu.expand')"
-          icon
-          @click.stop.prevent="changeMenuStickiness('STICKY')"
-          @mousedown.stop.prevent
-          @mouseup.stop.prevent>
-          <v-icon>{{ arrowIconLeft }}</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="!$root.hidden"
-          :title="$t('menu.collapse')"
-          :aria-label="$t('menu.collapse')"
-          icon
-          @click.stop.prevent="changeMenuStickiness('HIDDEN')"
-          @mousedown.stop.prevent
-          @mouseup.stop.prevent>
-          <v-icon>{{ arrowIconRight }}</v-icon>
-        </v-btn>
-        <v-btn
-          v-if="!$root.icon"
-          :title="$t('menu.reduce')"
-          :aria-label="$t('menu.reduce')"
-          icon
-          @click.stop.prevent="changeMenuStickiness('ICON')"
-          @mousedown.stop.prevent
-          @mouseup.stop.prevent>
-          <v-icon>fa-map-pin</v-icon>
-        </v-btn>
+        <v-tooltip v-if="!$root.hidden" bottom>
+          <template #activator="{on, attrs}">
+            <div
+              v-on="on"
+              v-bind="attrs">
+              <v-btn
+                :aria-label="$t('menu.collapse')"
+                icon
+                @click.stop.prevent="changeMenuStickiness('HIDDEN')"
+                @mousedown.stop.prevent
+                @mouseup.stop.prevent>
+                <v-icon>{{ arrowIconLeft }}</v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <span>{{ $t('menu.collapse') }}</span>
+        </v-tooltip>
+        <v-tooltip v-if="!$root.icon" bottom>
+          <template #activator="{on, attrs}">
+            <div
+              v-on="on"
+              v-bind="attrs">
+              <v-btn
+                :aria-label="$t('menu.reduce')"
+                icon
+                @click.stop.prevent="changeMenuStickiness('ICON')"
+                @mousedown.stop.prevent
+                @mouseup.stop.prevent>
+                <img
+                  :alt="$t('menu.reduce')"
+                  src="/social/images/sidebar.svg"
+                  class="icon-default-color"
+                  height="24px"
+                  width="24px">
+              </v-btn>
+            </div>
+          </template>
+          <span>{{ $t('menu.reduce') }}</span>
+        </v-tooltip>
+        <v-tooltip v-if="!$root.sticky" bottom>
+          <template #activator="{on, attrs}">
+            <div
+              v-on="on"
+              v-bind="attrs">
+              <v-btn
+                :aria-label="$t('menu.expand')"
+                icon
+                @click.stop.prevent="changeMenuStickiness('STICKY')"
+                @mousedown.stop.prevent
+                @mouseup.stop.prevent>
+                <v-icon>{{ arrowIconRight }}</v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <span>{{ $t('menu.expand') }}</span>
+        </v-tooltip>
       </v-list-item-action>
     </v-list-item>
   </v-card>
 </template>
 <script>
 export default {
-  props: {
-    elevate: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data: () => ({
     companyName: eXo.env.portal.companyName,
     companyLogo: eXo.env.portal.companyLogo,
