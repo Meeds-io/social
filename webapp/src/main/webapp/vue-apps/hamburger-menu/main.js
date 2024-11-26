@@ -39,20 +39,27 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'HamburgerNavigationMenu';
 
-export function init(canAddSpaces, defaultUserPath, unreadPerSpace, avatarUrl) {
+export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
         data: {
-          canAddSpaces,
           defaultUserPath,
           unreadPerSpace,
           avatarUrl,
+          mode,
+          hoverFirstLevel: false,
+          hoverSecondLevel: false,
+          hoverThirdLevel: false,
+          hoverMenu: false,
+          hoverButton: false,
           openedSiteName: null,
           openedSpaceId: null,
           sites: null,
           settings: null,
+          overlayOpened: null,
+          hoverDeferred: false,
           rtl: eXo.env.portal.orientation === 'rtl',
           ltr: eXo.env.portal.orientation === 'ltr',
         },
@@ -60,11 +67,78 @@ export function init(canAddSpaces, defaultUserPath, unreadPerSpace, avatarUrl) {
           stickyAllowed() {
             return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
           },
+          hidden() {
+            return !this.stickyAllowed || this.mode === 'HIDDEN';
+          },
+          sticky() {
+            return !this.hidden && this.mode === 'STICKY';
+          },
+          icon() {
+            return !this.hidden && this.mode === 'ICON';
+          },
+          iconExpand() {
+            return this.icon && this.hoverDeferred;
+          },
+          iconCollapse() {
+            return this.icon && !this.hoverDeferred;
+          },
+          expand() {
+            return !this.icon || this.hoverDeferred;
+          },
           displaySequentially() {
             return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
           },
+          hover() {
+            return this.hoverMenu
+              || this.hoverButton
+              || this.hoverFirstLevel
+              || this.hoverSecondLevel
+              || this.hoverThirdLevel;
+          },
+          hoverSidebar() {
+            return this.hoverMenu
+              || this.hoverFirstLevel
+              || this.hoverSecondLevel
+              || this.hoverThirdLevel;
+          },
+        },
+        watch: {
+          expand() {
+            if (this.icon) {
+              window.setTimeout(() => {
+                if (this.expand && !this.overlayOpened) {
+                  document.dispatchEvent(new CustomEvent('drawerOpened'));
+                  this.overlayOpened = true;
+                } else if (!this.expand && this.overlayOpened) {
+                  document.dispatchEvent(new CustomEvent('drawerClosed'));
+                  this.overlayOpened = false;
+                }
+              }, 200);
+            }
+          },
+          hover: {
+            immediate: true,
+            handler() {
+              if (this.hover) {
+                this.hoverDeferred = true;
+              } else {
+                window.setTimeout(() => {
+                  if (!this.hover) {
+                    this.hoverDeferred = false;
+                  }
+                }, 200);
+              }
+            },
+          },
+          icon: {
+            immediate: true,
+            handler() {
+              this.updateParentStyle();
+            },
+          }
         },
         created() {
+          document.addEventListener('homeLinkUpdated', this.updateUserHome);
           this.init();
         },
         mounted() {
@@ -78,8 +152,24 @@ export function init(canAddSpaces, defaultUserPath, unreadPerSpace, avatarUrl) {
               this.$root.$applicationLoaded();
             }
           },
+          updateParentStyle() {
+            if (this.icon) {
+              document.querySelector('#ParentSiteStickyMenu').style.minWidth = '67px';
+            } else {
+              document.querySelector('#ParentSiteStickyMenu').style.minWidth = '';
+            }
+          },
+          updateUserHome() {
+            this.defaultUserPath = eXo.env.portal.homeLink;
+            if (document.querySelector('#UserHomePortalLinkLogo')) {
+              document.querySelector('#UserHomePortalLinkLogo').href = this.defaultUserPath;
+            }
+            if (document.querySelector('#UserHomePortalLinkName')) {
+              document.querySelector('#UserHomePortalLinkName').href = this.defaultUserPath;
+            }
+          },
         },
-        template: `<hamburger-menu-navigation id="${appId}" />`,
+        template: `<sidebar id="${appId}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
       }, `#${appId}`, 'Hamburger Menu');

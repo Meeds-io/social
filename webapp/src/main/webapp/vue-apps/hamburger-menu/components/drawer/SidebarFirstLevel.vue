@@ -20,7 +20,7 @@
 -->
 <template>
   <component
-    :is="stickyDisplay && 'hamburger-menu-parent-menu' || 'hamburger-menu-parent-drawer'"
+    :is="stickyDisplay && 'sidebar-parent-menu' || 'sidebar-parent-drawer'"
     id="HamburgerMenuNavigation"
     :value="firstLevelDrawer"
     :drawer-width="drawerWidth"
@@ -28,26 +28,24 @@
     class="HamburgerMenuFirstLevelParent no-box-shadow border-box-sizing"
     @opened="$emit('firstLevelDrawer', true)"
     @closed="$emit('firstLevelDrawer', false)">
-    <v-card
-      :aria-label="$t('menu.role.navigation.first.level')"
-      :max-width="drawerWidth"
-      max-height="var(--100vh, 100vh)"
-      class="d-flex flex-column fill-height HamburgerNavigationMenu"
-      role="navigation"
-      color="white"
-      flat
-      tile>
-      <sidebar-menu />
-    </v-card>
+    <v-hover v-model="$root.hoverFirstLevel">
+      <v-card
+        :aria-label="$t('menu.role.navigation.first.level')"
+        :max-width="drawerWidth"
+        max-height="var(--100vh, 100vh)"
+        class="d-flex flex-column fill-height HamburgerNavigationMenu"
+        role="navigation"
+        color="white"
+        flat
+        tile>
+        <sidebar-list />
+      </v-card>
+    </v-hover>
   </component>
 </template>
 <script>
 export default {
   props: {
-    stickyPreference: {
-      type: Boolean,
-      default: false,
-    },
     firstLevelDrawer: {
       type: Boolean,
       default: false,
@@ -80,10 +78,6 @@ export default {
       type: Object,
       default: null,
     },
-    stickyAllowed: {
-      type: Boolean,
-      default: false,
-    },
     drawerWidth: {
       type: Number,
       default: null,
@@ -97,7 +91,7 @@ export default {
       return this.secondLevelDrawer && this.secondLevel === 'recentSpaces';
     },
     stickyDisplay() {
-      return this.stickyPreference && this.stickyAllowed;
+      return this.$root.sticky;
     },
   }
 };

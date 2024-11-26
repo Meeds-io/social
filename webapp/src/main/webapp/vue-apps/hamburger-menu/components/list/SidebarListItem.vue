@@ -23,7 +23,7 @@
   <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
   <div v-else-if="isSitePages">
     <v-list-item-group v-if="menuItems?.length" :value="activeMenu">
-      <sidebar-menu-item
+      <sidebar-list-item
         v-for="(subItem, index) in menuItems"
         :key="`${subItem.name}_${subItem.url}_${index}`"
         :item="subItem" />
@@ -37,19 +37,20 @@
           target: item.target,
           value: item.url,
         }"
+        :class="$root.iconCollapse && 'mx-0 px-0'"
         :disabled="!item.url"
         class="d-flex">
-        <v-list-item-avatar class="me-2 my-auto" min-width="36">
+        <v-list-item-avatar class="me-2 my-auto" min-width="40">
           <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
         </v-list-item-avatar>
-        <v-list-item-content>
-          <v-list-item-title class="logoTitle menu-text-color text-truncate">
+        <v-list-item-content v-if="$root.expand">
+          <v-list-item-title class="menu-text-color text-truncate">
             {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item-group v-if="menuItems?.length" :value="activeMenu">
-        <sidebar-menu-item
+        <sidebar-list-item
           v-for="(subItem, index) in menuItems"
           :key="`${subItem.name}_${subItem.url}_${index}`"
           :item="subItem" />
@@ -66,7 +67,10 @@
       :disabled="!item.url"
       class="d-flex"
       dense>
-      <v-list-item-avatar class="me-2 my-auto" min-width="36">
+      <v-list-item-avatar
+        v-if="$root.expand || !item.avatar"
+        class="my-auto me-2"
+        min-width="40">
         <v-icon
           v-if="!item.avatar"
           class="icon-default-color"
@@ -76,7 +80,7 @@
       </v-list-item-avatar>
       <v-list-item-avatar
         v-if="item.avatar"
-        class="me-2 my-auto"
+        class="my-auto me-2"
         min-width="28"
         width="28"
         height="28"
@@ -88,14 +92,16 @@
           width="28"
           height="auto">
       </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title class="logoTitle menu-text-color text-truncate">
+      <v-list-item-content v-if="$root.expand">
+        <v-list-item-title class="menu-text-color text-truncate">
           {{ item.name }}
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action
-        v-if="toggleArrow"
-        class="my-auto align-center">
+        v-if="toggleArrow && $root.expand"
+        class="my-auto align-center"
+        @mousedown.stop.prevent
+        @mouseup.stop.prevent>
         <ripple-hover-button
           :active="!drawerOpened"
           class="ms-2"
@@ -107,6 +113,25 @@
             {{ arrowIcon }}
           </v-icon>
         </ripple-hover-button>
+      </v-list-item-action>
+      <v-list-item-action
+        v-else-if="isPage"
+        class="my-auto align-center"
+        @mousedown.stop.prevent
+        @mouseup.stop.prevent>
+        <v-btn
+          v-if="$root.expand"
+          v-show="hover || isHome"
+          class="ms-2"
+          icon
+          @click.stop.prevent="$root.$emit('update-home-link-page', item)">
+          <v-icon
+            :class="isHome && 'primary--text' || 'icon-default-color'"
+            class="me-0 pa-2"
+            small>
+            fa-house-user
+          </v-icon>
+        </v-btn>
       </v-list-item-action>
       <space-unread-badge
         v-if="isSpace"
@@ -135,6 +160,12 @@ export default {
     },
     menuItems() {
       return this.item?.items;
+    },
+    defaultUserPath() {
+      return this.$root.defaultUserPath;
+    },
+    isHome() {
+      return this.isPage && this.defaultUserPath === this.item?.url;
     },
     activeMenu() {
       if (eXo.env.portal.spaceGroup) {
@@ -242,6 +273,7 @@ export default {
     },
     async retrieveSpace(refresh) {
       this.space = await this.$spaceService.getSpaceById(this.id, 'member,managers,favorite,unread,muted', refresh);
+      this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
     },
   },
 };
