@@ -29,22 +29,24 @@
     class="HamburgerMenuSecondLevelParent border-box-sizing"
     max-width="100%"
     hide-overlay>
-    <template v-if="drawer">
-      <recent-spaces-hamburger-navigation
-        v-if="secondLevel === 'recentSpaces'"
-        :opened-space="thirdLevelDrawer && openedSpace"
-        @close="drawer = false" />
-      <space-panel-hamburger-navigation
-        v-else-if="secondLevel === 'spaceMenu'"
-        :space="openedSpace"
-        :home-link="homeLink"
-        @close="drawer = false" />
-      <site-details
-        v-else-if="secondLevel === 'site'"
-        :site="site"
-        enable-change-home
-        @close="drawer = false" />
-    </template>
+    <v-hover v-if="drawer" v-model="$root.hoverSecondLevel">
+      <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
+        <recent-spaces-hamburger-navigation
+          v-if="secondLevel === 'recentSpaces'"
+          :opened-space="thirdLevelDrawer && openedSpace"
+          @close="drawer = false" />
+        <space-panel-hamburger-navigation
+          v-else-if="secondLevel === 'spaceMenu'"
+          :space="openedSpace"
+          :home-link="homeLink"
+          @close="drawer = false" />
+        <site-details
+          v-else-if="secondLevel === 'site'"
+          :site="site"
+          enable-change-home
+          @close="drawer = false" />
+      </div>
+    </v-hover>
   </v-navigation-drawer>
 </template>
 <script>
@@ -89,8 +91,20 @@ export default {
     drawerOffsetStyle() {
       return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;
     },
+    expand() {
+      return this.$root.expand;
+    },
   },
   watch: {
+    expand() {
+      if (!this.expand) {
+        this.$nextTick().then(() => {
+          if (!this.expand && this.drawer) {
+            this.drawer = false;
+          }
+        });
+      }
+    },
     drawer() {
       this.$emit('input', this.drawer);
     },

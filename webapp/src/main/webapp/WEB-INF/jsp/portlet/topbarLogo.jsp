@@ -99,11 +99,11 @@
         <div class="d-flex mx-0 pa-0">
           <% if (space == null) { %>
           <% if (logoPath != null) { %>
-          <a id="UserHomePortalLink" href="<%=portalPath%>" class="pe-3 logoContainer">
+          <a id="UserHomePortalLinkLogo" href="<%=portalPath%>" class="pe-3 logoContainer">
             <img src="<%=logoPath%>" height="36px" width="auto" class="<%=imageClass%>" alt="<%=logoTitle%>">
           </a>
           <% } %>
-          <a href="<%=portalPath%>" title="<%=logoTitle%>"
+          <a id="UserHomePortalLinkName" href="<%=portalPath%>" title="<%=logoTitle%>"
              class="ps-2 align-self-center brandingContainer <%=titleClass%>">
             <div class="logoTitle text-body font-weight-bold  menu-text-color text-truncate">
               <%= logoTitle%>

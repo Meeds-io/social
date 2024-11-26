@@ -24,21 +24,22 @@
     color="transaprent"
     class="HamburgerNavigationMenu"
     flat>
-    <hamburger-menu-navigation-button 
-      v-if="!stickyDisplay"
-      :unread-per-space="unreadPerSpace"
-      @open-drawer="openFirstLevel" />
-    <div
-      @mouseenter="hover = true"
-      @mouseleave="hover = false">
+    <div v-if="hiddenDisplay">
+    </div>
+    <v-hover v-model="$root.hoverButton">
+      <sidebar-button 
+        :unread-per-space="unreadPerSpace"
+        @open-drawer="openFirstLevel" />
+    </v-hover>
+    <div>
       <template v-if="$root.displaySequentially">
-        <hamburger-menu-navigation-third-level
+        <sidebar-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
           :opened-space="space"
           :home-link="homeLink"
           :drawer-width="drawerWidth" />
-        <hamburger-menu-navigation-second-level
+        <sidebar-second-level
           v-if="allowDisplayLevels"
           v-model="secondLevelDrawer"
           :second-level="secondLevel"
@@ -47,8 +48,7 @@
           :home-link="homeLink"
           :drawer-width="drawerWidth"
           :site="site" />
-        <hamburger-menu-navigation-first-level
-          :sticky-preference="stickyPreference"
+        <sidebar-first-level
           :first-level-drawer="firstLevelDrawer"
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
@@ -56,14 +56,11 @@
           :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
-          :sticky-allowed="stickyAllowed"
           :drawer-width="drawerWidth"
-          @stickyPreference="stickyPreference = $event"
-          @firstLevelDrawer="firstLevelDrawer = $event" />
+          @firstLevelDrawer="updateFirstLevelDrawer($event)" />
       </template>
       <template v-else>
-        <hamburger-menu-navigation-first-level
-          :sticky-preference="stickyPreference"
+        <sidebar-first-level
           :first-level-drawer="firstLevelDrawer"
           :second-level-drawer="secondLevelDrawer"
           :third-level-drawer="thirdLevelDrawer"
@@ -71,11 +68,9 @@
           :opened-site="site"
           :recent-spaces="recentSpaces"
           :opened-space="space"
-          :sticky-allowed="stickyAllowed"
           :drawer-width="drawerWidth"
-          @stickyPreference="stickyPreference = $event"
-          @firstLevelDrawer="firstLevelDrawer = $event" />
-        <hamburger-menu-navigation-second-level
+          @firstLevelDrawer="updateFirstLevelDrawer($event)" />
+        <sidebar-second-level
           v-if="allowDisplayLevels"
           v-model="secondLevelDrawer"
           :second-level="secondLevel"
@@ -84,7 +79,7 @@
           :home-link="homeLink"
           :drawer-width="drawerWidth"
           :site="site" />
-        <hamburger-menu-navigation-third-level
+        <sidebar-third-level
           v-if="allowDisplayLevels"
           v-model="thirdLevelDrawer"
           :opened-space="space"
@@ -101,7 +96,6 @@ export default {
     secondLevelDrawer: false,
     thirdLevelDrawer: false,
     secondLevel: null,
-    stickyPreference: false,
     drawerWidth: 310,
     space: null,
     site: null,
@@ -110,7 +104,6 @@ export default {
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
-    hover: false,
     interval: null,
     mouseEvent: false,
     allowClosing: true,
@@ -126,11 +119,17 @@ export default {
     showOverlay() {
       return this.stickyDisplay && this.levelsOpened;
     },
-    stickyAllowed() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
-    },
     stickyDisplay() {
-      return this.stickyPreference && this.stickyAllowed;
+      return this.$root.sticky;
+    },
+    iconDisplay() {
+      return this.$root.icon;
+    },
+    hiddenDisplay() {
+      return this.$root.hidden;
+    },
+    hover() {
+      return this.$root.hover;
     },
   },
   watch: {
@@ -140,6 +139,14 @@ export default {
       } else {
         document.dispatchEvent(new CustomEvent('drawerClosed'));
       }
+    },
+    iconDisplay: {
+      immediate: true,
+      handler() {
+        if (this.$root.icon) {
+          this.firstLevelDrawer = true;
+        }
+      },
     },
     secondLevelDrawer() {
       if (!this.secondLevelDrawer) {
@@ -183,9 +190,6 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
-    stickyPreference() {
-      document.dispatchEvent(new CustomEvent('left-menu-stickiness', {detail: this.stickyPreference}));
-    },
     site() {
       this.$root.openedSiteName = this.site?.name;
     },
@@ -194,7 +198,6 @@ export default {
     },
   },
   created() {
-    this.stickyPreference = eXo.env.portal.stickyMenu;
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
@@ -207,8 +210,10 @@ export default {
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
   },
   methods: {
-    openFirstLevel(mouseEvent) {
+    async openFirstLevel(mouseEvent) {
       this.mouseEvent = mouseEvent;
+      this.firstLevelDrawer = false;
+      await this.$nextTick();
       this.firstLevelDrawer = true;
     },
     changeRecentSpacesMenu() {
@@ -267,12 +272,19 @@ export default {
         this.closeMenu();
       }
     },
+    updateFirstLevelDrawer(drawer) {
+      if (this.$root.icon && this.$root.stickyAllowed) {
+        this.firstLevelDrawer = true;
+      } else {
+        this.firstLevelDrawer = drawer;
+      }
+    },
     closeMenu() {
       if (!this.allowClosing) {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
         return;
       }
-      this.firstLevelDrawer = false;
+      this.updateFirstLevelDrawer(false);
       this.secondLevelDrawer = false;
       this.thirdLevelDrawer = false;
       this.space = null;
