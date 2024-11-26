@@ -21,9 +21,6 @@
 -->
 <template>
   <v-card
-    :style="elevate && {
-      'box-shadow' : 'rgba(0, 0, 0, 0.3) 0px 6px 7px 6px',
-    }"
     class="d-flex"
     height="48"
     flat>
@@ -115,12 +112,6 @@
 </template>
 <script>
 export default {
-  props: {
-    elevate: {
-      type: Boolean,
-      default: false,
-    },
-  },
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
     logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
