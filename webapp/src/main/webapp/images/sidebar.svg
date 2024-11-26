@@ -1,0 +1,24 @@
+<svg id="Component_50_12" data-name="Component 50 – 12" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <g id="Group_887" data-name="Group 887" transform="translate(-232 -18)">
+    <g id="Path_56" data-name="Path 56" transform="translate(232 18)" fill="none">
+      <path d="M2.087,0H21.913A2.045,2.045,0,0,1,24,2V22a2.045,2.045,0,0,1-2.087,2H2.087A2.045,2.045,0,0,1,0,22V2A2.045,2.045,0,0,1,2.087,0Z" stroke="none"/>
+      <path d="M 3 3 L 3 21 L 21 21 L 21 3 L 3 3 M 2.086959838867188 0 L 21.91304016113281 0 C 23.06563949584961 0 24 0.8954296112060547 24 2 L 24 22 C 24 23.10457038879395 23.06563949584961 24 21.91304016113281 24 L 2.086959838867188 24 C 0.9343605041503906 24 0 23.10457038879395 0 22 L 0 2 C 0 0.8954296112060547 0.9343605041503906 0 2.086959838867188 0 Z" stroke="none" fill="#707070"/>
+    </g>
+    <g id="Rectangle_937" data-name="Rectangle 937" transform="translate(232 18)" fill="none" stroke="#707070" stroke-width="3">
+      <path d="M2,0H12a0,0,0,0,1,0,0V24a0,0,0,0,1,0,0H2a2,2,0,0,1-2-2V2A2,2,0,0,1,2,0Z" stroke="none"/>
+      <path d="M2,1.5h8.5a0,0,0,0,1,0,0v21a0,0,0,0,1,0,0H2a.5.5,0,0,1-.5-.5V2A.5.5,0,0,1,2,1.5Z" fill="none"/>
+    </g>
+    <g id="Rectangle_938" data-name="Rectangle 938" transform="translate(236 26)" fill="#707070" stroke="#707070" stroke-width="1">
+      <rect width="4" height="1" rx="0.5" stroke="none"/>
+      <rect x="0.5" y="0.5" width="3" fill="none"/>
+    </g>
+    <g id="Rectangle_939" data-name="Rectangle 939" transform="translate(236 23)" fill="#707070" stroke="#707070" stroke-width="1">
+      <rect width="4" height="1" rx="0.5" stroke="none"/>
+      <rect x="0.5" y="0.5" width="3" fill="none"/>
+    </g>
+    <g id="Rectangle_940" data-name="Rectangle 940" transform="translate(236 29)" fill="#707070" stroke="#707070" stroke-width="1">
+      <rect width="4" height="1" rx="0.5" stroke="none"/>
+      <rect x="0.5" y="0.5" width="3" fill="none"/>
+    </g>
+  </g>
+</svg>
