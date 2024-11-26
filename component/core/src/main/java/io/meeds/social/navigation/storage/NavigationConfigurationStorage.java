@@ -31,6 +31,7 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 
+import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.constant.TopbarItemType;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.TopbarApplication;
@@ -41,9 +42,11 @@ public class NavigationConfigurationStorage {
 
   private static final String                  SETTING_KEY            = "configuration";
 
-  private static final Scope                   SETTING_GLOBAL_SCOPE   = Scope.GLOBAL.id("NavigationConfiguration");
+  private static final String                  SETTING_USER_MODE_KEY  = "sidebarMode";
 
   private static final Context                 SETTING_GLOBAL_CONTEXT = Context.GLOBAL.id("NavigationConfiguration");
+
+  private static final Scope                   SETTING_SCOPE          = Scope.APPLICATION.id("NavigationConfiguration");
 
   private static final NavigationConfiguration NULL_VALUE             = new NavigationConfiguration();
 
@@ -62,7 +65,7 @@ public class NavigationConfigurationStorage {
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
     try {
       settingService.set(SETTING_GLOBAL_CONTEXT,
-                         SETTING_GLOBAL_SCOPE,
+                         SETTING_SCOPE,
                          SETTING_KEY,
                          SettingValue.create(JsonUtils.toJsonString(navigationConfiguration)));
     } finally {
@@ -70,8 +73,23 @@ public class NavigationConfigurationStorage {
     }
   }
 
+  public SidebarMode getSidebarUserMode(String username) {
+    SettingValue<?> settingValue = settingService.get(Context.USER.id(username),
+                                                      SETTING_SCOPE,
+                                                      SETTING_USER_MODE_KEY);
+    return settingValue == null || settingValue.getValue() == null ? null :
+                                                                   SidebarMode.valueOf(settingValue.getValue().toString());
+  }
+
+  public void updateSidebarUserMode(String username, SidebarMode mode) {
+    settingService.set(Context.USER.id(username),
+                       SETTING_SCOPE,
+                       SETTING_USER_MODE_KEY,
+                       SettingValue.create(mode.name()));
+  }
+
   private NavigationConfiguration retrieveNavigationConfiguration(List<TopbarApplication> defaultApplications) {
-    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_GLOBAL_SCOPE, SETTING_KEY);
+    SettingValue<?> settingValue = settingService.get(SETTING_GLOBAL_CONTEXT, SETTING_SCOPE, SETTING_KEY);
     if (settingValue == null || settingValue.getValue() == null) {
       return NULL_VALUE;
     } else {
