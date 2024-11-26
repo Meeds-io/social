@@ -43,3 +43,18 @@ export function getTopbarConfiguration() {
     }
   });
 }
+
+export function updateSidebarUserMode(mode) {
+  return fetch('/social/rest/navigation/settings/sidebar/mode', {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    method: 'PUT',
+    credentials: 'include',
+    body: `mode=${mode}`,
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}

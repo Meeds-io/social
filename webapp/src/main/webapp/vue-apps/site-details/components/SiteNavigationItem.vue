@@ -42,7 +42,7 @@
       </div>
     </v-list-item-title>
     <v-list-item-action
-      v-if="!spaceUnreadItems && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
+      v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
       class="my-auto">
       <v-btn
         icon
@@ -67,10 +67,6 @@ export default {
     enableChangeHome: {
       type: Boolean,
       default: false,
-    },
-    spaceUnreadItems: {
-      type: Object,
-      default: null
     },
   },
   data: () => ({
@@ -113,9 +109,7 @@ export default {
       return this.uri === this.homeLink;
     },
     unreadBadge() {
-      return this.spaceUnreadItems
-        && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0)
-        || 0;
+      return this.$root.openedSpaceId && this.$root?.unreadPerSpace?.[this.$root.openedSpaceId];
     },
     navigationLabel() {
       return this.navigation?.label;
