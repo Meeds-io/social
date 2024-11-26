@@ -33,8 +33,7 @@
     <template #label="{ item }">
       <site-navigation-item
         :navigation="item"
-        :enable-change-home="enableChangeHome"
-        :space-unread-items="spaceUnreadItems && item.id === firstNavigationId && spaceUnreadItems" />
+        :enable-change-home="enableChangeHome" />
     </template>
   </v-treeview>
 </template>
@@ -57,10 +56,6 @@ export default {
     collapsed: {
       type: Boolean,
       default: false,
-    },
-    spaceUnreadItems: {
-      type: Object,
-      default: null
     },
     selectedName: {
       type: String,

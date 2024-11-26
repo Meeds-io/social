@@ -16,40 +16,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import HamburgerMenuNavigation from './components/HamburgerMenuNavigation.vue';
-import HamburgerMenuNavigationButton from './components/HamburgerMenuNavigationButton.vue';
-import HamburgerMenuParentDrawer from './components/HamburgerMenuParentDrawer.vue';
-import HamburgerMenuParentSticky from './components/HamburgerMenuParentSticky.vue';
-import HamburgerMenuNavigationFirstLevel from './components/HamburgerMenuNavigationFirstLevel.vue';
-import HamburgerMenuNavigationSecondLevel from './components/HamburgerMenuNavigationSecondLevel.vue';
-import HamburgerMenuNavigationThirdLevel from './components/HamburgerMenuNavigationThirdLevel.vue';
-import ProfileHamburgerNavigation from './components/profile/ProfileHamburgerNavigation.vue';
-import RecentSpacesHamburgerNavigation from './components/recent-spaces/RecentSpacesHamburgerNavigation.vue';
-import SpaceNavigationItem from './components/recent-spaces/SpaceNavigationItem.vue';
-import SpaceUnreadBadge from './components/recent-spaces/SpaceUnreadBadge.vue';
-import SpacePanelHamburgerNavigation from './components/recent-spaces/SpacePanelHamburgerNavigation.vue';
-import SpacesHamburgerNavigation from './components/recent-spaces/SpacesHamburgerNavigation.vue';
-import SpacesNavigationContent from './components/recent-spaces/SpacesNavigationContent.vue';
-import SpacesNavigationEmpty from './components/recent-spaces/SpacesNavigationEmpty.vue';
-import SpaceHamburgerActionMenu from './components/recent-spaces/SpaceHamburgerActionMenu.vue';
+import Sidebar from './components/Sidebar.vue';
+import SidebarButton from './components/SidebarButton.vue';
+
+import SidebarParentDrawer from './components/parent/SidebarParentDrawer.vue';
+import SidebarParentSticky from './components/parent/SidebarParentSticky.vue';
+
+import SidebarFirstLevel from './components/drawer/SidebarFirstLevel.vue';
+import SidebarSecondLevel from './components/drawer/SidebarSecondLevel.vue';
+import SidebarThirdLevel from './components/drawer/SidebarThirdLevel.vue';
+
+import RecentSpacesHamburgerNavigation from './components/space/RecentSpacesHamburgerNavigation.vue';
+import SpaceNavigationItem from './components/space/SpaceNavigationItem.vue';
+import SpaceUnreadBadge from './components/space/SpaceUnreadBadge.vue';
+import SpacePanelHamburgerNavigation from './components/space/SpacePanelHamburgerNavigation.vue';
+import SpacesNavigationContent from './components/space/SpacesNavigationContent.vue';
+import SpacesNavigationEmpty from './components/space/SpacesNavigationEmpty.vue';
+import SpaceHamburgerActionMenu from './components/space/SpaceHamburgerActionMenu.vue';
 import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.vue';
-import UserHamburgerNavigation from './components/user/UserHamburgerNavigation.vue';
 import SitesHamburger from './components/site/SitesHamburger.vue';
 import SiteHamburgerItem from './components/site/SiteHamburgerItem.vue';
 
-import SidebarMenu from './components/SidebarMenu.vue';
-import SidebarMenuItem from './components/SidebarMenuItem.vue';
+import SidebarList from './components/list/SidebarList.vue';
+import SidebarListItem from './components/list/SidebarListItem.vue';
+import SidebarListFooter from './components/list/SidebarListFooter.vue';
+import SidebarListHeader from './components/list/SidebarListHeader.vue';
+import SidebarListContent from './components/list/SidebarListContent.vue';
+
+import SidebarHomeDialog from './components/dialog/SidebarHomeDialog.vue';
 
 const components = {
-  'hamburger-menu-navigation': HamburgerMenuNavigation,
-  'hamburger-menu-navigation-button': HamburgerMenuNavigationButton,
-  'hamburger-menu-parent-drawer': HamburgerMenuParentDrawer,
-  'hamburger-menu-parent-menu': HamburgerMenuParentSticky,
-  'hamburger-menu-navigation-first-level': HamburgerMenuNavigationFirstLevel,
-  'hamburger-menu-navigation-second-level': HamburgerMenuNavigationSecondLevel,
-  'hamburger-menu-navigation-third-level': HamburgerMenuNavigationThirdLevel,
-  'profile-hamburger-navigation': ProfileHamburgerNavigation,
-  'spaces-hamburger-navigation': SpacesHamburgerNavigation,
+  'sidebar': Sidebar,
+  'sidebar-button': SidebarButton,
+  'sidebar-parent-drawer': SidebarParentDrawer,
+  'sidebar-parent-menu': SidebarParentSticky,
+  'sidebar-first-level': SidebarFirstLevel,
+  'sidebar-second-level': SidebarSecondLevel,
+  'sidebar-third-level': SidebarThirdLevel,
   'recent-spaces-hamburger-navigation': RecentSpacesHamburgerNavigation,
   'space-navigation-item': SpaceNavigationItem,
   'space-unread-badge': SpaceUnreadBadge,
@@ -58,11 +61,14 @@ const components = {
   'spaces-navigation-empty': SpacesNavigationEmpty,
   'space-hamburger-action-menu': SpaceHamburgerActionMenu,
   'site-hamburger-navigation': SiteHamburgerNavigation,
-  'user-hamburger-navigation': UserHamburgerNavigation,
   'sites-hamburger': SitesHamburger,
   'site-hamburger-item': SiteHamburgerItem,
-  'sidebar-menu': SidebarMenu,
-  'sidebar-menu-item': SidebarMenuItem,
+  'sidebar-list': SidebarList,
+  'sidebar-list-item': SidebarListItem,
+  'sidebar-list-footer': SidebarListFooter,
+  'sidebar-list-header': SidebarListHeader,
+  'sidebar-list-content': SidebarListContent,
+  'sidebar-home-dialog': SidebarHomeDialog,
 };
 
 for (const key in components) {
