@@ -25,7 +25,8 @@
     min-height="57"
     flat>
     <v-list-item
-      :href="$root.defaultUserPath"
+      :href="defaultUserPath"
+      :target="defaultUserPathTarget"
       class="fill-height">
       <div class="my-auto me-2 logoContainer">
         <img
@@ -121,6 +122,17 @@ export default {
     },
     arrowIconRight() {
       return this.$vuetify.rtl && 'fa-angle-double-left' || 'fa-angle-double-right';
+    },
+    defaultUserExternalPath() {
+      return this.$root.defaultUserPath && Autolinker.parse(this.$root.defaultUserPath, {
+        email: true,
+      })?.[0]?.getUrl?.();
+    },
+    defaultUserPath() {
+      return this.defaultUserExternalPath || this.$root.defaultUserPath;
+    },
+    defaultUserPathTarget() {
+      return this.defaultUserExternalPath && '_blank' || '_self';
     },
   },
   methods: {
