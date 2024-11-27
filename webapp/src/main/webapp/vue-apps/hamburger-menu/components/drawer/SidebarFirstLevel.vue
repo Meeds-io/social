@@ -24,6 +24,7 @@
     id="HamburgerMenuNavigation"
     :value="firstLevelDrawer"
     :drawer-width="drawerWidth"
+    :drawer-style="drawerStyle"
     :levels-opened="levelsOpened"
     class="HamburgerMenuFirstLevelParent no-box-shadow border-box-sizing"
     @opened="$emit('firstLevelDrawer', true)"
@@ -83,6 +84,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    drawerStyle: null,
+  }),
   computed: {
     levelsOpened() {
       return this.secondLevelDrawer || this.thirdLevelDrawer;
@@ -93,6 +97,27 @@ export default {
     stickyDisplay() {
       return this.$root.sticky;
     },
-  }
+    iconCollapse() {
+      return this.$root.iconCollapse;
+    },
+  },
+  watch: {
+    iconCollapse: {
+      immediate: true,
+      handler() {
+        if (this.iconCollapse) {
+          window.setTimeout(() => {
+            if (this.iconCollapse) {
+              this.drawerStyle = 'z-index: 2 !important';
+            } else {
+              this.drawerStyle = '';
+            }
+          }, 500);
+        } else {
+          this.drawerStyle = '';
+        }
+      }
+    },
+  },
 };
 </script>

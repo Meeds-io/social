@@ -24,7 +24,7 @@
     :absolute="false"
     :close-on-click="false"
     :close-on-content-click="false"
-    :content-class="`overflow-hidden elevation-0 fill-height application-menu ${menuContentClass} ${componentId}`"
+    :content-class="`overflow-hidden border-right-color elevation-0 fill-height application-menu ${menuContentClass} ${componentId}`"
     :min-width="drawerWidth"
     :role="null"
     max-width="none"
