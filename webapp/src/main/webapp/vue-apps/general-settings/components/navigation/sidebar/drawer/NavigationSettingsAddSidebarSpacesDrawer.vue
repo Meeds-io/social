@@ -220,7 +220,7 @@ export default {
       this.option = this.isNew ? 'SPACE_TEMPLATE' : item.type;
       this.spaceTemplateId = item?.properties?.spaceTemplateId && Number(item.properties.spaceTemplateId) || null;
       this.sortBy = item?.properties?.sortBy || 'TITLE';
-      this.limit = item?.properties?.limit && Number(item.properties.limit) || 4;
+      this.limit = item?.properties && Object.hasOwn(item.properties, 'limit') ? Number(item.properties.limit) : 4;
       this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
     },
     async apply() {
