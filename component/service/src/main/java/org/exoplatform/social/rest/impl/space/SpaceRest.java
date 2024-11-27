@@ -299,7 +299,7 @@ public class SpaceRest implements ResourceContainer {
     } else if (StringUtils.equalsIgnoreCase(SPACE_FILTER_TYPE_FAVORITE, filterType)) {
       listAccess = spaceService.getFavoriteSpacesByFilter(authenticatedUser, spaceFilter);
     } else if (StringUtils.equalsIgnoreCase(LAST_VISITED_SPACES, filterType)) {
-      listAccess = spaceService.getLastAccessedSpace(authenticatedUser);
+      listAccess = spaceService.getLastAccessedSpaceByFilter(authenticatedUser, spaceFilter);
     } else {
       return Response.status(400).entity("Unrecognized space filter type").build();
     }

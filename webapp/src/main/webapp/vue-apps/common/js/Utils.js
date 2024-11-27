@@ -29,12 +29,10 @@ export function includeExtensions(suffix) {
   const modules = Object.keys(window.requirejs.s.contexts._.registry)
     .filter(definedMofule => definedMofule.includes(suffix));
   if (modules?.length) {
-    return Promise.all(modules.map(module => {
-      window.require([module], app => new Promise(resolve => {
-        app?.init?.();
-        resolve();
-      }));
-    }));
+    return Promise.all(modules.map(module => new Promise(resolve =>
+      window.require([module], app => Promise.resolve(app?.init?.())
+        .then(resolve))
+    )));
   } else {
     return Promise.resolve();
   }
