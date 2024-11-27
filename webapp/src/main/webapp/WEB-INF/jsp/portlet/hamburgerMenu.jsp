@@ -45,7 +45,7 @@
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
     <div class="v-application--wrap">
-      <% if (mode != SidebarMode.HIDDEN) { %>
+      <% if (mode == SidebarMode.STICKY) { %>
       <script type="text/javascript">
         if (!window.siteStickyMenuLoaded) {
           window.siteStickyMenuLoaded = true;
@@ -57,7 +57,7 @@
           } else {
             document.querySelector('#HamburgerNavigationMenu > .v-application--wrap').innerHTML = `
             <a class="HamburgerNavigationMenuLink">
-              <div class="px-5 py-3">
+              <div class="d-flex justify-center" style="min-width: 69px;">
                 <i aria-hidden="true"
                   class="v-icon notranslate fa fa-bars theme--light"
                   style="font-size: 24px;"></i>
@@ -68,10 +68,12 @@
       </script>
       <% } else { %>
       <a class="HamburgerNavigationMenuLink">
-        <div class="px-5 py-3">
+        <div class="d-flex justify-center" style="min-width: 69px;">
+          <% if (mode == SidebarMode.HIDDEN) { %>
           <i aria-hidden="true"
             class="v-icon notranslate fa fa-bars theme--light"
             style="font-size: 24px;"></i>
+          <% } %>
         </div>
       </a>
       <% } %>

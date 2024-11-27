@@ -99,8 +99,8 @@ export default {
   methods: {
     openDrawer() {
       this.retrieveFavoritesList();
-      window.require(['SHARED/favoriteDrawerExtensions'], () => {
-        this.$utils.includeExtensions('FavoriteDrawerExtension');
+      window.require(['SHARED/favoriteDrawerExtensions'], async () => {
+        await this.$utils.includeExtensions('FavoriteDrawerExtension');
         this.$refs.favoritesDrawer.open();
       });
     },

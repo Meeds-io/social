@@ -26,11 +26,18 @@ export function trim(text) {
 }
 
 export function includeExtensions(suffix) {
-  Object.keys(window.requirejs.s.contexts._.registry)
-    .filter(definedMofule => definedMofule.includes(suffix))
-    .forEach(module => {
-      window.require([module], app => app.init && app.init());
-    });
+  const modules = Object.keys(window.requirejs.s.contexts._.registry)
+    .filter(definedMofule => definedMofule.includes(suffix));
+  if (modules?.length) {
+    return Promise.all(modules.map(module => {
+      window.require([module], app => new Promise(resolve => {
+        app?.init?.();
+        resolve();
+      }));
+    }));
+  } else {
+    return Promise.resolve();
+  }
 }
 
 export function blobToBase64(blob) {
