@@ -74,9 +74,9 @@ export default {
     openDrawer() {
       this.$root.initialized = false;
       this.$root.lastLoadedNotificationIndex = 0;
-      window.require(['SHARED/notificationExtensions'], () => {
-        this.$utils.includeExtensions('NotificationPopoverExtension');
-        this.$utils.includeExtensions('NotificationExtension');
+      window.require(['SHARED/notificationExtensions'], async () => {
+        await this.$utils.includeExtensions('NotificationPopoverExtension');
+        await this.$utils.includeExtensions('NotificationExtension');
         this.open = true;
       });
     },

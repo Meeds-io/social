@@ -24,8 +24,6 @@
     color="transaprent"
     class="HamburgerNavigationMenu"
     flat>
-    <div v-if="hiddenDisplay">
-    </div>
     <v-hover v-model="$root.hoverButton">
       <sidebar-button 
         :unread-per-space="unreadPerSpace"

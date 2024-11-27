@@ -1496,6 +1496,9 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
+        <module>autoLinker</module>
+      </depends>
+      <depends>
         <module>siteDetailsComponent</module>
       </depends>
     </module>
