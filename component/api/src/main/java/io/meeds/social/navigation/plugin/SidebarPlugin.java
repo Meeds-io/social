@@ -30,6 +30,8 @@ import io.meeds.social.navigation.model.SidebarItem;
  */
 public interface SidebarPlugin {
 
+  static final SidebarItem SIDEBAR_SEPARATOR = new SidebarItem(SidebarItemType.SEPARATOR);
+
   /**
    * @return {@link SidebarItemType} managed by the implementing plugin
    */
