@@ -31,8 +31,8 @@
     hide-overlay>
     <v-hover v-if="drawer" v-model="$root.hoverSecondLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
-        <recent-spaces-hamburger-navigation
-          v-if="secondLevel === 'recentSpaces'"
+        <spaces-hamburger-navigation
+          v-if="secondLevel === 'spaces'"
           :opened-space="thirdLevelDrawer && openedSpace"
           @close="drawer = false" />
         <space-panel-hamburger-navigation
