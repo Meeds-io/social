@@ -62,8 +62,9 @@ public class SpaceTemplateSidebarPluginTest extends AbstractNavigationConfigurat
     List<SidebarItem> defaultItems = spaceTemplateSidebarPlugin.getDefaultItems();
     assertNotNull(defaultItems);
     assertTrue(defaultItems.stream()
-                           .anyMatch(item -> StringUtils.equals(item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME),
-                                                                String.valueOf(spaceTemplate.getId()))));
+                           .anyMatch(item -> item.getProperties() != null
+                                             && StringUtils.equals(item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME),
+                                                                   String.valueOf(spaceTemplate.getId()))));
   }
 
   @Test
