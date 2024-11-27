@@ -42,6 +42,7 @@ import SidebarListItem from './components/list/SidebarListItem.vue';
 import SidebarListFooter from './components/list/SidebarListFooter.vue';
 import SidebarListHeader from './components/list/SidebarListHeader.vue';
 import SidebarListContent from './components/list/SidebarListContent.vue';
+import SidebarListSubList from './components/list/SidebarListSubList.vue';
 
 import SidebarHomeDialog from './components/dialog/SidebarHomeDialog.vue';
 
@@ -68,6 +69,7 @@ const components = {
   'sidebar-list-footer': SidebarListFooter,
   'sidebar-list-header': SidebarListHeader,
   'sidebar-list-content': SidebarListContent,
+  'sidebar-list-sub-list': SidebarListSubList,
   'sidebar-home-dialog': SidebarHomeDialog,
 };
 

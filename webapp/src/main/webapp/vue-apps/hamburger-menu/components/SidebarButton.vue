@@ -20,12 +20,17 @@
 -->
 <template>
   <ripple-hover-button
+    v-if="!$root.sticky"
     class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
     text
     @ripple-hover="$emit('open-drawer', $event)">
-    <div class="px-5 py-3">
-      <v-icon size="24">fa-bars</v-icon>
-    </div>
+    <v-card
+      class="d-flex justify-center"
+      min-height="56"
+      min-width="69"
+      flat>
+      <v-icon v-show="$root.hidden" size="24">fa-bars</v-icon>
+    </v-card>
     <div
       v-show="showBadge"
       class="hamburger-unread-badge position-absolute"
@@ -43,6 +48,7 @@ export default {
   computed: {
     showBadge() {
       return this.$root.unreadPerSpace
+        && this.$root.hidden
         && Object.values(this.$root.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
     },
   },
