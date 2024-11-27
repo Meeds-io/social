@@ -22,24 +22,20 @@
 <template>
   <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
   <div v-else-if="isSitePages">
-    <v-list-item-group v-if="menuItems?.length" :value="activeMenu">
-      <sidebar-list-item
-        v-for="(subItem, index) in menuItems"
-        :key="`${subItem.name}_${subItem.url}_${index}`"
-        :item="subItem" />
-    </v-list-item-group>
+    <sidebar-list-sub-list
+      :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
     <template v-if="menuItems?.length || isSpaces">
       <v-list-item
-        v-bind="item.url && {
-          href: item.url,
+        v-bind="url && {
+          href: url,
           target: item.target,
           value: item.url,
         }"
-        :class="$root.iconCollapse && 'mx-0 px-0'"
+        :class="$root.iconCollapse && 'mx-0'"
         :disabled="!item.url"
-        class="d-flex">
+        class="d-flex ps-3">
         <v-list-item-avatar class="me-2 my-auto" min-width="40">
           <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
         </v-list-item-avatar>
@@ -49,12 +45,8 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <v-list-item-group v-if="menuItems?.length" :value="activeMenu">
-        <sidebar-list-item
-          v-for="(subItem, index) in menuItems"
-          :key="`${subItem.name}_${subItem.url}_${index}`"
-          :item="subItem" />
-      </v-list-item-group>
+      <sidebar-list-sub-list
+        :item="item" />
     </template>
   </div>
   <v-hover
@@ -65,7 +57,8 @@
       v-on="itemActions"
       :value="item.url"
       :disabled="!item.url"
-      class="d-flex"
+      :class="!$root.expand && item.avatar && 'ms-n2px'"
+      class="d-flex ps-3"
       dense>
       <v-list-item-avatar
         v-if="$root.expand || !item.avatar"
@@ -80,7 +73,8 @@
       </v-list-item-avatar>
       <v-list-item-avatar
         v-if="item.avatar"
-        class="my-auto me-2"
+        :class="$root.expand && 'me-2' || 'ms-2'"
+        class="my-auto"
         min-width="28"
         width="28"
         height="28"
@@ -167,17 +161,6 @@ export default {
     isHome() {
       return this.isPage && this.defaultUserPath === this.item?.url;
     },
-    activeMenu() {
-      if (eXo.env.portal.spaceGroup) {
-        const selectedSpaceMenu = this.menuItems.find(item =>
-          item?.properties?.groupId?.length
-          && window.location.pathname.includes(item.properties.groupId.replaceAll('/', ':')));
-        return selectedSpaceMenu?.url;
-      } else {
-        const selectedSiteMenu = this.menuItems.find(item => item.url && window.location.pathname.includes(item.url));
-        return selectedSiteMenu?.url;
-      }
-    },
     isSitePages() {
       return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
     },
@@ -212,10 +195,15 @@ export default {
     isUrl() {
       return (this.isPage || this.$root.displaySequentially) && this.item.url;
     },
+    url() {
+      return this.isUrl && this.item.url && Autolinker.parse(this.item.url, {
+        email: true,
+      })?.[0]?.getUrl?.() || this.item.url;
+    },
     itemAttributes() {
       const attributes = {};
       if (this.isUrl) {
-        attributes.href = this.item.url;
+        attributes.href = this.url;
         attributes.target = this.item.target;
       }
       return attributes;

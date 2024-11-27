@@ -32,7 +32,7 @@
       <div class="d-flex align-center justify-space-between my-auto">
         <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
         <v-chip
-          v-if="unreadBadge"
+          v-if="unreadBadge && enableUnread"
           color="error-color-background"
           min-width="22"
           height="22"
@@ -65,6 +65,10 @@ export default {
       default: null
     },
     enableChangeHome: {
+      type: Boolean,
+      default: false,
+    },
+    enableUnread: {
       type: Boolean,
       default: false,
     },

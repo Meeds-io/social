@@ -76,14 +76,14 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           icon() {
             return !this.hidden && this.mode === 'ICON';
           },
-          iconExpand() {
-            return this.icon && this.hoverDeferred;
-          },
-          iconCollapse() {
-            return this.icon && !this.hoverDeferred;
-          },
           expand() {
             return !this.icon || this.hoverDeferred;
+          },
+          iconExpand() {
+            return this.icon && this.expand;
+          },
+          iconCollapse() {
+            return this.icon && !this.expand;
           },
           displaySequentially() {
             return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
@@ -110,7 +110,9 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
                   document.dispatchEvent(new CustomEvent('drawerOpened'));
                   this.overlayOpened = true;
                 } else if (!this.expand && this.overlayOpened) {
-                  document.dispatchEvent(new CustomEvent('drawerClosed'));
+                  if (!eXo.openedDrawers?.length) {
+                    document.dispatchEvent(new CustomEvent('drawerClosed'));
+                  }
                   this.overlayOpened = false;
                 }
               }, 200);
@@ -154,9 +156,9 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           },
           updateParentStyle() {
             if (this.icon) {
-              document.querySelector('#ParentSiteStickyMenu').style.minWidth = '67px';
+              document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
             } else {
-              document.querySelector('#ParentSiteStickyMenu').style.minWidth = '';
+              document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '';
             }
           },
           updateUserHome() {
