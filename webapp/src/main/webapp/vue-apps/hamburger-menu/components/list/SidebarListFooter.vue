@@ -49,7 +49,9 @@
       </v-list-item-action>
       <v-spacer v-if="$root.expand" />
       <div v-else class="me-3"></div>
-      <v-list-item-action class="my-auto mx-0 d-flex flex-row">
+      <v-list-item-action
+        :class="$root.expand && 'mx-0' || 'ms-1 me-0'"
+        class="my-auto d-flex flex-row">
         <v-tooltip top>
           <template #activator="{ on, attrs }">
             <v-btn
@@ -57,6 +59,7 @@
               v-on="on"
               :href="profileUri"
               :aria-label="$t('menu.userProfilePageLink')"
+              :class="!$root.expand && 'ms-n2px'"
               class="accountTitleItem my-auto"
               icon>
               <v-avatar
