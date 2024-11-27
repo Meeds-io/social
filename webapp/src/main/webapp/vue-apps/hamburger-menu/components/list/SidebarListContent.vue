@@ -21,30 +21,11 @@
 -->
 <template>
   <div>
-    <v-list-item-group v-if="menuItems" :value="activeMenu">
-      <sidebar-list-item
-        v-for="(item, index) in menuItems"
-        :key="`${item.name}_${item.icon}_${index}`"
-        :item="item" />
-    </v-list-item-group>
+    <sidebar-list-sub-list :item="$root.settings" />
   </div>
 </template>
 <script>
 export default {
-  computed: {
-    menuItems() {
-      return this.$root.settings?.items;
-    },
-    activeMenu() {
-      if (eXo.env.portal.spaceGroup) {
-        const selectedSpaceMenu = this.menuItems.find(item => item?.properties?.groupId?.length && window.location.pathname.includes(item.properties.groupId.replaceAll('/', ':')));
-        return selectedSpaceMenu?.url;
-      } else {
-        const selectedSiteMenu = this.menuItems.find(item => item.url && window.location.pathname.includes(item.url));
-        return selectedSiteMenu?.url;
-      }
-    },
-  },
   created() {
     this.$socialWebSocket.initCometd('/SpaceWebNotification');
   },

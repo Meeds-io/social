@@ -35,8 +35,13 @@
           width="36px">
       </div>
       <v-list-item-content>
-        <v-list-item-title v-if="$root.expand" class="logoTitle font-weight-bold menu-text-color text-truncate">
-          {{ companyName }}
+        <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate">
+          <v-card
+            class="text-no-wrap transparent"
+            min-width="50"
+            flat>
+            {{ companyName }}
+          </v-card>
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action v-if="$root.expand && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">

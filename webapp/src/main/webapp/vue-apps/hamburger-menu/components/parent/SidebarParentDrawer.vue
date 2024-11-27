@@ -53,7 +53,7 @@ export default {
   }),
   computed: {
     width() {
-      return this.$root.expand ? this.drawerWidth : 67;
+      return this.$root.expand ? this.drawerWidth : 70;
     },
     stickyAllowed() {
       return this.$root.stickyAllowed;
