@@ -98,7 +98,9 @@ export default {
       return url;
     },
     uri() {
-      return this.isNodeGroup ? null : this.navigationUri;
+      return this.isNodeGroup ? null : this.navigationUri && Autolinker.parse(this.navigationUri, {
+        email: true,
+      })?.[0]?.getUrl?.() || this.navigationUri;
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
