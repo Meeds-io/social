@@ -32,12 +32,11 @@ import org.exoplatform.commons.addons.AddOnService;
 import org.exoplatform.portal.config.model.TransientApplicationState;
 
 import io.meeds.common.ContainerTransactional;
-import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.constant.TopbarItemType;
+import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.TopbarApplication;
 import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
@@ -51,8 +50,6 @@ import jakarta.annotation.PostConstruct;
 public class NavigationConfigurationInitService {
 
   private static final String            TOP_NAVIGATION_ADDON_CONTAINER = "middle-topNavigation-container";
-
-  private static final SidebarItem       SIDEBAR_SEPARATOR              = new SidebarItem(SidebarItemType.SEPARATOR);
 
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
@@ -127,18 +124,16 @@ public class NavigationConfigurationInitService {
    */
   private List<SidebarItem> getDefaultNavigations() {
     if (menuPlugins != null) {
-      List<SidebarItem> list = menuPlugins.stream()
-                                          .map(SidebarPlugin::getDefaultItems)
-                                          .flatMap(items -> {
-                                            if (CollectionUtils.isEmpty(items)) {
-                                              return Stream.empty();
-                                            } else {
-                                              return Stream.concat(items.stream(), Stream.of(SIDEBAR_SEPARATOR));
-                                            }
-                                          })
-                                          .toList();
-      // Delete last separator
-      return list.isEmpty() ? list : list.stream().limit(list.size() - 1l).toList();
+      return menuPlugins.stream()
+                        .map(SidebarPlugin::getDefaultItems)
+                        .flatMap(items -> {
+                          if (CollectionUtils.isEmpty(items)) {
+                            return Stream.empty();
+                          } else {
+                            return items.stream();
+                          }
+                        })
+                        .toList();
     } else {
       return Collections.emptyList();
     }
