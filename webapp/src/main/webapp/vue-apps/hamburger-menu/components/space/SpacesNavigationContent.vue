@@ -42,6 +42,7 @@
     </v-list>
     <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
       <v-btn
+        :loading="loadingSpaces"
         class="btn"
         small
         @click="loadNextPage()">
@@ -93,7 +94,7 @@ export default {
       type: Object,
       default: null,
     },
-    recentSpaces: {
+    spaces: {
       type: Array,
       default: null,
     },
@@ -102,25 +103,26 @@ export default {
     startSearchAfterInMilliseconds: 400,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
-    spaces: [],
+    loadedSpaces: [],
     loadingSpaces: false,
+    initialized: false,
     limitToFetch: 0,
     originalLimitToFetch: 0,
     selectedSpaceIndex: -1,
   }),
   computed: {
     canShowMore() {
-      return this.showMoreButton && !this.loadingSpaces && this.spaces.length >= this.limitToFetch;
+      return this.showMoreButton && this.initialized && (this.loadingSpaces || this.loadedSpaces.length >= this.limitToFetch);
     },
     filteredSpaces() {
       if (!this.keyword) {
-        if (!this.recentSpaces) {
-          return this.spaces;
+        if (!this.spaces) {
+          return this.loadedSpaces;
         } else {
-          return this.recentSpaces;
+          return this.spaces;
         }
       } else {
-        return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
+        return this.loadedSpaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
       }
     },
   },
@@ -143,11 +145,14 @@ export default {
     filteredSpaces() {
       this.$emit('spaces-count', this.filteredSpaces?.length);
     },
-    spaces() {
+    loadedSpaces() {
       this.refreshSelectedSpace();
     },
     loadingSpaces() {
       this.$emit('loading', this.loadingSpaces);
+      if (!this.loadingSpaces && !this.initialized) {
+        this.initialized = true;
+      }
     },
   }, 
   created() {
@@ -162,31 +167,47 @@ export default {
   },
   methods: {
     refreshSelectedSpace() {
-      this.selectedSpaceIndex = this.spaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
+      this.selectedSpaceIndex = this.loadedSpaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
     },
     applySpaceUnreadChanges(event) {
       if (!event?.detail) {
         return;
       }
       const {spaceId, unread} = event.detail;
-      const space = this.spaces?.find(displayedSpace => displayedSpace.id === spaceId);
+      const space = this.loadedSpaces?.find(displayedSpace => displayedSpace.id === spaceId);
       if (space) {
         space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
       }
     },
     searchSpaces() {
       this.loadingSpaces = true;
-      return this.$spaceService.getSpaces('', this.offset, this.limitToFetch, 'lastVisited', 'member,managers,favorite,unread,muted')
+      return this.$spaceService.getSpacesByFilter({
+        templateId: this.$root.spaceTemplateId || 0,
+        query: '',
+        offset: this.offset,
+        limit: this.limitToFetch,
+        filter: this.getFilterType(),
+        expand: 'member,managers,favorite,unread,muted',
+      })
         .then(data => {
-          this.spaces = data && data.spaces || [];
+          this.loadedSpaces = data && data.spaces || [];
           return this.$nextTick();
         })
         .then(() => {
-          if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.spaces.length >= this.limitToFetch) {
+          if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
             this.limitToFetch += this.pageSize;
           }
         })
         .finally(() => this.loadingSpaces = false);
+    },
+    getFilterType() {
+      if (this.$root.spacesSortBy === 'LAST_ACCESS') {
+        return 'lastVisited';
+      } else if (this.$root.spacesSortBy === 'FAVORITE') {
+        return 'favorite';
+      } else {
+        return 'member';
+      }
     },
     resetSearch() {
       if (this.limitToFetch !== this.originalLimitToFetch) {
