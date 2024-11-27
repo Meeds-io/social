@@ -64,8 +64,11 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           ltr: eXo.env.portal.orientation === 'ltr',
         },
         computed: {
+          stickyBreakpointWidth() {
+            return this.mode === 'ICON' ? this.$vuetify.breakpoint.thresholds.md : this.$vuetify.breakpoint.thresholds.lg;
+          },
           stickyAllowed() {
-            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+            return this.$vuetify.breakpoint.width >= this.stickyBreakpointWidth;
           },
           hidden() {
             return !this.stickyAllowed || this.mode === 'HIDDEN';
@@ -86,7 +89,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
             return this.icon && !this.expand;
           },
           displaySequentially() {
-            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+            return this.$vuetify.breakpoint.width >= this.stickyBreakpointWidth;
           },
           hover() {
             return this.hoverMenu
