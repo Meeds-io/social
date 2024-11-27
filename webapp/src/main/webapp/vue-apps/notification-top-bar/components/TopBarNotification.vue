@@ -74,10 +74,11 @@ export default {
     openDrawer() {
       this.$root.initialized = false;
       this.$root.lastLoadedNotificationIndex = 0;
-      window.require(['SHARED/notificationExtensions'], async () => {
-        await this.$utils.includeExtensions('NotificationPopoverExtension');
-        await this.$utils.includeExtensions('NotificationExtension');
-        this.open = true;
+      window.require(['SHARED/notificationExtensions'], () => {
+        Promise.all([
+          this.$utils.includeExtensions('NotificationPopoverExtension'),
+          this.$utils.includeExtensions('NotificationExtension')
+        ]).then(() => this.open = true);
       });
     },
     updateBadgeByEvent(event) {
