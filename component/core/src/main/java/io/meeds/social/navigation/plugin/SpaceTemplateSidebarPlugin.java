@@ -18,12 +18,15 @@
  */
 package io.meeds.social.navigation.plugin;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
@@ -43,6 +46,9 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   @Autowired
   private SpaceTemplateService spaceTemplateService;
+
+  @Value("#{'${social.spaceTemplates.sidebar.defaultSort:announcement,community,project,circle}'.split(',')}")
+  private List<String>         defaultSpaceTemplatesSort;
 
   @Override
   public SidebarItemType getType() {
@@ -74,11 +80,14 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   @Override
   public List<SidebarItem> getDefaultItems() {
-    return spaceTemplateService.getSpaceTemplates(null, Pageable.unpaged(), true)
-                               .stream()
-                               .filter(t -> t.isEnabled() && !t.isDeleted())
-                               .map(this::toSidebarItem)
-                               .toList();
+    List<SidebarItem> spaceTemplateItems = spaceTemplateService.getSpaceTemplates(null, Pageable.unpaged(), true)
+                                                               .stream()
+                                                               .filter(t -> t.isEnabled() && !t.isDeleted())
+                                                               .sorted(this::sortDefaultSpaceTemplates)
+                                                               .map(this::toSidebarItem)
+                                                               .toList();
+    return Arrays.asList(ArrayUtils.addFirst(spaceTemplateItems.toArray(new SidebarItem[0]),
+                                             SIDEBAR_SEPARATOR));
   }
 
   @Override
@@ -104,6 +113,14 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
     properties.put(SPACES_LIMIT, String.valueOf(SPACES_LIMIT_DEFAULT));
     properties.put(SPACES_SORT_BY, SidebarSpaceSortBy.LAST_ACCESS.name());
     return properties;
+  }
+
+  private int sortDefaultSpaceTemplates(SpaceTemplate t1, SpaceTemplate t2) {
+    return getDefaultTemplateOrder(t1) - getDefaultTemplateOrder(t2);
+  }
+
+  private int getDefaultTemplateOrder(SpaceTemplate spaceTemplate) {
+    return spaceTemplate.isSystem() ? defaultSpaceTemplatesSort.indexOf(spaceTemplate.getLayout()) : 100;
   }
 
 }
