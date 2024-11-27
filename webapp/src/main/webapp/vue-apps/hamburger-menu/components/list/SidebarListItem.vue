@@ -26,28 +26,64 @@
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <template v-if="menuItems?.length || isSpaces">
+    <v-hover v-if="hasItems || isSpaces" v-model="hover">
       <v-list-item
         v-bind="url && {
           href: url,
           target: item.target,
           value: item.url,
         }"
+        v-on="hover && hasItems && !url && {
+          click: () => collapsedSpaces = !collapsedSpaces,
+        }"
+        :title="displaySpacesExpandFull && (collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse'))"
         :class="$root.iconCollapse && 'mx-0'"
-        :disabled="!item.url"
-        class="d-flex ps-3">
+        class="d-flex ps-3"
+        dense>
         <v-list-item-avatar class="me-2 my-auto" min-width="40">
-          <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+          <v-btn
+            v-if="displaySpacesExpandButton"
+            :title="collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse')"
+            height="36"
+            width="36"
+            icon
+            @mousedown.prevent.stop="0"
+            @mouseup.prevent.stop="0"
+            @click.prevent.stop="collapsedSpaces = !collapsedSpaces">
+            <v-icon size="18">{{ spacesIcon }}</v-icon>
+          </v-btn>
+          <v-icon v-else size="18">{{ spacesIcon }}</v-icon>
         </v-list-item-avatar>
         <v-list-item-content v-if="$root.expand">
           <v-list-item-title class="menu-text-color text-truncate">
             {{ $t(item.name) }}
           </v-list-item-title>
         </v-list-item-content>
+        <v-list-item-action
+          v-if="toggleArrow && $root.expand"
+          class="my-auto align-center"
+          @mousedown.stop.prevent
+          @mouseup.stop.prevent>
+          <ripple-hover-button
+            :active="!drawerOpened"
+            :title="$t('menu.accessToSpacesList')"
+            class="ms-2"
+            icon
+            @ripple-hover="openSpacesList">
+            <v-icon
+              class="me-0 pa-2 icon-default-color"
+              small>
+              {{ arrowIcon }}
+            </v-icon>
+          </ripple-hover-button>
+        </v-list-item-action>
       </v-list-item>
+    </v-hover>
+    <v-expand-transition>
       <sidebar-list-sub-list
+        v-show="!collapsedSpaces"
         :item="item" />
-    </template>
+    </v-expand-transition>
   </div>
   <v-hover
     v-else-if="item.url"
@@ -98,6 +134,7 @@
         @mouseup.stop.prevent>
         <ripple-hover-button
           :active="!drawerOpened"
+          :title="$t('menu.accessToPagesList')"
           class="ms-2"
           icon
           @ripple-hover="openOrCloseDrawer()">
@@ -146,6 +183,7 @@ export default {
   },
   data: () => ({
     hover: false,
+    collapsedSpaces: false,
     space: null,
   }),
   computed: {
@@ -154,6 +192,9 @@ export default {
     },
     menuItems() {
       return this.item?.items;
+    },
+    hasItems() {
+      return this.menuItems?.length;
     },
     defaultUserPath() {
       return this.$root.defaultUserPath;
@@ -181,10 +222,24 @@ export default {
     },
     drawerOpened() {
       return (this.isSite && this.$root.openedSiteName === this.item?.properties?.siteName)
-        || (this.isSpace && Number(this.$root.openedSpaceId) === Number(this.item?.properties?.id));
+        || (this.isSpace && Number(this.$root.openedSpaceId) === Number(this.item?.properties?.id))
+        || (this.isSpaces && this.$root.openedSpacesUrl === this.url)
+        || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === Number(this.item?.properties?.spaceTemplateId));
     },
     arrowIconLeft() {
       return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
+    },
+    displaySpacesExpandButton() {
+      return this.hover && this.hasItems && this.url;
+    },
+    displaySpacesExpandFull() {
+      return this.hover && this.hasItems && !this.url;
+    },
+    displaySpacesExpandKey() {
+      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.item?.properties?.id || this.item?.properties?.spaceTemplateId}`;
+    },
+    spacesIcon() {
+      return this.hover && this.hasItems ? (this.collapsedSpaces && 'fa-caret-up' || 'fa-caret-down') : (this.item.icon || 'fa-folder');
     },
     arrowIconRight() {
       return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
@@ -223,7 +278,7 @@ export default {
       return this.isSpace && 2;
     },
     toggleArrow() {
-      return (this.isSite || this.isSpace)
+      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaces)
         && (this.hover || this.drawerOpened);
     },
   },
@@ -233,8 +288,24 @@ export default {
         this.initHover();
       }
     },
+    collapsedSpaces() {
+      if (this.collapsedSpaces) {
+        window.localStorage.setItem(this.displaySpacesExpandKey, 'true');
+      } else {
+        window.localStorage.removeItem(this.displaySpacesExpandKey);
+      }
+    },
+  },
+  created() {
+    this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
   },
   methods: {
+    openSpacesList() {
+      this.$root.$emit('change-spaces-menu',
+        this.isSpaceTemplate && this.item.properties?.spaceTemplateId,
+        this.isSpaces && this.url,
+        this.item.properties?.sortBy);
+    },
     async openOrCloseDrawer() {
       if (this.isSite) {
         if (!this.$root.sites) {

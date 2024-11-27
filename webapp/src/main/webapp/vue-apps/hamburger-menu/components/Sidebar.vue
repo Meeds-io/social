@@ -52,7 +52,7 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :opened-site="site"
-          :recent-spaces="recentSpaces"
+          :spaces="spaces"
           :opened-space="space"
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
@@ -64,7 +64,7 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :opened-site="site"
-          :recent-spaces="recentSpaces"
+          :spaces="spaces"
           :opened-space="space"
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
@@ -98,7 +98,7 @@ export default {
     space: null,
     site: null,
     initStep: 0,
-    recentSpaces: null,
+    spaces: null,
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
@@ -197,7 +197,7 @@ export default {
   },
   created() {
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
-    this.$root.$on('change-recent-spaces-menu', this.changeRecentSpacesMenu);
+    this.$root.$on('change-spaces-menu', this.changeSpacesMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     this.$root.$on('dialog-opened', () => this.allowClosing = false);
     this.$root.$on('dialog-closed', () => window.setTimeout(() => {
@@ -214,23 +214,32 @@ export default {
       await this.$nextTick();
       this.firstLevelDrawer = true;
     },
-    changeRecentSpacesMenu() {
+    async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy) {
       this.site = null;
-      if (this.secondLevel === 'recentSpaces') {
+      if (this.secondLevel === 'spaces'
+          && ((spaceTemplateId && this.$root.openedSpaceTemplateId === spaceTemplateId)
+              || (spacesUrl && this.$root.openedSpacesUrl === spacesUrl))) {
         this.space = null;
         this.secondLevel = null;
         this.secondLevelDrawer = false;
         this.thirdLevelDrawer = false;
       } else {
+        if (this.secondLevel) {
+          this.secondLevel = null;
+          await this.$nextTick();
+        }
         this.space = null;
-        this.secondLevel = 'recentSpaces';
+        this.$root.openedSpaceTemplateId = spaceTemplateId;
+        this.$root.openedSpacesUrl = spacesUrl;
+        this.$root.spacesSortBy = sortBy;
+        this.secondLevel = 'spaces';
         this.secondLevelDrawer = true;
         this.thirdLevelDrawer = false;
       }
     },
     changeSpaceMenu(space, thirdLevel) {
       this.site = null;
-      if (!thirdLevel && this.secondLevel === 'recentSpaces') {
+      if (!thirdLevel && this.secondLevel === 'spaces') {
         this.space = space;
         this.secondLevel = 'spaceMenu';
         this.secondLevelDrawer = true;
@@ -244,7 +253,7 @@ export default {
         }
       } else {
         this.space = space;
-        if (this.secondLevel === 'recentSpaces') {
+        if (this.secondLevel === 'spaces') {
           this.thirdLevelDrawer = true;
         } else {
           this.secondLevel = 'spaceMenu';

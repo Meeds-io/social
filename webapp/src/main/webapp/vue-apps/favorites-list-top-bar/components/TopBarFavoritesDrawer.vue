@@ -99,9 +99,9 @@ export default {
   methods: {
     openDrawer() {
       this.retrieveFavoritesList();
-      window.require(['SHARED/favoriteDrawerExtensions'], async () => {
-        await this.$utils.includeExtensions('FavoriteDrawerExtension');
-        this.$refs.favoritesDrawer.open();
+      window.require(['SHARED/favoriteDrawerExtensions'], () => {
+        Promise.resolve(this.$utils.includeExtensions('FavoriteDrawerExtension'))
+          .then(() => this.$refs.favoritesDrawer.open());
       });
     },
     retrieveFavoritesList() {

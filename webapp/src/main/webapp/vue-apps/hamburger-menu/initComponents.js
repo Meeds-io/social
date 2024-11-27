@@ -26,16 +26,13 @@ import SidebarFirstLevel from './components/drawer/SidebarFirstLevel.vue';
 import SidebarSecondLevel from './components/drawer/SidebarSecondLevel.vue';
 import SidebarThirdLevel from './components/drawer/SidebarThirdLevel.vue';
 
-import RecentSpacesHamburgerNavigation from './components/space/RecentSpacesHamburgerNavigation.vue';
+import SpacesHamburgerNavigation from './components/space/SpacesHamburgerNavigation.vue';
 import SpaceNavigationItem from './components/space/SpaceNavigationItem.vue';
 import SpaceUnreadBadge from './components/space/SpaceUnreadBadge.vue';
 import SpacePanelHamburgerNavigation from './components/space/SpacePanelHamburgerNavigation.vue';
 import SpacesNavigationContent from './components/space/SpacesNavigationContent.vue';
 import SpacesNavigationEmpty from './components/space/SpacesNavigationEmpty.vue';
 import SpaceHamburgerActionMenu from './components/space/SpaceHamburgerActionMenu.vue';
-import SiteHamburgerNavigation from './components/site/SiteHamburgerNavigation.vue';
-import SitesHamburger from './components/site/SitesHamburger.vue';
-import SiteHamburgerItem from './components/site/SiteHamburgerItem.vue';
 
 import SidebarList from './components/list/SidebarList.vue';
 import SidebarListItem from './components/list/SidebarListItem.vue';
@@ -54,16 +51,13 @@ const components = {
   'sidebar-first-level': SidebarFirstLevel,
   'sidebar-second-level': SidebarSecondLevel,
   'sidebar-third-level': SidebarThirdLevel,
-  'recent-spaces-hamburger-navigation': RecentSpacesHamburgerNavigation,
+  'spaces-hamburger-navigation': SpacesHamburgerNavigation,
   'space-navigation-item': SpaceNavigationItem,
   'space-unread-badge': SpaceUnreadBadge,
   'space-panel-hamburger-navigation': SpacePanelHamburgerNavigation,
   'spaces-navigation-content': SpacesNavigationContent,
   'spaces-navigation-empty': SpacesNavigationEmpty,
   'space-hamburger-action-menu': SpaceHamburgerActionMenu,
-  'site-hamburger-navigation': SiteHamburgerNavigation,
-  'sites-hamburger': SitesHamburger,
-  'site-hamburger-item': SiteHamburgerItem,
   'sidebar-list': SidebarList,
   'sidebar-list-item': SidebarListItem,
   'sidebar-list-footer': SidebarListFooter,
