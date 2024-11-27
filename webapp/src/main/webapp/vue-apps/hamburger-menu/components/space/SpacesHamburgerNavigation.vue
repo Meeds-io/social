@@ -115,6 +115,11 @@ export default {
       }
     },
   },
+  beforeDestroy() {
+    this.$root.openedSpaceTemplateId = null;
+    this.$root.openedSpacesUrl = null;
+    this.$root.spacesSortBy = null;
+  },
   methods: {
     closeMenu() {
       this.$emit('close-menu');

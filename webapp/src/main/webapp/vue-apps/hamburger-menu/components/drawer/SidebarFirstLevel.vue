@@ -71,7 +71,7 @@ export default {
       type: Object,
       default: null,
     },
-    recentSpaces: {
+    spaces: {
       type: Array,
       default: null,
     },
@@ -90,9 +90,6 @@ export default {
   computed: {
     levelsOpened() {
       return this.secondLevelDrawer || this.thirdLevelDrawer;
-    },
-    recentSpacesDrawerOpened() {
-      return this.secondLevelDrawer && this.secondLevel === 'recentSpaces';
     },
     stickyDisplay() {
       return this.$root.sticky;
