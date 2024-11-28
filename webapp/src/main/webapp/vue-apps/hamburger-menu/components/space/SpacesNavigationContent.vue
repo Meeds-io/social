@@ -94,6 +94,10 @@ export default {
       type: Object,
       default: null,
     },
+    filterType: {
+      type: String,
+      default: null,
+    },
     spaces: {
       type: Array,
       default: null,
@@ -142,6 +146,10 @@ export default {
     limitToFetch() {
       this.searchSpaces();
     },
+    filterType() {
+      this.loadedSpaces = [];
+      this.searchSpaces();
+    },
     filteredSpaces() {
       this.$emit('spaces-count', this.filteredSpaces?.length);
     },
@@ -179,34 +187,42 @@ export default {
         space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
       }
     },
-    searchSpaces() {
+    async searchSpaces() {
       this.loadingSpaces = true;
-      return this.$spaceService.getSpacesByFilter({
-        templateId: this.$root.spaceTemplateId || 0,
-        query: '',
-        offset: this.offset,
-        limit: this.limitToFetch,
-        filter: this.getFilterType(),
-        expand: 'member,managers,favorite,unread,muted',
-      })
-        .then(data => {
-          this.loadedSpaces = data && data.spaces || [];
-          return this.$nextTick();
-        })
-        .then(() => {
-          if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
-            this.limitToFetch += this.pageSize;
+      try {
+        if (this.filterType === 'unread') {
+          let spaceIds = this.$root.unreadPerSpace && Object.keys(this.$root.unreadPerSpace)
+            .filter(id => Number(this.$root.unreadPerSpace[id]));
+          if (this.offset) {
+            spaceIds = spaceIds.slice(this.offset);
           }
-        })
-        .finally(() => this.loadingSpaces = false);
-    },
-    getFilterType() {
-      if (this.$root.spacesSortBy === 'LAST_ACCESS') {
-        return 'lastVisited';
-      } else if (this.$root.spacesSortBy === 'FAVORITE') {
-        return 'favorite';
-      } else {
-        return 'member';
+          if (this.limitToFetch) {
+            spaceIds = spaceIds.slice(0, this.limitToFetch);
+          }
+          if (spaceIds?.length) {
+            this.loadedSpaces = await Promise
+              .all(spaceIds.map(spaceId => this.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
+          } else {
+            this.loadedSpaces = [];
+          }
+        } else {
+          const data = await this.$spaceService.getSpacesByFilter({
+            query: '',
+            templateId: this.$root.openedSpaceTemplateId || 0,
+            filter: this.filterType || 'lastVisited',
+            sortBy: 'lastVisited',
+            expand: 'member,managers,favorite,unread,muted',
+            offset: this.offset,
+            limit: this.limitToFetch,
+          });
+          this.loadedSpaces = data?.spaces || [];
+        }
+        await this.$nextTick();
+        if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
+          this.limitToFetch += this.pageSize;
+        }
+      } finally {
+        this.loadingSpaces = false;
       }
     },
     resetSearch() {

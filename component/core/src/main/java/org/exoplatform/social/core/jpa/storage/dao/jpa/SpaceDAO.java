@@ -188,7 +188,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (CollectionUtils.isEmpty(result)) {
       return Collections.emptyList();
     } else {
-      return result.stream().map(t -> Long.parseLong(((Object[]) t.get(0))[0].toString())).toList();
+      return result.stream().map(t -> t.get(0, Long.class)).toList();
     }
   }
 
@@ -283,9 +283,18 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                                        List<String> parameterNames,
                                        boolean count) {
     String querySelect = count ? "SELECT COUNT(DISTINCT s.id) FROM SocSpaceEntity s " :
-                               "SELECT DISTINCT(s.id, " + getSortField(spaceFilter) + ") FROM SocSpaceEntity s ";
-    if (parameterNames.contains(PARAM_USER_ID) || spaceFilter.isLastAccess()) {
-      querySelect += " INNER JOIN s.members sm ";
+                               "SELECT DISTINCT(s.id), " + getSortField(spaceFilter) + " FROM SocSpaceEntity s ";
+    boolean lastAccess = isLastAccess(spaceFilter);
+    if (parameterNames.contains(PARAM_USER_ID) || lastAccess) {
+      if (StringUtils.isNotBlank(spaceFilter.getRemoteId())) {
+        if (lastAccess) {
+          querySelect += " INNER JOIN s.members sm ON sm.userId = :userId AND sm.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER ";
+        } else {
+          querySelect += " INNER JOIN s.members sm ON sm.userId = :userId ";
+        }
+      } else {
+        querySelect += " INNER JOIN s.members sm ";
+      }
     }
 
     String queryContent;
@@ -296,7 +305,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
     if (!count) {
       queryContent += " ORDER BY " + getSortField(spaceFilter) +
-          (spaceFilter.isLastAccess() || spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC) ? " DESC " : " ASC ");
+          (isSortDescending(spaceFilter) ? " DESC " : " ASC ");
     }
     return queryContent;
   }
@@ -412,11 +421,10 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
   }
 
   private void buildSortSuffixes(XSpaceFilter spaceFilter, List<String> suffixes) {
-    Sorting sorting = spaceFilter.getSorting();
     String sortField = getSortField(spaceFilter);
     suffixes.add("OrderBy");
     suffixes.add(StringUtils.capitalize(sortField.replace("s.", "").replace("sm.", "")));
-    if (sorting.orderBy.equals(Sorting.OrderBy.DESC)) {
+    if (isSortDescending(spaceFilter)) {
       suffixes.add("DESC");
     } else {
       suffixes.add("ASC");
@@ -425,13 +433,24 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private String getSortField(XSpaceFilter spaceFilter) {
     Sorting sorting = spaceFilter.getSorting();
-    if (spaceFilter.isLastAccess()) {
+    if (isLastAccess(spaceFilter)) {
       return "sm.lastAccess";
     } else if (sorting.sortBy.equals(SortBy.DATE)) {
       return "s.createdDate";
     } else {
       return "s.displayName";
     }
+  }
+
+  private boolean isSortDescending(XSpaceFilter spaceFilter) {
+    return isLastAccess(spaceFilter)
+          || spaceFilter.getSorting() == null
+          || spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC);
+  }
+
+  private boolean isLastAccess(XSpaceFilter spaceFilter) {
+    return spaceFilter.isLastAccess()
+           || (spaceFilter.getSorting() != null && spaceFilter.getSorting().sortBy.equals(SortBy.LASTVISITED));
   }
 
 }

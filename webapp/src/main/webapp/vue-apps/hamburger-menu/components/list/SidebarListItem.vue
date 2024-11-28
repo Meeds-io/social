@@ -239,7 +239,7 @@ export default {
       return `sidebar-collapsed-${this.item.type}-${this.item.url || this.item?.properties?.id || this.item?.properties?.spaceTemplateId}`;
     },
     spacesIcon() {
-      return this.hover && this.hasItems ? (this.collapsedSpaces && 'fa-caret-up' || 'fa-caret-down') : (this.item.icon || 'fa-folder');
+      return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${this.$vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
     },
     arrowIconRight() {
       return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
@@ -254,6 +254,9 @@ export default {
       return this.isUrl && this.item.url && Autolinker.parse(this.item.url, {
         email: true,
       })?.[0]?.getUrl?.() || this.item.url;
+    },
+    target() {
+      return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
     },
     itemAttributes() {
       const attributes = {};
@@ -271,6 +274,8 @@ export default {
         } else if (this.isSpace) {
           actions.click = this.openOrCloseDrawer;
         }
+      } else if (this.url?.includes?.('#')) {
+        actions.click = this.forceOpenLink;
       }
       return actions;
     },
@@ -333,6 +338,13 @@ export default {
     async retrieveSpace(refresh) {
       this.space = await this.$spaceService.getSpaceById(this.id, 'member,managers,favorite,unread,muted', refresh);
       this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
+    },
+    forceOpenLink() {
+      if (this.navigationNodeTarget === '_blank') {
+        window.open(this.navigationNodeUri);
+      } else {
+        window.location.href = this.navigationNodeUri;
+      }
     },
   },
 };

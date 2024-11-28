@@ -267,11 +267,13 @@ export default {
       if (this.site?.name === site.name) {
         this.secondLevel = null;
         this.secondLevelDrawer = false;
+        this.thirdLevelDrawer = false;
         this.site= null;
       } else {
         this.site = site;
         this.secondLevel = 'site';
         this.secondLevelDrawer = true;
+        this.thirdLevelDrawer = false;
       }
     },
     closeDisplayedDrawer() {
