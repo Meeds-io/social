@@ -32,7 +32,7 @@ public class Sorting implements Serializable, Cloneable {
   }
 
   public static enum SortBy {
-    RELEVANCY("relevancy"), DATE("date"), TITLE("title"), LASTNAME("lastName"), FIRSTNAME("firstName"), FULLNAME("fullName");
+    RELEVANCY("relevancy"), DATE("date"), TITLE("title"), LASTNAME("lastName"), FIRSTNAME("firstName"), FULLNAME("fullName"), LASTVISITED("lastVisited");
 
     private String fieldName;
 

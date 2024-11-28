@@ -36,7 +36,6 @@
               :aria-label="$t('menu.productName.seeProduct')"
               target="_blank"
               class="text-body font-weight-bold my-auto"
-              role="link"
               v-bind="attrs"
               v-on="on">
               {{ productName }}

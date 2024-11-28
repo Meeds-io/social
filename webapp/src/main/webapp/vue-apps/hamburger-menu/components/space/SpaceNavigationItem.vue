@@ -24,6 +24,7 @@
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
     role="button"
+    @keyup.space="openOrCloseDrawer"
     @click="openOrCloseDrawer">
     <v-list-item-avatar 
       size="28"
@@ -50,60 +51,59 @@
       </v-chip>
     </v-list-item-action>
   </v-list-item>
-  <v-list-item
-    v-else
-    :href="spaceLink"
-    :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
-    :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
-    :title="spaceDisplayName"
-    class="px-2 spaceItem"
-    role="link"
-    @mouseover="showItemActions = true"
-    @mouseleave="showItemActions = false">
-    <v-list-item-avatar 
-      size="28"
-      class="me-3 ms-2 tile my-0 spaceAvatar"
-      tile>
-      <img
-        :src="spaceAvatar"
-        :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
-        class="rounded"
-        width="28"
-        height="28">
-    </v-list-item-avatar>
-    <v-list-item-content>
-      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
-    </v-list-item-content>
-    <v-list-item-action
-      v-if="toggleArrow"
-      :disabled="loading"
-      :loading="loading"
-      class="me-2 my-auto align-center">
-      <ripple-hover-button
-        :active="!drawerOpened"
-        icon
-        @ripple-hover="openOrCloseDrawer()">
-        <v-icon
-          :id="space.id"
-          class="me-0 pa-2 icon-default-color"
-          small>
-          {{ arrowIcon }} 
-        </v-icon>
-      </ripple-hover-button>
-    </v-list-item-action>
-    <v-list-item-action
-      v-if="!toggleArrow && spaceUnreadCount"
-      class="me-2 my-auto align-center">
-      <v-chip
-        v-if="spaceUnreadCount"
-        color="error-color-background"
-        min-width="22"
-        height="22"
-        dark>
-        {{ spaceUnreadCount }}
-      </v-chip>
-    </v-list-item-action>
-  </v-list-item>
+  <v-hover v-else v-model="showItemActions">
+    <v-list-item
+      :href="spaceLink"
+      :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
+      :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
+      :title="spaceDisplayName"
+      class="px-2 spaceItem"
+      role="link">
+      <v-list-item-avatar 
+        size="28"
+        class="me-3 ms-2 tile my-0 spaceAvatar"
+        tile>
+        <img
+          :src="spaceAvatar"
+          :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
+          class="rounded"
+          width="28"
+          height="28">
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+      </v-list-item-content>
+      <v-list-item-action
+        v-if="toggleArrow"
+        :disabled="loading"
+        :loading="loading"
+        class="me-2 my-auto align-center">
+        <ripple-hover-button
+          :active="!drawerOpened"
+          icon
+          @ripple-hover="openOrCloseDrawer()">
+          <v-icon
+            :id="space.id"
+            class="me-0 pa-2 icon-default-color"
+            small>
+            {{ arrowIcon }} 
+          </v-icon>
+        </ripple-hover-button>
+      </v-list-item-action>
+      <v-list-item-action
+        v-if="!toggleArrow && spaceUnreadCount"
+        class="me-2 my-auto align-center">
+        <v-chip
+          v-if="spaceUnreadCount"
+          color="error-color-background"
+          min-width="22"
+          height="22"
+          dark>
+          {{ spaceUnreadCount }}
+        </v-chip>
+      </v-list-item-action>
+    </v-list-item>
+  </v-hover>
 </template>
 <script>
 
@@ -191,7 +191,7 @@ export default {
         event.stopPropagation();
       }
       this.$root.$emit('change-space-menu', this.space, this.thirdLevel);
-    }, 
+    },
   },
 };
 </script>
