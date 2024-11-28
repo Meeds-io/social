@@ -20,28 +20,51 @@
 -->
 <template>
   <div class="d-flex flex-column align-center justify-center">
-    <v-icon size="36">fa-people-arrows</v-icon>
-    <div class="my-6">
-      {{ $t('menu.spaces.noSpacesFound') }}
-    </div>
-    <div v-if="!keyword">
-      {{ $t('menu.spaces.joinSpace') }}
-    </div>
-    <v-btn
-      :href="spacesLink"
-      :title="$t('menu.spaces.exploreSpaces')"
-      :class="keyword && 'mb-6' || 'my-6'"
-      class="btn primary">
-      <span class="text-none">
-        {{ $t('menu.spaces.exploreSpaces') }}
-      </span>
-    </v-btn>
+    <template v-if="filterType === 'unread'">
+      <v-icon class="tertiary-color" size="60">fa-envelope-open</v-icon>
+      <div class="my-6">
+        {{ $t('menu.spaces.noUnreadSpaces') }}
+      </div>
+    </template>
+    <template v-else-if="filterType === 'favorite'">
+      <v-icon class="tertiary-color" size="60">fa-star-half-alt</v-icon>
+      <div class="my-6">
+        {{ $t('menu.spaces.noFavoriteSpaces1') }}
+      </div>
+      <div
+        v-sanitized-html="$t('menu.spaces.noFavoriteSpaces2', {
+          0: `<a href='${spacesLink}'>`,
+          1: '</a>',
+        })"></div>
+    </template>
+    <template v-else>
+      <v-icon class="tertiary-color" size="60">fa-people-arrows</v-icon>
+      <div class="my-6">
+        {{ $t('menu.spaces.noSpacesFound') }}
+      </div>
+      <div v-if="!keyword">
+        {{ $t('menu.spaces.joinSpace') }}
+      </div>
+      <v-btn
+        :href="spacesLink"
+        :title="$t('menu.spaces.exploreSpaces')"
+        :class="keyword && 'mb-6' || 'my-6'"
+        class="btn primary">
+        <span class="text-none">
+          {{ $t('menu.spaces.exploreSpaces') }}
+        </span>
+      </v-btn>
+    </template>
   </div>
 </template>
 <script>
 export default {
   props: {
     keyword: {
+      type: String,
+      default: null,
+    },
+    filterType: {
       type: String,
       default: null,
     },
