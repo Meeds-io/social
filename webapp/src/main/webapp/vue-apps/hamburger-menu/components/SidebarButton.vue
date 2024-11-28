@@ -19,18 +19,15 @@
 
 -->
 <template>
-  <ripple-hover-button
+  <v-btn
     v-if="!$root.sticky"
-    class="HamburgerNavigationMenuLink flex full-height pa-0 border-box-sizing"
+    :title="$t('menu.spaces.openSidebarTooltip')"
+    class="HamburgerNavigationMenuLink border-box-sizing"
+    height="56"
+    width="69"
     text
-    @ripple-hover="$emit('open-drawer', $event)">
-    <v-card
-      class="d-flex justify-center"
-      min-height="56"
-      min-width="69"
-      flat>
-      <v-icon v-show="$root.hidden" size="24">fa-bars</v-icon>
-    </v-card>
+    @click="$emit('open-drawer', $event)">
+    <v-icon v-show="$root.hidden" size="24">fa-bars</v-icon>
     <div
       v-show="showBadge"
       class="hamburger-unread-badge position-absolute"
@@ -41,7 +38,7 @@
       text>
       <div class="hamburger-unread-badge error-color-background"></div>
     </div>
-  </ripple-hover-button>
+  </v-btn>
 </template>
 <script>
 export default {
