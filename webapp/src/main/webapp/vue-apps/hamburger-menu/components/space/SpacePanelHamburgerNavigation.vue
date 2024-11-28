@@ -19,7 +19,10 @@
 
 -->
 <template>
-  <v-container class="recentDrawer" flat>
+  <v-container
+    v-if="space"
+    class="recentDrawer"
+    flat>
     <v-flex class="d-flex pa-0">
       <v-list-item-icon
         v-if="!$root.displaySequentially"
