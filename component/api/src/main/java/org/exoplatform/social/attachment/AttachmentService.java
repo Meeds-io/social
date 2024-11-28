@@ -292,4 +292,15 @@ public interface AttachmentService {
    */
   Map<String, AttachmentPlugin> getAttachmentPlugins();
 
+  /**
+   * Moves attachments from a specified source object type to a specified destination object type.
+   *
+   * @param sourceObjectType          the type of the source object
+   * @param sourceObjectId            the ID of the source object
+   * @param destinationObjectType     the type of the destination object
+   * @param destinationObjectId       the ID of the destination object
+   * @param destinationParentObjectId the ID of the destination's parent object
+   * @param userIdentityId            the ID of the user performing the operation
+   */
+  void moveAttachments(String sourceObjectType, String sourceObjectId, String destinationObjectType, String destinationObjectId, String destinationParentObjectId, long userIdentityId);
 }
