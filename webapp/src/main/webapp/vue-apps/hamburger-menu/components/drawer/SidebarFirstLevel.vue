@@ -113,7 +113,7 @@ export default {
         } else {
           this.drawerStyle = '';
         }
-      }
+      },
     },
   },
 };

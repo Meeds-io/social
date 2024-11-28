@@ -25,6 +25,7 @@
     min-height="57"
     flat>
     <v-list-item
+      :aria-label="$t('menu.userHomeLink')"
       :href="defaultUserPath"
       :target="defaultUserPathTarget"
       class="fill-height">
@@ -38,7 +39,8 @@
       <v-list-item-content>
         <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate">
           <v-card
-            class="text-no-wrap transparent"
+            :title="companyName"
+            class="text-truncate transparent"
             min-width="50"
             flat>
             {{ companyName }}
