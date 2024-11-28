@@ -28,12 +28,13 @@
       <v-tab
         class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
-        :href="`${baseSiteUri}${navigation.uri}`"
+        :href="navigationNodeUri"
+        :target="navigationNodeTarget"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
         role="tab"
-        @click.stop="checkLink(navigation, $event)"
+        @click="checkLink"
         @change="updateNavigationState(navigation.uri)">
         <span
           class="text-truncate-3 pt-2">
@@ -69,11 +70,6 @@
 
 <script>
 export default {
-  data () {
-    return {
-      showMenu: false,
-    };
-  },
   props: {
     navigation: {
       type: Object,
@@ -84,6 +80,9 @@ export default {
       default: null
     }
   },
+  data: () => ({
+    showMenu: false,
+  }),
   created() {
     document.addEventListener('click', this.handleCloseMenu);
     this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
@@ -94,24 +93,39 @@ export default {
     },
     hasPage() {
       return !!this.navigation?.pageKey;
-    }
+    },
+    navigationNodeUri() {
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+    },
+    navigationNodeTarget() {
+      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+    },
   },
   methods: {
     updateNavigationState(value) {
       this.$emit('update-navigation-state', `${this.baseSiteUri}${value}`);
     },
-    checkLink(navigation, e) {
-      if (!navigation.pageKey) {
-        e.preventDefault();
+    checkLink(e) {
+      if (!this.navigationNodeUri) {
+        e?.stopPropagation?.();
+        e?.preventDefault?.();
       }
-      if (navigation.children) {
-        this.openDropMenu();
+      if (this.navigationNodeUri?.includes?.('#')) {
+        if (this.navigationNodeTarget === '_blank') {
+          window.open(this.navigationNodeUri);
+        } else {
+          window.location.href = this.navigationNodeUri;
+        }
+      } else if (this.hasChildren && this.checkChildrenHasPage(this.navigation)) {
+        this.openDropMenu(false, e);
       }
     },
-    openDropMenu(persist) {
+    openDropMenu(persist, event) {
       if (!persist && this.showMenu) {
         this.showMenu = false;
       } else if (!this.showMenu) {
+        event?.stopPropagation?.();
+        event?.preventDefault?.();
         this.$root.$emit('close-sibling-drop-menus', this);
         this.$nextTick().then(() => {
           this.showMenu = true;
@@ -129,7 +143,23 @@ export default {
           this.showMenu = false;
         }, 100);
       }
-    }
+    },
+    checkChildrenHasPage(navigation) {
+      let childrenHasPage = false;
+      navigation.children.forEach(child => {
+        if (childrenHasPage === true) {
+          return;
+        }
+        if (child.pageKey) {
+          childrenHasPage = true;
+        } else if (child.children.length > 0) {
+          childrenHasPage = this.checkChildrenHasPage(child);
+        } else {
+          childrenHasPage = false;
+        }
+      });
+      return childrenHasPage;
+    },
   }
 };
 </script>
