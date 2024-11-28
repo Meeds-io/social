@@ -22,7 +22,7 @@
       flat
       class="full-height">
       <row
-        v-if="!displaySequentially"
+        v-if="!$root.displaySequentially"
         class="px-4 pt-3 position-absolute z-index-one">
         <v-btn
           class="white"
@@ -74,10 +74,6 @@ export default {
     site: {
       type: Object,
       default: null
-    },
-    displaySequentially: {
-      type: Boolean,
-      default: false,
     },
     enableChangeHome: {
       type: Boolean,
