@@ -25,7 +25,7 @@
     class="HamburgerNavigationMenu"
     flat>
     <v-hover v-model="$root.hoverButton">
-      <sidebar-button 
+      <sidebar-button
         :unread-per-space="unreadPerSpace"
         @open-drawer="openFirstLevel" />
     </v-hover>
@@ -105,6 +105,7 @@ export default {
     interval: null,
     mouseEvent: false,
     allowClosing: true,
+    closeTimeout: null,
     visibility: ['displayed', 'temporal']
   }),
   computed: {
@@ -161,9 +162,9 @@ export default {
         this.space = null;
         this.site = null;
         this.secondLevel = null;
-      } else if (this.firstLevelDrawer && this.mouseEvent) {
+      } else if (this.firstLevelDrawer && this.$root.displaySequentially && this.mouseEvent) {
         // Close if mouse is not entered to menu
-        window.setTimeout(() => {
+        this.closeTimeout = window.setTimeout(() => {
           if (!this.hover) {
             this.closeMenu();
           }
@@ -184,7 +185,7 @@ export default {
           window.clearInterval(this.interval);
           this.interval = null;
         }
-      } else if (!this.interval) {
+      } else if (!this.interval && this.$root.displaySequentially) {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
@@ -212,7 +213,14 @@ export default {
       this.mouseEvent = mouseEvent;
       this.firstLevelDrawer = false;
       await this.$nextTick();
+
+      window.clearTimeout(this.closeTimeout);
+      window.clearInterval(this.interval);
       this.firstLevelDrawer = true;
+      if (this.allowClosing) {
+        this.allowClosing = false;
+        this.closeTimeout = window.setTimeout(() => this.allowClosing = true, 2000);
+      }
     },
     async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy, name) {
       this.site = null;
@@ -300,13 +308,14 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
         return;
       }
-      this.updateFirstLevelDrawer(false);
-      this.secondLevelDrawer = false;
-      this.thirdLevelDrawer = false;
-      this.space = null;
-      this.site = null;
-      this.secondLevel = null;
-      window.setTimeout(() => document.dispatchEvent(new CustomEvent('drawerClosed')), 200);
+      if (!this.hover) {
+        this.updateFirstLevelDrawer(false);
+        this.secondLevelDrawer = false;
+        this.thirdLevelDrawer = false;
+        this.space = null;
+        this.site = null;
+        this.secondLevel = null;
+      }
     },
   },
 };
