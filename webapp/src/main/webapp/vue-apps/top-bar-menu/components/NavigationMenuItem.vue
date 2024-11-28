@@ -41,8 +41,7 @@
         v-on="on"
         v-bind="attrs"
         role="tab"
-        @click.stop="checkLink(navigation, $event)"
-        @click="openUrl(navigationNodeUri, navigationNodeTarget)"
+        @click="checkLink"
         @change="updateNavigationState">
         <span
           class="text-truncate-3">
@@ -107,7 +106,15 @@ export default {
       return !!this.navigation?.pageKey;
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
+      return this.pageLink || this.pageUrl;
+    },
+    pageUrl() {
+      return this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`;
+    },
+    pageLink() {
+      return this.navigation?.pageLink && Autolinker.parse(this.navigation?.pageLink, {
+        email: true,
+      })?.[0]?.getUrl?.() || this.navigation?.pageLink;
     },
     navigationNodeTarget() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
@@ -138,12 +145,19 @@ export default {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
     },
-    checkLink(navigation, e) {
-      if (!navigation.pageKey) {
+    checkLink(e) {
+      if (!this.navigationNodeUri) {
+        e.stopPropagation();
         e.preventDefault();
       }
-      if (navigation.children) {
+      if (this.hasChildren && this.childrenHasPage) {
         this.openDropMenu();
+      } else if (this.navigationNodeUri?.includes('#')) {
+        if (this.navigationNodeTarget === '_blank') {
+          window.open(this.navigationNodeUri);
+        } else {
+          window.location.href = this.navigationNodeUri;
+        }
       }
     },
     openDropMenu(persist) {
@@ -181,16 +195,6 @@ export default {
         }
       });
       return childrenHasPage;
-    },
-    openUrl(url, target) {
-      if (url) {
-        if (!url?.match?.(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = `//${url}`;
-        } else if (url?.match?.(/^(\/portal\/)/)) {
-          url = `${window.location.origin}${url}`;
-        }
-        window.open(url, target);
-      }
     },
   }
 };
