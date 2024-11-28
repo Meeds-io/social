@@ -19,78 +19,87 @@
 
 -->
 <template>
-  <v-container class="recentDrawer" flat>
+  <div class="recentDrawer">
     <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
-      <v-list-item-icon
-        v-if="!$root.displaySequentially"
-        class="backToMenu my-5 mx-2 icon-default-color justify-center"
-        @click="$emit('close')">
-        <v-icon
-          v-if="$root.ltr"
-          class="fas fa-arrow-left"
-          small />
-        <v-icon
-          v-else
-          class="fas fa-arrow-right"
-          small />
-      </v-list-item-icon>
-      <v-list-item class="recentSpacesTitle px-2">
-        <v-list-item-icon 
-          class="me-2 align-self-center " 
-          @click="closeMenu()"> 
-          <v-icon size="20" class="disabled--text">fas fa-filter </v-icon>
-        </v-list-item-icon>
-        <v-list-item-content v-if="showFilter" class="recentSpacesTitleLabel">
-          <v-text-field
-            v-model="keyword"
-            :placeholder="$t('menu.spaces.recentSpaces')"
-            :loading="loading"
-            class="recentSpacesFilter border-bottom-color pt-0 mt-0"
-            single-line
-            hide-details
-            required
-            autofocus />
-        </v-list-item-content>
-        <v-list-item-content
-          v-else
-          class="recentSpacesTitleLabel pt-1 pb-2px disabled--text border-bottom-color "
-          @click="openFilter()">
-          {{ $t('menu.spaces.recentSpaces') }}
-        </v-list-item-content>
-        <v-list-item-action v-if="showFilter" class="recentSpacesTitleIcon position-absolute r-3">
-          <v-btn
-            text
-            icon
-            color="blue-grey darken-1"
-            size="22"
-            @click="closeFilter()">
-            <v-icon size="18">mdi-close</v-icon>
-          </v-btn>
-        </v-list-item-action>
-      </v-list-item>
+      <v-card
+        min-height="58"
+        class="d-flex align-center full-width"
+        flat>
+        <v-list-item dense>
+          <v-list-item-content v-if="!showFilter" class="overflow-hidden">
+            <v-list-item-title class="text-truncate text-start font-weight-bold">
+              {{ title }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-content v-if="showFilter">
+            <v-text-field
+              v-model="keyword"
+              :placeholder="$t('menu.spaces.recentSpaces')"
+              :loading="loading"
+              class="recentSpacesFilter border-bottom-color pt-0 mt-0"
+              single-line
+              hide-details
+              required
+              autofocus />
+          </v-list-item-content>
+          <v-list-item-action v-if="selectedFilterIndex !== 2" class="ms-auto my-auto">
+            <v-btn
+              icon
+              @click="showFilter = !showFilter">
+              <v-icon size="20">{{ showFilter && 'fa-times' || 'fa-filter' }}</v-icon>
+            </v-btn>
+          </v-list-item-action>
+        </v-list-item>
+      </v-card>
     </v-flex>
     <div class="position-relative">
       <v-progress-linear
         v-if="(!initialized && !hasSpaces) && loading"
         class="position-absolute ful-width"
         indeterminate />
-      <spaces-navigation-empty
-        v-if="!hasSpaces && !loading"
-        :keyword="keyword"
-        class="py-5" />
     </div>
+    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
+      <v-tabs
+        v-model="selectedFilterIndex"
+        slider-size="4"
+        fixed-tabs>
+        <v-tab
+          value="recent"
+          class="text-header">
+          {{ $t('menu.spaces.recent') }}
+        </v-tab>
+        <v-tab
+          value="favorite"
+          class="text-header">
+          {{ $t('menu.spaces.favorite') }}
+        </v-tab>
+        <v-tab
+          v-if="!$root.openedSpaceTemplateId"
+          value="unread"
+          class="text-header">
+          {{ $t('menu.spaces.unread') }}
+        </v-tab>
+      </v-tabs>
+      <v-divider />
+    </v-flex>
+    <spaces-navigation-empty
+      v-if="!hasSpaces && !loading"
+      :keyword="keyword"
+      :filter-type="filterType"
+      class="pa-5" />
     <spaces-navigation-content
       :limit="itemsToShow"
       :page-size="itemsToShow"
       :keyword="keyword"
       :opened-space="openedSpace"
+      :filter-type="filterType"
       show-more-button
       third-level
-      class="recentSpacesWrapper mt-4"
+      class="recentSpacesWrapper"
       @open-space-panel="$emit('open-space-panel',$event)"
       @loading="loading = $event"
       @spaces-count="hasSpaces = $event" />
-  </v-container>
+  </div>
 </template>
 <script>
 export default {
@@ -103,11 +112,26 @@ export default {
   data: () => ({
     itemsToShow: 15,
     showFilter: false,
+    selectedFilterIndex: 0,
     loading: false,
     initialized: false,
     hasSpaces: false,
     keyword: '',
   }),
+  computed: {
+    filterType() {
+      if (this.selectedFilterIndex === 0) {
+        return 'lastVisited';
+      } else if (this.selectedFilterIndex === 1) {
+        return 'favorite';
+      } else {
+        return 'unread';
+      }
+    },
+    title() {
+      return this.$root.openedSpaceTemplateId && this.$root.openedSpaceTemplateName || this.$t('menu.spaces.yourSpaces');
+    },
+  },
   watch: {
     loading() {
       if (!this.loading) {
