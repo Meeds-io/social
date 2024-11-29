@@ -39,7 +39,7 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'HamburgerNavigationMenu';
 
-export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
+export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
@@ -49,6 +49,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           unreadPerSpace,
           avatarUrl,
           mode,
+          isExternalFeatureEnabled,
           hoverFirstLevel: false,
           hoverSecondLevel: false,
           hoverThirdLevel: false,
@@ -61,7 +62,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           openedSpaceTemplateName: null,
           sites: null,
           settings: null,
-          overlayOpened: null,
+          openedOverlay: false,
           hoverDeferred: false,
           rtl: eXo.env.portal.orientation === 'rtl',
           ltr: eXo.env.portal.orientation === 'ltr',
@@ -112,14 +113,14 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
           expand() {
             if (this.icon) {
               window.setTimeout(() => {
-                if (this.expand && !this.overlayOpened) {
+                if (this.expand && !this.openedOverlay) {
                   document.dispatchEvent(new CustomEvent('drawerOpened'));
-                  this.overlayOpened = true;
-                } else if (!this.expand && this.overlayOpened) {
+                  this.openedOverlay = true;
+                } else if (!this.expand && this.openedOverlay) {
                   if (!eXo.openedDrawers?.length) {
                     document.dispatchEvent(new CustomEvent('drawerClosed'));
                   }
-                  this.overlayOpened = false;
+                  this.openedOverlay = false;
                 }
               }, 200);
             }
@@ -142,8 +143,29 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl) {
             immediate: true,
             handler() {
               this.updateParentStyle();
+              if (this.hover) {
+                this.openedOverlay = true;
+              } else {
+                window.setTimeout(() => {
+                  document.dispatchEvent(new CustomEvent('drawerClosed'));
+                }, 300);
+              }
             },
-          }
+          },
+          sticky() {
+            if (this.sticky) {
+              window.setTimeout(() => {
+                document.dispatchEvent(new CustomEvent('drawerClosed'));
+              }, 300);
+            }
+          },
+          hidden() {
+            if (!this.hidden) {
+              if (eXo.openedDrawers?.find?.(d => d?.$el?.classList?.contains('HamburgerMenuFirstLevelParent'))) {
+                eXo.openedDrawers = eXo.openedDrawers.filter(d => !d?.$el?.classList?.contains('HamburgerMenuFirstLevelParent'));
+              }
+            }
+          },
         },
         created() {
           document.addEventListener('homeLinkUpdated', this.updateUserHome);

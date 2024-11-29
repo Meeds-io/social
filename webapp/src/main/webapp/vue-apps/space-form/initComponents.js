@@ -16,10 +16,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import SpaceFormAccess from './components/SpaceFormAccess.vue';
+import SpaceFormAvatar from './components/SpaceFormAvatar.vue';
+import SpaceFormBanner from './components/SpaceFormBanner.vue';
 import SpaceFormDrawer from './components/SpaceFormDrawer.vue';
+import SpaceFormInvitation from './components/SpaceFormInvitation.vue';
+
+import SpaceFormInviteEmailDrawer from './components/SpaceFormInviteEmailDrawer.vue';
+import SpaceFormInviteUsersDrawer from './components/SpaceFormInviteUsersDrawer.vue';
+
+import SpaceFormInviteUsersInput from './components/SpaceFormInviteUsersInput.vue';
+
+import SpaceFormInviteEmailListItem from './components/SpaceFormInviteEmailListItem.vue';
+import SpaceFormInviteUserListItem from './components/SpaceFormInviteUserListItem.vue';
 
 const components = {
+  'space-form-access': SpaceFormAccess,
+  'space-form-avatar': SpaceFormAvatar,
+  'space-form-banner': SpaceFormBanner,
   'space-form-drawer': SpaceFormDrawer,
+  'space-form-invitation': SpaceFormInvitation,
+  'space-form-invite-email-drawer': SpaceFormInviteEmailDrawer,
+  'space-form-invite-users-drawer': SpaceFormInviteUsersDrawer,
+  'space-form-invite-email-list-item': SpaceFormInviteEmailListItem,
+  'space-form-invite-user-list-item': SpaceFormInviteUserListItem,
+  'space-form-invite-users-input': SpaceFormInviteUsersInput,
 };
 
 for (const key in components) {
