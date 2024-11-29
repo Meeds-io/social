@@ -47,7 +47,7 @@
     <portlet-name>HamburgerMenu</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/HamburgerMenu/Style.css</css-path>
-    <css-priority>1</css-priority>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -99,6 +99,20 @@
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>SpaceTemplateManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
+    <portlet-name>SpacesAdministration</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
+    <portlet-name>SpacesList</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
   </portlet-skin>
