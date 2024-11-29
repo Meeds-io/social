@@ -189,6 +189,11 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
+    icon() {
+      if (this.icon) {
+        this.firstLevelDrawer = false;
+      }
+    },
     site() {
       this.$root.openedSiteName = this.site?.name;
     },
