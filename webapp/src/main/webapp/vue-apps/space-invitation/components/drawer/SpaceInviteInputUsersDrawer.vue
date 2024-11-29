@@ -115,7 +115,7 @@ export default {
     this.$root.$on('space-settings-invite-member', this.open);
   },
   beforeDestroy() {
-    this.$root.$on('space-settings-invite-member', this.open);
+    this.$root.$off('space-settings-invite-member', this.open);
   },
   methods: {
     open(goBackButton) {

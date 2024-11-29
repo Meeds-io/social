@@ -30,12 +30,8 @@
     <v-icon v-show="$root.hidden" size="24">fa-bars</v-icon>
     <div
       v-show="showBadge"
-      class="hamburger-unread-badge position-absolute"
-      absolute
-      icon
-      height="16"
-      width="16"
-      text>
+      :class="$vuetify.rtl && 'l-0' || 'r-0'"
+      class="hamburger-unread-badge position-absolute">
       <div class="hamburger-unread-badge error-color-background"></div>
     </div>
   </v-btn>

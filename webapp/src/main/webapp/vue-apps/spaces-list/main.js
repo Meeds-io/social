@@ -28,11 +28,13 @@ const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lan
 
 const appId = 'spacesListApplication';
 
-export function init(filter, canCreateSpace) {
+export function init(filter, canCreateSpace, isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
+        canCreateSpace,
+        isExternalFeatureEnabled,
         filter: filter || 'all',
         invitationsCount: 0,
         pendingCount: 0,
