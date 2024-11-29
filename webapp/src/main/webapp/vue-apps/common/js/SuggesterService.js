@@ -51,6 +51,7 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
               fullName: item.displayName,
               originalName: item.shortName,
               avatarUrl: item.avatarUrl ? item.avatarUrl : `/portal/rest/v1/social/spaces/${item.prettyName}/avatar`,
+              membersCount: item.membersCount,
             },
           });
         }

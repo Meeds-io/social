@@ -22,13 +22,12 @@
 <template>
   <exo-drawer
     id="spaceEmailInvitationDrawer"
-    ref="spaceInvitationDrawer"
-    :loading="saving"
-    :go-back-button="goBackButton"
+    ref="drawer"
     :right="!$vuetify.rtl"
+    go-back-button
     allow-expand>
     <template slot="title">
-      {{ $t('peopleList.title.usersToInvite') }}
+      {{ $t('spacesList.title.usersToInvite') }}
     </template>
     <template slot="content">
       <div class="pa-4 d-flex flex-column">
@@ -73,13 +72,13 @@
         v-if="invitedMembers?.length || emailInvitations?.length"
         class="mx-4 mt-0 rounded externalList"
         subheader>
-        <space-invite-email-list-item
+        <space-form-invite-email-list-item
           v-for="(u, index) in emailInvitations"
           :key="u.userEmail"
           :invitation="u"
           email-only
           @remove="removeEmailInvitation(index)" />
-        <space-setting-role-list-item
+        <space-form-invite-user-list-item
           v-for="(u, index) in invitedMembers"
           :key="u.id"
           :user="u"
@@ -91,17 +90,14 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
-          @click="cancel">
-          {{ $t('peopleList.label.cancel') }}
+          @click="close">
+          {{ $t('spacesList.label.cancel') }}
         </v-btn>
         <v-btn
-          :loading="saving"
-          :disabled="disabled"
           class="btn btn-primary"
-          @click.prevent.stop="inviteUsers">
-          {{ $t('peopleList.button.inviteUsers') }}
+          @click.prevent.stop="apply">
+          {{ $t('spacesList.button.add') }}
         </v-btn>
       </div>
     </template>
@@ -109,23 +105,18 @@
 </template>
 <script>
 export default {
+  props: {
+    value: {
+      type: Array,
+      default: null,
+    },
+  },
   data: () => ({
     emailInvitations: [],
     invitedMembers: [],
-    saving: false,
-    goBackButton: false,
     emailInput: '',
   }),
   computed: {
-    disabled() {
-      return !this.emails.length && !this.invitedMembers.length;
-    },
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('peopleList.label.inviteMembers'),
-        noDataLabel: this.$t('SpaceSettings.invitationHelpTooltip'),
-      };
-    },
     emails() {
       return this.emailInvitations.filter(u => u.status === 'pending' || u.status === 'alreadyInvited')
         .map(u => u.userEmail);
@@ -141,43 +132,30 @@ export default {
     },
   },
   created() {
-    this.$root.$on('space-settings-invite-email', this.open);
+    this.$root.$on('space-form-invite-email', this.open);
   },
   beforeDestroy() {
-    this.$root.$off('space-settings-invite-email', this.open);
+    this.$root.$off('space-form-invite-email', this.open);
   },
   methods: {
-    open(goBackButton) {
-      this.saving = false;
-      this.goBackButton = goBackButton;
-      this.emailInvitations = [];
+    open() {
+      this.emailInvitations = this.value?.map?.(e => ({
+        userEmail: e,
+        status: 'pending',
+      })) || [];
       this.invitedMembers = [];
-      this.$refs.spaceInvitationDrawer.open();
+      this.$refs.drawer.open();
     },
-    async inviteUsers() {
-      this.saving = true;
-      try {
-        await this.$spaceService.updateSpace({
-          id: this.$root.spaceId,
-          invitedMembers: this.invitedMembers,
-          externalInvitedUsers: this.emails,
-        });
-        this.$root.$emit('alert-message', this.$t('peopleList.label.successfulInvitation'), 'success');
-        this.$root.$emit('space-settings-pending-updated');
-        this.cleanOldInvitations();
-        this.$refs.spaceInvitationDrawer.close();
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('peopleList.error.errorWhensaving'), 'error');
-      } finally {
-        this.saving = false;
-      }
+    close() {
+      this.$refs.drawer.close();
     },
-    cleanOldInvitations() {
-      if (this.alreadSentInvitations?.length) {
-        Promise.all(this.alreadSentInvitations.slice()
-          .map(i => this.$spaceService.declineExternalInvitation(this.$root.space.id, i.invitationId)))
-          .finally(() => this.$root.$emit('space-settings-pending-updated'));
+    apply() {
+      this.$emit('input', this.emails);
+      if (this.invitedMembers?.length) {
+        console.warn('this.invitedMembers', this.invitedMembers);
+        this.$emit('update-members', this.invitedMembers);
       }
+      this.close();
     },
     addEmails() {
       if (this.emailInput?.length) {
@@ -221,27 +199,11 @@ export default {
           this.invitedMembers.unshift(user);
         }
       } else {
-        const existingInvitations = this.$root.externalInvitations.filter(invitation => invitation.userEmail.toLowerCase() === email.toLowerCase());
-        if (existingInvitations?.length) {
-          existingInvitations.forEach(i => {
-            i.status = 'deprecatedInvitation';
-            i.hidden = true;
-            this.emailInvitations.unshift(i);
-          });
-          this.emailInvitations.unshift({
-            userEmail: email,
-            status: 'alreadyInvited',
-          });
-        } else {
-          this.emailInvitations.unshift({
-            userEmail: email,
-            status: 'pending',
-          });
-        }
+        this.emailInvitations.unshift({
+          userEmail: email,
+          status: 'pending',
+        });
       }
-    },
-    cancel() {
-      this.$refs.spaceInvitationDrawer.close();
     },
     updateInput() {
       this.emailInput = this.$refs.emailInput?.$el.innerText?.trim();
