@@ -17,7 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import '../space-form/initComponents.js';
 import './initComponents.js';
 import './extensions.js';
 import './services.js';

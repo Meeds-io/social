@@ -16,8 +16,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../space-form/initComponents.js';
-
 import SpacesList from './components/SpacesList.vue';
 import SpacesToolbar from './components/SpacesToolbar.vue';
 import SpacesCardList from './components/SpacesCardList.vue';
