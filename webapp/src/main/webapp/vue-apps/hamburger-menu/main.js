@@ -117,9 +117,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExterna
                   document.dispatchEvent(new CustomEvent('drawerOpened'));
                   this.openedOverlay = true;
                 } else if (!this.expand && this.openedOverlay) {
-                  if (!eXo.openedDrawers?.length) {
-                    document.dispatchEvent(new CustomEvent('drawerClosed'));
-                  }
+                  document.dispatchEvent(new CustomEvent('drawerClosed'));
                   this.openedOverlay = false;
                 }
               }, 200);
