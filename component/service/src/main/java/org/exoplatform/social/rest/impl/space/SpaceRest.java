@@ -367,6 +367,15 @@ public class SpaceRest implements ResourceContainer {
                                                 .entity(e.getCode().name())
                                                 .build());
     }
+    saveSpaceAvatar(space, model);
+    saveSpaceBanner(model, space);
+    try {
+      inviteExternalUsers(uriInfo, model, space, authenticatedUser);
+    } catch (Exception e) {
+      LOG.warn("Error while sending external users invitations to space {}",
+               space.getGroupId(),
+               e);
+    }
     return EntityBuilder.getResponse(EntityBuilder.buildEntityFromSpace(space, authenticatedUser, uriInfo.getPath(), expand),
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
@@ -771,36 +780,7 @@ public class SpaceRest implements ResourceContainer {
       spaceService.renameSpace(space, model.getDisplayName(), authenticatedUser);
     }
 
-    if (model.getExternalInvitedUsers() != null
-        && (securitySettingService.getRegistrationType() == UserRegistrationType.OPEN
-            || securitySettingService.isRegistrationExternalUser())) {
-      String uri = uriInfo.getBaseUri()
-                          .toString()
-                          .substring(0,
-                                     uriInfo.getBaseUri()
-                                            .toString()
-                                            .lastIndexOf("/"));
-      StringBuilder url = new StringBuilder(uri);
-
-      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
-      LocaleConfigService localeConfigService = CommonsUtils.getService(LocaleConfigService.class);
-      Locale locale = null;
-      try {
-        String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
-        locale = LocaleUtils.toLocale(defaultLanguage);
-      } catch (Exception e) {
-        LOG.error("Failure to retrieve portal config", e);
-      }
-      for (String externalInvitedUser : model.getExternalInvitedUsers()) {
-        String tokenId = passwordRecoveryService.sendExternalRegisterEmail(authenticatedUser,
-                                                                           externalInvitedUser,
-                                                                           locale,
-                                                                           space.getDisplayName(),
-                                                                           url);
-        spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser, tokenId);
-      }
-    }
-
+    inviteExternalUsers(uriInfo, model, space, authenticatedUser);
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     space = spaceService.updateSpace(space, model.getInvitedMembers());
@@ -1007,11 +987,11 @@ public class SpaceRest implements ResourceContainer {
       space.setTemplateId(model.getTemplateId());
     }
 
-    if (StringUtils.isNotBlank(model.getBannerId())) {
+    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
 
-    if (StringUtils.isNotBlank(model.getAvatarId())) {
+    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getAvatarId())) {
       updateProfileField(space, Profile.AVATAR, model.getAvatarId());
     }
 
@@ -1192,6 +1172,65 @@ public class SpaceRest implements ResourceContainer {
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     builder.tag(eTag);
     return builder;
+  }
+
+  private void saveSpaceAvatar(Space space, SpaceEntity model) {
+    if (StringUtils.isNotBlank(model.getAvatarId())) {
+      try {
+        updateProfileField(space, Profile.AVATAR, model.getAvatarId());
+      } catch (IOException e) {
+        LOG.warn("Error adding Space Avatar. Avoid stopping space creation process and continue", e);
+      }
+    }
+  }
+
+  private void saveSpaceBanner(SpaceEntity model, Space space) {
+    if (StringUtils.isNotBlank(model.getBannerId())) {
+      try {
+        updateProfileField(space, Profile.BANNER, model.getBannerId());
+      } catch (IOException e) {
+        LOG.warn("Error adding Space Banner. Avoid stopping space creation process and continue", e);
+      }
+    }
+  }
+
+  private boolean inviteExternalUsers(UriInfo uriInfo, SpaceEntity model, Space space, String authenticatedUser) throws Exception {
+    int errorsCount = 0;
+    if (model.getExternalInvitedUsers() != null
+        && (securitySettingService.getRegistrationType() == UserRegistrationType.OPEN
+            || securitySettingService.isRegistrationExternalUser())) {
+      String uri = uriInfo.getBaseUri()
+                          .toString()
+                          .substring(0,
+                                     uriInfo.getBaseUri()
+                                            .toString()
+                                            .lastIndexOf("/"));
+      StringBuilder url = new StringBuilder(uri);
+
+      PasswordRecoveryService passwordRecoveryService = CommonsUtils.getService(PasswordRecoveryService.class);
+      LocaleConfigService localeConfigService = CommonsUtils.getService(LocaleConfigService.class);
+      Locale locale = null;
+      try {
+        String defaultLanguage = localeConfigService.getDefaultLocaleConfig().getLocale().toLanguageTag();
+        locale = LocaleUtils.toLocale(defaultLanguage);
+      } catch (Exception e) {
+        LOG.error("Failure to retrieve portal config", e);
+      }
+      for (String externalInvitedUser : model.getExternalInvitedUsers()) {
+        try {
+          String tokenId = passwordRecoveryService.sendExternalRegisterEmail(authenticatedUser,
+                                                                             externalInvitedUser,
+                                                                             locale,
+                                                                             space.getDisplayName(),
+                                                                             url);
+          spaceService.saveSpaceExternalInvitation(space.getId(), externalInvitedUser, tokenId);
+        } catch (Exception e) {
+          LOG.warn("Error while sending external invitation to user {}", externalInvitedUser, e);
+          errorsCount++;
+        }
+      }
+    }
+    return errorsCount == 0;
   }
 
 }

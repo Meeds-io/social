@@ -21,6 +21,7 @@ import * as profileSettingsService from '../common/js/ProfileSettingsService.js'
 import * as profileLabelService from '../common/js/ProfileLabelService.js';
 import * as siteService from './js/SiteService.js';
 import * as navigationUtils from './js/NavigationUtils.js';
+import * as spaceTemplateService from './js/SpaceTemplateService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -100,6 +101,9 @@ window.Object.defineProperty(Vue.prototype, '$navigationService', {
 });
 window.Object.defineProperty(Vue.prototype, '$navigationUtils', {
   value: navigationUtils,
+});
+window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
+  value: spaceTemplateService,
 });
 
 if (eXo.env.portal.userIdentityId) {
