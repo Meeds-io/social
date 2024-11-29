@@ -30,7 +30,7 @@
       :items="users"
       name="inviteMembers"
       type-of-relations="user_to_invite"
-      class="ma-4"
+      class="mb-4"
       include-users
       include-spaces />
     <v-list
