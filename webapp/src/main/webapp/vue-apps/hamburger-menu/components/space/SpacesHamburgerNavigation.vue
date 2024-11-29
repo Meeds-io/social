@@ -42,8 +42,17 @@
               required
               autofocus />
           </v-list-item-content>
-          <v-list-item-action v-if="selectedFilterIndex !== 2" class="ms-auto my-auto">
+          <v-list-item-action v-if="selectedFilterIndex !== 2" class="d-flex flex-row ms-auto my-auto">
             <v-btn
+              v-show="!showFilter"
+              :title="$t('menu.spaces.addNewSpaceTooltip')"
+              class="me-2"
+              icon
+              @click="addNewSpace">
+              <v-icon size="20">fa-plus</v-icon>
+            </v-btn>
+            <v-btn
+              :title="$t('menu.spaces.filterBySpaceTooltip')"
               icon
               @click="showFilter = !showFilter">
               <v-icon size="20">{{ showFilter && 'fa-times' || 'fa-filter' }}</v-icon>
@@ -169,6 +178,9 @@ export default {
     openFilter() {
       this.showFilter = true;
       this.leftNavigationActionEvent('filterBySpaces');
+    },
+    addNewSpace() {
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId));
     },
   }
 };

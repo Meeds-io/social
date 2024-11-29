@@ -146,6 +146,9 @@
             </v-stepper-step>
             <v-stepper-content :step="invitationStep" class="pa-0 ma-0 no-border">
               <space-form-invitation
+                :class="{
+                  'mt-n3' : singleStep && !$root.isExternalFeatureEnabled,
+                }"
                 @invited-members="space.invitedMembers = $event"
                 @invited-email="space.externalInvitedUsers = $event" />
             </v-stepper-content>
@@ -349,6 +352,7 @@ export default {
     }
   },
   created() {
+    window.spaceFormAdded = true;
     const search = window.location.search && window.location.search.substring(1);
     if (search) {
       const parameters = JSON.parse(
@@ -364,11 +368,18 @@ export default {
         });
       }
     }
-  },
-  mounted() {
+
     this.$root.$on('addNewSpace', this.open);
+    document.addEventListener('addNewSpace', this.openByEvent);
+  },
+  beforeDestroy() {
+    this.$root.$off('addNewSpace', this.open);
+    document.removeEventListener('addNewSpace', this.openByEvent);
   },
   methods: {
+    openByEvent(e) {
+      this.open(e?.detail);
+    },
     async open(templateId) {
       this.templateId = templateId && Number(templateId);
       this.noGoBack = !!templateId;
