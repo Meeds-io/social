@@ -1119,6 +1119,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>spaceForm</module>
+      </depends>
     </module>
   </portlet>
 
@@ -1589,6 +1592,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>spaceForm</module>
+      </depends>
     </module>
   </portlet>
 
@@ -2009,6 +2015,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>spaceForm</module>
+      </depends>
     </module>
   </portlet>
 
@@ -2189,6 +2198,32 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>spaceForm</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/spaceForm.bundle.js</path>
+    </script>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>imageCropper</module>
     </depends>
   </module>
 
