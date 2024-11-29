@@ -1,5 +1,7 @@
 <%@page import="io.meeds.social.navigation.constant.SidebarMode"%>
 <%@page import="io.meeds.social.navigation.service.NavigationConfigurationService"%>
+<%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
+<%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.exoplatform.social.core.identity.model.Identity"%>
 <%@page import="io.meeds.social.util.JsonUtils"%>
 <%@page import="org.exoplatform.social.notification.service.SpaceWebNotificationService"%>
@@ -41,6 +43,9 @@
   }
 
   ((PortalHttpServletResponseWrapper) rcontext.getResponse()).addHeader("Link", "</social/rest/navigation/settings/sidebar>; rel=preload; as=fetch; crossorigin=use-credentials", false);
+
+  SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
+  boolean isExternalFeatureEnabled = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN || securitySettingService.isRegistrationExternalUser();
 %>
 <div class="VuetifyApp">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
@@ -79,7 +84,7 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>'));
+      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>));
     </script>
   </div>
 </div>
