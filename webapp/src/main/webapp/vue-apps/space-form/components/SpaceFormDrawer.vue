@@ -44,7 +44,7 @@
             height="136"
             hover
             flat
-            @click="chooseTemplate(item)">
+            @click="open(item.id)">
             <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
             <div
               :title="item.name"
@@ -74,13 +74,14 @@
             <v-stepper-step
               v-if="!singleStep"
               :complete="stepper > 1"
+              :step="1"
               class="ma-0 px-5 py-4"
-              step="1"
               editable>
               {{ $t('spacesList.label.nameTitle') }}
             </v-stepper-step>
-            <v-stepper-content step="1" class="pa-0 ma-0 no-border">
+            <v-stepper-content :step="1" class="pa-0 ma-0 no-border">
               <form
+                v-if="stepper === 1"
                 ref="form1"
                 class="px-5"
                 @submit="nextStep">
@@ -94,7 +95,8 @@
                   :placeholder="$t('spacesList.label.namePlaceholder')"
                   class="input-block-level ignore-vuetify-classes my-3"
                   type="text"
-                  name="name">
+                  name="name"
+                  autofocus>
               </form>
             </v-stepper-content>
           </template>
@@ -109,6 +111,7 @@
             </v-stepper-step>
             <v-stepper-content :step="propertiesStep" class="pa-0 ma-0 no-border">
               <form
+                v-if="stepper === propertiesStep"
                 ref="form2"
                 class="px-5"
                 @submit="nextStep">
@@ -123,7 +126,8 @@
                   tag-enabled
                   class="my-3"
                   ck-editor-type="spaceDescription"
-                  disable-suggester />
+                  disable-suggester
+                  autofocus />
                 <space-form-avatar
                   v-model="space.avatarId"
                   :name="space.displayName"
@@ -146,9 +150,7 @@
             </v-stepper-step>
             <v-stepper-content :step="invitationStep" class="pa-0 ma-0 no-border">
               <space-form-invitation
-                :class="{
-                  'mt-n3' : singleStep && !$root.isExternalFeatureEnabled,
-                }"
+                v-if="stepper === invitationStep"
                 @invited-members="space.invitedMembers = $event"
                 @invited-email="space.externalInvitedUsers = $event" />
             </v-stepper-content>
@@ -164,6 +166,7 @@
             </v-stepper-step>
             <v-stepper-content :step="accessStep" class="pa-0 ma-0 no-border">
               <space-form-access
+                v-if="stepper === accessStep"
                 :visibility="space.visibility"
                 :subscription="space.subscription"
                 @visibility="space.visibility = $event"
@@ -378,11 +381,14 @@ export default {
   },
   methods: {
     openByEvent(e) {
-      this.open(e?.detail);
+      this.openByRootEvent(e?.detail);
+    },
+    openByRootEvent(templateId) {
+      this.noGoBack = !!templateId;
+      this.open(templateId);
     },
     async open(templateId) {
       this.templateId = templateId && Number(templateId);
-      this.noGoBack = !!templateId;
       this.space = {
         templateId: templateId,
         subscription: 'open',
@@ -397,11 +403,6 @@ export default {
       }
       this.setSpaceTemplateProperties();
       this.$refs.spaceFormDrawer.open();
-    },
-    async chooseTemplate(template) {
-      this.templateId = template?.id;
-      await this.$nextTick();
-      this.setSpaceTemplateProperties();
     },
     setSpaceTemplateProperties() {
       if (this.spaceTemplate) {
