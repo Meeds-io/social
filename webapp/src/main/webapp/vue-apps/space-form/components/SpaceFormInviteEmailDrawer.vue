@@ -23,13 +23,14 @@
   <exo-drawer
     id="spaceEmailInvitationDrawer"
     ref="drawer"
+    v-model="drawer"
     :right="!$vuetify.rtl"
     go-back-button
     allow-expand>
     <template slot="title">
       {{ $t('spacesList.title.usersToInvite') }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" slot="content">
       <div class="pa-4 d-flex flex-column">
         <v-card
           ref="emailInput"
@@ -112,6 +113,7 @@ export default {
     },
   },
   data: () => ({
+    drawer: false,
     emailInvitations: [],
     invitedMembers: [],
     emailInput: '',
@@ -138,13 +140,17 @@ export default {
     this.$root.$off('space-form-invite-email', this.open);
   },
   methods: {
-    open() {
+    async open() {
       this.emailInvitations = this.value?.map?.(e => ({
         userEmail: e,
         status: 'pending',
       })) || [];
       this.invitedMembers = [];
       this.$refs.drawer.open();
+      await this.$nextTick();
+      window.setTimeout(() => {
+        this.$refs?.emailInput?.$el?.focus();
+      }, 500);
     },
     close() {
       this.$refs.drawer.close();
