@@ -36,11 +36,12 @@ const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.SpaceTemplatesManagement?lang=${lang}`;
 
 const appId = 'SpaceTemplatesManagement';
-export function init() {
+export function init(isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n =>
       Vue.createApp({
         data: {
+          isExternalFeatureEnabled,
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',

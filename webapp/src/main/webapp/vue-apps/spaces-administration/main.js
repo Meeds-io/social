@@ -31,7 +31,7 @@ if (extensionRegistry) {
   }
 }
 
-export function init() {
+export function init(isExternalFeatureEnabled) {
   const appId = 'spacesAdministration';
   const lang = eXo?.env?.portal?.language || 'en';
   exoi18n.loadLanguageAsync(lang, [
@@ -42,6 +42,7 @@ export function init() {
   ])
     .then(i18n => Vue.createApp({
       data: {
+        isExternalFeatureEnabled,
         spaceTemplates: null,
         mainExtensions: [],
         tableColumnExtensions: [],
