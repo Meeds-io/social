@@ -30,9 +30,10 @@
       :items="users"
       name="inviteMembers"
       type-of-relations="user_to_invite"
-      class="mb-4"
+      class="mb-4 mt-n3"
       include-users
-      include-spaces />
+      include-spaces
+      autofocus />
     <v-list
       v-if="invitedMembers?.length"
       class="mx-4 mt-0 rounded">
