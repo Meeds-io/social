@@ -73,9 +73,8 @@
           <template v-if="includeName">
             <v-stepper-step
               v-if="!singleStep"
-              :complete="stepper > 1"
               :step="1"
-              class="ma-0 px-5 py-4"
+              class="my-4 mx-5 pa-0"
               editable>
               {{ $t('spacesList.label.nameTitle') }}
             </v-stepper-step>
@@ -103,9 +102,8 @@
           <template v-if="includeProperties">
             <v-stepper-step
               v-if="!singleStep"
-              :complete="stepper > propertiesStep"
               :step="propertiesStep"
-              class="ma-0 px-5 py-4"
+              class="my-4 mx-5 pa-0"
               editable>
               {{ $t('spacesList.label.propertiesTitle') }}
             </v-stepper-step>
@@ -142,9 +140,8 @@
           <template v-if="includeInvitation">
             <v-stepper-step
               v-if="!singleStep"
-              :complete="stepper > invitationStep"
               :step="invitationStep"
-              class="ma-0 px-5 py-4"
+              class="my-4 mx-5 pa-0"
               editable>
               {{ $t('spacesList.label.inviteUsers') }}
             </v-stepper-step>
@@ -158,9 +155,8 @@
           <template v-if="includeAccess">
             <v-stepper-step
               v-if="!singleStep"
-              :complete="stepper > accessStep"
               :step="accessStep"
-              class="ma-0 px-5 py-4"
+              class="my-4 mx-5 pa-0"
               editable>
               {{ $t('spacesList.label.spaceAccessTitle') }}
             </v-stepper-step>
