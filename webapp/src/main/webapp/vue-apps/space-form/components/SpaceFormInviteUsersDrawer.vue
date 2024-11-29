@@ -32,6 +32,7 @@
     <template v-if="drawer" #content>
       <space-form-invite-users-input
         :value="invitedMembers"
+        class="pa-5"
         @input="invitedMembers = $event" />
     </template>
     <template #footer>
