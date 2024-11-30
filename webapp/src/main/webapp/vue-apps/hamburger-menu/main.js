@@ -39,7 +39,13 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'HamburgerNavigationMenu';
 
-export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExternalFeatureEnabled) {
+export function init(
+  mode,
+  defaultUserPath,
+  unreadPerSpace,
+  avatarUrl,
+  isExternalFeatureEnabled,
+  allowUserHome) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
@@ -50,6 +56,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExterna
           avatarUrl,
           mode,
           isExternalFeatureEnabled,
+          allowUserHome,
           hoverFirstLevel: false,
           hoverSecondLevel: false,
           hoverThirdLevel: false,
