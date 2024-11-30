@@ -21,7 +21,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
   name: 'makeAsHomePage',
   icon: 'fa-house-user',
   titleKey: 'menu.spaces.makeAsHomePage',
-  enabled: space => eXo.env.portal.homeLink !== `${eXo.env.portal.context}/s/${space.id}`,
+  enabled: (space, params) => params?.allowUserHome && eXo.env.portal.homeLink !== `${eXo.env.portal.context}/s/${space.id}`,
   eventName: 'change-home-link-space',
   conserveHover: true,
 });

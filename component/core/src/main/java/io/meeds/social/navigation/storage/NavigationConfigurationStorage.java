@@ -19,6 +19,7 @@
 package io.meeds.social.navigation.storage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -96,6 +97,9 @@ public class NavigationConfigurationStorage {
       NavigationConfiguration configuration = JsonUtils.fromJsonString(settingValue.getValue().toString(),
                                                                        NavigationConfiguration.class);
       List<TopbarApplication> applications = configuration.getTopbar().getApplications();
+      if (defaultApplications == null) {
+        defaultApplications = Collections.emptyList();
+      }
       addMissingTopbarApplication(configuration, applications, defaultApplications);
       removeDroppedApplications(configuration, applications, defaultApplications);
       return configuration;
