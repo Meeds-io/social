@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div>
     <v-menu
       v-model="menu"
       :close-on-content-click="false"
@@ -17,21 +17,26 @@
           v-on="on"
           v-bind="attrs"
           class="d-inline-flex">
-          <a :href="portalPath" :aria-label="$t('space.avatar.href.title',{0:logoTitle})">
+          <a
+            v-if="$root.displaySiteLogo"
+            :href="$root.spacePortalPath"
+            :aria-label="$t('space.avatar.href.title',{0: $root.spaceLogoTitle})">
             <v-list-item-avatar 
-              v-if="logoPath"
+              v-if="$root.spaceLogoPath"
               id="UserHomePortalLink"
               size="36"
-              class="tile my-0 spaceAvatar ms-0 me-3"
+              class="ma-0 spaceAvatar"
               tile>
-              <v-img :src="logoPath" :alt="$t('space.avatar.img.alt',{0:logoTitle})" />
+              <v-img :src="$root.spaceLogoPath" :alt="$t('space.avatar.img.alt',{0: $root.spaceLogoTitle})" />
             </v-list-item-avatar>
           </a>
           <a
-            :href="portalPath"
-            :class="'ps-2 align-self-center brandingContainer space'">
+            v-if="$root.displaySiteTitle"
+            :href="$root.spacePortalPath"
+            :class="$root.displaySiteLogo && 'ms-4'"
+            class="align-self-center brandingContainer space">
             <div class="logoTitle text-body menu-text-color font-weight-bold text-truncate">
-              {{ logoTitle }}
+              {{ $root.spaceLogoTitle }}
             </div>
           </a>
         </div>
@@ -44,9 +49,9 @@
               width="60"
               height="60">
               <v-img
-                :alt="$t('space.avatar.img.alt',{0:logoTitle})"
+                :alt="$t('space.avatar.img.alt',{0: $root.spaceLogoTitle})"
                 class="object-fit-cover"
-                :src="`${logoPath}&size=60x60`" />
+                :src="`${$root.spaceLogoPath}&size=60x60`" />
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
               <v-tooltip bottom>
@@ -55,15 +60,15 @@
                     v-on="on"
                     v-bind="attrs"
                     class="primary--text text--darken-3 font-weight-bold text-truncate-2">
-                    {{ logoTitle }}
+                    {{ $root.spaceLogoTitle }}
                   </span>
                 </template>
-                <span>{{ logoTitle }}</span>
+                <span>{{ $root.spaceLogoTitle }}</span>
               </v-tooltip>
               <v-list-item-subtitle>
-                {{ membersNumber }} {{ $t('space.logo.banner.popover.members') }}
+                {{ $root.membersNumber }} {{ $t('space.logo.banner.popover.members') }}
               </v-list-item-subtitle>
-              <p v-sanitized-html="spaceDescription" class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
+              <p v-sanitized-html="$root.spaceDescription" class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -105,7 +110,7 @@
             <v-list-item-content class="py-1">
               <v-list-item-title>
                 <v-btn
-                  :href="homePath"
+                  :href="$root.portalPath"
                   color="primary"
                   text
                   class="pa-0 pe-2"
@@ -122,12 +127,12 @@
             </v-list-item-content>
             <v-list-item-action class="space-logo-popover flex-row">
               <space-mute-notification-button
-                :space-id="spaceId"
-                :muted="muted"
+                :space-id="$root.spaceId"
+                :muted="$root.muted"
                 origin="spaceTopbarpopoverAction" />
               <space-favorite-action
                 :is-favorite="isFavorite"
-                :space-id="spaceId"
+                :space-id="$root.spaceId"
                 entity-type="SPACE_TOP_BAR_TIPTIP"
                 @added="$root.isFavorite = 'true'"
                 @removed="$root.isFavorite = 'false'" />
@@ -145,78 +150,18 @@
       </v-card>
     </v-menu>
     <space-hosts-drawer v-if="!isAnonymous" />
-  </v-app>
+  </div>
 </template>
 
 <script>
 export default {
-  props: {
-    logoPath: {
-      type: String,
-      default: function () {
-        return null;
-      },
-    },
-    portalPath: {
-      type: String,
-      default: function () {
-        return null;
-      },
-    },
-    logoTitle: {
-      type: String,
-      default: function () {
-        return null;
-      },
-    },
-    membersNumber: {
-      type: Number,
-      default: function () {
-        return null;
-      },
-    },
-    spaceDescription: {
-      type: String,
-      default: function () {
-        return '';
-      },
-    },
-    homePath: {
-      type: String,
-      default: function () {
-        return '';
-      },
-    },
-    managers: {
-      type: Array,
-      default: function () {
-        return null;
-      },
-    },
-    spaceId: {
-      type: String,
-      default: ''
-    },
-    muted: {
-      type: Boolean,
-      default: false
-    },
-    isMember: {
-      type: Boolean,
-      default: false
-    },
-    canRedactOnSpace: {
-      type: Boolean,
-      default: false
-    },
-  },
   data: () => ({
     menu: false,
     isAnonymous: !eXo.env.portal.userName,
   }),
   computed: {
     mangersToDisplay() {
-      return this.managers;
+      return this.$root.managers;
     },
     isFavorite() {
       return this.$root.isFavorite;
@@ -224,10 +169,10 @@ export default {
     params() {
       return {
         identityType: 'space',
-        identityId: eXo.env.portal.spaceId,
+        identityId: this.$root.spaceId,
         identityEnabled: true,
         identityDeleted: false,
-        canRedactOnSpace: this.canRedactOnSpace,
+        canRedactOnSpace: this.$root.canRedactOnSpace,
       };
     },
   },
@@ -248,8 +193,8 @@ export default {
     favoriteUpdated(event) {
       const metadata = event && event.detail;
       if (metadata && metadata.objectType === 'space'
-          && metadata.objectId === this.spaceId
-          && metadata.favorite !== this.isFavorite) {
+          && metadata.objectId === this.$root.spaceId
+          && metadata.favorite !== this.$root.isFavorite) {
         this.$root.isFavorite = `${metadata.favorite}`;
       }
     },
