@@ -26,7 +26,9 @@
               :class="goBackButton && 'ps-1'"
               class="pe-0">
               <v-list-item-action v-if="goBackButton" class="drawerIcons me-2">
-                <v-btn icon @click="close()">
+                <v-btn
+                  icon
+                  @click="goBack">
                   <v-icon size="20">
                     {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
                   </v-icon>
@@ -320,6 +322,13 @@ export default {
       const inputTextDisplayed = !!document.getElementById('inputURL');
       if (this.drawer && isLastOpenedDrawer && !inputTextDisplayed) {
         this.close();
+      }
+    },
+    goBack(event) {
+      if (this.$listeners?.['go-back']) {
+        this.$emit('go-back');
+      } else {
+        this.close(event);
       }
     },
     close(event) {
