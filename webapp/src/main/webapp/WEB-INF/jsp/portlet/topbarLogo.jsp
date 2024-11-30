@@ -50,6 +50,9 @@
   UserPortalConfigService portalConfigService = CommonsUtils.getService(UserPortalConfigService.class);
   UserSettingService userSettingService = CommonsUtils.getService(UserSettingService.class);
   UserSetting userSetting = authenticatedUser == null ? null : userSettingService.get(authenticatedUser);
+  NavigationConfigurationService navigationConfigurationService = ExoContainerContext.getService(NavigationConfigurationService.class);
+  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getTopbarConfiguration(request.getRemoteUser(), request.getLocale());
+  SidebarConfiguration sidebarConfiguration = navigationConfigurationService.getSidebarConfiguration(request.getRemoteUser(), request.getLocale());
 
   String defaultHomePath = "/portal/" + requestContext.getPortalOwner();
 
@@ -59,7 +62,9 @@
   if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
     portalPath = "/portal/public";
   } else {
-    portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+    if (sidebarConfiguration.isAllowUserCustomHome()) {
+      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+    }
     if (portalPath == null) {
       portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
       if (portalPath == null) {
@@ -97,9 +102,6 @@
   }
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
-  NavigationConfigurationService navigationConfigurationService = ExoContainerContext.getService(NavigationConfigurationService.class);
-  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getTopbarConfiguration(request.getRemoteUser(), request.getLocale());
-  SidebarConfiguration sidebarConfiguration = navigationConfigurationService.getSidebarConfiguration(request.getRemoteUser(), request.getLocale());
   boolean displayCompanyName = topbarConfiguration.isDisplayCompanyName();
   boolean displaySiteName = topbarConfiguration.isDisplaySiteName();
   SidebarMode sidebarMode = sidebarConfiguration.getUserMode();
