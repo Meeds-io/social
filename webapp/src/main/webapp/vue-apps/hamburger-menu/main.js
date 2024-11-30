@@ -44,8 +44,7 @@ export function init(
   defaultUserPath,
   unreadPerSpace,
   avatarUrl,
-  isExternalFeatureEnabled,
-  allowUserHome) {
+  isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
@@ -56,7 +55,6 @@ export function init(
           avatarUrl,
           mode,
           isExternalFeatureEnabled,
-          allowUserHome,
           hoverFirstLevel: false,
           hoverSecondLevel: false,
           hoverThirdLevel: false,
@@ -87,6 +85,18 @@ export function init(
           },
           sticky() {
             return !this.hidden && this.mode === 'STICKY';
+          },
+          allowedModes() {
+            return this.settings?.allowedModes || [];
+          },
+          allowSticky() {
+            return this.allowedModes.includes('STICKY');
+          },
+          allowIcon() {
+            return this.allowedModes.includes('ICON');
+          },
+          allowHidden() {
+            return this.allowedModes.includes('HIDDEN');
           },
           icon() {
             return !this.hidden && this.mode === 'ICON';
