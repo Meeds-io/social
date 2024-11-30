@@ -81,4 +81,22 @@ public class NavigationConfigurationServiceTest extends AbstractNavigationConfig
     assertEquals("contribute", item.getName());
   }
 
+  @Test
+  public void testSidebarUserMode() {
+    NavigationConfiguration configuration = navigationConfigurationService.getConfiguration(userAcl.getSuperUser(),
+                                                                                            Locale.FRENCH,
+                                                                                            true);
+
+    SidebarMode sidebarUserMode = navigationConfigurationService.getSidebarUserMode(userAcl.getSuperUser());
+    assertEquals(configuration.getSidebar().getDefaultMode(), sidebarUserMode);
+
+    navigationConfigurationService.updateSidebarUserMode(userAcl.getSuperUser(), SidebarMode.STICKY);
+    sidebarUserMode = navigationConfigurationService.getSidebarUserMode(userAcl.getSuperUser());
+    assertEquals(SidebarMode.STICKY, sidebarUserMode);
+
+    navigationConfigurationService.updateSidebarUserMode(userAcl.getSuperUser(), SidebarMode.ICON);
+    sidebarUserMode = navigationConfigurationService.getSidebarUserMode(userAcl.getSuperUser());
+    assertEquals(SidebarMode.ICON, sidebarUserMode);
+  }
+
 }
