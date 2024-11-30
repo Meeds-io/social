@@ -48,7 +48,7 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
-        <v-tooltip v-if="!$root.hidden" bottom>
+        <v-tooltip v-if="!$root.hidden && $root.allowHidden" bottom>
           <template #activator="{on, attrs}">
             <div
               v-on="on"
@@ -65,7 +65,7 @@
           </template>
           <span>{{ $t('menu.collapse') }}</span>
         </v-tooltip>
-        <v-tooltip v-if="!$root.icon" bottom>
+        <v-tooltip v-if="!$root.icon && $root.allowIcon" bottom>
           <template #activator="{on, attrs}">
             <div
               v-on="on"
@@ -87,7 +87,7 @@
           </template>
           <span>{{ $t('menu.reduce') }}</span>
         </v-tooltip>
-        <v-tooltip v-if="!$root.sticky" bottom>
+        <v-tooltip v-if="!$root.sticky && $root.allowSticky" bottom>
           <template #activator="{on, attrs}">
             <div
               v-on="on"
