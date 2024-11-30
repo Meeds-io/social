@@ -18,15 +18,23 @@
  */
 package io.meeds.social.navigation.service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.addons.AddOnService;
+import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.TransientApplicationState;
+
+import io.meeds.common.ContainerTransactional;
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.constant.SidebarMode;
+import io.meeds.social.navigation.constant.TopbarItemType;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.SidebarItem;
@@ -36,6 +44,7 @@ import io.meeds.social.navigation.plugin.DefaultSidebarPlugin;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorage;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
@@ -45,16 +54,41 @@ import lombok.SneakyThrows;
 @Service
 public class NavigationConfigurationService {
 
-  private static final SidebarPlugin     DEFAULT_MENU_PLUGIN = new DefaultSidebarPlugin();
+  private static final String            TOPBAR_APPLICATION_ENABLED_PATTERN = "social.topbar.application.%s.enabled";
+
+  private static final String            TOPBAR_APPLICATION_MOBILE_PATTERN  = "social.topbar.application.%s.mobile";
+
+  private static final String            TOP_NAVIGATION_ADDON_CONTAINER     = "middle-topNavigation-container";
+
+  private static final SidebarPlugin     DEFAULT_MENU_PLUGIN                = new DefaultSidebarPlugin();
 
   @Autowired
   private NavigationConfigurationStorage navigationConfigurationStorage;
+
+  @Autowired
+  private UserPortalConfigService        userPortalConfigService;
+
+  @Autowired
+  private AddOnService                   addonContainerService;
+
+  @Autowired
+  Environment                            environment;
 
   @Autowired
   private List<SidebarPlugin>            menuPlugins;
 
   @Setter
   private List<TopbarApplication>        defaultTopbarApplications;
+
+  @PostConstruct
+  @ContainerTransactional
+  public void init() {
+    this.defaultTopbarApplications = getDefaultTopbarApplications();
+    NavigationConfiguration configuration = getConfiguration();
+    if (configuration != null) {
+      userPortalConfigService.setAllowUserHome(configuration.getSidebar().isAllowUserCustomHome());
+    }
+  }
 
   /**
    * @return {@link NavigationConfiguration} with the complete configuration of
@@ -137,7 +171,38 @@ public class NavigationConfigurationService {
    * @param navigationConfiguration
    */
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
-    navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
+    try {
+      navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
+    } finally {
+      userPortalConfigService.setAllowUserHome(navigationConfiguration.getSidebar().isAllowUserCustomHome());
+    }
+  }
+
+  /**
+   * @return Default Topbar Applications as configured in {@link AddOnService}
+   */
+  public List<TopbarApplication> getDefaultTopbarApplications() {
+    if (defaultTopbarApplications == null) {
+      defaultTopbarApplications = addonContainerService.getApplications(TOP_NAVIGATION_ADDON_CONTAINER)
+                                                       .stream()
+                                                       .map(app -> new TopbarApplication(app.getId(),
+                                                                                         app.getTitle(),
+                                                                                         app.getDescription(),
+                                                                                         app.getIcon(),
+                                                                                         TopbarItemType.APP,
+                                                                                         !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_ENABLED_PATTERN,
+                                                                                                                                                   app.getId()),
+                                                                                                                                     "true"),
+                                                                                                             "false"),
+                                                                                         !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_MOBILE_PATTERN,
+                                                                                                                                                   app.getId()),
+                                                                                                                                     "true"),
+                                                                                                             "false"),
+                                                                                         Collections.singletonMap("contentId",
+                                                                                                                  ((TransientApplicationState) app.getState()).getContentId())))
+                                                       .toList();
+    }
+    return defaultTopbarApplications;
   }
 
   private SidebarMode getSidebarUserMode(String username, SidebarConfiguration sidebarConfiguration) {

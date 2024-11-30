@@ -147,7 +147,7 @@
         @mousedown.stop.prevent
         @mouseup.stop.prevent>
         <v-btn
-          v-if="$root.expand"
+          v-if="$root.expand && $root.allowUserHome"
           v-show="hover || isHome"
           class="ms-2"
           icon

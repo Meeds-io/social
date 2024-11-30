@@ -42,6 +42,7 @@ export function init(params) {
         siteTitle: params.siteTitle,
         siteHomePath: params.siteHomePath,
         siteIcon: params.siteIcon,
+        isStandaloneSite: !document.querySelector('#HamburgerNavigationMenu'),
       },
       computed: {
         xl() {
@@ -73,10 +74,13 @@ export function init(params) {
           return this.displayCompanyLogo || this.displayCompanyTitle;
         },
         displayCompanyLogo() {
-          return (this.mdAndUp || !this.displaySite)
-            && (
-              (this.displayCompanyName && this.sidebarModeDisplay === 'HIDDEN') ||
-              (this.sidebarModeDisplay === 'HIDDEN' && !this.displaySite)
+          return (this.displayCompanyName && this.isStandaloneSite)
+            || (
+              (this.mdAndUp || !this.displaySite)
+              && (
+                (this.displayCompanyName && this.sidebarModeDisplay === 'HIDDEN') ||
+                (this.sidebarModeDisplay === 'HIDDEN' && !this.displaySite)
+              )
             );
         },
         displayCompanyTitle() {
