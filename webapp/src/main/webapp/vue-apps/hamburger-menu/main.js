@@ -57,6 +57,7 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExterna
           hoverButton: false,
           openedSiteName: null,
           openedSpaceId: null,
+          openedSpaces: false,
           openedSpacesUrl: null,
           openedSpaceTemplateId: null,
           openedSpaceTemplateName: null,
