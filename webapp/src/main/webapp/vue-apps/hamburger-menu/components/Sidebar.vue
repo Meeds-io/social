@@ -130,6 +130,9 @@ export default {
     hover() {
       return this.$root.hover;
     },
+    mode() {
+      return this.$root.mode;
+    },
   },
   watch: {
     showOverlay() {
@@ -189,16 +192,16 @@ export default {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
-    icon() {
-      if (this.icon) {
-        this.firstLevelDrawer = false;
-      }
-    },
     site() {
       this.$root.openedSiteName = this.site?.name;
     },
     space() {
       this.$root.openedSpaceId = this.space?.id;
+    },
+    mode(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.closeMenuEffectively(true);
+      }
     },
   },
   created() {
@@ -314,13 +317,24 @@ export default {
         return;
       }
       if (!this.hover) {
-        this.updateFirstLevelDrawer(false);
-        this.secondLevelDrawer = false;
-        this.thirdLevelDrawer = false;
-        this.space = null;
-        this.site = null;
-        this.secondLevel = null;
+        this.closeMenuEffectively();
       }
+    },
+    closeMenuEffectively(force) {
+      if (force && this.mode === 'ICON') {
+        this.$root.hoverMenu = false;
+        this.$root.hoverThirdLevel = false;
+        this.$root.hoverSecondLevel = false;
+        this.$root.hoverFirstLevel = false;
+        this.$root.hoverDeferred = false;
+      } else {
+        this.updateFirstLevelDrawer(false);
+      }
+      this.secondLevelDrawer = false;
+      this.thirdLevelDrawer = false;
+      this.space = null;
+      this.site = null;
+      this.secondLevel = null;
     },
   },
 };
