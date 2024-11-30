@@ -1688,8 +1688,24 @@
   <portlet>
     <name>TopBarLogo</name>
     <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/topBarLogo.bundle.js</path>
+      </script>
       <depends>
-        <module>spaceBannerLogoPopover</module>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
       </depends>
     </module>
   </portlet>
@@ -2684,29 +2700,6 @@
     </depends>
     <depends>
       <module>jqueryAtWho</module>
-    </depends>
-  </module>
-
-  <module>
-    <name>spaceBannerLogoPopover</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/spaceBannerLogoPopover.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
     </depends>
   </module>
 
