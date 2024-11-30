@@ -71,7 +71,7 @@ let config = {
     activitySearchResultCard: './src/main/webapp/vue-apps/search-activity/main.js',
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
-    spaceBannerLogoPopover: './src/main/webapp/vue-apps/space-top-bannerlogo/main.js',
+    topBarLogo: './src/main/webapp/vue-apps/top-bar-logo/main.js',
     topBarFavorites: './src/main/webapp/vue-apps/favorites-list-top-bar/main.js',
     popover: './src/main/webapp/vue-apps/popover/main.js',
     versionHistoryDrawer: './src/main/webapp/vue-apps/version-history-drawer/main.js',

@@ -1,3 +1,11 @@
+<%@page import="io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin"%>
+<%@page import="io.meeds.social.navigation.constant.SidebarItemType"%>
+<%@page import="io.meeds.social.navigation.model.SidebarItem"%>
+<%@page import="io.meeds.social.navigation.constant.SidebarMode"%>
+<%@page import="io.meeds.social.navigation.model.SidebarConfiguration"%>
+<%@page import="io.meeds.social.navigation.model.NavigationConfiguration"%>
+<%@page import="io.meeds.social.navigation.model.TopbarConfiguration"%>
+<%@page import="io.meeds.social.navigation.service.NavigationConfigurationService"%>
 <%@ page import="org.exoplatform.services.security.IdentityConstants"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="org.apache.commons.lang3.StringUtils"%>
@@ -24,13 +32,10 @@
 <%@ page import="java.util.Optional" %>
 <%
   String spaceId = null;
-  String logoPath = null;
-  String logoTitle = null;
   String portalPath = null;
-  String defaultHomePath = "";
   String titleClass = "";
   String imageClass = "";
-  String homePath= "";
+
   int membersNumber= 0;
   boolean isFavorite= false;
   boolean muted= false;
@@ -46,25 +51,32 @@
   UserSettingService userSettingService = CommonsUtils.getService(UserSettingService.class);
   UserSetting userSetting = authenticatedUser == null ? null : userSettingService.get(authenticatedUser);
 
-  defaultHomePath = "/portal/" + requestContext.getPortalOwner();
-  if (space == null) {
-    BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
-    logoPath = brandingService.getLogoPath();
-    logoTitle = brandingService.getCompanyName();
+  String defaultHomePath = "/portal/" + requestContext.getPortalOwner();
 
-    if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
-      portalPath = "/portal/public";
-    } else {
-      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+  BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
+  String logoPath = brandingService.getLogoPath();
+  String logoTitle = brandingService.getCompanyName();
+  if (StringUtils.equals(requestContext.getPortalOwner(), "public")) {
+    portalPath = "/portal/public";
+  } else {
+    portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+    if (portalPath == null) {
+      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
       if (portalPath == null) {
-        portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
-        if (portalPath == null) {
-          portalPath = defaultHomePath;
-        }
+        portalPath = defaultHomePath;
       }
     }
-    titleClass = "company";
-  } else {
+  }
+  titleClass = "company";
+
+  String spaceLogoPath = null;
+  String spaceLogoTitle = null;
+  String spacePortalPath = null;
+  if (space != null) {
+    spaceLogoPath = space.getAvatarUrl();
+    spaceLogoTitle = space.getDisplayName();
+    spacePortalPath = "/portal/s/" + space.getId();
+
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
     Identity userIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
     spaceId = space.getId();
@@ -73,10 +85,7 @@
     canRedactOnSpace = authenticatedUser == null ? false : spaceService.canRedactOnSpace(space, authenticatedUser);
     isFavorite = authenticatedUser == null ? false : favoriteService.isFavorite(new Favorite(space.DEFAULT_SPACE_METADATA_OBJECT_TYPE, space.getId(), null, Long.parseLong(userIdentity.getId())));
     muted = authenticatedUser == null ? false : userSetting.isSpaceMuted(Long.parseLong(spaceId));
-    logoPath = space.getAvatarUrl();
-    logoTitle = space.getDisplayName();
     String permanentSpaceName = space.getGroupId().split("/")[2];
-    portalPath = "/portal/s/" + space.getId();
     membersNumber = space.getMembers().length;
     spaceDescription = Optional.ofNullable(space.getDescription()).orElse("");
     if (authenticatedUser != null) {
@@ -85,61 +94,63 @@
         managers.add(profile);
       }
     }
-    homePath = authenticatedUser == null ? "/" : Optional.ofNullable(portalConfigService.getUserHomePage(request.getRemoteUser())).orElse(defaultHomePath);
   }
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
+  NavigationConfigurationService navigationConfigurationService = ExoContainerContext.getService(NavigationConfigurationService.class);
+  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getTopbarConfiguration(request.getRemoteUser(), request.getLocale());
+  SidebarConfiguration sidebarConfiguration = navigationConfigurationService.getSidebarConfiguration(request.getRemoteUser(), request.getLocale());
+  boolean displayCompanyName = topbarConfiguration.isDisplayCompanyName();
+  boolean displaySiteName = topbarConfiguration.isDisplaySiteName();
+  SidebarMode sidebarMode = sidebarConfiguration.getUserMode();
+  SidebarItem sidebarItem = space == null ? sidebarConfiguration.getItems().stream().filter(item -> item.getUrl() != null
+      && !StringUtils.equals(item.getProperties().get(AbstractLayoutSidebarPlugin.SITE_EXPAND_PAGES_PROP_NAME), "true")
+      && item.getType() == SidebarItemType.SITE
+      && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
+    .findFirst()
+    .orElse(null)
+    : null;
 %>
 <div class="VuetifyApp full-height">
-  <div data-app="true"
-       class="v-application border-box-sizing full-height <%= directionVuetifyClass %> theme--light"
-       id="brandingTopBar" flat="">
+  <div
+    data-app="true"
+    class="v-application border-box-sizing full-height <%= directionVuetifyClass %> theme--light"
+    id="brandingTopBar"
+    flat="">
     <div class="v-application--wrap full-height">
-      <div class="container my-auto pa-0 ps-3">
-        <div class="d-flex mx-0 pa-0">
-          <% if (space == null) { %>
-          <% if (logoPath != null) { %>
-          <a id="UserHomePortalLinkLogo" href="<%=portalPath%>" class="pe-3 logoContainer">
-            <img src="<%=logoPath%>" height="36px" width="auto" class="<%=imageClass%>" alt="<%=logoTitle%>">
-          </a>
-          <% } %>
-          <a id="UserHomePortalLinkName" href="<%=portalPath%>" title="<%=logoTitle%>"
-             class="ps-2 align-self-center brandingContainer <%=titleClass%>">
-            <div class="logoTitle text-body font-weight-bold  menu-text-color text-truncate">
-              <%= logoTitle%>
-            </div>
-          </a>
-          <% } else { %>
-          <div app-data="true" id="SpaceTopBannerLogo">
-            <script type="text/javascript">
-              window.topbarLogoManagers = new Array();
-              <% for (int i =0 ; i < managers.size(); i++) { %>
-              window.topbarLogoManagers.push({
-                id: `<%=managers.get(i).getId()%>`,
-                userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
-                fullName: `<%=managers.get(i).getFullName()%>`,
-                avatar: `<%=managers.get(i).getAvatarUrl()%>`,
-              });
-              <% } %>
-              require(["SHARED/spaceBannerLogoPopover"], app => app.init({
-                id: `<%=spaceId%>`,
-                isFavorite: `<%=isFavorite%>`,
-                muted: `<%=muted%>`,
-                isMember: `<%=isMember%>`,
-                logoPath: `<%=logoPath%>`,
-                portalPath: `<%=portalPath%>`,
-                logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
-                membersNumber: `<%=membersNumber%>`,
-                spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
-                managers: window.topbarLogoManagers,
-                homePath: `<%=homePath%>`,
-                canRedactOnSpace: <%=canRedactOnSpace%>,
-              }));
-            </script>
-          </div>
-          <% } %>
-        </div>
-      </div>
+      <script type="text/javascript">
+        window.topbarLogoManagers = new Array();
+        <% for (int i =0 ; i < managers.size(); i++) { %>
+        window.topbarLogoManagers.push({
+          id: `<%=managers.get(i).getId()%>`,
+          userName: `<%=managers.get(i).getIdentity().getRemoteId()%>`,
+          fullName: `<%=managers.get(i).getFullName()%>`,
+          avatar: `<%=managers.get(i).getAvatarUrl()%>`,
+        });
+        <% } %>
+        require(["PORTLET/social/TopBarLogo"], app => app.init({
+          id: `<%=spaceId == null ? "" : spaceId%>`,
+          isFavorite: `<%=isFavorite%>`,
+          muted: `<%=muted%>`,
+          isMember: `<%=isMember%>`,
+          portalPath: `<%=portalPath%>`,
+          logoPath: `<%=logoPath%>`,
+          logoTitle: `<%=URLEncoder.encode(logoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
+          spacePortalPath: `<%=spacePortalPath == null ? "": spacePortalPath%>`,
+          spaceLogoPath: `<%=spaceLogoPath == null ? "": spaceLogoPath%>`,
+          spaceLogoTitle: `<%=spaceLogoTitle == null ? "" : URLEncoder.encode(spaceLogoTitle.replace(" ", "._.")).replace("._.", " ")%>`,
+          membersNumber: `<%=membersNumber%>`,
+          spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
+          managers: window.topbarLogoManagers,
+          canRedactOnSpace: <%=canRedactOnSpace%>,
+          displayCompanyName: <%=displayCompanyName%>,
+          displaySiteName: <%=displaySiteName%>,
+          sidebarMode: '<%=sidebarMode%>',
+          siteTitle: '<%=sidebarItem == null ? "" : sidebarItem.getName()%>',
+          siteHomePath: '<%=sidebarItem == null ? "" : sidebarItem.getUrl()%>',
+          siteIcon: '<%=sidebarItem == null ? "" : sidebarItem.getIcon()%>',
+        }));
+      </script>
     </div>
   </div>
 </div>

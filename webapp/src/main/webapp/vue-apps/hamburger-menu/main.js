@@ -164,6 +164,9 @@ export function init(mode, defaultUserPath, unreadPerSpace, avatarUrl, isExterna
               }
             }
           },
+          mode() {
+            document.dispatchEvent(new CustomEvent('sidebar-mode-changed', {detail: this.mode}));
+          },
         },
         created() {
           document.addEventListener('homeLinkUpdated', this.updateUserHome);

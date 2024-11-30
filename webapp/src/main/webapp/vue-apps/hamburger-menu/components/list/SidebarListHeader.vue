@@ -47,7 +47,7 @@
           </v-card>
         </v-list-item-title>
       </v-list-item-content>
-      <v-list-item-action v-if="$root.expand && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
+      <v-list-item-action v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
         <v-tooltip v-if="!$root.hidden" bottom>
           <template #activator="{on, attrs}">
             <div
