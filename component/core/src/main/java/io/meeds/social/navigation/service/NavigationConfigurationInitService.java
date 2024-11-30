@@ -28,16 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import org.exoplatform.commons.addons.AddOnService;
-import org.exoplatform.portal.config.model.TransientApplicationState;
-
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.navigation.constant.SidebarMode;
-import io.meeds.social.navigation.constant.TopbarItemType;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
 import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.navigation.model.TopbarApplication;
 import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 
@@ -49,13 +44,8 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class NavigationConfigurationInitService {
 
-  private static final String            TOP_NAVIGATION_ADDON_CONTAINER = "middle-topNavigation-container";
-
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
-
-  @Autowired
-  private AddOnService                   addonContainerService;
 
   @Autowired
   private List<SidebarPlugin>            menuPlugins;
@@ -75,12 +65,9 @@ public class NavigationConfigurationInitService {
   @Value("${navigation.configuration.defaultMode:ICON}")
   private SidebarMode                    defaultMode;
 
-  private List<TopbarApplication>        defaultTopbarApplications;
-
   @PostConstruct
   @ContainerTransactional
   public void init() {
-    navigationConfigurationService.setDefaultTopbarApplications(getDefaultTopbarApplications());
     if (forceUpdate || navigationConfigurationService.getConfiguration() == null) {
       navigationConfigurationService.updateConfiguration(buildDefaultNavigationConfiguration());
     }
@@ -89,34 +76,13 @@ public class NavigationConfigurationInitService {
   private NavigationConfiguration buildDefaultNavigationConfiguration() {
     TopbarConfiguration topbarConfiguration = new TopbarConfiguration(displayCompanyName,
                                                                       displaySiteName,
-                                                                      getDefaultTopbarApplications());
+                                                                      navigationConfigurationService.getDefaultTopbarApplications());
     SidebarConfiguration sidebarConfiguration = new SidebarConfiguration(allowUserCustomHome,
                                                                          defaultMode,
                                                                          null,
                                                                          Arrays.asList(SidebarMode.values()),
                                                                          getDefaultNavigations());
     return new NavigationConfiguration(topbarConfiguration, sidebarConfiguration);
-  }
-
-  /**
-   * @return Default Topbar Applications as configured in {@link AddOnService}
-   */
-  private List<TopbarApplication> getDefaultTopbarApplications() {
-    if (defaultTopbarApplications == null) {
-      defaultTopbarApplications = addonContainerService.getApplications(TOP_NAVIGATION_ADDON_CONTAINER)
-                                                       .stream()
-                                                       .map(app -> new TopbarApplication(app.getId(),
-                                                                                         app.getTitle(),
-                                                                                         app.getDescription(),
-                                                                                         app.getIcon(),
-                                                                                         TopbarItemType.APP,
-                                                                                         true,
-                                                                                         true,
-                                                                                         Collections.singletonMap("contentId",
-                                                                                                                  ((TransientApplicationState) app.getState()).getContentId())))
-                                                       .toList();
-    }
-    return defaultTopbarApplications;
   }
 
   /**

@@ -21,7 +21,9 @@
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   UserPortalConfigService portalConfigService = ExoContainerContext.getService(UserPortalConfigService.class);
 
-  SidebarMode mode = ExoContainerContext.getService(NavigationConfigurationService.class).getSidebarUserMode(request.getRemoteUser());
+  NavigationConfigurationService navigationConfigurationService = ExoContainerContext.getService(NavigationConfigurationService.class);
+  SidebarMode mode = navigationConfigurationService.getSidebarUserMode(request.getRemoteUser());
+  boolean allowUserHome = navigationConfigurationService.getConfiguration().getSidebar().isAllowUserCustomHome();
 
   Identity viewerIdentity = Utils.getViewerIdentity();
   String avatarUrl = viewerIdentity == null ? "" : viewerIdentity.getProfile().getAvatarUrl();
@@ -84,7 +86,7 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>));
+      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>, <%=allowUserHome%>));
     </script>
   </div>
 </div>
