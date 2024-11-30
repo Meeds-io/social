@@ -234,7 +234,7 @@ export default {
       this.site = null;
       if (this.secondLevel === 'spaces'
           && ((spaceTemplateId && this.$root.openedSpaceTemplateId === spaceTemplateId)
-              || (spacesUrl && this.$root.openedSpacesUrl === spacesUrl))) {
+              || (spacesUrl && this.$root.openedSpaces))) {
         this.space = null;
         this.secondLevel = null;
         this.secondLevelDrawer = false;
@@ -242,7 +242,7 @@ export default {
         window.setTimeout(() => {
           this.$root.openedSpaceTemplateId = null;
           this.$root.openedSpaceTemplateName = null;
-          this.$root.openedSpacesUrl = null;
+          this.$root.openedSpaces = false;
           this.$root.spacesSortBy = null;
         }, 50);
       } else {
@@ -253,6 +253,7 @@ export default {
         this.space = null;
         this.$root.openedSpaceTemplateId = spaceTemplateId;
         this.$root.openedSpaceTemplateName = name;
+        this.$root.openedSpaces = !spaceTemplateId;
         this.$root.openedSpacesUrl = spacesUrl;
         this.$root.spacesSortBy = sortBy;
         this.secondLevel = 'spaces';
