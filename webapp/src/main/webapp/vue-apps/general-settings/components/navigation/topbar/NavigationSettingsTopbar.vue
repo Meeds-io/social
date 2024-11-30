@@ -92,7 +92,7 @@
         </div>
       </template>
       <template slot="item.mobile" slot-scope="{item}">
-        <div class="d-flex justify-center">
+        <div v-if="item.enabled" class="d-flex justify-center">
           <v-switch v-model="item.mobile" class="ma-auto" />
         </div>
       </template>
