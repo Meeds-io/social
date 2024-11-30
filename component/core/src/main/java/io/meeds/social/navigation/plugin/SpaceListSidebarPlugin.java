@@ -30,7 +30,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.Page;
+import org.exoplatform.portal.mop.SiteKey;
+import org.exoplatform.portal.mop.page.PageKey;
+import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.social.core.space.SpaceFilter;
 
@@ -41,13 +46,21 @@ import io.meeds.social.navigation.model.SidebarItem;
 @Order(40)
 public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  public static final String      SPACES_NAMES = "names";
+  public static final String      SPACES_NAMES    = "names";
+
+  public static final PageKey     SPACES_PAGE_KEY = new PageKey(SiteKey.portal("global"), "all-spaces");
 
   @Autowired
   private LocaleConfigService     localeConfigService;
 
   @Autowired
   private UserPortalConfigService portalConfigService;
+
+  @Autowired
+  private LayoutService           layoutService;
+
+  @Autowired
+  private UserACL                 userAcl;
 
   @Override
   public SidebarItemType getType() {
@@ -69,7 +82,12 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
                                        SPACES_NAMES,
                                        locale));
     item.setItems(getSpaces(item, username));
-    item.setUrl(String.format("/portal/%s/spaces", portalConfigService.getMetaPortal()));
+
+    if (hasAccessToSpacesPage(username)) {
+      item.setUrl(String.format("/portal/%s/spaces", portalConfigService.getMetaPortal()));
+    } else {
+      item.setUrl(null);
+    }
     return item;
   }
 
@@ -92,6 +110,11 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
   @Override
   protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
     // No specific space filter
+  }
+
+  private boolean hasAccessToSpacesPage(String username) {
+    Page spacesPage = layoutService.getPage(SPACES_PAGE_KEY);
+    return spacesPage != null && userAcl.hasAccessPermission(spacesPage, userAcl.getUserIdentity(username));
   }
 
 }

@@ -28,13 +28,8 @@
   <div v-else-if="isSpaces || isSpaceTemplate">
     <v-hover v-if="hasItems || isSpaces" v-model="hover">
       <v-list-item
-        v-bind="url && {
-          href: url,
-          target: item.target,
-          value: item.url,
-        }"
-        v-on="hover && hasItems && !url && {
-          click: () => collapsedSpaces = !collapsedSpaces,
+        v-on="hover && {
+          click: () => isSpaceTemplate ? (collapsedSpaces = !collapsedSpaces) : openSpacesList(),
         }"
         :title="displaySpacesExpandFull && (collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse'))"
         :class="$root.iconCollapse && 'mx-0'"
@@ -91,6 +86,7 @@
     <v-list-item
       v-bind="itemAttributes"
       v-on="itemActions"
+      :title="tooltip"
       :value="item.url"
       :disabled="!item.url"
       :class="!$root.expand && item.avatar && 'ms-n2px'"
@@ -223,7 +219,7 @@ export default {
     drawerOpened() {
       return (this.isSite && this.$root.openedSiteName === this.item?.properties?.siteName)
         || (this.isSpace && Number(this.$root.openedSpaceId) === Number(this.item?.properties?.id))
-        || (this.isSpaces && this.$root.openedSpacesUrl === this.url)
+        || (this.isSpaces && this.$root.openedSpaces)
         || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === Number(this.item?.properties?.spaceTemplateId));
     },
     arrowIconLeft() {
@@ -285,6 +281,10 @@ export default {
     toggleArrow() {
       return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaces)
         && (this.hover || this.drawerOpened);
+    },
+    tooltip() {
+      const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
+      return descriptions?.[eXo.env.portal.language] || descriptions?.['en'];
     },
   },
   watch: {
