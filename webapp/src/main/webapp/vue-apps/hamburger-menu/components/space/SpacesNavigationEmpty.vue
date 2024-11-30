@@ -32,6 +32,7 @@
         {{ $t('menu.spaces.noFavoriteSpaces1') }}
       </div>
       <div
+        v-if="!isExternalUser"
         v-sanitized-html="$t('menu.spaces.noFavoriteSpaces2', {
           0: `<a href='${spacesLink}'>`,
           1: '</a>',
@@ -42,18 +43,20 @@
       <div class="my-6">
         {{ $t('menu.spaces.noSpacesFound') }}
       </div>
-      <div v-if="!keyword">
-        {{ $t('menu.spaces.joinSpace') }}
-      </div>
-      <v-btn
-        :href="spacesLink"
-        :title="$t('menu.spaces.exploreSpaces')"
-        :class="keyword && 'mb-6' || 'my-6'"
-        class="btn primary">
-        <span class="text-none">
-          {{ $t('menu.spaces.exploreSpaces') }}
-        </span>
-      </v-btn>
+      <template v-if="!isExternalUser">
+        <div v-if="!keyword">
+          {{ $t('menu.spaces.joinSpace') }}
+        </div>
+        <v-btn
+          :href="spacesLink"
+          :title="$t('menu.spaces.exploreSpaces')"
+          :class="keyword && 'mb-6' || 'my-6'"
+          class="btn primary">
+          <span class="text-none">
+            {{ $t('menu.spaces.exploreSpaces') }}
+          </span>
+        </v-btn>
+      </template>
     </template>
   </div>
 </template>
@@ -71,6 +74,7 @@ export default {
   },
   data: () => ({
     spacesLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`,
+    isExternalUser: eXo.env.portal.isExternal,
   }),
 };
 </script>
