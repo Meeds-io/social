@@ -9,7 +9,7 @@
   </div>
 </template>
 <script>
-import { spaceTitleActionComponents } from '../extension.js';
+import { spaceTitleActionComponents } from '../../extension.js';
 export default {
   computed: {
     enabledComponents() {
