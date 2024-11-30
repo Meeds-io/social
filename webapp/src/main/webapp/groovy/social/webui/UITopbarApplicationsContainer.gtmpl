@@ -1,0 +1,59 @@
+<%
+  import java.util.Locale;
+
+  import io.meeds.social.navigation.model.TopbarConfiguration;
+  import io.meeds.social.navigation.service.NavigationConfigurationService;
+
+  import org.exoplatform.portal.webui.workspace.UIPortalApplication;
+  import org.exoplatform.commons.utils.HTMLEntityEncoder;
+  
+  def rcontext = _ctx.getRequestContext();
+  UIPortalApplication uiPortalApp = rcontext.getUIApplication();
+
+  if (!uicomponent.hasPermission()) {
+    return;
+  }
+
+  String cssStyle = "";
+  String uiComponentWidth = uicomponent.getWidth();
+  String uiComponentHeight = uicomponent.getHeight();
+  if(uiComponentWidth != null || uiComponentHeight != null) cssStyle = "style=\"";
+  if(uiComponentWidth != null) cssStyle += "width: "+uiComponentWidth+";"
+  if(uiComponentHeight != null) cssStyle += "height: "+uiComponentHeight+";"
+  if(cssStyle.length() > 0) cssStyle += "\"";
+
+  String uiComponentClass = uicomponent.getCssClass() == null ? "" : uicomponent.getCssClass();
+
+  /** Trim the prefix UIContainer- if any, this hardcoded part is needed to update nested container via Ajax */
+  String componentId = uicomponent.getId();
+  if(componentId.startsWith("UIContainer-")){
+    uicomponent.setId(componentId.substring("UIContainer-".length()));
+  }
+
+  NavigationConfigurationService navigationConfigurationService = uicomponent.getApplicationComponent(NavigationConfigurationService.class);
+  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getConfiguration().getTopbar();
+%>
+<div class="UIContainer <%=uiComponentClass%> <%=uicomponent.getName()%>" id="${uicomponent.id}" ${cssStyle}>
+  <div class="NormalContainerBlock UIComponentBlock">
+    <div class="VIEW-CONTAINER VIEW-BLOCK">
+      <div class="VuetifyApp UIIntermediateContainer">
+        <div id="${uicomponent.id}Children" class="UIRowContainer v-application">
+        <%
+          for (application in topbarConfiguration.getApplications()) {
+            if (application.isEnabled()) {
+              def child = uicomponent.getChildById(application.getId());
+              if (child != null && child.isRendered()) {
+                %>
+          <div class="<%=application.isMobile() ? "" : "hidden-xs-only"%>">
+                <% child.processRender(rcontext);%>
+          </div>
+                <%
+              }
+            }
+          }
+        %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
