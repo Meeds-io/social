@@ -19,8 +19,8 @@
 
 -->
 <template>
-  <div class="recentDrawer">
-    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
+  <div class="recentDrawer d-flex flex-column full-height full-width overflow-hidden">
+    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-card
         min-height="58"
         class="d-flex align-center full-width"
@@ -42,17 +42,18 @@
               required
               autofocus />
           </v-list-item-content>
-          <v-list-item-action v-if="selectedFilterIndex !== 2" class="d-flex flex-row ms-auto my-auto">
+          <v-list-item-action class="d-flex flex-row ms-auto my-auto">
             <v-btn
               v-show="!showFilter"
               :title="$t('menu.spaces.addNewSpaceTooltip')"
-              class="me-2"
               icon
               @click="addNewSpace">
               <v-icon size="20">fa-plus</v-icon>
             </v-btn>
             <v-btn
+              v-if="selectedFilterIndex !== 2"
               :title="$t('menu.spaces.filterBySpaceTooltip')"
+              class="ms-2"
               icon
               @click="showFilter = !showFilter">
               <v-icon size="20">{{ showFilter && 'fa-times' || 'fa-filter' }}</v-icon>
@@ -61,13 +62,13 @@
         </v-list-item>
       </v-card>
     </v-flex>
-    <div class="position-relative">
+    <div class="position-relative flex-grow-0 flex-shrink-0">
       <v-progress-linear
         v-if="(!initialized && !hasSpaces) && loading"
         class="position-absolute ful-width"
         indeterminate />
     </div>
-    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center">
+    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-tabs
         v-model="selectedFilterIndex"
         slider-size="4"
@@ -95,7 +96,7 @@
       v-if="!hasSpaces && !loading"
       :keyword="keyword"
       :filter-type="filterType"
-      class="pa-5" />
+      class="pa-5 flex-grow-0 flex-shrink-0" />
     <spaces-navigation-content
       :limit="itemsToShow"
       :page-size="itemsToShow"
@@ -104,10 +105,22 @@
       :filter-type="filterType"
       show-more-button
       third-level
-      class="recentSpacesWrapper"
+      class="recentSpacesWrapper overflow-x-hidden overflow-y-auto specific-scrollbar"
       @open-space-panel="$emit('open-space-panel',$event)"
       @loading="loading = $event"
       @spaces-count="hasSpaces = $event" />
+    <template v-if="$root.openedSpacesUrl">
+      <v-spacer />
+      <v-divider />
+      <div class="d-flex align-center justify-end my-2 mx-4">
+        <v-btn
+          :href="$root.openedSpacesUrl"
+          color="primary"
+          outlined>
+          {{ $t('spacesList.label.viewAllSpaces') }}
+        </v-btn>
+      </div>
+    </template>
   </div>
 </template>
 <script>
@@ -150,7 +163,7 @@ export default {
   },
   beforeDestroy() {
     this.$root.openedSpaceTemplateId = null;
-    this.$root.openedSpacesUrl = null;
+    this.$root.openedSpaces = false;
     this.$root.spacesSortBy = null;
   },
   methods: {
