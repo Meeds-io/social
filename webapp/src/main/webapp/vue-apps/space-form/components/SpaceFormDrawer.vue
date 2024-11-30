@@ -24,44 +24,63 @@
   <exo-drawer
     ref="spaceFormDrawer"
     v-model="drawer"
+    :go-back-button="goBackButton && spaceTemplate"
     right
     class="spaceFormDrawer"
     @opened="stepper = 1"
-    @closed="stepper = 0">
+    @closed="stepper = 0"
+    @go-back="templateId = null">
     <template slot="title">
-      {{ $t('spacesList.label.addNewSpace') }}
+      {{ spaceTemplate && $t('spacesList.label.addNewSpaceWithTemplate', {
+        0: spaceTemplate.name,
+      })|| $t('spacesList.label.addNewSpace') }}
     </template>
     <template v-if="drawer" slot="content">
-      <v-expand-transition v-if="!spaceTemplate">
+      <v-expand-transition>
         <div
-          v-if="templates?.length"
+          v-if="templates?.length && !spaceTemplate"
           class="d-flex flex-wrap align-center justify-space-between ma-5">
           <v-card
             v-for="item in sortedTemplates"
             :key="item.id"
-            class="border-color d-flex flex-column align-center me-auto my-2 px-2 py-1"
+            class="border-color me-auto mb-4 px-2 py-1"
             width="160"
             height="136"
-            hover
             flat
             @click="open(item.id)">
-            <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
-            <div
-              :title="item.name"
-              class="text-truncate flex-grow-1 flex-shrink-0 full-width pb-1">
-              {{ item.name }}
-            </div>
-            <div
-              v-if="item.description"
-              :title="item.description"
-              class="text-subtitle text-truncate-3 flex-grow-1 flex-shrink-0">
-              {{ item.description }}
-            </div>
+            <v-hover v-slot="{hover}">
+              <div class="d-flex flex-column align-center full-height full-width pb-3">
+                <div
+                  class="mt-auto mb-2">
+                  <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
+                </div>
+                <div
+                  :title="item.name"
+                  class="mb-auto full-width">
+                  {{ item.name }}
+                </div>
+                <v-expand-transition>
+                  <div
+                    v-show="hover"
+                    class="absolute-full-size text-start pa-2 border-radius mask-color">
+                    <div
+                      :title="item.name"
+                      class="text-truncate-2 font-weight-bold white--text full-width pb-1">
+                      {{ item.name }}
+                    </div>
+                    <div
+                      :title="item.description"
+                      class="text-subtitle white--text full-width text-truncate-5">
+                      {{ item.description || '' }}
+                    </div>
+                  </div>
+                </v-expand-transition>
+              </div>
+            </v-hover>
           </v-card>
         </div>
-      </v-expand-transition>
-      <v-expand-transition v-else>
         <v-stepper
+          v-else-if="spaceTemplate"
           v-model="stepper"
           :class="{
             'pe-3' : isMobile,
@@ -175,7 +194,7 @@
     <template v-if="spaceTemplate" slot="footer">
       <div class="d-flex">
         <v-btn
-          v-if="stepper > 1 || !noGoBack"
+          v-if="stepper > 1"
           class="btn"
           @click="previousStep">
           {{ $t('spacesList.button.back') }}
@@ -225,7 +244,7 @@ export default {
     templates: [],
     selectedSpacesWithExternals: [],
     externalAlert: false,
-    noGoBack: false,
+    goBackButton: false,
     maxDescriptionLength: 2000,
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
   }),
@@ -368,11 +387,11 @@ export default {
       }
     }
 
-    this.$root.$on('addNewSpace', this.open);
+    this.$root.$on('addNewSpace', this.openByRootEvent);
     document.addEventListener('addNewSpace', this.openByEvent);
   },
   beforeDestroy() {
-    this.$root.$off('addNewSpace', this.open);
+    this.$root.$off('addNewSpace', this.openByRootEvent);
     document.removeEventListener('addNewSpace', this.openByEvent);
   },
   methods: {
@@ -380,7 +399,7 @@ export default {
       this.openByRootEvent(e?.detail);
     },
     openByRootEvent(templateId) {
-      this.noGoBack = !!templateId;
+      this.goBackButton = !templateId;
       this.open(templateId);
     },
     async open(templateId) {
@@ -410,8 +429,6 @@ export default {
     previousStep() {
       if (this.stepper > 1) {
         this.stepper--;
-      } else {
-        this.templateId = null;
       }
     },
     nextStep(event) {
