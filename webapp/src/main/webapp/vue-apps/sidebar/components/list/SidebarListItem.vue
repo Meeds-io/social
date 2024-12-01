@@ -125,7 +125,7 @@
       </v-list-item-content>
       <v-list-item-action
         v-if="toggleArrow && $root.expand"
-        class="my-auto align-center"
+        class="my-auto align-center z-index-one position-relative"
         @mousedown.stop.prevent
         @mouseup.stop.prevent>
         <ripple-hover-button
@@ -163,7 +163,7 @@
       <space-unread-badge
         v-if="isSpace"
         v-show="!toggleArrow"
-        :space-id="id"
+        :space-id="spaceId"
         :unread-badge="space?.unread"
         @refresh="retrieveSpace(true)" />
     </v-list-item>
@@ -183,9 +183,6 @@ export default {
     space: null,
   }),
   computed: {
-    id() {
-      return this.item?.properties?.id;
-    },
     menuItems() {
       return this.item?.items;
     },
@@ -216,9 +213,15 @@ export default {
     isSpaceTemplate() {
       return this.item.type === 'SPACE_TEMPLATE';
     },
+    siteName() {
+      return this.isSite && this.item?.properties?.siteName;
+    },
+    spaceId() {
+      return this.isSpace && this.item?.properties?.id;
+    },
     drawerOpened() {
-      return (this.isSite && this.$root.openedSiteName === this.item?.properties?.siteName)
-        || (this.isSpace && Number(this.$root.openedSpaceId) === Number(this.item?.properties?.id))
+      return (this.isSite && this.$root.openedSiteName === this.siteName)
+        || (this.isSpace && this.$root.openedFirstLevelType === 'SPACE' && Number(this.$root.openedSpaceId) === Number(this.spaceId))
         || (this.isSpaces && this.$root.openedSpaces)
         || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === Number(this.item?.properties?.spaceTemplateId));
     },
@@ -232,7 +235,7 @@ export default {
       return this.hover && this.hasItems && !this.url;
     },
     displaySpacesExpandKey() {
-      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.item?.properties?.id || this.item?.properties?.spaceTemplateId}`;
+      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.item?.properties?.spaceTemplateId}`;
     },
     spacesIcon() {
       return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${this.$vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
@@ -310,14 +313,15 @@ export default {
         this.isSpaceTemplate && this.item.properties?.spaceTemplateId,
         this.isSpaces && this.url,
         this.item.properties?.sortBy,
-        this.item.name);
+        this.item.name,
+        this.item.type);
     },
     async openOrCloseDrawer() {
       if (this.isSite) {
         if (!this.$root.sites) {
           await this.retrieveSites();
         }
-        const site = this.$root.sites?.find(s => s.name === this.item?.properties?.siteName);
+        const site = this.$root.sites?.find(s => s.name === this.siteName);
         this.$root.$emit('change-site-menu', site);
       } else if (this.isSpace) {
         if (!this.space) {
@@ -337,7 +341,7 @@ export default {
       this.$root.sites = await this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
     },
     async retrieveSpace(refresh) {
-      this.space = await this.$spaceService.getSpaceById(this.id, 'member,managers,favorite,unread,muted', refresh);
+      this.space = await this.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
       this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
     },
     forceOpenLink() {
