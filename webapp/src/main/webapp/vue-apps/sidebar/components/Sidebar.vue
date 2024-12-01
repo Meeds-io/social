@@ -230,7 +230,7 @@ export default {
         this.closeTimeout = window.setTimeout(() => this.allowClosing = true, 2000);
       }
     },
-    async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy, name) {
+    async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy, name, type) {
       this.site = null;
       if (this.secondLevel === 'spaces'
           && ((spaceTemplateId && this.$root.openedSpaceTemplateId === spaceTemplateId)
@@ -240,6 +240,7 @@ export default {
         this.secondLevelDrawer = false;
         this.thirdLevelDrawer = false;
         window.setTimeout(() => {
+          this.$root.openedFirstLevelType = null;
           this.$root.openedSpaceTemplateId = null;
           this.$root.openedSpaceTemplateName = null;
           this.$root.openedSpaces = false;
@@ -251,6 +252,7 @@ export default {
           await this.$nextTick();
         }
         this.space = null;
+        this.$root.openedFirstLevelType = type;
         this.$root.openedSpaceTemplateId = spaceTemplateId;
         this.$root.openedSpaceTemplateName = name;
         this.$root.openedSpaces = !spaceTemplateId;
@@ -285,6 +287,9 @@ export default {
           this.thirdLevelDrawer = false;
         }
       }
+      if (!thirdLevel) {
+        this.$root.openedFirstLevelType = 'SPACE';
+      }
     },
     changeSiteMenu(site) {
       this.space = null;
@@ -296,6 +301,7 @@ export default {
       } else {
         this.site = site;
         this.secondLevel = 'site';
+        this.$root.openedFirstLevelType = 'SITE';
         this.secondLevelDrawer = true;
         this.thirdLevelDrawer = false;
       }
