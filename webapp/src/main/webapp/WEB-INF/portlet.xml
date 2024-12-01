@@ -388,11 +388,11 @@
   </portlet>
 
   <portlet>
-    <portlet-name>HamburgerMenu</portlet-name>
+    <portlet-name>Sidebar</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/hamburgerMenu.jsp</value>
+      <value>/WEB-INF/jsp/portlet/sidebar.jsp</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
@@ -402,7 +402,7 @@
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Hamburger Menu</title>
+      <title>Sidebar Menu</title>
     </portlet-info>
   </portlet>
 

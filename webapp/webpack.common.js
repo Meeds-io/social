@@ -30,7 +30,7 @@ let config = {
     register: './src/main/webapp/vue-apps/user-register/main.js',
     registerOnboarding: './src/main/webapp/vue-apps/user-register-onboarding/main.js',
     spacesAdministration: './src/main/webapp/vue-apps/spaces-administration/main.js',
-    hamburgerMenu: './src/main/webapp/vue-apps/hamburger-menu/main.js',
+    sidebar: './src/main/webapp/vue-apps/sidebar/main.js',
     topBarNotification: './src/main/webapp/vue-apps/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/vue-apps/getting-started/main.js',
     externalSpacesList: './src/main/webapp/vue-apps/external-spaces-list/main.js',
