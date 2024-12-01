@@ -66,6 +66,7 @@ export function init(
           openedSpacesUrl: null,
           openedSpaceTemplateId: null,
           openedSpaceTemplateName: null,
+          openedFirstLevelType: null,
           sites: null,
           settings: null,
           openedOverlay: false,
