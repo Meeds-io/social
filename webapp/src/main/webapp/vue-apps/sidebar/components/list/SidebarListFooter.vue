@@ -64,12 +64,12 @@
               <v-avatar
                 :href="profileUri"
                 class="userAvatar"
-                size="20">
+                size="24">
                 <img
                   :src="avatarUrl"
                   :alt="userName"
-                  height="20"
-                  width="20"
+                  height="24"
+                  width="24"
                   contain>
               </v-avatar>
             </v-btn>
@@ -85,7 +85,7 @@
               :aria-label="$t('menu.settings')"
               class="userSettingsLink my-auto"
               icon>
-              <v-icon size="18">fa-sliders-h</v-icon>
+              <v-icon size="20">fa-sliders-h</v-icon>
             </v-btn>
           </template>
           <span>
@@ -101,7 +101,7 @@
               :aria-label="$t('menu.logout')"
               class="logoutLink me-n3 my-auto"
               icon>
-              <v-icon size="18">fa-power-off</v-icon>
+              <v-icon size="20">fa-power-off</v-icon>
             </v-btn>
           </template>
           <span>

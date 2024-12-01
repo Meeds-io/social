@@ -59,7 +59,7 @@
                 @click.stop.prevent="changeMenuStickiness('HIDDEN')"
                 @mousedown.stop.prevent
                 @mouseup.stop.prevent>
-                <v-icon>{{ arrowIconLeft }}</v-icon>
+                <v-icon size="20">{{ arrowIconLeft }}</v-icon>
               </v-btn>
             </div>
           </template>
@@ -80,8 +80,8 @@
                   :alt="$t('menu.reduce')"
                   src="/social/images/sidebar.svg"
                   class="icon-default-color"
-                  height="24px"
-                  width="24px">
+                  height="20px"
+                  width="20px">
               </v-btn>
             </div>
           </template>
@@ -98,7 +98,7 @@
                 @click.stop.prevent="changeMenuStickiness('STICKY')"
                 @mousedown.stop.prevent
                 @mouseup.stop.prevent>
-                <v-icon>{{ arrowIconRight }}</v-icon>
+                <v-icon size="20">{{ arrowIconRight }}</v-icon>
               </v-btn>
             </div>
           </template>
