@@ -438,7 +438,7 @@
                 <include>portlet/ActivitySearch/Style.less</include>
                 <include>portlet/ActivityStream/Style.less</include>
                 <include>portlet/GettingStarted/Style.less</include>
-                <include>portlet/HamburgerMenu/Style.less</include>
+                <include>portlet/Sidebar/Style.less</include>
                 <include>portlet/IDMGroupsManagement/Style.less</include>
                 <include>portlet/IDMMembershipTypesManagement/Style.less</include>
                 <include>portlet/IDMUsersManagement/Style.less</include>
