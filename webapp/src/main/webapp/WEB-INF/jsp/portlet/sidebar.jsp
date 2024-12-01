@@ -86,7 +86,7 @@
       <% } %>
     </div>
     <script type="text/javascript">
-      require(['PORTLET/social/HamburgerMenu'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>, <%=allowUserHome%>));
+      require(['PORTLET/social/Sidebar'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>, <%=allowUserHome%>));
     </script>
   </div>
 </div>
