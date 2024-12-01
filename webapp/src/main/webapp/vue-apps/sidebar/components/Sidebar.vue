@@ -188,7 +188,7 @@ export default {
           window.clearInterval(this.interval);
           this.interval = null;
         }
-      } else if (!this.interval && this.$root.displaySequentially) {
+      } else if (!this.interval && this.$root.displaySequentially && !this.$root.hidden) {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
       }
     },
