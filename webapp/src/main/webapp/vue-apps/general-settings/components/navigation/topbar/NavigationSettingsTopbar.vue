@@ -51,19 +51,42 @@
       :settings="settings"
       class="elevation-3 mb-6 mt-4" />
     <!-- Branding Infos -->
-    <div class="font-weight-bold mb-2">
+    <div class="font-weight-bold mb-4">
       {{ $t('generalSettings.brandingInfos') }}
     </div>
-    <v-switch
+    <div class="mb-2">
+      {{ $t('generalSettings.displayCompanyName') }}
+    </div>
+    <v-radio-group
       v-model="topbarSettings.displayCompanyName"
-      :label="$t('generalSettings.displayCompanyName')"
-      class="mt-0 mb-2 width-fit-content" />
+      class="my-0 ms-n1 text-no-wrap width-fit-content"
+      mandatory>
+      <v-radio
+        :value="true"
+        class="mx-0 mt-0 mb-1">
+        <template #label>
+          <span class="text-body">{{ $t('generalSettings.displayCompanyName.choice1') }}</span>
+        </template>
+      </v-radio>
+      <v-radio
+        :value="false"
+        class="mx-0 mt-0 mb-1">
+        <template #label>
+          <span class="text-body">{{ $t('generalSettings.displayCompanyName.choice2') }}</span>
+        </template>
+      </v-radio>
+    </v-radio-group>
+
+    <div class="mb-2 mt-4">
+      {{ $t('generalSettings.displaySiteName') }}
+    </div>
     <v-switch
       v-model="topbarSettings.displaySiteName"
-      :label="$t('generalSettings.displaySiteName')"
-      class="mt-0 mb-4 width-fit-content" />
+      :label="$t('generalSettings.displaySiteName.label')"
+      class="my-0 width-fit-content" />
+
     <!-- Topbar Options -->
-    <div class="font-weight-bold mb-2">
+    <div class="font-weight-bold mb-2 mt-4">
       {{ $t('generalSettings.topbarOptions') }}
     </div>
     <v-data-table

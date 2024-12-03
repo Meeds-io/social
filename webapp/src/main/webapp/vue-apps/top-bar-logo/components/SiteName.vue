@@ -5,13 +5,20 @@
       v-if="$root.displaySiteLogo"
       :href="$root.siteHomePath"
       :aria-label="$t('space.avatar.href.title',{0: $root.logoTitle})">
-      <v-list-item-avatar 
-        id="UserHomePortalLink"
-        size="36"
-        class="ma-0"
-        tile>
-        <v-icon size="28">{{ $root.siteIcon || 'fa-folder' }}</v-icon>
-      </v-list-item-avatar>
+      <v-tooltip :disabled="$root.displaySiteTitle" bottom>
+        <template #activator="{on, attrs}">
+          <v-list-item-avatar
+            v-on="on"
+            v-bind="attrs"
+            id="UserHomePortalLink"
+            size="36"
+            class="ma-0"
+            tile>
+            <v-icon size="28">{{ $root.siteIcon || 'fa-folder' }}</v-icon>
+          </v-list-item-avatar>
+        </template>
+        {{ $root.siteTitle }}
+      </v-tooltip>
     </a>
     <a
       v-if="$root.displaySiteTitle"
