@@ -19,17 +19,10 @@
 
 import * as spaceBindingService from './js/SpaceBindingService.js';
 import * as spaceAdministrationService from './js/SpaceAdministrationService.js';
-import * as spaceTemplateService from '../space-templates-management/js/SpaceTemplateService.js';
 
 if (!Vue.prototype.$spaceBindingService) {
   window.Object.defineProperty(Vue.prototype, '$spaceBindingService', {
     value: spaceBindingService,
-  });
-}
-
-if (!Vue.prototype.$spaceTemplateService) {
-  window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
-    value: spaceTemplateService,
   });
 }
 
