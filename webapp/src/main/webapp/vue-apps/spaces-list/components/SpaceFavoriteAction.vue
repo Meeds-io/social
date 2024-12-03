@@ -84,8 +84,13 @@ export default {
   data: () => ({
     favorite: false
   }),
-  created() {
-    this.favorite = this.isFavorite === 'true';
+  watch: {
+    isFavorite: {
+      immediate: true,
+      handler() {
+        this.favorite = this.isFavorite === 'true';
+      },
+    },
   },
   methods: {
     removed() {
