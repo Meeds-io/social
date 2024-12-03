@@ -23,9 +23,9 @@
   <v-card
     class="d-flex align-center px-4"
     height="56">
-    <div v-if="displayCompanyName || !displaySiteName" class="d-flex">
+    <div class="d-flex">
       <v-avatar
-        class="me-3 flex-shrink-0"
+        class="flex-shrink-0"
         size="36"
         width="auto"
         tile>
@@ -35,22 +35,22 @@
           width="auto"
           alt="">
       </v-avatar>
-      <div v-if="displayCompanyName" class="align-self-center d-none d-sm-flex">
+      <div v-if="displayCompanyName" class="align-self-center d-none d-sm-flex ms-4">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ $root.branding?.companyName }}
         </div>
       </div>
     </div>
-    <div v-if="displaySiteName && displayCompanyName" class="mx-4">
+    <div class="mx-4">
       <v-icon>
         {{ $vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right' }}
       </v-icon>
     </div>
-    <div v-if="displaySiteName" class="d-flex">
-      <div class="me-3">
+    <div class="d-flex">
+      <div>
         <v-icon size="33">{{ firstSidebarSiteIcon }}</v-icon>
       </div>
-      <div class="ps-2 align-self-center d-none d-sm-flex">
+      <div v-if="displaySiteName" class="ps-2 ms-3 align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ firstSidebarSiteName }}
         </div>
