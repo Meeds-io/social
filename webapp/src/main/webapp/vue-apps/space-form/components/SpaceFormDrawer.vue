@@ -68,10 +68,9 @@
                       {{ item.name }}
                     </div>
                     <div
+                      v-sanitized-html="item.description || ''"
                       :title="item.description"
-                      class="text-subtitle white--text full-width text-truncate-5">
-                      {{ item.description || '' }}
-                    </div>
+                      class="text-subtitle white--text full-width text-truncate-5"></div>
                   </div>
                 </v-expand-transition>
               </div>
