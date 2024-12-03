@@ -43,7 +43,7 @@
         <site-details
           v-else-if="secondLevel === 'site'"
           :site="site"
-          enable-change-home
+          :enable-change-home="$root.allowUserHome"
           @close="drawer = false" />
       </div>
     </v-hover>

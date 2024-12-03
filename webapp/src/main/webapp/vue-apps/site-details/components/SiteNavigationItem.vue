@@ -43,8 +43,11 @@
     </v-list-item-title>
     <v-list-item-action
       v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
-      class="my-auto">
+      class="ms-auto my-auto flex-shrink-0">
       <v-btn
+        :title="$t('menu.spaces.makeAsHomePage')"
+        height="36"
+        min-width="36"
         icon
         @click="selectHome($event)">
         <v-icon
