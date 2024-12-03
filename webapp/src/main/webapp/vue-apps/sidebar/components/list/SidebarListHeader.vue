@@ -41,7 +41,7 @@
           :alt="companyName"
           height="36"
           width="auto"
-          class="object-fit-contain" />
+          class="object-fit-contain">
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate">
