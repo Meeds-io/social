@@ -27,7 +27,7 @@
     width="69"
     text
     @click="$emit('open-drawer', $event)">
-    <v-icon v-show="$root.hidden" size="24">fa-bars</v-icon>
+    <v-icon v-show="$root.hidden" size="20">fa-bars</v-icon>
     <div
       v-show="showBadge"
       :class="$vuetify.rtl && 'l-0' || 'r-0'"
