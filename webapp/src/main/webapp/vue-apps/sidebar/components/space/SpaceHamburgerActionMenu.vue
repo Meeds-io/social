@@ -37,12 +37,13 @@
       </v-btn>
     </template>
     <v-list
+      v-if="space && menu"
       max-width="auto"
       min-width="auto"
       width="auto">
       <v-list-item
         v-for="extension in enabledExtensions"
-        :key="extension.key"
+        :key="`${extension.key}_${space.id}`"
         v-bind="extension.href && {
           href: () => extension.href(space),
         }"
@@ -76,7 +77,9 @@ export default {
   }),
   computed: {
     enabledExtensions() {
-      return this.extensions?.filter?.(extension => extension.enabled(this.space));
+      return this.extensions?.filter?.(extension => extension.enabled(this.space, {
+        allowUserHome: this.$root.allowUserHome,
+      }));
     },
   },
   watch: {
