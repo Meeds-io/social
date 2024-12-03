@@ -39,17 +39,16 @@
       <v-expand-transition>
         <div
           v-if="templates?.length && !spaceTemplate"
-          class="d-flex flex-wrap align-center justify-space-between ma-5">
+          class="d-flex flex-wrap align-center justify-space-between my-4 me-4">
           <v-card
             v-for="item in sortedTemplates"
             :key="item.id"
-            class="border-color me-auto mb-4 px-2 py-1"
-            width="160"
+            class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
             height="136"
             flat
             @click="open(item.id)">
             <v-hover v-slot="{hover}">
-              <div class="d-flex flex-column align-center full-height full-width pb-3">
+              <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
                 <div
                   class="mt-auto mb-2">
                   <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
@@ -62,7 +61,7 @@
                 <v-expand-transition>
                   <div
                     v-show="hover"
-                    class="absolute-full-size text-start pa-2 border-radius mask-color">
+                    class="absolute-full-size text-start pa-2 ms-4 border-radius mask-color">
                     <div
                       :title="item.name"
                       class="text-truncate-2 font-weight-bold white--text full-width pb-1">
@@ -93,7 +92,7 @@
             <v-stepper-step
               v-if="!singleStep"
               :step="1"
-              class="my-4 mx-5 pa-0"
+              class="ma-4 pa-0"
               editable>
               {{ $t('spacesList.label.nameTitle') }}
             </v-stepper-step>
@@ -101,7 +100,7 @@
               <form
                 v-if="stepper === 1"
                 ref="form1"
-                class="px-5"
+                class="px-4"
                 @submit="nextStep">
                 <v-label for="name">
                   {{ $t('spacesList.label.nameLabel') }}
@@ -122,7 +121,7 @@
             <v-stepper-step
               v-if="!singleStep"
               :step="propertiesStep"
-              class="my-4 mx-5 pa-0"
+              class="ma-4 pa-0"
               editable>
               {{ $t('spacesList.label.propertiesTitle') }}
             </v-stepper-step>
@@ -130,7 +129,7 @@
               <form
                 v-if="stepper === propertiesStep"
                 ref="form2"
-                class="px-5"
+                class="px-4"
                 @submit="nextStep">
                 <v-label for="description">
                   {{ $t('spacesList.label.descriptionLabel') }}
@@ -160,7 +159,7 @@
             <v-stepper-step
               v-if="!singleStep"
               :step="invitationStep"
-              class="my-4 mx-5 pa-0"
+              class="ma-4 pa-0"
               editable>
               {{ $t('spacesList.label.inviteUsers') }}
             </v-stepper-step>
@@ -175,7 +174,7 @@
             <v-stepper-step
               v-if="!singleStep"
               :step="accessStep"
-              class="my-4 mx-5 pa-0"
+              class="ma-4 pa-0"
               editable>
               {{ $t('spacesList.label.spaceAccessTitle') }}
             </v-stepper-step>
