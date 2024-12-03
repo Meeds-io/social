@@ -18,7 +18,7 @@
           :alt="$t('space.avatar.img.alt',{0: $root.logoTitle})"
           height="36"
           width="auto"
-          class="object-fit-contain" />
+          class="object-fit-contain">
       </v-list-item-avatar>
     </a>
     <a
