@@ -1,3 +1,4 @@
+<%@page import="org.apache.commons.collections4.CollectionUtils"%>
 <%@page import="io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin"%>
 <%@page import="io.meeds.social.navigation.constant.SidebarItemType"%>
 <%@page import="io.meeds.social.navigation.model.SidebarItem"%>
@@ -106,12 +107,20 @@
   boolean displaySiteName = topbarConfiguration.isDisplaySiteName();
   SidebarMode sidebarMode = sidebarConfiguration.getUserMode();
   SidebarItem sidebarItem = space == null ? sidebarConfiguration.getItems().stream().filter(item -> item.getUrl() != null
-      && !StringUtils.equals(item.getProperties().get(AbstractLayoutSidebarPlugin.SITE_EXPAND_PAGES_PROP_NAME), "true")
       && item.getType() == SidebarItemType.SITE
       && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
     .findFirst()
     .orElse(null)
     : null;
+  if (sidebarItem != null
+    && StringUtils.equals(sidebarItem.getProperties().get(AbstractLayoutSidebarPlugin.SITE_EXPAND_PAGES_PROP_NAME), "true")
+    && CollectionUtils.isNotEmpty(sidebarItem.getItems())) {
+    sidebarItem = sidebarItem.getItems().stream().filter(item -> item.getUrl() != null
+        && item.getType() == SidebarItemType.PAGE
+        && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
+      .findFirst()
+      .orElse(null);
+  }
 %>
 <div class="VuetifyApp full-height">
   <div
@@ -150,7 +159,7 @@
           sidebarMode: '<%=sidebarMode%>',
           siteTitle: '<%=sidebarItem == null ? "" : sidebarItem.getName()%>',
           siteHomePath: '<%=sidebarItem == null ? "" : sidebarItem.getUrl()%>',
-          siteIcon: '<%=sidebarItem == null ? "" : sidebarItem.getIcon()%>',
+          siteIcon: '<%=sidebarItem == null || sidebarItem.getIcon() == null ? "" : sidebarItem.getIcon()%>',
         }));
       </script>
     </div>
