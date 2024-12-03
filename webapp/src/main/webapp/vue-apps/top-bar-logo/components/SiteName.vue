@@ -10,7 +10,7 @@
         size="36"
         class="ma-0"
         tile>
-        <v-icon size="28">{{ $root.siteIcon || 'fa-globe' }}</v-icon>
+        <v-icon size="28">{{ $root.siteIcon || 'fa-folder' }}</v-icon>
       </v-list-item-avatar>
     </a>
     <a
