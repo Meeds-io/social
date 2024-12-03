@@ -74,7 +74,7 @@ export function init(params) {
           return this.displayCompanyLogo || this.displayCompanyTitle;
         },
         displayCompanyLogo() {
-          return (this.displayCompanyName && this.isStandaloneSite)
+          return this.isStandaloneSite
             || (
               (this.mdAndUp || !this.displaySite)
               && (
@@ -84,11 +84,13 @@ export function init(params) {
             );
         },
         displayCompanyTitle() {
-          return this.displayCompanyName
-            && this.logoTitle
-            && this.portalPath
-            && (this.xl || (this.mdAndUp && !this.displaySite))
-            && (this.sidebarModeDisplay === 'HIDDEN' || this.sidebarModeDisplay === 'ICON' || !this.displaySite);
+          return this.isStandaloneSite
+            || (this.displayCompanyName
+                && this.logoTitle
+                && this.portalPath
+                && (this.xl || (this.mdAndUp && !this.displaySite))
+                && (this.sidebarModeDisplay === 'HIDDEN' || this.sidebarModeDisplay === 'ICON' || !this.displaySite)
+            );
         },
         displaySite() {
           return this.displaySiteLogo || this.displaySiteTitle;

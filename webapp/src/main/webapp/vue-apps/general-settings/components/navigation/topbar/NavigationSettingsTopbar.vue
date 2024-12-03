@@ -21,13 +21,35 @@
 -->
 <template>
   <div v-if="topbarSettings">
-    <div class="text-header mb-4">
-      {{ $t('generalSettings.topbar') }}
-    </div>
+    <help-label
+      label="generalSettings.topbar"
+      label-class="text-header"
+      tooltip="generalSettings.topbar.helpTooltip">
+      <template slot="helpContent">
+        <p>
+          {{ $t('generalSettings.topbar.helpDescription1') }}
+        </p>
+        <p>
+          {{ $t('generalSettings.topbar.helpDescription2') }}
+        </p>
+        <div>
+          {{ $t('generalSettings.topbar.helpDescription3') }}
+        </div>
+        <div>
+          {{ $t('generalSettings.topbar.helpDescription4') }}
+        </div>
+        <div>
+          {{ $t('generalSettings.topbar.helpDescription5') }}
+        </div>
+        <div>
+          {{ $t('generalSettings.topbar.helpDescription6') }}
+        </div>
+      </template>
+    </help-label>
     <!-- Preview -->
     <portal-general-settings-navigation-settings-topbar-preview
       :settings="settings"
-      class="elevation-3 mb-6" />
+      class="elevation-3 mb-6 mt-4" />
     <!-- Branding Infos -->
     <div class="font-weight-bold mb-2">
       {{ $t('generalSettings.brandingInfos') }}
