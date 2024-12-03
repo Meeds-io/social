@@ -328,7 +328,7 @@ export default {
       }
     },
     closeMenuEffectively(force) {
-      if (force && this.mode === 'ICON') {
+      if (force && this.$root.icon) {
         this.$root.hoverMenu = false;
         this.$root.hoverThirdLevel = false;
         this.$root.hoverSecondLevel = false;
