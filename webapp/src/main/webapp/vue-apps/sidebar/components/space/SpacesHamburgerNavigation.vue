@@ -44,7 +44,7 @@
           </v-list-item-content>
           <v-list-item-action class="d-flex flex-row ms-auto my-auto">
             <v-btn
-              v-show="!showFilter"
+              v-show="!showFilter && canCreateSpace"
               :title="$t('menu.spaces.addNewSpaceTooltip')"
               icon
               @click="addNewSpace">
@@ -153,6 +153,10 @@ export default {
     title() {
       return this.$root.openedSpaceTemplateId && this.$root.openedSpaceTemplateName || this.$t('menu.spaces.yourSpaces');
     },
+    canCreateSpace() {
+      return (!this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.length)
+        || (this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.find(t => Number(t.id) === Number(this.$root.openedSpaceTemplateId)));
+    },
   },
   watch: {
     loading() {
@@ -161,12 +165,20 @@ export default {
       }
     },
   },
+  created() {
+    this.init();
+  },
   beforeDestroy() {
     this.$root.openedSpaceTemplateId = null;
     this.$root.openedSpaces = false;
     this.$root.spacesSortBy = null;
   },
   methods: {
+    async init() {
+      if (!this.$root.spaceTemplates) {
+        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      }
+    },
     closeMenu() {
       this.$emit('close-menu');
     },

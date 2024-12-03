@@ -71,6 +71,7 @@ export function init(
           openedFirstLevelType: null,
           sites: null,
           settings: null,
+          spaceTemplates: null,
           openedOverlay: false,
           hoverDeferred: false,
           rtl: eXo.env.portal.orientation === 'rtl',
