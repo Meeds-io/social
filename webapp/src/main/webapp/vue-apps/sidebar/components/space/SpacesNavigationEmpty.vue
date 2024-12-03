@@ -29,14 +29,8 @@
     <template v-else-if="filterType === 'favorite'">
       <v-icon class="tertiary-color" size="60">fa-star-half-alt</v-icon>
       <div class="my-6">
-        {{ $t('menu.spaces.noFavoriteSpaces1') }}
+        {{ $t('menu.spaces.noFavoriteSpaces') }}
       </div>
-      <div
-        v-if="!isExternalUser"
-        v-sanitized-html="$t('menu.spaces.noFavoriteSpaces2', {
-          0: `<a href='${spacesLink}'>`,
-          1: '</a>',
-        })"></div>
     </template>
     <template v-else>
       <v-icon class="tertiary-color" size="60">fa-people-arrows</v-icon>
