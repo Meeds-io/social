@@ -43,29 +43,30 @@
         class="mt-n3"
         dense>
         <v-list-item-group>
-          <v-list-item
-            v-for="children in navigationObject"
-            :key="children.id"
-            :href="`${baseSiteUri}${children.uri}`"
-            :disabled="!children.pageKey && !children.children?.length"
-            :link="!!children.pageKey"
-            @click.stop="checkLink(children, $event)">
-            <v-list-item-content>
-              <v-list-item-title v-text="children.label" />
-            </v-list-item-content>
-            <v-list-item-icon
-              v-if="children.children?.length"
-              class="full-height">
-              <v-btn
-                icon
-                @click.stop.prevent="next(children)">
-                <v-icon
-                  size="18">
-                  {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
-                </v-icon>
-              </v-btn>
-            </v-list-item-icon>
-          </v-list-item>
+          <template v-for="nav in navigationObject">
+            <v-list-item
+              v-if="nav.pageKey || nav.children?.length || nav.pageLink"
+              :key="nav.id"
+              :href="nav.nodeUri || $navigationUtils.getNavigationNodeUri(baseSiteUri, nav)"
+              :target="nav.nodeTarget || $navigationUtils.getNavigationNodeTarget(nav)"
+              :link="!!nav.pageKey"
+              @click="checkLink(nav, $event)">
+              <v-list-item-content>
+                <v-list-item-title v-text="nav.label" />
+              </v-list-item-content>
+              <v-list-item-icon
+                v-if="nav.children?.length"
+                class="full-height">
+                <v-btn
+                  icon
+                  @click.stop.prevent="next(nav)">
+                  <v-icon size="18">
+                    {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
+                  </v-icon>
+                </v-btn>
+              </v-list-item-icon>
+            </v-list-item>
+          </template>
         </v-list-item-group>
       </v-list>
     </v-sheet>
@@ -74,12 +75,6 @@
 
 <script>
 export default {
-  data () {
-    return {
-      navigationObject: null,
-      showChildren: false,
-    };
-  },
   props: {
     navigation: {
       type: Object,
@@ -98,10 +93,10 @@ export default {
       default: null
     }
   },
-  created() {
-    this.navigationObject = Object.assign({}, this.navigation);
-    this.showChildren = this.showMenu;
-  },
+  data: () => ({
+    navigationObject: null,
+    showChildren: false,
+  }),
   watch: {
     showMenu(value) {
       this.showChildren = value;
@@ -110,23 +105,35 @@ export default {
       }
     }
   },
+  created() {
+    this.navigationObject = Object.assign({}, this.navigation);
+    this.showChildren = this.showMenu;
+  },
   methods: {
-    next(children) {
+    next(navigation) {
       const previous = this.navigationObject;
-      this.navigationObject = children.children ;
+      this.navigationObject = navigation.children ;
       this.navigationObject.previous = previous;
     },
     prev() {
-      this.navigationObject = this.navigationObject.previous ;
+      this.navigationObject = this.navigationObject.previous;
     },
     checkLink(navigation, e) {
       if (!navigation.pageKey) {
         e.preventDefault();
+        e.stopPropagation();
         if (navigation.children) {
           this.next(navigation);
         }
       } else {
         this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
+      }
+      if (navigation?.nodeUri?.includes?.('#')) {
+        if (navigation?.nodeTarget === '_blank') {
+          window.open(navigation.nodeUri);
+        } else {
+          window.location.href = navigation.nodeUri;
+        }
       }
     }
   }

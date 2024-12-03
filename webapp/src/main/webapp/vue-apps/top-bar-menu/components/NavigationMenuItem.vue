@@ -41,8 +41,7 @@
         v-on="on"
         v-bind="attrs"
         role="tab"
-        @click.stop="checkLink(navigation, $event)"
-        @click="openUrl(navigationNodeUri, navigationNodeTarget)"
+        @click="checkLink"
         @change="updateNavigationState">
         <span
           class="text-truncate-3">
@@ -107,10 +106,10 @@ export default {
       return !!this.navigation?.pageKey;
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
     },
     navigationNodeTarget() {
-      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
     },
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
@@ -138,11 +137,18 @@ export default {
     updateNavigationState() {
       this.$emit('update-navigation-state', this.navigationNodeUri);
     },
-    checkLink(navigation, e) {
-      if (!navigation.pageKey) {
+    checkLink(e) {
+      if (!this.navigationNodeUri) {
+        e.stopPropagation();
         e.preventDefault();
       }
-      if (navigation.children) {
+      if (this.navigationNodeUri?.includes?.('#')) {
+        if (this.navigationNodeTarget === '_blank') {
+          window.open(this.navigationNodeUri);
+        } else {
+          window.location.href = this.navigationNodeUri;
+        }
+      } else if (this.hasChildren && this.childrenHasPage) {
         this.openDropMenu();
       }
     },
@@ -181,16 +187,6 @@ export default {
         }
       });
       return childrenHasPage;
-    },
-    openUrl(url, target) {
-      if (url) {
-        if (!url?.match?.(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = `//${url}`;
-        } else if (url?.match?.(/^(\/portal\/)/)) {
-          url = `${window.location.origin}${url}`;
-        }
-        window.open(url, target);
-      }
     },
   }
 };
