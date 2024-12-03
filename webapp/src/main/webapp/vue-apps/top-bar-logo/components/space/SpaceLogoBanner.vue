@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="d-flex align-center">
     <v-menu
       v-model="menu"
       :close-on-content-click="false"
@@ -13,10 +13,12 @@
       content-class="no-box-shadow full-height pa-1 mt-6 "
       offset-y>
       <template #activator="{ on, attrs }">
-        <div
+        <v-card
           v-on="on"
           v-bind="attrs"
-          class="d-inline-flex">
+          height="28"
+          class="d-inline-flex transparent"
+          flat>
           <a
             v-if="$root.displaySiteLogo"
             :href="$root.spacePortalPath"
@@ -24,10 +26,15 @@
             <v-list-item-avatar 
               v-if="$root.spaceLogoPath"
               id="UserHomePortalLink"
-              size="36"
-              class="ma-0 spaceAvatar"
+              size="28"
+              class="mx-0 my-auto spaceAvatar"
               tile>
-              <v-img :src="$root.spaceLogoPath" :alt="$t('space.avatar.img.alt',{0: $root.spaceLogoTitle})" />
+              <img
+                :src="$root.spaceLogoPath"
+                :alt="$t('space.avatar.img.alt',{0: $root.spaceLogoTitle})"
+                height="28"
+                width="auto"
+                class="object-fit-contain" />
             </v-list-item-avatar>
           </a>
           <a
@@ -39,7 +46,7 @@
               {{ $root.spaceLogoTitle }}
             </div>
           </a>
-        </div>
+        </v-card>
       </template>
       <v-card v-if="menu" elevation="2">
         <v-list class="pa-0">
