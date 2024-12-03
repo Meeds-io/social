@@ -7,10 +7,18 @@
       <v-list-item-avatar 
         v-if="$root.logoPath"
         id="UserHomePortalLink"
-        size="36"
+        height="36"
+        max-width="100"
+        min-width="auto"
+        width="auto"
         class="ma-0"
         tile>
-        <v-img :src="$root.logoPath" :alt="$t('space.avatar.img.alt',{0: $root.logoTitle})" />
+        <img
+          :src="$root.logoPath"
+          :alt="$t('space.avatar.img.alt',{0: $root.logoTitle})"
+          height="36"
+          width="auto"
+          class="object-fit-contain" />
       </v-list-item-avatar>
     </a>
     <a
