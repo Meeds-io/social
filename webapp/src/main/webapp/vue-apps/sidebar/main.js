@@ -44,7 +44,8 @@ export function init(
   defaultUserPath,
   unreadPerSpace,
   avatarUrl,
-  isExternalFeatureEnabled) {
+  isExternalFeatureEnabled,
+  allowUserHome) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
@@ -55,6 +56,7 @@ export function init(
           avatarUrl,
           mode,
           isExternalFeatureEnabled,
+          allowUserHome,
           hoverFirstLevel: false,
           hoverSecondLevel: false,
           hoverThirdLevel: false,
