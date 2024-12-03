@@ -29,7 +29,7 @@
       :target="navigationNodeTarget"
       :link="!!hasPage"
       class="pt-0 pb-0"
-      @click.stop="checkLink(navigation, $event)">
+      @click="checkLink">
       <v-menu
         v-model="showMenu"
         rounded
@@ -118,15 +118,13 @@ export default {
       return this.checkChildrenHasPage(this.navigation);
     },
     navigationNodeUri() {
-      return this.navigation?.pageLink
-        && this.urlVerify(this.navigation?.pageLink)
-        || (this.hasPage && `${this.baseSiteUri}${this.navigation.uri}`);
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+    },
+    navigationNodeTarget() {
+      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
     },
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
-    },
-    navigationNodeTarget() {
-      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
     },
   },
   watch: {
@@ -153,11 +151,19 @@ export default {
     this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
   },
   methods: {
-    checkLink(navigation, e) {
-      if (!navigation.pageKey) {
+    checkLink(e) {
+      if (!this.navigationNodeUri) {
+        e.stopPropagation();
         e.preventDefault();
       } else {
         this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
+      }
+      if (this.navigationNodeUri?.includes?.('#')) {
+        if (this.navigationNodeTarget === '_blank') {
+          window.open(this.navigationNodeUri);
+        } else {
+          window.location.href = this.navigationNodeUri;
+        }
       }
     },
     updateNavigationState(value) {
@@ -178,12 +184,6 @@ export default {
         }
       });
       return childrenHasPage;
-    },
-    urlVerify(url) {
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-        url = `//${url}`;
-      }
-      return url ;
     },
     handleCloseSiblingMenus(emitter) {
       if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
