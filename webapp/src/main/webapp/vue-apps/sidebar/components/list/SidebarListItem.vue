@@ -149,6 +149,7 @@
         <v-btn
           v-if="$root.expand && $root.allowUserHome"
           v-show="hover || isHome"
+          :title="$t('menu.spaces.makeAsHomePage')"
           class="ms-2"
           icon
           @click.stop.prevent="$root.$emit('update-home-link-page', item)">
