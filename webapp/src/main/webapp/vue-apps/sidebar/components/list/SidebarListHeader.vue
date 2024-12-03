@@ -34,7 +34,7 @@
         max-width="100"
         min-width="auto"
         width="auto"
-        class="my-auto ms-0 me-4"
+        class="my-auto mx-0"
         tile>
         <img
           :src="companyLogo"
@@ -44,7 +44,7 @@
           class="object-fit-contain">
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate">
+        <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate ms-4">
           <v-card
             :title="companyName"
             class="text-truncate transparent"
