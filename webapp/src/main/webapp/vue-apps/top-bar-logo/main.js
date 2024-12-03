@@ -64,7 +64,9 @@ export function init(params) {
           return this.sidebarMode === 'STICKY' && !this.lgAndUp;
         },
         sidebarModeDisplay() {
-          if (this.hidenIconView || this.hidenStickyView) {
+          if (this.sidebarMode === 'STICKY' && !this.lgAndUp && this.mdAndUp) {
+            return 'ICON';
+          } else if (this.hidenIconView || this.hidenStickyView) {
             return 'HIDDEN';
           } else {
             return this.sidebarMode;
@@ -95,9 +97,6 @@ export function init(params) {
         displaySite() {
           return this.displaySiteLogo || this.displaySiteTitle;
         },
-        displaySiteLogo() {
-          return this.displaySiteName && (this.siteIcon || this.spaceLogoPath);
-        },
         displaySiteTitle() {
           return this.displaySiteName
             && this.mdAndUp
@@ -105,6 +104,9 @@ export function init(params) {
               (this.siteTitle && this.siteHomePath) ||
               (this.spaceLogoPath && this.spacePortalPath)
             );
+        },
+        displaySiteLogo() {
+          return this.displaySiteName && (this.displaySiteTitle || this.spaceLogoPath);
         },
       },
       created() {
