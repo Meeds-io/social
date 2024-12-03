@@ -104,18 +104,7 @@ export default {
   },
   watch: {
     num() {
-      if (!this.initialized) {
-        return;
-      } else if (this.min && Number(this.num) < Number(this.min)) {
-        this.$emit('input', Number(this.min) + this.diff);
-        this.valid = false;
-      } else if (this.max && Number(this.num) > Number(this.max)) {
-        this.$emit('input', Number(this.max) + this.diff);
-        this.valid = false;
-      } else {
-        this.$emit('input', Number(this.num) + this.diff);
-        this.valid = true;
-      }
+      this.handleInputValidation();
     },
     valid: {
       immediate: true,
@@ -130,6 +119,7 @@ export default {
   },
   mounted() {
     this.initialized = true;
+    this.handleInputValidation();
   },
   methods: {
     adjust() {
@@ -151,6 +141,20 @@ export default {
         this.num = Number(this.num) + this.step;
       }
     },
+    handleInputValidation() {
+      if (!this.initialized) {
+        return;
+      } else if (this.min && Number(this.num) < Number(this.min)) {
+        this.$emit('input', Number(this.min) + this.diff);
+        this.valid = false;
+      } else if (this.max && Number(this.num) > Number(this.max)) {
+        this.$emit('input', Number(this.max) + this.diff);
+        this.valid = false;
+      } else {
+        this.$emit('input', Number(this.num) + this.diff);
+        this.valid = true;
+      }
+    }
   },
 };
 </script>
