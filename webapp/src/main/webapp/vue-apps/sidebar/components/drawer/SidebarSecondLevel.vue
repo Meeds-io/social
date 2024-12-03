@@ -44,6 +44,7 @@
           v-else-if="secondLevel === 'site'"
           :site="site"
           :enable-change-home="$root.allowUserHome"
+          :display-sequentially="$root.displaySequentially"
           @close="drawer = false" />
       </div>
     </v-hover>
