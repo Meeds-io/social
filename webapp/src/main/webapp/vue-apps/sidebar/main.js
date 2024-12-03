@@ -78,17 +78,26 @@ export function init(
           ltr: eXo.env.portal.orientation === 'ltr',
         },
         computed: {
-          stickyBreakpointWidth() {
-            return this.mode === 'ICON' ? this.$vuetify.breakpoint.thresholds.md : this.$vuetify.breakpoint.thresholds.lg;
+          autoSwitchToIcon() {
+            return this.mode === 'STICKY'
+              && this.allowIcon
+              && (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md)
+              && (this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg);
           },
           stickyAllowed() {
-            return this.$vuetify.breakpoint.width >= this.stickyBreakpointWidth;
+            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md;
+          },
+          displaySequentially() {
+            return this.stickyAllowed;
           },
           hidden() {
             return !this.stickyAllowed || this.mode === 'HIDDEN';
           },
           sticky() {
-            return !this.hidden && this.mode === 'STICKY';
+            return !this.hidden && (this.mode === 'STICKY' && !this.autoSwitchToIcon);
+          },
+          icon() {
+            return !this.hidden && (this.mode === 'ICON' || this.autoSwitchToIcon);
           },
           allowedModes() {
             return this.settings?.allowedModes || [];
@@ -102,9 +111,6 @@ export function init(
           allowHidden() {
             return this.allowedModes.includes('HIDDEN');
           },
-          icon() {
-            return !this.hidden && this.mode === 'ICON';
-          },
           expand() {
             return !this.icon || this.hoverDeferred;
           },
@@ -113,9 +119,6 @@ export function init(
           },
           iconCollapse() {
             return this.icon && !this.expand;
-          },
-          displaySequentially() {
-            return this.$vuetify.breakpoint.width >= this.stickyBreakpointWidth;
           },
           hover() {
             return this.hoverMenu
