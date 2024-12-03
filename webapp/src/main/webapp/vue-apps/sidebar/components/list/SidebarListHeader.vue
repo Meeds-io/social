@@ -29,13 +29,20 @@
       :href="defaultUserPath"
       :target="defaultUserPathTarget"
       class="fill-height">
-      <div class="my-auto me-2 logoContainer">
+      <v-list-item-avatar
+        height="36"
+        max-width="100"
+        min-width="auto"
+        width="auto"
+        class="my-auto ms-0 me-4"
+        tile>
         <img
           :src="companyLogo"
           :alt="companyName"
-          height="auto"
-          width="36px">
-      </div>
+          height="36"
+          width="auto"
+          class="object-fit-contain" />
+      </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate">
           <v-card
