@@ -158,7 +158,6 @@ export default {
     apply() {
       this.$emit('input', this.emails);
       if (this.invitedMembers?.length) {
-        console.warn('this.invitedMembers', this.invitedMembers);
         this.$emit('update-members', this.invitedMembers);
       }
       this.close();
