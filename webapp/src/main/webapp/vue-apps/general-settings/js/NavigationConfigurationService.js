@@ -32,6 +32,7 @@ export function getConfiguration() {
 }
 
 export function saveConfiguration(configuration) {
+  configuration = JSON.parse(JSON.stringify(configuration));
   configuration.sidebar.items.forEach(item => delete item.items);
   return fetch('/social/rest/navigation/settings', {
     headers: {
