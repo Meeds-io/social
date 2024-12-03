@@ -23,7 +23,7 @@
       class="full-height">
       <row
         v-if="!$root.displaySequentially && !displaySequentially"
-        class="px-4 pt-3 position-absolute d-sm-none z-index-one">
+        class="px-4 pt-3 position-absolute z-index-one">
         <v-btn
           class="white"
           elevation="2"
@@ -31,7 +31,7 @@
           small
           @click="$emit('close')">
           <v-icon small>
-            {{ $root.ltr && 'fa-arrow-left' || 'fa-arrow-right' }}
+            {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
           </v-icon>
         </v-btn>
       </row>
