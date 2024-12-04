@@ -64,6 +64,7 @@ export default {
       topbar: {
         applications: [],
         displayCompanyName: true,
+        displayMobileCompanyLogo: false,
         displaySiteName: true,
       },
       sidebar: {
