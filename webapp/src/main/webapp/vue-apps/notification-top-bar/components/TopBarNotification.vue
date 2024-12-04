@@ -23,9 +23,10 @@
     <v-flex>
       <v-layout>
         <v-btn
+          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
+          :loading="loading"
           icon
           class="text-xs-center"
-          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
           @click="openDrawer">
           <v-badge
             :value="badge > 0"
@@ -50,6 +51,7 @@ export default {
   data: () => ({
     badge: 0,
     open: false,
+    loading: false,
   }),
   watch: {
     open() {
@@ -73,12 +75,20 @@ export default {
   methods: {
     openDrawer() {
       this.$root.initialized = false;
+      this.loading = true;
       this.$root.lastLoadedNotificationIndex = 0;
       window.require(['SHARED/notificationExtensions'], () => {
         Promise.all([
           this.$utils.includeExtensions('NotificationPopoverExtension'),
           this.$utils.includeExtensions('NotificationExtension')
-        ]).then(() => this.open = true);
+        ]).then(async () => {
+          await this.$nextTick();
+          this.open = true;
+          await this.$nextTick();
+          window.setTimeout(() => {
+            this.loading = false;
+          }, 50);
+        });
       });
     },
     updateBadgeByEvent(event) {
