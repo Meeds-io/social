@@ -47,8 +47,8 @@ public class SidebarConfiguration implements Cloneable {
     return new SidebarConfiguration(allowUserCustomHome,
                                     defaultMode,
                                     userMode,
-                                    new ArrayList<>(allowedModes),
-                                    new ArrayList<>(items));
+                                    allowedModes == null ? null : new ArrayList<>(allowedModes),
+                                    items == null ? null : items.stream().map(SidebarItem::clone).toList());
   }
 
 }

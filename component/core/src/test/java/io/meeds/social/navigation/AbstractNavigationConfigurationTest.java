@@ -66,7 +66,7 @@ import lombok.SneakyThrows;
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/social.component.core-local-navigation-portal-configuration.xml"),
 })
 @RunWith(SpringRunner.class)
-public class AbstractNavigationConfigurationTest extends AbstractCoreTest {
+public abstract class AbstractNavigationConfigurationTest extends AbstractCoreTest {
 
   public static final String               MODULE_NAME      = "io.meeds.social.navigation";
 

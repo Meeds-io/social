@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.addons.AddOnService;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.TransientApplicationState;
+import org.exoplatform.services.listener.ListenerService;
 
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.navigation.constant.SidebarItemType;
@@ -54,13 +55,15 @@ import lombok.SneakyThrows;
 @Service
 public class NavigationConfigurationService {
 
-  private static final String            TOPBAR_APPLICATION_ENABLED_PATTERN = "social.topbar.application.%s.enabled";
+  public static final String             NAVIGATION_CONFIGURATION_UPDATED_EVENT = "social.navigation.configuration.updated";
 
-  private static final String            TOPBAR_APPLICATION_MOBILE_PATTERN  = "social.topbar.application.%s.mobile";
+  private static final String            TOPBAR_APPLICATION_ENABLED_PATTERN     = "social.topbar.application.%s.enabled";
 
-  private static final String            TOP_NAVIGATION_ADDON_CONTAINER     = "middle-topNavigation-container";
+  private static final String            TOPBAR_APPLICATION_MOBILE_PATTERN      = "social.topbar.application.%s.mobile";
 
-  private static final SidebarPlugin     DEFAULT_MENU_PLUGIN                = new DefaultSidebarPlugin();
+  private static final String            TOP_NAVIGATION_ADDON_CONTAINER         = "middle-topNavigation-container";
+
+  private static final SidebarPlugin     DEFAULT_MENU_PLUGIN                    = new DefaultSidebarPlugin();
 
   @Autowired
   private NavigationConfigurationStorage navigationConfigurationStorage;
@@ -72,7 +75,10 @@ public class NavigationConfigurationService {
   private AddOnService                   addonContainerService;
 
   @Autowired
-  Environment                            environment;
+  private Environment                    environment;
+
+  @Autowired
+  private ListenerService                listenerService;
 
   @Autowired
   private List<SidebarPlugin>            menuPlugins;
@@ -112,7 +118,7 @@ public class NavigationConfigurationService {
                    .setItems(configuration.getSidebar()
                                           .getItems()
                                           .stream()
-                                          .filter(item -> getPlugin(item.getType()).itemExists(item, username))
+                                          .filter(item -> !resolve || getPlugin(item.getType()).itemExists(item, username))
                                           .map(item -> resolve ? expandSidebarItem(item, username, locale) : item)
                                           .toList());
       return configuration;
@@ -171,8 +177,10 @@ public class NavigationConfigurationService {
    * @param navigationConfiguration
    */
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
+    NavigationConfiguration existingConfiguration = getConfiguration();
     try {
       navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
+      listenerService.broadcast(NAVIGATION_CONFIGURATION_UPDATED_EVENT, existingConfiguration, navigationConfiguration);
     } finally {
       userPortalConfigService.setAllowUserHome(navigationConfiguration.getSidebar().isAllowUserCustomHome());
     }
