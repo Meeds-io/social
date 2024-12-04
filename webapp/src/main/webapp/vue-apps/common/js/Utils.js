@@ -26,12 +26,21 @@ export function trim(text) {
 }
 
 export function includeExtensions(suffix) {
-  const modules = Object.keys(window.requirejs.s.contexts._.registry)
-    .filter(definedMofule => definedMofule.includes(suffix));
+  if (!window.requirejs.loadedExtension) {
+    window.requirejs.loadedExtension = {};
+  }
+  const modules = Object.keys(window.requirejs.s.contexts._.config.paths).filter(m => m?.includes?.(suffix));
   if (modules?.length) {
     return Promise.all(modules.map(module => new Promise(resolve =>
-      window.require([module], app => Promise.resolve(app?.init?.())
-        .then(resolve))
+      window.require([module], app => {
+        if (!window.requirejs.loadedExtension[module]) {
+          window.requirejs.loadedExtension[module] = true;
+          return Promise.resolve(app?.init?.())
+            .then(resolve);
+        } else {
+          return resolve();
+        }
+      })
     )));
   } else {
     return Promise.resolve();
