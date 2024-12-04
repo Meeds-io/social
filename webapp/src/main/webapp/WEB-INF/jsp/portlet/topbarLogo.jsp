@@ -104,6 +104,7 @@
 
   String directionVuetifyClass = requestContext.getOrientation().isRT() ? "v-application--is-rtl" : "v-application--is-ltr";
   boolean displayCompanyName = topbarConfiguration.isDisplayCompanyName();
+  boolean displayMobileCompanyLogo = topbarConfiguration.isDisplayMobileCompanyLogo();
   boolean displaySiteName = topbarConfiguration.isDisplaySiteName();
   SidebarMode sidebarMode = sidebarConfiguration.getUserMode();
   SidebarItem sidebarItem = space == null ? sidebarConfiguration.getItems().stream().filter(item -> item.getUrl() != null
@@ -154,6 +155,7 @@
           spaceDescription: `<%=URLEncoder.encode(spaceDescription.replace(" ", "._.")).replace("._.", " ")%>`,
           managers: window.topbarLogoManagers,
           canRedactOnSpace: <%=canRedactOnSpace%>,
+          displayMobileCompanyLogo: <%=displayMobileCompanyLogo%>,
           displayCompanyName: <%=displayCompanyName%>,
           displaySiteName: <%=displaySiteName%>,
           sidebarMode: '<%=sidebarMode%>',
