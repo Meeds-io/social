@@ -113,6 +113,7 @@
     .findFirst()
     .orElse(null)
     : null;
+  boolean isSitePage = false;
   if (sidebarItem != null
     && StringUtils.equals(sidebarItem.getProperties().get(AbstractLayoutSidebarPlugin.SITE_EXPAND_PAGES_PROP_NAME), "true")
     && CollectionUtils.isNotEmpty(sidebarItem.getItems())) {
@@ -121,6 +122,7 @@
         && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
       .findFirst()
       .orElse(null);
+    isSitePage = true;
   }
 %>
 <div class="VuetifyApp full-height">
@@ -160,6 +162,7 @@
           displaySiteName: <%=displaySiteName%>,
           sidebarMode: '<%=sidebarMode%>',
           siteTitle: '<%=sidebarItem == null ? "" : sidebarItem.getName()%>',
+          isSitePage: <%=isSitePage%>,
           siteHomePath: '<%=sidebarItem == null ? "" : sidebarItem.getUrl()%>',
           siteIcon: '<%=sidebarItem == null || sidebarItem.getIcon() == null ? "" : sidebarItem.getIcon()%>',
         }));

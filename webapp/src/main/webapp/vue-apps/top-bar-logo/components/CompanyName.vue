@@ -3,7 +3,7 @@
     <a
       v-if="$root.displayCompanyLogo"
       :href="$root.portalPath"
-      :aria-label="$t('space.avatar.href.title',{0: $root.logoTitle})">
+      :aria-label="$t('menu.companyNameTooltip',{0: $root.logoTitle})">
       <v-list-item-avatar 
         v-if="$root.logoPath"
         id="UserHomePortalLink"
@@ -15,7 +15,7 @@
         tile>
         <img
           :src="$root.logoPath"
-          :alt="$t('space.avatar.img.alt',{0: $root.logoTitle})"
+          :alt="$t('menu.companyLogoTooltip')"
           height="36"
           width="auto"
           class="object-fit-contain">
@@ -25,6 +25,7 @@
       v-if="$root.displayCompanyTitle"
       :href="$root.portalPath"
       :class="$root.displayCompanyLogo && 'ms-4'"
+      :aria-label="$t('menu.companyNameTooltip',{0: $root.logoTitle})"
       class="align-self-center brandingContainer">
       <div class="logoTitle text-body menu-text-color font-weight-bold text-truncate">
         {{ $root.logoTitle }}
@@ -32,9 +33,4 @@
     </a>
   </div>
 </template>
-<script>
-export default {
-  computed: {
-  },
-};
-</script>
+<script></script>
