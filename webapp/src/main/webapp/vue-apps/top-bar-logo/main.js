@@ -42,6 +42,7 @@ export function init(params) {
         sidebarMode: params.sidebarMode,
         siteTitle: params.siteTitle,
         siteHomePath: params.siteHomePath,
+        isSitePage: params.isSitePage,
         siteIcon: params.siteIcon,
         isStandaloneSite: !document.querySelector('#HamburgerNavigationMenu'),
       },
