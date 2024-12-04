@@ -34,7 +34,7 @@
     <template v-if="item?.items?.length || isSpaces">
       <v-list-item class="d-flex">
         <v-list-item-avatar class="me-2 my-auto" min-width="36">
-          <v-icon size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+          <v-icon size="20">{{ item.icon || 'fa-folder' }}</v-icon>
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="logoTitle menu-text-color text-truncate">
@@ -55,20 +55,20 @@
     v-else
     class="d-flex">
     <v-list-item-avatar class="me-2 my-auto" min-width="36">
-      <v-icon v-if="!item.avatar" size="18">{{ item.icon || 'fa-folder' }}</v-icon>
+      <v-icon v-if="!item.avatar" size="20">{{ item.icon || 'fa-folder' }}</v-icon>
     </v-list-item-avatar>
     <v-list-item-avatar
       v-if="item.avatar"
       class="me-2 my-auto"
-      min-width="36"
-      width="36"
-      height="36"
+      min-width="28"
+      width="28"
+      height="28"
       tile>
       <img
         :src="item.avatar"
         :alt="item.name"
         class="border-radius"
-        width="36"
+        width="28"
         height="auto">
     </v-list-item-avatar>
     <v-list-item-content>

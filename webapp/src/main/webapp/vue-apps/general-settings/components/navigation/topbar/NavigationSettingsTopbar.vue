@@ -116,6 +116,7 @@
             flat>
             <v-btn
               v-if="applications.indexOf(item) > 0"
+              :title="$t('generalSettings.moveUp')"
               class="ms-1 me-auto"
               icon
               @click="moveUp(applications.indexOf(item))">
@@ -123,6 +124,7 @@
             </v-btn>
             <v-btn
               v-if="applications.indexOf(item) < (applications.length - 1)"
+              :title="$t('generalSettings.moveDown')"
               class="me-1 ms-auto"
               icon
               @click="moveDown(applications.indexOf(item))">
