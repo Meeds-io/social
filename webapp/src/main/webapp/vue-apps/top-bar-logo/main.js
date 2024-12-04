@@ -37,6 +37,7 @@ export function init(params) {
         managers: params.managers,
         canRedactOnSpace: params.canRedactOnSpace,
         displayCompanyName: params.displayCompanyName,
+        displayMobileCompanyLogo: params.displayMobileCompanyLogo,
         displaySiteName: params.displaySiteName,
         sidebarMode: params.sidebarMode,
         siteTitle: params.siteTitle,
@@ -73,7 +74,7 @@ export function init(params) {
           }
         },
         displayCompanyLogo() {
-          return this.isStandaloneSite || this.sidebarModeDisplay === 'HIDDEN';
+          return this.isStandaloneSite || (!this.mdAndUp && this.displayMobileCompanyLogo) || (this.mdAndUp && this.sidebarModeDisplay === 'HIDDEN');
         },
         displayCompanyTitle() {
           return this.isStandaloneSite

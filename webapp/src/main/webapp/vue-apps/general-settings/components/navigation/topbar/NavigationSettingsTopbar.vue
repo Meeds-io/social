@@ -21,41 +21,51 @@
 -->
 <template>
   <div v-if="topbarSettings">
-    <help-label
-      label="generalSettings.topbar"
-      label-class="text-header"
-      tooltip="generalSettings.topbar.helpTooltip">
-      <template slot="helpContent">
-        <p>
-          {{ $t('generalSettings.topbar.helpDescription1') }}
-        </p>
-        <p>
-          {{ $t('generalSettings.topbar.helpDescription2') }}
-        </p>
-        <div>
-          {{ $t('generalSettings.topbar.helpDescription3') }}
-        </div>
-        <div>
-          {{ $t('generalSettings.topbar.helpDescription4') }}
-        </div>
-        <div>
-          {{ $t('generalSettings.topbar.helpDescription5') }}
-        </div>
-        <div>
-          {{ $t('generalSettings.topbar.helpDescription6') }}
-        </div>
-      </template>
-    </help-label>
+    <div class="d-flex align-center">
+      <help-label
+        label="generalSettings.topbar"
+        label-class="text-header"
+        tooltip="generalSettings.topbar.helpTooltip">
+        <template slot="helpContent">
+          <p>
+            {{ $t('generalSettings.topbar.helpDescription1') }}
+          </p>
+          <p>
+            {{ $t('generalSettings.topbar.helpDescription2') }}
+          </p>
+          <div>
+            {{ $t('generalSettings.topbar.helpDescription3') }}
+          </div>
+          <div>
+            {{ $t('generalSettings.topbar.helpDescription4') }}
+          </div>
+          <div>
+            {{ $t('generalSettings.topbar.helpDescription5') }}
+          </div>
+          <div>
+            {{ $t('generalSettings.topbar.helpDescription6') }}
+          </div>
+        </template>
+      </help-label>
+      <v-btn
+        :title="$t('generalSettings.topbar.switchDevicePreview')"
+        class="ms-2"
+        icon
+        @click="mobilePreview = !mobilePreview">
+        <v-icon size="20">{{ mobilePreview && 'fa-desktop' || 'fa-mobile-alt' }}</v-icon>
+      </v-btn>
+    </div>
     <!-- Preview -->
     <portal-general-settings-navigation-settings-topbar-preview
       :settings="settings"
+      :mobile-preview="mobilePreview"
       class="elevation-3 mb-6 mt-4" />
     <!-- Branding Infos -->
     <div class="font-weight-bold mb-4">
       {{ $t('generalSettings.brandingInfos') }}
     </div>
     <div class="mb-2">
-      {{ $t('generalSettings.displayCompanyName') }}
+      {{ $t('generalSettings.displayCompanyName.desktop') }}
     </div>
     <v-radio-group
       v-model="topbarSettings.displayCompanyName"
@@ -65,17 +75,25 @@
         :value="true"
         class="mx-0 mt-0 mb-1">
         <template #label>
-          <span class="text-body">{{ $t('generalSettings.displayCompanyName.choice1') }}</span>
+          <span class="text-body">{{ $t('generalSettings.displayCompanyName.desktop.choice1') }}</span>
         </template>
       </v-radio>
       <v-radio
         :value="false"
         class="mx-0 mt-0 mb-1">
         <template #label>
-          <span class="text-body">{{ $t('generalSettings.displayCompanyName.choice2') }}</span>
+          <span class="text-body">{{ $t('generalSettings.displayCompanyName.desktop.choice2') }}</span>
         </template>
       </v-radio>
     </v-radio-group>
+
+    <div class="my-2">
+      {{ $t('generalSettings.displayCompanyName.mobile') }}
+    </div>
+    <v-switch
+      v-model="topbarSettings.displayMobileCompanyLogo"
+      :label="$t('generalSettings.displayCompanyName.mobile.choice')"
+      class="my-0 width-fit-content" />
 
     <div class="mb-2 mt-4">
       {{ $t('generalSettings.displaySiteName') }}
@@ -156,6 +174,7 @@ export default {
   },
   data: () => ({
     topbarSettings: null,
+    mobilePreview: false,
   }),
   computed: {
     headers() {
