@@ -74,8 +74,6 @@ export function init(
           spaceTemplates: null,
           openedOverlay: false,
           hoverDeferred: false,
-          rtl: eXo.env.portal.orientation === 'rtl',
-          ltr: eXo.env.portal.orientation === 'ltr',
         },
         computed: {
           autoSwitchToIcon() {
