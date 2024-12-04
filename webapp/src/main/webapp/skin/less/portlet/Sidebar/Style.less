@@ -44,14 +44,6 @@
     i {
       color: @toolbarLightIconColor !important;
     }
-    .hamburger-unread-badge {
-      border-radius: 100%;
-      border: 2px solid white;
-      top: 6px;
-      right: 10px;
-      width: 16px;
-      height: 16px;
-    }
   }
   .uiIcon.uiIconToolbarNavItem {
     font-size: 20px;
@@ -59,6 +51,15 @@
     color: @toolbarLightIconColor !important;
     margin: 0 auto;
   }
+}
+.hamburger-unread-badge {
+  border-radius: 100%;
+  border: 2px solid white;
+  top: 6px;
+  right: 10px ~'; /** orientation=lt */ ';
+  left: 10px ~'; /** orientation=rt */ ';
+  width: 16px;
+  height: 16px;
 }
 
 #HamburgerMenuSpaceLeftNavigationActions i.v-icon {
