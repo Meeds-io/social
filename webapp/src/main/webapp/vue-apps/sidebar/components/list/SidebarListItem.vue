@@ -238,7 +238,7 @@ export default {
       return this.hover && this.hasItems && this.url;
     },
     displaySpacesExpandFull() {
-      return this.hover && this.hasItems && !this.url;
+      return this.hover && this.hasItems && !this.url || null;
     },
     displaySpacesExpandKey() {
       return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.item?.properties?.spaceTemplateId}`;
