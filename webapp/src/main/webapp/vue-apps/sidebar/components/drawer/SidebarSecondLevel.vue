@@ -25,7 +25,7 @@
     v-model="drawer"
     :width="drawerWidth"
     :style="drawerOffsetStyle"
-    :right="$root.rtl"
+    :right="$vuetify.rtl"
     class="HamburgerMenuSecondLevelParent border-box-sizing"
     max-width="100%"
     hide-overlay>
@@ -90,7 +90,7 @@ export default {
       return this.$root.displaySequentially && this.drawerWidth || 0;
     },
     drawerOffsetStyle() {
-      return this.$root.ltr && `left: ${this.drawerOffset}px;` || `right: ${this.drawerOffset}px;`;
+      return this.$vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
     },
     expand() {
       return this.$root.expand;

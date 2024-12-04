@@ -151,6 +151,13 @@ export default {
       },
     },
     secondLevelDrawer() {
+      if (!this.$root.displaySequentially && document.querySelector('.v-overlay--active')) {
+        if (this.secondLevelDrawer) {
+          document.querySelector('.v-overlay--active').addEventListener('click', this.closeLevelsDrawer);
+        } else {
+          document.querySelector('.v-overlay--active').removeEventListener('click', this.closeLevelsDrawer);
+        }
+      }
       if (!this.secondLevelDrawer) {
         this.thirdLevelDrawer = false;
         this.space = null;
@@ -342,6 +349,17 @@ export default {
       this.space = null;
       this.site = null;
       this.secondLevel = null;
+    },
+    closeLevelsDrawer(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+      if (this.thirdLevelDrawer) {
+        this.thirdLevelDrawer = false;
+      } else {
+        this.secondLevelDrawer = false;
+      }
     },
   },
 };

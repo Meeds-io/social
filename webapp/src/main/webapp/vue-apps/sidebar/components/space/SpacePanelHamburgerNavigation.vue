@@ -28,14 +28,7 @@
         v-if="!$root.displaySequentially"
         class="backToMenu my-5 mx-2 icon-default-color justify-center"
         @click="$emit('close')">
-        <v-icon
-          v-if="$root.ltr"
-          class="fas fa-arrow-left"
-          small />
-        <v-icon
-          v-else
-          class="fas fa-arrow-right"
-          small />
+        <v-icon size="20">{{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}</v-icon>
       </v-list-item-icon>
       <v-list-item class="width-min-content pt-3">
         <v-list-item-avatar
