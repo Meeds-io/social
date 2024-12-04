@@ -18,6 +18,7 @@
  */
 package io.meeds.social.navigation.model;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +31,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SidebarItem {
+public class SidebarItem implements Cloneable {
 
   private String              name;
 
@@ -50,6 +51,18 @@ public class SidebarItem {
 
   public SidebarItem(SidebarItemType type) {
     this.type = type;
+  }
+
+  @Override
+  public SidebarItem clone() { // NOSONAR
+    return new SidebarItem(name,
+                           url,
+                           target,
+                           avatar,
+                           icon,
+                           type,
+                           items == null ? null : items.stream().map(SidebarItem::clone).toList(),
+                           properties == null ? null : new HashMap<>(properties));
   }
 
 }

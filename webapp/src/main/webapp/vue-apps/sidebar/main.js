@@ -209,10 +209,14 @@ export function init(
             }
           },
           updateParentStyle() {
-            if (this.icon) {
-              document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
+            if (document.querySelector('#UISiteBody')?.style) {
+              if (this.icon) {
+                document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
+              } else {
+                document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '';
+              }
             } else {
-              document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '';
+              window.setTimeout(() => this.updateParentStyle(), 50);
             }
           },
           updateUserHome() {
