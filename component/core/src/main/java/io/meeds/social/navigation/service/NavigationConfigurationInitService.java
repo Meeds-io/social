@@ -56,6 +56,9 @@ public class NavigationConfigurationInitService {
   @Value("${navigation.configuration.displayCompanyName:true}")
   private boolean                        displayCompanyName;
 
+  @Value("${navigation.configuration.displayMobileCompanyLogo:true}")
+  private boolean                        displayMobileCompanyLogo;
+
   @Value("${navigation.configuration.displaySiteName:true}")
   private boolean                        displaySiteName;
 
@@ -76,6 +79,7 @@ public class NavigationConfigurationInitService {
   private NavigationConfiguration buildDefaultNavigationConfiguration() {
     TopbarConfiguration topbarConfiguration = new TopbarConfiguration(displayCompanyName,
                                                                       displaySiteName,
+                                                                      displayMobileCompanyLogo,
                                                                       navigationConfigurationService.getDefaultTopbarApplications());
     SidebarConfiguration sidebarConfiguration = new SidebarConfiguration(allowUserCustomHome,
                                                                          defaultMode,

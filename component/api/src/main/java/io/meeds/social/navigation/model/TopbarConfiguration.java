@@ -34,12 +34,15 @@ public class TopbarConfiguration implements Cloneable {
 
   private boolean                 displaySiteName;
 
+  private boolean                 displayMobileCompanyLogo;
+
   private List<TopbarApplication> applications;
 
   @Override
   public TopbarConfiguration clone() { // NOSONAR
     return new TopbarConfiguration(displayCompanyName,
                                    displaySiteName,
+                                   displayMobileCompanyLogo,
                                    new ArrayList<>(applications));
   }
 
