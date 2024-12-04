@@ -28,7 +28,7 @@
   <div v-else-if="isSpaces || isSpaceTemplate">
     <v-hover v-model="hover" :disabled="!$root.displaySequentially">
       <v-list-item
-        :title="displaySpacesExpandFull && (collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse'))"
+        :title="spacesTooltip"
         :class="$root.iconCollapse && 'mx-0'"
         class="d-flex ps-3"
         dense
@@ -36,7 +36,7 @@
         <v-list-item-avatar class="me-2 my-auto" min-width="40">
           <v-btn
             v-if="displaySpacesExpandButton"
-            :title="collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse')"
+            :title="spacesTooltip"
             height="36"
             width="36"
             icon
@@ -287,11 +287,31 @@ export default {
         && (this.hover || this.drawerOpened);
     },
     tooltip() {
-      const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
-      return descriptions?.[eXo.env.portal.language] || descriptions?.['en'];
+      if (this.isSpace) {
+        return this.$t('menu.spaceTooltip', {
+          0: this.item.name,
+        });
+      } else if (this.isPage) {
+        const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
+        return descriptions?.[eXo.env.portal.language] || descriptions?.['en'] || this.$t('menu.pageNameTooltip', {
+          0: this.item.name,
+        });
+      } else if (this.isSite) {
+        return this.$t('menu.siteNameTooltip', {
+          0: this.item.name,
+        });
+      }
+      return null;
     },
     spaceUnreadCount() {
       return this.isSpace && this.$root?.unreadPerSpace?.[this.spaceId];
+    },
+    spacesTooltip() {
+      return this.isSpaceTemplate && (this.collapsedSpaces && this.$t('menu.spacesExpand', {
+        0: this.item.name
+      }) || this.$t('menu.spacesCollapse', {
+        0: this.item.name
+      })) || (this.isSpaces && this.$t('menu.spacesTooltip')) || null;
     },
   },
   watch: {
