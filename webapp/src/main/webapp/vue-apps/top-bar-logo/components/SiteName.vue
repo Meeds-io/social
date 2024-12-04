@@ -4,7 +4,7 @@
     <a
       v-if="$root.displaySiteLogo"
       :href="$root.siteHomePath"
-      :aria-label="$t('space.avatar.href.title',{0: $root.logoTitle})">
+      :title="tooltip">
       <v-tooltip :disabled="$root.displaySiteTitle" bottom>
         <template #activator="{on, attrs}">
           <v-list-item-avatar
@@ -24,6 +24,7 @@
       v-if="$root.displaySiteTitle"
       :href="$root.siteHomePath"
       :class="$root.displaySiteLogo && 'ms-4'"
+      :title="tooltip"
       class="align-self-center brandingContainer">
       <div class="siteTitle text-body menu-text-color font-weight-bold text-truncate">
         {{ $root.siteTitle }}
@@ -34,7 +35,13 @@
 <script>
 export default {
   computed: {
-    
+    tooltip() {
+      return this.$root.isSitePage && this.$t('menu.pageNameTooltip', {
+        0: this.$root.siteTitle,
+      }) || this.$t('menu.siteNameTooltip', {
+        0: this.$root.siteTitle,
+      });
+    },
   },
 };
 </script>
