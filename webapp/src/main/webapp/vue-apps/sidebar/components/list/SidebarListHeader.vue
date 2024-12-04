@@ -25,9 +25,9 @@
     min-height="57"
     flat>
     <v-list-item
-      :aria-label="$t('menu.userHomeLink')"
       :href="defaultUserPath"
       :target="defaultUserPathTarget"
+      :aria-label="$t('menu.userHomeLink')"
       class="fill-height">
       <v-list-item-avatar
         height="36"
@@ -38,15 +38,17 @@
         tile>
         <img
           :src="companyLogo"
-          :alt="companyName"
+          :aria-label="$t('menu.companyNameTooltip',{0: companyName})"
           height="36"
           width="auto"
           class="object-fit-contain">
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title v-if="$root.expand" class="font-weight-bold menu-text-color text-truncate ms-4">
+        <v-list-item-title
+          v-if="$root.expand"
+          class="font-weight-bold menu-text-color text-truncate ms-4">
           <v-card
-            :title="companyName"
+            :title="$t('menu.companyNameTooltip',{0: companyName})"
             class="text-truncate transparent"
             min-width="50"
             flat>
