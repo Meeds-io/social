@@ -67,7 +67,7 @@
               <div class="d-flex justify-center" style="min-width: 69px;">
                 <i aria-hidden="true"
                   class="v-icon notranslate fa fa-bars theme--light"
-                  style="font-size: 24px;"></i>
+                  style="font-size: 20px;"></i>
               </div>
             </a>`;
           }
@@ -79,7 +79,7 @@
           <% if (mode == SidebarMode.HIDDEN) { %>
           <i aria-hidden="true"
             class="v-icon notranslate fa fa-bars theme--light"
-            style="font-size: 24px;"></i>
+            style="font-size: 20px;"></i>
           <% } %>
         </div>
       </a>
