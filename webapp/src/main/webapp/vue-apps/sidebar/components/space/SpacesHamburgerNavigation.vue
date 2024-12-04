@@ -26,6 +26,12 @@
         class="d-flex align-center full-width"
         flat>
         <v-list-item dense>
+          <v-list-item-icon
+            v-if="!$root.displaySequentially"
+            class="backToMenu ms-0 me-2 icon-default-color justify-center"
+            @click="$emit('close')">
+            <v-icon small>{{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}</v-icon>
+          </v-list-item-icon>
           <v-list-item-content v-if="!showFilter" class="overflow-hidden">
             <v-list-item-title class="text-truncate text-start font-weight-bold">
               {{ title }}
