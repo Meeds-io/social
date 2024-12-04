@@ -28,30 +28,33 @@
     max-height="900"
     flat>
     <v-list class="d-flex flex-column overflow-hidden pb-0 flex-grow-1 flex-shrink-1" dense>
-      <div class="flex-grow-0 flex-shrink-0">
+      <v-card
+        class="no-border-radius"
+        min-height="57"
+        flat>
         <v-list-item class="d-flex">
           <v-list-item-avatar
-            class="my-auto me-2"
-            min-width="40"
-            max-width="40"
-            min-height="36"
-            height="auto"
-            max-height="36"
+            height="36"
+            max-width="100"
+            min-width="auto"
+            width="auto"
+            class="my-auto mx-0"
             tile>
             <img
               src="/portal/rest/v1/platform/branding/logo"
-              height="auto"
-              width="36px"
-              alt="">
+              alt=""
+              height="36"
+              width="auto"
+              class="object-fit-contain">
           </v-list-item-avatar>
           <v-list-item-content>
-            <v-list-item-title class="logoTitle font-weight-bold menu-text-color text-truncate">
+            <v-list-item-title class="logoTitle font-weight-bold menu-text-color text-truncate ms-4">
               {{ $root.branding?.companyName }}
             </v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </div>
-      <div class="flex-grow-1 flex-shrink-1 overflow-x-hidden overflow-y-auto">
+      </v-card>
+      <div class="flex-grow-1 flex-shrink-1 specific-scrollbar overflow-x-hidden overflow-y-auto">
         <portal-general-settings-navigation-settings-sidebar-preview-item
           v-for="(item, index) in menuItems"
           :key="`${item.name}_${item.icon}_${index}`"
