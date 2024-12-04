@@ -128,11 +128,21 @@
         <template slot="item.name" slot-scope="{item}">
           <div class="d-flex align-center ms-n4 text-truncate">
             <template v-if="item.type === 'SEPARATOR'">
-              <v-icon size="20" class="me-4">fa-grip-lines</v-icon>
+              <v-card
+                min-width="24"
+                class="d-flex align-center justify-center me-4"
+                flat>
+                <v-icon size="20">fa-grip-lines</v-icon>
+              </v-card>
               {{ $t('generalSettings.sidebarSeparator') }}
             </template>
             <template v-else>
-              <v-icon size="20" class="me-4">{{ item.icon }}</v-icon>
+              <v-card
+                min-width="24"
+                class="d-flex align-center justify-center me-4"
+                flat>
+                <v-icon size="20">{{ item.icon || 'fa-folder' }}</v-icon>
+              </v-card>
               {{ $t(item.name) }}
             </template>
           </div>
@@ -145,6 +155,7 @@
               flat>
               <v-btn
                 v-if="menuItems.indexOf(item) > 0"
+                :title="$t('generalSettings.moveUp')"
                 class="ms-1 me-auto"
                 icon
                 @click="moveUp(menuItems.indexOf(item))">
@@ -152,6 +163,7 @@
               </v-btn>
               <v-btn
                 v-if="menuItems.indexOf(item) < (menuItems.length - 1)"
+                :title="$t('generalSettings.moveDown')"
                 class="me-1 ms-auto"
                 icon
                 @click="moveDown(menuItems.indexOf(item))">
