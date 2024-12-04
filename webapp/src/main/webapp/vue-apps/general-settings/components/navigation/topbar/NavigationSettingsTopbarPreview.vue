@@ -25,6 +25,7 @@
     height="56">
     <div class="d-flex">
       <v-avatar
+        v-if="displayCompanyLogo"
         class="flex-shrink-0"
         size="36"
         width="auto"
@@ -35,13 +36,16 @@
           width="auto"
           alt="">
       </v-avatar>
-      <div v-if="displayCompanyName" class="align-self-center d-none d-sm-flex ms-4">
+      <div
+        v-if="displayCompanyName"
+        :class="mobilePreview && 'd-none' || 'd-flex'"
+        class="align-self-center ms-4">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ $root.branding?.companyName }}
         </div>
       </div>
     </div>
-    <div class="mx-4">
+    <div v-if="displayCompanyLogo" class="mx-4">
       <v-icon>
         {{ $vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right' }}
       </v-icon>
@@ -79,6 +83,10 @@ export default {
       type: Object,
       default: null,
     },
+    mobilePreview: {
+      type: Boolean,
+      default: false,
+    },
   },
   computed: {
     firstSidebarItem() {
@@ -96,8 +104,11 @@ export default {
     displayCompanyName() {
       return this.settings?.topbar?.displayCompanyName;
     },
+    displayCompanyLogo() {
+      return !this.mobilePreview || this.settings?.topbar?.displayMobileCompanyLogo;
+    },
     displaySiteName() {
-      return this.settings?.topbar?.displaySiteName;
+      return !this.mobilePreview && this.settings?.topbar?.displaySiteName;
     },
   },
 };
