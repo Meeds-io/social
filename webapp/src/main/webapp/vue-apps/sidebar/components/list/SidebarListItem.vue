@@ -118,6 +118,13 @@
           width="28"
           height="auto">
       </v-list-item-avatar>
+      <v-card
+        v-if="spaceUnreadCount && $root.icon && !$root.expand"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        class="hamburger-unread-badge border-radius-circle error-color-background position-absolute t-0 me-4 mt-0"
+        width="12"
+        height="12"
+        flat />
       <v-list-item-content v-if="$root.expand">
         <v-list-item-title class="menu-text-color text-truncate">
           {{ item.name }}
@@ -277,9 +284,6 @@ export default {
       }
       return actions;
     },
-    spaceUnreadCount() {
-      return this.isSpace && 2;
-    },
     toggleArrow() {
       return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaces)
         && (this.hover || this.drawerOpened);
@@ -287,6 +291,9 @@ export default {
     tooltip() {
       const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
       return descriptions?.[eXo.env.portal.language] || descriptions?.['en'];
+    },
+    spaceUnreadCount() {
+      return this.isSpace && this.$root?.unreadPerSpace?.[this.spaceId];
     },
   },
   watch: {
