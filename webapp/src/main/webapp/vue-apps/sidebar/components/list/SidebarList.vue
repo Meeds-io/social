@@ -29,7 +29,9 @@
       flat>
       <v-list class="list-border-active d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
         <sidebar-list-header class="flex-grow-0 flex-shrink-0" />
-        <sidebar-list-content class="flex-grow-1 flex-shrink-1 overflow-x-hidden overflow-y-auto specific-scrollbar" />
+        <sidebar-list-content
+          :class="overflowClass"
+          class="flex-grow-1 flex-shrink-1 overflow-x-hidden specific-scrollbar" />
         <sidebar-list-footer class="flex-grow-0 flex-shrink-0" />
       </v-list>
       <sidebar-home-dialog />
@@ -41,5 +43,10 @@ export default {
   data: () => ({
     hover: false,
   }),
+  computed: {
+    overflowClass() {
+      return this.$root.icon && !this.$root.expand && 'overflow-y-hidden' || 'overflow-y-auto';
+    },
+  },
 };
 </script>
