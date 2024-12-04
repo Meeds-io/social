@@ -167,10 +167,10 @@ export default {
       return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
     },
     arrowIconLeft() {
-      return this.$root.ltr && 'fa-arrow-left' || 'fa-arrow-right';
+      return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
     },
     arrowIconRight() {
-      return this.$root.ltr && 'fa-arrow-right' || 'fa-arrow-left';
+      return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
     },
   },
   watch: {
