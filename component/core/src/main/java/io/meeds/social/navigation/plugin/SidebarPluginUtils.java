@@ -29,6 +29,10 @@ import io.meeds.social.navigation.model.SidebarItem;
 
 public class SidebarPluginUtils {
 
+  private SidebarPluginUtils() {
+    // Static methods only
+  }
+
   public static String getNameFromProperties(LocaleConfigService localeConfigService,
                                              SidebarItem item,
                                              String propName,
