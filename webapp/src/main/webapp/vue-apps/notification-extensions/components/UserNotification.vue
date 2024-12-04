@@ -37,15 +37,19 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    refresh: 1,
+  }),
   computed: {
     extension() {
-      return Object.values(this.$root.notificationExtensions)
-        .sort((ext1, ext2) => (ext1.rank || 0) - (ext2.rank || 0))
-        .find(extension => extension.match && extension.match(this.notification) || extension.type === this.notification.plugin)
+      return this.refresh > 0
+        && Object.values(this.$root.notificationExtensions)
+          .sort((ext1, ext2) => (ext1.rank || 0) - (ext2.rank || 0))
+          .find(extension => extension.match && extension.match(this.notification) || extension.type === this.notification.plugin)
         || null;
     },
     extensionComponent() {
-      return this.extension && {
+      return this.$root.notificationExtensions && this.extension?.vueComponent && {
         componentName: 'notification-extension',
         componentOptions: {
           vueComponent: this.extension.vueComponent,
@@ -56,6 +60,17 @@ export default {
       return {
         notification: this.notification,
       };
+    },
+  },
+  created() {
+    document.addEventListener('notification-extensions-refresh', this.forceRefreshExtension);
+  },
+  beforeDestroy() {
+    document.removeEventListener('notification-extensions-refresh', this.forceRefreshExtension);
+  },
+  methods: {
+    refreshExtension() {
+      this.refresh++;
     },
   },
 };
