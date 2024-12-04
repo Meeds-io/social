@@ -26,15 +26,13 @@
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <v-hover v-if="hasItems || isSpaces" v-model="hover">
+    <v-hover v-model="hover" :disabled="!$root.displaySequentially">
       <v-list-item
-        v-on="hover && {
-          click: () => isSpaceTemplate ? (collapsedSpaces = !collapsedSpaces) : openSpacesList(),
-        }"
         :title="displaySpacesExpandFull && (collapsedSpaces && $t('menu.spacesExpand') || $t('menu.spacesCollapse'))"
         :class="$root.iconCollapse && 'mx-0'"
         class="d-flex ps-3"
-        dense>
+        dense
+        @click="handleSpacesClick">
         <v-list-item-avatar class="me-2 my-auto" min-width="40">
           <v-btn
             v-if="displaySpacesExpandButton"
@@ -76,7 +74,7 @@
     </v-hover>
     <v-expand-transition>
       <sidebar-list-sub-list
-        v-show="!collapsedSpaces"
+        v-show="!collapsedSpaces || !$root.displaySequentially"
         :item="item" />
     </v-expand-transition>
   </div>
@@ -314,6 +312,13 @@ export default {
     this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
   },
   methods: {
+    handleSpacesClick() {
+      if (this.$root.displaySequentially && this.isSpaceTemplate) {
+        this.collapsedSpaces = !this.collapsedSpaces;
+      } else {
+        this.openSpacesList();
+      }
+    },
     openSpacesList() {
       this.$root.$emit('change-spaces-menu',
         this.isSpaceTemplate && this.item.properties?.spaceTemplateId,
