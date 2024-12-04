@@ -57,8 +57,8 @@
               height="60">
               <v-img
                 :alt="$t('space.avatar.img.alt',{0: $root.spaceLogoTitle})"
-                class="object-fit-cover"
-                :src="`${$root.spaceLogoPath}&size=60x60`" />
+                :src="`${$root.spaceLogoPath}&size=60x60`"
+                class="object-fit-cover" />
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
               <v-tooltip bottom>
