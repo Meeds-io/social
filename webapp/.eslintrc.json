@@ -4,6 +4,7 @@
   ],
   "rules": {
     "vue/multi-word-component-names": "off",
+    "vuejs-accessibility/no-autofocus": "off",
     "no-prototype-builtins": ["warn"],
     "vue/no-mutating-props": ["warn"]
   },

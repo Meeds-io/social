@@ -269,9 +269,7 @@ export default {
     itemActions() {
       const actions = {};
       if (!this.isUrl) {
-        if (this.isSite) {
-          actions.click = this.openOrCloseDrawer;
-        } else if (this.isSpace) {
+        if (this.isSite || this.isSpace) {
           actions.click = this.openOrCloseDrawer;
         }
       } else if (this.url?.includes?.('#')) {
