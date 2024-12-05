@@ -111,9 +111,11 @@ export default {
           const contentWidth = this.scrollElement.firstChild.offsetWidth;
           const children = this.scrollElement.firstChild.children;
           const childrenCount = children.length;
-          const scrollElementLeft = (this.$vuetify.rtl) ? -this.scrollElement.scrollLeft : this.scrollElement.scrollLeft;
-          const visibilityIconArrowPrev = this.scrollElement && childrenCount && scrollElementLeft > children[0].offsetLeft;
-          const visibilityIconArrowNext = this.scrollElement && (this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - scrollElementLeft) > 5;
+          const firstElementLocation = this.scrollElement.firstChild.children[0].getBoundingClientRect();
+          const lastElementLocation = this.scrollElement.lastChild.children[9].getBoundingClientRect();
+          const carouselLocation = this.scrollElement.parentElement.getBoundingClientRect();
+          const visibilityIconArrowNext = (this.$vuetify.rtl) ? lastElementLocation.right<carouselLocation.x : lastElementLocation.x>carouselLocation.right;
+          const visibilityIconArrowPrev = (this.$vuetify.rtl) ? firstElementLocation.x > carouselLocation.right :firstElementLocation.right < carouselLocation.x;
           this.visibleChildrenPerPage = parseInt(parentWidth * childrenCount / contentWidth);
           this.displayLeftArrow = (this.$vuetify.rtl) ? visibilityIconArrowNext : visibilityIconArrowPrev;
           this.displayRightArrow = (this.$vuetify.rtl) ? visibilityIconArrowPrev : visibilityIconArrowNext;
