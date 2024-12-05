@@ -27,7 +27,8 @@
         v-for="(subItem, index) in item.items"
         :key="`${subItem.name}_${subItem.icon}_${index}`"
         :settings="settings"
-        :item="subItem" />
+        :item="subItem"
+        :home-icon="homeIcon && index === 0" />
     </template>
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
@@ -76,6 +77,26 @@
         {{ item.name }}
       </v-list-item-title>
     </v-list-item-content>
+    <v-list-item-icon v-if="homeIcon" class="my-0 ms-2 me-0">
+      <v-tooltip bottom>
+        <template #activator="{on, attrs}">
+          <v-btn
+            v-on="on"
+            v-bind="attrs"
+            color="primary"
+            icon>
+            <v-icon size="20">fa-house-user</v-icon>
+          </v-btn>
+        </template>
+        <v-card
+          color="transparent"
+          max-width="50vw"
+          width="300"
+          flat>
+          {{ $t('generalSettings.defaultUserHouse') }}
+        </v-card>
+      </v-tooltip>
+    </v-list-item-icon>
   </v-list-item>
 </template>
 <script>
@@ -87,6 +108,10 @@ export default {
     },
     item: {
       type: Object,
+      default: null,
+    },
+    homeIcon: {
+      type: Boolean,
       default: null,
     },
   },
