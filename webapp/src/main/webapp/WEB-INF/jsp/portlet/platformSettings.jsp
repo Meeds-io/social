@@ -1,15 +1,12 @@
+<%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.portal.config.UserPortalConfigService" %>
 <%@ page import="org.exoplatform.portal.application.PortalRequestContext" %>
-<%@ page import="org.exoplatform.portal.mop.service.LayoutService" %>
-<%@ page import="org.exoplatform.portal.config.model.PortalConfig" %>
 <%@ page import="org.exoplatform.web.application.RequestContext" %>
-<%@ page import="org.exoplatform.commons.utils.CommonsUtils" %>
 <%
-  PortalRequestContext requestContext = ((PortalRequestContext) RequestContext.getCurrentInstance());
-  PortalConfig administrationSite = CommonsUtils.getService(LayoutService.class).getPortalConfig("PORTAL", "administration");
-  String path = CommonsUtils.getService(UserPortalConfigService.class).computePortalSitePath("administration", requestContext.getRequest());
+String path = ExoContainerContext.getService(UserPortalConfigService.class)
+    .getDefaultSitePath("administration", request.getRemoteUser());
+  if (path != null) {
 %>
-<% if (administrationSite != null && !administrationSite.isDisplayed() && path != null) { %>
   <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
@@ -22,7 +19,7 @@
         </a>
       </div>
       <script type="text/javascript">
-        require(['PORTLET/social/PlatformSettings'], app => app.init(`<%=path%>`));
+        require(['PORTLET/social/PlatformSettings'], app => app.init());
       </script>
     </div>
   </div>
