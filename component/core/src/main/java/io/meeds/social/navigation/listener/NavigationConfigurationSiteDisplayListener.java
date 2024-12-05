@@ -41,8 +41,7 @@ import io.meeds.social.navigation.service.NavigationConfigurationService;
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class NavigationConfigurationSiteDisplayListener
-    implements ListenerBase<NavigationConfiguration, NavigationConfiguration> {
+public class NavigationConfigurationSiteDisplayListener implements ListenerBase<NavigationConfiguration, NavigationConfiguration> {
 
   @Autowired
   private ListenerService listenerService;
@@ -77,8 +76,11 @@ public class NavigationConfigurationSiteDisplayListener
 
     newSiteNames.forEach(siteName -> {
       PortalConfig site = layoutService.getPortalConfig(SiteKey.portal(siteName));
-      if (site != null && !site.isDisplayed()) {
+      int displayOrder = newSiteNames.indexOf(siteName) + 1;
+      if (site != null
+          && (!site.isDisplayed() || site.getDisplayOrder() != displayOrder)) {
         site.setDisplayed(true);
+        site.setDisplayOrder(displayOrder);
         layoutService.save(site);
       }
     });
