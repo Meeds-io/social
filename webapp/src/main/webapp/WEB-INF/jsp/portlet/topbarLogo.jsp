@@ -32,7 +32,7 @@
 <%@ page import="org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider" %>
 <%@ page import="java.util.Optional" %>
 <%
-  String spaceId = null;
+String spaceId = null;
   String portalPath = null;
   String titleClass = "";
   String imageClass = "";
@@ -64,13 +64,13 @@
     portalPath = "/portal/public";
   } else {
     if (sidebarConfiguration.isAllowUserCustomHome()) {
-      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+  portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     }
     if (portalPath == null) {
-      portalPath = portalConfigService.computePortalPath(requestContext.getRequest());
-      if (portalPath == null) {
-        portalPath = defaultHomePath;
-      }
+  portalPath = portalConfigService.getDefaultPath(request.getRemoteUser());
+  if (portalPath == null) {
+    portalPath = defaultHomePath;
+  }
     }
   }
   titleClass = "company";
@@ -95,10 +95,10 @@
     membersNumber = space.getMembers().length;
     spaceDescription = Optional.ofNullable(space.getDescription()).orElse("");
     if (authenticatedUser != null) {
-      for(String username : space.getManagers()) {
-        Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
-        managers.add(profile);
-      }
+  for(String username : space.getManagers()) {
+    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
+    managers.add(profile);
+  }
     }
   }
 
@@ -108,8 +108,8 @@
   boolean displaySiteName = topbarConfiguration.isDisplaySiteName();
   SidebarMode sidebarMode = sidebarConfiguration.getUserMode();
   SidebarItem sidebarItem = space == null ? sidebarConfiguration.getItems().stream().filter(item -> item.getUrl() != null
-      && item.getType() == SidebarItemType.SITE
-      && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
+  && item.getType() == SidebarItemType.SITE
+  && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
     .findFirst()
     .orElse(null)
     : null;
@@ -118,10 +118,10 @@
     && StringUtils.equals(sidebarItem.getProperties().get(AbstractLayoutSidebarPlugin.SITE_EXPAND_PAGES_PROP_NAME), "true")
     && CollectionUtils.isNotEmpty(sidebarItem.getItems())) {
     sidebarItem = sidebarItem.getItems().stream().filter(item -> item.getUrl() != null
-        && item.getType() == SidebarItemType.PAGE
-        && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
-      .findFirst()
-      .orElse(null);
+    && item.getType() == SidebarItemType.PAGE
+    && requestContext.getRequest().getRequestURI().toString().startsWith(item.getUrl()))
+  .findFirst()
+  .orElse(null);
     isSitePage = true;
   }
 %>

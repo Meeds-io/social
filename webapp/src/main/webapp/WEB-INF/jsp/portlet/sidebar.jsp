@@ -18,7 +18,7 @@
 <%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
 <%@page import="org.exoplatform.social.webui.Utils"%>
 <%
-  PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
+PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
   UserPortalConfigService portalConfigService = ExoContainerContext.getService(UserPortalConfigService.class);
 
   NavigationConfigurationService navigationConfigurationService = ExoContainerContext.getService(NavigationConfigurationService.class);
@@ -37,7 +37,7 @@
   } else {
     defaultUserPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     if (defaultUserPath == null) {
-      defaultUserPath = portalConfigService.computePortalPath(rcontext.getRequest());
+  defaultUserPath = portalConfigService.getDefaultPath(request.getRemoteUser());
     }
   }
   if (defaultUserPath == null) {
