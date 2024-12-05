@@ -38,7 +38,7 @@
         tile>
         <img
           :src="companyLogo"
-          :aria-label="$t('menu.companyNameTooltip',{0: companyName})"
+          :alt="$t('menu.companyNameTooltip',{0: companyName})"
           height="36"
           width="auto"
           class="object-fit-contain">

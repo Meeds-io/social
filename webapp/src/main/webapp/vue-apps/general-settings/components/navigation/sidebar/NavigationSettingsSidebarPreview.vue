@@ -59,7 +59,8 @@
           v-for="(item, index) in menuItems"
           :key="`${item.name}_${item.icon}_${index}`"
           :settings="settings"
-          :item="item" />
+          :item="item"
+          :home-icon="homeItemIndex === index" />
       </div>
       <div class="flex-grow-0 flex-shrink-0">
         <v-list-item class="d-flex" dense>
@@ -102,6 +103,9 @@ export default {
   computed: {
     menuItems() {
       return this.settings?.items || [];
+    },
+    homeItemIndex() {
+      return this.menuItems?.findIndex?.(item => item.type === 'SITE');
     },
     avatarUrl() {
       return `/portal/rest/v1/social/users/${eXo.env.portal.userIdentityId}/avatar?byId=true`;
