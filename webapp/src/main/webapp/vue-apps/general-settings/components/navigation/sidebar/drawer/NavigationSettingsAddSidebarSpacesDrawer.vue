@@ -97,8 +97,17 @@
           <number-input
             v-model="limit"
             :step="1"
-            :min="minSpaces"
+            :min="0"
             :max="10" />
+        </div>
+        <div class="d-flex align-center mb-4">
+          <div>{{ $t('generalSettings.sidebar.displaySpacesInMobile') }}</div>
+          <v-spacer />
+          <v-switch
+            v-model="displayItemsInMobile"
+            true-value="true"
+            false-value="false"
+            class="ma-0 width-fit-content" />
         </div>
       </div>
     </template>
@@ -136,13 +145,11 @@ export default {
     spaceTemplateId: null,
     sortBy: 'TITLE',
     limit: 4,
+    displayItemsInMobile: 'false',
   }),
   computed: {
     spaceTemplate() {
       return this.spaceTemplateId && this.spaceTemplates?.find?.(t => Number(t.id) === Number(this.spaceTemplateId)) || null;
-    },
-    minSpaces() {
-      return this.option === 'SPACES' ? 0 : 1;
     },
     disabled() {
       return !this.modified
@@ -163,6 +170,11 @@ export default {
       }
     },
     limit() {
+      if (this.drawer) {
+        this.modified = true;
+      }
+    },
+    displayItemsInMobile() {
       if (this.drawer) {
         this.modified = true;
       }
@@ -203,6 +215,7 @@ export default {
         properties: {
           sortBy: 'TITLE',
           limit: 4,
+          displayItemsInMobile: 'false',
         },
       };
       this.isNew = !item;
@@ -221,6 +234,7 @@ export default {
       this.spaceTemplateId = item?.properties?.spaceTemplateId && Number(item.properties.spaceTemplateId) || null;
       this.sortBy = item?.properties?.sortBy || 'TITLE';
       this.limit = item?.properties && Object.hasOwn(item.properties, 'limit') ? Number(item.properties.limit) : 4;
+      this.displayItemsInMobile = item?.properties && Object.hasOwn(item.properties, 'displayItemsInMobile') ? item.properties.displayItemsInMobile : 'false';
       this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
     },
     async apply() {
@@ -231,7 +245,8 @@ export default {
         this.item.properties = {
           spaceTemplateId: this.spaceTemplateId,
           sortBy: this.sortBy,
-          limit: this.limit,
+          limit: Math.min(this.limit, 10),
+          displayItemsInMobile: this.displayItemsInMobile,
         };
       } else {
         this.item.name = this.names[eXo.env.portal.language] || this.names[eXo.env.portal.defaultLanguage];
@@ -244,7 +259,8 @@ export default {
         this.item.properties = {
           names: JSON.stringify(this.names),
           sortBy: this.sortBy,
-          limit: this.limit,
+          limit: Math.min(this.limit, 10),
+          displayItemsInMobile: this.displayItemsInMobile,
         };
       }
       const data = await this.$spaceService.getSpacesByFilter({

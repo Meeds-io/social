@@ -43,7 +43,7 @@
           </v-list-item-title>
         </v-list-item-content>
       </v-list-item>
-      <template v-if="item?.items?.length">
+      <template v-if="item?.items?.length && displayItemsInMobile">
         <portal-general-settings-navigation-settings-sidebar-preview-item
           v-for="(subItem, index) in item.items"
           :key="`${subItem.name}_${subItem.icon}_${index}`"
@@ -110,9 +110,13 @@ export default {
       type: Object,
       default: null,
     },
+    mobilePreview: {
+      type: Boolean,
+      default: false,
+    },
     homeIcon: {
       type: Boolean,
-      default: null,
+      default: false,
     },
   },
   computed: {
@@ -124,6 +128,9 @@ export default {
     },
     isSpaceTemplate() {
       return this.item.type === 'SPACE_TEMPLATE';
+    },
+    displayItemsInMobile() {
+      return !this.mobilePreview || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
     },
   },
 };
