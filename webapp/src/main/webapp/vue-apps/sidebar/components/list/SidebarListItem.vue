@@ -26,7 +26,7 @@
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <v-hover v-model="hover" :disabled="!$root.displaySequentially">
+    <v-hover v-model="hover" v-if="displaySpacesList" :disabled="!$root.displaySequentially">
       <v-list-item
         :title="spacesTooltip"
         :class="$root.iconCollapse && 'mx-0'"
@@ -315,6 +315,15 @@ export default {
     },
     displayItemsInMobile() {
       return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
+    },
+    displayOnlyWhenMember() {
+      return this.item?.properties?.displayOnlyWhenMember === 'true';
+    },
+    notSpaceMember() {
+      return this.item?.properties?.notMember === 'true';
+    },
+    displaySpacesList() {
+      return this.hasItems || !this.displayOnlyWhenMember || !this.notSpaceMember;
     },
   },
   watch: {
