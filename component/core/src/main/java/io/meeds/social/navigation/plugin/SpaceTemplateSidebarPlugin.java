@@ -112,6 +112,7 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
     properties.put(SPACE_TEMPLATE_ID_PROP_NAME, String.valueOf(spaceTemplate.getId()));
     properties.put(SPACES_LIMIT, String.valueOf(SPACES_LIMIT_DEFAULT));
     properties.put(SPACES_SORT_BY, SidebarSpaceSortBy.LAST_ACCESS.name());
+    properties.put(DISPLAY_ONLY_WHEN_MEMBER_PROP_NAME, "true");
     return properties;
   }
 

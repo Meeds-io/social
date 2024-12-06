@@ -24,8 +24,11 @@
     :style="cssStyle"
     class="position-sticky no-border-radius"
     flat>
-    <div class="white">
-      <v-divider v-if="elevate" />
+    <div
+      :style="parentStyle"
+      class="white ms-n6">
+      <v-divider
+        v-if="elevate" />
       <slot></slot>
     </div>
   </v-card>
@@ -45,6 +48,10 @@ export default {
       type: Number,
       default: null,
     },
+    dividerWidth: {
+      type: String,
+      default: () => 'calc(100% + 48px)',
+    },
     parentSelector: {
       type: String,
       default: () => '.site-scroll-parent',
@@ -63,6 +70,9 @@ export default {
     elevate() {
       return this.scrolled;
     },
+    parentStyle() {
+      return `min-width: ${this.dividerWidth}`;
+    },
     cssStyle() {
       if (this.isScrollTop) {
         return {
@@ -79,7 +89,6 @@ export default {
   mounted() {
     window.setTimeout(() => {
       const parentScroll = document.querySelector(this.parentSelector);
-      console.warn('parentScroll', parentScroll);
       if (parentScroll) {
         parentScroll?.addEventListener?.('scroll', this.computeScollPosition, false);
       }

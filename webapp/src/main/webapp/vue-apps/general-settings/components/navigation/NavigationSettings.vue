@@ -32,7 +32,7 @@
       <sticky-position-element
         scroll-diff="50"
         bottom="0">
-        <div class="d-flex justify-end py-4">
+        <div class="d-flex justify-end py-4 pe-5">
           <v-btn
             :aria-label="$t('generalSettings.cancel')"
             :disabled="loading"
