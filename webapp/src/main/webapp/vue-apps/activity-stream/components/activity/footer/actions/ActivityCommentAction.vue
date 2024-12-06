@@ -40,6 +40,10 @@ export default {
       type: Object,
       default: null,
     },
+    isMobile: {
+      type: Boolean,
+      default: () => false
+    },
   },
   data: () => ({
     hasCommented: false,
@@ -53,9 +57,6 @@ export default {
     },
     commentTextColorClass() {
       return this.hasCommented && 'primary--text' || '';
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   watch: {

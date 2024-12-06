@@ -41,6 +41,10 @@ export default {
       type: Object,
       default: null,
     },
+    isMobile: {
+      type: Boolean,
+      default: () => false
+    },
   },
   data: () => ({
     changingLike: false,
@@ -58,9 +62,6 @@ export default {
     },
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   created() {
