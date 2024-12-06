@@ -32,7 +32,7 @@
     </template>
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <template v-if="item?.items?.length || isSpaces">
+    <template v-if="displaySpacesList">
       <v-list-item class="d-flex">
         <v-list-item-avatar class="me-2 my-auto" min-width="36">
           <v-icon size="20">{{ item.icon || 'fa-folder' }}</v-icon>
@@ -131,6 +131,21 @@ export default {
     },
     displayItemsInMobile() {
       return !this.mobilePreview || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
+    },
+    menuItems() {
+      return this.item?.items;
+    },
+    hasItems() {
+      return this.menuItems?.length;
+    },
+    displayOnlyWhenMember() {
+      return this.item?.properties?.displayOnlyWhenMember === 'true';
+    },
+    notSpaceMember() {
+      return this.item?.properties?.notMember === 'true';
+    },
+    displaySpacesList() {
+      return this.hasItems || !this.displayOnlyWhenMember || !this.notSpaceMember;
     },
   },
 };
