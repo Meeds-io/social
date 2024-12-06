@@ -28,6 +28,7 @@ import BorderRadiusSelector from './components/branding/form/BorderRadiusSelecto
 import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
 import BackgroundInput from './components/branding/form/BackgroundInput.vue';
 import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
+import StickyPositionElement from './components/common/StickyPositionElement.vue';
 
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
@@ -81,6 +82,7 @@ const components = {
   'portal-general-settings-navigation-settings-sidebar-add-link-drawer': NavigationSettingsAddSidebarLinkDrawer,
   'portal-general-settings-navigation-settings-sidebar-add-site-drawer': NavigationSettingsAddSidebarSiteDrawer,
   'portal-general-settings-navigation-settings-sidebar-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
+  'sticky-position-element': StickyPositionElement,
 };
 
 for (const key in components) {
