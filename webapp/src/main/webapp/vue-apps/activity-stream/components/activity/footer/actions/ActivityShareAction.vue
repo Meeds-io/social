@@ -45,6 +45,10 @@ export default {
       type: Object,
       default: null,
     },
+    isMobile: {
+      type: Boolean,
+      default: () => false
+    },
   },
   data: () => ({
     hasShared: false,
@@ -67,9 +71,6 @@ export default {
     },
     shareIconColorClass() {
       return this.hasShared && 'primary--text' || 'disabled--text';
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
   },
   created() {

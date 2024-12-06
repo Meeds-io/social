@@ -64,7 +64,7 @@ export default {
       return this.isDesktop && 'border-top-color border-light-color' || '';
     },
     isDesktop() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name !== 'xs' && this.$vuetify.breakpoint.name !== 'sm' && this.$vuetify.breakpoint.name !== 'md';
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
   },
   created() {
