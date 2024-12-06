@@ -26,7 +26,10 @@
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate">
-    <v-hover v-model="hover" v-if="displaySpacesList" :disabled="!$root.displaySequentially">
+    <v-hover
+      v-model="hover"
+      v-if="displaySpacesList"
+      :disabled="!$root.displaySequentially">
       <v-list-item
         :title="spacesTooltip"
         :class="$root.iconCollapse && 'mx-0'"
