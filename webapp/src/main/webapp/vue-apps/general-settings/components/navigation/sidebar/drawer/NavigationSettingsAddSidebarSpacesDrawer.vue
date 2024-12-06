@@ -292,6 +292,7 @@ export default {
         filter: this.getSpacesFilterType(this.sortBy),
         sortBy: this.getSpacesSortField(this.sortBy),
         sortDirection: this.getSpacesSortDirection(this.sortBy),
+        returnSize: true,
       });
       this.item.items = data?.spaces?.map?.(s => ({
         name: s.displayName,
@@ -302,6 +303,7 @@ export default {
           id: s.id,
         },
       })) || [];
+      this.item.properties.notMember = String(data?.size === 0);
       if (this.isNew) {
         this.settings.sidebar.items.push(this.item);
       }
