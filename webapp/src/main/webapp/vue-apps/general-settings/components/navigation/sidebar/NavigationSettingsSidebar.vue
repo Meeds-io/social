@@ -22,8 +22,17 @@
 <template>
   <div v-if="menuSettings" class="d-flex">
     <div class="d-flex flex-column flex-grow-1 flex-shrink-1">
-      <div class="text-header mb-4">
-        {{ $t('generalSettings.sidebar') }}
+      <div class="d-flex align-center mb-4">
+        <div class="text-header">
+          {{ $t('generalSettings.sidebar') }}
+        </div>
+        <v-btn
+          :title="$t('generalSettings.topbar.switchDevicePreview')"
+          class="ms-2"
+          icon
+          @click="mobilePreview = !mobilePreview">
+          <v-icon size="20">{{ mobilePreview && 'fa-desktop' || 'fa-mobile-alt' }}</v-icon>
+        </v-btn>
       </div>
       <v-switch
         v-model="menuSettings.allowUserCustomHome"
@@ -194,8 +203,9 @@
       </v-data-table>
     </div>
     <portal-general-settings-navigation-settings-sidebar-preview
+      class="flex-grow-0 flex-shrink-1 elevation-3 ms-8"
       :settings="menuSettings"
-      class="flex-grow-0 flex-shrink-1 elevation-3 ms-8" />
+      :mobile-preview="mobilePreview" />
   </div>
 </template>
 <script>
@@ -208,6 +218,7 @@ export default {
   },
   data: () => ({
     menuSettings: null,
+    mobilePreview: false,
     allModes: ['HIDDEN', 'ICON', 'STICKY'],
   }),
   computed: {

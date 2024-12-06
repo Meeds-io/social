@@ -60,6 +60,7 @@
           :key="`${item.name}_${item.icon}_${index}`"
           :settings="settings"
           :item="item"
+          :mobile-preview="mobilePreview"
           :home-icon="homeItemIndex === index" />
       </div>
       <div class="flex-grow-0 flex-shrink-0">
@@ -95,6 +96,10 @@ export default {
     settings: {
       type: Object,
       default: null,
+    },
+    mobilePreview: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
