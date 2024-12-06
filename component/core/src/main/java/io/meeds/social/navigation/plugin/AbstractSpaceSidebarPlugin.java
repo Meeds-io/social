@@ -41,14 +41,18 @@ import lombok.SneakyThrows;
 
 public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
 
-  public static final int    SPACES_LIMIT_DEFAULT = 4;
+  public static final int     SPACES_LIMIT_DEFAULT               = 4;
 
-  public static final String SPACES_LIMIT         = "limit";
+  public static final String  SPACES_LIMIT                       = "limit";
 
-  public static final String SPACES_SORT_BY       = "sortBy";
+  public static final String  SPACES_SORT_BY                     = "sortBy";
+
+  public static final String  DISPLAY_ONLY_WHEN_MEMBER_PROP_NAME = "displayOnlyWhenMember";
+
+  private static final String NOT_MEMBER_PROP_NAME               = "notMember";
 
   @Autowired
-  private SpaceService       spaceService;
+  private SpaceService        spaceService;
 
   protected abstract void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter);
 
@@ -60,6 +64,9 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
     buildSpaceFilter(item, spaceFilter);
     int limit = getLimit(item);
     Space[] spaces = getSpaces(item, spaceFilter, username, sortBy, limit);
+    if (spaces.length == 0 && isDisplayOnlyWhenMember(item)) {
+      item.getProperties().put(NOT_MEMBER_PROP_NAME, String.valueOf(!isMember(spaceFilter, username)));
+    }
     return Arrays.stream(spaces)
                  .filter(Objects::nonNull)
                  .map(this::toSidebarItem)
@@ -117,6 +124,11 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
     };
   }
 
+  @SneakyThrows
+  private boolean isMember(SpaceFilter spaceFilter, String username) {
+    return spaceService.getMemberSpacesByFilter(username, spaceFilter).getSize() > 0;
+  }
+
   private SidebarSpaceSortBy getSortBy(SidebarItem item) {
     String sortByProperty = item.getProperties().get(SPACES_SORT_BY);
     return getSortByField(sortByProperty);
@@ -125,6 +137,10 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
   private int getLimit(SidebarItem item) {
     String limitProperty = item.getProperties().get(SPACES_LIMIT);
     return StringUtils.isBlank(limitProperty) ? SPACES_LIMIT_DEFAULT : Integer.parseInt(limitProperty);
+  }
+
+  private boolean isDisplayOnlyWhenMember(SidebarItem item) {
+    return StringUtils.equals(item.getProperties().get(DISPLAY_ONLY_WHEN_MEMBER_PROP_NAME), "true");
   }
 
   protected enum SidebarSpaceSortBy {
