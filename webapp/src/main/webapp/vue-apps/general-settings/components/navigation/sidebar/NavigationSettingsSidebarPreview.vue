@@ -21,7 +21,7 @@
 -->
 <template>
   <v-card
-    class="d-none d-sm-flex flex-column overflow-hidden"
+    class="d-none d-sm-flex flex-column overflow-hidden mb-2"
     min-width="420"
     min-height="700"
     height="fit-content"

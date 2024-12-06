@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <div v-if="initialized" class="pa-0 mb-4 pb-5">
+  <div v-if="initialized" class="mb-4">
     <portal-general-settings-navigation-settings-topbar
       :settings="navigationSettings"
       @changed="navigationSettings.topbar = $event" />
@@ -28,29 +28,35 @@
     <portal-general-settings-navigation-settings-sidebar
       :settings="navigationSettings"
       @changed="navigationSettings.sidebar = $event" />
-    <div class="d-flex justify-end mt-8">
-      <v-btn
-        :aria-label="$t('generalSettings.cancel')"
-        :disabled="loading"
-        class="btn cancel-button me-4"
-        elevation="0"
-        @click="$emit('close')">
-        <span class="text-none">
-          {{ $t('generalSettings.cancel') }}
-        </span>
-      </v-btn>
-      <v-btn
-        :aria-label="$t('generalSettings.apply')"
-        :disabled="!modified"
-        :loading="loading"
-        color="primary"
-        class="btn btn-primary"
-        elevation="0"
-        @click="save">
-        <span class="text-none">
-          {{ $t('generalSettings.apply') }}
-        </span>
-      </v-btn>
+    <div class="d-inline pt-8">
+      <sticky-position-element
+        scroll-diff="50"
+        bottom="0">
+        <div class="d-flex justify-end py-4">
+          <v-btn
+            :aria-label="$t('generalSettings.cancel')"
+            :disabled="loading"
+            class="btn cancel-button me-4"
+            elevation="0"
+            @click="$emit('close')">
+            <span class="text-none">
+              {{ $t('generalSettings.cancel') }}
+            </span>
+          </v-btn>
+          <v-btn
+            :aria-label="$t('generalSettings.apply')"
+            :disabled="!modified"
+            :loading="loading"
+            color="primary"
+            class="btn btn-primary"
+            elevation="0"
+            @click="save">
+            <span class="text-none">
+              {{ $t('generalSettings.apply') }}
+            </span>
+          </v-btn>
+        </div>
+      </sticky-position-element>
     </div>
     <portal-general-settings-navigation-settings-sidebar-add-link-drawer />
     <portal-general-settings-navigation-settings-sidebar-add-site-drawer />
