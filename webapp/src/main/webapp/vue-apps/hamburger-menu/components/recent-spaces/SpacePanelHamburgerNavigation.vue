@@ -106,7 +106,7 @@
           parent-element="div"
           element="div"
           element-class="me-2 ms-0"
-          class="space-panel-action" />
+          class="space-panel-action d-flex" />
         <space-favorite-action
           :is-favorite="isFavorite"
           :space-id="spaceId"
