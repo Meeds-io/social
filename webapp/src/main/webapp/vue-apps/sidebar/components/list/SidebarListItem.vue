@@ -72,7 +72,7 @@
         </v-list-item-action>
       </v-list-item>
     </v-hover>
-    <v-expand-transition>
+    <v-expand-transition v-if="displayItemsInMobile">
       <sidebar-list-sub-list
         v-show="!collapsedSpaces || !$root.displaySequentially"
         :item="item" />
@@ -312,6 +312,9 @@ export default {
       }) || this.$t('menu.spacesCollapse', {
         0: this.item.name
       })) || (this.isSpaces && this.$t('menu.spacesTooltip')) || null;
+    },
+    displayItemsInMobile() {
+      return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
     },
   },
   watch: {
