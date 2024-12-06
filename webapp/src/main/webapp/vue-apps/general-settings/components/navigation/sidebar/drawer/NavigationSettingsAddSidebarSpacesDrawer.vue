@@ -57,12 +57,15 @@
           :placeholder="$t('generalSettings.sidebar.searchTemplatePlaceholder')"
           item-text="name"
           item-value="id"
-          class="mt-0 mb-4 mx-0 pa-0 elevation-0 no-border"
+          class="mt-n2 mb-4 mx-0 pa-0 elevation-0 no-border"
           hide-no-data
           hide-selected
           hide-details
           outlined
           dense />
+        <div class="font-weight-bold mb-4">
+          {{ $t('generalSettings.sidebar.spaces.sidebarDisplay') }}
+        </div>
         <div v-if="option === 'SPACES'" class="mb-4">
           <div class="mb-2">
             {{ $t('generalSettings.sidebar.spacesUpdateNameLabel') }}
@@ -73,7 +76,25 @@
             :maxlength="50"
             drawer-title="generalSettings.sidebar.spacesNamesDrawerTitle" />
         </div>
-        <div class="d-flex align-center mb-2">
+        <div v-if="option === 'SPACE_TEMPLATE'" class="d-flex align-center mb-4">
+          <div>{{ $t('generalSettings.sidebar.spaces.displayOnlyWhenMember') }}</div>
+          <v-spacer />
+          <v-switch
+            v-model="displayOnlyWhenMember"
+            true-value="true"
+            false-value="false"
+            class="ma-0 width-fit-content" />
+        </div>
+        <div class="d-flex align-center mb-4">
+          <div>{{ $t('generalSettings.sidebar.spacesSelectLimit') }}</div>
+          <v-spacer />
+          <number-input
+            v-model="limit"
+            :step="1"
+            :min="0"
+            :max="10" />
+        </div>
+        <div v-if="limit" class="d-flex align-center mb-2">
           <div>{{ $t('generalSettings.sidebar.spacesSortItemsBy') }}</div>
           <v-spacer />
           <select
@@ -91,16 +112,7 @@
             </option>
           </select>
         </div>
-        <div class="d-flex align-center mb-4">
-          <div>{{ $t('generalSettings.sidebar.spacesSelectLimit') }}</div>
-          <v-spacer />
-          <number-input
-            v-model="limit"
-            :step="1"
-            :min="0"
-            :max="10" />
-        </div>
-        <div class="d-flex align-center mb-4">
+        <div v-if="limit" class="d-flex align-center mb-4">
           <div>{{ $t('generalSettings.sidebar.displaySpacesInMobile') }}</div>
           <v-spacer />
           <v-switch
@@ -146,6 +158,7 @@ export default {
     sortBy: 'TITLE',
     limit: 4,
     displayItemsInMobile: 'false',
+    displayOnlyWhenMember: 'true',
   }),
   computed: {
     spaceTemplate() {
@@ -175,6 +188,11 @@ export default {
       }
     },
     displayItemsInMobile() {
+      if (this.drawer) {
+        this.modified = true;
+      }
+    },
+    displayOnlyWhenMember() {
       if (this.drawer) {
         this.modified = true;
       }
@@ -216,6 +234,7 @@ export default {
           sortBy: 'TITLE',
           limit: 4,
           displayItemsInMobile: 'false',
+          displayOnlyWhenMember: 'true',
         },
       };
       this.isNew = !item;
@@ -235,6 +254,7 @@ export default {
       this.sortBy = item?.properties?.sortBy || 'TITLE';
       this.limit = item?.properties && Object.hasOwn(item.properties, 'limit') ? Number(item.properties.limit) : 4;
       this.displayItemsInMobile = item?.properties && Object.hasOwn(item.properties, 'displayItemsInMobile') ? item.properties.displayItemsInMobile : 'false';
+      this.displayOnlyWhenMember = item?.properties && Object.hasOwn(item.properties, 'displayOnlyWhenMember') ? item.properties.displayOnlyWhenMember : 'false';
       this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
     },
     async apply() {
@@ -247,6 +267,7 @@ export default {
           sortBy: this.sortBy,
           limit: Math.min(this.limit, 10),
           displayItemsInMobile: this.displayItemsInMobile,
+          displayOnlyWhenMember: this.displayOnlyWhenMember,
         };
       } else {
         this.item.name = this.names[eXo.env.portal.language] || this.names[eXo.env.portal.defaultLanguage];
@@ -261,6 +282,7 @@ export default {
           sortBy: this.sortBy,
           limit: Math.min(this.limit, 10),
           displayItemsInMobile: this.displayItemsInMobile,
+          displayOnlyWhenMember: this.displayOnlyWhenMember,
         };
       }
       const data = await this.$spaceService.getSpacesByFilter({
