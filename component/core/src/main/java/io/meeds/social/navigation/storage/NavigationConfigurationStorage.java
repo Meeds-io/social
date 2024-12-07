@@ -21,9 +21,9 @@ package io.meeds.social.navigation.storage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -96,12 +96,12 @@ public class NavigationConfigurationStorage {
     } else {
       NavigationConfiguration configuration = JsonUtils.fromJsonString(settingValue.getValue().toString(),
                                                                        NavigationConfiguration.class);
-      List<TopbarApplication> applications = configuration.getTopbar().getApplications();
       if (defaultApplications == null) {
         defaultApplications = Collections.emptyList();
       }
-      addMissingTopbarApplication(configuration, applications, defaultApplications);
-      removeDroppedApplications(configuration, applications, defaultApplications);
+      addMissingTopbarApplication(configuration, defaultApplications);
+      removeDroppedApplications(configuration, defaultApplications);
+      updateApplicationIds(configuration, defaultApplications);
       return configuration;
     }
   }
@@ -110,21 +110,22 @@ public class NavigationConfigurationStorage {
    * Remove applications which aren't available in addon container anymore
    * 
    * @param configuration
-   * @param applications
+   * @param topbarApplications
    * @param addonContainerApplications
    */
   private void removeDroppedApplications(NavigationConfiguration configuration,
-                                         List<TopbarApplication> applications,
                                          List<TopbarApplication> addonContainerApplications) {
-    List<TopbarApplication> applicationsToRemove = applications.stream()
-                                                               .filter(app -> app.getType() == TopbarItemType.APP
-                                                                              && addonContainerApplications.stream()
-                                                                                                           .noneMatch(containerApp -> StringUtils.equals(containerApp.getId(),
-                                                                                                                                                         app.getId())))
-                                                               .toList();
-    if (CollectionUtils.isNotEmpty(applicationsToRemove)) {
-      List<TopbarApplication> mergedApplications = new ArrayList<>(applications);
-      mergedApplications.removeAll(applicationsToRemove);
+    List<TopbarApplication> topbarApplications = configuration.getTopbar().getApplications();
+    List<TopbarApplication> topbarApplicationsToRemove = topbarApplications.stream()
+                                                                           .filter(topbarApp -> topbarApp.getType()
+                                                                               == TopbarItemType.APP
+                                                                                                && addonContainerApplications.stream()
+                                                                                                                             .noneMatch(containerApp -> Objects.equals(containerApp,
+                                                                                                                                                                       topbarApp)))
+                                                                           .toList();
+    if (CollectionUtils.isNotEmpty(topbarApplicationsToRemove)) {
+      List<TopbarApplication> mergedApplications = new ArrayList<>(topbarApplications);
+      mergedApplications.removeAll(topbarApplicationsToRemove);
       configuration.getTopbar().setApplications(mergedApplications);
     }
   }
@@ -133,22 +134,43 @@ public class NavigationConfigurationStorage {
    * Add applications which are newly made available in addon container
    * 
    * @param configuration
-   * @param applications
+   * @param topbarApplications
    * @param addonContainerApplications
    */
   private void addMissingTopbarApplication(NavigationConfiguration configuration,
-                                           List<TopbarApplication> applications,
                                            List<TopbarApplication> addonContainerApplications) {
-    List<TopbarApplication> applicationsToAdd = addonContainerApplications.stream()
-                                                                          .filter(app -> applications.stream()
-                                                                                                     .noneMatch(containerApp -> StringUtils.equals(containerApp.getId(),
-                                                                                                                                                   app.getId())))
-                                                                          .toList();
-    if (CollectionUtils.isNotEmpty(applicationsToAdd)) {
-      List<TopbarApplication> mergedApplications = new ArrayList<>(applications);
-      mergedApplications.addAll(applicationsToAdd);
+    List<TopbarApplication> topbarApplications = configuration.getTopbar().getApplications();
+    List<TopbarApplication> topbarApplicationsToAdd = addonContainerApplications.stream()
+                                                                                .filter(containerApp -> topbarApplications.stream()
+                                                                                                                          .noneMatch(topbarApp -> Objects.equals(containerApp,
+                                                                                                                                                                 topbarApp)))
+                                                                                .toList();
+    if (CollectionUtils.isNotEmpty(topbarApplicationsToAdd)) {
+      List<TopbarApplication> mergedApplications = new ArrayList<>(topbarApplications);
+      mergedApplications.addAll(topbarApplicationsToAdd);
       configuration.getTopbar().setApplications(mergedApplications);
     }
+  }
+
+  /**
+   * This will update the topbar applications by the dynamic container
+   * regenerated id after each startup
+   * 
+   * @param configuration
+   * @param defaultApplications
+   */
+  private void updateApplicationIds(NavigationConfiguration configuration, List<TopbarApplication> defaultApplications) {
+    defaultApplications.forEach(defaultApp -> {
+      List<TopbarApplication> topbarApplications = configuration.getTopbar().getApplications();
+      TopbarApplication application = topbarApplications.stream()
+                                                        .filter(topbarApplication -> Objects.equals(topbarApplication,
+                                                                                                    defaultApp))
+                                                        .findFirst()
+                                                        .orElse(null);
+      if (application != null) {
+        application.setId(defaultApp.getId());
+      }
+    });
   }
 
 }
