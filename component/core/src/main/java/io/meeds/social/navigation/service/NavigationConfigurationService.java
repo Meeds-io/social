@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.addons.AddOnService;
 import org.exoplatform.portal.config.UserPortalConfigService;
+import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.TransientApplicationState;
 import org.exoplatform.services.listener.ListenerService;
 
@@ -193,24 +194,36 @@ public class NavigationConfigurationService {
     if (defaultTopbarApplications == null) {
       defaultTopbarApplications = addonContainerService.getApplications(TOP_NAVIGATION_ADDON_CONTAINER)
                                                        .stream()
-                                                       .map(app -> new TopbarApplication(app.getId(),
-                                                                                         app.getTitle(),
-                                                                                         app.getDescription(),
-                                                                                         app.getIcon(),
-                                                                                         TopbarItemType.APP,
-                                                                                         !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_ENABLED_PATTERN,
-                                                                                                                                                   app.getId()),
-                                                                                                                                     "true"),
-                                                                                                             "false"),
-                                                                                         !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_MOBILE_PATTERN,
-                                                                                                                                                   app.getId()),
-                                                                                                                                     "true"),
-                                                                                                             "false"),
-                                                                                         Collections.singletonMap("contentId",
-                                                                                                                  ((TransientApplicationState) app.getState()).getContentId())))
+                                                       .map(this::toTopbarApplication)
                                                        .toList();
     }
     return defaultTopbarApplications;
+  }
+
+  private TopbarApplication toTopbarApplication(Application app) {
+    String portletName = app.getState() instanceof TransientApplicationState applicationState ?
+                                                                                              applicationState.getContentId()
+                                                                                                              .split("/")[1] :
+                                                                                              "-";
+    String applicationId = StringUtils.firstNonBlank(app.getId(), portletName);
+    String applicationTitle = StringUtils.firstNonBlank(app.getTitle(), portletName);
+    String applicationDescription = StringUtils.firstNonBlank(app.getDescription(), "-");
+    String applicationIcon = StringUtils.firstNonBlank(app.getIcon(), "far fa-question-circle");
+    return new TopbarApplication(applicationId,
+                                 applicationTitle,
+                                 applicationDescription,
+                                 applicationIcon,
+                                 TopbarItemType.APP,
+                                 !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_ENABLED_PATTERN,
+                                                                                           app.getId()),
+                                                                             "true"),
+                                                     "false"),
+                                 !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_MOBILE_PATTERN,
+                                                                                           app.getId()),
+                                                                             "true"),
+                                                     "false"),
+                                 Collections.singletonMap(TopbarApplication.CONTENT_ID_PROP_NAME,
+                                                          ((TransientApplicationState) app.getState()).getContentId()));
   }
 
   private SidebarMode getSidebarUserMode(String username, SidebarConfiguration sidebarConfiguration) {

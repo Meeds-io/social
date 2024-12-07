@@ -19,6 +19,9 @@
 package io.meeds.social.navigation.model;
 
 import java.util.Map;
+import java.util.Objects;
+
+import org.apache.commons.lang3.StringUtils;
 
 import io.meeds.social.navigation.constant.TopbarItemType;
 
@@ -31,20 +34,42 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class TopbarApplication {
 
-  private String                id;
+  public static final String  CONTENT_ID_PROP_NAME = "contentId";
 
-  private String                name;
+  private String              id;
 
-  private String                description;
+  private String              name;
 
-  private String                icon;
+  private String              description;
 
-  private TopbarItemType type;
+  private String              icon;
 
-  private boolean               enabled;
+  private TopbarItemType      type;
 
-  private boolean               mobile;
+  private boolean             enabled;
 
-  private Map<String, String>   properties;
+  private boolean             mobile;
+
+  private Map<String, String> properties;
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof TopbarApplication app)) {
+      return false;
+    } else if (StringUtils.equals(id, app.getId())) {
+      return true;
+    } else if (properties == null || app.getProperties() == null) {
+      return false;
+    } else {
+      return StringUtils.equals(properties.get(CONTENT_ID_PROP_NAME),
+                                app.getProperties().get(CONTENT_ID_PROP_NAME));
+    }
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(properties == null ? id :
+                                           StringUtils.firstNonBlank(properties.get(CONTENT_ID_PROP_NAME), id));
+  }
 
 }
