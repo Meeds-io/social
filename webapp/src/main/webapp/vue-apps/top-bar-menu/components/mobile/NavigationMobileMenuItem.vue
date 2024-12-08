@@ -30,6 +30,7 @@
         v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
+        :rel="navigationNodeRel"
         :disabled="!hasPage && !hasChildren"
         :link="hasPage"
         :aria-label="navigation.label"
@@ -99,6 +100,9 @@ export default {
     },
     navigationNodeTarget() {
       return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+    },
+    navigationNodeRel() {
+      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
     },
   },
   methods: {

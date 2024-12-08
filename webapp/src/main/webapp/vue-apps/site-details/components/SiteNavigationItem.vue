@@ -19,6 +19,7 @@
   <a
     :href="uri"
     :target="target"
+    :rel="rel"
     :ripple="false"
     class="d-flex px-0"
     @mouseover="showAction = true"
@@ -107,6 +108,9 @@ export default {
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+    },
+    rel() {
+      return this.target === '_blank' && 'nofollow noreferrer noopener' || null;
     },
     icon() {
       return this.navigation?.icon || 'fas fa-folder';
