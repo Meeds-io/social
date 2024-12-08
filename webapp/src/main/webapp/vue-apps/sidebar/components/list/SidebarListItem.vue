@@ -270,7 +270,10 @@ export default {
       const attributes = {};
       if (this.isUrl) {
         attributes.href = this.url;
-        attributes.target = this.item.target;
+        attributes.target = this.target;
+        if (attributes.target === '_blank') {
+          attributes.rel = 'nofollow noreferrer noopener';
+        }
       }
       return attributes;
     },

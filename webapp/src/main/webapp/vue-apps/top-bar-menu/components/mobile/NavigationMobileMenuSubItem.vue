@@ -49,6 +49,7 @@
               :key="nav.id"
               :href="nav.nodeUri || $navigationUtils.getNavigationNodeUri(baseSiteUri, nav)"
               :target="nav.nodeTarget || $navigationUtils.getNavigationNodeTarget(nav)"
+              :rel="nav.nodeRel || $navigationUtils.getNavigationNodeRel(nav)"
               :link="!!nav.pageKey"
               @click="checkLink(nav, $event)">
               <v-list-item-content>
