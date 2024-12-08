@@ -32,13 +32,8 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    successMessage: null,
-  }),
   methods: {
     syncMembers(groups) {
-      // Workaround for context change, compute success message on processing start
-      this.successMessage = this.$t('social.spaces.administration.manageSpaces.groupsBoundOnSpaces');
       this.$root.applyOperationInBulk(
         async space => {
           let spaceBoundGroups = await this.$spaceBindingService.getGroupSpaceBindings(space.id);
@@ -51,7 +46,7 @@ export default {
         },
         null,
         () => {
-          this.$root.$emit('alert-message', this.successMessage, 'success');
+          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.groupsBoundOnSpaces'), 'success');
           this.$root.$emit('spaces-administration-list-refresh');
         });
     },

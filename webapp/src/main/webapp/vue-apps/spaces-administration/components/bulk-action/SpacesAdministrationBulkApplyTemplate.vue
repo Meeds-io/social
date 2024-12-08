@@ -32,18 +32,13 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    successMessage: null,
-  }),
   methods: {
     applyTemplate(params) {
-      // Workaround for context change, compute success message on processing start
-      this.successMessage = this.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces');
       this.$root.applyOperationInBulk(
         (space, options) => this.$spaceAdministrationService.applySpaceTemplate(space.id, options),
         params,
         () => {
-          this.$root.$emit('alert-message', this.successMessage, 'success');
+          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces'), 'success');
           this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
         });
     },
