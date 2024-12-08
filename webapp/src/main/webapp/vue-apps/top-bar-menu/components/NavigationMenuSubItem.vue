@@ -27,6 +27,7 @@
       v-if="hasPage || hasChildren && childrenHasPage"
       :href="navigationNodeUri"
       :target="navigationNodeTarget"
+      :rel="navigationNodeRel"
       :link="!!hasPage"
       class="pt-0 pb-0"
       @click="checkLink">
@@ -122,6 +123,9 @@ export default {
     },
     navigationNodeTarget() {
       return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+    },
+    navigationNodeRel() {
+      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
     },
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;

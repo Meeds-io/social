@@ -31,3 +31,8 @@ export function getNavigationNodeTarget(navigation) {
   navigation.nodeTarget = navigation?.target === 'SAME_TAB' && '_self' || '_blank';
   return navigation.nodeTarget;
 }
+
+export function getNavigationNodeRel(navigation) {
+  navigation.nodeRel = navigation?.target === 'NEW_TAB' && 'nofollow noreferrer noopener' || null;
+  return navigation.nodeRel;
+}
