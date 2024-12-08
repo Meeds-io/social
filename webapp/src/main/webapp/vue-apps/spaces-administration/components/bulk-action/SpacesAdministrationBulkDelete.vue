@@ -41,9 +41,6 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    successMessage: null,
-  }),
   computed: {
     spacesCount() {
       return this.$root.allSpacesSelected ? this.$root.spacesSize : this.$root.selectedSpaces.length;
@@ -54,15 +51,13 @@ export default {
       window.setTimeout(() => this.$refs.dialog.open(), 200);
     },
     deleteSpaces() {
-      // Workaround for context change, compute success message on processing start
-      this.successMessage = this.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {
-        0: this.spacesCount
-      });
       this.$root.applyOperationInBulk(
         space => this.$spaceService.removeSpace(space.id),
         null,
         () => {
-          this.$root.$emit('alert-message', this.successMessage, 'success');
+          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {
+            0: this.spacesCount
+          }), 'success');
           this.$root.$emit('spaces-administration-list-refresh');
         });
     },
