@@ -49,21 +49,38 @@
     class="v-application v-application--is-ltr theme--light"
     id="SearchApplication"
     role="search">
-    <div class="v-application--wrap">
-      <button
-        type="button"
-        title="<%=tooltip%>"
-        class="transparent v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-        onclick="Vue.startApp('PORTLET/social/Search', 'init')">
-        <span class="v-btn__content">
-          <i class="v-icon fas fa-search position-static d-flex icon-medium-size icon-default-color"></i>
-        </span>
-      </button>
+    <div class="v-application--wrap d-none">
+      <v-tooltip bottom>
+        <template #activator="{on, attrs}">
+          <v-btn
+            v-on="on"
+            v-bind="attrs"
+            aria-label="<%=tooltip%>"
+            icon
+            class="transparent"
+            @click="Vue.startApp('PORTLET/social/Search', 'init')">
+            <v-icon size="20">fa-search</v-icon>
+          </v-btn>
+        </template>
+        <span class="tooltip"><%=tooltip%></span>
+      </v-tooltip>
       <textarea id="searchConnectorsDefaultValue" aria-hidden="true" class="d-none"><%= jsonSearchConnectors%></textarea>
       <textarea id="searchSkinUrlsDefaultValue" aria-hidden="true" class="d-none"><%= skinUrlsString%></textarea>
       <% if (rcontext.getRequestURI().endsWith("/search") || rcontext.getRequestURI().equals("search")) { %>
       <script type="text/javascript">
         require(['PORTLET/social/Search'], app => app.init());
+      </script>
+      <% } else { %>
+      <script type="text/javascript">
+        require(['SHARED/commonVueComponents', 'SHARED/eXoVueI18n'], () => {
+          new Vue({
+            el: '#SearchApplication',
+            vuetify: Vue.prototype.vuetifyOptions,
+            mounted() {
+              document.querySelector('#SearchApplication .v-application--wrap').classList.remove('d-none');
+            },
+          });
+        });
       </script>
       <% } %>
     </div>

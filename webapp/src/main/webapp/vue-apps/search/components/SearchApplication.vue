@@ -1,12 +1,19 @@
 <template>
   <v-app role="search">
-    <v-btn
-      :title="buttonTooltip"
-      icon
-      class="transparent"
-      @click="dialog = !dialog">
-      <i class="v-icon fas fa-search icon-medium-size icon-default-color position-static d-flex"></i>
-    </v-btn>
+    <v-tooltip bottom>
+      <template #activator="{on, attrs}">
+        <v-btn
+          v-on="on"
+          v-bind="attrs"
+          :aria-label="buttonTooltip"
+          icon
+          class="transparent"
+          @click="dialog = !dialog">
+          <v-icon size="20">fa-search</v-icon>
+        </v-btn>
+      </template>
+      <span>{{ buttonTooltip }}</span>
+    </v-tooltip>
     <v-fade-transition>
       <v-flex
         v-show="dialog || standalone"
@@ -34,7 +41,6 @@
     </v-fade-transition>
   </v-app>
 </template>
-
 <script>
 export default {
   props: {

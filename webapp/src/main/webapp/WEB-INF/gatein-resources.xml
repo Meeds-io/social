@@ -1931,7 +1931,7 @@
       </depends>
     </module>
   </portlet>
-  
+
   <portlet>
     <name>PlatformSettings</name>
     <module>

@@ -22,21 +22,27 @@
   <v-app id="NotificationPopoverPortlet">
     <v-flex>
       <v-layout>
-        <v-btn
-          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
-          :loading="loading"
-          icon
-          class="text-xs-center"
-          @click="openDrawer">
-          <v-badge
-            :value="badge > 0"
-            :content="badge"
-            flat
-            color="var(--allPagesBadgePrimaryColor, #d32a2a)"
-            overlap>
-            <v-icon class="icon-default-color" size="22">fa-bell</v-icon>
-          </v-badge>
-        </v-btn>
+        <v-tooltip bottom>
+          <template #activator="{on, attrs}">
+            <v-btn
+              v-on="on"
+              v-bind="attrs"
+              :aria-label="$t('UIIntranetNotificationsPortlet.title.notifications')"
+              :loading="loading"
+              icon
+              @click="openDrawer">
+              <v-badge
+                :value="badge > 0"
+                :content="badge"
+                flat
+                color="var(--allPagesBadgePrimaryColor, #d32a2a)"
+                overlap>
+                <v-icon class="icon-default-color" size="20">fa-bell</v-icon>
+              </v-badge>
+            </v-btn>
+          </template>
+          <span>{{ $t('UIIntranetNotificationsPortlet.title.notifications') }}</span>
+        </v-tooltip>
       </v-layout>
     </v-flex>
     <top-bar-notification-drawer

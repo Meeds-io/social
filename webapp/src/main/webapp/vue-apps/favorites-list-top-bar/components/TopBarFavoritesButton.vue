@@ -15,12 +15,19 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-btn
-    :title="$t('UITopBarFavoritesPortlet.label.iconTooltip')"
-    :aria-label="$t('UITopBarFavoritesPortlet.label.iconTooltip')"
-    class="icon-default-color"
-    icon
-    @click="$root.$emit('open-favorite-drawer')">
-    <v-icon size="22" class="pb-1">fa-star</v-icon>
-  </v-btn>
+  <v-tooltip bottom>
+    <template #activator="{on, attrs}">
+      <v-btn
+        v-on="on"
+        v-bind="attrs"
+        :title="$t('UITopBarFavoritesPortlet.label.iconTooltip')"
+        class="icon-default-color"
+        icon
+        @click="$root.$emit('open-favorite-drawer')">
+        <v-icon size="20">fa-star</v-icon>
+      </v-btn>
+    </template>
+    <span>{{ $t('UITopBarFavoritesPortlet.label.iconTooltip') }}</span>
+  </v-tooltip>
 </template>
+<script></script>

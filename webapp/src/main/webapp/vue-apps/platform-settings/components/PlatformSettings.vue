@@ -6,13 +6,12 @@
           :aria-label="$t('platformSettings.label.openAdministration')"
           href="/portal/administration"
           target="_blank"
-          class="mx-2"
           icon
           v-on="on"
           v-bind="attrs">
           <v-icon
             class="icon-default-color"
-            size="22">
+            size="20">
             fas fa-cog
           </v-icon>
         </v-btn>
