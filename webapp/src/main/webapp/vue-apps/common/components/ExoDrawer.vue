@@ -26,7 +26,9 @@
               :class="goBackButton && 'ps-1'"
               class="pe-0">
               <v-list-item-action v-if="goBackButton" class="drawerIcons me-2">
-                <v-btn icon @click="close()">
+                <v-btn
+                  icon
+                  @click="goBack">
                   <v-icon size="20">
                     {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
                   </v-icon>
@@ -172,6 +174,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    permanent: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     initialized: false,
@@ -226,29 +232,34 @@ export default {
       this.$emit('expand-updated', this.expand);
     },
     drawer() {
-      if (this.drawer) {
-        document.dispatchEvent(new CustomEvent('drawerOpened'));
-        if (!this.initialized) {
-          this.initialized = true;
-        }
-        eXo.openedDrawers.push(this);
-        this.$emit('opened');
-        if (this.disablePullToRefresh) {
-          document.body.style.overscrollBehaviorY = 'contain';
-        }
-      } else {
-        document.dispatchEvent(new CustomEvent('drawerClosed'));
-        if (eXo.openedDrawers) {
-          const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
-          if (currentOpenedDrawerIndex >= 0) {
-            eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
+      if (!this.permanent) {
+        if (this.drawer) {
+          document.dispatchEvent(new CustomEvent('drawerOpened'));
+          if (!this.initialized) {
+            this.initialized = true;
+          }
+          eXo.openedDrawers.push(this);
+          this.$emit('opened');
+          if (this.disablePullToRefresh) {
+            document.body.style.overscrollBehaviorY = 'contain';
+          }
+        } else {
+          document.dispatchEvent(new CustomEvent('drawerClosed'));
+          if (eXo.openedDrawers) {
+            const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
+            if (currentOpenedDrawerIndex >= 0) {
+              eXo.openedDrawers.splice(currentOpenedDrawerIndex, 1);
+            }
+          }
+          this.$emit('closed');
+          if (this.disablePullToRefresh) {
+            document.body.style.overscrollBehaviorY = '';
           }
         }
-        this.$emit('closed');
-        if (this.disablePullToRefresh) {
-          document.body.style.overscrollBehaviorY = '';
-        }
+      } else if (!this.initialized) {
+        this.initialized = true;
       }
+
       this.$emit('input', this.drawer);
       this.expand = this.expanded;
     },
@@ -311,6 +322,13 @@ export default {
       const inputTextDisplayed = !!document.getElementById('inputURL');
       if (this.drawer && isLastOpenedDrawer && !inputTextDisplayed) {
         this.close();
+      }
+    },
+    goBack(event) {
+      if (this.$listeners?.['go-back']) {
+        this.$emit('go-back');
+      } else {
+        this.close(event);
       }
     },
     close(event) {

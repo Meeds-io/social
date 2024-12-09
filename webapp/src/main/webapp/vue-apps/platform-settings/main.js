@@ -33,12 +33,9 @@ const appId = 'platformSettings';
 const lang = window?.eXo?.env?.portal?.language || 'en';
 const i18NUrl = `/social/i18n/locale.portlet.PlatformSettings?lang=${lang}`;
 
-export function init(url) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, i18NUrl).then(i18n => {
     Vue.createApp({
-      data: {
-        url,
-      },
       mounted() {
         this.$root.$applicationLoaded();
       },

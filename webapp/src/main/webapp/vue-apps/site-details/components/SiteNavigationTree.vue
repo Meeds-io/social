@@ -22,8 +22,8 @@
     :open.sync="openLevel"
     :items="navigationTree"
     :active="active"
-    active-class="v-item--active v-list-item--active"
-    class="treeView-item my-2"
+    active-class="v-list-item--active"
+    class="treeView-item list-border-active my-2"
     item-key="name"
     hoverable
     activatable
@@ -34,7 +34,7 @@
       <site-navigation-item
         :navigation="item"
         :enable-change-home="enableChangeHome"
-        :space-unread-items="spaceUnreadItems && item.id === firstNavigationId && spaceUnreadItems" />
+        :enable-unread="firstNavigationId === item.id" />
     </template>
   </v-treeview>
 </template>
@@ -57,10 +57,6 @@ export default {
     collapsed: {
       type: Boolean,
       default: false,
-    },
-    spaceUnreadItems: {
-      type: Object,
-      default: null
     },
     selectedName: {
       type: String,

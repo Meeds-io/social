@@ -34,6 +34,7 @@
         v-if="hasPage || hasChildren && childrenHasPage"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
+        :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
         :class="`mx-auto text-break ${notClickable}`"
@@ -110,6 +111,9 @@ export default {
     },
     navigationNodeTarget() {
       return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+    },
+    navigationNodeRel() {
+      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
     },
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);

@@ -1,0 +1,67 @@
+/**
+
+  This file is part of the Meeds project (https://meeds.io/).
+
+  Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 3 of the License, or (at your option) any later version.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program; if not, write to the Free Software Foundation,
+  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+*/
+
+@import "../../variables.less"; 
+@import "../../mixins.less";
+@import "../../common/siteDetails/Style.less";
+
+.HamburgerNavigationMenu {
+
+  .UserPageLink .UserPageHome, .UserPageLinkHome .UserPageHome {
+    .fa();
+    .fa-house-user();
+  }
+
+  .UserPageLink .homePage {
+    display: none;
+  }
+
+  .UserPageLink:hover .homePage, .UserPageLink:focus .homePage, .UserPageLink button:focus .homePage {
+    display: flex;
+  }
+
+  .HamburgerNavigationMenuLink  {
+    border-right: 1px solid @greyColorLighten1Opacity1  ~'!important; /** orientation=lt */ ';
+    border-left: 1px solid @greyColorLighten1Opacity1 ~'!important; /** orientation=rt */ ';
+
+    i {
+      color: @toolbarLightIconColor !important;
+    }
+  }
+  .uiIcon.uiIconToolbarNavItem {
+    font-size: 20px;
+    max-width: 28px;
+    color: @toolbarLightIconColor !important;
+    margin: 0 auto;
+  }
+}
+.hamburger-unread-badge {
+  border-radius: 100%;
+  border: 2px solid white;
+  top: 6px;
+  right: 10px ~'; /** orientation=lt */ ';
+  left: 10px ~'; /** orientation=rt */ ';
+  width: 16px;
+  height: 16px;
+}
+
+#HamburgerMenuSpaceLeftNavigationActions i.v-icon {
+  font-size: 20px !important;
+}

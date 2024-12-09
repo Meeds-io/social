@@ -135,7 +135,7 @@ public class SpaceTemplateService {
   }
 
   public SpaceTemplate getSpaceTemplate(long templateId) {
-    return spaceTemplateStorage.getSpaceTemplate(templateId);
+    return getSpaceTemplate(templateId, null, false);
   }
 
   public SpaceTemplate getSpaceTemplate(long templateId,
@@ -149,7 +149,12 @@ public class SpaceTemplateService {
     if (!canViewTemplate(spaceTemplate, username)) {
       throw new IllegalAccessException();
     }
-    if (expand) {
+    return getSpaceTemplate(templateId, locale, expand);
+  }
+
+  public SpaceTemplate getSpaceTemplate(long templateId, Locale locale, boolean expand) {
+    SpaceTemplate spaceTemplate = spaceTemplateStorage.getSpaceTemplate(templateId);
+    if (expand && spaceTemplate != null && locale != null) {
       computeSpaceTemplateAttributes(spaceTemplate, locale);
     }
     return spaceTemplate;
@@ -192,7 +197,7 @@ public class SpaceTemplateService {
 
   public boolean canCreateSpace(long templateId, String username) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
-    return canViewTemplate(spaceTemplate, username) && spaceTemplate.isEnabled();
+    return spaceTemplate != null && !spaceTemplate.isDeleted() && spaceTemplate.isEnabled() && canViewTemplate(spaceTemplate, username);
   }
 
   public boolean canCreateSpace(String username) {

@@ -17,7 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import '../space-form/initComponents.js';
 import './initComponents.js';
 import './extensions.js';
 import './services.js';
@@ -31,7 +30,7 @@ if (extensionRegistry) {
   }
 }
 
-export function init() {
+export function init(isExternalFeatureEnabled) {
   const appId = 'spacesAdministration';
   const lang = eXo?.env?.portal?.language || 'en';
   exoi18n.loadLanguageAsync(lang, [
@@ -42,6 +41,7 @@ export function init() {
   ])
     .then(i18n => Vue.createApp({
       data: {
+        isExternalFeatureEnabled,
         spaceTemplates: null,
         mainExtensions: [],
         tableColumnExtensions: [],

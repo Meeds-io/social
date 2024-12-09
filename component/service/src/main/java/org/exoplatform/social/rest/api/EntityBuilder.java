@@ -54,6 +54,7 @@ import javax.ws.rs.core.UriInfo;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.SneakyThrows;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -790,21 +791,23 @@ public class EntityBuilder {
                                                        int limit,
                                                        String expand,
                                                        UriInfo uriInfo) {
-    List<DataEntity> spaceInfos = new ArrayList<>();
-    for (Space space : spaces) {
-      SpaceEntity spaceInfo = buildEntityFromSpace(space, username, uriInfo.getPath(), expand);
-      spaceInfos.add(spaceInfo.getDataEntity());
-    }
+    Map<Long, Long> unreadItemsPerSpace = buildSpacesUnread(username, expand);
+    List<DataEntity> spaceInfos = spaces.stream()
+                                        .map(space -> {
+                                          SpaceEntity spaceInfo = buildEntityFromSpace(space, username, uriInfo.getPath(), expand);
+                                          DataEntity dataEntity = spaceInfo.getDataEntity();
+                                          if (unreadItemsPerSpace.containsKey(space.getSpaceId())) {
+                                            dataEntity.put(RestProperties.UNREAD, unreadItemsPerSpace.get(space.getSpaceId()));
+                                          }
+                                          return dataEntity;
+                                        })
+                                        .toList();
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, SPACES_TYPE, offset, limit);
-    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
-      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
-      Map<Long, Long> unreadItemsPerSpace = spaceWebNotificationService.countUnreadItemsBySpace(username);
-      if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
-        collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
-                                                             .stream()
-                                                             .collect(Collectors.toMap(e -> e.getKey().toString(),
-                                                                                       Entry::getValue)));
-      }
+    if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
+      collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
+                                                           .stream()
+                                                           .collect(Collectors.toMap(e -> e.getKey().toString(),
+                                                                                     Entry::getValue)));
     }
     return collectionSpace;
   }
@@ -977,6 +980,17 @@ public class EntityBuilder {
     }
 
     return spaceEntity;
+  }
+
+  @SneakyThrows
+  public static void buildSpaceUnread(SpaceEntity spaceEntity, String username, String expand) {
+    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
+      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
+      long unreadBadge = spaceWebNotificationService.countUnreadActivitiesBySpace(username, Long.parseLong(spaceEntity.getId()));
+      if (unreadBadge > 0) {
+        spaceEntity.getDataEntity().put(RestProperties.UNREAD, unreadBadge);
+      }
+    }
   }
 
   public static List<DataEntity> buildSpaceMemberships(SpaceService spaceService,
@@ -2269,10 +2283,19 @@ public class EntityBuilder {
 
   private static UserPortalConfig getUserPortalConfig(HttpServletRequest request,
                                                       PortalConfig portalConfig,
-                                                      SiteType siteType) throws Exception {
+                                                      SiteType siteType) {
     String portalName = siteType == SiteType.PORTAL ? portalConfig.getName() : getUserPortalConfigService().getMetaPortal();
     return getUserPortalConfigService().getUserPortalConfig(portalName,
                                                             request.getRemoteUser());
+  }
+
+  private static Map<Long, Long> buildSpacesUnread(String username, String expand) {
+    if (StringUtils.isNotBlank(expand) && Arrays.asList(StringUtils.split(expand, ",")).contains(RestProperties.UNREAD)) {
+      SpaceWebNotificationService spaceWebNotificationService = ExoContainerContext.getService(SpaceWebNotificationService.class);
+      return spaceWebNotificationService.countUnreadItemsBySpace(username);
+    } else {
+      return Collections.emptyMap();
+    }
   }
 
   private static List<UserNodeRestEntity> getSiteNavigations(UserPortal userPortal,

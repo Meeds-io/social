@@ -331,15 +331,15 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public ListAccess<Space> getVisitedSpaces(String username) {
+  public ListAccess<Space> getLastAccessedSpaceByFilter(String username, SpaceFilter spaceFilter) {
     if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
                                spaceSearchConnector,
-                               getSpaceTemplateService(),
                                username,
-                               SpaceListAccessType.VISITED);
+                               spaceFilter,
+                               SpaceListAccessType.LASTEST_ACCESSED);
   }
 
   @Override
@@ -395,6 +395,9 @@ public class SpaceServiceImpl implements SpaceService {
     spaceToCreate.setManagers(new String[] { username });
 
     SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(spaceToCreate.getTemplateId());
+    if (spaceTemplate == null || !spaceTemplate.isEnabled() || spaceTemplate.isDeleted()) {
+      throw new SpaceException(Code.UNKNOWN_SPACE_TEMPLATE);
+    }
     copySpaceTemplateProperties(spaceToCreate, spaceTemplate, username, getUsersToInvite(identitiesToInvite));
 
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);

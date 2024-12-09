@@ -26,11 +26,25 @@ export function trim(text) {
 }
 
 export function includeExtensions(suffix) {
-  Object.keys(window.requirejs.s.contexts._.registry)
-    .filter(definedMofule => definedMofule.includes(suffix))
-    .forEach(module => {
-      window.require([module], app => app.init && app.init());
-    });
+  if (!window.requirejs.loadedExtension) {
+    window.requirejs.loadedExtension = {};
+  }
+  const modules = Object.keys(window.requirejs.s.contexts._.config.paths).filter(m => m?.includes?.(suffix));
+  if (modules?.length) {
+    return Promise.all(modules.map(module => new Promise(resolve =>
+      window.require([module], app => {
+        if (!window.requirejs.loadedExtension[module]) {
+          window.requirejs.loadedExtension[module] = true;
+          return Promise.resolve(app?.init?.())
+            .then(resolve);
+        } else {
+          return resolve();
+        }
+      })
+    )));
+  } else {
+    return Promise.resolve();
+  }
 }
 
 export function blobToBase64(blob) {
@@ -49,5 +63,27 @@ export function convertImageDataAsSrc(imageData) {
     return `data:image/png;base64,${btoa(binary)}`;
   } else {
     return imageData;
+  }
+}
+
+export function toLinkUrl(url) {
+  if (url?.indexOf?.('./') === 0) {
+    url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
+  }
+  if (url?.indexOf?.('/') === 0) {
+    url = `${window.location.origin}${url}`;
+  }
+  const useNonSSL = url?.indexOf('http://') === 0;
+  url = Autolinker.parse(url || '', {
+    urls: true,
+    email: false,
+    phone: false,
+    mention: false,
+    hashtag: false,
+  })?.[0]?.getUrl?.()?.replace?.('javascript:', '');
+  if (useNonSSL) {
+    return url;
+  } else {
+    return url?.replace?.('http://', 'https://');
   }
 }

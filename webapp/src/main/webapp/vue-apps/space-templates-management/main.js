@@ -17,10 +17,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import '../space-form/initComponents.js';
 import './initComponents.js';
 import './extensions.js';
-import './services.js';
 
 // get overridden components if exists
 if (extensionRegistry) {
@@ -36,11 +34,12 @@ const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.SpaceTemplatesManagement?lang=${lang}`;
 
 const appId = 'SpaceTemplatesManagement';
-export function init() {
+export function init(isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n =>
       Vue.createApp({
         data: {
+          isExternalFeatureEnabled,
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',

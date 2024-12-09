@@ -389,13 +389,6 @@ public class SpaceStorage {
     return getSpacesCount(userId, null, xFilter);
   }
 
-  public List<Space> getVisitedSpaces(SpaceFilter spaceFilter, int offset, int limit) throws SpaceStorageException {
-    XSpaceFilter xFilter = new XSpaceFilter();
-    xFilter.setSpaceFilter(spaceFilter);
-    xFilter.setVisited(true);
-    return getSpaces(spaceFilter.getRemoteId(), SpaceMembershipStatus.MEMBER, xFilter, offset, limit);
-  }
-
   public Instant getSpaceMembershipDate(long spaceId, String username) {
     return spaceMemberDAO.getSpaceMembershipDate(spaceId, username);
   }

@@ -28,6 +28,7 @@ import BorderRadiusSelector from './components/branding/form/BorderRadiusSelecto
 import BackgroundImageAttachment from './components/branding/form/BackgroundImageAttachment.vue';
 import BackgroundInput from './components/branding/form/BackgroundInput.vue';
 import CustomStyleInput from './components/branding/form/CustomStyleInput.vue';
+import StickyPositionElement from './components/common/StickyPositionElement.vue';
 
 import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
@@ -38,6 +39,20 @@ import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.v
 
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
 import DefaultLanguageDrawer from './components/language/DefaultLanguageDrawer.vue';
+
+import NavigationSettings from './components/navigation/NavigationSettings.vue';
+
+import NavigationSettingsTopbar from './components/navigation/topbar/NavigationSettingsTopbar.vue';
+import NavigationSettingsTopbarPreview from './components/navigation/topbar/NavigationSettingsTopbarPreview.vue';
+
+import NavigationSettingsSidebar from './components/navigation/sidebar/NavigationSettingsSidebar.vue';
+import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
+import NavigationSettingsSidebarPreviewItem from './components/navigation/sidebar/NavigationSettingsSidebarPreviewItem.vue';
+import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/NavigationSettingsSidebarAddButton.vue';
+
+import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
+import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
+import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -57,6 +72,17 @@ const components = {
   'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
   'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
   'portal-general-settings-default-language-drawer': DefaultLanguageDrawer,
+  'portal-general-settings-navigation-settings': NavigationSettings,
+  'portal-general-settings-navigation-settings-topbar': NavigationSettingsTopbar,
+  'portal-general-settings-navigation-settings-topbar-preview': NavigationSettingsTopbarPreview,
+  'portal-general-settings-navigation-settings-sidebar': NavigationSettingsSidebar,
+  'portal-general-settings-navigation-settings-sidebar-preview': NavigationSettingsSidebarPreview,
+  'portal-general-settings-navigation-settings-sidebar-preview-item': NavigationSettingsSidebarPreviewItem,
+  'portal-general-settings-navigation-settings-sidebar-add-button': NavigationSettingsSidebarAddButton,
+  'portal-general-settings-navigation-settings-sidebar-add-link-drawer': NavigationSettingsAddSidebarLinkDrawer,
+  'portal-general-settings-navigation-settings-sidebar-add-site-drawer': NavigationSettingsAddSidebarSiteDrawer,
+  'portal-general-settings-navigation-settings-sidebar-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
+  'sticky-position-element': StickyPositionElement,
 };
 
 for (const key in components) {

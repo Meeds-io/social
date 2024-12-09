@@ -40,6 +40,7 @@
      eXo.env.portal.profileOwner = "<%=ownerIdentityId == null ? "" : Utils.getOwnerRemoteId()%>" ;
      eXo.env.portal.profileOwnerIdentityId = "<%=ownerIdentityId == null ? "" : Utils.getOwnerIdentityId()%>" ;
      eXo.env.portal.userIdentityId = "<%=viewerIdentityId == null ? "" : viewerIdentityId%>" ;
+     eXo.env.portal.companyLogo = "<%=brandingService.getLogoPath()%>" ;
      eXo.env.portal.companyName = "<%=brandingService.getCompanyName()%>" ;
      eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
      eXo.env.portal.cometdToken = "<%=cometdToken%>";

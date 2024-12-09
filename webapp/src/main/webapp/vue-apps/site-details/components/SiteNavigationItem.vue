@@ -19,6 +19,7 @@
   <a
     :href="uri"
     :target="target"
+    :rel="rel"
     :ripple="false"
     class="d-flex px-0"
     @mouseover="showAction = true"
@@ -32,7 +33,7 @@
       <div class="d-flex align-center justify-space-between my-auto">
         <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
         <v-chip
-          v-if="unreadBadge"
+          v-if="unreadBadge && enableUnread"
           color="error-color-background"
           min-width="22"
           height="22"
@@ -42,9 +43,12 @@
       </div>
     </v-list-item-title>
     <v-list-item-action
-      v-if="!spaceUnreadItems && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
-      class="my-auto">
+      v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
+      class="ms-auto my-auto flex-shrink-0">
       <v-btn
+        :title="$t('menu.spaces.makeAsHomePage')"
+        height="36"
+        min-width="36"
         icon
         @click="selectHome($event)">
         <v-icon
@@ -68,9 +72,9 @@ export default {
       type: Boolean,
       default: false,
     },
-    spaceUnreadItems: {
-      type: Object,
-      default: null
+    enableUnread: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -98,10 +102,15 @@ export default {
       return url;
     },
     uri() {
-      return this.isNodeGroup ? null : this.navigationUri;
+      return this.isNodeGroup ? null : this.navigationUri && Autolinker.parse(this.navigationUri, {
+        email: true,
+      })?.[0]?.getUrl?.() || this.navigationUri;
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+    },
+    rel() {
+      return this.target === '_blank' && 'nofollow noreferrer noopener' || null;
     },
     icon() {
       return this.navigation?.icon || 'fas fa-folder';
@@ -113,9 +122,7 @@ export default {
       return this.uri === this.homeLink;
     },
     unreadBadge() {
-      return this.spaceUnreadItems
-        && Object.values(this.spaceUnreadItems).reduce((sum, v) => sum += v, 0)
-        || 0;
+      return this.$root.openedSpaceId && this.$root?.unreadPerSpace?.[this.$root.openedSpaceId];
     },
     navigationLabel() {
       return this.navigation?.label;

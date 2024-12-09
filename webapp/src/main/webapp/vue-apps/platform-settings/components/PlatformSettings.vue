@@ -3,10 +3,10 @@
     <v-tooltip bottom>
       <template #activator="{ on, attrs }">
         <v-btn
-          :href="$root.url"
           :aria-label="$t('platformSettings.label.openAdministration')"
+          href="/portal/administration"
           target="_blank"
-          class="mx-2 d-none d-sm-block"
+          class="mx-2"
           icon
           v-on="on"
           v-bind="attrs">
@@ -21,3 +21,4 @@
     </v-tooltip>
   </v-app>
 </template>
+<script></script>

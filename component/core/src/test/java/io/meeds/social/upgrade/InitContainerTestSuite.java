@@ -24,6 +24,8 @@ import org.junit.runners.Suite.SuiteClasses;
 
 import org.exoplatform.commons.testing.BaseExoContainerTestSuite;
 import org.exoplatform.commons.testing.ConfigTestCase;
+import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.PortalContainer;
 
 import io.meeds.social.space.service.SpaceLayoutServiceTest;
 
@@ -37,6 +39,10 @@ public class InitContainerTestSuite extends BaseExoContainerTestSuite {
 
   @BeforeClass
   public static void setUp() throws Exception {
+    if (PortalContainer.getInstanceIfPresent() != null) {
+      PortalContainer.getInstance().stop();
+      ExoContainerContext.setCurrentContainer(null);
+    }
     initConfiguration(InitContainerTestSuite.class);
     beforeSetup();
   }

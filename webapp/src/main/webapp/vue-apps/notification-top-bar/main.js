@@ -60,18 +60,23 @@ export function init(badge) {
         },
         methods: {
           refreshNotificationExtensions() {
+            const notificationExtensions = {};
             const extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-content-extension');
             extensions.forEach(extension => {
-              if (extension.type) {
-                this.$set(this.notificationExtensions, extension.type, extension);
+              if (extension.type && !this.notificationExtensions[extension.type]) {
+                notificationExtensions[extension.type] = extension;
               }
             });
+            this.notificationExtensions = {
+              ...this.notificationExtensions,
+              ...notificationExtensions
+            };
+            document.dispatchEvent(new CustomEvent('notification-extensions-refresh'));
           },
         },
       }, `#${appId}`, 'Topbar Notifications');
     })
     .finally(() => {
       Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension');
-      Vue.prototype.$utils.includeExtensions('NotificationExtension');
     });
 }

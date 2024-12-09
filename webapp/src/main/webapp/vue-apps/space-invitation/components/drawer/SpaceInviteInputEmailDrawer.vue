@@ -144,7 +144,7 @@ export default {
     this.$root.$on('space-settings-invite-email', this.open);
   },
   beforeDestroy() {
-    this.$root.$on('space-settings-invite-email', this.open);
+    this.$root.$off('space-settings-invite-email', this.open);
   },
   methods: {
     open(goBackButton) {

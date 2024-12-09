@@ -44,10 +44,10 @@
 
   <portlet-skin>
     <application-name>social</application-name>
-    <portlet-name>HamburgerMenu</portlet-name>
+    <portlet-name>Sidebar</portlet-name>
     <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/HamburgerMenu/Style.css</css-path>
-    <css-priority>1</css-priority>
+    <css-path>/skin/css/portlet/Sidebar/Style.css</css-path>
+    <additional-module>ImageCropper</additional-module>
   </portlet-skin>
 
   <portlet-skin>
@@ -99,6 +99,20 @@
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>SpaceTemplateManagement</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
+    <portlet-name>SpacesAdministration</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
+    <portlet-name>SpacesList</portlet-name>
     <skin-name>Enterprise</skin-name>
     <additional-module>ImageCropper</additional-module>
   </portlet-skin>
@@ -1105,6 +1119,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>spaceForm</module>
+      </depends>
     </module>
   </portlet>
 
@@ -1436,9 +1453,6 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
-        <module>notificationExtensions</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -1454,7 +1468,6 @@
   <portlet>
     <name>TopBarFavorites</name>
     <module>
-      <load-group>FavoriteDrawerGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/topBarFavorites.bundle.js</path>
@@ -1478,11 +1491,11 @@
   </portlet>
 
   <portlet>
-    <name>HamburgerMenu</name>
+    <name>Sidebar</name>
     <module>
       <script>
         <minify>false</minify>
-        <path>/js/hamburgerMenu.bundle.js</path>
+        <path>/js/sidebar.bundle.js</path>
       </script>
       <depends>
         <module>vue</module>
@@ -1498,6 +1511,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>autoLinker</module>
       </depends>
       <depends>
         <module>siteDetailsComponent</module>
@@ -1575,6 +1591,9 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>spaceForm</module>
       </depends>
     </module>
   </portlet>
@@ -1669,8 +1688,24 @@
   <portlet>
     <name>TopBarLogo</name>
     <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/topBarLogo.bundle.js</path>
+      </script>
       <depends>
-        <module>spaceBannerLogoPopover</module>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
       </depends>
     </module>
   </portlet>
@@ -1996,6 +2031,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>spaceForm</module>
+      </depends>
     </module>
   </portlet>
 
@@ -2176,6 +2214,32 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>spaceForm</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/spaceForm.bundle.js</path>
+    </script>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>imageCropper</module>
     </depends>
   </module>
 
@@ -2640,29 +2704,6 @@
   </module>
 
   <module>
-    <name>spaceBannerLogoPopover</name>
-    <script>
-      <minify>false</minify>
-      <path>/js/spaceBannerLogoPopover.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-  </module>
-
-  <module>
     <name>notificationExtensions</name>
     <load-group>notificationGRP</load-group>
     <script>
@@ -2687,6 +2728,26 @@
     <depends>
       <module>jquery</module>
       <as>$</as>
+    </depends>
+  </module>
+
+  <module>
+    <name>favoriteDrawerExtensions</name>
+    <load-group>FavoriteDrawerGRP</load-group>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
     </depends>
   </module>
 
