@@ -158,18 +158,12 @@ export default {
       const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
       return index && `${navigationBaseUri}/` || navigationBaseUri;
     },
-    getNavigations() {
-      return this.$navigationService.getNavigations(this.siteName, this.siteType, this.globalScope, this.visibility, this.exclude, null, null, true)
-        .then(navs => {
-          if (navs.length) {
-            const homeNavigation = navs[0];
-            return this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, homeNavigation.id, null, true)
-              .then(navigations => {
-                this.navigations = navigations || [];
-                this.buildNavigations();
-              });
-          }
-        });
+    async getNavigations() {
+      if (this.$root.parentNodeId) {
+        const navigations = await this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, this.$root.parentNodeId, null, true);
+        this.navigations = navigations || [];
+        this.buildNavigations();
+      }
     },
     updateNavigationState(value) {
       this.tab = value;

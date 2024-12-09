@@ -56,7 +56,7 @@
         class="transparent v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
         onclick="Vue.startApp('PORTLET/social/Search', 'init')">
         <span class="v-btn__content">
-          <i class="v-icon fas fa-search position-static d-flex icon-medium-size icon-default-color"></i>
+          <i class="v-icon fas fa-search" style="font-size: 20px"></i>
         </span>
       </button>
       <textarea id="searchConnectorsDefaultValue" aria-hidden="true" class="d-none"><%= jsonSearchConnectors%></textarea>

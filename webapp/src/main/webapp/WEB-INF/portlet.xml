@@ -620,14 +620,14 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/topbarFavorites.html</value>
+      <value>/WEB-INF/jsp/portlet/topbarFavorites.jsp</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
       <value>no-layout-style</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
+    <cache-scope>PRIVATE</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -786,6 +786,8 @@
       <name>layout-css-class</name>
       <value>no-layout-style</value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PRIVATE</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -1019,6 +1021,8 @@
       <name>layout-css-class</name>
       <value>no-layout-style</value>
     </init-param>
+    <expiration-cache>60</expiration-cache>
+    <cache-scope>PRIVATE</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
