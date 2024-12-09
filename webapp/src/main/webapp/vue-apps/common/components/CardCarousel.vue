@@ -1,9 +1,11 @@
 <template>
   <div class="carousel-top-parent overflow-hidden position-relative">
-    <v-fab-transition>
+    <v-expand-transition>
       <v-btn
         v-show="displayLeftArrow"
         :aria-label="$t('cardCarousel.leftArrowButtonTitle')"
+        :left="!$vuetify.rtl"
+        :right="$vuetify.rtl"
         color="while"
         width="23px"
         height="23px"
@@ -11,12 +13,11 @@
         fab
         dark
         absolute
-        left
         x-small
-        @click="($vuetify.rtl) ? moveRight() : moveLeft()">
-        <v-icon size="25">fa-arrow-circle-left</v-icon>
+        @click="moveLeft">
+        <v-icon size="25">{{ leftArrowIcon }}</v-icon>
       </v-btn>
-    </v-fab-transition>
+    </v-expand-transition>
     <v-card
       :class="!dense && 'px-0 pb-4 pt-2'"
       class="carousel-middle-parent scrollbar-width-none transparent d-flex overflow-x-scroll"
@@ -27,10 +28,12 @@
         <slot></slot>
       </div>
     </v-card>
-    <v-fab-transition>
+    <v-expand-transition>
       <v-btn
         v-show="displayRightArrow"
         :aria-label="$t('cardCarousel.rightArrowButtonTitle')"
+        :left="$vuetify.rtl"
+        :right="!$vuetify.rtl"
         color="while"
         width="23px"
         height="23px"
@@ -38,12 +41,11 @@
         fab
         dark
         absolute
-        right
         x-small
-        @click="($vuetify.rtl) ? moveLeft() : moveRight()">
-        <v-icon size="25">fa-arrow-circle-right</v-icon>
+        @click="moveRight">
+        <v-icon size="25">{{ rightArrowIcon }}</v-icon>
       </v-btn>
-    </v-fab-transition>
+    </v-expand-transition>
   </div>
 </template>
 
@@ -68,6 +70,14 @@ export default {
     computing: false,
     initialized: false,
   }),
+  computed: {
+    leftArrowIcon() {
+      return this.$vuetify.rtl && 'fa-arrow-circle-right' || 'fa-arrow-circle-left';
+    },
+    rightArrowIcon() {
+      return this.$vuetify.rtl && 'fa-arrow-circle-left' || 'fa-arrow-circle-right';
+    },
+  },
   mounted() {
     this.scrollElement = this.$el && this.$el.children && this.$el.children.length > 1 && this.$el.children[1];
 
@@ -111,14 +121,9 @@ export default {
           const contentWidth = this.scrollElement.firstChild.offsetWidth;
           const children = this.scrollElement.firstChild.children;
           const childrenCount = children.length;
-          const firstElementLocation = this.scrollElement.firstChild.children[0].getBoundingClientRect();
-          const lastElementLocation = this.scrollElement.lastChild.children[9].getBoundingClientRect();
-          const carouselLocation = this.scrollElement.parentElement.getBoundingClientRect();
-          const visibilityIconArrowNext = (this.$vuetify.rtl) ? lastElementLocation.right<carouselLocation.x : lastElementLocation.x>carouselLocation.right;
-          const visibilityIconArrowPrev = (this.$vuetify.rtl) ? firstElementLocation.x > carouselLocation.right :firstElementLocation.right < carouselLocation.x;
           this.visibleChildrenPerPage = parseInt(parentWidth * childrenCount / contentWidth);
-          this.displayLeftArrow = (this.$vuetify.rtl) ? visibilityIconArrowNext : visibilityIconArrowPrev;
-          this.displayRightArrow = (this.$vuetify.rtl) ? visibilityIconArrowPrev : visibilityIconArrowNext;
+          this.displayLeftArrow = this.scrollElement && childrenCount && this.checkDisplayLeftArrow(children);
+          this.displayRightArrow = this.scrollElement && childrenCount && this.checkDisplayRightArrow(children);
           if (!this.initialized && childrenCount) {
             this.childScrollIndex = this.visibleChildrenPerPage >= children.length ? (children.length - 1) : this.visibleChildrenPerPage;
             this.initialized = true;
@@ -126,6 +131,12 @@ export default {
           this.computing = false;
         }, 200);
       }
+    },
+    checkDisplayLeftArrow(children) {
+      return Math.abs(this.scrollElement.scrollLeft) - Math.abs(this.$vuetify.rtl ? 0 : children[0].offsetLeft) > 10;
+    },
+    checkDisplayRightArrow() {
+      return parseInt(this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - Math.abs(this.scrollElement.scrollLeft)) > 10;
     },
   },
 };
