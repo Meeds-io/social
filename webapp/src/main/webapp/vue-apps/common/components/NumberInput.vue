@@ -36,8 +36,9 @@
       :min="min"
       :max="max"
       :class="valid && 'text-color' || 'error-color'"
+      :style="inputStyle"
       type="text"
-      class="layout-number-input pa-0 text-center">
+      class="pa-0 ma-0 text-center">
     <div v-else>{{ num }}</div>
     <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
@@ -86,26 +87,24 @@ export default {
       type: Number,
       default: () => 88,
     },
+    inputWidth: {
+      type: Number,
+      default: () => 36,
+    },
   },
   data: () => ({
     num: 20,
     valid: false,
     initialized: false,
   }),
+  computed: {
+    inputStyle() {
+      return `width: ${this.inputWidth}px;`;
+    },
+  },
   watch: {
     num() {
-      if (!this.initialized) {
-        return;
-      } else if (this.min && Number(this.num) < Number(this.min)) {
-        this.$emit('input', Number(this.min) + this.diff);
-        this.valid = false;
-      } else if (this.max && Number(this.num) > Number(this.max)) {
-        this.$emit('input', Number(this.max) + this.diff);
-        this.valid = false;
-      } else {
-        this.$emit('input', Number(this.num) + this.diff);
-        this.valid = true;
-      }
+      this.handleInputValidation();
     },
     valid: {
       immediate: true,
@@ -120,6 +119,7 @@ export default {
   },
   mounted() {
     this.initialized = true;
+    this.handleInputValidation();
   },
   methods: {
     adjust() {
@@ -141,6 +141,20 @@ export default {
         this.num = Number(this.num) + this.step;
       }
     },
+    handleInputValidation() {
+      if (!this.initialized) {
+        return;
+      } else if (this.min && Number(this.num) < Number(this.min)) {
+        this.$emit('input', Number(this.min) + this.diff);
+        this.valid = false;
+      } else if (this.max && Number(this.num) > Number(this.max)) {
+        this.$emit('input', Number(this.max) + this.diff);
+        this.valid = false;
+      } else {
+        this.$emit('input', Number(this.num) + this.diff);
+        this.valid = true;
+      }
+    }
   },
 };
 </script>
