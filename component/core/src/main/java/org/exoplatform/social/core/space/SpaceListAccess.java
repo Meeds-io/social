@@ -298,7 +298,7 @@ public class SpaceListAccess implements ListAccess<Space> {
             || type == ACCESSIBLE
             || type == VISIBLE
             || statusType != null)) {
-      return new SpaceSearchFilter(username.toLowerCase(),
+      return new SpaceSearchFilter(username,
                                    filter.getIdentityId(),
                                    filter.getTemplateId(),
                                    filter.getManagingTemplateIds(),
