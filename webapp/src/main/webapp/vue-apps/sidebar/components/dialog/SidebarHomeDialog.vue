@@ -80,7 +80,6 @@ export default {
       if (this.$root.defaultUserPath === this.url) {
         return;
       }
-      this.$root.$emit('dialog-opened');
       this.$refs?.confirmDialog?.open?.();
     },
   },

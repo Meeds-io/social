@@ -25,7 +25,7 @@
     :width="drawerWidth"
     :style="drawerOffsetStyle"
     :right="$vuetify.rtl"
-    class="HamburgerMenuThirdLevelParent border-box-sizing"
+    class="HamburgerMenuThirdLevelParent border-box-sizing z-index-drawer"
     max-width="100%"
     hide-overlay>
     <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
