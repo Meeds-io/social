@@ -109,11 +109,6 @@
           icon="fa-sign-in-alt"
           @click="requestJoin" />
         <space-card-menu-item
-          v-if="space.canEdit"
-          :href="`${url}/settings`"
-          label="spacesList.button.openSettings"
-          icon="fa-edit" />
-        <space-card-menu-item
           v-if="space.canDelete"
           label="spacesList.button.remove"
           label-color="error"
