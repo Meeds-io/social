@@ -166,14 +166,20 @@ export default {
   created() {
     this.originalLimitToFetch = this.limitToFetch = this.limit;
     document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
-    document.addEventListener('unread-items-deleted', (event) => {
-      if (event) {
-        this.searchSpaces();
-      }
-    });
+    document.addEventListener('unread-items-deleted', this.refreshByEvent);
+    this.refreshSelectedSpace();
+  },
+  beforeDestroy() {
+    document.removeEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
+    document.removeEventListener('unread-items-deleted', this.refreshByEvent);
     this.refreshSelectedSpace();
   },
   methods: {
+    refreshByEvent(event) {
+      if (event) {
+        this.searchSpaces();
+      }
+    },
     refreshSelectedSpace() {
       this.selectedSpaceIndex = this.loadedSpaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
     },

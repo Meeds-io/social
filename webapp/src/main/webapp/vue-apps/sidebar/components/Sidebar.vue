@@ -104,7 +104,6 @@ export default {
     unreadPerSpace: null,
     interval: null,
     mouseEvent: false,
-    allowClosing: true,
     closeTimeout: null,
     visibility: ['displayed', 'temporal']
   }),
@@ -215,13 +214,13 @@ export default {
     this.$root.$on('change-space-menu', this.changeSpaceMenu);
     this.$root.$on('change-spaces-menu', this.changeSpacesMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
-    this.$root.$on('dialog-opened', () => this.allowClosing = false);
-    this.$root.$on('dialog-closed', () => window.setTimeout(() => {
-      this.allowClosing = true;
-    }, 200));
-    this.$root.$on('menu-opened', () => this.allowClosing = false);
-    this.$root.$on('menu-closed', () => this.allowClosing = true);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+  },
+  beforeDestroy() {
+    this.$root.$off('change-space-menu', this.changeSpaceMenu);
+    this.$root.$off('change-spaces-menu', this.changeSpacesMenu);
+    this.$root.$off('change-site-menu', this.changeSiteMenu);
+    document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
   },
   methods: {
     async openFirstLevel(mouseEvent) {
@@ -232,9 +231,9 @@ export default {
       window.clearTimeout(this.closeTimeout);
       window.clearInterval(this.interval);
       this.firstLevelDrawer = true;
-      if (this.allowClosing) {
-        this.allowClosing = false;
-        this.closeTimeout = window.setTimeout(() => this.allowClosing = true, 2000);
+      if (this.$root.allowClosing) {
+        this.$root.allowClosing = false;
+        this.closeTimeout = window.setTimeout(() => this.$root.allowClosing = true, 2000);
       }
     },
     async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy, name, type) {
@@ -326,7 +325,7 @@ export default {
       }
     },
     closeMenu() {
-      if (!this.allowClosing) {
+      if (!this.$root.allowClosing) {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
         return;
       }

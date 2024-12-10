@@ -109,6 +109,10 @@ export default {
     document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
     this.name = eXo.env.portal.siteKeyName === this.site.name && eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
   },
+  beforeDestroy() {
+    this.$root.$off('update-home-link', this.selectHome);
+    document.removeEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
+  },
   methods: {
     navigationUri(navigation) {
       if (!navigation.pageKey && !navigation.url) {
@@ -129,7 +133,7 @@ export default {
         return;
       }
       this.selectedNavigation = nav;
-      this.$refs.confirmDialog.open();
+      this.$refs?.confirmDialog?.open?.();
     },
     changeHome() {
       const url = this.navigationUri(this.selectedNavigation);
