@@ -72,7 +72,7 @@ let config = {
     activityReactions: './src/main/webapp/vue-apps/activity-reactions/main.js',
     activityStream: './src/main/webapp/vue-apps/activity-stream/main.js',
     topBarLogo: './src/main/webapp/vue-apps/top-bar-logo/main.js',
-    topBarFavorites: './src/main/webapp/vue-apps/favorites-list-top-bar/main.js',
+    topBarFavorites: './src/main/webapp/vue-apps/top-bar-favorites/main.js',
     popover: './src/main/webapp/vue-apps/popover/main.js',
     versionHistoryDrawer: './src/main/webapp/vue-apps/version-history-drawer/main.js',
     topBarMenu: './src/main/webapp/vue-apps/top-bar-menu/main.js',
@@ -91,7 +91,6 @@ let config = {
     verticalMenu: './src/main/webapp/vue-apps/vertical-menu/main.js',
     siteDetails: './src/main/webapp/vue-apps/site-details/main.js',
     breadcrumb: './src/main/webapp/vue-apps/breadcrumb/main.js',
-    platformSettings: './src/main/webapp/vue-apps/platform-settings/main.js',
     complementaryFilter: './src/main/webapp/vue-apps/complementary-filter/main.js',
     organizationalChart: './src/main/webapp/vue-apps/organizational-chart/main.js',
     organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js'
