@@ -25,7 +25,7 @@
         min-height="58"
         class="d-flex align-center full-width"
         flat>
-        <v-list-item dense>
+        <v-list-item class="text-truncate full-width" dense>
           <v-list-item-icon
             v-if="!$root.displaySequentially"
             class="backToMenu ms-0 me-2 icon-default-color justify-center"
