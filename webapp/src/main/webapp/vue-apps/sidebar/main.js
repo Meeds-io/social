@@ -57,6 +57,7 @@ export function init(
           mode,
           isExternalFeatureEnabled,
           allowUserHome,
+          allowClosing: true,
           hoverFirstLevel: false,
           hoverSecondLevel: false,
           hoverThirdLevel: false,
@@ -110,7 +111,7 @@ export function init(
             return this.allowedModes.includes('HIDDEN');
           },
           expand() {
-            return !this.icon || this.hoverDeferred;
+            return !this.icon || this.hoverDeferred || !this.allowClosing;
           },
           iconExpand() {
             return this.icon && this.expand;
@@ -192,6 +193,13 @@ export function init(
           },
         },
         created() {
+          this.$root.$on('dialog-opened', () => this.$root.allowClosing = false);
+          this.$root.$on('dialog-closed', () => window.setTimeout(() => {
+            this.$root.allowClosing = true;
+            this.hoverDeferred = false;
+          }, 200));
+          this.$root.$on('menu-opened', () => this.$root.allowClosing = false);
+          this.$root.$on('menu-closed', () => this.$root.allowClosing = true);
           document.addEventListener('homeLinkUpdated', this.updateUserHome);
           this.init();
         },
