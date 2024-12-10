@@ -132,7 +132,10 @@ export default {
     },
   },
   created() {
-    document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
+    document.addEventListener('homeLinkUpdated', this.updateHome);
+  },
+  beforeDestroy() {
+    document.removeEventListener('homeLinkUpdated', this.updateHome);
   },
   methods: {
     selectHome(event) {
@@ -141,7 +144,10 @@ export default {
       if (this.homeLink !== this.navigationUri) {
         this.$root.$emit('update-home-link', this.navigation);
       }
-    }
-  }
+    },
+    updateHome() {
+      this.homeLink = eXo.env.portal.homeLink;
+    },
+  },
 };
 </script>
