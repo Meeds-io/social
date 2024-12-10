@@ -170,6 +170,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("    \"pending\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"invited\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"manager\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"member\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"publisher\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"redactor\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
