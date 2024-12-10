@@ -26,7 +26,6 @@
           :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
           :loading="loading"
           icon
-          class="text-xs-center"
           @click="openDrawer">
           <v-badge
             :value="badge > 0"
@@ -34,7 +33,7 @@
             flat
             color="var(--allPagesBadgePrimaryColor, #d32a2a)"
             overlap>
-            <v-icon class="icon-default-color" size="22">fa-bell</v-icon>
+            <v-icon class="icon-default-color" size="20">fa-bell</v-icon>
           </v-badge>
         </v-btn>
       </v-layout>

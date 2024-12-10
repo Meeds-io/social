@@ -5,7 +5,7 @@
       icon
       class="transparent"
       @click="dialog = !dialog">
-      <i class="v-icon fas fa-search icon-medium-size icon-default-color position-static d-flex"></i>
+      <v-icon size="20">fa-search</v-icon>
     </v-btn>
     <v-fade-transition>
       <v-flex
@@ -34,7 +34,6 @@
     </v-fade-transition>
   </v-app>
 </template>
-
 <script>
 export default {
   props: {

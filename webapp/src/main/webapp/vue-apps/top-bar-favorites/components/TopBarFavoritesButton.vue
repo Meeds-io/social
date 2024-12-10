@@ -17,10 +17,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <v-btn
     :title="$t('UITopBarFavoritesPortlet.label.iconTooltip')"
-    :aria-label="$t('UITopBarFavoritesPortlet.label.iconTooltip')"
     class="icon-default-color"
     icon
     @click="$root.$emit('open-favorite-drawer')">
-    <v-icon size="22" class="pb-1">fa-star</v-icon>
+    <v-icon size="20" class="pb-1">fa-star</v-icon>
   </v-btn>
 </template>
+<script></script>
