@@ -44,7 +44,7 @@
               def child = uicomponent.getChildById(application.getId());
               if (child != null && child.isRendered()) {
                 %>
-          <div class="<%=application.isMobile() ? "" : "hidden-xs-only"%>">
+          <div class="<%=application.isMobile() ? "ms-2" : "ms-2 hidden-xs-only"%>">
                 <% child.processRender(rcontext);%>
           </div>
                 <%

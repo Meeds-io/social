@@ -35,7 +35,7 @@ const vuetify = Vue.prototype.vuetifyOptions;
 
 const appId = 'topBarMenu';
 
-export function init(cacheId) {
+export function init(cacheId, parentNodeId) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   const appElement = document.createElement('div');
@@ -45,6 +45,7 @@ export function init(cacheId) {
     Vue.createApp({
       data: {
         cacheId,
+        parentNodeId,
       },
       template: `<top-bar-navigation-menu v-cacheable id="${appId}" />`,
       vuetify,
