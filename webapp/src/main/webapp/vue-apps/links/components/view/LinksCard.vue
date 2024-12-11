@@ -85,7 +85,11 @@ export default {
       return this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage];
     },
     url() {
-      return this.$utils.toLinkUrl(this.link?.url);
+      return this.$utils.toLinkUrl(this.link?.url, {
+        urls: true,
+        email: true,
+        phone: true,
+      });
     },
     target() {
       return this.link?.sameTab && '_self' || '_blank';
