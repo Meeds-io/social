@@ -88,7 +88,11 @@ export default {
           && (this.link?.name[this.$root.language] || this.link?.name[this.$root.defaultLanguage]);
     },
     url() {
-      return this.$utils.toLinkUrl(this.link?.url);
+      return this.$utils.toLinkUrl(this.link?.url, {
+        urls: true,
+        email: true,
+        phone: true,
+      });
     },
     iconUrl() {
       if (this.link?.iconSrc) {
