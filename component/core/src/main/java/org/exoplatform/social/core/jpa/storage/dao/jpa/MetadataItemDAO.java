@@ -404,6 +404,9 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     long minId;
     try {
       Tuple tuple = minMaxIdQuery.getSingleResult();
+      if (tuple == null || tuple.get(0, Long.class) == null) {
+        return 0;
+      }
       minId = tuple.get(0, Long.class);
       maxId = tuple.get(1, Long.class);
       if (maxId == 0) {

@@ -1545,6 +1545,9 @@ public class MetadataServiceTest extends AbstractCoreTest {
 
     items = metadataService.getMetadataItemsByMetadataAndObject(metadataItem.getMetadata().key(), metadataItem.getObject());
     assertTrue(CollectionUtils.isEmpty(items));
+
+    deletedCount = metadataService.deleteByMetadataItemsTypeAndUntilCreationDate(type, System.currentTimeMillis() + 1000);
+    assertEquals(0, deletedCount);
   }
 
   public void testFindMetadataNamesByCreator() throws Exception { // NOSONAR
