@@ -627,6 +627,15 @@ public interface MetadataService {
   void deleteMetadataItemsByParentObject(MetadataObject object);
 
   /**
+   * deletes Metadata Items which creation date is before the signated date
+   * 
+   * @param metadataTypeName metadata name {@link Metadata} name
+   * @param untilDate date in milliseconds
+   * @return the number of deleted items
+   */
+  int deleteByMetadataItemsTypeAndUntilCreationDate(String metadataTypeName, long untilDate);
+
+  /**
    * Retrieves a {@link Set} of {@link Metadata} name matching the given
    * {@link MetadataType} and {@link Set} of audience {@link Identity} ids
    * 
@@ -676,4 +685,5 @@ public interface MetadataService {
   default List<MetadataItem> getMetadataItemsByFilter(MetadataFilter filter, long offset, long limit) {
     throw new UnsupportedOperationException();
   }
+
 }
