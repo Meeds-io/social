@@ -66,7 +66,7 @@ export function convertImageDataAsSrc(imageData) {
   }
 }
 
-export function toLinkUrl(url) {
+export function toLinkUrl(url, options) {
   if (url?.indexOf?.('./') === 0) {
     url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
   }
@@ -74,13 +74,13 @@ export function toLinkUrl(url) {
     url = `${window.location.origin}${url}`;
   }
   const useNonSSL = url?.indexOf('http://') === 0;
-  url = Autolinker.parse(url || '', {
+  url = Autolinker.parse(url || '', options || {
     urls: true,
     email: false,
     phone: false,
     mention: false,
     hashtag: false,
-  })?.[0]?.getUrl?.()?.replace?.('javascript:', '');
+  })?.[0]?.getAnchorHref?.()?.replace?.('javascript:', '');
   if (useNonSSL) {
     return url;
   } else {

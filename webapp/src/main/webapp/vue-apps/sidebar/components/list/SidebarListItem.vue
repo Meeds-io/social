@@ -207,6 +207,9 @@ export default {
     isSitePages() {
       return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
     },
+    isLink() {
+      return this.item.type === 'LINK';
+    },
     isSpaces() {
       return this.item.type === 'SPACES';
     },
@@ -259,9 +262,11 @@ export default {
       return (this.isPage || this.$root.displaySequentially) && this.item.url;
     },
     url() {
-      return this.isUrl && this.item.url && Autolinker.parse(this.item.url, {
+      return this.isUrl && this.item.url && this.$utils.toLinkUrl(this.item.url, {
+        urls: true,
         email: true,
-      })?.[0]?.getUrl?.() || this.item.url;
+        phone: true,
+      }) || this.item.url;
     },
     target() {
       return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
