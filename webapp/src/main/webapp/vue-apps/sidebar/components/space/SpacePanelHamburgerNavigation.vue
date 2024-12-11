@@ -95,6 +95,11 @@
             {{ $t('menu.spaces.markAsRead') }}
           </span>
         </v-tooltip>
+        <space-favorite-action
+          :is-favorite="isFavorite"
+          :space-id="spaceId"
+          entity-type="spaces_left_navigation"
+          class="me-2" />
         <extension-registry-components
           :params="params"
           name="SpacePopover"
@@ -102,12 +107,7 @@
           parent-element="div"
           element="div"
           element-class="me-2 ms-0"
-          class="space-panel-action" />
-        <space-favorite-action
-          :is-favorite="isFavorite"
-          :space-id="spaceId"
-          entity-type="spaces_left_navigation"
-          class="me-2" />
+          class="space-panel-action d-flex" />
         <span
           v-for="extension in enabledExtensionComponents"
           :key="extension.key"
