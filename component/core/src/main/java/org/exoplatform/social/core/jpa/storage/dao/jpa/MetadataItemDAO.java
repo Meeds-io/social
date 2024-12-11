@@ -30,15 +30,20 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataFilter;
 
+import jakarta.persistence.FlushModeType;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 
 public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long> {
+
+  private static final Log    LOG                  = ExoLogger.getLogger(MetadataItemDAO.class);
 
   private static final String PROPERTY_VALUE_PARAM = "propertyValue";
 
@@ -61,7 +66,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String OBJECT_ID            = "objectId";
 
   private static final String SPACE_ID             = "spaceId";
-  
+
   private static final String SPACE_IDS            = "spaceIds";
 
   private static final String OBJECT_TYPE          = OBJECT_TYPE_PARAM;
@@ -81,7 +86,6 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   private static final String CREATED_DATE         = "createdDate";
 
   private static final String ID                   = "id";
-
 
   public List<MetadataItemEntity> getMetadataItemsByObject(String objectType, String objectId) {
     TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByObject",
@@ -391,15 +395,46 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
 
   @ExoTransactional
   public int deleteByMetadataItemsTypeAndUntilCreationDate(long metadataType, long untilDate) {
-    Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate");
-    query.setParameter(CREATED_DATE, untilDate);
-    query.setParameter(METADATA_TYPE, metadataType);
-    return query.executeUpdate();
+    TypedQuery<Tuple> minMaxIdQuery =
+                                getEntityManager().createNamedQuery("SocMetadataItemEntity.getMinMaxIdByMetadataItemsTypeAndUntilCreationDate",
+                                                                    Tuple.class);
+    minMaxIdQuery.setParameter(CREATED_DATE, untilDate);
+    minMaxIdQuery.setParameter(METADATA_TYPE, metadataType);
+    long maxId;
+    long minId;
+    try {
+      Tuple tuple = minMaxIdQuery.getSingleResult();
+      minId = tuple.get(0, Long.class);
+      maxId = tuple.get(1, Long.class);
+      if (maxId == 0) {
+        return 0;
+      }
+    } catch (NoResultException e) {
+      return 0;
+    }
+
+    int totalUpdated = 0;
+    long offset = minId - 1;
+    LOG.info("Deleting Metadata items from '{}' until '{}' id which are of type '{}'", minId, maxId, metadataType);
+    while (offset < maxId) {
+      long endId = Math.min(offset + 10000, maxId);
+      Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate");
+      query.setParameter(METADATA_TYPE, metadataType);
+      query.setParameter("minId", offset);
+      query.setParameter("maxId", endId + 1);
+      query.setFlushMode(FlushModeType.AUTO);
+      int updated = query.executeUpdate();
+      LOG.info("'{}' Metadata items deleted in bulk", updated);
+      totalUpdated += updated;
+      offset = endId;
+    }
+    LOG.info("'{}' Metadata items deleted with type '{}'", totalUpdated, metadataType);
+    return totalUpdated;
   }
 
   private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
 
-    String[] allowedSortFields = new String[] {"UPDATED_DATE", "CREATED_DATE"};
+    String[] allowedSortFields = new String[] { "UPDATED_DATE", "CREATED_DATE" };
     StringBuilder query = new StringBuilder();
     query.append("""
         SELECT metadataItems.* FROM SOC_METADATA_ITEMS metadataItems
@@ -420,7 +455,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       query.append(filter.getCreatorId());
     }
     if (!CollectionUtils.isEmpty(filter.getMetadataObjectTypes())) {
-      String objectTypes = filter.getMetadataObjectTypes().stream()
+      String objectTypes = filter.getMetadataObjectTypes()
+                                 .stream()
                                  .map(s -> "'" + s + "'")
                                  .collect(Collectors.joining(","));
       query.append(" AND metadataItems.OBJECT_TYPE in (");
@@ -429,7 +465,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     }
     StringBuilder spaceIdsQuery = new StringBuilder();
     if (!CollectionUtils.isEmpty(filter.getMetadataSpaceIds())) {
-      String spaceIds = filter.getMetadataSpaceIds().stream()
+      String spaceIds = filter.getMetadataSpaceIds()
+                              .stream()
                               .map(String::valueOf)
                               .collect(Collectors.joining(","));
       spaceIdsQuery.append(" metadataItems.SPACE_ID in (");
@@ -461,8 +498,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
     if (filter.getSortField() != null && Arrays.asList(allowedSortFields).contains(filter.getSortField())) {
       query.append(" ORDER BY metadataItems.%s DESC, metadataItems.METADATA_ID DESC".formatted(filter.getSortField()));
-    }
-    else {
+    } else {
       query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
     }
     return getEntityManager().createNativeQuery(query.toString(), MetadataItemEntity.class);
@@ -482,7 +518,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       return;
     }
     StringBuilder whereClaus = new StringBuilder();
-    query.append(""" 
+    query.append("""
         ( metadataItems.METADATA_ITEM_ID IN (
         SELECT %s.METADATA_ITEM_ID FROM
         """.formatted(lastKey + lastValue));

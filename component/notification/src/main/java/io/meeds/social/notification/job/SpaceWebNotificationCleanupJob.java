@@ -54,7 +54,7 @@ public class SpaceWebNotificationCleanupJob {
     long start = System.currentTimeMillis();
     long untilDate = start - keepAliveDays * DAY_IN_MS;
     String untilFormatedDate = DateFormat.getDateTimeInstance().format(new Date(untilDate));
-    LOG.info("Delete unread activities until {}", untilFormatedDate);
+    LOG.info("Delete unread activities created before {}", untilFormatedDate);
 
     int deletedUnreadNotifications = spaceWebNotificationService.markAllAsReadUntil(untilDate);
     if (deletedUnreadNotifications > 0) {

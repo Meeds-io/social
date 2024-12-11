@@ -158,10 +158,20 @@ import jakarta.persistence.Table;
         + " AND mi.spaceId = :spaceId"
 )
 @NamedQuery(
+    name = "SocMetadataItemEntity.getMinMaxIdByMetadataItemsTypeAndUntilCreationDate",
+    query = """
+      SELECT MIN(item.id),MAX(item.id) FROM SocMetadataItemEntity item
+      INNER JOIN item.metadata sm
+      ON sm.type = :metadataType
+      WHERE item.createdDate < :createdDate
+    """
+)
+@NamedQuery(
     name = "SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate",
     query = """
       DELETE FROM SocMetadataItemEntity item
-      WHERE item.createdDate < :createdDate
+      WHERE item.id < :maxId
+      AND item.id > :minId
       AND item.metadata.id IN
           (
            SELECT DISTINCT(m.id)
