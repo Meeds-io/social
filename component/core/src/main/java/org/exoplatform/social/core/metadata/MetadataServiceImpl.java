@@ -46,17 +46,17 @@ import org.exoplatform.social.metadata.model.MetadataType;
 @SuppressWarnings("removal")
 public class MetadataServiceImpl implements MetadataService, Startable {
 
-  private static final String METADATA_TYPE_IS_MANDATORY_MESSAGE = "Metadata Type is mandatory";
+  private static final String             METADATA_TYPE_IS_MANDATORY_MESSAGE = "Metadata Type is mandatory";
 
-  private static final Log                LOG                 = ExoLogger.getLogger(MetadataServiceImpl.class);
+  private static final Log                LOG                                = ExoLogger.getLogger(MetadataServiceImpl.class);
 
   private MetadataStorage                 metadataStorage;
 
   private ListenerService                 listenerService;
 
-  private Map<String, MetadataTypePlugin> metadataTypePlugins = new HashMap<>();
+  private Map<String, MetadataTypePlugin> metadataTypePlugins                = new HashMap<>();
 
-  private List<MetadataInitPlugin>        metadataPlugins     = new ArrayList<>();
+  private List<MetadataInitPlugin>        metadataPlugins                    = new ArrayList<>();
 
   public MetadataServiceImpl(MetadataStorage metadataStorage, ListenerService listenerService) {
     this.metadataStorage = metadataStorage;
@@ -145,7 +145,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                  properties);
     return createMetadataItem(metadataItem, userIdentityId, broadcast);
   }
-  
+
   @Override
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
@@ -153,7 +153,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                          long userIdentityId) throws ObjectAlreadyExistsException {
     return createMetadataItem(metadataObject, metadataKey, properties, userIdentityId, true);
   }
-  
+
   @Override
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
@@ -175,7 +175,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                          Map<String, String> properties) throws ObjectAlreadyExistsException {
     return createMetadataItem(metadataObject, metadataKey, properties, true);
   }
-  
+
   @Override
   public MetadataItem updateMetadataItem(MetadataItem metadataItem, long userIdentityId, boolean broadcast) {
     if (metadataItem == null) {
@@ -247,7 +247,10 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateSpaceId(spaceId);
     validateUserIdentityId(userIdentityId);
-    List<MetadataItem> deletedMetadataItems = this.metadataStorage.deleteByMetadataTypeAndSpaceIdAndCreatorId(metadataType.getId(), spaceId, userIdentityId);
+    List<MetadataItem> deletedMetadataItems =
+                                            this.metadataStorage.deleteByMetadataTypeAndSpaceIdAndCreatorId(metadataType.getId(),
+                                                                                                            spaceId,
+                                                                                                            userIdentityId);
     if (CollectionUtils.isNotEmpty(deletedMetadataItems)) {
       for (MetadataItem metadataItem : deletedMetadataItems) {
         broadcastDeleted(metadataItem, userIdentityId);
@@ -259,7 +262,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   public void deleteByMetadataTypeAndCreatorId(String metadataTypeName, long userIdentityId) {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateUserIdentityId(userIdentityId);
-    List<MetadataItem> deletedMetadataItems = this.metadataStorage.deleteByMetadataTypeAndCreatorId(metadataType.getId(), userIdentityId);
+    List<MetadataItem> deletedMetadataItems = this.metadataStorage.deleteByMetadataTypeAndCreatorId(metadataType.getId(),
+                                                                                                    userIdentityId);
     if (CollectionUtils.isNotEmpty(deletedMetadataItems)) {
       for (MetadataItem metadataItem : deletedMetadataItems) {
         broadcastDeleted(metadataItem, userIdentityId);
@@ -275,6 +279,12 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   @Override
   public void deleteMetadataItemsByParentObject(MetadataObject object) {
     this.metadataStorage.deleteMetadataItemsByParentObject(object);
+  }
+
+  @Override
+  public int deleteByMetadataItemsTypeAndUntilCreationDate(String metadataTypeName, long untilDate) {
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    return this.metadataStorage.deleteByMetadataItemsTypeAndUntilCreationDate(metadataType.getId(), untilDate);
   }
 
   @Override
@@ -369,7 +379,6 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                                  limit);
   }
 
-
   @Override
   public List<MetadataItem> getMetadataItemsByFilter(MetadataFilter filter, long offset, long limit) {
     return metadataStorage.getMetadataItemsByFilter(filter, offset, limit);
@@ -428,7 +437,7 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     validateUserIdentityId(creatorId);
     return this.metadataStorage.countMetadataItemsByMetadataTypeAndAudienceId(metadataType.getId(), creatorId, spaceId);
   }
-  
+
   public Map<Long, Long> countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId(String metadataTypeName,
                                                                                  long creatorId,
                                                                                  List<Long> spacesId) {
@@ -517,10 +526,10 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                            .anyMatch(registeredPlugin -> {
                              boolean sameIdWithdifferentName = !StringUtils.equals(registeredPlugin.getName(),
                                                                                    metadataTypePlugin.getName())
-                                 && registeredPlugin.getId() == metadataTypePlugin.getId();
+                                                               && registeredPlugin.getId() == metadataTypePlugin.getId();
                              boolean sameNameWithDifferentId = StringUtils.equals(registeredPlugin.getName(),
                                                                                   metadataTypePlugin.getName())
-                                 && registeredPlugin.getId() != metadataTypePlugin.getId();
+                                                               && registeredPlugin.getId() != metadataTypePlugin.getId();
                              return sameIdWithdifferentName || sameNameWithDifferentId;
                            })) {
       throw new UnsupportedOperationException("Overriding existing Metadata Type with different ID or Name is not allowed. Please verify the unicity of Metadata Type id and name.");
@@ -662,8 +671,8 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                   metadataKeyToShare,
                                   creatorId);
       } catch (ObjectAlreadyExistsException e) {
-        LOG.warn("The metadata object {} is already associated to Metadata with unique key {}."
-            + " This doesn't affect the expected result, so continue processing.",
+        LOG.warn("The metadata object {} is already associated to Metadata with unique key {}." +
+            " This doesn't affect the expected result, so continue processing.",
                  metadataObjectToShare,
                  metadataKeyToShare,
                  e);

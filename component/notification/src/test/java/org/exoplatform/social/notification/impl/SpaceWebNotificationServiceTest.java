@@ -142,6 +142,13 @@ public class SpaceWebNotificationServiceTest extends AbstractCoreTest {
   }
 
   @Test
+  public void testMarkAllAsReadUntil() {
+    long timeMillis = System.currentTimeMillis();
+    spaceWebNotificationService.markAllAsReadUntil(timeMillis);
+    verify(metadataService).deleteByMetadataItemsTypeAndUntilCreationDate(METADATA_TYPE_NAME, timeMillis);
+  }
+
+  @Test
   public void testDispatchNotification() throws Exception {
     SpaceWebNotificationItem spaceWebNotificationItem = new SpaceWebNotificationItem(METADATA_OBJECT_TYPE,
                                                                                      activityId,

@@ -48,8 +48,8 @@ public interface SpaceWebNotificationService {
   /**
    * Dispatch notification info
    * 
-   * @param  notification
-   * @param  username
+   * @param notification
+   * @param username
    * @throws Exception
    */
   void dispatch(NotificationInfo notification, String username) throws Exception; // NOSONAR
@@ -57,7 +57,7 @@ public interface SpaceWebNotificationService {
   /**
    * Mark a space notification item as unread
    * 
-   * @param  notificationItem
+   * @param notificationItem
    * @throws Exception
    */
   void markAsUnread(SpaceWebNotificationItem notificationItem) throws Exception; // NOSONAR
@@ -65,7 +65,7 @@ public interface SpaceWebNotificationService {
   /**
    * Mark a space notification item as read
    * 
-   * @param  notificationItem
+   * @param notificationItem
    * @throws Exception
    */
   void markAsRead(SpaceWebNotificationItem notificationItem) throws Exception; // NOSONAR
@@ -74,8 +74,8 @@ public interface SpaceWebNotificationService {
    * Mark a list of unread items per application as read to a given
    * {@link MetadataItem} creatorId by a given {@link Space} identifier
    *
-   * @param  userIdentityId {@link MetadataItem} creatorId
-   * @param  spaceId        {@link Space} spaceId
+   * @param userIdentityId {@link MetadataItem} creatorId
+   * @param spaceId {@link Space} spaceId
    * @throws Exception
    */
   void markAllAsRead(long userIdentityId, long spaceId) throws Exception; // NOSONAR
@@ -84,21 +84,31 @@ public interface SpaceWebNotificationService {
    * Mark a list of unread items per application as read to a given
    * {@link MetadataItem} creatorId
    *
-   * @param  userIdentityId {@link MetadataItem} creatorId
+   * @param userIdentityId {@link MetadataItem} creatorId
    * @throws Exception
    */
   void markAllAsRead(long userIdentityId) throws Exception; // NOSONAR
 
   /**
+   * A cleanup operation of all unread which creation date is before the
+   * designated date
+   * 
+   * @param untilDate Date in milliseconds
+   */
+  default int markAllAsReadUntil(long untilDate) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Get a list of unread items per application to a given {@link MetadataItem}
    * creatorId by a given {@link Space} identifier
    *
-   * @param  creatorId {@link MetadataItem} creatorId
-   * @param  spaceId   {@link Space} spaceId
-   * @return           Map of application and unread items
+   * @param creatorId {@link MetadataItem} creatorId
+   * @param spaceId {@link Space} spaceId
+   * @return Map of application and unread items
    */
   Map<String, Long> countUnreadItemsByApplication(long creatorId, long spaceId);
-  
+
   /**
    * Get a list of unread items per space to a given {@link MetadataItem}
    *
@@ -123,7 +133,8 @@ public interface SpaceWebNotificationService {
    * @throws IllegalAccessException when user isn't member of space
    * @throws ObjectNotFoundException when space not found
    */
-  List<Long> getUnreadActivityIdsBySpace(String username, long spaceId, long offset, long limit) throws IllegalAccessException, ObjectNotFoundException;
+  List<Long> getUnreadActivityIdsBySpace(String username, long spaceId, long offset, long limit) throws IllegalAccessException,
+                                                                                                 ObjectNotFoundException;
 
   /**
    * @param username User {@link Identity} remote id

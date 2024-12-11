@@ -272,6 +272,10 @@ public class MetadataStorage {
     return this.metadataItemDAO.deleteMetadataItemsByParentObject(object.getType(), object.getParentId());
   }
 
+  public int deleteByMetadataItemsTypeAndUntilCreationDate(long metadataType, long untilDate) {
+    return this.metadataItemDAO.deleteByMetadataItemsTypeAndUntilCreationDate(metadataType, untilDate);
+  }
+
   public void deleteMetadataItemsByMetadataTypeAndObject(String metadataTypeName, MetadataObject object) {
     List<MetadataItem> metadataItems = getMetadataItemsByMetadataTypeAndObject(metadataTypeName, object);
     for (MetadataItem metadataItem : metadataItems) {

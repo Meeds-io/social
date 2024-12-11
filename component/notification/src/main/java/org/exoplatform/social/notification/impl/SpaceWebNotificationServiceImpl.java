@@ -236,6 +236,11 @@ public class SpaceWebNotificationServiceImpl implements SpaceWebNotificationServ
   }
 
   @Override
+  public int markAllAsReadUntil(long untilDate) {
+    return metadataService.deleteByMetadataItemsTypeAndUntilCreationDate(METADATA_TYPE_NAME, untilDate);
+  }
+
+  @Override
   public Map<String, Long> countUnreadItemsByApplication(long userIdentityId, long spaceId) {
     return metadataService.countMetadataItemsByMetadataTypeAndAudienceId(METADATA_TYPE_NAME, userIdentityId, spaceId);
   }

@@ -26,7 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Test;
 import org.picocontainer.Startable;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -42,6 +44,8 @@ import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
+
+import lombok.SneakyThrows;
 
 @SuppressWarnings("removal")
 public class MetadataServiceTest extends AbstractCoreTest {
@@ -1508,6 +1512,39 @@ public class MetadataServiceTest extends AbstractCoreTest {
     metadataItems = getMetadataItemsByObject(objectType2, objectId1);
     assertNotNull(metadataItems);
     assertEquals(1, metadataItems.size());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testDeleteByMetadataItemsTypeAndUntilCreationDate() {
+    long creatorId = Long.parseLong(johnIdentity.getId());
+    long audienceId1 = 10000l;
+
+    String type = userMetadataType.getName();
+
+    String objectType1 = "objectType110";
+    String objectId1 = "objectId15";
+    String metadataName1 = "testMetadata15";
+    String parentObjectId = "parentObjectId1";
+
+    MetadataItem metadataItem = createNewMetadataItem(type,
+                                                      metadataName1,
+                                                      objectType1,
+                                                      objectId1,
+                                                      parentObjectId,
+                                                      creatorId,
+                                                      audienceId1);
+    assertNotNull(metadataItem);
+
+    List<MetadataItem> items = metadataService.getMetadataItemsByMetadataAndObject(metadataItem.getMetadata().key(), metadataItem.getObject());
+    assertNotNull(items);
+    assertEquals(1, items.size());
+
+    int deletedCount = metadataService.deleteByMetadataItemsTypeAndUntilCreationDate(type, System.currentTimeMillis() + 1000);
+    assertEquals(1, deletedCount);
+
+    items = metadataService.getMetadataItemsByMetadataAndObject(metadataItem.getMetadata().key(), metadataItem.getObject());
+    assertTrue(CollectionUtils.isEmpty(items));
   }
 
   public void testFindMetadataNamesByCreator() throws Exception { // NOSONAR
