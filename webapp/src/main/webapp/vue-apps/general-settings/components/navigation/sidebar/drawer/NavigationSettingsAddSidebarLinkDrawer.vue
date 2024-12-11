@@ -128,7 +128,11 @@ export default {
     },
     isValidLink() {
       try {
-        return !!this.$utils.toLinkUrl(this.link)?.length;
+        return !!this.$utils.toLinkUrl(this.link, {
+          urls: true,
+          email: true,
+          phone: true,
+        })?.length;
       } catch (e) {
         return false;
       }

@@ -102,9 +102,11 @@ export default {
       return url;
     },
     uri() {
-      return this.isNodeGroup ? null : this.navigationUri && Autolinker.parse(this.navigationUri, {
+      return this.isNodeGroup ? null : this.navigationUri && this.$utils.toLinkUrl(this.navigationUri, {
+        urls: true,
         email: true,
-      })?.[0]?.getUrl?.() || this.navigationUri;
+        phone: true,
+      }) || this.navigationUri;
     },
     target() {
       return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';

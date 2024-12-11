@@ -21,7 +21,9 @@ export function getNavigationNodeUri(baseSiteUri, navigation) {
   const hasPage = !!navigation?.pageKey;
   const pageUrl = hasPage && `${baseSiteUri}${navigation.uri}`;
   const pageLink = navigation?.pageLink && Autolinker.parse(navigation?.pageLink, {
+    urls: true,
     email: true,
+    phone: true,
   })?.[0]?.getUrl?.() || navigation?.pageLink;
   navigation.nodeUri = pageLink || pageUrl;
   return navigation.nodeUri;
