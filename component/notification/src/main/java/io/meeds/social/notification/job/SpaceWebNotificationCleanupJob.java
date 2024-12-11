@@ -38,9 +38,13 @@ import lombok.Synchronized;
 @EnableScheduling
 public class SpaceWebNotificationCleanupJob {
 
-  private static final Log            LOG       = ExoLogger.getLogger(SpaceWebNotificationCleanupJob.class);
+  private static final NumberFormat   INTEGER_FORMAT_INSTANCE   = NumberFormat.getIntegerInstance();
 
-  private static final int            DAY_IN_MS = 24 * 3600 * 1000;
+  private static final DateFormat     DATE_TIME_FORMAT_INSTANCE = DateFormat.getDateTimeInstance();
+
+  private static final Log            LOG                       = ExoLogger.getLogger(SpaceWebNotificationCleanupJob.class);
+
+  private static final int            DAY_IN_MS                 = 24 * 3600 * 1000;
 
   @Autowired
   private SpaceWebNotificationService spaceWebNotificationService;
@@ -53,15 +57,15 @@ public class SpaceWebNotificationCleanupJob {
   public void run() {
     long start = System.currentTimeMillis();
     long untilDate = start - keepAliveDays * DAY_IN_MS;
-    String untilFormatedDate = DateFormat.getDateTimeInstance().format(new Date(untilDate));
+    String untilFormatedDate = DATE_TIME_FORMAT_INSTANCE.format(new Date(untilDate));
     LOG.info("Delete unread activities created before {}", untilFormatedDate);
 
     int deletedUnreadNotifications = spaceWebNotificationService.markAllAsReadUntil(untilDate);
     if (deletedUnreadNotifications > 0) {
-      LOG.info("{} unread activities has been marked as read unti {}. Operation suceeded within {}ms",
-               deletedUnreadNotifications,
+      LOG.info("{} unread activities has been marked as read which was created before {}. Operation suceeded within {}ms",
+               INTEGER_FORMAT_INSTANCE.format(deletedUnreadNotifications),
                untilFormatedDate,
-               NumberFormat.getIntegerInstance().format(System.currentTimeMillis() - start));
+               INTEGER_FORMAT_INSTANCE.format(System.currentTimeMillis() - start));
     }
   }
 
