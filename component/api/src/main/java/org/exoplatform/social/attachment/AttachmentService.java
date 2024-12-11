@@ -303,4 +303,27 @@ public interface AttachmentService {
    * @param userIdentityId            the ID of the user performing the operation
    */
   void moveAttachments(String sourceObjectType, String sourceObjectId, String destinationObjectType, String destinationObjectId, String destinationParentObjectId, long userIdentityId);
+
+  /**
+   * Creates an attachment for a specified object.
+   * 
+   * @param fileId the identifier of the file to be attached
+   * @param objectType the type of the object
+   * @param objectId the identifier of the object to which the attachment is being
+   *          added.
+   * @param parentObjectId the parent object identifier
+   * @param userIdentityId user
+   *          {@link org.exoplatform.social.core.identity.model.Identity} id
+   * @param properties the attachment properties
+   * @throws ObjectNotFoundException when the object identified by its id doesn't
+   *           exist
+   * @throws ObjectAlreadyExistsException when attachment already exists for given
+   *           object
+   */
+  void createAttachment(String fileId,
+                        String objectType,
+                        String objectId,
+                        String parentObjectId,
+                        long userIdentityId,
+                        Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException;
 }
