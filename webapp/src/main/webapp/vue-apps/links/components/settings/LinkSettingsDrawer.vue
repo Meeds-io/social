@@ -126,7 +126,8 @@
               <div class="d-flex flex-column">
                 <v-form
                   ref="form"
-                  autocomplete="off">
+                  autocomplete="off"
+                  @submit.prevent.stop="0">
                   <div class="d-flex flex-column">
                     <select
                       id="linkSettingDisplayType"
