@@ -373,6 +373,31 @@ public class AttachmentServiceImpl implements AttachmentService {
     }
   }
 
+  @Override
+  public void createAttachment(String fileId,
+                               String objectType,
+                               String objectId,
+                               String parentObjectId,
+                               long userIdentityId,
+                               Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException {
+    MetadataKey metadataKey = null;
+    metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
+    MetadataObject object = new MetadataObject(objectType,
+            objectId,
+            parentObjectId,
+            getSpaceId(objectType, objectId));
+    metadataService.createMetadataItem(object,
+            metadataKey,
+            properties,
+            userIdentityId);
+    broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
+            fileId,
+            objectType,
+            objectId,
+            getUserName(userIdentityId));
+  }
+
+
   private org.exoplatform.social.core.identity.model.Identity checkAccessPermission(String objectType,
                                                                                     String objectId,
                                                                                     String fileId,
@@ -501,29 +526,6 @@ public class AttachmentServiceImpl implements AttachmentService {
       LOG.warn("Error attaching uploaded file", e);
       report.addError(uploadedAttachmentDetail.getUploadedResource().getUploadId(), "attachment.uploadIdNotAttachedError");
     }
-  }
-
-  private void createAttachment(String fileId,
-                                String objectType,
-                                String objectId,
-                                String parentObjectId,
-                                long userIdentityId,
-                                Map<String, String> properties) throws ObjectNotFoundException, ObjectAlreadyExistsException {
-    MetadataKey metadataKey = null;
-    metadataKey = new MetadataKey(METADATA_TYPE.getName(), fileId, getAudienceId(objectType, objectId));
-    MetadataObject object = new MetadataObject(objectType,
-                                               objectId,
-                                               parentObjectId,
-                                               getSpaceId(objectType, objectId));
-    metadataService.createMetadataItem(object,
-                                       metadataKey,
-                                       properties,
-                                       userIdentityId);
-    broadcastAttachmentChange(ATTACHMENT_CREATED_EVENT,
-                              fileId,
-                              objectType,
-                              objectId,
-                              getUserName(userIdentityId));
   }
 
   private void updateAttachment(String fileId,
