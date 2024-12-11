@@ -35,7 +35,8 @@
       <v-form
         ref="form"
         autocomplete="off"
-        class="pa-4">
+        class="pa-4"
+        @submit.prevent.stop="0">
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
           {{ $t('links.label.linkName') }}
         </div>
