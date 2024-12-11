@@ -174,4 +174,11 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="metadata" id="1.0.0-mip-17-01">
+    <createIndex tableName="SOC_METADATA_ITEMS" indexName="IDX_SOC_METADATA_ITEMS_SPACE_ID_01">
+      <column name="METADATA_ID" type="BIGINT"></column>
+      <column name="SPACE_ID" type="BIGINT"></column>
+    </createIndex>
+  </changeSet>
+
 </databaseChangeLog>

@@ -158,6 +158,19 @@ import jakarta.persistence.Table;
         + " AND mi.spaceId = :spaceId"
 )
 @NamedQuery(
+    name = "SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate",
+    query = """
+      DELETE FROM SocMetadataItemEntity item
+      WHERE item.createdDate < :createdDate
+      AND item.metadata.id IN
+          (
+           SELECT DISTINCT(m.id)
+           FROM SocMetadataEntity m
+           WHERE m.type = :metadataType
+          )
+    """
+)
+@NamedQuery(
     name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndSpacesIdAndCreatorId",
     query = "SELECT item.spaceId, COUNT(DISTINCT item.id) FROM SocMetadataItemEntity item "
         + " INNER JOIN item.metadata sm"

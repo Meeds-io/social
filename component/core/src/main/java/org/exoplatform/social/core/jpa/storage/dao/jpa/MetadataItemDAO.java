@@ -389,6 +389,14 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return items.size();
   }
 
+  @ExoTransactional
+  public int deleteByMetadataItemsTypeAndUntilCreationDate(long metadataType, long untilDate) {
+    Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate");
+    query.setParameter(CREATED_DATE, untilDate);
+    query.setParameter(METADATA_TYPE, metadataType);
+    return query.executeUpdate();
+  }
+
   private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
 
     String[] allowedSortFields = new String[] {"UPDATED_DATE", "CREATED_DATE"};
@@ -499,4 +507,5 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     query.append(whereClaus);
     query.append(")");
   }
+
 }
