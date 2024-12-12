@@ -61,11 +61,11 @@
       </button>
       <textarea id="searchConnectorsDefaultValue" aria-hidden="true" class="d-none"><%= jsonSearchConnectors%></textarea>
       <textarea id="searchSkinUrlsDefaultValue" aria-hidden="true" class="d-none"><%= skinUrlsString%></textarea>
-      <% if (rcontext.getRequestURI().endsWith("/search") || rcontext.getRequestURI().equals("search")) { %>
       <script type="text/javascript">
-        require(['PORTLET/social/Search'], app => app.init());
+        if (window.location.pathname?.endsWith?.('/search')) {
+          require(['PORTLET/social/Search'], app => app.init());
+        }
       </script>
-      <% } %>
     </div>
   </div>
 </div>
