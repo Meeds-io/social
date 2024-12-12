@@ -18,6 +18,7 @@
  */
 package io.meeds.social.space.template.service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -131,7 +132,17 @@ public class SpaceTemplateService {
 
   public List<Long> getManagingSpaceTemplates(String username) {
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
-    return spaceTemplates.stream().filter(t -> canManageSpacesWithTemplate(t, username)).map(SpaceTemplate::getId).toList();
+    List<Long> spaceTemplateIds = spaceTemplates.stream()
+                                                .filter(t -> canManageSpacesWithTemplate(t, username))
+                                                .map(SpaceTemplate::getId)
+                                                .toList();
+    if (canManageTemplates(username)) {
+      spaceTemplateIds = new ArrayList<>(spaceTemplateIds);
+      // Include spaces not having an associated template Id
+      // which should be visible to an administrator
+      spaceTemplateIds.add(0L);
+    }
+    return spaceTemplateIds;
   }
 
   public SpaceTemplate getSpaceTemplate(long templateId) {

@@ -400,6 +400,37 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(0, allSpaces.getSize());
   }
 
+  public void testGetVisibleSpacesWithNoSpaceTemplateAsAdmin() throws Exception {
+    SpaceTemplate spaceTemplate = mockSpaceTemplate();
+
+    int count = 5;
+    Space firstSpace = null;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      if (i == 0) {
+        firstSpace = space;
+        spaceService.removeMember(space, TOM_NAME);
+        spaceTemplate.setAdminPermissions(Collections.singletonList(space.getGroupId()));
+      } else if (i % 2 == 0) {
+        space.setVisibility(Space.HIDDEN);
+        space.setTemplateId(spaceTemplate.getId());
+        space = spaceService.updateSpace(space);
+        spaceService.removeMember(space, DEMO_NAME);
+        spaceService.removeMember(space, TOM_NAME);
+      }
+    }
+    ListAccess<Space> allSpaces = spaceService.getVisibleSpacesWithListAccess(ROOT_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+
+    assertNotNull(firstSpace);
+    firstSpace.setTemplateId(0l); // NOSONAR
+    firstSpace.setVisibility(Space.HIDDEN);
+    spaceService.updateSpace(firstSpace);
+
+    allSpaces = spaceService.getVisibleSpacesWithListAccess(ROOT_NAME, new SpaceFilter());
+    assertEquals(count, allSpaces.getSize());
+  }
+
   public void testGetEditableSpacesWithSpaceTemplateAdmin() throws Exception {
     SpaceTemplate spaceTemplate = mockSpaceTemplate();
 
@@ -2316,7 +2347,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     String[] members = new String[] { DEMO_NAME, RAUL_NAME, GHOST_NAME, DRAGON_NAME };
     String[] invitedUsers = new String[] { REGISTER1_NAME, MARY_NAME };
     String[] pendingUsers = new String[] { JAME_NAME, PAUL_NAME, HACKER_NAME };
-    Space createdSpace = this.spaceService.createSpace(space, ROOT_NAME);
+    Space createdSpace = this.spaceService.createSpace(space, DEMO_NAME);
     Arrays.stream(pendingUsers).forEach(u -> spaceService.addPendingUser(createdSpace, u));
     Arrays.stream(invitedUsers).forEach(u -> spaceService.addInvitedUser(createdSpace, u));
     Arrays.stream(members).forEach(u -> spaceService.addMember(createdSpace, u));
@@ -2403,7 +2434,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     spaceService.addMember(space4, OTHER_USER_NAME);
     spaceService.addMember(space5, OTHER_USER_NAME);
 
-    ListAccess<Space> resultListCommonSpacesAccessList1 = spaceService.getCommonSpaces(ROOT_NAME, OTHER_USER_NAME);
+    ListAccess<Space> resultListCommonSpacesAccessList1 = spaceService.getCommonSpaces(DEMO_NAME, OTHER_USER_NAME);
     assertEquals(5, resultListCommonSpacesAccessList1.getSize());
     Space[] spaceArray = resultListCommonSpacesAccessList1.load(0, 2);
     assertEquals(2, spaceArray.length);
