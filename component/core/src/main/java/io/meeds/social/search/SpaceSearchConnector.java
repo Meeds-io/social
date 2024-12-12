@@ -433,6 +433,9 @@ public class SpaceSearchConnector {
   }
 
   private String buildPermissionsQuery(SpaceSearchFilter filter) {
+    if (CollectionUtils.isNotEmpty(filter.getManagingTemplateIds()) && filter.getManagingTemplateIds().contains(0l)) {
+      return StringUtils.EMPTY;
+    }
     String permissionField = getPermissionField(filter);
 
     return PERMISSIONS_QUERY.replace(PERMISSIONS_FIELD_REPLACEMENT,

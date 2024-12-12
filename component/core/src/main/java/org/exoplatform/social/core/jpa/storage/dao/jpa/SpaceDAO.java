@@ -369,7 +369,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
           parameterNames.add(PARAM_HIDDEN_VISIBILITY);
           parameterNames.add(PARAM_USER_ID);
           parameterNames.add(PARAM_STATUSES);
-        } else {
+        } else if (!spaceFilter.getManagingTemplateIds().contains(0l)) {
           suffixes.add("SpacePrivateOrStatusesOrManaging");
           predicates.add("(s.visibility <> :hiddenVisibility OR s.templateId IN :managingTemplateIds OR (sm.userId = :userId AND sm.status IN :statuses))");
           parameterNames.add(PARAM_HIDDEN_VISIBILITY);
@@ -387,7 +387,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
           predicates.add("sm.userId = :userId AND sm.status IN :statuses");
           parameterNames.add(PARAM_USER_ID);
           parameterNames.add(PARAM_STATUSES);
-        } else {
+        } else if (!spaceFilter.getManagingTemplateIds().contains(0l)) {
           suffixes.add("SpaceWithStatusesOrManaging");
           predicates.add("(s.templateId IN :managingTemplateIds OR (sm.userId = :userId AND sm.status IN :statuses))");
           parameterNames.add(PARAM_USER_ID);
