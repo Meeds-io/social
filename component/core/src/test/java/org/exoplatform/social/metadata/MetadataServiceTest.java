@@ -37,6 +37,7 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
+import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.Metadata;
@@ -74,6 +75,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     super.setUp();
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    getContainer().getComponentInstanceOfType(MetadataStorage.class).clearCaches();
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
 

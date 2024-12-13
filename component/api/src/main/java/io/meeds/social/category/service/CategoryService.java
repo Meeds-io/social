@@ -1,0 +1,144 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package io.meeds.social.category.service;
+
+import java.util.List;
+import java.util.Locale;
+
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.core.identity.model.Identity;
+
+import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryFilter;
+import io.meeds.social.category.model.CategorySearchFilter;
+import io.meeds.social.category.model.CategoryTree;
+
+public interface CategoryService {
+
+  public static final String EVENT_SOCIAL_CATEGORY_CREATED       = "social.category.created";
+
+  public static final String EVENT_SOCIAL_CATEGORY_UPDATED       = "social.category.updated";
+
+  public static final String EVENT_SOCIAL_CATEGORY_DELETED       = "social.category.deleted";
+
+  public static final String EVENT_SOCIAL_CATEGORY_ITEM_LINKED   = "social.category.object.linked";
+
+  public static final String EVENT_SOCIAL_CATEGORY_ITEM_UNLINKED = "social.category.object.unlinked";
+
+  /**
+   * Retrieves a {@link CategoryTree} with its associated categories switch
+   * designated depth and limit from the filter. This method will return only
+   * visible categories by the user.
+   * 
+   * @param filter used filter to query the Category tree
+   * @param username User name/login
+   * @param locale used {@link Locale} to retrieve translated name
+   * @return {@link CategoryTree} switch used filter
+   */
+  CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale);
+
+  /**
+   * Searches Categories in flat mode switch a name. This will return only
+   * accessible categories by the user.
+   * 
+   * @param filter used filter to query the Category tree
+   * @param username User name/login
+   * @param locale used {@link Locale} to retrieve translated name
+   * @return a {@link List} of {@link Category} switch used filter
+   */
+  List<Category> findCategories(CategorySearchFilter filter, String username, Locale locale);
+
+  /**
+   * Creates a new {@link Category}
+   * 
+   * @param category {@link Category} to create
+   * @param username User name/login
+   * @return created {@link Category}
+   * @throws ObjectNotFoundException when the {@link Category} designated by the
+   *           parentId doesn't exist
+   * @throws IllegalAccessException when the user isn't allowed to edit a
+   *           categories switch the ownerId field
+   */
+  Category createCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * @param category {@link Category} to create
+   * @param username User name/login
+   * @return updated {@link Category}
+   * @throws ObjectNotFoundException when the {@link Category} designated by the
+   *           parentId or the id of the category itself doesn't exist
+   * @throws IllegalAccessException when the user isn't allowed to edit a
+   *           categories switch the ownerId field
+   */
+  Category updateCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * @param categoryId {@link Category} identifier
+   * @param username User name/login
+   * @return deleted {@link Category}
+   * @throws ObjectNotFoundException when the {@link Category} designated by the
+   *           the id doesn't exist
+   * @throws IllegalAccessException when the user isn't allowed to edit a
+   *           categories switch the ownerId field
+   */
+  Category deleteCategory(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
+   * @param categoryId {@link Category} identifier
+   * @return {@link Category} if found, else null
+   */
+  Category getCategory(long categoryId);
+
+  /**
+   * @param ownerId {@link Identity} identifier
+   * @return the root {@link Category} of the tree if found, else null
+   */
+  Category getRootCategory(long ownerId);
+
+  /**
+   * @param category {@link Category}
+   * @param username User name/login
+   * @return true if can access to the category, else false
+   */
+  boolean canAccess(Category category, String username);
+
+  /**
+   * @param categoryId {@link Category} identifier
+   * @param username User name/login
+   * @return true if can access to the category, else false
+   */
+  boolean canAccess(long categoryId, String username);
+
+  /**
+   * @param category {@link Category}
+   * @param username User name/login
+   * @return true if can edit to the category switch its tree ownerId, else
+   *         false
+   */
+  boolean canEdit(Category category, String username);
+
+  /**
+   * @param categoryId {@link Category} identifier
+   * @param username User name/login
+   * @return true if can edit to the category switch its tree ownerId, else
+   *         false
+   */
+  boolean canEdit(long categoryId, String username);
+
+}
