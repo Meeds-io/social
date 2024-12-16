@@ -139,13 +139,15 @@ export default {
         urls: true,
         email: true,
         phone: true,
-      }) || this.$root.defaultUserPath;
+      });
     },
     defaultUserPath() {
       return this.defaultUserExternalPath || this.$root.defaultUserPath;
     },
     defaultUserPathTarget() {
-      return this.defaultUserExternalPath && '_blank' || '_self';
+      return this.defaultUserPath?.startsWith?.(window.location.origin)
+        || this.defaultUserPath?.startsWith?.('/')
+        || this.defaultUserPath?.startsWith?.('./') ? '_self' : '_blank';
     },
   },
   methods: {
