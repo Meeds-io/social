@@ -259,7 +259,7 @@ export default {
       return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
     },
     isUrl() {
-      return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpace));
+      return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpace && !this.isSite));
     },
     url() {
       return this.isUrl && this.item.url && this.$utils.toLinkUrl(this.item.url, {
