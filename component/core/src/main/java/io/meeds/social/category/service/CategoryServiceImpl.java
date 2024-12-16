@@ -134,6 +134,22 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
+  public Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException, IllegalAccessException {
+    Category category = getCategory(categoryId);
+    if (category == null) {
+      throw new ObjectNotFoundException(String.format("Category with id %s doesn't exists", categoryId));
+    } else if (!canAccess(category, username)) {
+      throw new IllegalAccessException(String.format("Category with id %s doesn't exists", categoryId));
+    }
+    String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
+                                                                  category.getId(),
+                                                                  CategoryTranslationPlugin.NAME_FIELD,
+                                                                  locale);
+    category.setName(name);
+    return category;
+  }
+
+  @Override
   public Category getCategory(long categoryId) {
     return categoryStorage.getCategory(categoryId);
   }

@@ -477,6 +477,17 @@ public class SpaceStorage {
     return getSpaceById(entity.getId());
   }
 
+  public void setSpaceCategories(long spaceId, List<Long> categoryIds) {
+    SpaceEntity entity = spaceDAO.find(spaceId);
+
+    if (entity == null) {
+      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
+    } else {
+      entity.setCategoryIds(categoryIds);
+      spaceDAO.update(entity);
+    }
+  }
+
   @ExoTransactional
   public void updateSpaceAccessed(String remoteId, Space space) {
     SpaceMemberEntity member = spaceMemberDAO.getSpaceMemberShip(remoteId,
@@ -740,6 +751,7 @@ public class SpaceStorage {
     space.setDeletePermissions(entity.getDeletePermissions());
     space.setLayoutPermissions(entity.getLayoutPermissions());
     space.setPublicSitePermissions(entity.getPublicSitePermissions());
+    space.setCategoryIds(entity.getCategoryIds());
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());

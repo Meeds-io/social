@@ -77,9 +77,6 @@ public class Space implements CacheEntry {
   /** If the space has at least one binding. */
   private boolean            hasBindings;
 
-  /** The parent. */
-  private String             parent;
-
   /** The description. */
   private String             description;
 
@@ -196,6 +193,10 @@ public class Space implements CacheEntry {
   @Setter
   private List<String>       publicSitePermissions;
 
+  @Getter
+  @Setter
+  private List<Long>         categoryIds;
+
   public void setLastUpdatedTime(long lastUpdatedTime) {
     this.lastUpdatedTime = lastUpdatedTime;
   }
@@ -307,24 +308,6 @@ public class Space implements CacheEntry {
    */
   public boolean hasBindings() {
     return hasBindings;
-  }
-
-  /**
-   * Sets the parent.
-   *
-   * @param parent the new parent
-   */
-  public void setParent(String parent) {
-    this.parent = parent;
-  }
-
-  /**
-   * Gets the parent.
-   *
-   * @return the parent
-   */
-  public String getParent() {
-    return parent;
   }
 
   /**

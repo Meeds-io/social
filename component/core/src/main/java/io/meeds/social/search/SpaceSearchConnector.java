@@ -31,7 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -116,6 +116,14 @@ public class SpaceSearchConnector {
       {
         "terms":{
           "templateId": [@templateId@]
+        }
+      }
+      """;
+
+  public static final String           CATEGORY_ID_QUERY             = """
+      {
+        "terms":{
+          "templateId": [@categoryId@]
         }
       }
       """;
@@ -228,20 +236,25 @@ public class SpaceSearchConnector {
     String termQuery = buildTermQueryStatement(StringUtils.lowerCase(filter.getTerm()));
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
     String templateQuery = buildTemplateIdQueryStatement(filter);
+    String categoryQuery = buildCategoryIdQueryStatement(filter);
     String permissionsQuery = buildPermissionsQuery(filter);
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     String visibilityQuery = buildVisibilityStatement(filter.getVisibility());
     String registrationQuery = buildRegistrationStatement(filter.getRegistration());
-    boolean noCommaToFavorite = StringUtils.isBlank(templateQuery) || StringUtils.isBlank(favoriteQuery);
-    boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery) || StringUtils.isAllBlank(favoriteQuery, templateQuery);
+    boolean noCommaToTemplate = StringUtils.isBlank(categoryQuery) || StringUtils.isBlank(templateQuery);
+    boolean noCommaToFavorite = StringUtils.isBlank(templateQuery) || StringUtils.isAllBlank(categoryQuery, favoriteQuery);
+    boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery) || StringUtils.isAllBlank(favoriteQuery, templateQuery, categoryQuery);
     boolean noCommaToVisibility = StringUtils.isBlank(visibilityQuery)
-                                  || StringUtils.isAllBlank(permissionsQuery, favoriteQuery, templateQuery);
+                                  || StringUtils.isAllBlank(permissionsQuery, favoriteQuery, templateQuery, categoryQuery);
     boolean noCommaToRegistration = StringUtils.isBlank(registrationQuery)
-                                    || StringUtils.isAllBlank(visibilityQuery, permissionsQuery, favoriteQuery, templateQuery);
+                                    || StringUtils.isAllBlank(visibilityQuery, permissionsQuery, favoriteQuery, templateQuery, categoryQuery);
     return query.replace("@term_query@",
                          termQuery)
+                .replace("@category_query@",
+                         categoryQuery)
                 .replace("@template_query@",
-                         templateQuery)
+                         noCommaToTemplate ? templateQuery :
+                           String.format(PREFIX_COMMA_TO_APPEND, templateQuery))
                 .replace("@favorite_query@",
                          noCommaToFavorite ? favoriteQuery :
                                            String.format(PREFIX_COMMA_TO_APPEND, favoriteQuery))
@@ -466,6 +479,14 @@ public class SpaceSearchConnector {
   private String buildTemplateIdQueryStatement(SpaceSearchFilter filter) {
     if (filter.getTemplateId() > 0) {
       return TEMPLATE_ID_QUERY.replace("@templateId@", String.valueOf(filter.getTemplateId()));
+    } else {
+      return StringUtils.EMPTY;
+    }
+  }
+
+  private String buildCategoryIdQueryStatement(SpaceSearchFilter filter) {
+    if (CollectionUtils.isNotEmpty(filter.getCategoryIds())) {
+      return CATEGORY_ID_QUERY.replace("@categoryId@", StringUtils.join(filter.getCategoryIds(), ","));
     } else {
       return StringUtils.EMPTY;
     }

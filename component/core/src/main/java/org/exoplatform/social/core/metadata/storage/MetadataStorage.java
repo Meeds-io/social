@@ -68,9 +68,9 @@ public class MetadataStorage {
                          CacheService cacheService) {
     this.metadataDAO = metadataDAO;
     this.metadataItemDAO = metadataItemDAO;
-    this.metadataCache = cacheService.getCacheInstance("sociam.metadata");
+    this.metadataCache = cacheService.getCacheInstance("social.metadata");
     this.metadataFutureCache = new FutureExoCache<>((c, k) -> fromEntity(metadataDAO.find(k)), metadataCache);
-    this.metadataKeyCache = cacheService.getCacheInstance("sociam.metadataKey");
+    this.metadataKeyCache = cacheService.getCacheInstance("social.metadataKey");
     this.metadataKeyFutureCache = new FutureExoCache<>((c, k) -> {
       String type = k.getType();
       MetadataType metadataType = getMetadataTypeWithCheck(type);

@@ -106,6 +106,19 @@ public interface CategoryService {
   Category getCategory(long categoryId);
 
   /**
+   * @param categoryId {@link Category} identifier
+   * @param username User name/login
+   * @param locale used {@link Locale} to retrieve translated name
+   * @return found {@link Category} with its associated name switch designated
+   *         locale
+   * @throws ObjectNotFoundException when the {@link Category} designated by the
+   *           the id doesn't exist
+   * @throws IllegalAccessException when the user isn't allowed to edit a
+   *           categories switch the ownerId field
+   */
+  Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException, IllegalAccessException;
+
+  /**
    * @param ownerId {@link Identity} identifier
    * @return the root {@link Category} of the tree if found, else null
    */
