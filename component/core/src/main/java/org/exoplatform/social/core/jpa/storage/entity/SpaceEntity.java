@@ -43,6 +43,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -165,6 +166,7 @@ public class SpaceEntity implements Serializable {
 
   @ElementCollection
   @CollectionTable(name = "SOC_SPACE_CATEGORIES", joinColumns = @JoinColumn(name = "SPACE_ID"))
+  @OrderBy("createdDate asc")
   private List<SpaceCategoryEntity>                categories                 = new ArrayList<>(); // NOSONAR
 
   public Long getId() {

@@ -26,6 +26,10 @@ import io.meeds.social.category.model.CategoryObject;
 
 public interface CategoryLinkService {
 
+  public static final String EVENT_CATEGORY_LINK_ADDED   = "category.link.added";
+
+  public static final String EVENT_CATEGORY_LINK_REMOVED = "category.link.removed";
+
   /**
    * @param categoryId {@link Category} identifier
    * @param object {@link CategoryObject} using type/id to designate any object

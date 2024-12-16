@@ -86,7 +86,7 @@ public class Utils {
       yield space != null && spaceService.canManageSpace(space, userAclIdentity.getUserId());
     }
     case GroupIdentityProvider.NAME: {
-      yield userAclIdentity.isMemberOf(userAcl.getAdminMSType(), identity.getRemoteId());
+      yield userAclIdentity.isMemberOf(identity.getRemoteId(), userAcl.getAdminMSType());
     }
     case OrganizationIdentityProvider.NAME: {
       yield StringUtils.equals(identity.getRemoteId(), userAclIdentity.getUserId());

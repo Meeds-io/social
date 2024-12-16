@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.category.plugin;
+package io.meeds.social.navigation.plugin;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -31,7 +31,6 @@ import io.meeds.social.category.model.Category;
 import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.navigation.plugin.AbstractSpaceSidebarPlugin;
 
 import lombok.SneakyThrows;
 

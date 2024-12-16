@@ -52,6 +52,8 @@ import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.storage.elasticsearch.CategorySearchConnector;
 
+import lombok.SneakyThrows;
+
 @Component
 @SuppressWarnings("removal")
 public class CategoryStorage {
@@ -116,8 +118,8 @@ public class CategoryStorage {
 
   @Cacheable(cacheNames = "social.categoryRootId")
   public long getRootCategoryId(long ownerId) {
-    List<Metadata> metadatas = metadataService.getMetadatasByProperty(PROP_OWNER_ROOT_ID, String.valueOf(ownerId), 1);
-    return CollectionUtils.isEmpty(metadatas) ? 0 : metadatas.get(0).getId();
+    List<Long> metadataIds = metadataService.getMetadataIdsByProperty(PROP_OWNER_ROOT_ID, String.valueOf(ownerId), 0, 1);
+    return CollectionUtils.isEmpty(metadataIds) ? 0 : metadataIds.get(0);
   }
 
   public Category getRootCategory(long ownerId) {
@@ -138,14 +140,11 @@ public class CategoryStorage {
     return getMetadataItem(categoryId, object) != null;
   }
 
+  @SneakyThrows
   public void link(long categoryId, CategoryObject object, long userIdentityId) {
     Metadata metadata = metadataService.getMetadataById(categoryId);
-    try {
-      metadataService.createMetadataItem(object, metadata.key(), userIdentityId);
-      listenerService.broadcast(EVENT_SOCIAL_CATEGORY_ITEM_LINKED, object, categoryId);
-    } catch (ObjectAlreadyExistsException e) {
-      LOG.debug("Unable to link object {} to category {}", object, categoryId, e);
-    }
+    metadataService.createMetadataItem(object, metadata.key(), userIdentityId);
+    listenerService.broadcast(EVENT_SOCIAL_CATEGORY_ITEM_LINKED, object, categoryId);
   }
 
   public void unlink(long categoryId, CategoryObject object) {
@@ -182,7 +181,7 @@ public class CategoryStorage {
     }
     properties.put(PROP_PARENT_ID, String.valueOf(category.getParentId()));
     properties.put(PROP_LINK_PERMISSIONS, toString(category.getLinkPermissionIds()));
-    properties.put(PROP_ACCESS_PERMISSIONS, String.valueOf(category.getAccessPermissionIds()));
+    properties.put(PROP_ACCESS_PERMISSIONS, toString(category.getAccessPermissionIds()));
     properties.put(PROP_ICON, category.getIcon());
     return new Metadata(category.getId(),
                         METADATA_TYPE,
@@ -208,9 +207,10 @@ public class CategoryStorage {
   }
 
   private List<Long> toList(String ids) {
-    return StringUtils.isEmpty(ids) ? Collections.emptyList() :
+    return StringUtils.isBlank(ids) ? Collections.emptyList() :
                                     Arrays.asList(ids.substring(1, ids.length() - 1).split(","))
                                           .stream()
+                                          .filter(StringUtils::isNotBlank)
                                           .map(Long::parseLong)
                                           .toList();
   }

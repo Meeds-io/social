@@ -47,13 +47,13 @@ import jakarta.persistence.Tuple;
 
 public class MetadataStorage {
 
-  private static final Log                    LOG           = ExoLogger.getLogger(MetadataStorage.class);
+  private static final Log                       LOG           = ExoLogger.getLogger(MetadataStorage.class);
 
-  private MetadataDAO                         metadataDAO;
+  private MetadataDAO                            metadataDAO;
 
-  private MetadataItemDAO                     metadataItemDAO;
+  private MetadataItemDAO                        metadataItemDAO;
 
-  private List<MetadataType>                  metadataTypes = new ArrayList<>();
+  private List<MetadataType>                     metadataTypes = new ArrayList<>();
 
   private ExoCache<Long, Metadata>               metadataCache;
 
@@ -437,7 +437,11 @@ public class MetadataStorage {
     return metadatasEntities.stream().map(this::fromEntity).toList();
   }
 
-  public List<Long> getMetadataIdsByProperty(String propertyKey, String propertyValue, long offset, long limit, boolean orderByName) {
+  public List<Long> getMetadataIdsByProperty(String propertyKey,
+                                             String propertyValue,
+                                             long offset,
+                                             long limit,
+                                             boolean orderByName) {
     return metadataDAO.getMetadataIdsByProperty(propertyKey, propertyValue, offset, limit, orderByName);
   }
 

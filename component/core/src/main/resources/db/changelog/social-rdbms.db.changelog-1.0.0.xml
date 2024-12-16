@@ -1145,13 +1145,13 @@
       </column>
     </createTable>
     <addPrimaryKey
+      tableName="SOC_SPACE_CATEGORIES"
       columnNames="SPACE_ID, CATEGORY_ID"
-      constraintName="PK_SOC_SPACE_CATEGORIES_01"
-      tableName="SOC_ACTIVITY_LIKERS" />
+      constraintName="PK_SOC_SPACE_CATEGORIES_01" />
     <createIndex
-      tableName="SOC_ACTIVITY_LIKERS"
+      tableName="SOC_SPACE_CATEGORIES"
       indexName="IDX_SOC_SPACE_CATEGORIES_01">
-      <column name="SPACE_ID" />
+      <column name="SPACE_ID" type="BIGINT" />
     </createIndex>
   </changeSet>
 

@@ -30,21 +30,24 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.search.es.ElasticSearchException;
 import org.exoplatform.commons.search.es.client.ElasticSearchingClient;
-import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.PropertiesParam;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 import io.meeds.social.category.model.CategorySearchFilter;
 
+@Component
 public class CategorySearchConnector {
 
-  private static final Log             LOG                           = ExoLogger.getLogger(CategorySearchConnector.class);
+  private static final String    CATEGORY_INDEX                = "category_alias";
 
-  private static final String          SEARCH_QUERY_TERM             = """
+  private static final Log       LOG                           = ExoLogger.getLogger(CategorySearchConnector.class);
+
+  private static final String    SEARCH_QUERY_TERM             = """
           {
             "from": "@offset@",
             "size": "@limit@",
@@ -71,7 +74,7 @@ public class CategorySearchConnector {
           }
       """;
 
-  public static final String           OWNER_ID_QUERY                = """
+  public static final String     OWNER_ID_QUERY                = """
       {
         "terms":{
           "ownerId": @ownerId@
@@ -79,7 +82,7 @@ public class CategorySearchConnector {
       }
       """;
 
-  public static final String           PARENT_ID_QUERY               = """
+  public static final String     PARENT_ID_QUERY               = """
       {
         "terms":{
           "parentId": @parentId@
@@ -87,7 +90,7 @@ public class CategorySearchConnector {
       }
       """;
 
-  public static final String           PERMISSIONS_QUERY             = """
+  public static final String     PERMISSIONS_QUERY             = """
       {
         "terms":{
           "@permissions_field@": [@permissions@]
@@ -95,38 +98,30 @@ public class CategorySearchConnector {
       }
       """;
 
-  private static final String          OFFSET_REPLACEMENT            = "@offset@";
+  private static final String    OFFSET_REPLACEMENT            = "@offset@";
 
-  private static final String          LIMIT_REPLACEMENT             = "@limit@";
+  private static final String    LIMIT_REPLACEMENT             = "@limit@";
 
-  private static final String          NAME_REPLACEMENT              = "@name_field@";
+  private static final String    NAME_REPLACEMENT              = "@name_field@";
 
-  private static final String          TERM_REPLACEMENT              = "@term@";
+  private static final String    TERM_REPLACEMENT              = "@term@";
 
-  private static final String          OWNER_ID_REPLACEMENT          = "@ownerId@";
+  private static final String    OWNER_ID_REPLACEMENT          = "@ownerId@";
 
-  private static final String          OWNER_ID_QUERY_REPLACEMENT    = "@owner_id_query@";
+  private static final String    OWNER_ID_QUERY_REPLACEMENT    = "@owner_id_query@";
 
-  private static final String          PARENT_ID_REPLACEMENT         = "@parentId@";
+  private static final String    PARENT_ID_REPLACEMENT         = "@parentId@";
 
-  private static final String          PARENT_ID_QUERY_REPLACEMENT   = "@parent_id_query@";
+  private static final String    PARENT_ID_QUERY_REPLACEMENT   = "@parent_id_query@";
 
-  private static final String          PERMISSIONS_REPLACEMENT       = "@permissions@";
+  private static final String    PERMISSIONS_REPLACEMENT       = "@permissions@";
 
-  private static final String          PERMISSIONS_FIELD_REPLACEMENT = "@permissions_field@";
+  private static final String    PERMISSIONS_FIELD_REPLACEMENT = "@permissions_field@";
 
-  private static final String          PERMISSIONS_QUERY_REPLACEMENT = "@permissions_query@";
+  private static final String    PERMISSIONS_QUERY_REPLACEMENT = "@permissions_query@";
 
-  private final ElasticSearchingClient client;
-
-  private String                       index;
-
-  public CategorySearchConnector(ElasticSearchingClient client,
-                                 InitParams initParams) {
-    this.client = client;
-    PropertiesParam param = initParams.getPropertiesParam("constructor.params");
-    this.index = param.getProperty("index");
-  }
+  @Autowired
+  private ElasticSearchingClient client;
 
   public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
     String esQuery = SEARCH_QUERY_TERM.replace(NAME_REPLACEMENT, "name." + locale.toLanguageTag())
@@ -156,7 +151,7 @@ public class CategorySearchConnector {
     } else {
       esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT, "");
     }
-    String jsonResponse = this.client.sendRequest(esQuery, this.index);
+    String jsonResponse = this.client.sendRequest(esQuery, CATEGORY_INDEX);
     return buildResult(jsonResponse);
   }
 

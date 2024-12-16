@@ -31,8 +31,8 @@ public interface CategoryPlugin {
    * to the category an object (generic ACL check made in Category API switch
    * Category properties)
    *
-   * @id Object technical identifier
-   * @username User technical name (login identifier)
+   * @param objectId Object technical identifier
+   * @param username User technical name (login identifier)
    * @return true if the user has access permission to the designated Object
    *         Type
    **/
@@ -45,8 +45,8 @@ public interface CategoryPlugin {
    * after checking whether the user can link or not to the category an object
    * (generic ACL check made in Category API switch Category properties)
    *
-   * @id Object technical identifier
-   * @username User technical name (login identifier)
+   * @param objectId Object technical identifier
+   * @param username User technical name (login identifier)
    * @return true if the user has access permission to the designated Object
    *         Type identified by its Id
    **/

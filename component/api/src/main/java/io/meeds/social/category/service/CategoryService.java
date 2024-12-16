@@ -21,6 +21,7 @@ package io.meeds.social.category.service;
 import java.util.List;
 import java.util.Locale;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.identity.model.Identity;
 
@@ -74,8 +75,9 @@ public interface CategoryService {
    *           parentId doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
    *           categories switch the ownerId field
+   * @throws ObjectAlreadyExistsException when attempting to recreate an existing root tree element
    */
-  Category createCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException;
+  Category createCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException, ObjectAlreadyExistsException;
 
   /**
    * @param category {@link Category} to create

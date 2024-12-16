@@ -34,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -55,26 +56,26 @@ import lombok.SneakyThrows;
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
-  private static final String ADMINISTRATORS_GROUP = "/platform/administrators";
+  public static final String ADMINISTRATORS_GROUP = "/platform/administrators";
 
-  private static final long   MAX_LIMIT            = 100l;
-
-  @Autowired
-  private IdentityManager     identityManager;
+  private static final long  MAX_LIMIT            = 100l;
 
   @Autowired
-  private TranslationService  translationService;
+  private IdentityManager    identityManager;
 
   @Autowired
-  private CategoryStorage     categoryStorage;
+  private TranslationService translationService;
 
   @Autowired
-  private SpaceService        spaceService;
+  private CategoryStorage    categoryStorage;
 
   @Autowired
-  private UserACL             userAcl;
+  private SpaceService       spaceService;
 
-  private long                adminGroupOwnerId;
+  @Autowired
+  private UserACL            userAcl;
+
+  private long               adminGroupOwnerId;
 
   @Override
   public CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale) {
@@ -134,7 +135,8 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException, IllegalAccessException {
+  public Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                               IllegalAccessException {
     Category category = getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exists", categoryId));
@@ -159,21 +161,24 @@ public class CategoryServiceImpl implements CategoryService {
   public Category getRootCategory(long ownerId) {
     Category rootCategory = categoryStorage.getRootCategory(ownerId);
     if (rootCategory == null && ownerId == getAdminGroupIdentityId()) {
-      createCategory(new Category(0l,
+      Identity userIdentity = identityManager.getOrCreateUserIdentity(userAcl.getSuperUser());
+      rootCategory = new Category(0l,
                                   0l,
                                   null,
                                   null,
-                                  0l,
+                                  Long.parseLong(userIdentity.getId()),
                                   ownerId,
                                   Collections.emptyList(),
-                                  Arrays.asList(ownerId)),
-                     userAcl.getSuperUser());
+                                  Arrays.asList(ownerId));
+      rootCategory = categoryStorage.createCategory(rootCategory);
     }
     return rootCategory;
   }
 
   @Override
-  public Category createCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException {
+  public Category createCategory(Category category, String username) throws ObjectAlreadyExistsException,
+                                                                     ObjectNotFoundException,
+                                                                     IllegalAccessException {
     checkNotNull(category);
     checkEmptyId(category);
     checkOwnerId(category);
@@ -225,26 +230,12 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public boolean canAccess(long categoryId, String username) {
-    return canAccess(getCategory(categoryId), username);
+    return categoryId == 0 || canAccess(getCategory(categoryId), username);
   }
 
   @Override
   public boolean canAccess(Category category, String username) {
-    if (category == null) {
-      return false;
-    } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
-      return true;
-    } else {
-      org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
-      return userAcl.isAdministrator(userAclIdentity)
-             || category.getAccessPermissionIds()
-                        .stream()
-                        .anyMatch(id -> isMemberOf(identityManager,
-                                                   spaceService,
-                                                   userAcl,
-                                                   id,
-                                                   username));
-    }
+    return canAccess(category, username, true);
   }
 
   private long getAdminGroupIdentityId() {
@@ -298,11 +289,11 @@ public class CategoryServiceImpl implements CategoryService {
     }
   }
 
-  private void checkParentCreation(Category category) throws ObjectNotFoundException {
+  private void checkParentCreation(Category category) throws ObjectNotFoundException, ObjectAlreadyExistsException {
     if (category.getParentId() == 0) {
       Category rootCategory = getRootCategory(category.getOwnerId());
       if (rootCategory != null) {
-        throw new IllegalArgumentException("Category root element already exists, thus can't recreate it");
+        throw new ObjectAlreadyExistsException("Category root element already exists, thus can't recreate it");
       }
     } else {
       checkParentExists(category);
@@ -337,7 +328,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private void checkCanEdit(Category category, String username) throws IllegalAccessException {
     if (!canEdit(category, username)) {
-      throw new IllegalAccessException("Can't Update Category");
+      throw new IllegalAccessException("Not allowed to update Category tree");
     }
   }
 
@@ -408,7 +399,7 @@ public class CategoryServiceImpl implements CategoryService {
                                           long depth) {
     return categoryIds.stream()
                       .map(categoryStorage::getCategory)
-                      .filter(cat -> this.canAccess(cat, username))
+                      .filter(cat -> canAccess(cat, username, false))
                       .map(cat -> buildCategoryTree(cat,
                                                     username,
                                                     locale,
@@ -417,6 +408,25 @@ public class CategoryServiceImpl implements CategoryService {
                                                     depthLimit,
                                                     depth))
                       .toList();
+  }
+
+  private boolean canAccess(Category category, String username, boolean checkAncestors) {
+    if (category == null) {
+      return false;
+    } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
+      return canAccess(category.getParentId(), username);
+    } else {
+      org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
+      return userAcl.isAdministrator(userAclIdentity)
+             || ((!checkAncestors || canAccess(category.getParentId(), username))
+                 && category.getAccessPermissionIds()
+                            .stream()
+                            .anyMatch(id -> isMemberOf(identityManager,
+                                                       spaceService,
+                                                       userAcl,
+                                                       id,
+                                                       username)));
+    }
   }
 
 }

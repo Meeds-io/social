@@ -107,7 +107,7 @@ import jakarta.persistence.Table;
   """
 )
 @NamedQuery(
-  name = "SocMetadataEntity.getMetadatasByPropertyById",
+  name = "SocMetadataEntity.getMetadatasByPropertyOrderById",
   query = """
     SELECT sm.id FROM SocMetadataEntity sm
     INNER JOIN sm.properties prop

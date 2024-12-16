@@ -123,7 +123,7 @@ public class SpaceSearchConnector {
   public static final String           CATEGORY_ID_QUERY             = """
       {
         "terms":{
-          "templateId": [@categoryId@]
+          "categoryId": [@categoryId@]
         }
       }
       """;
@@ -242,7 +242,7 @@ public class SpaceSearchConnector {
     String visibilityQuery = buildVisibilityStatement(filter.getVisibility());
     String registrationQuery = buildRegistrationStatement(filter.getRegistration());
     boolean noCommaToTemplate = StringUtils.isBlank(categoryQuery) || StringUtils.isBlank(templateQuery);
-    boolean noCommaToFavorite = StringUtils.isBlank(templateQuery) || StringUtils.isAllBlank(categoryQuery, favoriteQuery);
+    boolean noCommaToFavorite = StringUtils.isBlank(favoriteQuery) || StringUtils.isAllBlank(templateQuery, categoryQuery);
     boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery) || StringUtils.isAllBlank(favoriteQuery, templateQuery, categoryQuery);
     boolean noCommaToVisibility = StringUtils.isBlank(visibilityQuery)
                                   || StringUtils.isAllBlank(permissionsQuery, favoriteQuery, templateQuery, categoryQuery);

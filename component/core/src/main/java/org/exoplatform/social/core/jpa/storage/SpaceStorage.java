@@ -477,17 +477,6 @@ public class SpaceStorage {
     return getSpaceById(entity.getId());
   }
 
-  public void setSpaceCategories(long spaceId, List<Long> categoryIds) {
-    SpaceEntity entity = spaceDAO.find(spaceId);
-
-    if (entity == null) {
-      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
-    } else {
-      entity.setCategoryIds(categoryIds);
-      spaceDAO.update(entity);
-    }
-  }
-
   @ExoTransactional
   public void updateSpaceAccessed(String remoteId, Space space) {
     SpaceMemberEntity member = spaceMemberDAO.getSpaceMemberShip(remoteId,

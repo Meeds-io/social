@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
@@ -54,6 +55,9 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   private UserACL              userAcl;
 
   @Autowired
+  private ListenerService      listenerService;
+
+  @Autowired
   private List<CategoryPlugin> categoryPlugins;
 
   private long                 superUserIdentityId;
@@ -67,26 +71,30 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   public void link(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                             ObjectAlreadyExistsException,
                                                                             IllegalAccessException {
-    checkCanLink(categoryId, object, username);
+    checkCanManageLink(categoryId, object, username);
+    if (isLinked(categoryId, object)) {
+      throw new ObjectAlreadyExistsException(object);
+    }
     long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
-    categoryStorage.link(categoryId, object, userIdentityId);
+    link(categoryId, object, userIdentityId);
   }
 
   @Override
   public void link(long categoryId, CategoryObject object) {
-    categoryStorage.link(categoryId, object, getSuperUserIdentityId());
+    link(categoryId, object, getSuperUserIdentityId());
   }
 
   @Override
   public void unlink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                               IllegalAccessException {
-    checkCanLink(categoryId, object, username);
-    categoryStorage.unlink(categoryId, object);
+    checkCanManageLink(categoryId, object, username);
+    unlink(categoryId, object);
   }
 
   @Override
   public void unlink(long categoryId, CategoryObject object) {
     categoryStorage.unlink(categoryId, object);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, object);
   }
 
   @Override
@@ -111,7 +119,7 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
     }
   }
 
-  private void checkCanLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
+  private void checkCanManageLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                                      IllegalAccessException {
     Category category = categoryStorage.getCategory(categoryId);
     if (category == null) {
@@ -124,8 +132,15 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
         || categoryPlugins.stream()
                           .noneMatch(p -> StringUtils.equals(p.getType(), object.getType())
                                           && p.canEdit(object.getId(), username))) {
-      throw new IllegalStateException(String.format("Object with type %s isn't managed by categories", object.getType()));
+      throw new IllegalAccessException(String.format("Object with type %s and id %s isn't editable by user",
+                                                     object.getType(),
+                                                     object.getId()));
     }
+  }
+
+  private void link(long categoryId, CategoryObject object, long userIdentityId) {
+    categoryStorage.link(categoryId, object, userIdentityId);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_ADDED, categoryId, object);
   }
 
   private long getSuperUserIdentityId() {
