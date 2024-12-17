@@ -28,7 +28,7 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
-import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
@@ -40,8 +40,6 @@ import org.exoplatform.social.metadata.model.MetadataType;
 public class FavoriteServiceTest extends AbstractCoreTest {
 
   private Identity        johnIdentity;
-
-  private IdentityManager identityManager;
 
   private FavoriteService favoriteService;
 
@@ -56,10 +54,10 @@ public class FavoriteServiceTest extends AbstractCoreTest {
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    getContainer().getComponentInstanceOfType(MetadataStorage.class).clearCaches();
 
     favoriteMetadataType = new MetadataType(1, "favorites");
     userMetadataType = new MetadataType(2, "user");

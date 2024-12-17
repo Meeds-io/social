@@ -18,6 +18,8 @@
  */
 package org.exoplatform.social.metadata.model;
 
+import java.io.Serializable;
+
 import lombok.*;
 
 /**
@@ -26,13 +28,15 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetadataKey implements Cloneable {
+public class MetadataKey implements Serializable, Cloneable {
 
-  private String type;
+  private static final long serialVersionUID = 7584000823295369142L;
 
-  private String name;
+  private String            type;
 
-  private long   audienceId;
+  private String            name;
+
+  private long              audienceId;
 
   @Override
   public MetadataKey clone() { // NOSONAR

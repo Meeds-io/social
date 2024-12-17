@@ -1,0 +1,152 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package io.meeds.social.category.service;
+
+import static io.meeds.social.category.utils.Utils.isMemberOf;
+
+import java.util.List;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryObject;
+import io.meeds.social.category.plugin.CategoryPlugin;
+import io.meeds.social.category.storage.CategoryStorage;
+
+@Service
+public class CategoryLinkServiceImpl implements CategoryLinkService {
+
+  @Autowired
+  private IdentityManager      identityManager;
+
+  @Autowired
+  private CategoryStorage      categoryStorage;
+
+  @Autowired
+  private SpaceService         spaceService;
+
+  @Autowired
+  private UserACL              userAcl;
+
+  @Autowired
+  private ListenerService      listenerService;
+
+  @Autowired
+  private List<CategoryPlugin> categoryPlugins;
+
+  private long                 superUserIdentityId;
+
+  @Override
+  public boolean isLinked(long categoryId, CategoryObject object) {
+    return categoryStorage.isLinked(categoryId, object);
+  }
+
+  @Override
+  public void link(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
+                                                                            ObjectAlreadyExistsException,
+                                                                            IllegalAccessException {
+    checkCanManageLink(categoryId, object, username);
+    if (isLinked(categoryId, object)) {
+      throw new ObjectAlreadyExistsException(object);
+    }
+    long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
+    link(categoryId, object, userIdentityId);
+  }
+
+  @Override
+  public void link(long categoryId, CategoryObject object) {
+    link(categoryId, object, getSuperUserIdentityId());
+  }
+
+  @Override
+  public void unlink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
+                                                                              IllegalAccessException {
+    checkCanManageLink(categoryId, object, username);
+    unlink(categoryId, object);
+  }
+
+  @Override
+  public void unlink(long categoryId, CategoryObject object) {
+    categoryStorage.unlink(categoryId, object);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, object);
+  }
+
+  @Override
+  public boolean canManageLink(long categoryId, String username) {
+    return canManageLink(categoryStorage.getCategory(categoryId), username);
+  }
+
+  @Override
+  public boolean canManageLink(Category category, String username) {
+    if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
+      return false;
+    } else {
+      org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
+      return userAcl.isAdministrator(userAclIdentity)
+             || category.getLinkPermissionIds()
+                        .stream()
+                        .anyMatch(id -> isMemberOf(identityManager,
+                                                   spaceService,
+                                                   userAcl,
+                                                   id,
+                                                   username));
+    }
+  }
+
+  private void checkCanManageLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
+                                                                                     IllegalAccessException {
+    Category category = categoryStorage.getCategory(categoryId);
+    if (category == null) {
+      throw new ObjectNotFoundException(String.format("Category with id %s doesn't exist", categoryId));
+    }
+    if (!canManageLink(category, username)) {
+      throw new IllegalAccessException(String.format("Category with id %s doesn't exist", categoryId));
+    }
+    if (categoryPlugins == null
+        || categoryPlugins.stream()
+                          .noneMatch(p -> StringUtils.equals(p.getType(), object.getType())
+                                          && p.canEdit(object.getId(), username))) {
+      throw new IllegalAccessException(String.format("Object with type %s and id %s isn't editable by user",
+                                                     object.getType(),
+                                                     object.getId()));
+    }
+  }
+
+  private void link(long categoryId, CategoryObject object, long userIdentityId) {
+    categoryStorage.link(categoryId, object, userIdentityId);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_ADDED, categoryId, object);
+  }
+
+  private long getSuperUserIdentityId() {
+    if (superUserIdentityId == 0) {
+      superUserIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(userAcl.getSuperUser()).getId());
+    }
+    return superUserIdentityId;
+  }
+}
