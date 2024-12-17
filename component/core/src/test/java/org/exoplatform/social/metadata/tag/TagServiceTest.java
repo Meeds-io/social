@@ -31,6 +31,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
+import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.MetadataService;
@@ -66,6 +67,8 @@ public class TagServiceTest extends AbstractCoreTest {
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     tagService = getContainer().getComponentInstanceOfType(TagService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    getContainer().getComponentInstanceOfType(MetadataStorage.class).clearCaches();
+
     johnIdentity = identityManager.getOrCreateUserIdentity("john");
     tearDownSpaceList = new ArrayList<>();
 
