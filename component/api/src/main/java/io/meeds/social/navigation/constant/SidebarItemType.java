@@ -19,5 +19,5 @@
 package io.meeds.social.navigation.constant;
 
 public enum SidebarItemType {
-  PAGE, SITE, SEPARATOR, SPACES, SPACE_TEMPLATE, SPACE, LINK;
+  PAGE, SITE, SEPARATOR, SPACES, SPACE_TEMPLATE, SPACE, LINK, SPACE_CATEGORY;
 }

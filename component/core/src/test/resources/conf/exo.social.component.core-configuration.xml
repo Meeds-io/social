@@ -279,6 +279,10 @@
   </component>
 
   <component>
+    <type>org.exoplatform.social.core.identity.provider.GroupIdentityProvider</type>
+  </component>
+
+  <component>
     <key>org.exoplatform.social.metadata.MetadataService</key>
     <type>org.exoplatform.social.core.metadata.MetadataServiceImpl</type>
   </component>
@@ -303,7 +307,7 @@
     <type>org.exoplatform.social.core.manager.IdentityManagerImpl</type>
     <component-plugins>
       <component-plugin>
-        <name>SpaceIdentityProvider plugin</name>
+        <name>Social providers</name>
         <set-method>registerIdentityProviders</set-method>
         <type>org.exoplatform.social.core.identity.IdentityProviderPlugin</type>
         <init-params>
@@ -312,6 +316,7 @@
             <description>Identity Providers</description>
             <value>org.exoplatform.social.core.identity.provider.SpaceIdentityProvider</value>
             <value>org.exoplatform.social.core.identity.IdentityProvider</value>
+            <value>org.exoplatform.social.core.identity.provider.GroupIdentityProvider</value>
           </values-param>
         </init-params>
       </component-plugin>
@@ -1378,6 +1383,28 @@
             </field>
             <field name="name">
               <string>tags</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>CategoryMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <long>54175</long>
+            </field>
+            <field name="name">
+              <string>category</string>
             </field>
           </object>
         </object-param>
