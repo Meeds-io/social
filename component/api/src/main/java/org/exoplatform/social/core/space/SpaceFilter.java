@@ -53,6 +53,8 @@ public class SpaceFilter implements Cloneable {
 
   private long                  templateId;
 
+  private List<Long>            categoryIds;
+
   private List<Long>            managingTemplateIds;
 
   private SpaceMembershipStatus status;
@@ -102,6 +104,7 @@ public class SpaceFilter implements Cloneable {
                            remoteId,
                            identityId,
                            templateId,
+                           categoryIds,
                            managingTemplateIds,
                            status,
                            extraStatus,

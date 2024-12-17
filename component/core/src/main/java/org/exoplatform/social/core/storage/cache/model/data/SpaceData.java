@@ -87,6 +87,8 @@ public class SpaceData implements CacheData<Space> {
 
   private List<String>      publicSitePermissions;
 
+  private List<Long>        categoryIds;
+
   public SpaceData(final Space space) {
     id = space.getSpaceId();
     templateId = space.getTemplateId();
@@ -113,6 +115,7 @@ public class SpaceData implements CacheData<Space> {
     layoutPermissions = space.getLayoutPermissions();
     deletePermissions = space.getDeletePermissions();
     publicSitePermissions = space.getPublicSitePermissions();
+    categoryIds = space.getCategoryIds();
     lastUpdatedTime = space.getLastUpdatedTime();
     cacheTime = System.currentTimeMillis();
   }
@@ -146,6 +149,7 @@ public class SpaceData implements CacheData<Space> {
     space.setLayoutPermissions(layoutPermissions);
     space.setDeletePermissions(deletePermissions);
     space.setPublicSitePermissions(publicSitePermissions);
+    space.setCategoryIds(categoryIds);
     return space;
   }
 }
