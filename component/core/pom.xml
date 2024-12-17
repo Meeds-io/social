@@ -88,8 +88,7 @@
         <configuration>
           <runOrder>alphabetical</runOrder>
           <includes>
-            <include>**/InitContainerTestSuite.java</include>
-            <include>**/NoContainerTestSuite.java</include>
+            <include>**/*TestSuite.java</include>
           </includes>
         </configuration>
       </plugin>

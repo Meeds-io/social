@@ -242,6 +242,9 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Tag names used to search spaces", required = true)
                             @QueryParam("tags")
                             List<String> tagNames,
+                            @Parameter(description = "Category Identifier used to filter spaces", required = true)
+                            @QueryParam("categoryId")
+                            List<Long> categoryIds,
                             @Parameter(description = "Excluded space ids", required = false)
                             @QueryParam("excludedId")
                             List<Long> excludedIds,
@@ -267,6 +270,7 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setTagNames(tagNames);
     spaceFilter.setTemplateId(templateId);
     spaceFilter.setExcludedIds(excludedIds);
+    spaceFilter.setCategoryIds(categoryIds);
     spaceFilter.setRegistration(registration);
     spaceFilter.setVisibility(visibility);
 
