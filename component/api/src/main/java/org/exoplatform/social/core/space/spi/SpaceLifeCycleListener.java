@@ -208,4 +208,23 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   default void spaceBannerEdited(SpaceLifeCycleEvent event) {
     // No default implementation
   }
+
+  /**
+   * Triggered when a space category is newly associated
+   * 
+   * @param event the space lifecycle event
+   */
+  default void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
+   * Triggered when a space category association is removed
+   * 
+   * @param event the space lifecycle event
+   */
+  default void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    // No default implementation
+  }
+
 }

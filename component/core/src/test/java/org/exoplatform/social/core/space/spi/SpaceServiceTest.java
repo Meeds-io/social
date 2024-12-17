@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -291,6 +292,34 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     allSpaces = spaceService.getVisibleSpacesWithListAccess(null, new SpaceFilter());
     assertEquals(2, allSpaces.getSize());
+  }
+
+  public void testGetSpacesByCategories() throws Exception {
+    List<Long> categoryIds = new ArrayList<>();
+    categoryIds.add(35l);
+    categoryIds.add(27l);
+    categoryIds.add(67l);
+    categoryIds.add(58l);
+    categoryIds.add(53l);
+
+    int count = 5;
+    for (int i = 0; i < count; i++) {
+      Space space = this.getSpaceInstance(i);
+      space.setCategoryIds(Collections.singletonList(categoryIds.get(i)));
+      space.setEditor(TOM_NAME);
+      spaceService.updateSpace(space);
+    }
+
+    SpaceFilter spaceFilter = new SpaceFilter();
+    spaceFilter.setCategoryIds(categoryIds);
+    ListAccess<Space> spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(count, spaceListAccess.getSize());
+
+    for (int i = 0; i < count; i++) {
+      spaceFilter.setCategoryIds(Collections.singletonList(categoryIds.get(i)));
+      spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+      assertEquals(1, spaceListAccess.getSize());
+    }
   }
 
   public void testGetMemberSpacesWithSpaceTemplateAdmin() throws Exception {
@@ -1011,6 +1040,48 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(1));
     assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(2));
     assertEquals(Type.ADD_INVITED_USER, spaceListenerPlugin.getEvents().get(3));
+  }
+
+  public void testUpdateSpaceCategories() {
+    Space space = new Space();
+    space.setDisplayName(TEST_SPACE_DISPLAY_NAME);
+    space.setDescription(TEST_SPACE_DESCRIPTION);
+    space.setRegistration(Space.VALIDATION);
+    space.setVisibility(Space.PUBLIC);
+    space = spaceService.createSpace(space, JOHN_NAME);
+
+    List<Long> categoryIds = new ArrayList<>();
+    categoryIds.add(37l);
+    categoryIds.add(25l);
+    space.setCategoryIds(categoryIds);
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setEditor(JOHN_NAME);
+      spaceService.updateSpace(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+    assertEquals(2, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.CATEGORY_ADDED, spaceListenerPlugin.getEvents().get(0));
+    assertEquals(Type.CATEGORY_ADDED, spaceListenerPlugin.getEvents().get(1));
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(new HashSet<>(categoryIds), new HashSet<>(space.getCategoryIds()));
+
+    categoryIds = Collections.singletonList(categoryIds.get(0));
+    space.setCategoryIds(Collections.singletonList(categoryIds.get(0)));
+    spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setEditor(JOHN_NAME);
+      spaceService.updateSpace(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.CATEGORY_REMOVED, spaceListenerPlugin.getEvents().get(0));
+    space = spaceService.getSpaceById(space.getId());
+    assertEquals(new HashSet<>(categoryIds), new HashSet<>(space.getCategoryIds()));
   }
 
   public void testUpdateSpaceDescription() {
