@@ -33,6 +33,7 @@ import org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceCategoryLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.metadata.tag.TagService;
 import org.exoplatform.social.metadata.tag.model.TagName;
@@ -148,6 +149,16 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   @Override
   public void removePendingUser(SpaceLifeCycleEvent event) {
     reindex(event, "user canceled request access to space");
+  }
+
+  @Override
+  public void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    reindex(event, "space category added");
+  }
+
+  @Override
+  public void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    reindex(event, "space category removed");
   }
 
   private void reindex(SpaceLifeCycleEvent event, String cause) {

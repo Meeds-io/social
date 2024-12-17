@@ -17,6 +17,7 @@ package org.exoplatform.social.metadata.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode.Exclude;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -28,8 +29,10 @@ public class MetadataObject implements Cloneable {
 
   private String id;
 
+  @Exclude
   private String parentId;
 
+  @Exclude
   private long   spaceId;
 
   public MetadataObject(String type, String id) {
