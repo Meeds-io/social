@@ -18,6 +18,7 @@ package org.exoplatform.social.core.manager;
 
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.social.core.activity.model.ActivityStream;
 import org.exoplatform.social.core.identity.*;
 import org.exoplatform.social.core.identity.model.GlobalId;
@@ -278,8 +279,14 @@ public interface IdentityManager {
    * @return Null if nothing is found, or the Identity object.
    * @see #getIdentity(String, boolean)
    * @LevelAPI Provisional
+   * @deprecated Use getIdentity(Long) rather than getIdentity(String) since the id is no more an UUID inherited from JCR
    */
+  @Deprecated(forRemoval = true, since = "7.0")
   Identity getIdentity(String id);
+
+  default Identity getIdentity(long id) {
+    return getIdentity(String.valueOf(id));
+  }
 
   /**
    * Gets an identity by a remote Id.
@@ -580,6 +587,16 @@ public interface IdentityManager {
    */
   default Identity getOrCreateSpaceIdentity(String spacePrettyName) {
     return getOrCreateIdentity(ActivityStream.SPACE_PROVIDER_ID, spacePrettyName);
+  }
+
+  /**
+   * Retrieves the identity of a given group identified by its full id
+   * 
+   * @param groupId {@link Group} prettyName
+   * @return {@link Identity} if found, else null
+   */
+  default Identity getOrCreateGroupIdentity(String groupId) {
+    return getOrCreateIdentity("group", groupId);
   }
 
   /**

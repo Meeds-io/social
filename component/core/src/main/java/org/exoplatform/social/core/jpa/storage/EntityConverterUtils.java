@@ -288,6 +288,7 @@ public class EntityConverterUtils {
     spaceEntity.setDeletePermissions(space.getDeletePermissions());
     spaceEntity.setLayoutPermissions(space.getLayoutPermissions());
     spaceEntity.setPublicSitePermissions(space.getPublicSitePermissions());
+    spaceEntity.setCategoryIds(space.getCategoryIds());
     if (space.getRegistration() != null) {
       spaceEntity.setRegistration(SpaceRegistration.valueOf(space.getRegistration().toUpperCase()));
     }
