@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
+import org.exoplatform.social.core.space.spi.SpaceCategoryLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 
@@ -109,6 +110,16 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   @Override
   public void spaceRenamed(SpaceLifeCycleEvent event) {
     events.add(Type.SPACE_RENAMED);
+  }
+
+  @Override
+  public void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    events.add(Type.CATEGORY_ADDED);
+  }
+
+  @Override
+  public void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    events.add(Type.CATEGORY_REMOVED);
   }
 
   public void reset() {
