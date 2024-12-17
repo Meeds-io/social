@@ -96,6 +96,14 @@ public interface MetadataService {
   Metadata getMetadataByKey(MetadataKey metadataKey);
 
   /**
+   * Retrieves a {@link Metadata} identified by its technical identifier
+   * 
+   * @param id technical identifier
+   * @return {@link Metadata} if found, else null
+   */
+  Metadata getMetadataById(long id);
+
+  /**
    * Creates a new Metadata Item. When the metadata with the designated key
    * doesn't exists, it will create a new one
    * 
@@ -605,6 +613,15 @@ public interface MetadataService {
    * @return               {@link List} of Managed {@link Metadata} by property
    */
   List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit);
+
+  /**
+   * @param propertyKey {@link Metadata} property key
+   * @param propertyValue {@link Metadata} property value
+   * @param offset offset of results to retrieve
+   * @param limit limit of results to retrieve
+   * @return {@link List} of Managed {@link Metadata} by property
+   */
+  List<Long> getMetadataIdsByProperty(String propertyKey, String propertyValue, long offset, long limit);
 
   /**
    * @param  metadataTypeName metadata name {@link Metadata} name

@@ -117,7 +117,13 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                                       Arrays.asList(space.getPublishers())));
     document.addListField("redactor",
                           new HashSet<>(space.getRedactors() == null ? Collections.emptyList() :
-                                                                     Arrays.asList(space.getRedactors())));
+                            Arrays.asList(space.getRedactors())));
+    document.addListField("categoryId",
+                          new HashSet<>(space.getCategoryIds() == null ? Collections.emptyList() :
+                                                                       space.getCategoryIds()
+                                                                            .stream()
+                                                                            .map(String::valueOf)
+                                                                            .toList()));
 
     addDocumentMetadata(document, id);
     LOG.info("space document generated for id={} name={} duration_ms={}",
@@ -139,11 +145,6 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                        .stream()
                        .map(Space::getId)
                        .toList();
-  }
-
-  @Override
-  public boolean isReindexOnUpgrade() {
-    return true;
   }
 
   @Override
@@ -172,6 +173,8 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("    \"manager\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"member\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"publisher\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"templateId\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"categoryId\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"redactor\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
                                                .append("  }\n")
