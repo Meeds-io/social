@@ -17,8 +17,10 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -29,15 +31,19 @@ import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -158,6 +164,11 @@ public class SpaceEntity implements Serializable {
   @Column(name = "PUBLIC_SITE_PERMISSIONS")
   private List<String>                             publicSitePermissions;
 
+  @ElementCollection
+  @CollectionTable(name = "SOC_SPACE_CATEGORIES", joinColumns = @JoinColumn(name = "SPACE_ID"))
+  @OrderBy("createdDate asc")
+  private List<SpaceCategoryEntity>                categories                 = new ArrayList<>(); // NOSONAR
+
   public Long getId() {
     return id;
   }
@@ -276,6 +287,44 @@ public class SpaceEntity implements Serializable {
 
   public void setSpaceBindingReportEntities(Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities) {
     this.spaceBindingReportEntities = spaceBindingReportEntities;
+  }
+
+  public List<SpaceCategoryEntity> getCategories() {
+    return categories;
+  }
+
+  public void setCategories(List<SpaceCategoryEntity> categories) {
+    this.categories = categories;
+  }
+
+  public List<Long> getCategoryIds() {
+    return getCategories().stream().map(SpaceCategoryEntity::getCategoryId).toList();
+  }
+
+  public void setCategoryIds(List<Long> categoryIds) {
+    if (categoryIds == null || categoryIds.isEmpty()) {
+      this.getCategories().clear();
+    } else {
+      // clean
+      Iterator<SpaceCategoryEntity> iterator = getCategories().iterator();
+      while (iterator.hasNext()) {
+        SpaceCategoryEntity category = iterator.next();
+        if (!categoryIds.contains(category.getCategoryId())) {
+          iterator.remove();
+        }
+      }
+      // add new
+      for (Long categoryId : categoryIds) {
+        addCategory(categoryId);
+      }
+    }
+  }
+
+  public void addCategory(long categoryId) {
+    SpaceCategoryEntity category = new SpaceCategoryEntity(categoryId);
+    if (!this.categories.contains(category)) {
+      this.categories.add(0, category);
+    }
   }
 
   @Override

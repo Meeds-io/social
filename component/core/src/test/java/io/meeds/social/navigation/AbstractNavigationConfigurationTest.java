@@ -20,22 +20,15 @@ package io.meeds.social.navigation;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
-import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 
 import io.meeds.kernel.test.AbstractSpringTest;
+import io.meeds.social.AbstractSpringConfigurationTest;
 import io.meeds.social.navigation.plugin.LinkSidebarPlugin;
 import io.meeds.social.navigation.plugin.PageSidebarPlugin;
 import io.meeds.social.navigation.plugin.SiteSidebarPlugin;
@@ -48,27 +41,10 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.space.template.utils.EntityMapper;
-import io.meeds.spring.AvailableIntegration;
 
 import lombok.SneakyThrows;
 
-@SpringBootApplication(scanBasePackages = {
-  AbstractNavigationConfigurationTest.MODULE_NAME,
-  "io.meeds.social.common", // TODO to delete once MIP-170 merged
-  AvailableIntegration.KERNEL_TEST_MODULE,
-  AvailableIntegration.JPA_MODULE,
-}, exclude = {
-  LiquibaseAutoConfiguration.class,
-})
-@ConfiguredBy({
-  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"),
-  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/social.component.core-local-navigation-portal-configuration.xml"),
-})
-@RunWith(SpringRunner.class)
-public abstract class AbstractNavigationConfigurationTest extends AbstractCoreTest {
+public abstract class AbstractNavigationConfigurationTest extends AbstractSpringConfigurationTest {
 
   public static final String                     MODULE_NAME      = "io.meeds.social.navigation";
 
@@ -114,7 +90,7 @@ public abstract class AbstractNavigationConfigurationTest extends AbstractCoreTe
 
   protected SpaceTemplate                        spaceTemplate;
 
-  public AbstractNavigationConfigurationTest() {
+  protected AbstractNavigationConfigurationTest() {
     AbstractSpringTest.setTestClass(this.getClass());
   }
 
