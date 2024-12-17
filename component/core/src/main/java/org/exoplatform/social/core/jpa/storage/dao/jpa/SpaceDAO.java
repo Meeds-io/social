@@ -69,6 +69,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private static final String                      PARAM_MANAGING_TEMPLATE_IDS = "managingTemplateIds";
 
+  private static final String                      PARAM_CATEGORY_IDS          = "categoryIds";
+
   private static final String                      PARAM_KEYWORD               = "keyword";
 
   private static final String                      PARAM_VISIBILITY            = "visibility";
@@ -260,6 +262,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (parameterNames.contains(PARAM_MANAGING_TEMPLATE_IDS)) {
       query.setParameter(PARAM_MANAGING_TEMPLATE_IDS, filter.getManagingTemplateIds());
     }
+    if (parameterNames.contains(PARAM_CATEGORY_IDS)) {
+      query.setParameter(PARAM_CATEGORY_IDS, filter.getCategoryIds());
+    }
     if (parameterNames.contains(PARAM_VISIBILITY)) {
       query.setParameter(PARAM_VISIBILITY, filter.getVisibility());
     }
@@ -292,6 +297,10 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       } else {
         querySelect += " INNER JOIN s.members sm ";
       }
+    }
+
+    if (CollectionUtils.isNotEmpty(spaceFilter.getCategoryIds())) {
+      querySelect += " INNER JOIN s.categories cat ON cat.categoryId in :categoryIds";
     }
 
     String queryContent;
@@ -333,6 +342,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       suffixes.add("SpaceIds");
       predicates.add("s.id IN :ids");
       parameterNames.add(PARAM_IDS);
+    }
+
+    if (CollectionUtils.isNotEmpty(spaceFilter.getCategoryIds())) {
+      suffixes.add("CategoryIds");
+      parameterNames.add(PARAM_CATEGORY_IDS);
     }
 
     if (CollectionUtils.isNotEmpty(spaceFilter.getExcludedIds())) {

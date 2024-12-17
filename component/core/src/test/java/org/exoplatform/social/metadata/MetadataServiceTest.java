@@ -37,6 +37,7 @@ import org.exoplatform.container.xml.ObjectParameter;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
+import org.exoplatform.social.core.metadata.storage.MetadataStorage;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.model.Metadata;
@@ -74,6 +75,7 @@ public class MetadataServiceTest extends AbstractCoreTest {
     super.setUp();
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
+    getContainer().getComponentInstanceOfType(MetadataStorage.class).clearCaches();
     userMetadataType = new MetadataType(1000, "user");
     spaceMetadataType = new MetadataType(2000, "space");
 
@@ -668,32 +670,40 @@ public class MetadataServiceTest extends AbstractCoreTest {
     long audienceId = creatorId;
     String name = "testMetadata1User1";
     String name1 = "testMetadata1User12";
-    try {
-      Metadata metadata = new Metadata();
-      metadata.setType(spaceMetadataType);
-      metadata.setName(name);
-      metadata.setAudienceId(audienceId);
-      metadata.setCreatorId(creatorId);
-      HashMap<String, String> properties = new HashMap<>();
-      properties.put("referenced", "true");
-      metadata.setProperties(properties);
-      metadataService.createMetadata(metadata, creatorId);
+    Metadata metadata = new Metadata();
+    metadata.setType(spaceMetadataType);
+    metadata.setName(name);
+    metadata.setAudienceId(audienceId);
+    metadata.setCreatorId(creatorId);
+    HashMap<String, String> properties = new HashMap<>();
+    properties.put("referenced", "true");
+    metadata.setProperties(properties);
+    Metadata createdMetadata1 = metadataService.createMetadata(metadata, creatorId);
 
-      Metadata metadata1 = new Metadata();
-      metadata1.setType(spaceMetadataType);
-      metadata1.setName(name1);
-      metadata1.setAudienceId(audienceId);
-      metadata1.setCreatorId(creatorId);
-      HashMap<String, String> properties1 = new HashMap<>();
-      properties1.put("referenced", "false");
-      metadata1.setProperties(properties1);
-      metadataService.createMetadata(metadata1, creatorId);
-    } catch (IllegalArgumentException e) {
-      // Expected
-    }
+    Metadata metadata1 = new Metadata();
+    metadata1.setType(spaceMetadataType);
+    metadata1.setName(name1);
+    metadata1.setAudienceId(audienceId);
+    metadata1.setCreatorId(creatorId);
+    HashMap<String, String> properties1 = new HashMap<>();
+    properties1.put("referenced", "false");
+    metadata1.setProperties(properties1);
+    Metadata createdMetadata2 = metadataService.createMetadata(metadata1, creatorId);
+
     List<Metadata> metadataList = metadataService.getMetadatasByProperty("referenced", "true", 100);
     assertNotNull(metadataList);
     assertEquals(1, metadataList.size());
+    assertEquals(createdMetadata1.getId(), metadataList.get(0).getId());
+
+    List<Long> metadataIds = metadataService.getMetadataIdsByProperty("referenced", "true", 0, 100);
+    assertNotNull(metadataIds);
+    assertEquals(1, metadataIds.size());
+    assertEquals((Long) createdMetadata1.getId(), metadataIds.get(0));
+
+    metadataIds = metadataService.getMetadataIdsByProperty("referenced", "false", 0, 100);
+    assertNotNull(metadataIds);
+    assertEquals(1, metadataIds.size());
+    assertEquals((Long) createdMetadata2.getId(), metadataIds.get(0));
   }
 
   public void testGetMetadataItemsByMetadataTypeAndObject() {

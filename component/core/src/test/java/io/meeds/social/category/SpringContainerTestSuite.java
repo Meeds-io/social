@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.navigation;
+package io.meeds.social.category;
 
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -26,25 +26,15 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 
-import io.meeds.social.navigation.listener.NavigationConfigurationSiteDisplayListenerTest;
-import io.meeds.social.navigation.plugin.LinkSidebarPluginTest;
-import io.meeds.social.navigation.plugin.PageSidebarPluginTest;
-import io.meeds.social.navigation.plugin.SiteSidebarPluginTest;
-import io.meeds.social.navigation.plugin.SpaceListSidebarPluginTest;
-import io.meeds.social.navigation.plugin.SpaceTemplateSidebarPluginTest;
-import io.meeds.social.navigation.service.NavigationConfigurationServiceTest;
+import io.meeds.social.category.service.CategoryLinkServiceTest;
+import io.meeds.social.category.service.CategoryServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-  LinkSidebarPluginTest.class,
-  PageSidebarPluginTest.class,
-  SiteSidebarPluginTest.class,
-  SpaceListSidebarPluginTest.class,
-  SpaceTemplateSidebarPluginTest.class,
-  NavigationConfigurationServiceTest.class,
-  NavigationConfigurationSiteDisplayListenerTest.class,
+  CategoryServiceTest.class,
+  CategoryLinkServiceTest.class,
 })
-public class InitContainerTestSuite {
+public class SpringContainerTestSuite {
 
   @BeforeClass
   public static void setUp() {

@@ -223,6 +223,28 @@
         </object-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>CategoryMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <long>54175</long>
+            </field>
+            <field name="name">
+              <string>category</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
   <external-component-plugins>
