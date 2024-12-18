@@ -21,6 +21,14 @@ import CategoryManagement from './components/CategoryManagement.vue';
 import Toolbar from './components/header/Toolbar.vue';
 
 import Tree from './components/list/Tree.vue';
+import ItemMenu from './components/list/ItemMenu.vue';
+
+import ItemMenuAdd from './components/menu-action/ItemMenuAdd.vue';
+import ItemMenuEdit from './components/menu-action/ItemMenuEdit.vue';
+import ItemMenuMove from './components/menu-action/ItemMenuMove.vue';
+import ItemMenuDelete from './components/menu-action/ItemMenuDelete.vue';
+
+import CategoryFormDrawer from './components/drawer/CategoryFormDrawer.vue';
 
 const components = {
   'category-management': CategoryManagement,
@@ -28,6 +36,13 @@ const components = {
   'category-management-toolbar': Toolbar,
 
   'category-management-tree': Tree,
+  'category-management-item-menu': ItemMenu,
+  'category-management-menu-item-add': ItemMenuAdd,
+  'category-management-menu-item-edit': ItemMenuEdit,
+  'category-management-menu-item-move': ItemMenuMove,
+  'category-management-menu-item-delete': ItemMenuDelete,
+
+  'category-management-form-drawer': CategoryFormDrawer,
 };
 
 for (const key in components) {
