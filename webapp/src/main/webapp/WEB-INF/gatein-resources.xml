@@ -2008,6 +2008,40 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>CategoryManagement</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/categoryManagement.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
   <module>
     <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
@@ -2978,6 +3012,30 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>categoryVueComponents</name>
+    <load-group>categoryGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/categoryVueComponents.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
     </depends>
   </module>
 
