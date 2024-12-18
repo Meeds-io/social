@@ -259,13 +259,12 @@ public class EntityBuilder {
     identityEntity.setGlobalId(identity.getGlobalId());
     identityEntity.setRemoteId(identity.getRemoteId());
     identityEntity.setDeleted(identity.isDeleted());
-    if (SpaceIdentityProvider.NAME.equals(identity.getProviderId())) {
+    if (identity.isSpace()) {
       Space space = getSpaceService().getSpaceByPrettyName(identity.getRemoteId());
       identityEntity.setSpace(buildEntityFromSpace(space, getCurrentUserName(), restPath, expand));
     } else {
       identityEntity.setProfile(buildEntityProfile(identity.getProfile(), restPath, expand));
     }
-
     updateCachedEtagValue(getEtagValue(identity.getId()));
     return identityEntity;
   }

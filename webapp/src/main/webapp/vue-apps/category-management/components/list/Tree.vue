@@ -20,39 +20,53 @@
 
 -->
 <template>
-  <div>
+  <div class="overflow-hidden">
     <div v-if="loading" class="position-relative z-index-two">
       <v-progress-linear
         indeterminate
         color="primary"
         class="position-absolute" />
     </div>
-    <v-treeview
-      v-if="hasItems"
-      :items="categoryTreeItems"
-      :open.sync="openItems"
-      :search="keyword"
-      :filter="filter"
-      item-children="categories"
-      item-key="id"
-      item-text="name"
-      hoverable
-      activatable
-      open-on-click
-      transition
-      dense>
-      <template #prepend="{ item }">
-        <v-icon size="28" class="me-1">{{ item.icon }}</v-icon>
-      </template>
-      <template #label="{ item }">
-        <div class="d-flex align-center">
-          <div class="me-auto">{{ item.name }}</div>
-          <category-management-item-menu
-            :category="item"
-            class="ms-auto" />
-        </div>
-      </template>
-    </v-treeview>
+    <div v-if="hasItems" class="overflow-hidden">
+      <v-treeview
+        :items="categoryTreeItems"
+        :open.sync="openItems"
+        :search="keyword"
+        :filter="filter"
+        :load-children="loadChildren"
+        class="ms-n9"
+        expand-icon=""
+        item-children="categories"
+        item-key="id"
+        item-text="name"
+        hoverable
+        activatable
+        open-on-click
+        transition
+        dense>
+        <template #prepend="{ item, open }">
+          <div class="d-flex me-2">
+            <v-btn
+              :disabled="!item.hasSubcategories"
+              icon>
+              <v-icon
+                v-show="item.hasSubcategories"
+                :class="open && 'fa-rotate-90'"
+                size="20">
+                fa-chevron-right
+              </v-icon>
+            </v-btn>
+            <v-icon size="28" class="ms-2 me-1">{{ item.icon }}</v-icon>
+          </div>
+        </template>
+        <template #label="{ item }">
+          {{ item.name }}
+        </template>
+        <template #append="{ item }">
+          <category-management-item-menu :category="item" />
+        </template>
+      </v-treeview>
+    </div>
     <div v-else class="d-flex justify-center text-header full-width my-8 mx-5">
       {{ $t('catagoryManagement.noData') }}
     </div>
@@ -78,7 +92,6 @@ export default {
     openItems: [],
     loading: true,
     categoryToDelete: null,
-    depth: 10,
   }),
   computed: {
     categoryTree() {
@@ -108,7 +121,7 @@ export default {
   },
   methods: {
     async init() {
-      await this.refreshTree(this.categoryTree, this.depth);
+      await this.refreshTree(this.categoryTree, this.$root.depth);
       this.$root.categoryOwnerId = this.categoryTree?.ownerId;
       this.$root.categoryRootId = this.categoryTree?.id;
     },
@@ -116,7 +129,15 @@ export default {
       return item[textKey].indexOf(search) > -1;
     },
     async loadChildren(item) {
-      await this.refreshTree(item, 1);
+      const category = this.$root.getCategory(item.id);
+      if (category.depth < (this.$root.depth - 1) || item.subcategoriesLoaded) {
+        return item.categories;
+      } else {
+        const categoryTree = await this.refreshTree(item, 1);
+        categoryTree.subcategoriesLoaded = true;
+        categoryTree.hasSubcategories = categoryTree?.categories?.length > 0;
+        return categoryTree;
+      }
     },
     async refreshTree(item, depth) {
       const parentId = item?.id || this.$root.categoryRootId || 0;
@@ -130,8 +151,10 @@ export default {
         });
         if (!parentId) {
           this.$root.categoryTree = categoryTree;
+          return categoryTree;
         } else {
           Object.keys(categoryTree).forEach(key => item[key] = categoryTree[key]);
+          return item;
         }
       } finally {
         this.loading = false;
@@ -139,15 +162,15 @@ export default {
     },
     handleCategoryCreated(item) {
       const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.depth - (parent.depth || 0));
+      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
     },
     handleCategoryUpdated(item) {
       const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.depth - (parent.depth || 0));
+      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
     },
     handleCategoryDeleted(item) {
       const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.depth - (parent.depth || 0));
+      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
     },
     deleteCategoryConfirm(category) {
       this.categoryToDelete = category;
