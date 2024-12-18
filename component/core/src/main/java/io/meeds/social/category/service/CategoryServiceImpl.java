@@ -135,6 +135,11 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
+  public List<Long> getSubCategoryIds(long categoryId, long offset, long limit) {
+    return categoryStorage.getSubCategoryIds(categoryId, offset, limit);
+  }
+
+  @Override
   public Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
                                                                                IllegalAccessException {
     Category category = getCategory(categoryId);
@@ -360,7 +365,7 @@ public class CategoryServiceImpl implements CategoryService {
                                                 long limit,
                                                 long depthLimit,
                                                 long depth) {
-    List<Long> ids = categoryStorage.getCategoryChildrenIds(categoryId, offset, limit);
+    List<Long> ids = categoryStorage.getSubCategoryIds(categoryId, offset, limit);
     if (CollectionUtils.isNotEmpty(ids)) {
       List<CategoryTree> categories = toCategories(ids, username, locale, offset, limit, depthLimit, depth + 1);
       long offsetToFetch = offset;
@@ -368,7 +373,7 @@ public class CategoryServiceImpl implements CategoryService {
       boolean limitReached = categories.size() == ids.size() || ids.size() < limit;
       while (!limitReached) {
         offsetToFetch += limitToFetch;
-        ids = categoryStorage.getCategoryChildrenIds(categoryId, offset, limitToFetch);
+        ids = categoryStorage.getSubCategoryIds(categoryId, offset, limitToFetch);
         List<CategoryTree> additionalCategories = toCategories(ids,
                                                                username,
                                                                locale,
@@ -416,8 +421,7 @@ public class CategoryServiceImpl implements CategoryService {
     } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
       return canAccess(category.getParentId(), username);
     } else {
-      org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
-      return userAcl.isAdministrator(userAclIdentity)
+      return canEdit(category, username)
              || ((!checkAncestors || canAccess(category.getParentId(), username))
                  && category.getAccessPermissionIds()
                             .stream()
