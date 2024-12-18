@@ -119,6 +119,15 @@ export default {
           if (n.children?.length
               || n.pageLink
               || n.pageKey) {
+            if (!eXo.env.portal.documentsTrashNavigationEnabled) {
+              const documentsSettingsNode = n.children.find(e => e.name === 'documents-settings');
+
+              if (documentsSettingsNode) {
+                documentsSettingsNode.children = (documentsSettingsNode.children ?? []).filter(
+                  child => child.name !== 'documents-trash-administration'
+                );
+              }
+            }
             return n;
           } else {
             return [];
