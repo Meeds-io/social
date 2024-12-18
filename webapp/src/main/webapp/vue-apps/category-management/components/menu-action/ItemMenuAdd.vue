@@ -20,21 +20,29 @@
 
 -->
 <template>
-  <v-app>
-    <v-card class="application-body position-static pb-5" flat>
-      <h4 class="text-title px-5 pt-5 ma-0">
-        {{ $t('catagoryManagement.title') }}
-      </h4>
-      <category-management-toolbar @filter-changed="keyword = $event" />
-      <category-management-tree :keyword="keyword" class="px-5" />
-    </v-card>
-    <category-management-form-drawer />
-  </v-app>
+  <v-list-item
+    dense
+    @click="$root.$emit('category-form-open', null, categoryId)">
+    <v-icon size="13">
+      fa-plus
+    </v-icon>
+    <v-list-item-title class="ps-2">
+      {{ $t('categoryManagement.addSubcategory') }}
+    </v-list-item-title>
+  </v-list-item>
 </template>
 <script>
 export default {
-  data: () => ({
-    keyword: null,
-  }),
+  props: {
+    category: {
+      type: Object,
+      default: null,
+    },
+  },
+  computed: {
+    categoryId() {
+      return this.category?.id;
+    },
+  },
 };
 </script>
