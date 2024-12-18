@@ -65,19 +65,19 @@ public class CategoryRest {
   })
   public CategoryTree getCategoryTree(HttpServletRequest request,
                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
-                                      @RequestParam("parentId")
+                                      @RequestParam(name = "parentId", required = false, defaultValue = "0")
                                       long parentId,
                                       @Parameter(description = "Category Owner Identity Id. Can be 0 to retrieve the Platform Main Tree.")
-                                      @RequestParam("ownerId")
+                                      @RequestParam(name = "ownerId", required = false, defaultValue = "0")
                                       long ownerId,
                                       @Parameter(description = "Sub Categories levels")
-                                      @RequestParam("depth")
+                                      @RequestParam(name = "depth", required = false, defaultValue = "0")
                                       long depth,
                                       @Parameter(description = "Sub Categories Offset per level")
-                                      @RequestParam("offset")
+                                      @RequestParam(name = "offset", required = false, defaultValue = "0")
                                       long offset,
                                       @Parameter(description = "Sub Categories Limit per level")
-                                      @RequestParam("limit")
+                                      @RequestParam(name = "limit", required = false, defaultValue = "0")
                                       long limit) {
     return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit),
                                            request.getRemoteUser(),
@@ -91,22 +91,22 @@ public class CategoryRest {
   })
   public List<Category> findCategories(HttpServletRequest request,
                                        @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
-                                       @RequestParam("query")
+                                       @RequestParam(name = "query", required = false, defaultValue = "0")
                                        String query,
                                        @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
-                                       @RequestParam("parentId")
+                                       @RequestParam(name = "parentId", required = false, defaultValue = "0")
                                        long parentId,
                                        @Parameter(description = "Category Owner Identity Id. Can be 0 to retrieve the Platform Main Tree.")
-                                       @RequestParam("ownerId")
+                                       @RequestParam(name = "ownerId", required = false, defaultValue = "0")
                                        long ownerId,
                                        @Parameter(description = "Sub Categories Offset per level")
-                                       @RequestParam("offset")
+                                       @RequestParam(name = "offset", required = false, defaultValue = "0")
                                        long offset,
                                        @Parameter(description = "Sub Categories Limit per level")
-                                       @RequestParam("limit")
+                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
                                        long limit,
                                        @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
-                                       @RequestParam("linkPermission")
+                                       @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
                                        boolean linkPermission) {
     return categoryService.findCategories(new CategorySearchFilter(query, ownerId, parentId, offset, limit, linkPermission),
                                           request.getRemoteUser(),
