@@ -30,6 +30,8 @@ import ItemMenuDelete from './components/menu-action/ItemMenuDelete.vue';
 
 import CategoryFormDrawer from './components/drawer/CategoryFormDrawer.vue';
 
+import Permissions from './components/form/Permissions.vue';
+
 const components = {
   'category-management': CategoryManagement,
 
@@ -43,6 +45,8 @@ const components = {
   'category-management-menu-item-delete': ItemMenuDelete,
 
   'category-management-form-drawer': CategoryFormDrawer,
+
+  'category-management-permissions': Permissions,
 };
 
 for (const key in components) {
