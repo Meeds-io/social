@@ -133,8 +133,12 @@ public class IdentityRest implements ResourceContainer {
     @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getIdentityById(@Context UriInfo uriInfo,
                                   @Context Request request,
-                                  @Parameter(description = "Identity id which is a UUID such as 40487b7e7f00010104499b339f056aa4", required = true) @PathParam("id") String id,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) {
+                                  @Parameter(description = "Identity technical identifier", required = true)
+                                  @PathParam("id")
+                                  long id,
+                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                  @QueryParam("expand")
+                                  String expand) {
     Identity identity = identityManager.getIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
