@@ -36,6 +36,11 @@ export function init() {
         categoryRootId: null,
         extensionApp: 'category-management',
         menuItemExtensionType: 'menu-item',
+        guestsPermission: '/platform/externals',
+        usersPermission: '/platform/users',
+        administratorsPermission: '/platform/administrators',
+        identityIdPerGroup: {},
+        groupPerIdentityId: {},
       },
       computed: {
         isMobile() {
