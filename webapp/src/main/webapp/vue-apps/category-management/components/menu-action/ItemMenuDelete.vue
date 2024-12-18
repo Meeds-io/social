@@ -20,21 +20,20 @@
 
 -->
 <template>
-  <v-app>
-    <v-card class="application-body position-static pb-5" flat>
-      <h4 class="text-title px-5 pt-5 ma-0">
-        {{ $t('catagoryManagement.title') }}
-      </h4>
-      <category-management-toolbar @filter-changed="keyword = $event" />
-      <category-management-tree :keyword="keyword" class="px-5" />
-    </v-card>
-    <category-management-form-drawer />
-  </v-app>
+  <v-list-item dense @click="$root.$emit('category-delete', category)">
+    <v-icon class="error--text" size="13">fa-trash</v-icon>
+    <v-list-item-title class="ps-2">
+      <span class="error--text">{{ $t('categoryManagement.deleteCategory') }}</span>
+    </v-list-item-title>
+  </v-list-item>
 </template>
 <script>
 export default {
-  data: () => ({
-    keyword: null,
-  }),
+  props: {
+    category: {
+      type: Object,
+      default: null,
+    },
+  },
 };
 </script>
