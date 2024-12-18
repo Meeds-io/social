@@ -17,6 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
+import './extensions.js';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
@@ -31,10 +32,44 @@ export function init() {
       data: {
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         categoryTree: null,
+        categoryOwnerId: null,
+        categoryRootId: null,
+        extensionApp: 'category-management',
+        menuItemExtensionType: 'menu-item',
       },
       computed: {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
+        },
+        categories() {
+          const categories = [];
+          this.addSubcategories(this.categoryTree, categories);
+          return categories;
+        },
+      },
+      created() {
+        document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
+        this.refreshMenuExtensions();
+      },
+      beforeDestroy() {
+        document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
+      },
+      methods: {
+        refreshMenuExtensions() {
+          this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
+        },
+        getCategory(id) {
+          if (id === this.categoryTree?.id) {
+            return this.categoryTree;
+          }
+          return this.categories.find(cat => cat.id === id);
+        },
+        addSubcategories(item, result, depth) {
+          result.push(item);
+          item.depth = depth || 0;
+          if (item?.categories) {
+            item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
+          }
         },
       },
       template: `<category-management id="${appId}" />`,
