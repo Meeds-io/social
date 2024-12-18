@@ -22,6 +22,9 @@ import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATE
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_DELETED;
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_UPDATED;
 
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,12 +35,13 @@ import org.exoplatform.services.listener.ListenerBase;
 import org.exoplatform.services.listener.ListenerService;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.category.storage.elasticsearch.CategoryIndexingConnector;
 
 import jakarta.annotation.PostConstruct;
 
-@Asynchronous
 @Component
+@Asynchronous
 public class CategoryModifiedIndexingListener implements ListenerBase<Category, Object> {
 
   @Autowired
@@ -45,6 +49,9 @@ public class CategoryModifiedIndexingListener implements ListenerBase<Category, 
 
   @Autowired
   private IndexingService indexingService;
+
+  @Autowired
+  private CategoryService categoryService;
 
   @PostConstruct
   public void init() {
@@ -61,7 +68,8 @@ public class CategoryModifiedIndexingListener implements ListenerBase<Category, 
       break;
     }
     case EVENT_SOCIAL_CATEGORY_UPDATED: {
-      indexingService.reindex(CategoryIndexingConnector.TYPE, String.valueOf(event.getSource().getId()));
+      // Ensure to reindex tree to update indexed access permissions
+      reindexTree(event.getSource().getId());
       break;
     }
     case EVENT_SOCIAL_CATEGORY_DELETED: {
@@ -70,6 +78,14 @@ public class CategoryModifiedIndexingListener implements ListenerBase<Category, 
     }
     default:
       throw new IllegalArgumentException("Unexpected event name: " + event.getEventName());
+    }
+  }
+
+  private void reindexTree(long id) {
+    indexingService.reindex(CategoryIndexingConnector.TYPE, String.valueOf(id));
+    List<Long> subCategoryIds = categoryService.getSubCategoryIds(id, 0, -1);
+    if (CollectionUtils.isNotEmpty(subCategoryIds)) {
+      subCategoryIds.forEach(this::reindexTree);
     }
   }
 
