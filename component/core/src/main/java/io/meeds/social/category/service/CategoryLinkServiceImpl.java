@@ -18,7 +18,7 @@
  */
 package io.meeds.social.category.service;
 
-import static io.meeds.social.category.utils.Utils.isMemberOf;
+import static io.meeds.social.category.utils.Utils.*;
 
 import java.util.List;
 
@@ -47,6 +47,9 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   @Autowired
   private CategoryStorage      categoryStorage;
+
+  @Autowired
+  private CategoryService      categoryService;
 
   @Autowired
   private SpaceService         spaceService;
@@ -107,20 +110,20 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
     if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
       return false;
     } else {
-      org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
-      return userAcl.isAdministrator(userAclIdentity)
-             || category.getLinkPermissionIds()
-                        .stream()
-                        .anyMatch(id -> isMemberOf(identityManager,
-                                                   spaceService,
-                                                   userAcl,
-                                                   id,
-                                                   username));
+      return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
+             || (categoryService.canAccess(category, username)
+                 && category.getLinkPermissionIds()
+                            .stream()
+                            .anyMatch(id -> isMemberOf(identityManager,
+                                                       spaceService,
+                                                       userAcl,
+                                                       id,
+                                                       username)));
     }
   }
 
   private void checkCanManageLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
-                                                                                     IllegalAccessException {
+                                                                                           IllegalAccessException {
     Category category = categoryStorage.getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exist", categoryId));

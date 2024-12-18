@@ -66,6 +66,16 @@ public interface CategoryService {
   List<Category> findCategories(CategorySearchFilter filter, String username, Locale locale);
 
   /**
+   * Retrieve sub category identifiers
+   * 
+   * @param categoryId {@link Category} identifier
+   * @param offset Request offset
+   * @param limit Request limit. Can be 0 to retrieve all
+   * @return {@link List} of Sub category ids
+   */
+  List<Long> getSubCategoryIds(long categoryId, long offset, long limit);
+
+  /**
    * Creates a new {@link Category}
    * 
    * @param category {@link Category} to create
