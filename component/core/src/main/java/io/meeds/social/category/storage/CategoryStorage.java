@@ -98,7 +98,7 @@ public class CategoryStorage {
 
   @CacheEvict(cacheNames = "social.category")
   public Category deleteCategory(long id) {
-    List<Long> ids = getCategoryChildrenIds(id, 0, -1);
+    List<Long> ids = getSubCategoryIds(id, 0, -1);
     if (CollectionUtils.isNotEmpty(ids)) {
       ids.forEach(this::deleteCategory);
     }
@@ -127,7 +127,7 @@ public class CategoryStorage {
     return rootId == 0 ? null : getCategory(rootId);
   }
 
-  public List<Long> getCategoryChildrenIds(long categoryId, long offset, long limit) {
+  public List<Long> getSubCategoryIds(long categoryId, long offset, long limit) {
     return metadataService.getMetadataIdsByProperty(PROP_PARENT_ID, String.valueOf(categoryId), offset, limit);
   }
 

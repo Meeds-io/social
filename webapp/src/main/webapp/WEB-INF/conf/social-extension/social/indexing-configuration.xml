@@ -121,21 +121,6 @@
         </properties-param>
       </init-params>
     </component-plugin>
-    <component-plugin>
-      <name>CategoryIndexingConnector</name>
-      <set-method>addConnector</set-method>
-      <type>io.meeds.social.category.storage.elasticsearch.CategoryIndexingConnector</type>
-      <description>Category ElasticSearch Indexing Connector</description>
-      <init-params>
-        <properties-param>
-          <name>constructor.params</name>
-          <property name="index_alias" value="category_alias" />
-          <property name="index_previous" value="${meeds.social.index.category.previous:}" />
-          <property name="index_current" value="${meeds.social.index.category.current:category_v1}" />
-          <property name="reindexOnUpgrade" value="${meeds.social.index.category.reindexOnUpgrade:false}" />
-        </properties-param>
-      </init-params>
-    </component-plugin>
   </external-component-plugins>
 
 </configuration>
