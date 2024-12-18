@@ -97,10 +97,11 @@
             {{ $t('categoryManagement.categoryAccessPermission') }}
           </div>
         </v-card>
-        <div v-if="step === 2" class="mb-4">
+        <div v-show="step === 2" class="mb-4">
           <div>{{ $t('categoryManagement.categoryAccessPermission.title') }}</div>
           <div class="mb-2 text-subtitle">{{ $t('categoryManagement.categoryAccessPermission.subtitle') }}</div>
           <category-management-permissions
+            ref="accessPermissions"
             v-model="category.accessPermissionIds"
             class="mb-4"
             users
@@ -124,10 +125,11 @@
             {{ $t('categoryManagement.categoryLinkPermission') }}
           </div>
         </v-card>
-        <div v-if="step === 3" class="mb-4">
+        <div v-show="step === 3" class="mb-4">
           <div>{{ $t('categoryManagement.categoryLinkPermission.title') }}</div>
           <div class="mb-2 text-subtitle">{{ $t('categoryManagement.categoryLinkPermission.subtitle') }}</div>
           <category-management-permissions
+            ref="linkPermissions"
             v-model="category.linkPermissionIds"
             class="mb-4"
             users

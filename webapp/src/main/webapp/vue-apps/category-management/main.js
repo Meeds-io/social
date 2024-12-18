@@ -36,6 +36,12 @@ export function init() {
         categoryRootId: null,
         extensionApp: 'category-management',
         menuItemExtensionType: 'menu-item',
+        guestsPermission: '/platform/externals',
+        usersPermission: '/platform/users',
+        administratorsPermission: '/platform/administrators',
+        identityIdPerGroup: {},
+        groupPerIdentityId: {},
+        depth: 4,
       },
       computed: {
         isMobile() {
@@ -43,8 +49,20 @@ export function init() {
         },
         categories() {
           const categories = [];
-          this.addSubcategories(this.categoryTree, categories);
+          if (this.categoryTree) {
+            this.addSubcategories(this.categoryTree, categories);
+          }
           return categories;
+        },
+      },
+      watch: {
+        categories() {
+          this.categories?.forEach?.(cat => {
+            if (!cat.categories) {
+              cat.categories = [];
+            }
+            cat.hasSubcategories = cat?.categories?.length || (!cat.subcategoriesLoaded && cat.depth > (this.depth - 1));
+          });
         },
       },
       created() {
@@ -65,6 +83,9 @@ export function init() {
           return this.categories.find(cat => cat.id === id);
         },
         addSubcategories(item, result, depth) {
+          if (!item) {
+            return;
+          }
           result.push(item);
           item.depth = depth || 0;
           if (item?.categories) {
