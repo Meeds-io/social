@@ -28,7 +28,7 @@
     }"
     class="px-1"
     @filter-text-input="$emit('filter-changed', $event)">
-    <template v-if="!$root.isMobile" #left>
+    <template #left>
       <v-btn
         id="applicationToolbarLeftButton"
         :aria-label="$t('catagoryManagement.add')"
@@ -39,9 +39,7 @@
           size="18">
           fa-plus
         </v-icon>
-        <span
-          v-if="!$root.isMobile"
-          class="text-truncate text-none ms-2">
+        <span class="text-truncate text-none hidden-xs-only ms-2">
           {{ $t('catagoryManagement.add') }}
         </span>
       </v-btn>
