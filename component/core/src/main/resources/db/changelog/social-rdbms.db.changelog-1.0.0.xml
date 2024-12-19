@@ -922,13 +922,15 @@
     </changeSet>
 
     <changeSet author="social" id="1.0.0-94">
-        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+      <validCheckSum>8:c4dc4634073b4a2a830dfcc506c832cd</validCheckSum>
+      <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
             <column name="PROPERTY_TYPE" type="NVARCHAR(100)" defaultValue="text"/>
         </addColumn>
     </changeSet>
     
     <changeSet author="social" id="1.0.0-95" dbms="mysql">
-        <sql>
+      <validCheckSum>8:dd6ac127a5288a640b7dd45a2d62eaad</validCheckSum>
+      <sql>
             ALTER TABLE SOC_SPACES MODIFY COLUMN DISPLAY_NAME varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
         </sql>
     </changeSet>
