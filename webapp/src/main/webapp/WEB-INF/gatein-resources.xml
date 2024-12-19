@@ -1524,6 +1524,7 @@
   <portlet>
     <name>GeneralSettings</name>
     <module>
+      <load-group>GeneralSettings</load-group>
       <script>
         <minify>false</minify>
         <path>/js/generalSettings.bundle.js</path>
