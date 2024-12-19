@@ -253,6 +253,13 @@ export default {
       return this.isRoot && 'fa-home' || this.parentCategory?.icon;
     },
   },
+  watch: {
+    step() {
+      if (this.step === 3 && this.drawer && this.isNew && !this.category.linkPermissionIds?.length) {
+        this.category.linkPermissionIds = this.category.accessPermissionIds.slice();
+      }
+    },
+  },
   created() {
     this.$root.$on('category-form-open', this.open);
   },
@@ -263,7 +270,7 @@ export default {
     open(category, parentId) {
       this.isNew = !category?.id;
       this.step = 1;
-      this.category = category || {
+      category = category && JSON.parse(JSON.stringify(category)) || {
         id: null,
         parentId: parentId || this.$root.categoryRootId,
         name: null,
@@ -272,6 +279,8 @@ export default {
         linkPermissionIds: [],
         ownerId: this.$root.categoryOwnerId,
       };
+      delete category.categories;
+      this.category = category;
       this.name = this.category.name || null;
       this.nameTranslations = null;
       this.initialized = false;
