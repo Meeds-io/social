@@ -164,6 +164,11 @@
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
+              <extension-registry-components
+                name="PortalGeneralSettings"
+                type="portal-general-settings-components"
+                parent-element="div"
+                element="div" />
               <v-list-item class="px-0" two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
