@@ -28,6 +28,12 @@
         class="position-absolute" />
     </div>
     <div v-if="hasItems" class="overflow-hidden">
+      <div class="d-flex align-center text-header my-2">
+        <div>{{ $t('categoryManagement.table.column.name') }}</div>
+        <v-spacer />
+        <div>{{ $t('categoryManagement.table.column.actions') }}</div>
+      </div>
+      <v-divider class="full-width" />
       <v-treeview
         :items="categoryTreeItems"
         :open.sync="openItems"
@@ -44,26 +50,25 @@
         open-on-click
         transition
         dense>
-        <template #prepend="{ item, open }">
-          <div class="d-flex me-2">
-            <v-btn
-              :disabled="!item.hasSubcategories"
-              icon>
-              <v-icon
-                v-show="item.hasSubcategories"
-                :class="open && 'fa-rotate-90'"
-                size="20">
-                fa-chevron-right
-              </v-icon>
-            </v-btn>
-            <v-icon size="28" class="ms-2 me-1">{{ item.icon }}</v-icon>
+        <template #label="{ item, open }">
+          <div class="d-flex align-center">
+            <div class="d-flex me-2">
+              <v-btn
+                :disabled="!item.hasSubcategories"
+                icon>
+                <v-icon
+                  v-show="item.hasSubcategories"
+                  :class="open && 'fa-rotate-90'"
+                  size="20">
+                  fa-chevron-right
+                </v-icon>
+              </v-btn>
+              <v-icon size="28" class="ms-2 me-1">{{ item.icon }}</v-icon>
+            </div>
+            <div>{{ item.name }}</div>
+            <category-management-item-menu :category="item" />
           </div>
-        </template>
-        <template #label="{ item }">
-          {{ item.name }}
-        </template>
-        <template #append="{ item }">
-          <category-management-item-menu :category="item" />
+          <v-divider :class="$vuetify.rtl && 'r-0' || 'l-0'" class="position-absolute full-width b-0" />
         </template>
       </v-treeview>
     </div>
@@ -124,6 +129,7 @@ export default {
       await this.refreshTree(this.categoryTree, this.$root.depth);
       this.$root.categoryOwnerId = this.categoryTree?.ownerId;
       this.$root.categoryRootId = this.categoryTree?.id;
+      this.openItems = this.$root.categories.map(c => c.id);
     },
     filter(item, search, textKey) {
       return item[textKey].indexOf(search) > -1;
