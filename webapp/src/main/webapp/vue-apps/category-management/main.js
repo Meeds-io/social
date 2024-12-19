@@ -47,6 +47,9 @@ export function init() {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
         },
+        chevonIcon() {
+          return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+        },
         categories() {
           const categories = [];
           if (this.categoryTree) {
@@ -75,6 +78,33 @@ export function init() {
       methods: {
         refreshMenuExtensions() {
           this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
+        },
+        async loadChildren(item) {
+          const category = this.getCategory(item.id);
+          if (category.depth < (this.depth - 1) || item.subcategoriesLoaded) {
+            return item.categories;
+          } else {
+            const categoryTree = await this.refreshTree(item, 1);
+            categoryTree.subcategoriesLoaded = true;
+            categoryTree.hasSubcategories = categoryTree?.categories?.length > 0;
+            return categoryTree;
+          }
+        },
+        async refreshTree(item, depth) {
+          const parentId = item?.id || this.categoryRootId || 0;
+          const ownerId = item?.ownerId || this.categoryOwnerId || 0;
+          const categoryTree = await this.$categoryService.getCategoryTree({
+            parentId,
+            ownerId,
+            depth,
+          });
+          if (!parentId) {
+            this.categoryTree = categoryTree;
+            return categoryTree;
+          } else {
+            Object.keys(categoryTree).forEach(key => item[key] = categoryTree[key]);
+            return item;
+          }
         },
         getCategory(id) {
           if (id === this.categoryTree?.id) {
