@@ -39,7 +39,7 @@
         :open.sync="openItems"
         :search="keyword"
         :filter="filter"
-        :load-children="loadChildren"
+        :load-children="$root.loadChildren"
         class="ms-n9"
         expand-icon=""
         item-children="categories"
@@ -58,14 +58,17 @@
                 icon>
                 <v-icon
                   v-show="item.hasSubcategories"
-                  :class="open && 'fa-rotate-90'"
+                  :class="{
+                    'fa-rotate-90': open && !$vuetify.rtl,
+                    'fa-rotate-270': open && $vuetify.rtl,
+                  }"
                   size="20">
-                  fa-chevron-right
+                  {{ $root.chevonIcon }}
                 </v-icon>
               </v-btn>
               <v-icon size="28" class="ms-2 me-1">{{ item.icon }}</v-icon>
             </div>
-            <div>{{ item.name }}</div>
+            <div class="text-truncate">{{ item.name }}</div>
             <category-management-item-menu :category="item" />
           </div>
           <v-divider :class="$vuetify.rtl && 'r-0' || 'l-0'" class="position-absolute full-width b-0" />
@@ -114,19 +117,25 @@ export default {
   },
   created() {
     this.init();
-    this.$root.$on('category-created', this.handleCategoryCreated);
-    this.$root.$on('category-updated', this.handleCategoryUpdated);
-    this.$root.$on('category-deleted', this.handleCategoryDeleted);
+    this.$root.$on('category-created', this.handleCategoryRefresh);
+    this.$root.$on('category-updated', this.handleCategoryRefresh);
+    this.$root.$on('category-deleted', this.handleCategoryRefresh);
     this.$root.$on('category-delete', this.deleteCategoryConfirm);
   },
   beforeDestroy() {
-    this.$root.$off('category-created', this.handleCategoryCreated);
-    this.$root.$off('category-updated', this.handleCategoryUpdated);
+    this.$root.$off('category-created', this.handleCategoryRefresh);
+    this.$root.$off('category-updated', this.handleCategoryRefresh);
+    this.$root.$off('category-deleted', this.handleCategoryRefresh);
     this.$root.$off('category-delete', this.deleteCategoryConfirm);
   },
   methods: {
     async init() {
-      await this.refreshTree(this.categoryTree, this.$root.depth);
+      this.loading = true;
+      try {
+        await this.$root.refreshTree(this.categoryTree, this.$root.depth);
+      } finally {
+        this.loading = false;
+      }
       this.$root.categoryOwnerId = this.categoryTree?.ownerId;
       this.$root.categoryRootId = this.categoryTree?.id;
       this.openItems = this.$root.categories.map(c => c.id);
@@ -134,49 +143,14 @@ export default {
     filter(item, search, textKey) {
       return item[textKey].indexOf(search) > -1;
     },
-    async loadChildren(item) {
-      const category = this.$root.getCategory(item.id);
-      if (category.depth < (this.$root.depth - 1) || item.subcategoriesLoaded) {
-        return item.categories;
-      } else {
-        const categoryTree = await this.refreshTree(item, 1);
-        categoryTree.subcategoriesLoaded = true;
-        categoryTree.hasSubcategories = categoryTree?.categories?.length > 0;
-        return categoryTree;
-      }
-    },
-    async refreshTree(item, depth) {
-      const parentId = item?.id || this.$root.categoryRootId || 0;
-      const ownerId = item?.ownerId || this.$root.categoryOwnerId || 0;
+    async handleCategoryRefresh(item) {
+      const parent = item.parentId && this.$root.getCategory(item.parentId) || item;
       this.loading = true;
       try {
-        const categoryTree = await this.$categoryService.getCategoryTree({
-          parentId,
-          ownerId,
-          depth,
-        });
-        if (!parentId) {
-          this.$root.categoryTree = categoryTree;
-          return categoryTree;
-        } else {
-          Object.keys(categoryTree).forEach(key => item[key] = categoryTree[key]);
-          return item;
-        }
+        await this.$root.refreshTree(parent, this.$root.depth - (parent.depth || 0));
       } finally {
         this.loading = false;
       }
-    },
-    handleCategoryCreated(item) {
-      const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
-    },
-    handleCategoryUpdated(item) {
-      const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
-    },
-    handleCategoryDeleted(item) {
-      const parent = this.$root.getCategory(item.parentId);
-      this.refreshTree(parent, this.$root.depth - (parent.depth || 0));
     },
     deleteCategoryConfirm(category) {
       this.categoryToDelete = category;
