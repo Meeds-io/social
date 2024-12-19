@@ -125,7 +125,10 @@
             {{ $t('categoryManagement.categoryLinkPermission') }}
           </div>
         </v-card>
-        <div v-show="step === 3" class="mb-4">
+        <div
+          v-if="step === 3 || category.linkPermissionIds?.length"
+          v-show="step === 3"
+          class="mb-4">
           <div>{{ $t('categoryManagement.categoryLinkPermission.title') }}</div>
           <div class="mb-2 text-subtitle">{{ $t('categoryManagement.categoryLinkPermission.subtitle') }}</div>
           <category-management-permissions
@@ -158,7 +161,7 @@
           :disabled="disabledNextStep"
           :loading="saving"
           class="btn primary"
-          @click="step++">
+          @click="nextStep">
           {{ $t('categoryManagement.next') }}
         </v-btn>
         <v-btn
@@ -253,13 +256,6 @@ export default {
       return this.isRoot && 'fa-home' || this.parentCategory?.icon;
     },
   },
-  watch: {
-    step() {
-      if (this.step === 3 && this.drawer && this.isNew && !this.category.linkPermissionIds?.length) {
-        this.category.linkPermissionIds = this.category.accessPermissionIds.slice();
-      }
-    },
-  },
   created() {
     this.$root.$on('category-form-open', this.open);
   },
@@ -285,6 +281,12 @@ export default {
       this.nameTranslations = null;
       this.initialized = false;
       this.$refs.drawer.open();
+    },
+    nextStep() {
+      if (this.step === 2 && this.drawer && this.isNew && !this.category.linkPermissionIds?.length) {
+        this.category.linkPermissionIds = this.category.accessPermissionIds.slice();
+      }
+      this.step++;
     },
     setOriginalInfo() {
       if (!this.initialized) {
