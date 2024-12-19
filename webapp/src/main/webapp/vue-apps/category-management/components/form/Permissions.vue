@@ -130,9 +130,6 @@ export default {
         const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
         permissions.push(...specificGroupEntries);
       }
-      if (!permissions.length) {
-        permissions.push(this.$root.administratorsPermission);
-      }
       return permissions;
     },
     suggesterLabels() {
