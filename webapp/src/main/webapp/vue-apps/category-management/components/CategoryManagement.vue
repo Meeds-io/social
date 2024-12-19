@@ -29,6 +29,7 @@
       <category-management-tree :keyword="keyword" class="px-5" />
     </v-card>
     <category-management-form-drawer />
+    <category-management-move-drawer />
   </v-app>
 </template>
 <script>
