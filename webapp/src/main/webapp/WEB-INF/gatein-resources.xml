@@ -1581,22 +1581,25 @@
         <module>vuetify</module>
       </depends>
       <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
         <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>spaceForm</module>
       </depends>
       <depends>
         <module>suggester</module>
       </depends>
       <depends>
         <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>spaceForm</module>
       </depends>
     </module>
   </portlet>
@@ -1992,6 +1995,9 @@
       </depends>
       <depends>
         <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>categoryVueComponents</module>
       </depends>
       <depends>
         <module>applicationToolbarComponent</module>
@@ -3033,6 +3039,9 @@
     </depends>
     <depends>
       <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>applicationToolbarComponent</module>
     </depends>
     <depends>
       <module>extensionRegistry</module>
