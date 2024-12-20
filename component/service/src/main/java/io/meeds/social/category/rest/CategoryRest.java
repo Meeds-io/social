@@ -79,7 +79,7 @@ public class CategoryRest {
                                       @Parameter(description = "Sub Categories Limit per level")
                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
                                       long limit) {
-    return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit),
+    return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit, true),
                                            request.getRemoteUser(),
                                            request.getLocale());
   }

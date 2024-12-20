@@ -21,6 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -123,7 +126,7 @@ public class TranslationStorage {
     if (CollectionUtils.isNotEmpty(metadataItems)) {
       metadataItems.stream()
                    .filter(item -> MapUtils.isNotEmpty(item.getProperties())
-                       && StringUtils.equals(item.getProperties().get(LOCALE_PROPERTY_NAME), locale.toLanguageTag()))
+                                   && StringUtils.equals(item.getProperties().get(LOCALE_PROPERTY_NAME), locale.toLanguageTag()))
                    .map(MetadataItem::getId)
                    .forEach(id -> {
                      try {
@@ -174,9 +177,15 @@ public class TranslationStorage {
     } else {
       return metadataItems.stream()
                           .filter(item -> MapUtils.isNotEmpty(item.getProperties()))
+                          .filter(distinctByKey(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME))))
                           .collect(Collectors.toMap(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME)),
                                                     item -> item.getProperties().get(LABEL_PROPERTY_NAME)));
     }
+  }
+
+  public <T> Predicate<T> distinctByKey(Function<? super T, Object> keyExtractor) {
+    Map<Object, Boolean> map = new ConcurrentHashMap<>();
+    return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
   }
 
 }
