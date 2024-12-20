@@ -19,16 +19,11 @@
 package io.meeds.social.category.rest;
 
 import static io.meeds.social.util.JsonUtils.toJsonString;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.Before;
@@ -67,8 +62,6 @@ import jakarta.servlet.Filter;
 @RunWith(SpringRunner.class)
 public class CategoryLinkRestTest {
 
-  private static final String   CAN_LINK_CATEGORY_PATH = "/category/links/canLink/1";
-
   private static final String   CATEGORIES_PATH        = "/category/links/1";
 
   private static final String   SIMPLE_USER            = "simple";
@@ -91,22 +84,6 @@ public class CategoryLinkRestTest {
     mockMvc = MockMvcBuilders.webAppContextSetup(context)
                              .addFilters(filterChain.getFilters().toArray(new Filter[0]))
                              .build();
-  }
-
-  @Test
-  public void canLinkIsTrue() throws Exception {
-    when(categoryLinkService.canManageLink(anyLong(), eq(SIMPLE_USER))).thenReturn(true);
-    ResultActions response = mockMvc.perform(get(CAN_LINK_CATEGORY_PATH).with(testSimpleUser()));
-    response.andExpect(status().isOk())
-            .andExpect(content().string("true"));
-  }
-
-  @Test
-  public void canLinkIsFalse() throws Exception {
-    when(categoryLinkService.canManageLink(anyLong(), eq(SIMPLE_USER))).thenReturn(false);
-    ResultActions response = mockMvc.perform(get(CAN_LINK_CATEGORY_PATH).with(testSimpleUser()));
-    response.andExpect(status().isOk())
-            .andExpect(content().string("false"));
   }
 
   @Test

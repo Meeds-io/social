@@ -18,11 +18,8 @@
  */
 package io.meeds.social.category.service;
 
-import static io.meeds.social.category.utils.Utils.*;
-
 import java.util.List;
 
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,6 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryObject;
@@ -50,9 +46,6 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   @Autowired
   private CategoryService      categoryService;
-
-  @Autowired
-  private SpaceService         spaceService;
 
   @Autowired
   private UserACL              userAcl;
@@ -100,35 +93,13 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
     listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, object);
   }
 
-  @Override
-  public boolean canManageLink(long categoryId, String username) {
-    return canManageLink(categoryStorage.getCategory(categoryId), username);
-  }
-
-  @Override
-  public boolean canManageLink(Category category, String username) {
-    if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
-      return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
-    } else {
-      return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
-             || (categoryService.canAccess(category, username)
-                 && category.getLinkPermissionIds()
-                            .stream()
-                            .anyMatch(id -> isMemberOf(identityManager,
-                                                       spaceService,
-                                                       userAcl,
-                                                       id,
-                                                       username)));
-    }
-  }
-
   private void checkCanManageLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                                            IllegalAccessException {
     Category category = categoryStorage.getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exist", categoryId));
     }
-    if (!canManageLink(category, username)) {
+    if (!categoryService.canManageLink(category, username)) {
       throw new IllegalAccessException(String.format("Category with id %s doesn't exist", categoryId));
     }
     if (categoryPlugins == null

@@ -19,6 +19,15 @@
 import './initComponents.js';
 import './extensions.js';
 
+if (extensionRegistry) {
+  const components = extensionRegistry.loadComponents('CategoryManagement');
+  if (components && components.length > 0) {
+    components.forEach(cmp => {
+      Vue.component(cmp.componentName, cmp.componentOptions);
+    });
+  }
+}
+
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const lang = eXo && eXo.env.portal.language || 'en';
@@ -27,7 +36,6 @@ const appId = 'CategoryManagement';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
         categoryTree: null,
