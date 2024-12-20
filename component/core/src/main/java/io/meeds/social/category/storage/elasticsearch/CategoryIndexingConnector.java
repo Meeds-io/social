@@ -28,14 +28,13 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.container.xml.PropertiesParam;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfig;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.social.core.search.DocumentWithMetadata;
@@ -48,14 +47,13 @@ import io.meeds.social.translation.service.TranslationService;
 
 import lombok.SneakyThrows;
 
-@Component
 public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
 
-  private static final String CATEGORY_INDEX_ALIAS = "category_alias";
+  private static final Log    LOG          = ExoLogger.getLogger(CategoryIndexingConnector.class);
 
-  public static final String  TYPE                 = "category";
+  public static final String  TYPE         = "category";
 
-  public static final String  ES_MAPPING           = """
+  public static final String  ES_MAPPING   = """
           {
              "properties" : {
               "id" : {"type" : "keyword"},
@@ -71,7 +69,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
           }
       """;
 
-  public static final String  NAME_MAPPING         = """
+  public static final String  NAME_MAPPING = """
         "@name@" : {
           "type" : "text",
           "analyzer": "ngram_analyzer",
@@ -85,23 +83,18 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
         }
       """;
 
-  @Autowired
   private CategoryStorage     categoryStorage;
 
-  @Autowired
   private TranslationService  translationService;
 
-  @Autowired
   private LocaleConfigService localeConfigService;
 
-  public CategoryIndexingConnector(
-                                   @Value("${meeds.social.index.category.previous:}")
-                                   String indexPrevious,
-                                   @Value("${meeds.social.index.category.current:category_v1}")
-                                   String indexCurrent,
-                                   @Value("${meeds.social.index.category.reindexOnUpgrade:false}")
-                                   String reindexOnUpgrade) {
-    super(initParams(indexPrevious, indexCurrent, reindexOnUpgrade));
+  public CategoryIndexingConnector(TranslationService translationService,
+                                   LocaleConfigService localeConfigService,
+                                   InitParams initParams) {
+    super(initParams);
+    this.translationService = translationService;
+    this.localeConfigService = localeConfigService;
   }
 
   @Override
@@ -115,7 +108,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
       throw new IllegalArgumentException("id is mandatory");
     }
 
-    Category category = categoryStorage.getCategory(Long.parseLong(id));
+    Category category = getCategoryStorage().getCategory(Long.parseLong(id));
     if (category == null) {
       return null;
     }
@@ -136,6 +129,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
     List<Long> linkPermissionIds = getLinkPermissionIds(category, accessPermissionIds);
     document.addListField("linkPermissionIds", linkPermissionIds.stream().map(String::valueOf).toList());
     addTranslatedNames(category, document);
+    LOG.info("Category document generated for id={}", id);
     return document;
   }
 
@@ -156,6 +150,13 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
                                              .map(l -> NAME_MAPPING.replace("@name@", "name." + toLanguageTag(l)))
                                              .collect(Collectors.joining(",\n"));
     return ES_MAPPING.replace("@name_mappings@", nameMappings);
+  }
+
+  private CategoryStorage getCategoryStorage() {
+    if (categoryStorage == null) {
+      categoryStorage = ExoContainerContext.getService(CategoryStorage.class);
+    }
+    return categoryStorage;
   }
 
   @SneakyThrows
@@ -194,7 +195,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
 
   private List<Long> getLinkPermissionIds(Category category, List<Long> accessPermissionIds) {
     List<Long> linkPermissionIds = category.getLinkPermissionIds() == null ? new ArrayList<>() :
-      new ArrayList<>(category.getLinkPermissionIds());
+                                                                           new ArrayList<>(category.getLinkPermissionIds());
     linkPermissionIds.retainAll(accessPermissionIds);
     if (!linkPermissionIds.contains(category.getOwnerId())) {
       linkPermissionIds.add(category.getOwnerId());
@@ -212,23 +213,11 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
     return accessPermissionIds;
   }
 
-  private static InitParams initParams(String indexPrevious, String indexCurrent, String reindexOnUpgrade) {
-    InitParams initParams = new InitParams();
-    PropertiesParam param = new PropertiesParam();
-    param.setName("constructor.params");
-    param.setProperty("index_alias", CATEGORY_INDEX_ALIAS);
-    param.setProperty("index_previous", indexPrevious);
-    param.setProperty("index_current", indexCurrent);
-    param.setProperty("reindexOnUpgrade", reindexOnUpgrade);
-    initParams.addParameter(param);
-    return initParams;
-  }
-
   private void deleteNonParentPermissions(long parentId, List<Long> accessPermissionIds) {
     if (parentId <= 0) {
       return;
     }
-    Category parentCategory = categoryStorage.getCategory(parentId);
+    Category parentCategory = getCategoryStorage().getCategory(parentId);
     accessPermissionIds.retainAll(parentCategory.getAccessPermissionIds());
     deleteNonParentPermissions(parentCategory.getParentId(), accessPermissionIds);
   }
