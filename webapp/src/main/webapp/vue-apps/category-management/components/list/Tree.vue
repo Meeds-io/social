@@ -57,7 +57,7 @@
               min-width="36"
               flat>
               <v-icon
-                v-show="!item.limit || item.size"
+                v-show="item.size"
                 :class="{
                   'fa-rotate-90': open && !$vuetify.rtl,
                   'fa-rotate-270': open && $vuetify.rtl,
@@ -132,6 +132,20 @@ export default {
       return this.categoryToDelete && this.$te(this.categoryToDelete?.name) ? this.$t(this.categoryToDelete?.name) : this.categoryToDelete?.name || '';
     },
   },
+  watch: {
+    async keyword() {
+      if (this.keyword) {
+        this.loading = true;
+        try {
+          await this.$root.searchCategories(this.keyword);
+        } finally {
+          this.loading = false;
+        }
+      } else {
+        this.$root.resetSearch();
+      }
+    },
+  },
   created() {
     this.init();
     this.$root.$on('category-created', this.handleCategoryCreated);
@@ -160,7 +174,7 @@ export default {
       this.openItems = this.$root.categories.map(c => c.id);
     },
     filter(item, search, textKey) {
-      return item[textKey].indexOf(search) > -1;
+      return (item[textKey] && item[textKey].indexOf(search) > -1) || this.$root.foundCategories?.find?.(cat => cat.id === item.id);
     },
     async handleCategoryCreated(item) {
       const parentCategory = this.$root.getCategory(item.parentId);
@@ -172,7 +186,6 @@ export default {
           });
           if (!parentCategory.categories?.length) {
             parentCategory.categories = [category];
-            parentCategory.size = 1;
           } else {
             const index = parentCategory.categories.findIndex(cat => category.name.localeCompare(cat.name) <= 0);
             if (index >= 0) {
@@ -181,9 +194,9 @@ export default {
               parentCategory.categories.push(category);
             }
             parentCategory.limit++;
-            parentCategory.size++;
           }
         }
+        parentCategory.size++;
       }
     },
     async handleCategoryUpdated(item) {
@@ -220,7 +233,6 @@ export default {
       this.loading = true;
       try {
         await this.$categoryService.deleteCategory(category.id);
-        this.$translationService.deleteTranslations('category', category.id);
         this.$root.$emit('category-deleted', category);
         this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeletedSuccessfully'), 'success');
       } catch (e) {
