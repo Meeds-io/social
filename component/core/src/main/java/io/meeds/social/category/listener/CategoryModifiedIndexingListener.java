@@ -29,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.search.index.IndexingService;
-import org.exoplatform.services.listener.Asynchronous;
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.ListenerBase;
 import org.exoplatform.services.listener.ListenerService;
@@ -41,7 +40,6 @@ import io.meeds.social.category.storage.elasticsearch.CategoryIndexingConnector;
 import jakarta.annotation.PostConstruct;
 
 @Component
-@Asynchronous
 public class CategoryModifiedIndexingListener implements ListenerBase<Category, Object> {
 
   @Autowired
@@ -83,7 +81,7 @@ public class CategoryModifiedIndexingListener implements ListenerBase<Category, 
 
   private void reindexTree(long id) {
     indexingService.reindex(CategoryIndexingConnector.TYPE, String.valueOf(id));
-    List<Long> subCategoryIds = categoryService.getSubCategoryIds(id, 0, -1);
+    List<Long> subCategoryIds = categoryService.getSubcategoryIds(id, 0, -1);
     if (CollectionUtils.isNotEmpty(subCategoryIds)) {
       subCategoryIds.forEach(this::reindexTree);
     }

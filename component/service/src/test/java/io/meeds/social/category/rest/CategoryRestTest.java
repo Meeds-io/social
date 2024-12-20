@@ -110,7 +110,7 @@ public class CategoryRestTest {
     ResultActions response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5")
                                                                                                              .with(testSimpleUser()));
     response.andExpect(status().isOk());
-    verify(categoryService).getCategoryTree(new CategoryFilter(1, 2, 3, 4, 5), SIMPLE_USER, Locale.ENGLISH);
+    verify(categoryService).getCategoryTree(new CategoryFilter(1, 2, 3, 4, 5, true), SIMPLE_USER, Locale.ENGLISH);
   }
 
   @Test

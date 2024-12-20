@@ -42,6 +42,7 @@ export function init() {
         identityIdPerGroup: {},
         groupPerIdentityId: {},
         depth: 4,
+        pageSize: 10,
       },
       computed: {
         isMobile() {
@@ -64,7 +65,6 @@ export function init() {
             if (!cat.categories) {
               cat.categories = [];
             }
-            cat.hasSubcategories = cat?.categories?.length || (!cat.subcategoriesLoaded && cat.depth > (this.depth - 1));
           });
         },
       },
@@ -81,22 +81,21 @@ export function init() {
         },
         async loadChildren(item) {
           const category = this.getCategory(item.id);
-          if (category.depth < (this.depth - 1) || item.subcategoriesLoaded) {
-            return item.categories;
+          if (category.limit) {
+            return category.categories;
           } else {
-            const categoryTree = await this.refreshTree(item, 1);
-            categoryTree.subcategoriesLoaded = true;
-            categoryTree.hasSubcategories = categoryTree?.categories?.length > 0;
-            return categoryTree;
+            return await this.refreshTree(item, 1);
           }
         },
-        async refreshTree(item, depth) {
+        async refreshTree(item, depth, offset, limit) {
           const parentId = item?.id || this.categoryRootId || 0;
           const ownerId = item?.ownerId || this.categoryOwnerId || 0;
           const categoryTree = await this.$categoryService.getCategoryTree({
             parentId,
             ownerId,
             depth,
+            offset: offset || 0,
+            limit: limit || this.pageSize,
           });
           if (!parentId) {
             this.categoryTree = categoryTree;
@@ -106,20 +105,38 @@ export function init() {
             return item;
           }
         },
+        async loadMore(id) {
+          const category = this.getCategory(id);
+          category.loading = true;
+          category.limit += this.pageSize;
+          try {
+            await this.refreshTree(category, Math.max(this.depth - category.depth, 1), 0, category.limit);
+          } finally {
+            category.loading = false;
+          }
+        },
         getCategory(id) {
           if (id === this.categoryTree?.id) {
             return this.categoryTree;
           }
           return this.categories.find(cat => cat.id === id);
         },
-        addSubcategories(item, result, depth) {
+        addSubcategories(item, result, depth, itemIndex) {
           if (!item) {
             return;
           }
+          item.index = itemIndex || 0;
           result.push(item);
           item.depth = depth || 0;
           if (item?.categories) {
-            item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
+            item.categories.forEach((cat, index) => this.addSubcategories(cat, result, item.depth + 1, index));
+            if (item.size > item.limit && !item.categories.find(i => i.loadMore)) {
+              item.categories.push({
+                id: item.id + 100000,
+                parentId: item.id,
+                loadMore: true,
+              });
+            }
           }
         },
       },
