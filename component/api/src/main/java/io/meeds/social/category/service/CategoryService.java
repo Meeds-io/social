@@ -28,6 +28,7 @@ import org.exoplatform.social.core.identity.model.Identity;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
+import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
 
 public interface CategoryService {
@@ -63,7 +64,7 @@ public interface CategoryService {
    * @param locale used {@link Locale} to retrieve translated name
    * @return a {@link List} of {@link Category} switch used filter
    */
-  List<Category> findCategories(CategorySearchFilter filter, String username, Locale locale);
+  List<CategorySearchResult> findCategories(CategorySearchFilter filter, String username, Locale locale);
 
   /**
    * Retrieve sub category identifiers
@@ -76,6 +77,15 @@ public interface CategoryService {
   List<Long> getSubcategoryIds(long categoryId, long offset, long limit);
 
   /**
+   * Retrieve the {@link List} of ancestor Category Ids starting from nearest
+   * ancestor to tree root id
+   * 
+   * @param categoryId {@link Category} identifier
+   * @return {@link List} of technical {@link Category} identifiers
+   */
+  List<Long> getAncestorIds(long categoryId);
+
+  /**
    * Creates a new {@link Category}
    * 
    * @param category {@link Category} to create
@@ -85,9 +95,11 @@ public interface CategoryService {
    *           parentId doesn't exist
    * @throws IllegalAccessException when the user isn't allowed to edit a
    *           categories switch the ownerId field
-   * @throws ObjectAlreadyExistsException when attempting to recreate an existing root tree element
+   * @throws ObjectAlreadyExistsException when attempting to recreate an
+   *           existing root tree element
    */
-  Category createCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException, ObjectAlreadyExistsException;
+  Category createCategory(Category category,
+                          String username) throws ObjectNotFoundException, IllegalAccessException, ObjectAlreadyExistsException;
 
   /**
    * @param category {@link Category} to create

@@ -182,6 +182,7 @@ export default {
     drawer: false,
     isNew: false,
     initialized: false,
+    saving: false,
     category: null,
     bannerUploadId: null,
     bannerData: null,
