@@ -78,14 +78,14 @@
           </div>
           <div v-else class="d-flex align-center">
             <v-btn
-              :title="$t('categoryManagement.loadMore')"
+              :title="$t('categoryInput.loadMore')"
               :loading="item.loading"
               color="transparent"
               class="ms-10 px-0"
               elevation="0"
               link
               @click.prevent.stop="$root.loadMore(item.parentId)">
-              <span class="text-link">{{ $t('categoryManagement.loadMore') }}</span>
+              <span class="text-link">{{ $t('categoryInput.loadMore') }}</span>
             </v-btn>
           </div>
           <v-divider :class="$vuetify.rtl && 'r-0' || 'l-0'" class="position-absolute full-width b-0" />
@@ -93,7 +93,7 @@
       </v-treeview>
     </div>
     <div v-else class="d-flex justify-center text-header full-width my-8 mx-5">
-      {{ $t('catagoryManagement.noData') }}
+      {{ $t('categoryManagement.noData') }}
     </div>
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
