@@ -222,7 +222,9 @@ export default {
       }
     },
     async handleCategoryUpdated(item) {
-      item = await this.$categoryService.getCategory(item.id);
+      item = await this.$categoryService.getCategoryTree({
+        parentId: item.id
+      });
       const category = this.$root.getCategory(item.id);
       category.name = item.name;
       category.icon = item.icon;
