@@ -120,7 +120,7 @@ public class CategoryRestTest {
                            mockMvc.perform(get("/categories/search?query=query&ownerId=1&parentId=2&offset=3&limit=4&linkPermission=true")
                                                                                                                                           .with(testSimpleUser()));
     response.andExpect(status().isOk());
-    verify(categoryService).findCategories(new CategorySearchFilter("query", 1, 2, 3, 4, true), SIMPLE_USER, Locale.ENGLISH);
+    verify(categoryService).findCategories(new CategorySearchFilter("query", 1, 2, 3, 4, true, true), SIMPLE_USER, Locale.ENGLISH);
   }
 
   @Test
