@@ -65,6 +65,9 @@ export function findCategories(options) {
   if (options.limit) {
     formData.append('limit', options.limit);
   }
+  if (options.sortByName) {
+    formData.append('sortByName', options.sortByName);
+  }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`/social/rest/categories/search?${urlParams}`, {
     method: 'GET',
