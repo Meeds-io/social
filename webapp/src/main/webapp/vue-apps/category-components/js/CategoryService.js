@@ -35,6 +35,9 @@ export function getCategoryTree(options) {
   if (options.limit) {
     formData.append('limit', options.limit);
   }
+  if (options.linkPermission) {
+    formData.append('linkPermission', options.linkPermission);
+  }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`/social/rest/categories?${urlParams}`, {
     method: 'GET',
@@ -67,6 +70,9 @@ export function findCategories(options) {
   }
   if (options.sortByName) {
     formData.append('sortByName', options.sortByName);
+  }
+  if (options.linkPermission) {
+    formData.append('linkPermission', options.linkPermission);
   }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`/social/rest/categories/search?${urlParams}`, {
@@ -126,6 +132,19 @@ export function deleteCategory(id) {
 
 export function canEdit(id) {
   return fetch(`/social/rest/categories/canEdit/${id}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp?.ok) {
+      return resp.text().then(text => text === 'true');
+    } else {
+      throw new Error('Error when requesting server');
+    }
+  });
+}
+
+export function canLink(id) {
+  return fetch(`/social/rest/categories/canLink/${id}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

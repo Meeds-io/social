@@ -18,27 +18,20 @@
  */
 package io.meeds.social.category.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class CategoryFilter {
+@EqualsAndHashCode(callSuper = true)
+public class CategoryRootTree extends CategoryTree {
 
-  private long    ownerId;
+  private boolean owner;
 
-  private long    parentId;
-
-  private long    depth;
-
-  private long    offset;
-
-  private long    limit;
-
-  private boolean linkPermission;
-
-  private boolean sortByName;
+  public CategoryRootTree(CategoryTree categoryTree, boolean owner) {
+    super(categoryTree);
+    this.owner = owner;
+  }
 
 }
