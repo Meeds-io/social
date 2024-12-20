@@ -29,7 +29,7 @@
     class="categoryFormDrawer"
     right>
     <template #title>
-      {{ isNew && $t('catagoryManagement.drawer.newCategory') || $t('catagoryManagement.drawer.editCategory') }}
+      {{ isNew && $t('categoryManagement.drawer.newCategory') || $t('categoryManagement.drawer.editCategory') }}
     </template>
     <template v-if="drawer && category" #content>
       <div class="px-4 pb-4">
@@ -53,7 +53,7 @@
             id="categoryName"
             v-model="nameTranslations"
             :field-value.sync="name"
-            :placeholder="$t('catagoryManagement.namePlaceholder')"
+            :placeholder="$t('categoryManagement.namePlaceholder')"
             :maxlength="maxNameLength"
             :object-id="categoryId"
             :rules="rules.name"
