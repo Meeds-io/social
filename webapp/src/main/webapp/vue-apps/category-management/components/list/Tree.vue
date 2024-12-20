@@ -125,6 +125,9 @@ export default {
     categoryTreeItems() {
       return this.categoryTree?.categories || [];
     },
+    foundCategories() {
+      return this.loading ? (this.$root.foundCategories || []) : this.$root.foundCategories;
+    },
     hasItems() {
       return this.categoryTreeItems?.length;
     },
@@ -133,16 +136,35 @@ export default {
     },
   },
   watch: {
-    async keyword() {
+    keyword() {
       if (this.keyword) {
         this.loading = true;
-        try {
-          await this.$root.searchCategories(this.keyword);
-        } finally {
-          this.loading = false;
+      }
+    },
+    async foundCategories() {
+      if (this.foundCategories?.length) {
+        if (this.openItemsInterval) {
+          window.clearTimeout(this.openItemsInterval);
+          this.openItemsInterval = null;
         }
-      } else {
-        this.$root.resetSearch();
+        await this.$nextTick();
+        this.openItemsInterval = window.setTimeout(() => {
+          const openItems = this.openItems.slice();
+          this.foundCategories.forEach(cat => {
+            const category = cat?.id && this.$root.getCategory(cat.id);
+            if (category && !openItems.find(id => id === cat.id)) {
+              openItems.push(cat.id);
+              cat.ancestorIds.forEach(ancestorId => {
+                if (!openItems.find(id => id === ancestorId)) { // NOSONAR
+                  openItems.push(ancestorId);
+                }
+              });
+            }
+          });
+          if (this.openItems.length !== openItems) {
+            this.openItems = openItems;
+          }
+        }, 50);
       }
     },
   },
@@ -228,6 +250,14 @@ export default {
       if (this.categoryToDelete) {
         this.$refs.deleteConfirmDialog.open();
       }
+    },
+    // Called from parent
+    startLoading() {
+      this.loading = true;
+    },
+    // Called from parent
+    endLoading() {
+      this.loading = false;
     },
     async deleteCategory(category) {
       this.loading = true;
