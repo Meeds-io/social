@@ -47,6 +47,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
+import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
 import io.meeds.social.category.plugin.CategoryTranslationPlugin;
 import io.meeds.social.category.storage.CategoryStorage;
@@ -100,9 +101,9 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public List<Category> findCategories(CategorySearchFilter filter,
-                                       String username,
-                                       Locale locale) {
+  public List<CategorySearchResult> findCategories(CategorySearchFilter filter,
+                                                   String username,
+                                                   Locale locale) {
     long parentId = filter.getParentId();
     long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
     long limit = checkLimit(filter.getLimit());
@@ -116,7 +117,31 @@ public class CategoryServiceImpl implements CategoryService {
     }
     filter = filter.clone();
     filter.setLimit(limit);
-    return categoryStorage.findCategories(filter, identityIds, locale);
+    List<Category> categories = categoryStorage.findCategories(filter, identityIds, locale);
+    return categories.stream()
+                     .map(CategorySearchResult::new)
+                     .map(categorySearchResult -> {
+                       String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
+                                                                                     categorySearchResult.getId(),
+                                                                                     CategoryTranslationPlugin.NAME_FIELD,
+                                                                                     locale);
+                       categorySearchResult.setName(name);
+                       categorySearchResult.setAncestorIds(getAncestorIds(categorySearchResult.getId()));
+                       return categorySearchResult;
+                     })
+                     .toList();
+  }
+
+  @Override
+  public List<Long> getAncestorIds(long categoryId) {
+    Category category = getCategory(categoryId);
+    if (category == null) {
+      return Collections.emptyList();
+    } else {
+      List<Long> ancestors = new ArrayList<>();
+      addAncestorId(category, ancestors);
+      return ancestors;
+    }
   }
 
   @Override
@@ -356,10 +381,26 @@ public class CategoryServiceImpl implements CategoryService {
         } else if (canEdit(categoryTree, username)) {
           categoryTree.setSize(size);
         } else {
-          categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
-                                                                  getUserMemberIdentityIds(username),
-                                                                  locale));
+          try {
+            categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
+                                                                    getUserMemberIdentityIds(username),
+                                                                    locale));
+          } catch (Exception e) {
+            LOG.warn("Error while retrieving subcategories size of category {}. generic value {} without ACL filtering will be used as size instead",
+                     categoryId,
+                     size,
+                     e);
+            categoryTree.setSize(size);
+          }
         }
+      }
+    } else {
+      try {
+        categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
+                                                                getUserMemberIdentityIds(username),
+                                                                locale));
+      } catch (Exception e) {
+        LOG.warn("Error while retrieving subcategories size of category {}. 0 size will be used instead", categoryId, e);
       }
     }
     return categoryTree;
@@ -455,13 +496,19 @@ public class CategoryServiceImpl implements CategoryService {
       List<Long> identityIds = getUserMemberIdentityIds(username);
       if (CollectionUtils.isEmpty(identityIds)) {
         return Collections.emptyList();
+      } else {
+        try {
+          return categoryStorage.findCategoryIds(new CategorySearchFilter(null, 0, categoryId, offset, limit, false),
+                                                 identityIds,
+                                                 locale);
+        } catch (Exception e) {
+          LOG.warn("Error while retrieving subcategories of category {}. Information will be retrieved from database instead",
+                   categoryId,
+                   e);
+        }
       }
-      return categoryStorage.findCategoryIds(new CategorySearchFilter(null, 0, categoryId, offset, limit, false),
-                                             identityIds,
-                                             locale);
-    } else {
-      return categoryStorage.getSubcategoryIds(categoryId, offset, limit);
     }
+    return categoryStorage.getSubcategoryIds(categoryId, offset, limit);
   }
 
   private boolean canAccess(Category category, String username, boolean checkAncestors) {
@@ -505,6 +552,15 @@ public class CategoryServiceImpl implements CategoryService {
                             })
                             .filter(Objects::nonNull)
                             .toList();
+    }
+  }
+
+  private void addAncestorId(Category category, List<Long> ancestors) {
+    long parentId = category.getParentId();
+    if (parentId > 0) {
+      ancestors.add(parentId);
+      Category parentCategory = getCategory(parentId);
+      addAncestorId(parentCategory, ancestors);
     }
   }
 
