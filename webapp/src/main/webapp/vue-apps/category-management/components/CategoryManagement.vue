@@ -23,7 +23,7 @@
   <v-app>
     <v-card class="application-body position-static pb-5" flat>
       <h4 class="text-title px-5 pt-5 ma-0">
-        {{ $t('catagoryManagement.title') }}
+        {{ $t('categoryManagement.title') }}
       </h4>
       <category-management-toolbar
         @filter-changed="keyword = $event"

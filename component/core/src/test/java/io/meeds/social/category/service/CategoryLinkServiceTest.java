@@ -77,7 +77,7 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     assertThrows(ObjectAlreadyExistsException.class, () -> categoryLinkService.link(rootCategory.getId(), object, ROOT_USER));
 
     buildCategoryTree();
-    CategoryFilter filter = new CategoryFilter(0, 0, 1, 0, 1, false);
+    CategoryFilter filter = new CategoryFilter(0, 0, 1, 0, 1, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     CategoryTree category = categoryTree.getCategories().get(0);
     category.setLinkPermissionIds(Collections.singletonList(getUsersGroupIdentityId()));

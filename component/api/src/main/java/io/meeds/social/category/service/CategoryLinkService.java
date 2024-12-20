@@ -86,18 +86,4 @@ public interface CategoryLinkService {
    */
   void unlink(long categoryId, CategoryObject object);
 
-  /**
-   * @param category {@link Category}
-   * @param username User name/login
-   * @return true if can link an object to the category, else false
-   */
-  boolean canManageLink(Category category, String username);
-
-  /**
-   * @param categoryId {@link Category} identifier
-   * @param username User name/login
-   * @return true if can link an object to the category, else false
-   */
-  boolean canManageLink(long categoryId, String username);
-
 }
