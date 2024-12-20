@@ -51,25 +51,42 @@
         transition
         dense>
         <template #label="{ item, open }">
-          <div class="d-flex align-center">
-            <div class="d-flex me-2">
-              <v-btn
-                :disabled="!item.hasSubcategories"
-                icon>
-                <v-icon
-                  v-show="item.hasSubcategories"
-                  :class="{
-                    'fa-rotate-90': open && !$vuetify.rtl,
-                    'fa-rotate-270': open && $vuetify.rtl,
-                  }"
-                  size="20">
-                  {{ $root.chevonIcon }}
-                </v-icon>
-              </v-btn>
-              <v-icon size="28" class="ms-2 me-1">{{ item.icon }}</v-icon>
-            </div>
+          <div v-if="!item.loadMore" class="d-flex align-center">
+            <v-card
+              color="transparent"
+              min-width="36"
+              flat>
+              <v-icon
+                v-show="!item.limit || item.size"
+                :class="{
+                  'fa-rotate-90': open && !$vuetify.rtl,
+                  'fa-rotate-270': open && $vuetify.rtl,
+                }"
+                size="20">
+                {{ $root.chevonIcon }}
+              </v-icon>
+            </v-card>
+            <v-card
+              class="d-flex align-center justify-center ms-1 me-2"
+              color="transparent"
+              min-width="28"
+              flat>
+              <v-icon size="28">{{ item.icon }}</v-icon>
+            </v-card>
             <div class="text-truncate">{{ item.name }}</div>
             <category-management-item-menu :category="item" />
+          </div>
+          <div v-else class="d-flex align-center">
+            <v-btn
+              :title="$t('categoryManagement.loadMore')"
+              :loading="item.loading"
+              color="transparent"
+              class="ms-10 px-0"
+              elevation="0"
+              link
+              @click.prevent.stop="$root.loadMore(item.parentId)">
+              <span class="text-link">{{ $t('categoryManagement.loadMore') }}</span>
+            </v-btn>
           </div>
           <v-divider :class="$vuetify.rtl && 'r-0' || 'l-0'" class="position-absolute full-width b-0" />
         </template>
@@ -117,15 +134,17 @@ export default {
   },
   created() {
     this.init();
-    this.$root.$on('category-created', this.handleCategoryRefresh);
-    this.$root.$on('category-updated', this.handleCategoryRefresh);
-    this.$root.$on('category-deleted', this.handleCategoryRefresh);
+    this.$root.$on('category-created', this.handleCategoryCreated);
+    this.$root.$on('category-updated', this.handleCategoryUpdated);
+    this.$root.$on('category-deleted', this.handleCategoryDeleted);
+    this.$root.$on('category-moved', this.handleCategoryMoved);
     this.$root.$on('category-delete', this.deleteCategoryConfirm);
   },
   beforeDestroy() {
-    this.$root.$off('category-created', this.handleCategoryRefresh);
-    this.$root.$off('category-updated', this.handleCategoryRefresh);
-    this.$root.$off('category-deleted', this.handleCategoryRefresh);
+    this.$root.$off('category-created', this.handleCategoryCreated);
+    this.$root.$off('category-updated', this.handleCategoryUpdated);
+    this.$root.$off('category-deleted', this.handleCategoryDeleted);
+    this.$root.$off('category-moved', this.handleCategoryMoved);
     this.$root.$off('category-delete', this.deleteCategoryConfirm);
   },
   methods: {
@@ -143,14 +162,53 @@ export default {
     filter(item, search, textKey) {
       return item[textKey].indexOf(search) > -1;
     },
-    async handleCategoryRefresh(item) {
-      const parent = item.parentId && this.$root.getCategory(item.parentId) || item;
-      this.loading = true;
-      try {
-        await this.$root.refreshTree(parent, this.$root.depth - (parent.depth || 0));
-      } finally {
-        this.loading = false;
+    async handleCategoryCreated(item) {
+      const parentCategory = this.$root.getCategory(item.parentId);
+      if (parentCategory) {
+        if (parentCategory.limit) {
+          const category = await this.$categoryService.getCategoryTree({
+            parentId: item.id,
+            depth: 0,
+          });
+          if (!parentCategory.categories?.length) {
+            parentCategory.categories = [category];
+            parentCategory.size = 1;
+          } else {
+            const index = parentCategory.categories.findIndex(cat => category.name.localeCompare(cat.name) <= 0);
+            if (index >= 0) {
+              parentCategory.categories.splice(index, 0, category);
+            } else {
+              parentCategory.categories.push(category);
+            }
+            parentCategory.limit++;
+            parentCategory.size++;
+          }
+        }
       }
+    },
+    async handleCategoryUpdated(item) {
+      item = await this.$categoryService.getCategory(item.id);
+      const category = this.$root.getCategory(item.id);
+      category.name = item.name;
+      category.icon = item.icon;
+      category.linkPermissionIds = item.linkPermissionIds;
+      category.accessPermissionIds = item.accessPermissionIds;
+    },
+    handleCategoryDeleted(item) {
+      const parentCategory = this.$root.getCategory(item.parentId);
+      if (parentCategory.limit && parentCategory.categories?.length) {
+        const index = parentCategory.categories.findIndex(cat => cat.id === item.id);
+        parentCategory.categories.splice(index, 1);
+        parentCategory.limit--;
+        parentCategory.size--;
+      }
+    },
+    handleCategoryMoved(item, fromCategory) {
+      this.handleCategoryDeleted({
+        id: item.id,
+        parentId: fromCategory.id,
+      });
+      this.handleCategoryCreated(item);
     },
     deleteCategoryConfirm(category) {
       this.categoryToDelete = category;
@@ -158,15 +216,18 @@ export default {
         this.$refs.deleteConfirmDialog.open();
       }
     },
-    deleteCategory(category) {
+    async deleteCategory(category) {
       this.loading = true;
-      this.$categoryService.deleteCategory(category.id)
-        .then(() => {
-          this.$root.$emit('category-deleted', category);
-          this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeletedSuccessfully'), 'success');
-        })
-        .catch(() => this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeleteError'), 'error'))
-        .finally(() => this.loading = false);
+      try {
+        await this.$categoryService.deleteCategory(category.id);
+        this.$translationService.deleteTranslations('category', category.id);
+        this.$root.$emit('category-deleted', category);
+        this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeletedSuccessfully'), 'success');
+      } catch (e) {
+        this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeleteError'), 'error');
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };

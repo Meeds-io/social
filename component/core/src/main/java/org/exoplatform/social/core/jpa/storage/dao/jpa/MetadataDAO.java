@@ -82,11 +82,11 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
   }
 
   public List<String> getMetadataNamesByUser(long metadataTypeId,
-                                                long creatorIdentityId,
-                                                Set<Long> audienceIds,
-                                                long limit) {
+                                             long creatorIdentityId,
+                                             Set<Long> audienceIds,
+                                             long limit) {
     TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.getMetadataNamesByUser",
-            String.class);
+                                                                   String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
     query.setParameter(AUDIENCE_IDS, audienceIds);
     query.setParameter(CREATOR_ID, creatorIdentityId);
@@ -140,7 +140,12 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
       return result.stream().distinct().collect(Collectors.toList());
     }
   }
-  public List<String> findMetadataNamesByUserAndQuery(String term, long metadataTypeId, long creatorIdentityId, Set<Long> audienceIds, long limit) {
+
+  public List<String> findMetadataNamesByUserAndQuery(String term,
+                                                      long metadataTypeId,
+                                                      long creatorIdentityId,
+                                                      Set<Long> audienceIds,
+                                                      long limit) {
     TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByUserAndQuery",
                                                                    String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
@@ -185,7 +190,11 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     }
   }
 
-  public List<Long> getMetadataIdsByProperty(String propertyKey, String propertyValue, long offset, long limit, boolean orderByName) {
+  public List<Long> getMetadataIdsByProperty(String propertyKey,
+                                             String propertyValue,
+                                             long offset,
+                                             long limit,
+                                             boolean orderByName) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery(orderByName ?
                                                                              "SocMetadataEntity.getMetadatasByPropertyOrderByName" :
                                                                              "SocMetadataEntity.getMetadatasByPropertyOrderById",
@@ -199,6 +208,18 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     query.setParameter("propertyName", propertyKey);
     query.setParameter("propertyValue", propertyValue);
     return query.getResultList();
+  }
+
+  public long countMetadataIdsByProperty(String propertyKey, String propertyValue) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocMetadataEntity.countMetadataIdsByProperty", Long.class);
+    query.setParameter("propertyName", propertyKey);
+    query.setParameter("propertyValue", propertyValue);
+    try {
+      Long result = query.getSingleResult();
+      return result == null ? 0l : result.longValue();
+    } catch (NoResultException e) {
+      return 0l;
+    }
   }
 
 }
