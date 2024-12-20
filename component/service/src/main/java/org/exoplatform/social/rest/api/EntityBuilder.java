@@ -950,6 +950,7 @@ public class EntityBuilder {
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setTemplateId(space.getTemplateId());
+    spaceEntity.setCategoryIds(space.getCategoryIds());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
