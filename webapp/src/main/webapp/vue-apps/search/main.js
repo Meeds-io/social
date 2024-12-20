@@ -1,5 +1,15 @@
 import './initComponents.js';
 
+// get overrided components if exists
+if (extensionRegistry) {
+  const overrideComponents = extensionRegistry.loadComponents('SearchApplication');
+  if (overrideComponents && overrideComponents.length) {
+    overrideComponents.forEach(cmp => {
+      Vue.component(cmp.componentName, cmp.componentOptions);
+    });
+  }
+}
+
 const appId = 'SearchApplication';
 const appName = 'Search';
 

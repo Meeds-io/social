@@ -28,7 +28,7 @@
     allow-expand
     right>
     <template #title>
-      {{ $t('catagoryManagement.drawer.moveCategory') }}
+      {{ $t('categoryManagement.drawer.moveCategory') }}
     </template>
     <template v-if="drawer && category" #content>
       <div class="pa-5">
@@ -133,14 +133,14 @@
               </div>
               <div v-else class="d-flex align-center">
                 <v-btn
-                  :title="$t('categoryManagement.loadMore')"
+                  :title="$t('categoryInput.loadMore')"
                   :loading="item.loading"
                   color="transparent"
                   class="ms-10 px-0"
                   elevation="0"
                   link
                   @click.prevent.stop="$root.loadMore(item.parentId)">
-                  <span class="text-link">{{ $t('categoryManagement.loadMore') }}</span>
+                  <span class="text-link">{{ $t('categoryInput.loadMore') }}</span>
                 </v-btn>
               </div>
             </template>
