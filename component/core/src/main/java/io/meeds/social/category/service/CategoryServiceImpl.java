@@ -514,8 +514,12 @@ public class CategoryServiceImpl implements CategoryService {
   private boolean canAccess(Category category, String username, boolean checkAncestors) {
     if (category == null) {
       return false;
+    } else if (category.getParentId() == getAdminGroupIdentityId()) {
+      return StringUtils.isNotBlank(username);
+    } else if (isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
+      return true;
     } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
-      return canAccess(category.getParentId(), username);
+      return checkAncestors && canAccess(category.getParentId(), username);
     } else {
       return canEdit(category, username)
              || ((!checkAncestors || canAccess(category.getParentId(), username))
