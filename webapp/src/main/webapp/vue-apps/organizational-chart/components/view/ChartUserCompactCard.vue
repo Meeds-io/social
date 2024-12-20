@@ -101,7 +101,7 @@ export default {
           && this.user?.managedUsersCount || '+99';
     },
     externalUser() {
-      return this.user?.external;
+      return this.user?.external === 'true';
     },
   }
 };
