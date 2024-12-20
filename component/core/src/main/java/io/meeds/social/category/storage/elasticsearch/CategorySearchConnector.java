@@ -51,9 +51,7 @@ public class CategorySearchConnector {
           {
             "from": "@offset@",
             "size": "@limit@",
-            "sort" : [
-              { "@sort_field@.raw" : "@sort_direction@" }
-            ],
+            @sort_query@
             "query":{
               "bool":{
                 @term_query@
@@ -120,6 +118,18 @@ public class CategorySearchConnector {
       }
       """;
 
+  public static final String     SORT_QUERY_BY_NAME               = """
+      "sort" : [
+        { "@sort_field@.raw" : "@sort_direction@" }
+      ],
+      """;
+
+  public static final String     SORT_QUERY_BY_SCORE              = """
+      "sort" : [
+        "_score"
+      ],
+          """;
+
   private static final String    OFFSET_REPLACEMENT               = "@offset@";
 
   private static final String    LIMIT_REPLACEMENT                = "@limit@";
@@ -129,6 +139,8 @@ public class CategorySearchConnector {
   private static final String    TERM_REPLACEMENT                 = "@term@";
 
   private static final String    TERM_QUERY_REPLACEMENT           = "@term_query@";
+
+  private static final String    SORT_QUERY_REPLACEMENT           = "@sort_query@";
 
   private static final String    OWNER_ID_REPLACEMENT             = "@ownerId@";
 
@@ -168,9 +180,9 @@ public class CategorySearchConnector {
   }
 
   private String buildSearchQuery(String queryBase, CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+    String append = "";
     String esQuery = queryBase.replace(OFFSET_REPLACEMENT, String.valueOf(filter.getOffset()))
                               .replace(LIMIT_REPLACEMENT, String.valueOf(filter.getLimit()));
-    String append = "";
     if (filter.getParentId() > 0) {
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT,
                                 PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT,
@@ -206,8 +218,13 @@ public class CategorySearchConnector {
     } else {
       esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT, "");
     }
-    esQuery = esQuery.replace(SORT_FIELD_QUERY_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()));
-    esQuery = esQuery.replace(SORT_DIRECTION_QUERY_REPLACEMENT, "asc");
+    if (filter.isSortByName()) {
+      esQuery = esQuery.replace(SORT_QUERY_REPLACEMENT, SORT_QUERY_BY_NAME);
+      esQuery = esQuery.replace(SORT_FIELD_QUERY_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()));
+      esQuery = esQuery.replace(SORT_DIRECTION_QUERY_REPLACEMENT, "asc");
+    } else {
+      esQuery = esQuery.replace(SORT_QUERY_REPLACEMENT, SORT_QUERY_BY_SCORE);
+    }
     return esQuery;
   }
 
