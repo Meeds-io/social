@@ -615,6 +615,13 @@ public interface MetadataService {
   List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit);
 
   /**
+   * @param  propertyKey   {@link Metadata} property key
+   * @param  propertyValue {@link Metadata} property value
+   * @return count of found {@link Metadata}
+   */
+  long countMetadataIdsByProperty(String propertyKey, String propertyValue);
+
+  /**
    * @param propertyKey {@link Metadata} property key
    * @param propertyValue {@link Metadata} property value
    * @param offset offset of results to retrieve

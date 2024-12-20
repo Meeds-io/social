@@ -445,6 +445,11 @@ public class MetadataStorage {
     return metadataDAO.getMetadataIdsByProperty(propertyKey, propertyValue, offset, limit, orderByName);
   }
 
+  public long countMetadataIdsByProperty(String propertyKey,
+                                               String propertyValue) {
+    return metadataDAO.countMetadataIdsByProperty(propertyKey, propertyValue);
+  }
+
   public MetadataType getMetadataType(String name) {
     return metadataTypes.stream()
                         .filter(metadataType -> StringUtils.equals(metadataType.getName(), name))
