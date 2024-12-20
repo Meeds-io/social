@@ -40,6 +40,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
+import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
 import io.meeds.social.category.service.CategoryService;
 
@@ -89,25 +90,25 @@ public class CategoryRest {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
-  public List<Category> findCategories(HttpServletRequest request,
-                                       @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
-                                       @RequestParam(name = "query", required = false, defaultValue = "0")
-                                       String query,
-                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
-                                       @RequestParam(name = "parentId", required = false, defaultValue = "0")
-                                       long parentId,
-                                       @Parameter(description = "Category Owner Identity Id. Can be 0 to retrieve the Platform Main Tree.")
-                                       @RequestParam(name = "ownerId", required = false, defaultValue = "0")
-                                       long ownerId,
-                                       @Parameter(description = "Sub Categories Offset per level")
-                                       @RequestParam(name = "offset", required = false, defaultValue = "0")
-                                       long offset,
-                                       @Parameter(description = "Sub Categories Limit per level")
-                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
-                                       long limit,
-                                       @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
-                                       @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
-                                       boolean linkPermission) {
+  public List<CategorySearchResult> findCategories(HttpServletRequest request,
+                                                   @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
+                                                   @RequestParam(name = "query", required = false, defaultValue = "0")
+                                                   String query,
+                                                   @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
+                                                   @RequestParam(name = "parentId", required = false, defaultValue = "0")
+                                                   long parentId,
+                                                   @Parameter(description = "Category Owner Identity Id. Can be 0 to retrieve the Platform Main Tree.")
+                                                   @RequestParam(name = "ownerId", required = false, defaultValue = "0")
+                                                   long ownerId,
+                                                   @Parameter(description = "Sub Categories Offset per level")
+                                                   @RequestParam(name = "offset", required = false, defaultValue = "0")
+                                                   long offset,
+                                                   @Parameter(description = "Sub Categories Limit per level")
+                                                   @RequestParam(name = "limit", required = false, defaultValue = "0")
+                                                   long limit,
+                                                   @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
+                                                   @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
+                                                   boolean linkPermission) {
     return categoryService.findCategories(new CategorySearchFilter(query, ownerId, parentId, offset, limit, linkPermission),
                                           request.getRemoteUser(),
                                           request.getLocale());
