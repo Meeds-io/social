@@ -27,14 +27,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryFilter {
 
-  private long ownerId;
+  private long    ownerId;
 
-  private long parentId;
+  private long    parentId;
 
-  private long depth;
+  private long    depth;
 
-  private long offset;
+  private long    offset;
 
-  private long limit;
+  private long    limit;
+
+  private boolean sortByName;
 
 }
