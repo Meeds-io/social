@@ -82,7 +82,7 @@ public class CategoryServiceImpl implements CategoryService {
   private long               adminGroupOwnerId;
 
   @Override
-  public CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale) {
+  public CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale) { // NOSONAR
     long parentId = filter.getParentId();
     long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
     long limit = checkLimit(filter.getLimit());
@@ -382,7 +382,7 @@ public class CategoryServiceImpl implements CategoryService {
           categoryTree.setSize(size);
         } else {
           try {
-            categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
+            categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(categoryId),
                                                                     getUserMemberIdentityIds(username),
                                                                     locale));
           } catch (Exception e) {
@@ -396,7 +396,7 @@ public class CategoryServiceImpl implements CategoryService {
       }
     } else {
       try {
-        categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
+        categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(categoryId),
                                                                 getUserMemberIdentityIds(username),
                                                                 locale));
       } catch (Exception e) {
@@ -498,7 +498,7 @@ public class CategoryServiceImpl implements CategoryService {
         return Collections.emptyList();
       } else {
         try {
-          return categoryStorage.findCategoryIds(new CategorySearchFilter(null, 0, categoryId, offset, limit, false),
+          return categoryStorage.findCategoryIds(new CategorySearchFilter(null, 0, categoryId, offset, limit, false, true),
                                                  identityIds,
                                                  locale);
         } catch (Exception e) {
