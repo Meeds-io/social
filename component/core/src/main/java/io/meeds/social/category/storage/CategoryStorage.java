@@ -87,8 +87,9 @@ public class CategoryStorage {
   public Category createCategory(Category category) {
     Metadata metadata = toMetadata(category);
     metadata = metadataService.createMetadata(metadata, category.getCreatorId());
-    listenerService.broadcast(EVENT_SOCIAL_CATEGORY_CREATED, category, category.getCreatorId());
-    return toCategory(metadata);
+    Category createdCategory = toCategory(metadata);
+    listenerService.broadcast(EVENT_SOCIAL_CATEGORY_CREATED, createdCategory, category.getCreatorId());
+    return createdCategory;
   }
 
   @CacheEvict(cacheNames = "social.category", key = "#root.args[0].getId()")
