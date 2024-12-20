@@ -113,26 +113,8 @@
         <v-list
           class="pa-0 mt-0 mb-0">
           <v-list-item
-            class="pt-0 pb-0">
-            <v-list-item-content class="py-1">
-              <v-list-item-title>
-                <v-btn
-                  :href="$root.portalPath"
-                  color="primary"
-                  text
-                  class="pa-0 pe-2"
-                  @click="popoverActionEvent('backToHome')">
-                  <v-icon
-                    dense
-                    right
-                    class="me-1 ms-0">
-                    mdi-home
-                  </v-icon>
-                  <span class="text-caption pt-1">{{ $t('space.logo.banner.popover.home') }}</span>
-                </v-btn>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action class="space-logo-popover flex-row">
+            class="pt-0 pb-0 justify-end">
+            <v-list-item-action class="space-logo-popover flex-row mr-0">
               <space-mute-notification-button
                 :space-id="$root.spaceId"
                 :muted="$root.muted"
@@ -149,7 +131,8 @@
                 type="space-popover-action"
                 parent-element="div"
                 element="div"
-                element-class="mx-auto ma-lg-0" />
+                element-class="mx-auto ma-lg-0"
+                class="d-flex"  />
               <space-popover-action-component />
             </v-list-item-action>
           </v-list-item>
