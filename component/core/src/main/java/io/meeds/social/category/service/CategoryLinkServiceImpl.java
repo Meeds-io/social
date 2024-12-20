@@ -108,7 +108,7 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   @Override
   public boolean canManageLink(Category category, String username) {
     if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
-      return false;
+      return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
     } else {
       return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
              || (categoryService.canAccess(category, username)
