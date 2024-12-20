@@ -48,4 +48,19 @@ public class CategoryTree extends Category {
           category.getLinkPermissionIds());
   }
 
+  public CategoryTree(CategoryTree categoryTree) {
+    super(categoryTree.getId(),
+          categoryTree.getParentId(),
+          categoryTree.getName(),
+          categoryTree.getIcon(),
+          categoryTree.getCreatorId(),
+          categoryTree.getOwnerId(),
+          categoryTree.getAccessPermissionIds(),
+          categoryTree.getLinkPermissionIds());
+    this.categories = categoryTree.getCategories();
+    this.offset = categoryTree.getOffset();
+    this.limit = categoryTree.getLimit();
+    this.size = categoryTree.getSize();
+  }
+
 }

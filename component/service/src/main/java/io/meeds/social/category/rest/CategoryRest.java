@@ -79,8 +79,11 @@ public class CategoryRest {
                                       long offset,
                                       @Parameter(description = "Sub Categories Limit per level")
                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
-                                      long limit) {
-    return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit, true),
+                                      long limit,
+                                      @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
+                                      @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
+                                      boolean linkPermission) {
+    return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit, linkPermission, true),
                                            request.getRemoteUser(),
                                            request.getLocale());
   }
@@ -112,21 +115,15 @@ public class CategoryRest {
                                                    @Parameter(description = "Whether to sort by name or by score")
                                                    @RequestParam(name = "sortByName", required = false, defaultValue = "false")
                                                    boolean sortByName) {
-    return categoryService.findCategories(new CategorySearchFilter(query, ownerId, parentId, offset, limit, linkPermission, sortByName),
+    return categoryService.findCategories(new CategorySearchFilter(query,
+                                                                   ownerId,
+                                                                   parentId,
+                                                                   offset,
+                                                                   limit,
+                                                                   linkPermission,
+                                                                   sortByName),
                                           request.getRemoteUser(),
                                           request.getLocale());
-  }
-
-  @GetMapping("canEdit/{categoryId}")
-  @Operation(summary = "Checks whether user can edit the category or not", method = "GET", description = "This will checks whether the current user can edit the designated category or not")
-  @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-  })
-  public boolean canEdit(HttpServletRequest request,
-                         @Parameter(description = "Category id")
-                         @PathVariable("categoryId")
-                         long categoryId) {
-    return categoryService.canEdit(categoryId, request.getRemoteUser());
   }
 
   @PostMapping
@@ -203,6 +200,30 @@ public class CategoryRest {
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     }
+  }
+
+  @GetMapping("canEdit/{categoryId}")
+  @Operation(summary = "Checks whether user can edit the category or not", method = "GET", description = "This will checks whether the current user can edit the designated category or not")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public boolean canEdit(HttpServletRequest request,
+                         @Parameter(description = "Category id")
+                         @PathVariable("categoryId")
+                         long categoryId) {
+    return categoryService.canEdit(categoryId, request.getRemoteUser());
+  }
+
+  @GetMapping("canLink/{categoryId}")
+  @Operation(summary = "Checks whether user can link an object to the category or not", method = "GET", description = "This will checks whether the current user can link an object to the designated category")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public boolean canLink(HttpServletRequest request,
+                         @Parameter(description = "Category id")
+                         @PathVariable("categoryId")
+                         long categoryId) {
+    return categoryService.canManageLink(categoryId, request.getRemoteUser());
   }
 
 }

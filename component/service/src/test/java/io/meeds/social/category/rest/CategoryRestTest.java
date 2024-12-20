@@ -77,6 +77,8 @@ public class CategoryRestTest {
 
   private static final String   CAN_EDIT_CATEGORY_PATH = "/categories/canEdit/5";
 
+  private static final String   CAN_LINK_CATEGORY_PATH = "/categories/canLink/1";
+
   private static final String   CATEGORIES_PATH        = "/categories";
 
   private static final String   DELETE_CATEGORY_PATH   = "/categories/1";
@@ -110,7 +112,7 @@ public class CategoryRestTest {
     ResultActions response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5")
                                                                                                              .with(testSimpleUser()));
     response.andExpect(status().isOk());
-    verify(categoryService).getCategoryTree(new CategoryFilter(1, 2, 3, 4, 5, true), SIMPLE_USER, Locale.ENGLISH);
+    verify(categoryService).getCategoryTree(new CategoryFilter(1, 2, 3, 4, 5, false, true), SIMPLE_USER, Locale.ENGLISH);
   }
 
   @Test
@@ -118,9 +120,11 @@ public class CategoryRestTest {
     when(categoryService.findCategories(any(), any(), any())).thenReturn(Collections.emptyList());
     ResultActions response =
                            mockMvc.perform(get("/categories/search?query=query&ownerId=1&parentId=2&offset=3&limit=4&linkPermission=true&sortByName=true")
-                                                                                                                                          .with(testSimpleUser()));
+                                                                                                                                                          .with(testSimpleUser()));
     response.andExpect(status().isOk());
-    verify(categoryService).findCategories(new CategorySearchFilter("query", 1, 2, 3, 4, true, true), SIMPLE_USER, Locale.ENGLISH);
+    verify(categoryService).findCategories(new CategorySearchFilter("query", 1, 2, 3, 4, true, true),
+                                           SIMPLE_USER,
+                                           Locale.ENGLISH);
   }
 
   @Test
@@ -135,6 +139,22 @@ public class CategoryRestTest {
   public void canEditIsFalse() throws Exception {
     when(categoryService.canEdit(anyLong(), eq(SIMPLE_USER))).thenReturn(false);
     ResultActions response = mockMvc.perform(get(CAN_EDIT_CATEGORY_PATH).with(testSimpleUser()));
+    response.andExpect(status().isOk())
+            .andExpect(content().string("false"));
+  }
+
+  @Test
+  public void canLinkIsTrue() throws Exception {
+    when(categoryService.canManageLink(anyLong(), eq(SIMPLE_USER))).thenReturn(true);
+    ResultActions response = mockMvc.perform(get(CAN_LINK_CATEGORY_PATH).with(testSimpleUser()));
+    response.andExpect(status().isOk())
+            .andExpect(content().string("true"));
+  }
+
+  @Test
+  public void canLinkIsFalse() throws Exception {
+    when(categoryService.canManageLink(anyLong(), eq(SIMPLE_USER))).thenReturn(false);
+    ResultActions response = mockMvc.perform(get(CAN_LINK_CATEGORY_PATH).with(testSimpleUser()));
     response.andExpect(status().isOk())
             .andExpect(content().string("false"));
   }

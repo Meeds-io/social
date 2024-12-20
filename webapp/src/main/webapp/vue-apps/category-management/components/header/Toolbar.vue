@@ -23,8 +23,8 @@
   <application-toolbar
     :right-text-filter="{
       minCharacters: 1,
-      placeholder: $t('catagoryManagement.filter.placeholder'),
-      tooltip: $t('catagoryManagement.filter.placeholder'),
+      placeholder: $t('categoryInput.filter.placeholder'),
+      tooltip: $t('categoryInput.filter.placeholder'),
     }"
     class="px-1"
     @filter-text-input="$emit('filter-changed', $event)"
@@ -32,7 +32,7 @@
     <template #left>
       <v-btn
         id="applicationToolbarLeftButton"
-        :aria-label="$t('catagoryManagement.add')"
+        :aria-label="$t('categoryManagement.add')"
         :class="$root.isMobile && 'px-0'"
         class="btn btn-primary text-truncate"
         @click="$root.$emit('category-form-open')">
@@ -41,7 +41,7 @@
           fa-plus
         </v-icon>
         <span class="text-truncate text-none hidden-xs-only ms-2">
-          {{ $t('catagoryManagement.add') }}
+          {{ $t('categoryManagement.add') }}
         </span>
       </v-btn>
     </template>

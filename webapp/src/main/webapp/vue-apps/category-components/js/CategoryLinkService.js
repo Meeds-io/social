@@ -46,16 +46,3 @@ export function unlink(id, object) {
     }
   });
 }
-
-export function canLink(id) {
-  return fetch(`/social/rest/categories/canEdit/${id}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then(resp => {
-    if (!resp?.ok) {
-      return resp.text().then(text => text === 'true');
-    } else {
-      throw new Error('Error when requesting server');
-    }
-  });
-}
