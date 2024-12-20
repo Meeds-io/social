@@ -57,6 +57,8 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   @Autowired
   protected TranslationService  translationService;
 
+  protected long                usersGroupIdentityId;
+
   protected AbstractCategoryConfigurationTest() {
     AbstractSpringTest.setTestClass(this.getClass());
   }
@@ -65,6 +67,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   public void beforeEach() throws Exception {
     setUp();
     begin();
+    usersGroupIdentityId = Long.parseLong(identityManager.getOrCreateGroupIdentity("/platform/users").getId());
   }
 
   @After
@@ -93,6 +96,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
         category.setOwnerId(ownerId);
         category.setParentId(parentId);
         category.setIcon("test-icon");
+        category.setAccessPermissionIds(Collections.singletonList(usersGroupIdentityId));
         category = categoryService.createCategory(category, ROOT_USER);
         translationService.saveTranslationLabels(CategoryTranslationPlugin.OBJECT_TYPE,
                                                  category.getId(),

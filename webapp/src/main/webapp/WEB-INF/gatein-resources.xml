@@ -867,6 +867,9 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
         <module>applicationToolbarComponent</module>
       </depends>
       <depends>
