@@ -116,6 +116,15 @@ import jakarta.persistence.Table;
     ORDER BY sm.id DESC
   """
 )
+@NamedQuery(
+  name = "SocMetadataEntity.countMetadataIdsByProperty",
+  query = """
+    SELECT COUNT(sm.id) FROM SocMetadataEntity sm
+    INNER JOIN sm.properties prop
+    ON key(prop) = :propertyName
+    AND value(prop) = :propertyValue
+  """
+)
 public class MetadataEntity implements Serializable {
 
   private static final long   serialVersionUID = -743950558885709009L;

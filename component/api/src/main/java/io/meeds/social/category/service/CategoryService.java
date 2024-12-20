@@ -73,7 +73,7 @@ public interface CategoryService {
    * @param limit Request limit. Can be 0 to retrieve all
    * @return {@link List} of Sub category ids
    */
-  List<Long> getSubCategoryIds(long categoryId, long offset, long limit);
+  List<Long> getSubcategoryIds(long categoryId, long offset, long limit);
 
   /**
    * Creates a new {@link Category}

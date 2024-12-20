@@ -43,26 +43,21 @@ import io.meeds.social.category.model.CategorySearchFilter;
 @Component
 public class CategorySearchConnector {
 
-  private static final String    CATEGORY_INDEX                = "category_alias";
+  private static final String    CATEGORY_INDEX                   = "category_alias";
 
-  private static final Log       LOG                           = ExoLogger.getLogger(CategorySearchConnector.class);
+  private static final Log       LOG                              = ExoLogger.getLogger(CategorySearchConnector.class);
 
-  private static final String    SEARCH_QUERY_TERM             = """
+  private static final String    SEARCH_QUERY_TERM                = """
           {
             "from": "@offset@",
             "size": "@limit@",
+            "sort" : [
+              { "@sort_field@.raw" : "@sort_direction@" }
+            ],
             "query":{
               "bool":{
-                "must":{
-                  "query_string":{
-                    "fields": ["@name_field@"],
-                    "default_operator": "AND",
-                    "query": "@term@~",
-                    "fuzziness": 1,
-                    "phrase_slop": 1
-                  }
-                },
-                "filter":[
+                @term_query@
+                "must":[
                   @owner_id_query@
                   @parent_id_query@
                   @permissions_query@
@@ -74,23 +69,50 @@ public class CategorySearchConnector {
           }
       """;
 
-  public static final String     OWNER_ID_QUERY                = """
+  private static final String    COUNT_QUERY_TERM                 = """
+          {
+            "query":{
+              "bool":{
+                @term_query@
+                "must":[
+                  @owner_id_query@
+                  @parent_id_query@
+                  @permissions_query@
+                ]
+              }
+            }
+          }
+      """;
+
+  public static final String     TERM_QUERY                       = """
+        "filter":{
+          "query_string":{
+            "fields": ["@name_field@"],
+            "default_operator": "AND",
+            "query": "@term@~",
+            "fuzziness": 1,
+            "phrase_slop": 1
+          }
+        },
+      """;
+
+  public static final String     OWNER_ID_QUERY                   = """
       {
-        "terms":{
+        "term":{
           "ownerId": @ownerId@
         }
       }
       """;
 
-  public static final String     PARENT_ID_QUERY               = """
+  public static final String     PARENT_ID_QUERY                  = """
       {
-        "terms":{
+        "term":{
           "parentId": @parentId@
         }
       }
       """;
 
-  public static final String     PERMISSIONS_QUERY             = """
+  public static final String     PERMISSIONS_QUERY                = """
       {
         "terms":{
           "@permissions_field@": [@permissions@]
@@ -98,44 +120,67 @@ public class CategorySearchConnector {
       }
       """;
 
-  private static final String    OFFSET_REPLACEMENT            = "@offset@";
+  private static final String    OFFSET_REPLACEMENT               = "@offset@";
 
-  private static final String    LIMIT_REPLACEMENT             = "@limit@";
+  private static final String    LIMIT_REPLACEMENT                = "@limit@";
 
-  private static final String    NAME_REPLACEMENT              = "@name_field@";
+  private static final String    NAME_REPLACEMENT                 = "@name_field@";
 
-  private static final String    TERM_REPLACEMENT              = "@term@";
+  private static final String    TERM_REPLACEMENT                 = "@term@";
 
-  private static final String    OWNER_ID_REPLACEMENT          = "@ownerId@";
+  private static final String    TERM_QUERY_REPLACEMENT           = "@term_query@";
 
-  private static final String    OWNER_ID_QUERY_REPLACEMENT    = "@owner_id_query@";
+  private static final String    OWNER_ID_REPLACEMENT             = "@ownerId@";
 
-  private static final String    PARENT_ID_REPLACEMENT         = "@parentId@";
+  private static final String    OWNER_ID_QUERY_REPLACEMENT       = "@owner_id_query@";
 
-  private static final String    PARENT_ID_QUERY_REPLACEMENT   = "@parent_id_query@";
+  private static final String    PARENT_ID_REPLACEMENT            = "@parentId@";
 
-  private static final String    PERMISSIONS_REPLACEMENT       = "@permissions@";
+  private static final String    PARENT_ID_QUERY_REPLACEMENT      = "@parent_id_query@";
 
-  private static final String    PERMISSIONS_FIELD_REPLACEMENT = "@permissions_field@";
+  private static final String    PERMISSIONS_REPLACEMENT          = "@permissions@";
 
-  private static final String    PERMISSIONS_QUERY_REPLACEMENT = "@permissions_query@";
+  private static final String    PERMISSIONS_FIELD_REPLACEMENT    = "@permissions_field@";
+
+  private static final String    PERMISSIONS_QUERY_REPLACEMENT    = "@permissions_query@";
+
+  private static final String    SORT_FIELD_QUERY_REPLACEMENT     = "@sort_field@";
+
+  private static final String    SORT_DIRECTION_QUERY_REPLACEMENT = "@sort_direction@";
+
+  private static final String    STRING_VALUE_FORMAT              = "\"%s\"";
+
+  private static final String    NAME_FORMAT                      = "name.%s";
 
   @Autowired
   private ElasticSearchingClient client;
 
   public List<Long> search(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    String esQuery = SEARCH_QUERY_TERM.replace(NAME_REPLACEMENT, "name." + locale.toLanguageTag())
-                                      .replace(TERM_REPLACEMENT, filter.getTerm())
-                                      .replace(OFFSET_REPLACEMENT, String.valueOf(filter.getOffset()))
-                                      .replace(LIMIT_REPLACEMENT, String.valueOf(filter.getLimit()));
+    String esQuery = buildSearchQuery(SEARCH_QUERY_TERM, filter, identityIds, locale);
+    String jsonResponse = this.client.sendRequest(esQuery, CATEGORY_INDEX);
+    return buildResult(jsonResponse);
+  }
+
+  public int count(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+    String esQuery = buildSearchQuery(COUNT_QUERY_TERM, filter, identityIds, locale);
+    String jsonResponse = this.client.countRequest(esQuery, CATEGORY_INDEX);
+    return buildCount(jsonResponse);
+  }
+
+  private String buildSearchQuery(String queryBase, CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+    String esQuery = queryBase.replace(OFFSET_REPLACEMENT, String.valueOf(filter.getOffset()))
+                              .replace(LIMIT_REPLACEMENT, String.valueOf(filter.getLimit()));
     String append = "";
     if (filter.getParentId() > 0) {
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT,
-                                PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT, String.valueOf(filter.getParentId())));
+                                PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT,
+                                                        String.format(STRING_VALUE_FORMAT, filter.getParentId())));
+      esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT, "");
       append = ",";
     } else if (filter.getOwnerId() > 0) {
       esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT,
-                                OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT, String.valueOf(filter.getParentId())));
+                                OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT,
+                                                       String.format(STRING_VALUE_FORMAT, filter.getParentId())));
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT, "");
       append = ",";
     } else {
@@ -143,16 +188,27 @@ public class CategorySearchConnector {
       esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT, "");
     }
     if (CollectionUtils.isNotEmpty(identityIds)) {
-      esQuery = append + esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT,
-                                         PERMISSIONS_QUERY.replace(PERMISSIONS_REPLACEMENT, StringUtils.join(identityIds, ","))
+      esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT,
+                                append + PERMISSIONS_QUERY
+                                                          .replace(PERMISSIONS_REPLACEMENT,
+                                                                   String.format(STRING_VALUE_FORMAT,
+                                                                                 StringUtils.join(identityIds, "\",\"")))
                                                           .replace(PERMISSIONS_FIELD_REPLACEMENT,
                                                                    filter.isLinkPermission() ? "linkPermissionIds" :
                                                                                              "accessPermissionIds"));
     } else {
       esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT, "");
     }
-    String jsonResponse = this.client.sendRequest(esQuery, CATEGORY_INDEX);
-    return buildResult(jsonResponse);
+    if (StringUtils.isNotBlank(filter.getTerm())) {
+      esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT,
+                                TERM_QUERY.replace(NAME_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()))
+                                          .replace(TERM_REPLACEMENT, filter.getTerm()));
+    } else {
+      esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT, "");
+    }
+    esQuery = esQuery.replace(SORT_FIELD_QUERY_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()));
+    esQuery = esQuery.replace(SORT_DIRECTION_QUERY_REPLACEMENT, "asc");
+    return esQuery;
   }
 
   @SuppressWarnings({ "rawtypes" })
@@ -183,6 +239,18 @@ public class CategorySearchConnector {
       }
     }
     return results;
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private int buildCount(String jsonResponse) {
+    JSONParser parser = new JSONParser();
+    try {
+      Map json = (Map) parser.parse(jsonResponse);
+      String countString = json.getOrDefault("count", "0").toString();
+      return Integer.parseInt(countString);
+    } catch (ParseException e) {
+      throw new ElasticSearchException("Unable to parse JSON response", e);
+    }
   }
 
   private Long parseLong(JSONObject hitSource, String key) {
