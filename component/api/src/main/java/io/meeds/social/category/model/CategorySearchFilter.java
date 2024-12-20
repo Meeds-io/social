@@ -39,6 +39,12 @@ public class CategorySearchFilter implements Cloneable {
 
   private boolean linkPermission;
 
+  private boolean sortByName;
+
+  public CategorySearchFilter(long parentId) {
+    this.parentId = parentId;
+  }
+
   @Override
   public CategorySearchFilter clone() { // NOSONAR
     return new CategorySearchFilter(term,
@@ -46,6 +52,8 @@ public class CategorySearchFilter implements Cloneable {
                                     parentId,
                                     offset,
                                     limit,
-                                    linkPermission);
+                                    linkPermission,
+                                    sortByName);
   }
+
 }

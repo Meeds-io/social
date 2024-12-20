@@ -25,8 +25,13 @@
       <h4 class="text-title px-5 pt-5 ma-0">
         {{ $t('catagoryManagement.title') }}
       </h4>
-      <category-management-toolbar @filter-changed="keyword = $event" />
-      <category-management-tree :keyword="keyword" class="px-5" />
+      <category-management-toolbar
+        @filter-changed="keyword = $event"
+        @filter-changed-end-typing="search" />
+      <category-management-tree
+        ref="tree"
+        :keyword="keyword"
+        class="px-5" />
     </v-card>
     <category-management-form-drawer />
     <category-management-move-drawer />
@@ -37,5 +42,19 @@ export default {
   data: () => ({
     keyword: null,
   }),
+  methods: {
+    async search() {
+      if (this.keyword?.trim?.()?.length) {
+        this.$refs.tree.startLoading();
+        try {
+          await this.$root.searchCategories(this.keyword.trim());
+        } finally {
+          this.$refs.tree.endLoading();
+        }
+      } else {
+        this.$root.resetSearch();
+      }
+    },
+  },
 };
 </script>

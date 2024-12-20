@@ -108,8 +108,11 @@ public class CategoryRest {
                                                    long limit,
                                                    @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
                                                    @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
-                                                   boolean linkPermission) {
-    return categoryService.findCategories(new CategorySearchFilter(query, ownerId, parentId, offset, limit, linkPermission),
+                                                   boolean linkPermission,
+                                                   @Parameter(description = "Whether to sort by name or by score")
+                                                   @RequestParam(name = "sortByName", required = false, defaultValue = "false")
+                                                   boolean sortByName) {
+    return categoryService.findCategories(new CategorySearchFilter(query, ownerId, parentId, offset, limit, linkPermission, sortByName),
                                           request.getRemoteUser(),
                                           request.getLocale());
   }
