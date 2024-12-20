@@ -20,6 +20,7 @@ package org.exoplatform.social.rest.entity;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.social.core.identity.model.Identity;
@@ -55,15 +56,25 @@ public class SpaceEntity extends BaseEntity {
   public String getDisplayName() {
     return getString("displayName");
   }
-
+  
   public SpaceEntity setTemplateId(Long templateId) {
     setProperty("templateId", templateId == null ? "0" : templateId.toString());
     return this;
   }
-
+  
   public long getTemplateId() {
     String templateId = getString("templateId");
     return StringUtils.isBlank(templateId) ? 0l : Long.parseLong(templateId);
+  }
+
+  public SpaceEntity setCategoryIds(List<Long> categoryIds) {
+    setProperty("categoryIds", CollectionUtils.isNotEmpty(categoryIds) ? categoryIds : null);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Long> getCategoryIds() {
+    return (List<Long>) getProperty("categoryIds");
   }
 
   public SpaceEntity setUrl(String url) {
