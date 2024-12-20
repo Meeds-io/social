@@ -81,7 +81,7 @@ export function init() {
           this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
         },
         async loadChildren(item) {
-          if (category.loadMore) {
+          if (item?.loadMore) {
             return;
           }
           const category = this.getCategory(item.id);
@@ -92,7 +92,7 @@ export function init() {
           }
         },
         async refreshTree(item, depth, offset, limit) {
-          if (item.loadMore) {
+          if (item?.loadMore) {
             return;
           }
           const parentId = item?.id || this.categoryRootId || 0;
