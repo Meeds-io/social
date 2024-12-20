@@ -30,7 +30,6 @@ export function init() {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
-        collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         categoryTree: null,
         categoryOwnerId: null,
         categoryRootId: null,

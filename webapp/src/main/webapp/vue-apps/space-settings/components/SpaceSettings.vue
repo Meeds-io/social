@@ -8,6 +8,7 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -24,6 +25,7 @@
       <space-setting-overview id="SpaceSettingsOverview" />
       <space-setting-roles id="SpaceSettingsRoles" />
       <space-setting-access id="SpaceSettingsAccess" />
+      <space-setting-categories id="SpaceSettingsCategories" />
       <space-setting-public-site
         id="SpaceSettingsPublicAccess"
         v-if="$root.space?.canManagePublicSite" />
