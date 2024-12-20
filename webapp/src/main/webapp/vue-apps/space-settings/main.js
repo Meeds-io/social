@@ -52,6 +52,7 @@ export function init(isExternalFeatureEnabled) {
           space: null,
           activeSection: null,
           externalInvitations: null,
+          collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         },
         computed: {
           isOverviewSection() {
