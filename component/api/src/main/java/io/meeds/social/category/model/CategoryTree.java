@@ -31,6 +31,12 @@ public class CategoryTree extends Category {
 
   private List<CategoryTree> categories;
 
+  private long               offset;
+
+  private long               limit;
+
+  private long               size;
+
   public CategoryTree(Category category) {
     super(category.getId(),
           category.getParentId(),

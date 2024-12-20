@@ -33,7 +33,7 @@
     <template v-if="drawer && category" #content>
       <div class="pa-5">
         <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.category') }}</div>
-        <div class="mb-4 font-weight-bold">{{ category.name }}</div>
+        <div class="mb-4 font-weight-bold text-truncate">{{ category.name }}</div>
         <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.currentPosition') }}</div>
         <v-card
           class="d-flex flex-wrap mb-4"
@@ -94,34 +94,54 @@
             transition
             dense>
             <template #label="{ item, open, active }">
-              <div v-if="item.id !== category.id" class="d-flex align-center">
-                <v-btn
-                  :disabled="!item.hasSubcategories"
-                  icon>
+              <div v-if="!item.loadMore" class="d-flex align-center">
+                <v-card
+                  color="transparent"
+                  min-width="24"
+                  flat>
                   <v-icon
-                    v-show="item.hasSubcategories"
+                    v-show="!item.limit || item.size"
                     :class="{
                       'fa-rotate-90': open && !$vuetify.rtl,
                       'fa-rotate-270': open && $vuetify.rtl,
                     }"
-                    size="12">
+                    size="16">
                     {{ $root.chevonIcon }}
                   </v-icon>
-                </v-btn>
+                </v-card>
                 <v-card
-                  class="d-flex align-center flex-grow-1"
+                  :title="item.name || ''"
+                  class="d-flex align-center flex-grow-1 flex-shrink-1 overflow-hidden"
                   color="transparent"
                   height="36"
                   flat
                   @keypress.enter="setActive(item)"
                   @click.prevent.stop="setActive(item)">
-                  <v-icon size="16" class="me-1">{{ item.id === $root.categoryRootId && 'fa-home' || item.icon }}</v-icon>
+                  <v-card
+                    class="d-flex align-center justify-center me-2"
+                    color="transparent"
+                    min-width="16"
+                    flat>
+                    <v-icon size="16">{{ item.id === $root.categoryRootId && 'fa-home' || item.icon }}</v-icon>
+                  </v-card>
                   <div
                     :class="active && 'primary--text font-weight-bold'"
                     class="text-truncate">
                     {{ item.id === $root.categoryRootId && $t('categoryManagement.rootName') || item.name }}
                   </div>
                 </v-card>
+              </div>
+              <div v-else class="d-flex align-center">
+                <v-btn
+                  :title="$t('categoryManagement.loadMore')"
+                  :loading="item.loading"
+                  color="transparent"
+                  class="ms-10 px-0"
+                  elevation="0"
+                  link
+                  @click.prevent.stop="$root.loadMore(item.parentId)">
+                  <span class="text-link">{{ $t('categoryManagement.loadMore') }}</span>
+                </v-btn>
               </div>
             </template>
           </v-treeview>
@@ -203,8 +223,7 @@ export default {
       try {
         await this.$categoryService.updateCategory(this.category);
         this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedSuccessfully'), 'success');
-        this.$root.$emit('category-updated', this.parent);
-        this.$root.$emit('category-updated', this.destinationParent);
+        this.$root.$emit('category-moved', this.category, this.parent, this.destinationParent);
         this.close();
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedError'), 'success');
@@ -231,11 +250,10 @@ export default {
       return categories
         .filter(cat => cat?.id && cat?.id !== this.category?.id)
         .map(cat => {
-          const filteredCategories = this.filterTree(cat.categories);
-          if (cat.categories?.length && !filteredCategories?.length) {
-            cat.hasSubcategories = false;
+          cat.categories = this.filterTree(cat.categories);
+          if (cat.limit && !cat.categories?.length && cat.size) {
+            cat.size = 0;
           }
-          cat.categories = filteredCategories;
           return cat;
         });
     },
