@@ -576,6 +576,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public long countMetadataIdsByProperty(String propertyKey, String propertyValue) {
+    return metadataStorage.countMetadataIdsByProperty(propertyKey, propertyValue);
+  }
+
+  @Override
   public List<Long> getMetadataIdsByProperty(String propertyKey, String propertyValue, long offset, long limit) {
     return metadataStorage.getMetadataIdsByProperty(propertyKey, propertyValue, offset, limit, false);
   }

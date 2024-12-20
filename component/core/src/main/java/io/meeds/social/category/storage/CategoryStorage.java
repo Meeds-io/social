@@ -20,7 +20,9 @@ package io.meeds.social.category.storage;
 
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_CREATED;
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_DELETED;
-import static io.meeds.social.category.service.CategoryService.*;
+import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_ITEM_LINKED;
+import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_ITEM_UNLINKED;
+import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_UPDATED;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,13 +37,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.Metadata;
 import org.exoplatform.social.metadata.model.MetadataItem;
@@ -54,8 +55,10 @@ import io.meeds.social.category.storage.elasticsearch.CategorySearchConnector;
 
 import lombok.SneakyThrows;
 
-@Component
-@SuppressWarnings("removal")
+/**
+ * TODO change to component when CategoryIndexingConnector moved to be managed by Spring
+ */
+@Service
 public class CategoryStorage {
 
   private static final Log          LOG                     = ExoLogger.getLogger(CategoryStorage.class);
@@ -98,7 +101,7 @@ public class CategoryStorage {
 
   @CacheEvict(cacheNames = "social.category")
   public Category deleteCategory(long id) {
-    List<Long> ids = getSubCategoryIds(id, 0, -1);
+    List<Long> ids = getSubcategoryIds(id, 0, -1);
     if (CollectionUtils.isNotEmpty(ids)) {
       ids.forEach(this::deleteCategory);
     }
@@ -127,13 +130,25 @@ public class CategoryStorage {
     return rootId == 0 ? null : getCategory(rootId);
   }
 
-  public List<Long> getSubCategoryIds(long categoryId, long offset, long limit) {
+  public List<Long> getSubcategoryIds(long categoryId, long offset, long limit) {
     return metadataService.getMetadataIdsByProperty(PROP_PARENT_ID, String.valueOf(categoryId), offset, limit);
   }
 
+  public long countSubcategories(long categoryId) {
+    return metadataService.countMetadataIdsByProperty(PROP_PARENT_ID, String.valueOf(categoryId));
+  }
+
   public List<Category> findCategories(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
-    List<Long> ids = searchConnector.search(filter, identityIds, locale);
+    List<Long> ids = findCategoryIds(filter, identityIds, locale);
     return ids.stream().map(this::getCategory).toList();
+  }
+
+  public List<Long> findCategoryIds(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+    return searchConnector.search(filter, identityIds, locale);
+  }
+
+  public int countSubcategories(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
+    return searchConnector.count(filter, identityIds, locale);
   }
 
   public boolean isLinked(long categoryId, CategoryObject object) {
