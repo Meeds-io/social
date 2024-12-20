@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +36,8 @@ import org.springframework.stereotype.Service;
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -57,6 +58,8 @@ import lombok.SneakyThrows;
 public class CategoryServiceImpl implements CategoryService {
 
   public static final String ADMINISTRATORS_GROUP = "/platform/administrators";
+
+  private static final Log   LOG                  = ExoLogger.getLogger(CategoryServiceImpl.class);
 
   private static final long  MAX_LIMIT            = 100l;
 
@@ -91,6 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
                              locale,
                              filter.getOffset(),
                              limit,
+                             filter.isSortByName(),
                              filter.getDepth(),
                              0);
   }
@@ -106,37 +110,18 @@ public class CategoryServiceImpl implements CategoryService {
     if (category == null || !canAccess(category, username)) {
       return Collections.emptyList();
     }
-    org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
-    if (userAclIdentity == null) {
+    List<Long> identityIds = getUserMemberIdentityIds(username);
+    if (CollectionUtils.isEmpty(identityIds)) {
       return Collections.emptyList();
-    } else {
-      Set<String> groups = userAclIdentity.getGroups();
-      List<Long> identityIds = groups.stream()
-                                     .map(groupId -> {
-                                       if (StringUtils.startsWith(groupId, SpaceUtils.SPACE_GROUP_PREFIX)) {
-                                         Space space = spaceService.getSpaceByGroupId(groupId);
-                                         if (space == null) {
-                                           return null;
-                                         } else {
-                                           Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-                                           return Long.parseLong(identity.getId());
-                                         }
-                                       } else {
-                                         Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
-                                         return Long.parseLong(identity.getId());
-                                       }
-                                     })
-                                     .filter(Objects::nonNull)
-                                     .toList();
-      filter = filter.clone();
-      filter.setLimit(limit);
-      return categoryStorage.findCategories(filter, identityIds, locale);
     }
+    filter = filter.clone();
+    filter.setLimit(limit);
+    return categoryStorage.findCategories(filter, identityIds, locale);
   }
 
   @Override
-  public List<Long> getSubCategoryIds(long categoryId, long offset, long limit) {
-    return categoryStorage.getSubCategoryIds(categoryId, offset, limit);
+  public List<Long> getSubcategoryIds(long categoryId, long offset, long limit) {
+    return categoryStorage.getSubcategoryIds(categoryId, offset, limit);
   }
 
   @Override
@@ -215,6 +200,7 @@ public class CategoryServiceImpl implements CategoryService {
   public Category deleteCategory(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException {
     Category category = checkCategoryExists(categoryId);
     checkCanEdit(category, username);
+    translationService.deleteTranslationLabels(CategoryTranslationPlugin.OBJECT_TYPE, categoryId);
     return categoryStorage.deleteCategory(categoryId);
   }
 
@@ -262,9 +248,7 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   private long checkLimit(long limit) {
-    if (limit > MAX_LIMIT) {
-      throw new IllegalArgumentException(String.format("Max categories to retrieve is %s, found %s", MAX_LIMIT, limit));
-    } else if (limit <= 0) {
+    if (limit <= 0) {
       limit = MAX_LIMIT;
     }
     return limit;
@@ -337,48 +321,79 @@ public class CategoryServiceImpl implements CategoryService {
     }
   }
 
-  private CategoryTree buildCategoryTree(Category category,
+  private CategoryTree buildCategoryTree(Category category, // NOSONAR
                                          String username,
                                          Locale locale,
                                          long offset,
                                          long limit,
+                                         boolean sortByName,
                                          long depthLimit,
                                          long depth) {
     CategoryTree categoryTree = new CategoryTree(category);
+    long categoryId = categoryTree.getId();
+    long size = categoryStorage.countSubcategories(categoryId);
     String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
                                                                   category.getId(),
                                                                   CategoryTranslationPlugin.NAME_FIELD,
                                                                   locale);
     categoryTree.setName(name);
     if (depth < depthLimit) {
-      long categoryId = categoryTree.getId();
-      List<CategoryTree> categories = buildSubCategories(categoryId, username, locale, offset, limit, depthLimit, depth);
-      categoryTree.setCategories(categories);
+      categoryTree.setOffset(offset);
+      categoryTree.setLimit(limit);
+      if (size > 0) {
+        List<CategoryTree> categories = buildSubCategories(categoryId,
+                                                           username,
+                                                           locale,
+                                                           offset,
+                                                           limit,
+                                                           size,
+                                                           sortByName,
+                                                           depthLimit,
+                                                           depth);
+        categoryTree.setCategories(categories);
+        if (categories.size() < limit) {
+          categoryTree.setSize(offset + categories.size());
+        } else if (canEdit(categoryTree, username)) {
+          categoryTree.setSize(size);
+        } else {
+          categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(null, 0, categoryId, 0, 0, false),
+                                                                  getUserMemberIdentityIds(username),
+                                                                  locale));
+        }
+      }
     }
     return categoryTree;
   }
 
-  private List<CategoryTree> buildSubCategories(long categoryId,
+  private List<CategoryTree> buildSubCategories(long categoryId, // NOSONAR
                                                 String username,
                                                 Locale locale,
                                                 long offset,
                                                 long limit,
+                                                long size,
+                                                boolean sortByName,
                                                 long depthLimit,
                                                 long depth) {
-    List<Long> ids = categoryStorage.getSubCategoryIds(categoryId, offset, limit);
+    boolean sortByNameSubcategories = sortByName && size > limit;
+    List<Long> ids = getSubcategoryIds(categoryId, offset, limit, username, locale, sortByNameSubcategories);
+    long loadedCount = ids == null ? 0 : ids.size();
+    List<CategoryTree> categories;
     if (CollectionUtils.isNotEmpty(ids)) {
-      List<CategoryTree> categories = toCategories(ids, username, locale, offset, limit, depthLimit, depth + 1);
+      categories = toCategories(ids, username, locale, offset, limit, sortByName, depthLimit, depth + 1);
       long offsetToFetch = offset;
       long limitToFetch = Math.max(limit, 10);
       boolean limitReached = categories.size() == ids.size() || ids.size() < limit;
       while (!limitReached) {
+        // Loop in order to filter on user permissions
         offsetToFetch += limitToFetch;
-        ids = categoryStorage.getSubCategoryIds(categoryId, offset, limitToFetch);
+        ids = getSubcategoryIds(categoryId, offset, limitToFetch, username, locale, sortByNameSubcategories);
+        loadedCount += ids.size();
         List<CategoryTree> additionalCategories = toCategories(ids,
                                                                username,
                                                                locale,
                                                                offsetToFetch,
                                                                limitToFetch,
+                                                               sortByName,
                                                                depthLimit,
                                                                depth + 1);
         if (CollectionUtils.isNotEmpty(additionalCategories)) {
@@ -389,17 +404,31 @@ public class CategoryServiceImpl implements CategoryService {
         }
         limitReached = categories.size() >= limit || ids.size() < limitToFetch;
       }
-      return categories;
     } else {
-      return Collections.emptyList();
+      categories = Collections.emptyList();
     }
+    boolean sortApplied = true;
+    if (sortByName
+        && locale != null
+        && categories.size() < limit
+        && loadedCount < (size - offset)) {
+      LOG.info("Incoherent result from Elasticsearch while retrieving categories. Thus retrieve data from DB");
+      sortApplied = false;
+      categories = buildSubCategories(categoryId, username, locale, offset, limit, size, false, depthLimit, depth);
+    }
+    if ((!sortApplied || !sortByNameSubcategories) && CollectionUtils.isNotEmpty(categories)) {
+      categories = new ArrayList<>(categories);
+      categories.sort((c1, c2) -> StringUtils.compare(c1.getName(), c2.getName()));
+    }
+    return categories;
   }
 
-  private List<CategoryTree> toCategories(List<Long> categoryIds,
+  private List<CategoryTree> toCategories(List<Long> categoryIds, // NOSONAR
                                           String username,
                                           Locale locale,
                                           long offset,
                                           long limit,
+                                          boolean sortByName,
                                           long depthLimit,
                                           long depth) {
     return categoryIds.stream()
@@ -410,9 +439,29 @@ public class CategoryServiceImpl implements CategoryService {
                                                     locale,
                                                     offset,
                                                     limit,
+                                                    sortByName,
                                                     depthLimit,
                                                     depth))
                       .toList();
+  }
+
+  private List<Long> getSubcategoryIds(long categoryId,
+                                       long offset,
+                                       long limit,
+                                       String username,
+                                       Locale locale,
+                                       boolean sortByName) {
+    if (sortByName && locale != null) {
+      List<Long> identityIds = getUserMemberIdentityIds(username);
+      if (CollectionUtils.isEmpty(identityIds)) {
+        return Collections.emptyList();
+      }
+      return categoryStorage.findCategoryIds(new CategorySearchFilter(null, 0, categoryId, offset, limit, false),
+                                             identityIds,
+                                             locale);
+    } else {
+      return categoryStorage.getSubcategoryIds(categoryId, offset, limit);
+    }
   }
 
   private boolean canAccess(Category category, String username, boolean checkAncestors) {
@@ -430,6 +479,32 @@ public class CategoryServiceImpl implements CategoryService {
                                                        userAcl,
                                                        id,
                                                        username)));
+    }
+  }
+
+  private List<Long> getUserMemberIdentityIds(String username) {
+    org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
+    if (userAclIdentity == null) {
+      return Collections.emptyList();
+    } else {
+      return userAclIdentity.getGroups()
+                            .stream()
+                            .map(groupId -> {
+                              if (StringUtils.startsWith(groupId, SpaceUtils.SPACE_GROUP_PREFIX)) {
+                                Space space = spaceService.getSpaceByGroupId(groupId);
+                                if (space == null) {
+                                  return null;
+                                } else {
+                                  Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+                                  return Long.parseLong(identity.getId());
+                                }
+                              } else {
+                                Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
+                                return Long.parseLong(identity.getId());
+                              }
+                            })
+                            .filter(Objects::nonNull)
+                            .toList();
     }
   }
 
