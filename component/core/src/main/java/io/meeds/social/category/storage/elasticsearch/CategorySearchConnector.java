@@ -180,7 +180,7 @@ public class CategorySearchConnector {
     } else if (filter.getOwnerId() > 0) {
       esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT,
                                 OWNER_ID_QUERY.replace(OWNER_ID_REPLACEMENT,
-                                                       String.format(STRING_VALUE_FORMAT, filter.getParentId())));
+                                                       String.format(STRING_VALUE_FORMAT, filter.getOwnerId())));
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT, "");
       append = ",";
     } else {
