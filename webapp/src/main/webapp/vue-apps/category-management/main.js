@@ -34,6 +34,7 @@ export function init() {
         categoryTree: null,
         categoryOwnerId: null,
         categoryRootId: null,
+        foundCategories: null,
         extensionApp: 'category-management',
         menuItemExtensionType: 'menu-item',
         guestsPermission: '/platform/externals',
@@ -80,6 +81,9 @@ export function init() {
           this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
         },
         async loadChildren(item) {
+          if (category.loadMore) {
+            return;
+          }
           const category = this.getCategory(item.id);
           if (category.limit) {
             return category.categories;
@@ -88,6 +92,9 @@ export function init() {
           }
         },
         async refreshTree(item, depth, offset, limit) {
+          if (item.loadMore) {
+            return;
+          }
           const parentId = item?.id || this.categoryRootId || 0;
           const ownerId = item?.ownerId || this.categoryOwnerId || 0;
           const categoryTree = await this.$categoryService.getCategoryTree({
@@ -105,14 +112,45 @@ export function init() {
             return item;
           }
         },
+        async searchCategories(query) {
+          this.foundCategories = await this.$categoryService.findCategories({
+            query,
+            ownerId: this.categoryOwnerId,
+            offset: 0,
+            limit: this.pageSize,
+          });
+          await Promise.all(this.foundCategories.map(cat => this.loadAncestors(cat)));
+        },
+        resetSearch() {
+          this.foundCategories = null;
+        },
+        async loadAncestors(category) {
+          let limit = 0;
+          while (!this.getCategory(category.id)) {
+            limit += this.pageSize;
+            const index = category.ancestorIds.findIndex(id => this.getCategory(id));
+            const length = category.ancestorIds.length;
+            const ancestorId = category.ancestorIds[index];
+            let lastLoadedParent = this.getCategory(ancestorId);
+            // Can't be parallelized so disable Sonar and ESLint recommandations
+            // eslint-disable-next-line no-await-in-loop
+            await this.refreshTree(lastLoadedParent, length - index, 0, limit); // NOSONAR
+            lastLoadedParent = this.getCategory(ancestorId);
+            if (lastLoadedParent.id === category.parentId
+                && lastLoadedParent.size <= lastLoadedParent.limit) {
+              break;
+            }
+          }
+        },
         async loadMore(id) {
           const category = this.getCategory(id);
-          category.loading = true;
+          const loadMoreButtonItem = category.categories.find(i => i.loadMore);
+          loadMoreButtonItem.loading = true;
           category.limit += this.pageSize;
           try {
             await this.refreshTree(category, Math.max(this.depth - category.depth, 1), 0, category.limit);
           } finally {
-            category.loading = false;
+            window.setTimeout(() => loadMoreButtonItem.loading = false, 50);
           }
         },
         getCategory(id) {
@@ -130,10 +168,11 @@ export function init() {
           item.depth = depth || 0;
           if (item?.categories) {
             item.categories.forEach((cat, index) => this.addSubcategories(cat, result, item.depth + 1, index));
-            if (item.size > item.limit && !item.categories.find(i => i.loadMore)) {
+            if (item.limit && item.size > item.limit && !item.categories.find(i => i.loadMore)) {
               item.categories.push({
                 id: item.id + 100000,
                 parentId: item.id,
+                loading: false,
                 loadMore: true,
               });
             }
