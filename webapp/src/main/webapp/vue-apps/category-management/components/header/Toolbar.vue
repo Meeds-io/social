@@ -27,7 +27,8 @@
       tooltip: $t('catagoryManagement.filter.placeholder'),
     }"
     class="px-1"
-    @filter-text-input="$emit('filter-changed', $event)">
+    @filter-text-input="$emit('filter-changed', $event)"
+    @filter-text-input-end-typing="$emit('filter-changed-end-typing', $event)">
     <template #left>
       <v-btn
         id="applicationToolbarLeftButton"
