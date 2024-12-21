@@ -132,7 +132,7 @@
                 parent-element="div"
                 element="div"
                 element-class="mx-auto ma-lg-0"
-                class="d-flex"  />
+                class="d-flex" />
               <space-popover-action-component />
             </v-list-item-action>
           </v-list-item>
