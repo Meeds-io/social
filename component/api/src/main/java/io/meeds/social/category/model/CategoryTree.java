@@ -37,6 +37,8 @@ public class CategoryTree extends Category {
 
   private long               size;
 
+  private boolean            canLink;
+
   public CategoryTree(Category category) {
     super(category.getId(),
           category.getParentId(),
@@ -61,6 +63,7 @@ public class CategoryTree extends Category {
     this.offset = categoryTree.getOffset();
     this.limit = categoryTree.getLimit();
     this.size = categoryTree.getSize();
+    this.canLink = categoryTree.isCanLink();
   }
 
 }
