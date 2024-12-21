@@ -246,9 +246,16 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     long parentId = 0;
     long depth = 10;
     long offset = 0;
-    long limit = 1;
+    long limit = 10;
     CategoryFilter filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
+    assertEquals(2,
+                 categoryTree.getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getCategories()
+                             .size());
 
     CategoryTree categoryTree13 = categoryTree.getCategories()
                                               .get(0)
@@ -267,6 +274,21 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
                  () -> categoryService.getCategory(categoryTree13.getCategories().get(0).getId(), MARY_USER, Locale.ENGLISH));
 
     categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
+    assertNotNull(categoryTree.getCategories()
+                              .get(0)
+                              .getCategories()
+                              .get(0)
+                              .getCategories()
+                              .get(0));
+
+    filter.setLimit(1);
+    categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
+    assertFalse(categoryTree.getCategories()
+                            .get(0)
+                            .getCategories()
+                            .get(0)
+                            .getCategories()
+                            .isEmpty());
     assertNotNull(categoryTree.getCategories()
                               .get(0)
                               .getCategories()
