@@ -202,10 +202,7 @@ export default {
       const parentCategory = this.$root.getCategory(item.parentId);
       if (parentCategory) {
         if (parentCategory.limit) {
-          const category = await this.$categoryService.getCategoryTree({
-            parentId: item.id,
-            depth: 0,
-          });
+          const category = await this.$categoryService.getCategory(item.id);
           if (!parentCategory.categories?.length) {
             parentCategory.categories = [category];
           } else {
@@ -222,9 +219,7 @@ export default {
       }
     },
     async handleCategoryUpdated(item) {
-      item = await this.$categoryService.getCategoryTree({
-        parentId: item.id
-      });
+      item = await this.$categoryService.getCategory(item.id);
       const category = this.$root.getCategory(item.id);
       category.name = item.name;
       category.icon = item.icon;
