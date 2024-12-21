@@ -21,7 +21,6 @@
 -->
 <template>
   <v-card
-    :loading="loading"
     class="d-flex flex-column"
     color="transparent"
     flat>
@@ -33,11 +32,16 @@
         v-if="hasCategories"
         :title="$t('SpaceSettings.editCategories.drawer.editCategories')"
         class="flex-grow-0 flex-shrink-0"
+        small
         icon
         @click="openCategoriesDrawer">
         <v-icon size="16">fa-edit</v-icon>
       </v-btn>
     </div>
+    <v-progress-linear
+      v-if="loading"
+      color="primary"
+      indeterminate />
     <v-list
       v-if="hasCategories"
       class="pa-0 mb-4 full-width overflow-hidden"
@@ -62,6 +66,7 @@
         </v-list-item-content>
         <v-list-item-action class="ps-3 mx-0 my-auto">
           <v-btn
+            v-if="item.canLink"
             :title="$t('SpaceSettings.editCategories.deleteCategory')"
             min-width="16"
             color="error"
@@ -70,11 +75,27 @@
             @click="removeCategory(item)">
             <v-icon size="16">fa-trash</v-icon>
           </v-btn>
+          <v-tooltip v-else bottom>
+            <template #activator="{on, attrs}">
+              <v-btn
+                v-on="on"
+                v-bind="attrs"
+                :ripple="false"
+                min-width="16"
+                tag="div"
+                plain
+                icon
+                small>
+                <v-icon size="16">fa-lock</v-icon>
+              </v-btn>
+            </template>
+            <span>{{ $t('categoryInput.restrictedCategoryLink') }}</span>
+          </v-tooltip>
         </v-list-item-action>
       </v-list-item>
     </v-list>
     <v-card
-      v-else
+      v-else-if="!loading"
       class="d-flex justify-center align-center my-4"
       width="100%"
       flat>
@@ -89,7 +110,8 @@
       v-if="drawer"
       ref="drawer"
       v-model="categoryIds"
-      :selected-categories="categories" />
+      :selected-categories="categories"
+      @closed="drawer = false" />
   </v-card>
 </template>
 <script>
@@ -102,31 +124,43 @@ export default {
   },
   data: () => ({
     drawer: false,
-    loading: false,
+    loading: true,
+    lockedIds: [],
     categoryIds: [],
     categories: [],
     collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
   }),
   computed: {
-    hasCategories() {
-      return !!this.categoryIds?.length;
+    filteredCategories() {
+      return this.categories?.filter?.(cat => cat && !cat.locked) || [];
     },
     sortedCategories() {
-      return this.categories?.slice?.()?.sort?.(this.comparator);
+      return this.filteredCategories.slice().sort(this.comparator);
+    },
+    hasCategories() {
+      return !!this.filteredCategories.length;
     },
   },
   watch: {
     categoryIds: {
       immediate: true,
       handler() {
-        this.$emit('input', this.categoryIds);
+        const categoryIds = this.categoryIds.slice();
+        this.lockedIds.forEach(id => {
+          if (categoryIds.indexOf(id) < 0) {
+            categoryIds.push(id);
+          }
+        });
+        this.$emit('input', categoryIds);
+        if (categoryIds.length !== this.categoryIds.length) {
+          this.categoryIds = categoryIds;
+        }
         this.refreshCategories();
       },
     },
   },
   created() {
     this.categoryIds = this.value?.slice?.() || [];
-    this.refreshCategories();
   },
   methods: {
     async openCategoriesDrawer() {
@@ -137,16 +171,23 @@ export default {
     async refreshCategories() {
       this.loading = true;
       try {
-        this.categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategoryTree({
-          parentId: id,
-        })));
+        this.categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
+          .catch(() => {
+            this.lockedIds.push(id);
+            return {
+              id,
+              locked: true,
+            };
+          })));
       } finally {
         this.loading = false;
       }
     },
     removeCategory(item) {
-      this.categoryIds.splice(this.categoryIds.indexOf(item.id), 1);
-      this.refreshCategories();
+      if (!item.locked) {
+        this.categoryIds.splice(this.categoryIds.indexOf(item.id), 1);
+        this.refreshCategories();
+      }
     },
     comparator(a, b) {
       return this.collator.compare(a.name, b.name);
