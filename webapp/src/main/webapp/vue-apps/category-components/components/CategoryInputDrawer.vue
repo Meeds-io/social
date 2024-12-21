@@ -27,7 +27,8 @@
     :loading="loading"
     go-back-button
     allow-expand
-    right>
+    right
+    @closed="$emit('closed')">
     <template #title>
       {{ $t('SpaceSettings.editCategories.drawer') }}
     </template>
@@ -125,7 +126,7 @@
         <div>{{ $t('categoryInput.user.placeholder2') }}</div>
       </div>
     </template>
-    <template v-if="hasItems" slot="footer">
+    <template v-if="hasItems" #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -308,6 +309,7 @@ export default {
           depth,
           offset: offset || 0,
           limit: limit || this.pageSize,
+          linkPermission: true,
         });
         if (!parentId) {
           this.categoryTree = categoryTree;

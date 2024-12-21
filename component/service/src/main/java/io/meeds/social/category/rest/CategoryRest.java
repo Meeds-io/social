@@ -63,6 +63,7 @@ public class CategoryRest {
   @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree switch a filter")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public CategoryTree getCategoryTree(HttpServletRequest request,
                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
@@ -83,9 +84,44 @@ public class CategoryRest {
                                       @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
                                       @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
                                       boolean linkPermission) {
-    return categoryService.getCategoryTree(new CategoryFilter(ownerId, parentId, depth, offset, limit, linkPermission, true),
-                                           request.getRemoteUser(),
-                                           request.getLocale());
+    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(ownerId,
+                                                                                   parentId,
+                                                                                   depth,
+                                                                                   offset,
+                                                                                   limit,
+                                                                                   linkPermission,
+                                                                                   true),
+                                                                request.getRemoteUser(),
+                                                                request.getLocale());
+    if (categoryTree == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return categoryTree;
+  }
+
+  @GetMapping("{id}")
+  @Operation(summary = "Retrieves a Category", method = "GET", description = "This retrieves a category")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public CategoryTree getCategory(HttpServletRequest request,
+                                  @Parameter(description = "Category Identifier")
+                                  @PathVariable(name = "id", required = true)
+                                  long id) {
+    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(0,
+                                                                                   id,
+                                                                                   0,
+                                                                                   0,
+                                                                                   0,
+                                                                                   false,
+                                                                                   false),
+                                                                request.getRemoteUser(),
+                                                                request.getLocale());
+    if (categoryTree == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return categoryTree;
   }
 
   @GetMapping("search")
