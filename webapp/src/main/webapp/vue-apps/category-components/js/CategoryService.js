@@ -51,6 +51,19 @@ export function getCategoryTree(options) {
   });
 }
 
+export function getCategory(id) {
+  return fetch(`/social/rest/categories/${id}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when retrieving the category');
+    }
+  });
+}
+
 export function findCategories(options) {
   const formData = new FormData();
   if (options.query) {

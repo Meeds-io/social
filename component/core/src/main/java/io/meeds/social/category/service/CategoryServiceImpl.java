@@ -92,8 +92,10 @@ public class CategoryServiceImpl implements CategoryService {
         || (parentId != 0 && filter.isLinkPermission() && !canManageLink(category, username))) {
       return null;
     }
+    List<Long> identityIds = getUserMemberIdentityIds(username);
     CategoryTree categoryTree = buildCategoryTree(category,
                                                   username,
+                                                  identityIds,
                                                   locale,
                                                   filter.getOffset(),
                                                   limit,
@@ -368,6 +370,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private CategoryTree buildCategoryTree(Category category, // NOSONAR
                                          String username,
+                                         List<Long> identityIds,
                                          Locale locale,
                                          long offset,
                                          long limit,
@@ -376,6 +379,7 @@ public class CategoryServiceImpl implements CategoryService {
                                          long depthLimit,
                                          long depth) {
     CategoryTree categoryTree = new CategoryTree(category);
+    categoryTree.setCanLink(category.getParentId() > 0 && (linkPermission || canManageLink(category, username)));
     long categoryId = categoryTree.getId();
     long size = categoryStorage.countSubcategories(categoryId);
     String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
@@ -389,6 +393,7 @@ public class CategoryServiceImpl implements CategoryService {
       if (size > 0) {
         List<CategoryTree> categories = buildSubCategories(categoryId,
                                                            username,
+                                                           identityIds,
                                                            locale,
                                                            offset,
                                                            limit,
@@ -430,6 +435,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private List<CategoryTree> buildSubCategories(long categoryId, // NOSONAR
                                                 String username,
+                                                List<Long> identityIds,
                                                 Locale locale,
                                                 long offset,
                                                 long limit,
@@ -439,21 +445,43 @@ public class CategoryServiceImpl implements CategoryService {
                                                 long depthLimit,
                                                 long depth) {
     boolean sortByNameSubcategories = sortByName && size > limit;
-    List<Long> ids = getSubcategoryIds(categoryId, offset, limit, username, locale, linkPermission, sortByNameSubcategories);
+    List<Long> ids = getSubcategoryIds(categoryId,
+                                       offset,
+                                       limit,
+                                       identityIds,
+                                       locale,
+                                       linkPermission,
+                                       sortByNameSubcategories);
     long loadedCount = ids == null ? 0 : ids.size();
     List<CategoryTree> categories;
     if (CollectionUtils.isNotEmpty(ids)) {
-      categories = toCategories(ids, username, locale, offset, limit, linkPermission, sortByName, depthLimit, depth + 1);
+      categories = toCategories(ids,
+                                username,
+                                identityIds,
+                                locale,
+                                offset,
+                                limit,
+                                linkPermission,
+                                sortByName,
+                                depthLimit,
+                                depth + 1);
       long offsetToFetch = offset;
       long limitToFetch = Math.max(limit, 10);
       boolean limitReached = categories.size() == ids.size() || ids.size() < limit;
       while (!limitReached) {
         // Loop in order to filter on user permissions
         offsetToFetch += limitToFetch;
-        ids = getSubcategoryIds(categoryId, offset, limitToFetch, username, locale, linkPermission, sortByNameSubcategories);
+        ids = getSubcategoryIds(categoryId,
+                                offsetToFetch,
+                                limitToFetch,
+                                identityIds,
+                                locale,
+                                linkPermission,
+                                sortByNameSubcategories);
         loadedCount += ids.size();
         List<CategoryTree> additionalCategories = toCategories(ids,
                                                                username,
+                                                               identityIds,
                                                                locale,
                                                                offsetToFetch,
                                                                limitToFetch,
@@ -477,10 +505,19 @@ public class CategoryServiceImpl implements CategoryService {
         && locale != null
         && categories.size() < limit
         && loadedCount < (size - offset)) {
-      LOG.info("Incoherent result from Elasticsearch while retrieving categories. Thus retrieve data from DB");
+      LOG.debug("Incoherent result from Elasticsearch while retrieving categories. Thus retrieve data from DB");
       sortApplied = false;
-      categories =
-                 buildSubCategories(categoryId, username, locale, offset, limit, size, linkPermission, false, depthLimit, depth);
+      categories = buildSubCategories(categoryId,
+                                      username,
+                                      identityIds,
+                                      locale,
+                                      offset,
+                                      limit,
+                                      size,
+                                      linkPermission,
+                                      false,
+                                      depthLimit,
+                                      depth);
     }
     if ((!sortApplied || !sortByNameSubcategories) && CollectionUtils.isNotEmpty(categories)) {
       categories = new ArrayList<>(categories);
@@ -491,6 +528,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private List<CategoryTree> toCategories(List<Long> categoryIds, // NOSONAR
                                           String username,
+                                          List<Long> identityIds,
                                           Locale locale,
                                           long offset,
                                           long limit,
@@ -503,6 +541,7 @@ public class CategoryServiceImpl implements CategoryService {
                       .filter(cat -> linkPermission ? canManageLink(cat, username, false) : canAccess(cat, username, false))
                       .map(cat -> buildCategoryTree(cat,
                                                     username,
+                                                    identityIds,
                                                     locale,
                                                     offset,
                                                     limit,
@@ -516,12 +555,11 @@ public class CategoryServiceImpl implements CategoryService {
   private List<Long> getSubcategoryIds(long parentId,
                                        long offset,
                                        long limit,
-                                       String username,
+                                       List<Long> identityIds,
                                        Locale locale,
                                        boolean linkPermission,
                                        boolean sortByName) {
     if (sortByName && locale != null) {
-      List<Long> identityIds = getUserMemberIdentityIds(username);
       if (CollectionUtils.isEmpty(identityIds)) {
         return Collections.emptyList();
       } else {
@@ -548,31 +586,30 @@ public class CategoryServiceImpl implements CategoryService {
   private boolean canAccess(Category category, String username, boolean checkAncestors) {
     if (category == null) {
       return false;
-    } else if (category.getParentId() == getAdminGroupIdentityId()) {
+    } else if (category.getParentId() == 0 && category.getOwnerId() == getAdminGroupIdentityId()) {
       return StringUtils.isNotBlank(username);
-    } else if (isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
+    } else if (isMemberOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
       return true;
     } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
-      return checkAncestors && canAccess(category.getParentId(), username);
+      return false;
     } else {
-      return canEdit(category, username)
-             || ((!checkAncestors || canAccess(category.getParentId(), username))
-                 && category.getAccessPermissionIds()
-                            .stream()
-                            .anyMatch(id -> isMemberOf(identityManager,
-                                                       spaceService,
-                                                       userAcl,
-                                                       id,
-                                                       username)));
+      return (!checkAncestors || canAccess(category.getParentId(), username))
+             && category.getAccessPermissionIds()
+                        .stream()
+                        .anyMatch(id -> isMemberOf(identityManager,
+                                                   spaceService,
+                                                   userAcl,
+                                                   id,
+                                                   username));
     }
   }
 
-  private boolean canManageLink(Category category, String username, boolean checkAncestors) {
+  private boolean canManageLink(Category category, String username, boolean checkAccessToAncestors) {
     if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
       return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
     } else {
       return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
-             || (canAccess(category, username, checkAncestors)
+             || (canAccess(category, username, checkAccessToAncestors)
                  && category.getLinkPermissionIds()
                             .stream()
                             .anyMatch(id -> isMemberOf(identityManager,
