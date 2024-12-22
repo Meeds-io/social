@@ -20,17 +20,17 @@
 -->
 <template>
   <v-list-item
-    :href="spaceSettingsUrl"
-    dense>
+    dense
+    @click="$root.$emit('space-administration-apply-template-drawer-open', space)">
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      width="20"
+      min-width="20"
       flat>
-      <v-icon size="16">fa-edit</v-icon>
+      <v-icon size="16">fa-sitemap</v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
-      {{ $t('social.spaces.administration.manageSpaces.openSettings') }}
+      {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
     </v-list-item-title>
   </v-list-item>
 </template>
@@ -40,11 +40,6 @@ export default {
     space: {
       type: Object,
       default: null,
-    },
-  },
-  computed: {
-    spaceSettingsUrl() {
-      return `/portal/s/${this.space.id}/settings`;
     },
   },
 };

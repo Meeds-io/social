@@ -25,7 +25,7 @@
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      width="20"
+      min-width="20"
       flat>
       <v-icon class="error--text" size="16">fa-trash</v-icon>
     </v-card>

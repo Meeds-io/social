@@ -18,10 +18,12 @@
  */
 import CategoryInput from './components/CategoryInput.vue';
 import CategoryInputDrawer from './components/CategoryInputDrawer.vue';
+import SpaceCategoriesDrawer from './components/SpaceCategoriesDrawer.vue';
 
 const components = {
   'category-input': CategoryInput,
   'category-input-drawer': CategoryInputDrawer,
+  'space-categories-drawer': SpaceCategoriesDrawer,
 };
 
 for (const key in components) {
