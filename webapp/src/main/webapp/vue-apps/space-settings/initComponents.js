@@ -32,7 +32,6 @@ import SpaceSettingRedactorDrawer from './components/drawer/SpaceSettingRedactor
 import SpaceSettingUsersListDrawer from './components/drawer/SpaceSettingUsersListDrawer.vue';
 import SpaceSettingUsersSelectionDrawer from './components/drawer/SpaceSettingUsersSelectionDrawer.vue';
 import SpaceSettingPublicSiteDrawer from './components/drawer/SpaceSettingPublicSiteDrawer.vue';
-import SpaceSettingCategoriesDrawer from './components/drawer/SpaceSettingCategoriesDrawer.vue';
 
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
@@ -60,7 +59,6 @@ const components = {
   'space-setting-users-list-drawer': SpaceSettingUsersListDrawer,
   'space-setting-users-selection-drawer': SpaceSettingUsersSelectionDrawer,
   'space-setting-public-site-drawer': SpaceSettingPublicSiteDrawer,
-  'space-setting-categories-drawer': SpaceSettingCategoriesDrawer,
 
   'space-setting-avatar': SpaceSettingAvatar,
   'space-setting-banner': SpaceSettingBanner,

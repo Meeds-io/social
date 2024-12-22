@@ -20,17 +20,18 @@
 -->
 <template>
   <v-list-item
+    class="d-flex justify-center"
     dense
-    @click="$root.$emit('space-administration-permissions-drawer-open', space)">
+    @click="$root.$emit('space-administration-sync-members-drawer-open', space)">
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      width="20"
+      min-width="20"
       flat>
-      <v-icon size="16">fa-shield-alt</v-icon>
+      <v-icon size="16">fa-users</v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
-      {{ $t('social.spaces.administration.manageSpaces.permissions') }}
+      {{ $t('social.spaces.administration.manageSpaces.syncMembers') }}
     </v-list-item-title>
   </v-list-item>
 </template>
