@@ -30,7 +30,7 @@
     right
     @closed="$emit('closed')">
     <template #title>
-      {{ $t('SpaceSettings.editCategories.drawer') }}
+      {{ $t('categoryInput.drawer') }}
     </template>
     <template v-if="drawer" #content>
       <div v-if="hasItems" class="d-flex flex-column">
@@ -46,7 +46,7 @@
           @filter-text-input-end-typing="search">
           <template #left>
             <div class="text-header">
-              {{ $t('SpaceSettings.editCategories.drawer.selectCategories') }}
+              {{ $t('categoryInput.drawer.selectCategories') }}
             </div>
           </template>
         </application-toolbar>

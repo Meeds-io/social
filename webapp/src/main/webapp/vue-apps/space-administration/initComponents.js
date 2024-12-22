@@ -33,9 +33,11 @@ import SpacesAdministrationSettingsMenuItem from './components/menu-action/Space
 import SpacesAdministrationSynMembersMenuItem from './components/menu-action/SpacesAdministrationSynMembersMenuItem.vue';
 import SpacesAdministrationPermissionsMenuItem from './components/menu-action/SpacesAdministrationPermissionsMenuItem.vue';
 import SpacesAdministrationApplyTemplateMenuItem from './components/menu-action/SpacesAdministrationApplyTemplateMenuItem.vue';
+import SpacesAdministrationEditCategoriesMenuItem from './components/menu-action/SpacesAdministrationEditCategoriesMenuItem.vue';
 import SpacesAdministrationSaveAsTemplateMenuItem from './components/menu-action/SpacesAdministrationSaveAsTemplateMenuItem.vue';
 
 import SpacesAdministrationProcessingAlert from './components/bulk-action/SpacesAdministrationProcessingAlert.vue';
+import SpacesAdministrationBulkEditCategories from './components/bulk-action/SpacesAdministrationBulkEditCategories.vue';
 import SpacesAdministrationBulkApplyTemplate from './components/bulk-action/SpacesAdministrationBulkApplyTemplate.vue';
 import SpacesAdministrationBulkSyncMembers from './components/bulk-action/SpacesAdministrationBulkSyncMembers.vue';
 import SpacesAdministrationBulkDelete from './components/bulk-action/SpacesAdministrationBulkDelete.vue';
@@ -46,6 +48,7 @@ import SpacesAdministrationBindingReportList from './components/binding-report/S
 
 import SpacesAdministrationManagersDrawer from './components/drawer/SpacesAdministrationManagersDrawer.vue';
 import SpacesAdministrationSyncMembersDrawer from './components/drawer/SpacesAdministrationSyncMembersDrawer.vue';
+import SpacesAdministrationEditCategoryDrawer from './components/drawer/SpacesAdministrationEditCategoryDrawer.vue';
 import SpacesAdministrationSyncReportsDrawer from './components/drawer/SpacesAdministrationSyncReportsDrawer.vue';
 import SpacesAdministrationPermissionsDrawer from './components/drawer/SpacesAdministrationPermissionsDrawer.vue';
 import SpacesAdministrationApplyTemplateDrawer from './components/drawer/SpacesAdministrationApplyTemplateDrawer.vue';
@@ -71,9 +74,11 @@ const components = {
   'spaces-administration-sync-members-menu-item': SpacesAdministrationSynMembersMenuItem,
   'spaces-administration-permissions-menu-item': SpacesAdministrationPermissionsMenuItem,
   'spaces-administration-apply-template-menu-item': SpacesAdministrationApplyTemplateMenuItem,
+  'spaces-administration-edit-categories-menu-item': SpacesAdministrationEditCategoriesMenuItem,
   'spaces-administration-save-as-template-menu-item': SpacesAdministrationSaveAsTemplateMenuItem,
 
   'spaces-administration-processing-alert': SpacesAdministrationProcessingAlert,
+  'spaces-administration-bulk-edit-categories': SpacesAdministrationBulkEditCategories,
   'spaces-administration-bulk-apply-template': SpacesAdministrationBulkApplyTemplate,
   'spaces-administration-bulk-sync-members': SpacesAdministrationBulkSyncMembers,
   'spaces-administration-bulk-delete': SpacesAdministrationBulkDelete,
@@ -81,6 +86,7 @@ const components = {
 
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
+  'spaces-administration-edit-categories-drawer': SpacesAdministrationEditCategoryDrawer,
   'spaces-administration-sync-reports-drawer': SpacesAdministrationSyncReportsDrawer,
   'spaces-administration-permissions-drawer': SpacesAdministrationPermissionsDrawer,
   'spaces-administration-apply-template-drawer': SpacesAdministrationApplyTemplateDrawer,
