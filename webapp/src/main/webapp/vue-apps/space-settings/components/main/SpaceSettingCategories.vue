@@ -48,7 +48,7 @@
         </v-list-item>
       </v-list>
     </v-card>
-    <space-setting-categories-drawer ref="categoriesDrawer" />
+    <space-categories-drawer ref="categoriesDrawer" />
   </div>
 </template>
 <script>
@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     openDrawer() {
-      this.$refs.categoriesDrawer.open();
+      this.$refs.categoriesDrawer.open(this.$root.space.id, this.$root.space.categoryIds);
     },
   },
 };

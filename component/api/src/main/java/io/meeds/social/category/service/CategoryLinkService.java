@@ -18,6 +18,8 @@
  */
 package io.meeds.social.category.service;
 
+import java.util.List;
+
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
@@ -29,6 +31,13 @@ public interface CategoryLinkService {
   public static final String EVENT_CATEGORY_LINK_ADDED   = "category.link.added";
 
   public static final String EVENT_CATEGORY_LINK_REMOVED = "category.link.removed";
+
+  /**
+   * @param object {@link CategoryObject} using type/id to designate any object
+   *          in the platform (Space, Activity ...)
+   * @return {@link List} of linked {@link Category} identifiers
+   */
+  List<Long> getLinkedIds(CategoryObject object);
 
   /**
    * @param categoryId {@link Category} identifier
