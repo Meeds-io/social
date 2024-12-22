@@ -21,7 +21,6 @@ package io.meeds.social.category.listener;
 import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_ADDED;
 import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_REMOVED;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +35,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.SpaceCategoryPlugin;
+import io.meeds.social.category.service.CategoryLinkService;
 
 import jakarta.annotation.PostConstruct;
 
@@ -43,10 +43,13 @@ import jakarta.annotation.PostConstruct;
 public class CategoryLinkModifiedListener implements ListenerBase<Long, CategoryObject> {
 
   @Autowired
-  private SpaceService    spaceService;
+  private SpaceService        spaceService;
 
   @Autowired
-  private ListenerService listenerService;
+  private CategoryLinkService categoryLinkService;
+
+  @Autowired
+  private ListenerService     listenerService;
 
   @PostConstruct
   public void init() {
@@ -56,29 +59,16 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
 
   @Override
   public void onEvent(Event<Long, CategoryObject> event) throws Exception {
-    long categoryId = event.getSource();
     CategoryObject object = event.getData();
-    boolean added = StringUtils.equals(event.getEventName(), EVENT_CATEGORY_LINK_ADDED);
-    boolean removed = StringUtils.equals(event.getEventName(), EVENT_CATEGORY_LINK_REMOVED);
     boolean isSpace = StringUtils.equals(object.getType(), SpaceCategoryPlugin.OBJECT_TYPE);
     if (isSpace) {
       Space space = spaceService.getSpaceById(Long.parseLong(object.getId()));
       if (space != null) {
-        List<Long> categoryIds = space.getCategoryIds();
-        if (categoryIds == null) {
-          categoryIds = new ArrayList<>();
-        } else {
-          categoryIds = new ArrayList<>(categoryIds);
-        }
-        if (added && !categoryIds.contains(categoryId)) {
-          categoryIds.add(categoryId);
-          space.setCategoryIds(categoryIds);
-          spaceService.updateSpace(space);
-        } else if (removed && categoryIds.contains(categoryId)) {
-          categoryIds.remove(categoryId);
-          space.setCategoryIds(categoryIds);
-          spaceService.updateSpace(space);
-        }
+        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE,
+                                                                                     space.getId(),
+                                                                                     space.getSpaceId()));
+        space.setCategoryIds(categoryIds);
+        spaceService.updateSpace(space);
       }
     }
   }

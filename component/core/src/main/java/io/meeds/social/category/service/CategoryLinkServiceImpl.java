@@ -59,6 +59,11 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   private long                 superUserIdentityId;
 
   @Override
+  public List<Long> getLinkedIds(CategoryObject object) {
+    return categoryStorage.getLinkedIds(object);
+  }
+
+  @Override
   public boolean isLinked(long categoryId, CategoryObject object) {
     return categoryStorage.isLinked(categoryId, object);
   }

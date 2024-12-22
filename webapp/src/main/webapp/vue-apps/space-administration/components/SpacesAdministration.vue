@@ -41,6 +41,7 @@
     <spaces-administration-managers-drawer />
     <spaces-administration-sync-reports-drawer />
     <spaces-administration-sync-members-drawer />
+    <spaces-administration-edit-categories-drawer />
     <spaces-administration-permissions-drawer />
     <spaces-administration-apply-template-drawer />
     <space-form-drawer />

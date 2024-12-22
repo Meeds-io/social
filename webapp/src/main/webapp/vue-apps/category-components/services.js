@@ -18,6 +18,7 @@
  */
 import * as categoryService from './js/CategoryService.js';
 import * as categoryLinkService from './js/CategoryLinkService.js';
+import * as spaceCategoryService from './js/SpaceCategoryService.js';
 
 window.Object.defineProperty(Vue.prototype, '$categoryService', {
   value: categoryService,
@@ -25,4 +26,8 @@ window.Object.defineProperty(Vue.prototype, '$categoryService', {
 
 window.Object.defineProperty(Vue.prototype, '$categoryLinkService', {
   value: categoryLinkService,
+});
+
+window.Object.defineProperty(Vue.prototype, '$spaceCategoryService', {
+  value: spaceCategoryService,
 });
