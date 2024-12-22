@@ -31,23 +31,29 @@ extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   rank: 30,
   name: 'apply-template',
-  componentName: 'spaces-administration-apply-template-menu-item',
+  componentName: 'spaces-administration-edit-categories-menu-item',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
   rank: 40,
+  name: 'apply-template',
+  componentName: 'spaces-administration-apply-template-menu-item',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
+  rank: 50,
   name: 'save-as-template',
   componentName: 'spaces-administration-save-as-template-menu-item',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
-  rank: 50,
+  rank: 60,
   name: 'permissions',
   componentName: 'spaces-administration-permissions-menu-item',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'menu-action', {
-  rank: 60,
+  rank: 70,
   name: 'delete',
   componentName: 'spaces-administration-delete-menu-item',
 });
@@ -60,18 +66,24 @@ extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
 
 extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
   rank: 20,
+  name: 'edit-categories',
+  componentName: 'spaces-administration-bulk-edit-categories',
+});
+
+extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
+  rank: 30,
   name: 'apply-template',
   componentName: 'spaces-administration-bulk-apply-template',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
-  rank: 30,
+  rank: 40,
   name: 'permissions',
   componentName: 'spaces-administration-bulk-permissions',
 });
 
 extensionRegistry.registerExtension('spaces-administration', 'bulk-action', {
-  rank: 40,
+  rank: 50,
   name: 'delete',
   componentName: 'spaces-administration-bulk-delete',
 });

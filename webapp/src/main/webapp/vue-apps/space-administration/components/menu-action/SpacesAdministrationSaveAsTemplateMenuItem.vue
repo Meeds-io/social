@@ -25,7 +25,7 @@
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      width="20"
+      min-width="20"
       flat>
       <v-icon size="16">fa-columns</v-icon>
     </v-card>
