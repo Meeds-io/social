@@ -242,6 +242,7 @@ export default {
         this.space = obj;
         this.spaces = null;
         this.selectionCount = 0;
+        this.callback = null;
         this.spaceTemplateId = this.space.templateId && `${this.space.templateId}` || '0';
         this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
       } else {
