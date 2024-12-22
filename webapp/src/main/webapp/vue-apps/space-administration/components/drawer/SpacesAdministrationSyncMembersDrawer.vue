@@ -122,13 +122,12 @@ export default {
         this.space = obj;
         this.spaces = null;
         this.selectionCount = 0;
+        this.callback = null;
       } else {
         this.space = null;
         this.spaces = obj;
         this.selectionCount = selectionCount;
         this.callback = callback;
-        this.spaceTemplateId = null;
-        this.spacePermissions = null;
       }
       this.$refs.drawer.open();
       if (this.space?.hasBindings) {
