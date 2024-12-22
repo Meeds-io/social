@@ -56,7 +56,8 @@ import io.meeds.social.category.storage.elasticsearch.CategorySearchConnector;
 import lombok.SneakyThrows;
 
 /**
- * TODO change to component when CategoryIndexingConnector moved to be managed by Spring
+ * TODO change to component when CategoryIndexingConnector moved to be managed
+ * by Spring
  */
 @Service
 public class CategoryStorage {
@@ -150,6 +151,15 @@ public class CategoryStorage {
 
   public int countSubcategories(CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
     return searchConnector.count(filter, identityIds, locale);
+  }
+
+  public List<Long> getLinkedIds(CategoryObject object) {
+    List<MetadataItem> items = metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE.getName(), object);
+    return items == null ? Collections.emptyList() :
+                         items.stream()
+                              .map(MetadataItem::getMetadata)
+                              .map(Metadata::getId)
+                              .toList();
   }
 
   public boolean isLinked(long categoryId, CategoryObject object) {

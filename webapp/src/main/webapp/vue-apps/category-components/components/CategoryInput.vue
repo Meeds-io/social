@@ -26,11 +26,11 @@
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
       <div class="text-header flex-grow-1 flex-shrink-1 text-truncate">
-        {{ $t('SpaceSettings.editCategories.drawer.manageCategories') }}
+        {{ $t('categoryInput.drawer.manageCategories') }}
       </div>
       <v-btn
         v-if="hasCategories"
-        :title="$t('SpaceSettings.editCategories.drawer.editCategories')"
+        :title="$t('categoryInput.drawer.editCategories')"
         class="flex-grow-0 flex-shrink-0"
         small
         icon
@@ -67,7 +67,7 @@
         <v-list-item-action class="ps-3 mx-0 my-auto">
           <v-btn
             v-if="item.canLink"
-            :title="$t('SpaceSettings.editCategories.deleteCategory')"
+            :title="$t('categoryInput.deleteCategory')"
             min-width="16"
             color="error"
             icon
@@ -103,7 +103,7 @@
         class="btn btn-primary flex-grow-0 flex-shrink-0"
         @click="openCategoriesDrawer">
         <v-icon size="16">fa-plus</v-icon>
-        {{ $t('SpaceSettings.editCategories.drawer.addCategories') }}
+        {{ $t('categoryInput.drawer.addCategories') }}
       </v-btn>
     </v-card>
     <category-input-drawer

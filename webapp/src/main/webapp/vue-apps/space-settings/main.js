@@ -88,6 +88,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-settings-redactors-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-members-updated', this.handlePendingUpdated);
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
+          this.$root.$on('space-categories-updated', this.handleSpaceUpdated);
           this.init();
         },
         beforeDestroy() {
@@ -100,6 +101,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$off('space-settings-redactors-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-members-updated', this.handlePendingUpdated);
           this.$root.$off('space-settings-pending-updated', this.handlePendingUpdated);
+          this.$root.$off('space-categories-updated', this.handleSpaceUpdated);
         },
         methods: {
           async init() {

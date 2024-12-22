@@ -28,19 +28,20 @@
     allow-expand
     right>
     <template #title>
-      {{ $t('SpaceSettings.editCategories.drawer') }}
+      {{ $t('categoryInput.drawer') }}
     </template>
     <template v-if="drawer" #content>
       <div class="d-flex flex-column ma-4">
         <div class="mb-2">
-          {{ $t('SpaceSettings.editCategories.drawer.summary1') }}
+          {{ $t('categoryInput.drawer.summary1') }}
         </div>
         <div class="mb-2">
-          {{ $t('SpaceSettings.editCategories.drawer.summary2') }}
+          {{ $t('categoryInput.drawer.summary2') }}
         </div>
         <div class="mb-4">
-          {{ $t('SpaceSettings.editCategories.drawer.summary3') }}
+          {{ $t('categoryInput.drawer.summary3') }}
         </div>
+        <slot></slot>
         <category-input v-model="selectedCategoryIds" />
       </div>
     </template>
@@ -51,14 +52,14 @@
           :disabled="saving"
           class="btn me-2"
           @click="close">
-          {{ $t('SpaceSettings.button.cancel') }}
+          {{ $t('categoryInput.cancel') }}
         </v-btn>
         <v-btn
           :disabled="!modified"
           :loading="saving"
           class="btn btn-primary"
           @click.prevent.stop="save">
-          {{ $t('SpaceSettings.button.updateSpace') }}
+          {{ $t('categoryInput.update') }}
         </v-btn>
       </div>
     </template>
@@ -70,6 +71,7 @@ export default {
     drawer: false,
     loading: false,
     saving: false,
+    spaceId: null,
     categoryIds: null,
     selectedCategoryIds: null,
   }),
@@ -79,8 +81,9 @@ export default {
     },
   },
   methods: {
-    open() {
-      this.categoryIds = this.$root.space?.categoryIds || [];
+    open(spaceId, categoryIds) {
+      this.spaceId = spaceId;
+      this.categoryIds = categoryIds || [];
       this.selectedCategoryIds = this.categoryIds.slice();
       this.$refs.drawer.open();
     },
@@ -88,35 +91,22 @@ export default {
       this.$refs.drawer.close();
     },
     async save() {
-      this.saving = true;
-      try {
-        if (this.categoryIds?.length) {
-          const unlinkIds = this.categoryIds.filter(id => this.selectedCategoryIds.indexOf(id) < 0);
-          if (unlinkIds?.length) {
-            await Promise.all(unlinkIds.map(id => this.$categoryLinkService.unlink(id, {
-              type: 'space',
-              id: this.$root.space.id,
-              spaceId: this.$root.space.id,
-            })));
-          }
+      if (!this.spaceId) {
+        this.$emit('save', this.selectedCategoryIds);
+        return;
+      } else {
+        this.saving = true;
+        try {
+          await this.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds);
+          this.categoryIds = this.selectedCategoryIds;
+          this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
+          this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
+          this.close();
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
+        } finally {
+          this.saving = false;
         }
-        if (this.selectedCategoryIds.length) {
-          const linkIds = this.selectedCategoryIds.filter(id => this.categoryIds.indexOf(id) < 0);
-          if (linkIds?.length) {
-            await Promise.all(linkIds.map(id => this.$categoryLinkService.link(id, {
-              type: 'space',
-              id: this.$root.space.id,
-              spaceId: this.$root.space.id,
-            })));
-          }
-        }
-        this.$root.space.categoryIds = this.selectedCategoryIds;
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.editCategories.success'), 'success');
-        this.close();
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.editCategories.error'), 'error');
-      } finally {
-        this.saving = false;
       }
     },
   },
