@@ -114,7 +114,7 @@ public class CategoryRest {
                                                                                    0,
                                                                                    0,
                                                                                    0,
-                                                                                   false,
+                                                                                   true,
                                                                                    false),
                                                                 request.getRemoteUser(),
                                                                 request.getLocale());
