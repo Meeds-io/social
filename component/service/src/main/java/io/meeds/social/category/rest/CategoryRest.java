@@ -162,6 +162,28 @@ public class CategoryRest {
                                           request.getLocale());
   }
 
+  @GetMapping("{id}/subCategories")
+  @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public List<Long> getSubcategoryIds(HttpServletRequest request,
+                                      @Parameter(description = "Parent Category Id")
+                                      @PathVariable(name = "id", required = true)
+                                      long parentId,
+                                      @Parameter(description = "Sub Categories levels")
+                                      @RequestParam(name = "depth", required = false, defaultValue = "0")
+                                      long depth,
+                                      @Parameter(description = "Sub Categories Offset per level")
+                                      @RequestParam(name = "offset", required = false, defaultValue = "0")
+                                      long offset,
+                                      @Parameter(description = "Sub Categories Limit per level")
+                                      @RequestParam(name = "limit", required = false, defaultValue = "0")
+                                      long limit) {
+    return categoryService.getSubcategoryIds(request.getRemoteUser(), parentId, offset, limit, depth);
+  }
+
   @PostMapping
   @Secured("users")
   @Operation(summary = "Creates a new Category", method = "POST", description = "This will create a new category in a tree")
