@@ -19,11 +19,13 @@
 import CategoryInput from './components/CategoryInput.vue';
 import CategoryInputDrawer from './components/CategoryInputDrawer.vue';
 import SpaceCategoriesDrawer from './components/SpaceCategoriesDrawer.vue';
+import CategorySuggester from './components/CategorySuggester.vue';
 
 const components = {
   'category-input': CategoryInput,
   'category-input-drawer': CategoryInputDrawer,
   'space-categories-drawer': SpaceCategoriesDrawer,
+  'category-suggester': CategorySuggester,
 };
 
 for (const key in components) {
