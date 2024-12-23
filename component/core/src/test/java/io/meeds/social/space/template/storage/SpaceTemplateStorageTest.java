@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +31,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +61,8 @@ public class SpaceTemplateStorageTest {
   private static final String  SPACE_DELETE_PERMISSIONS      = "spaceDeletePermissions";
 
   private static final String  SPACE_PUBLIC_SITE_PERMISSIONS = "spacePublicSitePermissions";
+
+  private static final long    SPACE_CATEGORY_ID             = 2l;
 
   @Mock
   private SpaceTemplateDAO     spaceTemplateDAO;
@@ -161,6 +165,14 @@ public class SpaceTemplateStorageTest {
     assertEquals(spaceTemplateEntity.getSpaceDefaultVisibility(), spaceTemplate.getSpaceDefaultVisibility());
     assertEquals(spaceTemplateEntity.getSpaceDefaultRegistration(), spaceTemplate.getSpaceDefaultRegistration());
     assertEquals(spaceTemplateEntity.isSpaceAllowContentCreation(), spaceTemplate.isSpaceAllowContentCreation());
+    if (spaceTemplateEntity.getSpaceDefaultCategoryIds() == null) {
+      assertTrue(CollectionUtils.isEmpty(spaceTemplate.getSpaceDefaultCategoryIds()));
+    } else if (spaceTemplate.getSpaceDefaultCategoryIds() == null) {
+      assertTrue(CollectionUtils.isEmpty(spaceTemplateEntity.getSpaceDefaultCategoryIds()));
+    } else {
+      assertEquals(spaceTemplateEntity.getSpaceDefaultCategoryIds(),
+                   spaceTemplate.getSpaceDefaultCategoryIds().stream().map(String::valueOf).toList());
+    }
   }
 
   private SpaceTemplateEntity newSpaceTemplateEntity() {
@@ -176,6 +188,7 @@ public class SpaceTemplateStorageTest {
                                    Arrays.asList(SPACE_DELETE_PERMISSIONS),
                                    Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                                    Arrays.asList(SPACE_FIELDS),
+                                   Arrays.asList(String.valueOf(SPACE_CATEGORY_ID)),
                                    SpaceVisibility.PRIVATE,
                                    SpaceRegistration.VALIDATION,
                                    true);
@@ -197,6 +210,7 @@ public class SpaceTemplateStorageTest {
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
+                             Arrays.asList(SPACE_CATEGORY_ID),
                              SpaceVisibility.PRIVATE,
                              SpaceRegistration.VALIDATION,
                              true);

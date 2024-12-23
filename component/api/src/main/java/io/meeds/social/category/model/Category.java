@@ -40,12 +40,6 @@ public class Category implements Cloneable {
   private long       parentId;
 
   /**
-   * The designation of the category, null when no user locale is chosen, else
-   * it will depends from user Locale
-   */
-  private String     name;
-
-  /**
    * Fontawesome Icon identifier
    */
   private String     icon;
@@ -74,7 +68,6 @@ public class Category implements Cloneable {
   protected Category clone() { // NOSONAR
     return new Category(id,
                         parentId,
-                        name,
                         icon,
                         creatorId,
                         ownerId,

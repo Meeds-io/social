@@ -23,26 +23,26 @@ public interface CategoryPlugin {
   /**
    * @return The managed Object Type (Space, Activity...)
    **/
-  public String getType();
+  String getType();
 
   /**
    * Checks whether an associated object to a category is accessible to a user.
    * This check will be called after checking whether the user can access or not
-   * to the category an object (generic ACL check made in Category API switch
-   * Category properties)
+   * to the category (generic ACL check made in Category API switch Category
+   * properties)
    *
    * @param objectId Object technical identifier
    * @param username User technical name (login identifier)
    * @return true if the user has access permission to the designated Object
    *         Type
    **/
-  public boolean canAccess(String objectId, String username);
+  boolean canAccess(String objectId, String username);
 
   /**
    * Checks whether an associated object to a category is editable to a user.
    * This check will be used mainly used to know if a user can modify the object
    * in order to associate/link a category into it. This check will be called
-   * after checking whether the user can link or not to the category an object
+   * after checking whether the user can link or not an object to the category
    * (generic ACL check made in Category API switch Category properties)
    *
    * @param objectId Object technical identifier
@@ -50,6 +50,6 @@ public interface CategoryPlugin {
    * @return true if the user has access permission to the designated Object
    *         Type identified by its Id
    **/
-  public boolean canEdit(String objectId, String username);
+  boolean canEdit(String objectId, String username);
 
 }
