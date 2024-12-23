@@ -56,7 +56,7 @@ export function init() {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
         },
-        chevonIcon() {
+        chevronIcon() {
           return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
         },
         categories() {

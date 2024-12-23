@@ -165,6 +165,9 @@ export default {
     displayMembersCount() {
       return this.cardWidth > 280;
     },
+    selectedCategoryIds() {
+      return this.$root.selectedCategoryIds;
+    },
   },
   watch: {
     keyword() {
@@ -178,6 +181,11 @@ export default {
       }
     },
     filter() {
+      if (this.initialized) {
+        this.searchSpaces();
+      }
+    },
+    selectedCategoryIds() {
       if (this.initialized) {
         this.searchSpaces();
       }
@@ -213,20 +221,26 @@ export default {
       return this.$spaceService.getSpaces(null, 0, 0, 'member', 'unread')
         .then(data => this.$root.unreadPerSpace = data?.unreadPerSpace);
     },
-    searchSpaces() {
+    async searchSpaces() {
       this.$emit('loading-spaces', true);
-      const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
-      return this.$spaceService.getSpaces(this.keyword, this.offset, this.limitToFetch, this.filter, expand)
-        .then(data => {
-          this.spaces = data && data.spaces || [];
-          this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
-          this.$emit('loaded', data?.size || 0);
-          return this.$nextTick();
-        })
-        .finally(() => {
-          this.$emit('loading-spaces', false);
-          this.initialized = true;
+      try {
+        const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
+        const data = await this.$spaceService.getSpacesByFilter({
+          categoryId: this.selectedCategoryIds,
+          query: this.keyword,
+          offset: this.offset,
+          limit: this.limitToFetch,
+          filter: this.filter,
+          expand,
         });
+        this.spaces = data && data.spaces || [];
+        this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
+        this.$emit('loaded', data?.size || 0);
+        await this.$nextTick();
+      } finally {
+        this.$emit('loading-spaces', false);
+        this.initialized = true;
+      }
     },
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
