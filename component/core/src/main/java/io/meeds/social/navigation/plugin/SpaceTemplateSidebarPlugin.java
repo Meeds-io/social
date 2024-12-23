@@ -91,7 +91,7 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+  protected void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter) {
     String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
     spaceFilter.setTemplateId(Long.parseLong(spaceTemplateId));
   }

@@ -236,10 +236,11 @@ export default {
         this.closeTimeout = window.setTimeout(() => this.$root.allowClosing = true, 2000);
       }
     },
-    async changeSpacesMenu(spaceTemplateId, spacesUrl, sortBy, name, type) {
+    async changeSpacesMenu(spaceTemplateId, spaceCategoryId, spacesUrl, sortBy, name, type) {
       this.site = null;
       if (this.secondLevel === 'spaces'
           && ((spaceTemplateId && this.$root.openedSpaceTemplateId === spaceTemplateId)
+              || (spaceCategoryId && this.$root.openedSpaceCategoryId === spaceCategoryId)
               || (spacesUrl && this.$root.openedSpaces))) {
         this.space = null;
         this.secondLevel = null;
@@ -248,7 +249,10 @@ export default {
         window.setTimeout(() => {
           this.$root.openedFirstLevelType = null;
           this.$root.openedSpaceTemplateId = null;
+          this.$root.openedSpaceCategoryId = null;
           this.$root.openedSpaceTemplateName = null;
+          this.$root.openedSpaceCategoryName = null;
+          this.$root.openedItem = null;
           this.$root.openedSpaces = false;
           this.$root.spacesSortBy = null;
         }, 50);
@@ -260,8 +264,10 @@ export default {
         this.space = null;
         this.$root.openedFirstLevelType = type;
         this.$root.openedSpaceTemplateId = spaceTemplateId;
-        this.$root.openedSpaceTemplateName = name;
-        this.$root.openedSpaces = !spaceTemplateId;
+        this.$root.openedSpaceCategoryId = spaceCategoryId;
+        this.$root.openedSpaceTemplateName = spaceTemplateId && name || null;
+        this.$root.openedSpaceCategoryName = spaceCategoryId && name || null;
+        this.$root.openedSpaces = !spaceTemplateId && !spaceCategoryId;
         this.$root.openedSpacesUrl = spacesUrl;
         this.$root.spacesSortBy = sortBy;
         this.secondLevel = 'spaces';

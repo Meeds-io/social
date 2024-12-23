@@ -151,6 +151,13 @@ export function getSpacesByFilter(options) {
   if (options.templateId) {
     formData.append('templateId', options.templateId);
   }
+  if (options.categoryId) {
+    if (typeof options.categoryId === 'object' && options.categoryId.length) {
+      options.categoryId.forEach(id => formData.append('categoryId', id));
+    } else {
+      formData.append('categoryId', options.categoryId);
+    }
+  }
   if (options.registration) {
     formData.append('registration', options.registration.toUpperCase());
   }
