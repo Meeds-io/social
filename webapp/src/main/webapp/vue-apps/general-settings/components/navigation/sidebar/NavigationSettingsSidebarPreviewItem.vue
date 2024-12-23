@@ -31,7 +31,7 @@
         :home-icon="homeIcon && index === 0" />
     </template>
   </div>
-  <div v-else-if="isSpaces || isSpaceTemplate">
+  <div v-else-if="isSpaces || isSpaceTemplate || isSpaceCategory">
     <template v-if="displaySpacesList">
       <v-list-item class="d-flex">
         <v-list-item-avatar class="me-2 my-auto" min-width="36">
@@ -129,8 +129,11 @@ export default {
     isSpaceTemplate() {
       return this.item.type === 'SPACE_TEMPLATE';
     },
+    isSpaceCategory() {
+      return this.item.type === 'SPACE_CATEGORY';
+    },
     displayItemsInMobile() {
-      return !this.mobilePreview || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
+      return !this.mobilePreview || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory) || this.item?.properties?.displayItemsInMobile === 'true';
     },
     menuItems() {
       return this.item?.items;
