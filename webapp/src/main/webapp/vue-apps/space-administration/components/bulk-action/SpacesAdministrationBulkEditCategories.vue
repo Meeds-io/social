@@ -37,16 +37,17 @@ export default {
       this.$root.applyOperationInBulk(
         async (space) => {
           const oldCategoryIds = space.categoryIds || [];
-          const newCategoryIds = params.categoryIds?.slice?.() || [];
-          if (!params.dropExisting) {
-            oldCategoryIds.forEach(id => {
-              if (newCategoryIds.indexOf(id) < 0) {
-                newCategoryIds.push(id);
-              }
-            });
+          const newCategoryIds = params.categoryIds || [];
+          await this.$spaceCategoryService.updateCategories(
+            space.id,
+            oldCategoryIds.slice(),
+            newCategoryIds.slice(),
+            params.dropExisting);
+          const categoryIds = newCategoryIds.slice();
+          if (!params.dropExisting && oldCategoryIds.length) {
+            categoryIds.push(...oldCategoryIds.filter(id => categoryIds.indexOf(id) < 0));
           }
-          await this.$spaceCategoryService.updateCategories(space.id, oldCategoryIds, newCategoryIds);
-          space.categoryIds = newCategoryIds;
+          space.categoryIds = categoryIds;
         },
         null,
         () => {

@@ -18,7 +18,6 @@
  */
 package io.meeds.social.category.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import lombok.Data;
@@ -28,48 +27,48 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class CategorySearchResult extends CategoryWithName {
+public class CategoryWithName extends Category {
 
-  private String     name;
+  /**
+   * The designation of the category, null when no user locale is chosen, else
+   * it will depends from user Locale
+   */
+  private String name;
 
-  private List<Long> ancestorIds;
-
-  public CategorySearchResult(Category category) {
+  public CategoryWithName(Category category,
+                          String name) {
     super(category.getId(),
           category.getParentId(),
-          null,
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
           category.getAccessPermissionIds(),
           category.getLinkPermissionIds());
+    this.name = name;
   }
 
-  public CategorySearchResult(CategoryWithName category) {
-    super(category.getId(),
-          category.getParentId(),
-          category.getName(),
-          category.getIcon(),
-          category.getCreatorId(),
-          category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
-  }
-
-  public CategorySearchResult(CategoryWithName category, List<Long> ancestorIds) {
-    super(category.getId(),
-          category.getParentId(),
-          category.getName(),
-          category.getIcon(),
-          category.getCreatorId(),
-          category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
-    this.ancestorIds = ancestorIds;
+  public CategoryWithName(long id, // NOSONAR
+                          long parentId,
+                          String name,
+                          String icon,
+                          long creatorId,
+                          long ownerId,
+                          List<Long> accessPermissionIds,
+                          List<Long> linkPermissionIds) {
+    super(id, parentId, icon, creatorId, ownerId, accessPermissionIds, linkPermissionIds);
+    this.name = name;
   }
 
   @Override
-  public CategorySearchResult clone() { // NOSONAR
-    return new CategorySearchResult(this, ancestorIds == null ? null : new ArrayList<>(ancestorIds));
+  protected CategoryWithName clone() { // NOSONAR
+    return new CategoryWithName(getId(),
+                                getParentId(),
+                                name,
+                                getIcon(),
+                                getCreatorId(),
+                                getOwnerId(),
+                                getAccessPermissionIds(),
+                                getLinkPermissionIds());
   }
+
 }
