@@ -39,4 +39,8 @@ public class SpaceTemplatePatch {
 
   private boolean deletePermissions;
 
+  private boolean updateCategories;
+
+  private boolean removeExistingCategories;
+
 }

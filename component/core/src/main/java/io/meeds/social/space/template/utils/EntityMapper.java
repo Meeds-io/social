@@ -49,6 +49,11 @@ public class EntityMapper {
                              getNonEmptyValueList(entity.getSpaceDeletePermissions()),
                              getNonEmptyValueList(entity.getSpacePublicSitePermissions()),
                              getNonEmptyValueList(entity.getSpaceFields()),
+                             entity.getSpaceDefaultCategoryIds() == null ? null :
+                                                                         entity.getSpaceDefaultCategoryIds()
+                                                                               .stream()
+                                                                               .map(Long::parseLong)
+                                                                               .toList(),
                              entity.getSpaceDefaultVisibility(),
                              entity.getSpaceDefaultRegistration(),
                              entity.isSpaceAllowContentCreation());
@@ -67,6 +72,11 @@ public class EntityMapper {
                                    getNonEmptyValueList(model.getSpaceDeletePermissions()),
                                    getNonEmptyValueList(model.getSpacePublicSitePermissions()),
                                    getNonEmptyValueList(model.getSpaceFields()),
+                                   model.getSpaceDefaultCategoryIds() == null ? null :
+                                                                              model.getSpaceDefaultCategoryIds()
+                                                                                   .stream()
+                                                                                   .map(String::valueOf)
+                                                                                   .toList(),
                                    model.getSpaceDefaultVisibility(),
                                    model.getSpaceDefaultRegistration(),
                                    model.isSpaceAllowContentCreation());
