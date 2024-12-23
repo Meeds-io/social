@@ -113,11 +113,9 @@ export default {
     isCustomPermissions: false,
     specificGroupEntries: null,
     permissionIdentityIds: null,
+    initialized: false,
   }),
   computed: {
-    isSpecificGroup() {
-      return !!this.specificGroupEntries?.length;
-    },
     permissions() {
       const permissions = [];
       if (this.isUserPermissions) {
@@ -141,10 +139,14 @@ export default {
   },
   watch: {
     permissions() {
-      this.computePermissionIdentityIds();
+      if (this.initialized) {
+        this.computePermissionIdentityIds();
+      }
     },
     permissionIdentityIds() {
-      this.$emit('input', this.permissionIdentityIds);
+      if (this.initialized) {
+        this.$emit('input', this.permissionIdentityIds);
+      }
     },
   },
   async created() {
@@ -159,10 +161,11 @@ export default {
       && p !== this.$root.usersPermission
       && p !== this.$root.guestsPermission
     ) || null;
-    this.isCustomPermissions = !!specificGroupEntries?.length;
     if (specificGroupEntries?.length) {
-      specificGroupEntries.forEach(this.retrieveObject);
+      await Promise.all(specificGroupEntries.map(this.retrieveObject));
     }
+    this.isCustomPermissions = !!this.specificGroupEntries?.length;
+    this.initialized = true;
   },
   methods: {
     async retrieveObject(groupId) {
