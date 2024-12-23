@@ -1550,6 +1550,9 @@
         <module>commonVueComponents</module>
       </depends>
       <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
         <module>imageCropper</module>
       </depends>
       <depends>

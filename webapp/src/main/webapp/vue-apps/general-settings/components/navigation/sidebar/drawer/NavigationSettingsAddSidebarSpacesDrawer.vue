@@ -43,6 +43,13 @@
             </template>
           </v-radio>
           <v-radio
+            value="SPACE_CATEGORY"
+            class="mx-0 mt-0 mb-1">
+            <template #label>
+              <span class="text-body">{{ $t('generalSettings.sidebar.spaceCategoryOption') }}</span>
+            </template>
+          </v-radio>
+          <v-radio
             value="SPACES"
             class="mx-0 mt-0 mb-1">
             <template #label>
@@ -63,6 +70,13 @@
           hide-details
           outlined
           dense />
+        <category-suggester
+          v-else-if="option === 'SPACE_CATEGORY'"
+          v-model="spaceCategoryId"
+          class="mt-n2 mb-4 mx-0 pa-0"
+          label=""
+          access-permission
+          single />
         <div class="font-weight-bold mb-4">
           {{ $t('generalSettings.sidebar.spaces.sidebarDisplay') }}
         </div>
@@ -76,7 +90,7 @@
             :maxlength="50"
             drawer-title="generalSettings.sidebar.spacesNamesDrawerTitle" />
         </div>
-        <div v-if="option === 'SPACE_TEMPLATE'" class="d-flex align-center mb-4">
+        <div v-if="option === 'SPACE_TEMPLATE' || option === 'SPACE_CATEGORY'" class="d-flex align-center mb-4">
           <div>{{ $t('generalSettings.sidebar.spaces.displayOnlyWhenMember') }}</div>
           <v-spacer />
           <v-switch
@@ -133,7 +147,7 @@
         </v-btn>
         <v-btn
           :loading="saving"
-          :disabled="!modified"
+          :disabled="disabled"
           class="btn-primary"
           elevation="0"
           @click="apply">
@@ -155,6 +169,8 @@ export default {
     item: null,
     spaceTemplates: null,
     spaceTemplateId: null,
+    category: null,
+    spaceCategoryId: null,
     sortBy: 'TITLE',
     limit: 4,
     displayItemsInMobile: 'false',
@@ -166,7 +182,8 @@ export default {
     },
     disabled() {
       return !this.modified
-        || (this.option === 'SPACE_TEMPLATE' && !this.spaceTemplteId)
+        || (this.option === 'SPACE_TEMPLATE' && !this.spaceTemplateId)
+        || (this.option === 'SPACE_CATEGORY' && !this.spaceCategoryId)
         || (this.option === 'SPACES' && (!this.names || !this.names[eXo.env.portal.defaultLanguage]?.trim?.()?.length || Object.values(this.names).find(name => name?.length > 50)))
         || !this.sortBy;
     },
@@ -210,6 +227,13 @@ export default {
         }
       },
     },
+    async spaceCategoryId() {
+      if (this.spaceCategoryId) {
+        this.category = await this.$categoryService.getCategory(this.spaceCategoryId);
+      } else {
+        this.category = null;
+      }
+    },
   },
   created() {
     this.$root.$on('sidebar-item-add-spaces', this.open);
@@ -251,6 +275,7 @@ export default {
       this.modified = false;
       this.option = this.isNew ? 'SPACE_TEMPLATE' : item.type;
       this.spaceTemplateId = item?.properties?.spaceTemplateId && Number(item.properties.spaceTemplateId) || null;
+      this.spaceCategoryId = item?.properties?.spaceCategoryId && Number(item.properties.spaceCategoryId) || null;
       this.sortBy = item?.properties?.sortBy || 'TITLE';
       this.limit = item?.properties && Object.hasOwn(item.properties, 'limit') ? Number(item.properties.limit) : 4;
       this.displayItemsInMobile = item?.properties && Object.hasOwn(item.properties, 'displayItemsInMobile') ? item.properties.displayItemsInMobile : 'false';
@@ -264,6 +289,16 @@ export default {
         this.item.icon = this.spaceTemplate.icon;
         this.item.properties = {
           spaceTemplateId: this.spaceTemplateId,
+          sortBy: this.sortBy,
+          limit: Math.min(this.limit, 10),
+          displayItemsInMobile: this.displayItemsInMobile,
+          displayOnlyWhenMember: this.displayOnlyWhenMember,
+        };
+      } else if (this.option === 'SPACE_CATEGORY') {
+        this.item.name = this.category.name;
+        this.item.icon = this.category.icon;
+        this.item.properties = {
+          spaceCategoryId: this.spaceCategoryId,
           sortBy: this.sortBy,
           limit: Math.min(this.limit, 10),
           displayItemsInMobile: this.displayItemsInMobile,
@@ -287,6 +322,7 @@ export default {
       }
       const data = await this.$spaceService.getSpacesByFilter({
         templateId: this.option === 'SPACE_TEMPLATE' ? this.spaceTemplateId : null,
+        categoryId: this.option === 'SPACE_CATEGORY' ? this.spaceCategoryId : null,
         offset: 0,
         limit: this.limit,
         filter: this.getSpacesFilterType(this.sortBy),
