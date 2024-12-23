@@ -99,7 +99,7 @@
       </v-avatar>
       <div
         :class="isMobile && 'mx-3' || ''"
-        class="my-2 position-relative">
+        class="my-2 position-relative d-flex flex-column width-full">
         <dynamic-html-element
           v-if="title"
           :child="titleElement"
@@ -122,6 +122,19 @@
           @click="displayFullContent">
           <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
+        <div
+          v-if="activityViews"
+          :title="activityViewsTooltip"
+          class="d-flex justify-end mt-auto ms-auto width-fit-content me-3">
+          <v-icon
+            size="20"
+            class="icon-default-color">
+            fas fa-eye
+          </v-icon>
+          <span class="ms-1 text-subtitle">
+            {{ activityViewsCount }}
+          </span>
+        </div>
       </div>
     </template>
   </dynamic-html-element>
@@ -162,7 +175,8 @@ export default {
     displayReadMoreButton: false,
     useEmbeddedLinkView: true,
     summaryLinesToDisplay: 2,
-    isLandscapeThumbnail: false
+    isLandscapeThumbnail: false,
+    activityViews: null
   }),
   computed: {
     getTitle() {
@@ -314,6 +328,15 @@ export default {
         'min-height': '100%'
       };
     },
+    getActivityViews() {
+      return this.activityTypeExtension && this.activityTypeExtension.getActivityViews;
+    },
+    activityViewsTooltip() {
+      return this.activityViews?.tooltip && this.$t(this.activityViews.tooltip, {0: this.activityViews?.originalViewsCount});
+    },
+    activityViewsCount() {
+      return this.activityViews?.viewsCount;
+    }
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
@@ -360,6 +383,7 @@ export default {
           }
         }
       }
+      this.activityViews = this.getActivityViews && this.getActivityViews(this.activity);
     },
     displayReadMore() {
       const elem = this.$el?.querySelector?.('.rich-editor-content');
