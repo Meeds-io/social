@@ -90,7 +90,7 @@
           {{ $t('menu.spaces.favorite') }}
         </v-tab>
         <v-tab
-          v-if="!$root.openedSpaceTemplateId"
+          v-if="!$root.openedSpaceTemplateId && !$root.openedSpaceCategoryId"
           value="unread"
           class="text-header">
           {{ $t('menu.spaces.unread') }}
@@ -157,7 +157,13 @@ export default {
       }
     },
     title() {
-      return this.$root.openedSpaceTemplateId && this.$root.openedSpaceTemplateName || this.$t('menu.spaces.yourSpaces');
+      if (this.$root.openedSpaceTemplateId) {
+        return this.$root.openedSpaceTemplateName;
+      } else if (this.$root.openedSpaceCategoryId) {
+        return this.$root.openedSpaceCategoryName;
+      } else {
+        return this.$t('menu.spaces.yourSpaces');
+      }
     },
     canCreateSpace() {
       return (!this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.length)
@@ -176,6 +182,8 @@ export default {
   },
   beforeDestroy() {
     this.$root.openedSpaceTemplateId = null;
+    this.$root.openedSpaceCategoryId = null;
+    this.$root.openedItem = null;
     this.$root.openedSpaces = false;
     this.$root.spacesSortBy = null;
   },

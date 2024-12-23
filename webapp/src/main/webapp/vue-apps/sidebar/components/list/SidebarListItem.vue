@@ -25,7 +25,7 @@
     <sidebar-list-sub-list
       :item="item" />
   </div>
-  <div v-else-if="isSpaces || isSpaceTemplate">
+  <div v-else-if="isSpaces || isSpaceTemplate || isSpaceCategory">
     <v-hover
       v-model="hover"
       v-if="displaySpacesList"
@@ -225,17 +225,27 @@ export default {
     isSpaceTemplate() {
       return this.item.type === 'SPACE_TEMPLATE';
     },
+    isSpaceCategory() {
+      return this.item.type === 'SPACE_CATEGORY';
+    },
     siteName() {
       return this.isSite && this.item?.properties?.siteName;
     },
     spaceId() {
       return this.isSpace && this.item?.properties?.id;
     },
+    spaceTemplateId() {
+      return this.isSpaceTemplate && Number(this.item?.properties?.spaceTemplateId);
+    },
+    spaceCategoryId() {
+      return this.isSpaceCategory && Number(this.item?.properties?.spaceCategoryId);
+    },
     drawerOpened() {
       return (this.isSite && this.$root.openedSiteName === this.siteName)
         || (this.isSpace && this.$root.openedFirstLevelType === 'SPACE' && Number(this.$root.openedSpaceId) === Number(this.spaceId))
         || (this.isSpaces && this.$root.openedSpaces)
-        || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === Number(this.item?.properties?.spaceTemplateId));
+        || (this.isSpaceCategory && Number(this.$root.openedSpaceCategoryId) === this.spaceCategoryId)
+        || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === this.spaceTemplateId);
     },
     arrowIconLeft() {
       return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
@@ -247,7 +257,7 @@ export default {
       return this.hover && this.hasItems && !this.url || null;
     },
     displaySpacesExpandKey() {
-      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.item?.properties?.spaceTemplateId}`;
+      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.spaceTemplateId || this.spaceCategoryId}`;
     },
     spacesIcon() {
       return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${this.$vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
@@ -259,7 +269,7 @@ export default {
       return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
     },
     isUrl() {
-      return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpace && !this.isSite));
+      return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory && !this.isSpace && !this.isSite));
     },
     url() {
       return this.isUrl && this.item.url && this.$utils.toLinkUrl(this.item.url, {
@@ -294,7 +304,7 @@ export default {
       return actions;
     },
     toggleArrow() {
-      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaces)
+      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
         && (this.hover || this.drawerOpened);
     },
     tooltip() {
@@ -318,14 +328,14 @@ export default {
       return this.isSpace && this.$root?.unreadPerSpace?.[this.spaceId];
     },
     spacesTooltip() {
-      return this.isSpaceTemplate && (this.collapsedSpaces && this.$t('menu.spacesExpand', {
+      return (this.isSpaceTemplate || this.isSpaceCategory) && (this.collapsedSpaces && this.$t('menu.spacesExpand', {
         0: this.item.name
       }) || this.$t('menu.spacesCollapse', {
         0: this.item.name
       })) || (this.isSpaces && this.$t('menu.spacesTooltip')) || null;
     },
     displayItemsInMobile() {
-      return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate) || this.item?.properties?.displayItemsInMobile === 'true';
+      return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory) || this.item?.properties?.displayItemsInMobile === 'true';
     },
     displayOnlyWhenMember() {
       return this.item?.properties?.displayOnlyWhenMember === 'true';
@@ -352,19 +362,21 @@ export default {
     },
   },
   created() {
-    this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
+    this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
   },
   methods: {
     handleSpacesClick() {
-      if (this.$root.displaySequentially && this.isSpaceTemplate) {
+      if (this.$root.displaySequentially && (this.isSpaceTemplate || this.isSpaceCategory)) {
         this.collapsedSpaces = !this.collapsedSpaces;
       } else {
         this.openSpacesList();
       }
     },
     openSpacesList() {
+      this.$root.openedItem = this.item;
       this.$root.$emit('change-spaces-menu',
-        this.isSpaceTemplate && this.item.properties?.spaceTemplateId,
+        this.isSpaceTemplate && this.spaceTemplateId,
+        this.isSpaceCategory && this.spaceCategoryId,
         this.isSpaces && this.url,
         this.item.properties?.sortBy,
         this.item.name,

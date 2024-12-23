@@ -214,7 +214,8 @@ export default {
           }
         } else {
           const data = await this.$spaceService.getSpacesByFilter({
-            query: '',
+            query: this.filterType === 'lastVisited' ? this.keyword : '',
+            categoryId: this.$root.openedItem?.properties?.spaceCategoryIds && JSON.parse(this.$root.openedItem?.properties?.spaceCategoryIds) || null,
             templateId: this.$root.openedSpaceTemplateId || 0,
             filter: this.filterType || 'lastVisited',
             sortBy: 'lastVisited',

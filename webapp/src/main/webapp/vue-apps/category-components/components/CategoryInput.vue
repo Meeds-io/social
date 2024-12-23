@@ -136,6 +136,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    single: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     drawer: false,
