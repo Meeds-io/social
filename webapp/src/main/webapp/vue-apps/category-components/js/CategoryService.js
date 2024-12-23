@@ -64,6 +64,36 @@ export function getCategory(id) {
   });
 }
 
+export function getSubcategoryIds(id, options) {
+  const formData = new FormData();
+  if (options.parentId) {
+    formData.append('parentId', options.parentId);
+  }
+  if (options.ownerId) {
+    formData.append('ownerId', options.ownerId);
+  }
+  if (options.depth) {
+    formData.append('depth', options.depth);
+  }
+  if (options.offset) {
+    formData.append('offset', options.offset);
+  }
+  if (options.limit) {
+    formData.append('limit', options.limit);
+  }
+  const urlParams = new URLSearchParams(formData).toString();
+  return fetch(`/social/rest/categories/${id}/subCategories?${urlParams}`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when retrieving subcategories');
+    }
+  });
+}
+
 export function findCategories(options) {
   const formData = new FormData();
   if (options.query) {
