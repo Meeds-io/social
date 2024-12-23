@@ -18,9 +18,12 @@
  */
 package io.meeds.social.navigation.plugin;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -32,6 +35,7 @@ import io.meeds.social.category.model.CategoryWithName;
 import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.social.util.JsonUtils;
 
 import lombok.SneakyThrows;
 
@@ -39,7 +43,9 @@ import lombok.SneakyThrows;
 @Order(50)
 public class SpaceCategorySidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  public static final String SPACE_CATEGORY_ID_PROP_NAME = "spaceCategoryId";
+  public static final String SPACE_CATEGORY_ID_PROP_NAME  = "spaceCategoryId";
+
+  public static final String SPACE_CATEGORY_IDS_PROP_NAME = "spaceCategoryIds";
 
   @Autowired
   private CategoryService    categoryService;
@@ -73,9 +79,17 @@ public class SpaceCategorySidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
-    String categoryId = item.getProperties().get(SPACE_CATEGORY_ID_PROP_NAME);
-    spaceFilter.setCategoryIds(Collections.singletonList(Long.parseLong(categoryId)));
+  protected void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter) {
+    long categoryId = getCategoryId(item);
+    List<Long> subCategoryIds = categoryService.getSubcategoryIds(username, categoryId, 0, -1, -1);
+    List<Long> categoryIds = new ArrayList<>();
+    categoryIds.add(categoryId);
+    if (CollectionUtils.isNotEmpty(subCategoryIds)) {
+      categoryIds.addAll(subCategoryIds);
+    }
+    item.setProperties(new HashMap<>(item.getProperties()));
+    item.getProperties().put(SPACE_CATEGORY_IDS_PROP_NAME, JsonUtils.toJsonString(categoryIds));
+    spaceFilter.setCategoryIds(categoryIds);
   }
 
   private long getCategoryId(SidebarItem item) {
