@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -120,6 +121,67 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
                                                    .getCategories()
                                                    .get(0)
                                                    .getCategories()));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testGetAncestorIds() {
+    buildCategoryTree();
+    long ownerId = 0;
+    long parentId = 0;
+    long depth = 5;
+    long offset = 0;
+    long limit = 1;
+    CategoryFilter filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    CategoryTree categoryTree = categoryService.getCategoryTree(filter, ROOT_USER, Locale.FRENCH);
+    assertNotNull(categoryTree);
+    assertNotNull(categoryTree.getCategories());
+    assertEquals(getAdminGroupIdentityId(), categoryTree.getOwnerId());
+    assertEquals(1, categoryTree.getCategories().size());
+
+    CategoryTree categoryLeaf = categoryTree.getCategories()
+                                            .get(0)
+                                            .getCategories()
+                                            .get(0)
+                                            .getCategories()
+                                            .get(0)
+                                            .getCategories()
+                                            .get(0)
+                                            .getCategories()
+                                            .get(0);
+    assertNotNull(categoryLeaf);
+    List<Long> ancestorIds = categoryService.getAncestorIds(categoryLeaf.getId());
+    assertEquals(5, ancestorIds.size());
+    assertEquals(categoryTree.getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getId(),
+                 ancestorIds.get(0).longValue());
+    assertEquals(categoryTree.getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getId(),
+                 ancestorIds.get(1).longValue());
+    assertEquals(categoryTree.getCategories()
+                             .get(0)
+                             .getCategories()
+                             .get(0)
+                             .getId(),
+                 ancestorIds.get(2).longValue());
+    assertEquals(categoryTree.getCategories()
+                             .get(0)
+                             .getId(),
+                 ancestorIds.get(3).longValue());
+    assertEquals(categoryTree.getId(),
+                 ancestorIds.get(4).longValue());
   }
 
   @Test
