@@ -30,6 +30,7 @@ import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
+import io.meeds.social.category.model.CategoryWithName;
 
 public interface CategoryService {
 
@@ -140,7 +141,8 @@ public interface CategoryService {
    * @throws IllegalAccessException when the user isn't allowed to edit a
    *           categories switch the ownerId field
    */
-  Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException, IllegalAccessException;
+  CategoryWithName getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                                IllegalAccessException;
 
   /**
    * @param ownerId {@link Identity} identifier

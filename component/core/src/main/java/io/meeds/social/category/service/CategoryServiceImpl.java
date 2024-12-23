@@ -50,6 +50,7 @@ import io.meeds.social.category.model.CategoryRootTree;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
+import io.meeds.social.category.model.CategoryWithName;
 import io.meeds.social.category.plugin.CategoryTranslationPlugin;
 import io.meeds.social.category.storage.CategoryStorage;
 import io.meeds.social.translation.service.TranslationService;
@@ -162,8 +163,8 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public Category getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
-                                                                               IllegalAccessException {
+  public CategoryWithName getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                                       IllegalAccessException {
     Category category = getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exists", categoryId));
@@ -174,8 +175,7 @@ public class CategoryServiceImpl implements CategoryService {
                                                                   category.getId(),
                                                                   CategoryTranslationPlugin.NAME_FIELD,
                                                                   locale);
-    category.setName(name);
-    return category;
+    return new CategoryWithName(category, name);
   }
 
   @Override
@@ -191,7 +191,6 @@ public class CategoryServiceImpl implements CategoryService {
       Identity userIdentity = identityManager.getOrCreateUserIdentity(userAcl.getSuperUser());
       rootCategory = new Category(0l,
                                   0l,
-                                  null,
                                   null,
                                   Long.parseLong(userIdentity.getId()),
                                   ownerId,
@@ -379,7 +378,9 @@ public class CategoryServiceImpl implements CategoryService {
                                          long depthLimit,
                                          long depth) {
     CategoryTree categoryTree = new CategoryTree(category);
-    categoryTree.setCanLink(category.getParentId() > 0 && (linkPermission || canManageLink(category, username)));
+    if (linkPermission && category.getParentId() > 0) {
+      categoryTree.setCanLink(canManageLink(category, username));
+    }
     long categoryId = categoryTree.getId();
     long size = categoryStorage.countSubcategories(categoryId);
     String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
@@ -638,7 +639,7 @@ public class CategoryServiceImpl implements CategoryService {
                                 }
                               } else {
                                 Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
-                                return Long.parseLong(identity.getId());
+                                return identity == null ? null : Long.parseLong(identity.getId());
                               }
                             })
                             .filter(Objects::nonNull)

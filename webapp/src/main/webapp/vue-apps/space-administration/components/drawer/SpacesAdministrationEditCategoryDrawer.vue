@@ -23,6 +23,7 @@
   <space-categories-drawer
     id="SpacesAdministrationCategoriesDrawer"
     ref="drawer"
+    :form-modified="dropExisting"
     @save="saveSpaces">
     <space-avatar
       v-if="space"
@@ -80,8 +81,8 @@ export default {
         this.categoryIds = [];
         this.selectionCount = selectionCount;
         this.callback = callback;
-        this.dropExisting = false;
       }
+      this.dropExisting = false;
       this.$refs.drawer.open(this.space?.id, this.categoryIds);
     },
     handleSpaceUpdated(_, categoryIds) {

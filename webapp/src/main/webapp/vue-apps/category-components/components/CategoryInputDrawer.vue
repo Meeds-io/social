@@ -156,6 +156,10 @@ export default {
       type: Array,
       default: null,
     },
+    accessPermission: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     drawer: false,
@@ -392,6 +396,7 @@ export default {
         return;
       }
       item.index = itemIndex || 0;
+      item.disabled = !this.accessPermission && !item.canLink;
       result.push(item);
       item.depth = depth || 0;
       if (item?.categories) {
