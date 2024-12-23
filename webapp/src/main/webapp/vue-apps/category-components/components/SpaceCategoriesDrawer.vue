@@ -67,6 +67,12 @@
 </template>
 <script>
 export default {
+  props: {
+    formModified: {
+      type: Boolean,
+      default: false,
+    },
+  },
   data: () => ({
     drawer: false,
     loading: false,
@@ -77,7 +83,7 @@ export default {
   }),
   computed: {
     modified() {
-      return JSON.stringify(this.selectedCategoryIds) !== JSON.stringify(this.categoryIds);
+      return this.formModified || JSON.stringify(this.selectedCategoryIds) !== JSON.stringify(this.categoryIds);
     },
   },
   methods: {

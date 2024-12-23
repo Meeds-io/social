@@ -89,6 +89,10 @@ public class SpaceTemplateEntity {
   @Column(name = "SPACE_FIELDS")
   private List<String>      spaceFields;
 
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "SPACE_CATEGORY_IDS")
+  private List<String>      spaceDefaultCategoryIds;
+
   @Column(name = "SPACE_DEFAULT_VISIBILITY")
   private SpaceVisibility   spaceDefaultVisibility;
 

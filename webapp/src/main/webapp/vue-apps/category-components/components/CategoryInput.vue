@@ -25,8 +25,10 @@
     color="transparent"
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
-      <div class="text-header flex-grow-1 flex-shrink-1 text-truncate">
-        {{ $t('categoryInput.drawer.manageCategories') }}
+      <div
+        :class="labelClass"
+        class="flex-grow-1 flex-shrink-1 text-truncate">
+        {{ $t(label) }}
       </div>
       <v-btn
         v-if="hasCategories"
@@ -96,7 +98,7 @@
     </v-list>
     <v-card
       v-else-if="!loading"
-      class="d-flex justify-center align-center my-4"
+      class="d-flex justify-center align-center mt-2 mb-4"
       width="100%"
       flat>
       <v-btn
@@ -111,6 +113,7 @@
       ref="drawer"
       v-model="categoryIds"
       :selected-categories="categories"
+      :access-permission="accessPermission"
       @closed="drawer = false" />
   </v-card>
 </template>
@@ -120,6 +123,18 @@ export default {
     value: {
       type: Array,
       default: null,
+    },
+    label: {
+      type: String,
+      default: () => 'categoryInput.drawer.manageCategories',
+    },
+    labelClass: {
+      type: String,
+      default: () => 'text-header',
+    },
+    accessPermission: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

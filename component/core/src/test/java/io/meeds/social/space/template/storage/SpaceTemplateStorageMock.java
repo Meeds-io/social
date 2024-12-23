@@ -32,7 +32,9 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 
 public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
 
-  private SpaceTemplate spaceTemplate;
+  private SpaceTemplate     spaceTemplate;
+
+  private static final long SPACE_CATEGORY_ID = 2l;
 
   public SpaceTemplateStorageMock() {
     super(null);
@@ -51,6 +53,7 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       Arrays.asList(SpaceUtils.SPACE_ADMIN_REFERENCE_NAME),
                                       Arrays.asList(SpaceUtils.SPACE_ADMIN_REFERENCE_NAME),
                                       Arrays.asList("name", "invitation", "properties", "access"),
+                                      Arrays.asList(SPACE_CATEGORY_ID),
                                       SpaceVisibility.PRIVATE,
                                       SpaceRegistration.OPEN,
                                       false);

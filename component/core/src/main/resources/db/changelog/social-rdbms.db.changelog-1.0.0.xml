@@ -1155,4 +1155,14 @@
     </createIndex>
   </changeSet>
 
+  <changeSet
+    author="social"
+    id="1.0.0-mip-170-02">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column
+        name="SPACE_CATEGORY_IDS"
+        type="NVARCHAR(2000)"></column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
