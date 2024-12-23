@@ -30,6 +30,9 @@
         compact-display
         @keyword-changed="keyword = $event"
         @loading="loadingSpaces = loadingSpaces || $event" />
+      <spaces-categories-toolbar
+        v-show="spacesExists"
+        :spaces-size="spacesSize" />
       <spaces-card-list
         ref="spacesList"
         :keyword="keyword"
@@ -62,10 +65,24 @@ export default {
     spacesSize: 0,
     loadingSpaces: false,
     initialized: false,
+    spacesExists: false,
   }),
   computed: {
     filtersCount() {
       return this.filter !== 'all' ? 1 : 0;
+    },
+    selectedCategoryId() {
+      return this.$root.selectedCategoryId;
+    },
+  },
+  watch: {
+    selectedCategoryId() {
+      this.loadingSpaces = true;
+    },
+    spacesSize() {
+      if (!this.spacesExists && this.spacesSize) {
+        this.spacesExists = true;
+      }
     },
   },
   methods: {

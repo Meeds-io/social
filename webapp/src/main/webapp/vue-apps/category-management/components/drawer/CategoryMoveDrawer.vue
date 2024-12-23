@@ -48,7 +48,7 @@
               v-if="index > 0"
               size="16"
               class="mx-2 text--disabled">
-              {{ $root.chevonIcon }}
+              {{ $root.chevronIcon }}
             </v-icon>
             <v-icon v-if="index === 0" size="16">fa-home</v-icon>
             <v-icon v-else size="16">{{ item.icon }}</v-icon>
@@ -69,7 +69,7 @@
               v-if="index > 0"
               size="16"
               class="mx-2 text--disabled">
-              {{ $root.chevonIcon }}
+              {{ $root.chevronIcon }}
             </v-icon>
             <v-icon v-if="index === 0" size="16">fa-home</v-icon>
             <v-icon v-else size="16">{{ item.icon }}</v-icon>
@@ -106,7 +106,7 @@
                       'fa-rotate-270': open && $vuetify.rtl,
                     }"
                     size="16">
-                    {{ $root.chevonIcon }}
+                    {{ $root.chevronIcon }}
                   </v-icon>
                 </v-card>
                 <v-card
