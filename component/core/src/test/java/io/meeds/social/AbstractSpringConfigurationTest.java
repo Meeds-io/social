@@ -34,6 +34,7 @@ import io.meeds.spring.AvailableIntegration;
   "io.meeds.social.common",
   "io.meeds.social.navigation",
   "io.meeds.social.category",
+  "io.meeds.social.space.category",
   AvailableIntegration.KERNEL_TEST_MODULE,
   AvailableIntegration.JPA_MODULE,
 }, exclude = {
