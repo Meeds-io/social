@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import org.exoplatform.social.core.space.SpaceFilter;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryWithName;
 import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.navigation.constant.SidebarItemType;
 import io.meeds.social.navigation.model.SidebarItem;
@@ -62,7 +63,7 @@ public class SpaceCategorySidebarPlugin extends AbstractSpaceSidebarPlugin {
   @SneakyThrows
   public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
     long categoryId = getCategoryId(item);
-    Category category = categoryService.getCategory(categoryId, username, locale);
+    CategoryWithName category = categoryService.getCategory(categoryId, username, locale);
     if (category != null) {
       item.setName(category.getName());
       item.setIcon(category.getIcon());

@@ -16,31 +16,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.category.listener;
+package io.meeds.social.space.category.listener;
 
-import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_ADDED;
-import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGORY_LINK_REMOVED;
-
-import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import org.exoplatform.services.listener.Event;
-import org.exoplatform.services.listener.ListenerBase;
-import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
-import io.meeds.social.category.model.CategoryObject;
-import io.meeds.social.category.plugin.SpaceCategoryPlugin;
 import io.meeds.social.space.category.service.SpaceCategoryService;
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import jakarta.annotation.PostConstruct;
 
 @Component
-public class CategoryLinkModifiedListener implements ListenerBase<Long, CategoryObject> {
+public class SpaceCreatedCategoryListener implements SpaceLifeCycleListener {
 
   @Autowired
   private SpaceService         spaceService;
@@ -49,24 +43,21 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
   private SpaceCategoryService spaceCategoryService;
 
   @Autowired
-  private ListenerService      listenerService;
+  private SpaceTemplateService spaceTemplateService;
 
   @PostConstruct
   public void init() {
-    listenerService.addListener(EVENT_CATEGORY_LINK_ADDED, this);
-    listenerService.addListener(EVENT_CATEGORY_LINK_REMOVED, this);
+    spaceService.registerSpaceLifeCycleListener(this);
   }
 
   @Override
-  public void onEvent(Event<Long, CategoryObject> event) throws Exception {
-    CategoryObject object = event.getData();
-    boolean isSpace = StringUtils.equals(object.getType(), SpaceCategoryPlugin.OBJECT_TYPE);
-    if (isSpace) {
-      Space space = spaceService.getSpaceById(Long.parseLong(object.getId()));
-      if (space != null) {
-        List<Long> categoryIds = spaceCategoryService.getSpaceCategoryIds(space.getSpaceId());
-        space.setCategoryIds(categoryIds);
-        spaceService.updateSpace(space);
+  public void spaceCreated(SpaceLifeCycleEvent event) {
+    Space space = event.getSpace();
+    if (space.getTemplateId() > 0) {
+      SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplate(space.getTemplateId());
+      if (spaceTemplate != null && CollectionUtils.isNotEmpty(spaceTemplate.getSpaceDefaultCategoryIds())) {
+        spaceCategoryService.updateSpaceCategories(space.getSpaceId(),
+                                                   spaceTemplate.getSpaceDefaultCategoryIds());
       }
     }
   }
