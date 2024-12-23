@@ -38,6 +38,8 @@ export function init(filter, canCreateSpace, isExternalFeatureEnabled) {
         pendingCount: 0,
         requestsCount: 0,
         unreadPerSpace: null,
+        selectedCategoryId: null,
+        selectedCategoryIds: null,
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
       computed: {
@@ -54,6 +56,18 @@ export function init(filter, canCreateSpace, isExternalFeatureEnabled) {
         pendingCount() {
           if (!this.pendingCount) {
             this.filter = 'all';
+          }
+        },
+        async selectedCategoryId() {
+          if (this.selectedCategoryId) {
+            const subcategoryIds = await this.$categoryService.getSubcategoryIds(this.selectedCategoryId, {
+              offset: 0,
+              limit: -1,
+              depth: -1,
+            });
+            this.selectedCategoryIds = [this.selectedCategoryId, ...subcategoryIds];
+          } else {
+            this.selectedCategoryIds = null;
           }
         },
       },
