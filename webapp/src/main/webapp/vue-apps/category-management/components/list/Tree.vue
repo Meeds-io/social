@@ -63,7 +63,7 @@
                   'fa-rotate-270': open && $vuetify.rtl,
                 }"
                 size="20">
-                {{ $root.chevonIcon }}
+                {{ $root.chevronIcon }}
               </v-icon>
             </v-card>
             <v-card
