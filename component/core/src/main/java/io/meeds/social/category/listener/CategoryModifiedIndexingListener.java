@@ -81,7 +81,7 @@ public class CategoryModifiedIndexingListener implements ListenerBase<Category, 
 
   private void reindexTree(long id) {
     indexingService.reindex(CategoryIndexingConnector.TYPE, String.valueOf(id));
-    List<Long> subCategoryIds = categoryService.getSubcategoryIds(id, 0, -1);
+    List<Long> subCategoryIds = categoryService.getSubcategoryIds(id, 0, -1, -1);
     if (CollectionUtils.isNotEmpty(subCategoryIds)) {
       subCategoryIds.forEach(this::reindexTree);
     }
