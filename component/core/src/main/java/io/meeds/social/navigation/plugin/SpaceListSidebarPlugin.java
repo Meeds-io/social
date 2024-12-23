@@ -108,7 +108,7 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+  protected void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter) {
     // No specific space filter
   }
 

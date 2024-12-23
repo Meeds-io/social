@@ -75,7 +75,34 @@ public interface CategoryService {
    * @param limit Request limit. Can be 0 to retrieve all
    * @return {@link List} of Sub category ids
    */
-  List<Long> getSubcategoryIds(long categoryId, long offset, long limit);
+  default List<Long> getSubcategoryIds(long categoryId, long offset, long limit) {
+    return getSubcategoryIds(categoryId, offset, limit, 1);
+  }
+
+  /**
+   * Retrieve sub category identifiers
+   * 
+   * @param categoryId {@link Category} identifier
+   * @param offset Request offset
+   * @param limit Request limit. Can be 0 to retrieve all
+   * @param depth Category Tree depth. Can be 1 to retrieve only selected or -1
+   *          to retrieve all subsequent categories
+   * @return {@link List} of Sub category ids
+   */
+  List<Long> getSubcategoryIds(long categoryId, long offset, long limit, long depth);
+
+  /**
+   * Retrieve sub category identifiers
+   * 
+   * @param username User name/login
+   * @param categoryId {@link Category} identifier
+   * @param offset Request offset
+   * @param limit Request limit. Can be 0 to retrieve all
+   * @param depth Category Tree depth. Can be 1 to retrieve only selected or -1
+   *          to retrieve all subsequent categories
+   * @return {@link List} of Sub category ids
+   */
+  List<Long> getSubcategoryIds(String username, long categoryId, long offset, long limit, long depth);
 
   /**
    * Retrieve the {@link List} of ancestor Category Ids starting from nearest
