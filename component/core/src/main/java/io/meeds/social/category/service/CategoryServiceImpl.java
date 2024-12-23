@@ -158,8 +158,17 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public List<Long> getSubcategoryIds(long categoryId, long offset, long limit) {
-    return categoryStorage.getSubcategoryIds(categoryId, offset, limit);
+  public List<Long> getSubcategoryIds(String username, long categoryId, long offset, long limit, long depth) {
+    List<Long> ids = new ArrayList<>();
+    addSubcategories(username, getUserMemberIdentityIds(username), categoryId, offset, limit, depth, ids);
+    return ids;
+  }
+
+  @Override
+  public List<Long> getSubcategoryIds(long categoryId, long offset, long limit, long depth) {
+    List<Long> ids = new ArrayList<>();
+    addSubcategories(categoryId, offset, limit, depth, ids);
+    return ids;
   }
 
   @Override
@@ -582,6 +591,49 @@ public class CategoryServiceImpl implements CategoryService {
       }
     }
     return categoryStorage.getSubcategoryIds(parentId, offset, limit);
+  }
+
+  private void addSubcategories(long categoryId, long offset, long limit, long depth, List<Long> result) {
+    List<Long> subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit);
+    if (CollectionUtils.isNotEmpty(subcategoryIds)) {
+      result.addAll(subcategoryIds);
+      if (depth > 1 || depth < 0) {
+        subcategoryIds.forEach(id -> addSubcategories(id, offset, limit, depth - 1, result));
+      }
+    }
+  }
+
+  private void addSubcategories(String username, // NOSONAR
+                                List<Long> identityIds,
+                                long categoryId,
+                                long offset,
+                                long limit,
+                                long depth,
+                                List<Long> result) {
+
+    List<Long> subcategoryIds;
+    try {
+      subcategoryIds = categoryStorage.findCategoryIds(new CategorySearchFilter(null,
+                                                                                0,
+                                                                                categoryId,
+                                                                                offset,
+                                                                                limit,
+                                                                                false,
+                                                                                false),
+                                                       identityIds,
+                                                       Locale.ENGLISH);
+    } catch (Exception e) {
+      subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit)
+                                      .stream()
+                                      .filter(id -> canAccess(id, username))
+                                      .toList();
+    }
+    if (CollectionUtils.isNotEmpty(subcategoryIds)) {
+      result.addAll(subcategoryIds);
+      if (depth > 1 || depth < 0) {
+        subcategoryIds.forEach(id -> addSubcategories(username, identityIds, id, offset, limit, depth - 1, result));
+      }
+    }
   }
 
   private boolean canAccess(Category category, String username, boolean checkAncestors) {

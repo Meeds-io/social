@@ -54,14 +54,14 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
   @Autowired
   private SpaceService        spaceService;
 
-  protected abstract void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter);
+  protected abstract void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter);
 
   protected List<SidebarItem> getSpaces(SidebarItem item, String username) {
     SpaceFilter spaceFilter = new SpaceFilter();
     SidebarSpaceSortBy sortBy = getSortBy(item);
     spaceFilter.setSorting(getSorting(item, sortBy));
     spaceFilter.setRemoteId(username);
-    buildSpaceFilter(item, spaceFilter);
+    buildSpaceFilter(username, item, spaceFilter);
     int limit = getLimit(item);
     Space[] spaces = getSpaces(item, spaceFilter, username, sortBy, limit);
     if (spaces.length == 0 && isDisplayOnlyWhenMember(item)) {

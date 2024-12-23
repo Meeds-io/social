@@ -164,6 +164,8 @@ public class CategorySearchConnector {
 
   private static final String    NAME_FORMAT                      = "name.%s";
 
+  private static final int       DEFAULT_LIMIT                    = 100;
+
   @Autowired
   private ElasticSearchingClient client;
 
@@ -182,7 +184,8 @@ public class CategorySearchConnector {
   private String buildSearchQuery(String queryBase, CategorySearchFilter filter, List<Long> identityIds, Locale locale) {
     String append = "";
     String esQuery = queryBase.replace(OFFSET_REPLACEMENT, String.valueOf(filter.getOffset()))
-                              .replace(LIMIT_REPLACEMENT, String.valueOf(filter.getLimit()));
+                              .replace(LIMIT_REPLACEMENT,
+                                       String.valueOf(filter.getLimit() < 1 ? DEFAULT_LIMIT : filter.getLimit()));
     if (filter.getParentId() > 0) {
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT,
                                 PARENT_ID_QUERY.replace(PARENT_ID_REPLACEMENT,
