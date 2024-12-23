@@ -34,4 +34,9 @@ public class CategoryRootTree extends CategoryTree {
     this.owner = owner;
   }
 
+  @Override
+  public CategoryRootTree clone() { // NOSONAR
+    return new CategoryRootTree(this, owner);
+  }
+
 }
