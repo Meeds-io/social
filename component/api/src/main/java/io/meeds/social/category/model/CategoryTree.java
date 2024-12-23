@@ -27,7 +27,9 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class CategoryTree extends Category {
+public class CategoryTree extends CategoryWithName {
+
+  private String             name;
 
   private List<CategoryTree> categories;
 
@@ -40,6 +42,17 @@ public class CategoryTree extends Category {
   private boolean            canLink;
 
   public CategoryTree(Category category) {
+    super(category.getId(),
+          category.getParentId(),
+          null,
+          category.getIcon(),
+          category.getCreatorId(),
+          category.getOwnerId(),
+          category.getAccessPermissionIds(),
+          category.getLinkPermissionIds());
+  }
+
+  public CategoryTree(CategoryWithName category) {
     super(category.getId(),
           category.getParentId(),
           category.getName(),
@@ -64,6 +77,11 @@ public class CategoryTree extends Category {
     this.limit = categoryTree.getLimit();
     this.size = categoryTree.getSize();
     this.canLink = categoryTree.isCanLink();
+  }
+
+  @Override
+  public CategoryTree clone() { // NOSONAR
+    return new CategoryTree(this);
   }
 
 }

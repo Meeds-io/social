@@ -35,6 +35,7 @@ import org.exoplatform.social.core.service.GettingStartedServiceTest;
 import org.exoplatform.social.core.storage.StorageUtilsTest;
 
 import io.meeds.social.authorization.AuthorizationManagerTest;
+import io.meeds.social.category.service.CategoryServiceUnitTest;
 import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
 import io.meeds.social.search.SpaceSearchConnectorTest;
 import io.meeds.social.space.administration.service.SpaceAdministrationServiceTest;
@@ -68,6 +69,7 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     SpaceTemplateTranslationPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,
+    CategoryServiceUnitTest.class,
 })
 public class NoContainerTestSuite {
 

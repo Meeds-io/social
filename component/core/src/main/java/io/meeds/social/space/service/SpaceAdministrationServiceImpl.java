@@ -30,6 +30,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.space.category.service.SpaceCategoryService;
 import io.meeds.social.space.model.SpacePermissions;
 import io.meeds.social.space.model.SpaceTemplatePatch;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -55,6 +56,10 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
   @Setter
   @Autowired
   private SpaceLayoutService   spaceLayoutService;
+
+  @Setter
+  @Autowired
+  private SpaceCategoryService spaceCategoryService;
 
   @Override
   public SpacePermissions getSpacePermissions(long spaceId) throws ObjectNotFoundException {
@@ -110,6 +115,13 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
                                  space.getGroupId());
     }
     spaceService.updateSpace(space);
+
+    if (templatePatch.isUpdateCategories()) {
+      spaceCategoryService.updateSpaceCategories(spaceId,
+                                                 spaceTemplate.getSpaceDefaultCategoryIds(),
+                                                 templatePatch.isRemoveExistingCategories());
+    }
+
     if (templatePatch.isEditorialMode()) {
       if (spaceTemplate.isSpaceAllowContentCreation() && ArrayUtils.isEmpty(space.getRedactors())) {
         Arrays.stream(space.getManagers()).forEach(m -> spaceService.addRedactor(space, m));
@@ -117,6 +129,7 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
         Arrays.stream(space.getRedactors()).forEach(m -> spaceService.removeRedactor(space, m));
       }
     }
+
     spaceLayoutService.updateSpaceSite(space);
   }
 

@@ -62,6 +62,8 @@ public class SpaceTemplate implements Cloneable {
 
   private List<String>      spaceFields;
 
+  private List<Long>        spaceDefaultCategoryIds;
+
   private SpaceVisibility   spaceDefaultVisibility;
 
   private SpaceRegistration spaceDefaultRegistration;
@@ -85,8 +87,18 @@ public class SpaceTemplate implements Cloneable {
                              spaceDeletePermissions,
                              spacePublicSitePermissions,
                              spaceFields,
+                             spaceDefaultCategoryIds,
                              spaceDefaultVisibility,
                              spaceDefaultRegistration,
                              spaceAllowContentCreation);
   }
+
+  public SpaceVisibility getSpaceDefaultVisibility() {
+    return spaceDefaultVisibility;
+  }
+
+  public void setSpaceDefaultVisibility(SpaceVisibility spaceDefaultVisibility) {
+    this.spaceDefaultVisibility = spaceDefaultVisibility;
+  }
+
 }

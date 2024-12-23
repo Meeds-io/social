@@ -195,6 +195,10 @@
               class="mb-4"
               @data="bannerData = $event"
               @input="bannerUploadId = $event" />
+            <category-input
+              v-model="spaceTemplate.spaceDefaultCategoryIds"
+              label="spaceTemplate.defaultCategories"
+              label-class="font-weight-bold" />
             <space-templates-management-permissions-editorial
               v-model="spaceTemplate.spaceAllowContentCreation"
               class="mb-4" />

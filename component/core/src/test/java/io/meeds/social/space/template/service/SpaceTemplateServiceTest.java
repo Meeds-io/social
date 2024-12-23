@@ -79,6 +79,8 @@ public class SpaceTemplateServiceTest {
 
   private static final String       TEST_USER                     = "testuser";
 
+  private static final long         SPACE_CATEGORY_ID             = 2l;
+
   @Mock
   protected TranslationService      translationService;
 
@@ -289,6 +291,7 @@ public class SpaceTemplateServiceTest {
                              Arrays.asList(SPACE_DELETE_PERMISSIONS),
                              Arrays.asList(SPACE_PUBLIC_SITE_PERMISSIONS),
                              Arrays.asList(SPACE_FIELDS),
+                             Arrays.asList(SPACE_CATEGORY_ID),
                              SpaceVisibility.PRIVATE,
                              SpaceRegistration.VALIDATION,
                              true);
