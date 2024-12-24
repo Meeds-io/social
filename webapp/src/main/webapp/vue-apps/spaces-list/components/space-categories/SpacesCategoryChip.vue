@@ -26,8 +26,8 @@
       click: $listeners.click,
     }"
     :outlined="!selected"
-    color="primary"
-    class="text-truncate">
+    class="text-truncate border-box-sizing"
+    color="primary">
     <v-card
       :title="category.name"
       :class="selected && 'white--text' || 'primary--text'"
