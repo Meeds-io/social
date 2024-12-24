@@ -21,42 +21,47 @@
 
 -->
 <template>
-  <v-chip
-    v-on="$listeners?.click && {
-      click: $listeners.click,
-    }"
-    :outlined="!selected"
-    color="primary"
-    class="text-truncate">
-    <v-card
-      :title="category.name"
-      :class="selected && 'white--text' || 'primary--text'"
-      :max-width="maxWidth"
-      width="auto"
-      class="text-truncate"
-      flat>
-      {{ category.name }}
-    </v-card>
-  </v-chip>
+  <exo-drawer
+    ref="drawer"
+    v-model="drawer"
+    allow-expand
+    right>
+    <template #title>
+      {{ $t('spacesList.categories.drawer.select.title') }}
+    </template>
+    <template v-if="drawer && categories" #content>
+      <div class="d-flex flex-column ma-5">
+        <div
+          v-for="category in categories"
+          :key="category.id">
+          <spaces-category-chip
+            :category="category"
+            max-width="100%"
+            class="mb-4"
+            @click="select(category)" />
+        </div>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
 <script>
 export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  data: () => ({
+    drawer: false,
+    categories: null,
+  }),
+  methods: {
+    open(categories) {
+      this.categories = categories;
+      this.$refs.drawer.open();
     },
-    selected: {
-      type: Boolean,
-      default: false,
+    close() {
+      this.$refs.drawer.close();
     },
-    maxWidth: {
-      type: Number,
-      default: () => 150,
+    select(category) {
+      this.$root.selectedCategoryId = category.id;
+      this.close();
     },
-  },
-  mounted() {
-    this.$emit('initialized', this.$el.offsetLeft + this.$el.offsetWidth);
   },
 };
 </script>

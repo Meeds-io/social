@@ -39,20 +39,18 @@
           <spaces-category-chip
             :category="category"
             class="flex-shrink-0 me-2"
-            selected />
+            selected
+            @click="$root.selectedCategoryId = category.id" />
         </div>
         <v-divider
           v-if="selectedSubcategories?.length"
-          class="mx-4"
+          class="ms-2 me-4"
           vertical />
       </div>
-      <template v-if="spacesSize">
-        <spaces-category-chip
-          v-for="category in selectedSubcategories"
-          :key="category.id"
-          :category="category"
-          class="flex-shrink-0 me-2" />
-      </template>
+      <spaces-category-chips-group
+        v-if="spacesSize"
+        :categories="selectedSubcategories"
+        class="flex-grow-1" />
     </div>
   </div>
 </template>
@@ -71,6 +69,7 @@ export default {
     depth: 10,
     pageSize: 10,
     refresh: 1,
+    chipsWidthPerCategory: 1,
   }),
   computed: {
     display() {

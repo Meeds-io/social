@@ -22,12 +22,14 @@ import SpacesToolbar from './components/toolbar/SpacesToolbar.vue';
 import SpacePendingButton from './components/toolbar/SpacePendingButton.vue';
 
 import SpacesCategoriesToolbar from './components/space-categories/SpacesCategoriesToolbar.vue';
+import SpacesCategoryChipsGroup from './components/space-categories/SpacesCategoryChipsGroup.vue';
 import SpacesCategoryChip from './components/space-categories/SpacesCategoryChip.vue';
 
 import SpacesCardList from './components/list/SpacesCardList.vue';
 
 import SpacesListFilterDrawer from './components/drawer/SpacesListFilterDrawer.vue';
 import SpacePendingDrawer from './components/drawer/SpacePendingDrawer.vue';
+import SpacesCategoryListDrawer from './components/drawer/SpacesCategoryListDrawer.vue';
 
 import SpaceCard from './components/space-card/SpaceCard.vue';
 import SpaceCardMenu from './components/space-card/menu/SpaceCardMenu.vue';
@@ -44,11 +46,13 @@ const components = {
   'spaces-toolbar': SpacesToolbar,
   'spaces-categories-toolbar': SpacesCategoriesToolbar,
   'spaces-category-chip': SpacesCategoryChip,
+  'spaces-category-chips-group': SpacesCategoryChipsGroup,
   'spaces-card-list': SpacesCardList,
   'spaces-pending-drawer': SpacePendingDrawer,
   'spaces-role-list-item': SpaceRoleListItem,
   'spaces-role-list': SpaceRoleList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
+  'spaces-categories-list-drawer': SpacesCategoryListDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
   'space-card-menu': SpaceCardMenu,
