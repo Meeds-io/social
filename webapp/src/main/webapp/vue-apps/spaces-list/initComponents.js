@@ -23,6 +23,7 @@ import SpacePendingButton from './components/toolbar/SpacePendingButton.vue';
 
 import SpacesCategoriesToolbar from './components/space-categories/SpacesCategoriesToolbar.vue';
 import SpacesCategoryChipsGroup from './components/space-categories/SpacesCategoryChipsGroup.vue';
+import SpacesCategoryTabsGroup from './components/space-categories/SpacesCategoryTabsGroup.vue';
 import SpacesCategoryChip from './components/space-categories/SpacesCategoryChip.vue';
 
 import SpacesCardList from './components/list/SpacesCardList.vue';
@@ -47,6 +48,7 @@ const components = {
   'spaces-categories-toolbar': SpacesCategoriesToolbar,
   'spaces-category-chip': SpacesCategoryChip,
   'spaces-category-chips-group': SpacesCategoryChipsGroup,
+  'spaces-category-tabs-group': SpacesCategoryTabsGroup,
   'spaces-card-list': SpacesCardList,
   'spaces-pending-drawer': SpacePendingDrawer,
   'spaces-role-list-item': SpaceRoleListItem,
