@@ -50,6 +50,12 @@ export default {
     drawer: false,
     categories: null,
   }),
+  created() {
+    this.$root.$on('spaces-list-category-open', this.open);
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-list-category-open', this.open);
+  },
   methods: {
     open(categories) {
       this.categories = categories;

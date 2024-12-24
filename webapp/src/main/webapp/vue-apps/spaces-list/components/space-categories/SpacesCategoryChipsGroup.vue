@@ -21,29 +21,30 @@
 
 -->
 <template>
-  <div class="d-flex flex-row overflow-hidden position-relative">
+  <div class="d-flex flex-row specific-scrollbar overflow-x-auto position-relative">
     <template v-if="display">
       <spaces-category-chip
         v-for="(category, index) in filteredCategories"
         :key="category.id"
         :category="category"
-        :class="!initialized && 'invisible'"
+        :class="{
+          'invisible': !initialized,
+          'd-none': initialized && (index + 1) > chipsCount,
+        }"
         class="flex-shrink-0 me-2"
         @initialized="setCategoryChipWidth(index, $event)"
-        @click="$root.selectedCategoryId = category.id" />
+        @click="$emit('select', category)" />
     </template>
     <v-chip
       ref="moreButton"
       :class="remainingSize < 1 && 'invisible'"
       color="grey"
       dark
-      @click="$refs.drawer.open(categories)">
+      @click="$root.$emit('spaces-list-category-open', categories)">
       {{ $t('spacesList.categories.more', {
         0: remainingSize,
       }) }}
     </v-chip>
-    <spaces-categories-list-drawer
-      ref="drawer" />
   </div>
 </template>
 <script>
@@ -60,26 +61,26 @@ export default {
     moreButtonWidth: 0,
     display: true,
     chipsCount: 0,
-    limitCount: 0,
+    limitCount: -1,
   }),
   computed: {
     filteredCategories() {
-      return this.limitCount && this.categories?.slice?.(0, this.limitCount) || this.categories || [];
+      return this.initialized && this.limitCount && this.categories?.slice?.(0, this.limitCount) || this.categories || [];
     },
     categoriesCount() {
       return this.categories?.length || 0;
     },
     remainingSize() {
-      return this.categoriesCount - this.limitCount;
+      return this.categoriesCount - (this.initialized ? this.limitCount : 0);
     },
     initialized() {
-      return this.limitCount > 0 || this.chipsCount === this.categoriesCount;
+      return this.limitCount > -1 || this.chipsCount > this.categoriesCount;
     },
   },
   watch: {
     chipsCount() {
-      if (this.chipsCount === this.categoriesCount && this.limitCount === 0) {
-        this.limitCount = this.chipsCount;
+      if (this.chipsCount === this.categoriesCount && this.limitCount === -1) {
+        this.limitCount = 0;
       }
     },
     categories() {
@@ -102,7 +103,7 @@ export default {
       try {
         await this.$nextTick();
         this.chipsCount = 0;
-        this.limitCount = 0;
+        this.limitCount = -1;
         await this.$nextTick();
       } finally {
         window.setTimeout(() => {
@@ -116,13 +117,14 @@ export default {
       }
       if (width < this.parentWidth) {
         this.chipsCount = Math.max(index + 1, this.chipsCount);
+        this.limitCount = Math.max(index + 1, this.limitCount);
       } else {
-        this.limitCount = this.limitCount === 0 ? index : Math.min(this.limitCount, index);
+        this.limitCount = this.limitCount === -1 ? index : Math.min(this.limitCount, index);
       }
     },
     setParentWidth() {
       if (!this.moreButtonWidth && this.$refs?.moreButton) {
-        this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 16;
+        this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 58;
       }
       this.parentWidth = this.$el.clientWidth - this.moreButtonWidth;
     },

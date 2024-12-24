@@ -22,9 +22,14 @@
 -->
 <template>
   <div>
-    <div v-if="display" class="d-flex flex-wrap mx-5 mt-2">
-      <div v-if="$root.selectedCategoryId" class="d-flex align-center">
+    <v-card
+      v-if="display"
+      class="d-flex align-center mx-5 mt-1"
+      min-height="34"
+      flat>
+      <div v-if="$root.selectedCategoryId" class="d-flex align-center flex-grow-0 flex-shrink-0 max-width-fit overflow-x-auto specific-scrollbar">
         <v-btn
+          class="hidden-xs-only"
           height="32"
           width="32"
           icon
@@ -32,26 +37,41 @@
           <v-icon size="24">fa-home</v-icon>
         </v-btn>
         <div
-          v-for="category in breadcrumb"
-          :key="category.id"
-          class="d-flex align-center">
-          <v-icon size="16" class="ms-1 me-2">{{ chevronIcon }}</v-icon>
-          <spaces-category-chip
-            :category="category"
-            class="flex-shrink-0 me-2"
-            selected
-            @click="$root.selectedCategoryId = category.id" />
+          v-for="(category, index) in breadcrumbToDisplay"
+          :key="category.id">
+          <div class="d-flex align-center">
+            <v-icon
+              :class="index === 0 && 'hidden-xs-only'"
+              class="mx-2"
+              size="16">
+              {{ chevronIcon }}
+            </v-icon>
+            <spaces-category-chip
+              :category="category"
+              class="flex-shrink-0"
+              selected
+              @click="selectCategory(category)" />
+          </div>
         </div>
         <v-divider
-          v-if="selectedSubcategories?.length"
-          class="ms-2 me-4"
+          v-if="selectedSubcategories?.length && level < 2"
+          class="mx-4"
           vertical />
       </div>
-      <spaces-category-chips-group
-        v-if="spacesSize"
-        :categories="selectedSubcategories"
-        class="flex-grow-1" />
-    </div>
+      <template v-if="spacesSize">
+        <spaces-category-chips-group
+          v-if="level < 2"
+          :categories="selectedSubcategories"
+          class="flex-grow-1 flex-shrink-1"
+          @select="selectCategory" />
+      </template>
+    </v-card>
+    <spaces-category-tabs-group
+      v-if="level > 1"
+      :selected-category="selectedSecondLevelCategory"
+      @select="selectCategory" />
+    <spaces-categories-list-drawer
+      ref="drawer" />
   </div>
 </template>
 <script>
@@ -66,7 +86,7 @@ export default {
     categoryTree: null,
     categoryRootId: null,
     loading: false,
-    depth: 10,
+    depth: 4,
     pageSize: 10,
     refresh: 1,
     chipsWidthPerCategory: 1,
@@ -77,6 +97,18 @@ export default {
     },
     breadcrumb() {
       return this.selectedCategory && this.getBreadcrumb(this.selectedCategory);
+    },
+    level() {
+      return this.breadcrumb?.length || 0;
+    },
+    breadcrumbToDisplay() {
+      return this.breadcrumb;
+    },
+    breadcrumbToDisplaySize() {
+      return this.breadcrumbToDisplay?.length || 0;
+    },
+    selectedSecondLevelCategory() {
+      return this.breadcrumb?.[1];
     },
     categoryTreeItems() {
       const categories = this.$root.categoryTree && [this.$root.categoryTree] || [];
@@ -137,6 +169,14 @@ export default {
         breadcrumb.unshift(parentCategory);
       }
       return breadcrumb;
+    },
+    selectCategory(category) {
+      if (this.$root.selectedCategoryId === category.id) {
+        const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
+        this.$root.selectedCategoryId = categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null;
+      } else {
+        this.$root.selectedCategoryId = category.id;
+      }
     },
   },
 };
