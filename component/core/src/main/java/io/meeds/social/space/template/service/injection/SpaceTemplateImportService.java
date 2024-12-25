@@ -28,14 +28,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -54,6 +51,7 @@ import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
 import org.exoplatform.upload.UploadResource;
 
 import io.meeds.common.ContainerTransactional;
+import io.meeds.social.common.ContainerStartupTaskService;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -68,7 +66,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
 public class SpaceTemplateImportService {
 
   private static final Scope                    SPACE_TEMPLATE_IMPORT_SCOPE = Scope.APPLICATION.id("SPACE_TEMPLATE_IMPORT");
@@ -92,6 +89,9 @@ public class SpaceTemplateImportService {
   private SpaceTemplateStorage                  spaceTemplateStorage;
 
   @Autowired
+  private ContainerStartupTaskService           containerStartupTaskService;
+
+  @Autowired
   private SettingService                        settingService;
 
   @Autowired
@@ -105,7 +105,7 @@ public class SpaceTemplateImportService {
 
   @PostConstruct
   public void init() {
-    CompletableFuture.runAsync(this::importSpaceTemplates);
+    containerStartupTaskService.addTask(this::importSpaceTemplates, 0);
   }
 
   @ContainerTransactional
