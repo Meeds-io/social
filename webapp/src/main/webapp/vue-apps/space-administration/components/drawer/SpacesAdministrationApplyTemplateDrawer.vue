@@ -24,13 +24,13 @@
     id="SpaceApplyTemplateDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="saving"
+    :loading="saving || loading"
     no-x-scroll
     right>
     <template #title>
       {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
     </template>
-    <template v-if="drawer && (space || spaces)" #content>
+    <template v-if="drawer && initialized && (space || spaces)" #content>
       <div class="pa-4">
         <div class="mb-4">
           {{ $t('social.spaces.administration.manageSpaces.applyTemplateDescription1') }}
@@ -66,7 +66,7 @@
             v-for="item in spaceTemplateItems"
             :key="item.value"
             :value="item.value">
-            {{ item.text }}
+            {{ item.text }}{{ item.deleted && ` ${$t('social.spaces.administration.manageSpaces.deletedSpaceTemplate')}` || (!item.enabled && ` ${$t('social.spaces.administration.manageSpaces.disabledSpaceTemplate')}`) || '' }}
           </option>
         </select>
         <template v-if="spaceTemplate">
@@ -146,6 +146,20 @@
             </template>
           </spaces-administration-template-characteristic>
           <spaces-administration-template-characteristic
+            v-model="updateCategories"
+            title="social.spaces.administration.manageSpaces.updateCategories">
+            <template v-if="!selectionCount" #spaceValue>
+              {{ oldSpaceTemplateCategoryNames }}
+            </template>
+            <template #templateValue>
+              {{ newSpaceTemplateCategoryNames }}
+            </template>
+          </spaces-administration-template-characteristic>
+          <spaces-administration-template-characteristic
+            v-if="updateCategories"
+            v-model="removeCategories"
+            title="social.spaces.administration.manageSpaces.removeCategories" />
+          <spaces-administration-template-characteristic
             v-model="deletePermissions"
             title="social.spaces.administration.manageSpaces.deletionPermission">
             <template v-if="spacePermissions" #spaceValue>
@@ -167,13 +181,14 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
+          :disabled="saving"
           class="btn me-2"
           @click="close">
           {{ $t('social.spaces.administration.manageSpaces.cancel') }}
         </v-btn>
         <v-btn
           :loading="saving"
-          :disabled="!modified"
+          :disabled="!modified || disabledTemplate || loading"
           class="btn-primary"
           elevation="0"
           @click="apply">
@@ -190,15 +205,20 @@ export default {
     saving: false,
     space: null,
     spaceTemplateId: null,
+    spaceCategories: null,
     spacePermissions: null,
     accessRules: false,
     editorialMode: false,
     layoutPermissions: false,
     publicSitePermissions: false,
     deletePermissions: false,
+    updateCategories: false,
+    removeCategories: false,
+    spaceTemplateCategories: null,
     spaces: null,
     selectionCount: null,
     callback: null,
+    initialized: false,
   }),
   computed: {
     modified() {
@@ -214,20 +234,75 @@ export default {
         ));
     },
     spaceTemplate() {
-      return this.$root.spaceTemplates.find(t => t.id === Number(this.spaceTemplateId));
+      return this.$root.spaceTemplates?.find?.(t => t.id === Number(this.spaceTemplateId));
+    },
+    disabledTemplate() {
+      return this.spaceTemplate?.deleted || !this.spaceTemplate?.enabled;
+    },
+    loading() {
+      return this.drawer && !this.initialized;
     },
     spaceTemplateItems() {
       const spaceTemplateItems = [{
         text: '',
         value: '0',
+        enabled: true,
+        deleted: false,
       }];
       if (this.$root.spaceTemplates?.length) {
         spaceTemplateItems.push(...this.$root.spaceTemplates.map(t => ({
           text: t.name,
           value: t.id,
+          enabled: t.enabled,
+          deleted: t.deleted,
         })));
       }
       return spaceTemplateItems;
+    },
+    spaceCategoryIds() {
+      return this.space?.categoryIds || [];
+    },
+    spaceTemplateCategoryIds() {
+      return this.spaceTemplate?.spaceDefaultCategoryIds || [];
+    },
+    newSpaceTemplateCategories() {
+      const spaceTemplateCategories = this.spaceTemplateCategories?.slice?.() || [];
+      if (!this.removeCategories
+          && this.spaceCategories?.length
+          && this.selectionCount === 0) {
+        spaceTemplateCategories.push(...this.spaceCategories.filter(c => !this.spaceTemplateCategories.find(ct => ct.id === c.id)));
+      }
+      return spaceTemplateCategories;
+    },
+    newSpaceTemplateCategoryNames() {
+      const newSpaceTemplateCategories = this.newSpaceTemplateCategories?.slice?.() || [];
+      newSpaceTemplateCategories?.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+      return newSpaceTemplateCategories.map(c => c.name).join(', ');
+    },
+    oldSpaceTemplateCategoryNames() {
+      const spaceCategories = this.spaceCategories?.slice?.() || [];
+      spaceCategories?.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+      return spaceCategories?.map?.(c => c.name)?.join?.(', ') || '';
+    },
+  },
+  watch: {
+    async spaceCategoryIds() {
+      if (this.spaceCategoryIds?.length) {
+        const spaceCategories = await Promise.all(this.spaceCategoryIds.map(id => this.$categoryService.getCategory(id)));
+        this.spaceCategories = spaceCategories.filter(c => c);
+      } else {
+        this.spaceCategories = [];
+      }
+      this.$forceUpdate();
+    },
+    async spaceTemplateCategoryIds() {
+      if (this.spaceTemplateCategoryIds?.length) {
+        const spaceTemplateCategories = await Promise.all(this.spaceTemplateCategoryIds.map(id => this.$categoryService.getCategory(id)));
+        this.spaceTemplateCategories = spaceTemplateCategories.filter(c => c);
+      } else {
+        this.spaceTemplateCategories = [];
+      }
+      this.$forceUpdate();
     },
   },
   created() {
@@ -238,27 +313,35 @@ export default {
   },
   methods: {
     async open(obj, selectionCount, callback) {
-      if (obj?.id) {
-        this.space = obj;
-        this.spaces = null;
-        this.selectionCount = 0;
-        this.callback = null;
-        this.spaceTemplateId = this.space.templateId && `${this.space.templateId}` || '0';
-        this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
-      } else {
-        this.space = null;
-        this.spaces = obj;
-        this.selectionCount = selectionCount;
-        this.callback = callback;
-        this.spaceTemplateId = null;
-        this.spacePermissions = null;
+      this.initialized = false;
+      try {
+        this.$refs.drawer.open();
+        this.accessRules = false;
+        this.editorialMode = false;
+        this.layoutPermissions = false;
+        this.publicSitePermissions = false;
+        this.deletePermissions = false;
+        this.updateCategories = false;
+        this.removeCategories = true;
+        if (obj?.id) {
+          this.space = obj;
+          this.spaces = null;
+          this.selectionCount = 0;
+          this.callback = null;
+          this.spaceTemplateId = this.space.templateId && `${this.space.templateId}` || '0';
+          this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+        } else {
+          this.space = null;
+          this.spaces = obj;
+          this.selectionCount = selectionCount;
+          this.callback = callback;
+          this.spaceTemplateId = null;
+          this.spacePermissions = null;
+        }
+      } finally {
+        await this.$nextTick();
+        this.initialized = true;
       }
-      this.accessRules = false;
-      this.editorialMode = false;
-      this.layoutPermissions = false;
-      this.publicSitePermissions = false;
-      this.deletePermissions = false;
-      this.$refs.drawer.open();
     },
     async apply() {
       this.saving = true;
@@ -271,6 +354,8 @@ export default {
             layoutPermissions: this.layoutPermissions,
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
+            updateCategories: this.updateCategories,
+            removeExistingCategories: this.removeCategories,
           });
         } else {
           await this.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
@@ -280,6 +365,8 @@ export default {
             layoutPermissions: this.layoutPermissions,
             publicSitePermissions: this.publicSitePermissions,
             deletePermissions: this.deletePermissions,
+            updateCategories: this.updateCategories,
+            removeExistingCategories: this.removeCategories,
           });
           this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
           this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceTemplateCharacteristicsUpdateSuccess'), 'success');
