@@ -23,7 +23,6 @@
 <template>
   <v-card
     class="d-flex flex-column"
-    min-height="calc(var(--100vh, 100vh) - 180px)"
     flat>
     <v-card
       class="position-relative px-2 overflow-hidden"
@@ -36,7 +35,7 @@
         indeterminate
         height="2" />
     </v-card>
-    <div id="spacesListBody" class="flex-grow-1 flex-shrink-1 pt-2">
+    <div id="spacesListBody" class="flex-grow-1 flex-shrink-1">
       <div
         v-if="spacesSize"
         class="d-flex flex-wrap border-box-sizing">
@@ -54,10 +53,10 @@
       </div>
       <v-card
         v-else-if="!loadingSpaces"
-        min-height="calc(var(--100vh, 100vh) - 280px)"
+        min-height="250"
         class="d-flex text-center noSpacesYetBlock"
         flat>
-        <div class="ma-auto noSpacesYet">
+        <div class="ma-auto noSpacesYet mb-5">
           <p class="noSpacesYetIcons">
             <v-icon class="fa-9x">fa-chevron-left</v-icon>
             <v-icon class="fa-9x">fa-chevron-right</v-icon>
@@ -88,9 +87,8 @@
         </div>
       </v-card>
     </div>
-    <div id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
+    <div v-if="canShowMore" id="spacesListFooter" class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
       <v-btn
-        v-if="canShowMore"
         :loading="loadingSpaces"
         :disabled="loadingSpaces"
         class="loadMoreButton border-color elevation-0 ma-auto"
@@ -226,11 +224,13 @@ export default {
       try {
         const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
         const data = await this.$spaceService.getSpacesByFilter({
-          categoryId: this.selectedCategoryIds,
+          categoryId: this.selectedCategoryIds || this.$root.categoryIds,
+          templateId: this.$root.templateIds,
+          sortBy: this.$root.sortBy,
           query: this.keyword,
           offset: this.offset,
           limit: this.limitToFetch,
-          filter: this.filter,
+          filter: this.$root.sortBy === 'lastVisited' ? 'lastVisited' : this.filter,
           expand,
         });
         this.spaces = data && data.spaces || [];

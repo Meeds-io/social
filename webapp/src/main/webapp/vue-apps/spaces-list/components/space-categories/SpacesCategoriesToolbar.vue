@@ -86,7 +86,6 @@ export default {
     categoryTree: null,
     categoryRootId: null,
     loading: false,
-    depth: 4,
     pageSize: 10,
     refresh: 1,
     chipsWidthPerCategory: 1,
@@ -135,14 +134,18 @@ export default {
     },
   },
   created() {
+    this.$root.$on('spaces-list-settings-updated', this.init);
     this.init();
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-list-settings-updated', this.init);
   },
   methods: {
     async init() {
       this.loading = true;
       try {
         this.categoryTree = await this.$categoryService.getCategoryTree({
-          depth: this.depth,
+          depth: this.$root.categoryDepth,
           offset: 0,
           limit: -1,
         });

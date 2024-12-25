@@ -153,7 +153,7 @@ public class SpaceSearchConnectorTest {
   public void testCountFavorites() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
@@ -172,7 +172,7 @@ public class SpaceSearchConnectorTest {
   public void testSearchFavorites() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
@@ -198,7 +198,7 @@ public class SpaceSearchConnectorTest {
   public void testSearchManagingSpaces() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
@@ -233,7 +233,7 @@ public class SpaceSearchConnectorTest {
     categoryIds.add(37l);
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      categoryIds,
                                                      null,
@@ -253,7 +253,7 @@ public class SpaceSearchConnectorTest {
     assertThrows(IllegalArgumentException.class,
                  () -> spaceSearchConnector.search(new SpaceSearchFilter(USER_NAME,
                                                                          USER_IDENTITY_ID,
-                                                                         0,
+                                                                         Collections.emptyList(),
                                                                          Collections.emptyList(),
                                                                          Collections.emptyList(),
                                                                          null,
@@ -300,7 +300,7 @@ public class SpaceSearchConnectorTest {
   public void testSearchSpaceNoMembership() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      PHRASE,
@@ -331,7 +331,7 @@ public class SpaceSearchConnectorTest {
     SpaceSearchFilter filter =
                              new SpaceSearchFilter(USER_NAME,
                                                    USER_IDENTITY_ID,
-                                                   0,
+                                                   Collections.emptyList(),
                                                    Collections.emptyList(),
                                                    Collections.emptyList(),
                                                    null,
@@ -357,7 +357,7 @@ public class SpaceSearchConnectorTest {
   private void checkPermissionField(SpaceMembershipStatus status, String fieldName) {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      TERM,
