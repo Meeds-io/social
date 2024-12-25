@@ -113,7 +113,11 @@ export default {
       }
       this.loading = true;
       try {
-        const data = await this.$spaceService.getSpaces(null, this.offset, this.pageSize, null, null, this.templateId);
+        const data = await this.$spaceService.getSpacesByFilter({
+          offset: this.offset,
+          limit: this.pageSize,
+          templateId: this.templateId,
+        });
         if (append) {
           this.spaces.push(...data.spaces);
         } else {

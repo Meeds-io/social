@@ -218,9 +218,12 @@ export default {
     refreshExtensions() {
       this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
-    refreshUnreadSpaces() {
-      return this.$spaceService.getSpaces(null, 0, 0, 'member', 'unread')
-        .then(data => this.$root.unreadPerSpace = data?.unreadPerSpace);
+    async refreshUnreadSpaces() {
+      const data = await this.$spaceService.getSpacesByFilter({
+        filter: 'member',
+        expand: 'unread',
+      });
+      this.$root.unreadPerSpace = data?.unreadPerSpace;
     },
     async searchSpaces() {
       this.$emit('loading-spaces', true);

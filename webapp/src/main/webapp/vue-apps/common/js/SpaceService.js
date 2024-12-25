@@ -148,14 +148,14 @@ export function getSpacesByFilter(options) {
   if (options.query) {
     formData.append('q', options.query);
   }
-  if (options.templateId?.length) {
+  if (options.templateId) {
     if (typeof options.templateId === 'object' && options.templateId.length) {
       options.templateId.forEach(id => formData.append('templateId', id));
     } else {
       formData.append('templateId', options.templateId);
     }
   }
-  if (options.categoryId?.length) {
+  if (options.categoryId) {
     if (typeof options.categoryId === 'object' && options.categoryId.length) {
       options.categoryId.forEach(id => formData.append('categoryId', id));
     } else {
