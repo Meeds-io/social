@@ -150,7 +150,9 @@ export function init(isExternalFeatureEnabled) {
           this.loadingDisplay = false;
         },
         async refreshSpaceTemplates() {
-          this.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
+          const spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
+          spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+          this.spaceTemplates = spaceTemplates;
         },
         refreshExtensions() {
           this.bulkExtensions = extensionRegistry.loadExtensions('spaces-administration', 'bulk-action') || [];
