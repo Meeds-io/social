@@ -97,7 +97,7 @@ export default {
             name: space.displayName,
           });
         }
-      } else {
+      } else if (groupId?.length) {
         const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
         if (group) {
           this.specificGroupEntries.push({

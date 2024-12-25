@@ -54,6 +54,10 @@
 <script>
 export default {
   props: {
+    value: {
+      type: Boolean,
+      default: false,
+    },
     title: {
       type: String,
       default: null,
@@ -66,6 +70,9 @@ export default {
     enabled() {
       this.$emit('input', this.enabled);
     },
+  },
+  created() {
+    this.enabled = this.value;
   },
 };
 </script>
