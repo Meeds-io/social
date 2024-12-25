@@ -3,6 +3,8 @@ package org.exoplatform.social.core.storage.cache.selector;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
+
 import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.cache.ObjectCacheInfo;
 import org.exoplatform.social.core.space.model.Space;
@@ -60,8 +62,8 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
           return;
         } else if (listSpacesKey.getOffset() == 0
                    && SpaceType.LATEST_ACCESSED.equals(listSpacesKey.getKey().getType())
-                   && (listSpacesKey.getKey().getTemplateId() == 0
-                       || templateId == listSpacesKey.getKey().getTemplateId())) {
+                   && (CollectionUtils.size(listSpacesKey.getKey().getTemplateIds()) != 1
+                       || templateId == listSpacesKey.getKey().getTemplateIds().get(0))) {
           SpaceKey spaceKey = new SpaceKey(space.getSpaceId());
           ids = new ArrayList<>(ids);
           if (ids.contains(spaceKey)) {
