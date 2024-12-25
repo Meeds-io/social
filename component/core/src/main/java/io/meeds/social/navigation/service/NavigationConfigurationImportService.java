@@ -28,7 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
 import io.meeds.common.ContainerTransactional;
+import io.meeds.social.common.ContainerStartupTaskService;
 import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
@@ -42,10 +46,16 @@ import jakarta.annotation.PostConstruct;
  * A Service to inject Default Left Menu configuration on server startup
  */
 @Component
-public class NavigationConfigurationInitService {
+public class NavigationConfigurationImportService {
+
+  private static final Log               LOG =
+                                             ExoLogger.getLogger(NavigationConfigurationImportService.class);
 
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
+
+  @Autowired
+  private ContainerStartupTaskService    containerStartupTaskService;
 
   @Autowired
   private List<SidebarPlugin>            menuPlugins;
@@ -69,10 +79,17 @@ public class NavigationConfigurationInitService {
   private SidebarMode                    defaultMode;
 
   @PostConstruct
-  @ContainerTransactional
   public void init() {
+    containerStartupTaskService.addTask(this::importDefaultNavigationConfiguration, 10);
+  }
+
+  @ContainerTransactional
+  public void importDefaultNavigationConfiguration() {
     if (forceUpdate || navigationConfigurationService.getConfiguration() == null) {
+      long start = System.currentTimeMillis();
+      LOG.info("Importing Default Navigation Configuration");
       navigationConfigurationService.updateConfiguration(buildDefaultNavigationConfiguration());
+      LOG.info("Navigation Configuration imported successfully in {}ms", System.currentTimeMillis() - start);
     }
   }
 
