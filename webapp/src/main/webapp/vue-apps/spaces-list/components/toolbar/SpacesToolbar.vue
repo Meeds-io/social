@@ -26,7 +26,7 @@
       placeholder: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
-    :right-filter-button="{
+    :right-filter-button="$root.sortBy !== 'lastVisited' && {
       text: $t('spaceList.advanced.filter.button.title'),
       displayText: !$root.isMobile,
     }"
@@ -36,9 +36,16 @@
     no-text-truncate
     @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-button-click="$root.$emit('spaces-list-filter-open', filter)"
+    @filter-expand="filterExpand = $event"
     @loading="$emit('loading', $event)">
     <template #left>
-      <div :class="!canCreateSpace && 'ms-n3'" class="d-flex align-center">
+      <div v-if="$root.title" class="text-header">
+        {{ $root.title }}
+      </div>
+      <div
+        v-else
+        :class="!canCreateSpace && 'ms-n3'"
+        class="d-flex align-center">
         <v-btn
           v-if="canCreateSpace"
           id="addNewSpaceButton"
@@ -80,6 +87,16 @@
         </div>
       </div>
     </template>
+    <template v-if="$root.canEdit && $root.hover && !filterExpand" #right>
+      <v-btn
+        id="spacesListSettingsButton"
+        class="ms-auto"
+        small
+        icon
+        @click="$root.$emit('spaces-list-settings-open')">
+        <v-icon size="20">fa-cog</v-icon>
+      </v-btn>
+    </template>
   </application-toolbar>
 </template>
 <script>
@@ -108,6 +125,7 @@ export default {
   },
   data: () => ({
     loading: 0,
+    filterExpand: false,
   }),
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
