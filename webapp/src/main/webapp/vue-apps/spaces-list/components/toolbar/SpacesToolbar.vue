@@ -146,19 +146,25 @@ export default {
     },
     getSpacesInvitation() {
       this.loading++;
-      this.$spaceService.getSpaces(null, null, null, 'invited')
+      this.$spaceService.getSpacesByFilter({
+        filter: 'invited',
+      })
         .then(data => this.$root.invitationsCount = data && data.size || 0)
         .finally(() => this.loading--);
     },
     getSpacesPending() {
       this.loading++;
-      this.$spaceService.getSpaces(null, null, null, 'pending')
+      this.$spaceService.getSpacesByFilter({
+        filter: 'pending',
+      })
         .then(data => this.$root.pendingCount = data?.size || 0)
         .finally(() => this.loading--);
     },
     getSpacesRequest() {
       this.loading++;
-      this.$spaceService.getSpaces(null, null, null, 'requests')
+      this.$spaceService.getSpacesByFilter({
+        filter: 'requests',
+      })
         .then(data => this.$root.requestsCount = data?.size || 0)
         .finally(() => this.loading--);
     },

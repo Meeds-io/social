@@ -59,15 +59,17 @@ export default {
     searchSpaces(filter) {
       this.spaces = [];
       this.loadingSpaces = true;
-      return this.$spaceService.getSpaces(null, this.offset, this.limit, filter || this.filter)
-        .then(data => {
-          this.spaces = data && data.spaces || [];
-          if (filter) {
-            this.filter = filter;
-          }
-          return this.$nextTick();
-        })
-        .finally(() => this.loadingSpaces = false);
+      return this.$spaceService.getSpacesByFilter({
+        offset: this.offset,
+        limit: this.limit,
+        filter: filter || this.filter,
+      }).then(data => {
+        this.spaces = data && data.spaces || [];
+        if (filter) {
+          this.filter = filter;
+        }
+        return this.$nextTick();
+      }).finally(() => this.loadingSpaces = false);
     },
     loadNextPage() {
       this.limit += this.pageSize;
