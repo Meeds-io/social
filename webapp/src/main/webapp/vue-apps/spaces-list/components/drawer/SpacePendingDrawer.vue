@@ -126,11 +126,11 @@ export default {
     async getSpaceMemberships(reset) {
       this.loading = true;
       try {
-        const data = await this.$spaceService.getSpaces(
-          null,
-          reset ? 0 : this.page * this.pageSize,
-          reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
-          this.filterType);
+        const data = await this.$spaceService.getSpacesByFilter({
+          offset: reset ? 0 : this.page * this.pageSize,
+          limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
+          filter: this.filterType,
+        });
         const memberships = data?.spaces?.filter?.(space => space?.pending?.length)?.
           flatMap?.(space => space.pending.map(user => ({
             user,

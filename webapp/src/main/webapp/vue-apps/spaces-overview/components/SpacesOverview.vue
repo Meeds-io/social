@@ -85,28 +85,36 @@ export default {
       if (!itemType || itemType === 'invitations') {
         this.invitations = '-';
         this.loading++;
-        this.$spaceService.getSpaces(null, null, null, 'invited')
+        this.$spaceService.getSpacesByFilter({
+          filter: 'invited',
+        })
           .then(data => this.invitations = data && data.size || 0)
           .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'sentRequests') {
         this.sentRequests = '-';
         this.loading++;
-        this.$spaceService.getSpaces(null, null, null, 'pending')
+        this.$spaceService.getSpacesByFilter({
+          filter: 'pending',
+        })
           .then(data => this.sentRequests = data?.size || 0)
           .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'receivedRequests') {
         this.receivedRequests = '-';
         this.loading++;
-        this.$spaceService.getSpaces(null, null, null, 'requests')
+        this.$spaceService.getSpacesByFilter({
+          filter: 'requests',
+        })
           .then(data => this.receivedRequests = data?.size || 0)
           .finally(() => this.loading--);
       }
       if (!itemType || itemType === 'managing') {
         this.managing = '-';
         this.loading++;
-        this.$spaceService.getSpaces(null, null, null, 'manager')
+        this.$spaceService.getSpacesByFilter({
+          filter: 'manager',
+        })
           .then(data => this.managing = data?.size || 0)
           .finally(() => this.loading--);
       }
