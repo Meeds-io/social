@@ -29,10 +29,12 @@
     item-text="name"
     item-value="id"
     class="mx-0 mt-0 mb-4 pa-0 elevation-0 no-border"
-    hide-selected
-    hide-no-data
-    hide-details
     return-object
+    no-filter
+    attach
+    hide-no-data
+    hide-selected
+    hide-details
     outlined
     dense
     @update:search-input="keyword = $event">
@@ -75,7 +77,7 @@ export default {
     category: null,
     keyword: null,
     searchTimeout: null,
-    limit: 10,
+    limit: 25,
   }),
   computed: {
     categoryId() {
@@ -96,19 +98,33 @@ export default {
         this.$emit('input', this.categoryId);
       }
     },
+    value() {
+      if (this.value !== this.categoryId) {
+        this.init();
+      }
+    },
   },
   async created() {
     try {
-      if (this.value) {
-        this.category = await this.$categoryService.getCategory(this.value);
-        this.categories = [this.category];
-      }
+      await this.init();
     } finally {
       await this.$nextTick();
       window.setTimeout(() => this.initialized = true, 10);
     }
   },
   methods: {
+    async init() {
+      if (this.value) {
+        this.category = await this.$categoryService.getCategory(this.value);
+        this.categories = [this.category];
+      } else {
+        this.category = null;
+        this.categories = [];
+        if (this.$refs?.autocomplete) {
+          this.$refs.autocomplete.isFocused = false;
+        }
+      }
+    },
     async searchCategories() {
       if (this.keyword?.trim?.()?.length) {
         this.loading = true;

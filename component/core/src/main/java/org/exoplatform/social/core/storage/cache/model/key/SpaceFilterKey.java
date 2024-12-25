@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.storage.cache.model.key;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.exoplatform.social.core.space.SpaceFilter;
@@ -31,13 +32,13 @@ public class SpaceFilterKey implements CacheKey {
 
   private final String      userId;
 
-  private long              templateId;
+  private List<Long>        templateIds;
 
   private final int         hash;
 
   public SpaceFilterKey(String userId, SpaceFilter filter, SpaceType type) {
     this.hash = Objects.hash(filter);
-    this.templateId = filter == null ? 0 : filter.getTemplateId();
+    this.templateIds = filter == null ? null : filter.getTemplateIds();
     this.type = type;
     this.userId = userId;
   }

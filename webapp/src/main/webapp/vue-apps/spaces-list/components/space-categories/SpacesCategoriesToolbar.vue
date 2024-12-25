@@ -37,7 +37,7 @@
           <v-icon size="24">fa-home</v-icon>
         </v-btn>
         <div
-          v-for="(category, index) in breadcrumbToDisplay"
+          v-for="(category, index) in breadcrumb"
           :key="category.id">
           <div class="d-flex align-center">
             <v-icon
@@ -84,14 +84,19 @@ export default {
   },
   data: () => ({
     categoryTree: null,
-    categoryRootId: null,
     loading: false,
-    depth: 4,
     pageSize: 10,
     refresh: 1,
     chipsWidthPerCategory: 1,
   }),
   computed: {
+    categories() {
+      const categories = [];
+      if (this.categoryTree) {
+        this.addSubcategories(this.categoryTree, categories);
+      }
+      return categories;
+    },
     display() {
       return this.categories.length > 0;
     },
@@ -101,31 +106,11 @@ export default {
     level() {
       return this.breadcrumb?.length || 0;
     },
-    breadcrumbToDisplay() {
-      return this.breadcrumb;
-    },
-    breadcrumbToDisplaySize() {
-      return this.breadcrumbToDisplay?.length || 0;
-    },
     selectedSecondLevelCategory() {
       return this.breadcrumb?.[1];
     },
-    categoryTreeItems() {
-      const categories = this.$root.categoryTree && [this.$root.categoryTree] || [];
-      return this.filterTree(JSON.parse(JSON.stringify(categories)));
-    },
-    chevonIcon() {
-      return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
-    },
     selectedSubcategories() {
       return this.selectedCategory?.categories;
-    },
-    categories() {
-      const categories = [];
-      if (this.categoryTree) {
-        this.addSubcategories(this.categoryTree, categories);
-      }
-      return categories;
     },
     selectedCategory() {
       return this.categories?.find?.(c => c.id === this.$root.selectedCategoryId) || this.categoryTree;
@@ -135,19 +120,37 @@ export default {
     },
   },
   created() {
+    this.$root.$on('spaces-list-settings-updated', this.init);
     this.init();
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-list-settings-updated', this.init);
   },
   methods: {
     async init() {
       this.loading = true;
       try {
-        this.categoryTree = await this.$categoryService.getCategoryTree({
-          depth: this.depth,
-          offset: 0,
-          limit: -1,
-        });
+        if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
+          const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
+            parentId: id,
+            depth: this.$root.categoryDepth,
+            offset: 0,
+            limit: -1,
+          })));
+          this.categoryTree = {
+            id: -1,
+            parentId: 0,
+            ownerId: subCategories?.[0]?.ownerId,
+            categories: subCategories,
+          };
+        } else {
+          this.categoryTree = await this.$categoryService.getCategoryTree({
+            depth: this.$root.categoryDepth,
+            offset: 0,
+            limit: -1,
+          });
+        }
       } finally {
-        this.categoryRootId = this.categoryTree?.id;
         this.loading = false;
       }
     },
@@ -163,7 +166,7 @@ export default {
         return [];
       }
       const breadcrumb = [category];
-      while (breadcrumb[0].parentId && breadcrumb[0].parentId !== this.categoryRootId) {
+      while (breadcrumb[0].parentId && breadcrumb[0].depth > 1) {
         const parentId = breadcrumb?.[0]?.parentId || category.parentId;
         const parentCategory = this.categories?.find(c => c.id === parentId);
         breadcrumb.unshift(parentCategory);
