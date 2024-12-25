@@ -55,7 +55,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private static final String                      PARAM_IDS                   = "ids";
 
-  private static final String                      PARAM_TEMPLATE_ID           = "templateId";
+  private static final String                      PARAM_TEMPLATE_IDS          = "templateIds";
 
   private static final String                      PARAM_EXCLUDED_IDS          = "excludedIds";
 
@@ -244,8 +244,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                                  .toList());
       }
     }
-    if (parameterNames.contains(PARAM_TEMPLATE_ID)) {
-      query.setParameter(PARAM_TEMPLATE_ID, filter.getTemplateId());
+    if (parameterNames.contains(PARAM_TEMPLATE_IDS)) {
+      query.setParameter(PARAM_TEMPLATE_IDS, filter.getTemplateIds());
     }
     if (parameterNames.contains(PARAM_EXCLUDED_IDS)) {
       query.setParameter(PARAM_EXCLUDED_IDS, filter.getExcludedIds());
@@ -292,7 +292,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     boolean lastAccess = isLastAccess(spaceFilter);
     if (parameterNames.contains(PARAM_USER_ID) || lastAccess) {
       if (StringUtils.isNotBlank(spaceFilter.getRemoteId()) && lastAccess) {
-        querySelect += " INNER JOIN s.members sm ON sm.userId = :userId AND sm.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER ";
+        querySelect +=
+                    " INNER JOIN s.members sm ON sm.userId = :userId AND sm.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER ";
         parameterNames.add(PARAM_USER_ID);
       } else {
         querySelect += " INNER JOIN s.members sm ";
@@ -320,10 +321,10 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
                                List<String> suffixes,
                                List<String> predicates,
                                List<String> parameterNames) {
-    if (spaceFilter.getTemplateId() > 0) {
+    if (CollectionUtils.isNotEmpty(spaceFilter.getTemplateIds())) {
       suffixes.add("TemplateId");
-      predicates.add("s.templateId = :templateId");
-      parameterNames.add(PARAM_TEMPLATE_ID);
+      predicates.add("s.templateId IN :templateIds");
+      parameterNames.add(PARAM_TEMPLATE_IDS);
     }
 
     if (spaceFilter.getVisibility() != null) {
@@ -455,8 +456,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
   private boolean isSortDescending(XSpaceFilter spaceFilter) {
     return isLastAccess(spaceFilter)
-          || spaceFilter.getSorting() == null
-          || spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC);
+           || spaceFilter.getSorting() == null
+           || spaceFilter.getSorting().orderBy.equals(Sorting.OrderBy.DESC);
   }
 
   private boolean isLastAccess(XSpaceFilter spaceFilter) {
