@@ -66,12 +66,6 @@ export function getCategory(id) {
 
 export function getSubcategoryIds(id, options) {
   const formData = new FormData();
-  if (options.parentId) {
-    formData.append('parentId', options.parentId);
-  }
-  if (options.ownerId) {
-    formData.append('ownerId', options.ownerId);
-  }
   if (options.depth) {
     formData.append('depth', options.depth);
   }

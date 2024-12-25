@@ -147,7 +147,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
   public String getMapping() {
     String nameMappings = localeConfigService.getLocalConfigs()
                                              .stream()
-                                             .map(l -> NAME_MAPPING.replace("@name@", "name." + toLanguageTag(l)))
+                                             .map(l -> NAME_MAPPING.replace("@name@", "name-" + toLanguageTag(l)))
                                              .collect(Collectors.joining(",\n"));
     return ES_MAPPING.replace("@name_mappings@", nameMappings);
   }
@@ -166,7 +166,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
                                                                                CategoryTranslationPlugin.NAME_FIELD);
     if (translationField != null && MapUtils.isNotEmpty(translationField.getLabels())) {
       localeConfigService.getLocalConfigs()
-                         .forEach(localeConfig -> document.addField("name." + toLanguageTag(localeConfig),
+                         .forEach(localeConfig -> document.addField("name-" + toLanguageTag(localeConfig),
                                                                     getTranslationLabelOrDefault(translationField,
                                                                                                  localeConfig.getLocale())));
     }

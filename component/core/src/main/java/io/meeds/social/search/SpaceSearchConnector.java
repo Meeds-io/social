@@ -112,18 +112,18 @@ public class SpaceSearchConnector {
       }
       """;
 
-  public static final String           TEMPLATE_ID_QUERY             = """
+  public static final String           TEMPLATE_IDS_QUERY            = """
       {
         "terms":{
-          "templateId": [@templateId@]
+          "templateId": [@templateIds@]
         }
       }
       """;
 
-  public static final String           CATEGORY_ID_QUERY             = """
+  public static final String           CATEGORY_IDS_QUERY            = """
       {
         "terms":{
-          "categoryId": [@categoryId@]
+          "categoryId": [@categoryIds@]
         }
       }
       """;
@@ -243,18 +243,23 @@ public class SpaceSearchConnector {
     String registrationQuery = buildRegistrationStatement(filter.getRegistration());
     boolean noCommaToTemplate = StringUtils.isBlank(categoryQuery) || StringUtils.isBlank(templateQuery);
     boolean noCommaToFavorite = StringUtils.isBlank(favoriteQuery) || StringUtils.isAllBlank(templateQuery, categoryQuery);
-    boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery) || StringUtils.isAllBlank(favoriteQuery, templateQuery, categoryQuery);
+    boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery)
+                                  || StringUtils.isAllBlank(favoriteQuery, templateQuery, categoryQuery);
     boolean noCommaToVisibility = StringUtils.isBlank(visibilityQuery)
                                   || StringUtils.isAllBlank(permissionsQuery, favoriteQuery, templateQuery, categoryQuery);
     boolean noCommaToRegistration = StringUtils.isBlank(registrationQuery)
-                                    || StringUtils.isAllBlank(visibilityQuery, permissionsQuery, favoriteQuery, templateQuery, categoryQuery);
+                                    || StringUtils.isAllBlank(visibilityQuery,
+                                                              permissionsQuery,
+                                                              favoriteQuery,
+                                                              templateQuery,
+                                                              categoryQuery);
     return query.replace("@term_query@",
                          termQuery)
                 .replace("@category_query@",
                          categoryQuery)
                 .replace("@template_query@",
                          noCommaToTemplate ? templateQuery :
-                           String.format(PREFIX_COMMA_TO_APPEND, templateQuery))
+                                           String.format(PREFIX_COMMA_TO_APPEND, templateQuery))
                 .replace("@favorite_query@",
                          noCommaToFavorite ? favoriteQuery :
                                            String.format(PREFIX_COMMA_TO_APPEND, favoriteQuery))
@@ -477,8 +482,8 @@ public class SpaceSearchConnector {
   }
 
   private String buildTemplateIdQueryStatement(SpaceSearchFilter filter) {
-    if (filter.getTemplateId() > 0) {
-      return TEMPLATE_ID_QUERY.replace("@templateId@", String.valueOf(filter.getTemplateId()));
+    if (CollectionUtils.isNotEmpty(filter.getTemplateIds())) {
+      return TEMPLATE_IDS_QUERY.replace("@templateIds@", StringUtils.join(filter.getTemplateIds(), ","));
     } else {
       return StringUtils.EMPTY;
     }
@@ -486,7 +491,7 @@ public class SpaceSearchConnector {
 
   private String buildCategoryIdQueryStatement(SpaceSearchFilter filter) {
     if (CollectionUtils.isNotEmpty(filter.getCategoryIds())) {
-      return CATEGORY_ID_QUERY.replace("@categoryId@", StringUtils.join(filter.getCategoryIds(), ","));
+      return CATEGORY_IDS_QUERY.replace("@categoryIds@", StringUtils.join(filter.getCategoryIds(), ","));
     } else {
       return StringUtils.EMPTY;
     }
