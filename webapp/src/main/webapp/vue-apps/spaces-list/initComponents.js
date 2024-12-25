@@ -31,6 +31,7 @@ import SpacesCardList from './components/list/SpacesCardList.vue';
 import SpacesListFilterDrawer from './components/drawer/SpacesListFilterDrawer.vue';
 import SpacePendingDrawer from './components/drawer/SpacePendingDrawer.vue';
 import SpacesCategoryListDrawer from './components/drawer/SpacesCategoryListDrawer.vue';
+import SpacesListSettingsDrawer from './components/drawer/SpacesListSettingsDrawer.vue';
 
 import SpaceCard from './components/space-card/SpaceCard.vue';
 import SpaceCardMenu from './components/space-card/menu/SpaceCardMenu.vue';
@@ -54,6 +55,7 @@ const components = {
   'spaces-role-list-item': SpaceRoleListItem,
   'spaces-role-list': SpaceRoleList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
+  'spaces-list-settings-drawer': SpacesListSettingsDrawer,
   'spaces-categories-list-drawer': SpacesCategoryListDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
