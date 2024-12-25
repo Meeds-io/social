@@ -1127,4 +1127,10 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-MIP-171-1">
+    <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+      <column name="IS_DROPDOWN" type="BOOLEAN" defaultValue="false" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

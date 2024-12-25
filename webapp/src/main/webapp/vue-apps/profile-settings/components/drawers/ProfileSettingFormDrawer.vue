@@ -77,7 +77,7 @@
                     ref="propertyType"
                     v-model="setting.propertyType"
                     :items="propertyTypes"
-                    :disabled="!newSetting"
+                    :disabled="!newSetting || isDropdownList"
                     :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
                     :rules="[v => !!v || $t('profileSettings.message.field.required')]"
                     name="propertyType"
@@ -112,6 +112,43 @@
               @blur="blurAutocomplete()" />
           </label>
           <v-list-item class="pt-4">
+            <v-list-item-content
+              transition="fade-transition"
+              class="d-flex visibleLabel py-0">
+              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.dropdownList') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                  class="mt-n3">
+                <span class="caption">
+                  {{ $t('profileSettings.dropdownList.info') }}
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action :class="{'my-0': isDropdownList}">
+              <div class="d-flex">
+                <v-btn
+                  v-if="isDropdownList"
+                  class="my-auto me-2 pa-0"
+                  icon>
+                  <v-icon
+                    size="20"
+                    class="icon-default-color">
+                    fas fa-edit
+                  </v-icon>
+                </v-btn>
+                <v-switch
+                  v-model="setting.dropdownList"
+                  :disabled="saving"
+                  :ripple="false"
+                  color="primary"
+                  class="align-center my-auto" />
+              </div>
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
               <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
@@ -331,10 +368,11 @@ export default {
   }),
   computed: {
     propertyTypes () {
-      return this.$t && [
-        {label: this.$t('profileSettings.label.text.propertyType'), value: 'text'},
-        {label: this.$t('profileSettings.label.user.propertyType'), value: 'user'}
-      ];
+      return !this.isDropdownList && [
+        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'},
+        {label: this?.$t('profileSettings.label.user.propertyType'), value: 'user'}
+      ] || [
+        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
     },
     unHiddenableSetting() {
       return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
@@ -351,6 +389,9 @@ export default {
         return !this.areLabelsChanged && this.areSettingsEqual(this.initialSetting, this.setting);
       }
       return false;
+    },
+    isDropdownList() {
+      return this.setting?.dropdownList;
     }
   },
   watch: {
@@ -382,6 +423,11 @@ export default {
         }
       },
     },
+    'setting.dropdownList': function () {
+      if (this.isDropdownList) {
+        this.setting.propertyType = this.propertyTypes[0];
+      }
+    }
   },
   created() {
     this.$root.$on('open-settings-create-drawer', this.addNewSetting);
@@ -496,7 +542,7 @@ export default {
       this.$refs.settingForm.resetValidation();
     },
     areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable', 'hiddenable'
+      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'dropdownList', 'visible', 'required', 'editable', 'hiddenable'
       ];
       for (const field of fields) {
         if (field === 'parentId' && setting[field] === '') {

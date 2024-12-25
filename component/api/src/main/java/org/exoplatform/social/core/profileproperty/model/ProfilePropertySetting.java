@@ -33,7 +33,9 @@ public class ProfilePropertySetting {
   private String  propertyName;
 
   private String  propertyType;
-  
+
+  private boolean isDropdownList;
+
   private boolean isVisible;
 
   private boolean isEditable;
