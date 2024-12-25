@@ -54,7 +54,11 @@ export default {
   methods: {
     getExternalSpacesList() {
       this.loading = true;
-      return this.$spaceService.getSpaces(null, this.offset, this.limit, 'member')
+      return this.$spaceService.getSpacesByFilter({
+        offset: this.offset,
+        limit: this.limit,
+        filter: 'member',
+      })
         .then(data => {
           this.spacesList = this.spacesList.concat(data.spaces);
           this.hasMore = data.size > this.spacesList.length;
