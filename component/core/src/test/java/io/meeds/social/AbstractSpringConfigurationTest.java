@@ -31,6 +31,7 @@ import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 import io.meeds.spring.AvailableIntegration;
 
 @SpringBootApplication(scanBasePackages = {
+  "io.meeds.social.common",
   "io.meeds.social.navigation",
   "io.meeds.social.category",
   "io.meeds.social.space.category",
