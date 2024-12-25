@@ -28,14 +28,11 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CompletableFuture;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.api.settings.SettingService;
@@ -54,6 +51,7 @@ import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
 import org.exoplatform.upload.UploadResource;
 
 import io.meeds.common.ContainerTransactional;
+import io.meeds.social.common.ContainerStartableService;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -64,12 +62,10 @@ import io.meeds.social.space.template.service.injection.model.SpaceTemplateDescr
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.util.JsonUtils;
 
-import jakarta.annotation.PostConstruct;
 import lombok.SneakyThrows;
 
 @Component
-@Order(Ordered.LOWEST_PRECEDENCE)
-public class SpaceTemplateImportService {
+public class SpaceTemplateImportService implements ContainerStartableService {
 
   private static final Scope                    SPACE_TEMPLATE_IMPORT_SCOPE = Scope.APPLICATION.id("SPACE_TEMPLATE_IMPORT");
 
@@ -103,13 +99,14 @@ public class SpaceTemplateImportService {
   @Value("${meeds.space.template.import.version:2}")
   private long                                  version;
 
-  @PostConstruct
-  public void init() {
-    CompletableFuture.runAsync(this::importSpaceTemplates);
+  @Override
+  public int getOrder() {
+    return 10;
   }
 
+  @Override
   @ContainerTransactional
-  public void importSpaceTemplates() {
+  public void start() {
     LOG.info("Importing Space Templates");
     if (!forceReimportTemplates
         && getSettingValue(SPACE_TEMPLATE_VERSION) != version) {

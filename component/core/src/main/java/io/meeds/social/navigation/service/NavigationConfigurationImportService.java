@@ -28,7 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+
 import io.meeds.common.ContainerTransactional;
+import io.meeds.social.common.ContainerStartableService;
 import io.meeds.social.navigation.constant.SidebarMode;
 import io.meeds.social.navigation.model.NavigationConfiguration;
 import io.meeds.social.navigation.model.SidebarConfiguration;
@@ -36,13 +40,14 @@ import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 
-import jakarta.annotation.PostConstruct;
-
 /**
  * A Service to inject Default Left Menu configuration on server startup
  */
 @Component
-public class NavigationConfigurationInitService {
+public class NavigationConfigurationImportService implements ContainerStartableService {
+
+  private static final Log               LOG =
+                                             ExoLogger.getLogger(NavigationConfigurationImportService.class);
 
   @Autowired
   private NavigationConfigurationService navigationConfigurationService;
@@ -68,11 +73,19 @@ public class NavigationConfigurationInitService {
   @Value("${navigation.configuration.defaultMode:ICON}")
   private SidebarMode                    defaultMode;
 
-  @PostConstruct
+  @Override
+  public int getOrder() {
+    return 20;
+  }
+
+  @Override
   @ContainerTransactional
-  public void init() {
+  public void start() {
     if (forceUpdate || navigationConfigurationService.getConfiguration() == null) {
+      long start = System.currentTimeMillis();
+      LOG.info("Importing Default Navigation Configuration");
       navigationConfigurationService.updateConfiguration(buildDefaultNavigationConfiguration());
+      LOG.info("Navigation Configuration imported successfully in {}ms", System.currentTimeMillis() - start);
     }
   }
 

@@ -41,6 +41,7 @@ import io.meeds.social.navigation.plugin.PageSidebarPlugin;
 import io.meeds.social.navigation.plugin.SiteSidebarPlugin;
 import io.meeds.social.navigation.plugin.SpaceListSidebarPlugin;
 import io.meeds.social.navigation.plugin.SpaceTemplateSidebarPlugin;
+import io.meeds.social.navigation.service.NavigationConfigurationImportService;
 import io.meeds.social.navigation.service.NavigationConfigurationService;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
@@ -53,6 +54,7 @@ import lombok.SneakyThrows;
 
 @SpringBootApplication(scanBasePackages = {
   AbstractNavigationConfigurationTest.MODULE_NAME,
+  "io.meeds.social.common", // TODO to delete once MIP-170 merged
   AvailableIntegration.KERNEL_TEST_MODULE,
   AvailableIntegration.JPA_MODULE,
 }, exclude = {
@@ -68,46 +70,49 @@ import lombok.SneakyThrows;
 @RunWith(SpringRunner.class)
 public abstract class AbstractNavigationConfigurationTest extends AbstractCoreTest {
 
-  public static final String               MODULE_NAME      = "io.meeds.social.navigation";
+  public static final String                     MODULE_NAME      = "io.meeds.social.navigation";
 
-  protected static final String            SITE_NAME        = "contribute";
+  protected static final String                  SITE_NAME        = "contribute";
 
-  private SpaceTemplateDAO                 spaceTemplateDao = new SpaceTemplateDAO();
-
-  @Autowired
-  protected LayoutService                  layoutService;
+  private SpaceTemplateDAO                       spaceTemplateDao = new SpaceTemplateDAO();
 
   @Autowired
-  protected NavigationService              navigationService;
+  protected LayoutService                        layoutService;
 
   @Autowired
-  protected SpaceTemplateService           spaceTemplateService;
+  protected NavigationService                    navigationService;
 
   @Autowired
-  protected SpaceTemplateStorage           spaceTemplateStorage;
+  protected SpaceTemplateService                 spaceTemplateService;
 
   @Autowired
-  protected UserACL                        userAcl;
+  protected SpaceTemplateStorage                 spaceTemplateStorage;
 
   @Autowired
-  protected LinkSidebarPlugin              linkSidebarPlugin;
+  protected UserACL                              userAcl;
 
   @Autowired
-  protected PageSidebarPlugin              pageSidebarPlugin;
+  protected LinkSidebarPlugin                    linkSidebarPlugin;
 
   @Autowired
-  protected SiteSidebarPlugin              siteSidebarPlugin;
+  protected PageSidebarPlugin                    pageSidebarPlugin;
 
   @Autowired
-  protected SpaceListSidebarPlugin         spaceListSidebarPlugin;
+  protected SiteSidebarPlugin                    siteSidebarPlugin;
 
   @Autowired
-  protected SpaceTemplateSidebarPlugin     spaceTemplateSidebarPlugin;
+  protected SpaceListSidebarPlugin               spaceListSidebarPlugin;
 
   @Autowired
-  protected NavigationConfigurationService navigationConfigurationService;
+  protected SpaceTemplateSidebarPlugin           spaceTemplateSidebarPlugin;
 
-  protected SpaceTemplate                  spaceTemplate;
+  @Autowired
+  protected NavigationConfigurationService       navigationConfigurationService;
+
+  @Autowired
+  protected NavigationConfigurationImportService navigationConfigurationImportService;
+
+  protected SpaceTemplate                        spaceTemplate;
 
   public AbstractNavigationConfigurationTest() {
     AbstractSpringTest.setTestClass(this.getClass());
@@ -117,6 +122,7 @@ public abstract class AbstractNavigationConfigurationTest extends AbstractCoreTe
   public void beforeEach() throws Exception {
     setUp();
     begin();
+    navigationConfigurationImportService.start();
   }
 
   @After
