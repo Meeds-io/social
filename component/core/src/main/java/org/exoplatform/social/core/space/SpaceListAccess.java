@@ -300,7 +300,7 @@ public class SpaceListAccess implements ListAccess<Space> {
             || statusType != null)) {
       return new SpaceSearchFilter(username,
                                    filter.getIdentityId(),
-                                   filter.getTemplateId(),
+                                   filter.getTemplateIds(),
                                    filter.getManagingTemplateIds(),
                                    filter.getCategoryIds(),
                                    filter.getSpaceNameSearchCondition(),

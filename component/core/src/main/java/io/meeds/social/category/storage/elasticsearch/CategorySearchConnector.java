@@ -87,9 +87,7 @@ public class CategorySearchConnector {
           "query_string":{
             "fields": ["@name_field@"],
             "default_operator": "AND",
-            "query": "@term@~",
-            "fuzziness": 1,
-            "phrase_slop": 1
+            "query": "@term@~"
           }
         },
       """;
@@ -162,7 +160,7 @@ public class CategorySearchConnector {
 
   private static final String    STRING_VALUE_FORMAT              = "\"%s\"";
 
-  private static final String    NAME_FORMAT                      = "name.%s";
+  private static final String    NAME_FORMAT                      = "name-%s";
 
   private static final int       DEFAULT_LIMIT                    = 100;
 
@@ -217,7 +215,7 @@ public class CategorySearchConnector {
     if (StringUtils.isNotBlank(filter.getTerm())) {
       esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT,
                                 TERM_QUERY.replace(NAME_REPLACEMENT, String.format(NAME_FORMAT, locale.toLanguageTag()))
-                                          .replace(TERM_REPLACEMENT, filter.getTerm()));
+                                          .replace(TERM_REPLACEMENT, escape(filter.getTerm())));
     } else {
       esQuery = esQuery.replace(TERM_QUERY_REPLACEMENT, "");
     }
@@ -276,6 +274,10 @@ public class CategorySearchConnector {
   private Long parseLong(JSONObject hitSource, String key) {
     String value = (String) hitSource.get(key);
     return StringUtils.isBlank(value) ? null : Long.parseLong(value);
+  }
+
+  private String escape(String term) {
+    return term.replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E]) *$", "").replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E])", "\\\\\\\\$1").trim();
   }
 
 }

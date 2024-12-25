@@ -224,7 +224,7 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Space Template identifier, if equals to 0, it will not be used",
                                        required = false)
                             @QueryParam("templateId")
-                            long templateId,
+                            List<Long> templateIds,
                             @Parameter(description = "Sort", required = false)
                             @QueryParam("sort")
                             String sort,
@@ -268,7 +268,7 @@ public class SpaceRest implements ResourceContainer {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
     spaceFilter.setTagNames(tagNames);
-    spaceFilter.setTemplateId(templateId);
+    spaceFilter.setTemplateIds(templateIds);
     spaceFilter.setExcludedIds(excludedIds);
     spaceFilter.setCategoryIds(categoryIds);
     spaceFilter.setRegistration(registration);

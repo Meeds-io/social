@@ -21,28 +21,33 @@
 -->
 <template>
   <v-app>
-    <v-main class="application-body">
-      <spaces-toolbar
-        :filter="filter"
-        :filter-message="$t('spacesList.label.spacesSize', {0: spacesSize})"
-        :filters-count="filtersCount"
-        :can-create-space="canCreateSpace"
-        compact-display
-        @keyword-changed="keyword = $event"
-        @loading="loadingSpaces = loadingSpaces || $event" />
-      <spaces-categories-toolbar
-        v-show="spacesExists"
-        :spaces-size="spacesSize" />
-      <spaces-card-list
-        ref="spacesList"
-        :keyword="keyword"
-        :filter="filter"
-        :loading-spaces="loadingSpaces"
-        :spaces-size="spacesSize"
-        class="px-3"
-        @loading-spaces="loadingSpaces = $event"
-        @loaded="spacesLoaded" />
-    </v-main>
+    <v-hover v-model="$root.hover">
+      <v-main class="application-body">
+        <spaces-toolbar
+          :filter="filter"
+          :filter-message="$t('spacesList.label.spacesSize', {0: spacesSize})"
+          :filters-count="filtersCount"
+          :can-create-space="canCreateSpace"
+          compact-display
+          @keyword-changed="keyword = $event"
+          @loading="loadingSpaces = loadingSpaces || $event" />
+        <spaces-categories-toolbar
+          v-if="$root.allowFilteringPerCategory"
+          v-show="spacesExists"
+          :spaces-size="spacesSize" />
+        <spaces-card-list
+          ref="spacesList"
+          :keyword="keyword"
+          :filter="filter"
+          :loading-spaces="loadingSpaces"
+          :spaces-size="spacesSize"
+          class="px-3"
+          @loading-spaces="loadingSpaces = $event"
+          @loaded="spacesLoaded" />
+      </v-main>
+    </v-hover>
+    <spaces-list-settings-drawer
+      v-if="$root.canEdit" />
     <spaces-list-filter-drawer />
     <space-form-drawer />
     <spaces-pending-drawer />
