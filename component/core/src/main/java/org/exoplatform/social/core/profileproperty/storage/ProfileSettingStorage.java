@@ -111,4 +111,5 @@ public class ProfileSettingStorage {
   public boolean hasChildProperties(Long parentId) {
     return !profilePropertySettingDAO.findChildProperties(parentId).isEmpty();
   }
+
 }

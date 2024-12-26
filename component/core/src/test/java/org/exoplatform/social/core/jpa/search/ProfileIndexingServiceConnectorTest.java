@@ -19,6 +19,8 @@ import org.exoplatform.social.core.manager.IdentityManagerImpl;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
 
@@ -42,6 +44,8 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     super.setUp();
     identityManager = getService(IdentityManagerImpl.class);
     profilePropertyService = getService(ProfilePropertyService.class);
+    getService(CachedProfileSettingStorage.class).clearCaches();
+
     InitParams initParams = new InitParams();
     PropertiesParam params = new PropertiesParam();
     params.setName("constructor.params");
