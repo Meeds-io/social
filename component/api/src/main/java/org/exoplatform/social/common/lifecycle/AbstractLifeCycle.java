@@ -18,7 +18,6 @@ package org.exoplatform.social.common.lifecycle;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
@@ -72,18 +71,16 @@ public abstract class AbstractLifeCycle<T extends LifeCycleListener<E>, E extend
     for (final T listener : listeners) {
       try {
         if (completionService.isAsync() || listener.getClass().isAnnotationPresent(Asynchronous.class)) {
-          completionService.addTask(new Callable<E>() {
-            public E call() throws Exception {
-              begin();
-              try {
-                dispatchEvent(listener, event);
-              } catch (Exception e) {
-                LOG.warn("Error dispatching event", e);
-              } finally {
-                end();
-              }
-              return event;
+          completionService.addTask(() -> {
+            begin();
+            try {
+              dispatchEvent(listener, event);
+            } catch (Exception e) {
+              LOG.warn("Error dispatching event", e);
+            } finally {
+              end();
             }
+            return event;
           });
         } else {
           dispatchEvent(listener, event);
