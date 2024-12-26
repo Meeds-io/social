@@ -146,6 +146,12 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
+  public List<Long> getAncestorIds(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException {
+    Category category = getCategory(categoryId, username, Locale.ENGLISH);
+    return getAncestorIds(category.getId());
+  }
+
+  @Override
   public List<Long> getAncestorIds(long categoryId) {
     Category category = getCategory(categoryId);
     if (category == null) {
