@@ -375,8 +375,10 @@
   </component>
 
   <component>
-    <type>org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage</type>
+    <key>org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage</key>
+    <type>io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage</type>
   </component>
+
   <component>
     <type>org.exoplatform.social.core.profilelabel.storage.ProfileLabelStorage</type>
   </component>
