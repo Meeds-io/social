@@ -87,7 +87,7 @@ public class CategorySearchConnector {
           "query_string":{
             "fields": ["@name_field@"],
             "default_operator": "AND",
-            "query": "@term@~"
+            "query": "@term@"
           }
         },
       """;
@@ -277,7 +277,7 @@ public class CategorySearchConnector {
   }
 
   private String escape(String term) {
-    return term.replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E]) *$", "").replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E])", "\\\\\\\\$1").trim();
+    return term.replaceAll("([\\Q+-!():^[]\"{}~*?|&/\\E])", " ").trim();
   }
 
 }
