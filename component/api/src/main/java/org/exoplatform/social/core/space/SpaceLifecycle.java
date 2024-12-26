@@ -18,11 +18,11 @@ package org.exoplatform.social.core.space;
 
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceCategoryLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 
-import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
 
 /**
  * Implementation of the lifecycle of spaces. <br>
