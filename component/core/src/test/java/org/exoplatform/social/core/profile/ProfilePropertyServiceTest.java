@@ -30,6 +30,8 @@ import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
+import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
+
 public class ProfilePropertyServiceTest extends AbstractCoreTest {
 
   private ProfilePropertyService    profilePropertyService;
@@ -41,6 +43,7 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     super.setUp();
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
     profilePropertySettingDAO = getContainer().getComponentInstanceOfType(ProfilePropertySettingDAO.class);
+    getService(CachedProfileSettingStorage.class).clearCaches();
   }
 
   @Override
