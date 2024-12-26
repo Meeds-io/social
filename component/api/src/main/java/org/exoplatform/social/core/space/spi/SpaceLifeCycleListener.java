@@ -18,6 +18,8 @@ package org.exoplatform.social.core.space.spi;
 
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
+
 
 /**
  * A listener to follow the liecycle of a space.

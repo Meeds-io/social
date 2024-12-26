@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
-import org.exoplatform.social.core.space.spi.SpaceCategoryLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
+
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
 
 import lombok.Getter;
 
