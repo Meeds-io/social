@@ -141,36 +141,43 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   @Override
   public ProfilePropertySetting createPropertySetting(ProfilePropertySetting profilePropertySetting) throws ObjectAlreadyExistsException {
-    if (profilePropertySetting == null) {
-      throw new IllegalArgumentException("Profile property setting Item Object is mandatory");
-    }
-    if (StringUtils.isBlank(profilePropertySetting.getPropertyName())) {
-      throw new IllegalArgumentException("Profile property name is mandatory");
-    }
+
+    validatePropertySetting(profilePropertySetting);
+    
     ProfilePropertySetting storedProfilePropertySetting =
                                                         profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
     if (storedProfilePropertySetting != null) {
-      throw new ObjectAlreadyExistsException(storedProfilePropertySetting, "A profile property with provided name already exist");
+      throw new ObjectAlreadyExistsException(storedProfilePropertySetting,
+                                             "A profile property with the provided name already exists.");
     }
+    
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
+
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    
     if (profilePropertySetting.getOrder() == null) {
       profilePropertySetting.setOrder(profilePropertySetting.getId());
       profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     }
+    
     try {
       listenerService.broadcast("profile-property-setting-created", this, profilePropertySetting);
     } catch (Exception e) {
-      LOG.error("An error occurred when broadcasting the creation event of the property setting {}", profilePropertySetting.getPropertyName(), e);
+      LOG.error("An error occurred while broadcasting the creation event for the property setting '{}'.",
+                profilePropertySetting.getPropertyName(),
+                e);
     }
     return profilePropertySetting;
   }
 
   @Override
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
+    
+    validatePropertySetting(profilePropertySetting);
+    
     if (profilePropertySetting.isHiddenbale()
         && getUnhiddenableProfileProperties().contains(profilePropertySetting.getPropertyName())) {
       throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
@@ -315,5 +322,19 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       }
     }
     return false;
+  }
+  
+  private void validatePropertySetting(ProfilePropertySetting profilePropertySetting) {
+    if (profilePropertySetting == null) {
+      throw new IllegalArgumentException("Profile property setting object is mandatory.");
+    }
+
+    if (StringUtils.isBlank(profilePropertySetting.getPropertyName())) {
+      throw new IllegalArgumentException("Profile property name is mandatory.");
+    }
+
+    if (profilePropertySetting.isDropdownList() && !"text".equals(profilePropertySetting.getPropertyType())) {
+      throw new IllegalArgumentException("Only text properties can be dropdown lists.");
+    }
   }
 }

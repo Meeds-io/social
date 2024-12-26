@@ -74,6 +74,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setId(profilePropertySetting.getId());
     profilePropertySettingEntity.setActive(profilePropertySetting.isActive());
     profilePropertySettingEntity.setEditable(profilePropertySetting.isEditable());
+    profilePropertySettingEntity.setDropdownList(profilePropertySetting.isDropdownList());
     profilePropertySettingEntity.setVisible(profilePropertySetting.isVisible());
     profilePropertySettingEntity.setPropertyName(profilePropertySetting.getPropertyName());
     profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
@@ -95,6 +96,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
     profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
+    profilePropertySetting.setDropdownList(profilePropertySettingEntity.isDropdownList());
     profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
     profilePropertySetting.setParentId(profilePropertySettingEntity.getParentId());
