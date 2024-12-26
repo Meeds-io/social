@@ -109,6 +109,17 @@ public interface CategoryService {
    * ancestor to tree root id
    * 
    * @param categoryId {@link Category} identifier
+   * @param username User name/login
+   * @return {@link List} of technical {@link Category} identifiers
+   */
+  List<Long> getAncestorIds(long categoryId, String username) throws ObjectNotFoundException,
+                                                              IllegalAccessException;
+
+  /**
+   * Retrieve the {@link List} of ancestor Category Ids starting from nearest
+   * ancestor to tree root id
+   * 
+   * @param categoryId {@link Category} identifier
    * @return {@link List} of technical {@link Category} identifiers
    */
   List<Long> getAncestorIds(long categoryId);
@@ -126,8 +137,9 @@ public interface CategoryService {
    * @throws ObjectAlreadyExistsException when attempting to recreate an
    *           existing root tree element
    */
-  Category createCategory(Category category,
-                          String username) throws ObjectNotFoundException, IllegalAccessException, ObjectAlreadyExistsException;
+  Category createCategory(Category category, String username) throws ObjectNotFoundException,
+                                                              IllegalAccessException,
+                                                              ObjectAlreadyExistsException;
 
   /**
    * @param category {@link Category} to create
