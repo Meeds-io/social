@@ -425,7 +425,7 @@ export default {
     },
     'setting.dropdownList': function () {
       if (this.isDropdownList) {
-        this.setting.propertyType = this.propertyTypes[0];
+        this.setting.propertyType = this.propertyTypes[0].value;
       }
     }
   },
@@ -539,7 +539,7 @@ export default {
         this.$root.$emit('cancel-edit-add');
         this.changes= false;
       }
-      this.$refs.settingForm.resetValidation();
+      this.$refs.settingForm?.resetValidation();
     },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'dropdownList', 'visible', 'required', 'editable', 'hiddenable'

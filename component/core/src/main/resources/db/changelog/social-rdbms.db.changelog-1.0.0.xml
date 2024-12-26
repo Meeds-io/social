@@ -1133,4 +1133,24 @@
     </addColumn>
   </changeSet>
 
+    <changeSet author="social" id="1.0.0-MIP-171-2">
+      <createSequence sequenceName="SEQ_SOC_PROFILE_PROPERTY_OPTION_ID" startValue="1"/>
+    </changeSet>
+
+    <changeSet author="social" id="1.0.0-MIP-171-3">
+      <createTable tableName="SOC_PROFILE_PROPERTY_OPTION">
+        <column name="PROPERTY_OPTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+          <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PROPERTY_OPTION_ID" />
+        </column>
+        <column name="PROPERTY_OPTION_VALUE" type="NVARCHAR(500)" />
+        <column name="PROPERTY_SETTING_ID" type="BIGINT">
+          <constraints foreignKeyName="FK_PROPERTY_SETTING_ID"
+                       references="SOC_PROFILE_PROPERTY_SETTING(PROPERTY_SETTING_ID)" nullable="true"/>
+        </column>
+      </createTable>
+    <modifySql dbms="mysql">
+          <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
+    </modifySql>
+  </changeSet>
+
 </databaseChangeLog>
