@@ -26,6 +26,8 @@ import lombok.Data;
 public class ProfileProperty {
   private String  propertyName;
 
+  private boolean dropdownList;
+
   private boolean visible;
 
   private String  propertyType;

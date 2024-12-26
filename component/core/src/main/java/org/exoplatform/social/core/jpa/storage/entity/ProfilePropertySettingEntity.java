@@ -82,6 +82,9 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "IS_HIDDENABLE")
   private boolean isHiddenable;
 
+  @Column(name = "IS_DROPDOWN")
+  private boolean isDropdownList;
+
   @Column(name = "PROPERTY_TYPE")
   private String propertyType;
 
@@ -177,6 +180,14 @@ public class ProfilePropertySettingEntity implements Serializable {
     isHiddenable = hiddenable;
   }
 
+  public boolean isDropdownList() {
+    return isDropdownList;
+  }
+
+  public void setDropdownList(boolean dropdownList) {
+    isDropdownList = dropdownList;
+  }
+
   public String getPropertyType() {
     return propertyType;
   }
@@ -199,6 +210,7 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(getPropertyName());
     builder.append(":").append(isEditable());
     builder.append(":").append(isActive());
+    builder.append(":").append(isDropdownList());
     builder.append(":").append(isVisible());
     builder.append(":").append(getOrder());
     builder.append(":").append(isMultiValued());
