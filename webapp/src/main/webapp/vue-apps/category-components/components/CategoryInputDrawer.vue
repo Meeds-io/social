@@ -66,27 +66,32 @@
           item-disabled="disabled"
           selection-type="independent"
           disable-per-node
-          open-on-click
           selectable
           transition
           hoverable
           dense>
           <template #label="{ item, open }">
-            <div v-if="!item.loadMore" class="d-flex align-center">
-              <v-card
-                color="transparent"
-                min-width="24"
-                flat>
-                <v-icon
-                  v-show="item.size"
-                  :class="{
-                    'fa-rotate-90': open && !$vuetify.rtl,
-                    'fa-rotate-270': open && $vuetify.rtl,
-                  }"
-                  size="16">
-                  {{ chevronIcon }}
-                </v-icon>
-              </v-card>
+            <v-btn
+              v-if="item.size"
+              class="position-absolute z-index-two ms-n2"
+              icon
+              @click.stop.prevent="toogleOpenCategory(item.id)">
+              <v-icon
+                :class="{
+                  'fa-rotate-90': open && !$vuetify.rtl,
+                  'fa-rotate-270': open && $vuetify.rtl,
+                }"
+                size="16">
+                {{ chevronIcon }}
+              </v-icon>
+            </v-btn>
+            <v-card
+              v-if="!item.loadMore"
+              color="transparent"
+              class="d-flex align-center ps-6"
+              height="36"
+              flat
+              @click.stop.prevent="toogleSelectCategory(item.id)">
               <v-card
                 class="d-flex align-center justify-center ms-1 me-2"
                 color="transparent"
@@ -95,7 +100,7 @@
                 <v-icon size="16">{{ item.icon }}</v-icon>
               </v-card>
               <div class="text-truncate">{{ item.name }}</div>
-            </div>
+            </v-card>
             <div v-else class="d-flex align-center">
               <v-btn
                 :title="$t('categoryInput.loadMore')"
@@ -250,11 +255,8 @@ export default {
       window.setTimeout(async () => {
         this.categoryOwnerId = this.categoryTree?.ownerId;
         this.categoryRootId = this.categoryTree?.id;
-        if (this.selectedCategories?.length) {
-          await Promise.all(this.selectedCategories.map(cat => this.loadParent(cat.id, cat.parentId)));
-        }
         const categoryIds = this.value?.slice?.() || [];
-        this.initOpenedElements(categoryIds);
+        await this.initOpenedElements(categoryIds);
         // Wait until opened ids are set
         await this.$nextTick();
         // Set selected elements once opened
@@ -262,12 +264,19 @@ export default {
         this.loading = false;
       }, 200);
     },
-    initOpenedElements(categoryIds) {
+    async initOpenedElements(categoryIds) {
       this.openedIds = [];
-      categoryIds.forEach(id => this.addOpenedIdWithAncestor(id));
+      await Promise.all(categoryIds.map(async id => await this.addOpenedIdWithAncestor(id)));
     },
-    addOpenedIdWithAncestor(id) {
-      const category = this.getCategory(id);
+    async addOpenedIdWithAncestor(id) {
+      let category = this.getCategory(id);
+      if (!category) {
+        category = await this.$categoryService.getCategory(id);
+        if (category) {
+          category.ancestorIds = await this.$categoryService.getAncestorIds(id); 
+          await this.loadAncestors(category);
+        }
+      }
       if (category?.parentId && this.openedIds.indexOf(category.parentId) < 0) {
         this.openedIds.push(category.parentId);
         this.addOpenedIdWithAncestor(category.parentId);
@@ -358,20 +367,6 @@ export default {
         }
       }
     },
-    async loadParent(id, parentId) {
-      let parentCategory = this.getCategory(parentId);
-      if (!parentCategory) {
-        return;
-      }
-      let limit = 0;
-      while (!this.getCategory(id) && parentCategory.size > (parentCategory.limit || limit)) {
-        limit += this.pageSize;
-        // Can't be parallelized so disable Sonar and ESLint recommandations
-        // eslint-disable-next-line no-await-in-loop
-        await this.refreshTree(parentCategory, this.depth, 0, limit); // NOSONAR
-        parentCategory = this.getCategory(parentId);
-      }
-    },
     async loadMore(id) {
       const category = this.getCategory(id);
       const loadMoreButtonItem = category.categories.find(i => i.loadMore);
@@ -410,6 +405,20 @@ export default {
             disabled: true,
           });
         }
+      }
+    },
+    toogleSelectCategory(id) {
+      if (this.categoryIds.indexOf(id) < 0) {
+        this.categoryIds.push(id);
+      } else {
+        this.categoryIds.splice(this.categoryIds.indexOf(id), 1);
+      }
+    },
+    toogleOpenCategory(id) {
+      if (this.openedIds.indexOf(id) < 0) {
+        this.openedIds.push(id);
+      } else {
+        this.openedIds.splice(this.openedIds.indexOf(id), 1);
       }
     },
     apply() {
