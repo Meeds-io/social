@@ -162,11 +162,30 @@ public class CategoryRest {
                                           request.getLocale());
   }
 
-  @GetMapping("{id}/subCategories")
+  @GetMapping("{id}/ancestors")
+  @Operation(summary = "Retrieves the ancestor identifiers of a category by Id", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "403", description = "Not found"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public List<Long> getAncestorIds(HttpServletRequest request,
+                                   @Parameter(description = "Parent Category Id")
+                                   @PathVariable(name = "id", required = true)
+                                   long id) {
+    try {
+      return categoryService.getAncestorIds(id, request.getRemoteUser());
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+    }
+  }
+
+  @GetMapping("{id}/subcategories")
   @Operation(summary = "Retrieves the Sub category identifiers", method = "GET", description = "This retrieves the subcategory identifiers switch the designated depth")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-    @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public List<Long> getSubcategoryIds(HttpServletRequest request,
                                       @Parameter(description = "Parent Category Id")

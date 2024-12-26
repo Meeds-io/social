@@ -64,6 +64,19 @@ export function getCategory(id) {
   });
 }
 
+export function getAncestorIds(id) {
+  return fetch(`/social/rest/categories/${id}/ancestors`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error when retrieving ancestors');
+    }
+  });
+}
+
 export function getSubcategoryIds(id, options) {
   const formData = new FormData();
   if (options.depth) {
@@ -76,7 +89,7 @@ export function getSubcategoryIds(id, options) {
     formData.append('limit', options.limit);
   }
   const urlParams = new URLSearchParams(formData).toString();
-  return fetch(`/social/rest/categories/${id}/subCategories?${urlParams}`, {
+  return fetch(`/social/rest/categories/${id}/subcategories?${urlParams}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
