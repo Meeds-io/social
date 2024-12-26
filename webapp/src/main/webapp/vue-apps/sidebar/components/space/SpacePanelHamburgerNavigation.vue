@@ -99,7 +99,9 @@
           :is-favorite="isFavorite"
           :space-id="spaceId"
           entity-type="spaces_left_navigation"
-          class="me-2" />
+          class="me-2"
+          @removed="space.isFavorite = 'false'"
+          @added="space.isFavorite = 'true'" />
         <extension-registry-components
           :params="params"
           name="SpacePopover"
