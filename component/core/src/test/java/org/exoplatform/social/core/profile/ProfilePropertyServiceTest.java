@@ -56,10 +56,10 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
   public void testCreateProfilePropertySetting() throws Exception {
     Throwable exception = assertThrows(IllegalArgumentException.class,
                                        () -> this.profilePropertyService.createPropertySetting(null));
-    assertEquals("Profile property setting Item Object is mandatory", exception.getMessage());
+    assertEquals("Profile property setting object is mandatory.", exception.getMessage());
     exception = assertThrows(IllegalArgumentException.class,
                              () -> this.profilePropertyService.createPropertySetting(new ProfilePropertySetting()));
-    assertEquals("Profile property name is mandatory", exception.getMessage());
+    assertEquals("Profile property name is mandatory.", exception.getMessage());
     ProfilePropertySetting profilePropertySetting = createProfileSettingInstance("test");
     profilePropertyService.createPropertySetting(profilePropertySetting);
     profilePropertySetting = profilePropertyService.getProfileSettingByName(profilePropertySetting.getPropertyName());
@@ -72,7 +72,7 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertyService.createPropertySetting(profilePropertySetting);
     Throwable exception1 = assertThrows(ObjectAlreadyExistsException.class,
                                         () -> this.profilePropertyService.createPropertySetting(profilePropertySetting));
-    assertEquals("A profile property with provided name already exist", exception1.getMessage());
+    assertEquals("A profile property with the provided name already exists.", exception1.getMessage());
   }
 
   public void testDeleteProfilePropertySetting() throws Exception {
@@ -153,6 +153,20 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     chilePropertySetting.setParentId(propertySetting.getId());
     profilePropertyService.updatePropertySetting(chilePropertySetting);
     assertFalse(profilePropertyService.isPropertySettingHiddenable(propertySetting));
+  }
+
+  public void testDropdownListPropertySetting() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting dropdownListPropertySetting = createProfileSettingInstance("propDropdown");
+    dropdownListPropertySetting.setDropdownList(true);
+    dropdownListPropertySetting.setPropertyType("user");
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.createPropertySetting(dropdownListPropertySetting));
+
+    dropdownListPropertySetting.setPropertyType("text");
+    ProfilePropertySetting propertySetting = profilePropertyService.createPropertySetting(dropdownListPropertySetting);
+    assertTrue(propertySetting.isDropdownList());
+
+    propertySetting.setPropertyType("user");
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(propertySetting));
   }
 
   public void testHidePropertySetting() throws ObjectAlreadyExistsException {
