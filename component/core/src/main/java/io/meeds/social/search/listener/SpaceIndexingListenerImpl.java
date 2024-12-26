@@ -33,11 +33,12 @@ import org.exoplatform.social.core.jpa.search.SpaceIndexingServiceConnector;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceCategoryLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.metadata.tag.TagService;
 import org.exoplatform.social.metadata.tag.model.TagName;
 import org.exoplatform.social.metadata.tag.model.TagObject;
+
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
 
 public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
 
