@@ -301,15 +301,20 @@ export default {
   },
   async created() {
     this.$root.$on('spaces-list-settings-open', this.open);
+    document.addEventListener('spaces-list-settings-open', this.open);
     if (!this.$root.spaceTemplates) {
       this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
     }
   },
   beforeDestroy() {
     this.$root.$off('spaces-list-settings-open', this.open);
+    document.removeEventListener('spaces-list-settings-open', this.open);
   },
   methods: {
-    open() {
+    open(event) {
+      if (event?.detail && this.$root.id && this.$root.id !== event?.detail) {
+        return;
+      }
       this.settings = JSON.parse(JSON.stringify(this.$root.settings));
       this.originalSettings = JSON.parse(JSON.stringify(this.$root.settings));
       this.$refs.drawer.open();

@@ -387,13 +387,24 @@ export default {
 
     this.$root.$on('addNewSpace', this.openByRootEvent);
     document.addEventListener('addNewSpace', this.openByEvent);
+    document.addEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   beforeDestroy() {
     this.$root.$off('addNewSpace', this.openByRootEvent);
     document.removeEventListener('addNewSpace', this.openByEvent);
+    document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
+    openByAppId(e) {
+      if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
+        return;
+      }
+      this.open();
+    },
     openByEvent(e) {
+      if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
+        return;
+      }
       this.openByRootEvent(e?.detail);
     },
     openByRootEvent(templateId) {
