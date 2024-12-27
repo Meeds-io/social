@@ -27,6 +27,7 @@ import org.exoplatform.commons.cache.future.FutureCache;
 import org.exoplatform.commons.cache.future.FutureExoCache;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.cache.ExoCache;
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
@@ -44,8 +45,9 @@ public class CachedProfileSettingStorage extends ProfileSettingStorage {
   private List<Long>                                        profileSettingIds;
 
   public CachedProfileSettingStorage(CacheService cacheService,
-                                     ProfilePropertySettingDAO profilePropertySettingDAO) {
-    super(profilePropertySettingDAO);
+                                     ProfilePropertySettingDAO profilePropertySettingDAO,
+                                     ProfilePropertyOptionDAO profilePropertyOptionDAO) {
+    super(profilePropertySettingDAO, profilePropertyOptionDAO);
     cache = cacheService.getCacheInstance("social.profileSettings");
     idByNameCache = cacheService.getCacheInstance("social.profileSettingIdsByName");
     futureCache = new FutureExoCache<>((c, id) -> super.getProfileSettingById(id), cache);

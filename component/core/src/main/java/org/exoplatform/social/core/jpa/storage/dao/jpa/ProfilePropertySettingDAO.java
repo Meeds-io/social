@@ -39,7 +39,6 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
     } catch (NoResultException e) {
       return null;
     }
-
   }
 
   public List<ProfilePropertySettingEntity> findSynchronizedSettings() {
