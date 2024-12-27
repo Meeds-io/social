@@ -77,6 +77,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
         selectedCategoryIds: null,
         spaceTemplates: null,
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+        id: Math.random() + Math.random(),
       },
       computed: {
         isMobile() {
