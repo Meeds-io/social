@@ -140,6 +140,10 @@
     </component>
 
     <component>
+        <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO</type>
+    </component>
+
+    <component>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfileLabelDAO</type>
     </component>
 

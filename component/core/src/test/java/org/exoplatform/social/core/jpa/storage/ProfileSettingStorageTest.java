@@ -20,10 +20,12 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
 
@@ -48,6 +50,22 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
     profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
     assertNotNull(profilePropertySetting.getId());
+  }
+
+  public void testSaveProfilePropertySettingsWithOptions() {
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstanceWithOptions("newPropWithOptions", 2);
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    persist();
+    profilePropertySetting = profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
+    assertNotNull(profilePropertySetting.getId());
+    assertEquals(2, profilePropertySetting.getPropertyOptions().size());
+  }
+
+  public void testGetPropertyOptionsBySettingId() {
+    ProfilePropertySetting profilePropertySetting = createProfileSettingInstanceWithOptions("newPropWithOptions2", 2);
+    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
+    persist();
+    assertEquals(2, profileSettingStorage.getProfilePropertyOptions(profilePropertySetting.getId(), 0, 0).size());
   }
 
   public void testDeleteProfilePropertySetting() {
@@ -123,4 +141,15 @@ public class ProfileSettingStorageTest extends AbstractCoreTest {
     return profilePropertySetting;
   }
 
+  private ProfilePropertySetting createProfileSettingInstanceWithOptions(String propertyName, int numberOfOptions) {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance(propertyName);
+
+    List<ProfilePropertyOption> profilePropertyOptions = Stream.generate(ProfilePropertyOption::new)
+                                                               .limit(numberOfOptions)
+                                                               .peek(option -> option.setValue("test"))
+                                                               .toList();
+    propertySetting.setPropertyOptions(profilePropertyOptions);
+
+    return propertySetting;
+  }
 }

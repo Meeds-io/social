@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2025 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -24,40 +24,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProfilePropertySetting {
+public class ProfilePropertyOption {
 
-  private Long                       id;
+  private Long   id;
 
-  private String                     propertyName;
+  private String value;
 
-  private String                     propertyType;
-
-  private boolean                    isDropdownList;
-
-  private boolean                    isVisible;
-
-  private boolean                    isEditable;
-
-  private Long                       parentId;
-
-  private Long                       order;
-
-  private boolean                    isActive;
-
-  private boolean                    isGroupSynchronized;
-
-  private boolean                    isHiddenbale;
-
-  private boolean                    isRequired;
-
-  private boolean                    isMultiValued;
-
-  private List<ProfilePropertyOption> propertyOptions;
-
-  private Long                       updated;
+  private Long   propertySettingId;
 }

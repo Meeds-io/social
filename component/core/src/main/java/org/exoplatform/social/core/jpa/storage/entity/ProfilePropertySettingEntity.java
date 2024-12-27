@@ -22,17 +22,11 @@ package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.BatchSize;
 
 @Entity(name = "SocProfileSettingEntity")
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
@@ -42,167 +36,63 @@ import jakarta.persistence.TemporalType;
 @NamedQuery(name = "SocProfileSettingEntity.findOrderedSettings", query = "SELECT c FROM SocProfileSettingEntity c order by c.order")
 @NamedQuery(name = "SocProfileSettingEntity.findChildProperties", query = "SELECT c FROM SocProfileSettingEntity c WHERE parentId = :parentId order by c.order")
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 public class ProfilePropertySettingEntity implements Serializable {
 
-
   @Id
-  @SequenceGenerator(name="SEQ_SOC_PROPERTY_SETTING_ID", sequenceName="SEQ_SOC_PROPERTY_SETTING_ID", allocationSize = 1)
-  @GeneratedValue(strategy=GenerationType.AUTO, generator="SEQ_SOC_PROPERTY_SETTING_ID")
-  @Column(name="PROPERTY_SETTING_ID")
-  private Long id;
-
+  @SequenceGenerator(name = "SEQ_SOC_PROPERTY_SETTING_ID", sequenceName = "SEQ_SOC_PROPERTY_SETTING_ID", allocationSize = 1)
+  @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_PROPERTY_SETTING_ID")
+  @Column(name = "PROPERTY_SETTING_ID")
+  private Long                              id;
 
   @Column(name = "PROPERTY_NAME", nullable = false)
-  private String            propertyName;
+  private String                            propertyName;
 
   @Column(name = "VISIBLE")
-  private boolean           isVisible;
+  private boolean                           isVisible;
 
   @Column(name = "EDITABLE")
-  private boolean           isEditable;
+  private boolean                           isEditable;
 
   @Column(name = "PARENT_ID")
-  private Long parentId;
+  private Long                              parentId;
 
   @Column(name = "PROPERTY_ORDER")
-  private Long order;
+  private Long                              order;
 
   @Column(name = "ACTIVE")
-  private boolean isActive;
+  private boolean                           isActive;
 
   @Column(name = "REQUIRED_PROPERTY")
-  private boolean isRequired;
+  private boolean                           isRequired;
 
   @Column(name = "MULTI_VALUED")
-  private boolean isMultiValued;
+  private boolean                           isMultiValued;
 
   @Column(name = "GROUP_SYNCHRONIZED")
-  private boolean isGroupSynchronized;
+  private boolean                           isGroupSynchronized;
 
   @Column(name = "IS_HIDDENABLE")
-  private boolean isHiddenable;
+  private boolean                           isHiddenable;
 
   @Column(name = "IS_DROPDOWN")
-  private boolean isDropdownList;
+  private boolean                           isDropdownList;
 
   @Column(name = "PROPERTY_TYPE")
-  private String propertyType;
+  private String                            propertyType;
+
+  @BatchSize(size = 10)
+  @OneToMany(mappedBy = "propertySetting", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private List<ProfilePropertyOptionEntity> propertyOptions;
 
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "UPDATED_DATE", nullable = false)
-  private Date updatedDate      = new Date();
-
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getPropertyName() {
-    return propertyName;
-  }
-
-  public void setPropertyName(String propertyName) {
-    this.propertyName = propertyName;
-  }
-
-  public boolean isVisible() {
-    return isVisible;
-  }
-
-  public void setVisible(boolean visible) {
-    isVisible = visible;
-  }
-
-  public boolean isEditable() {
-    return isEditable;
-  }
-
-  public void setEditable(boolean editable) {
-    isEditable = editable;
-  }
-
-  public Long getParentId() {
-    return parentId;
-  }
-
-  public void setParentId(Long parentId) {
-    this.parentId = parentId;
-  }
-
-  public Long getOrder() {
-    return order;
-  }
-
-  public void setOrder(Long order) {
-    this.order = order;
-  }
-
-  public boolean isActive() {
-    return isActive;
-  }
-
-  public void setActive(boolean active) {
-    isActive = active;
-  }
-
-  public boolean isGroupSynchronized() {
-    return isGroupSynchronized;
-  }
-
-  public void setGroupSynchronized(boolean groupSynchronized) {
-    isGroupSynchronized = groupSynchronized;
-  }
-
-  public boolean isMultiValued() {
-    return isMultiValued;
-  }
-
-  public void setMultiValued(boolean multiValued) {
-    isMultiValued = multiValued;
-  }
-
-  public boolean isRequired() {
-    return isRequired;
-  }
-
-  public void setRequired(boolean required) {
-    isRequired = required;
-  }
-
-  public boolean isHiddenable() {
-    return isHiddenable;
-  }
-
-  public void setHiddenable(boolean hiddenable) {
-    isHiddenable = hiddenable;
-  }
-
-  public boolean isDropdownList() {
-    return isDropdownList;
-  }
-
-  public void setDropdownList(boolean dropdownList) {
-    isDropdownList = dropdownList;
-  }
-
-  public String getPropertyType() {
-    return propertyType;
-  }
-
-  public void setPropertyType(String propertyType) {
-    this.propertyType = propertyType;
-  }
-
-  public Date getUpdatedDate() {
-    return updatedDate;
-  }
-
-  public void setUpdatedDate(Date updatedDate) {
-    this.updatedDate = updatedDate;
-  }
+  private Date                              updatedDate = new Date();
 
   @Override
   public String toString() {
@@ -221,7 +111,7 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(getParentId());
     return builder.toString();
   }
-  
+
   @Override
   public int hashCode() {
     final int prime = 31;
