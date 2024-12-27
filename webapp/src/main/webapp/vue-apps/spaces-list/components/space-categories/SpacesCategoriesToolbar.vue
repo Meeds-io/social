@@ -21,54 +21,30 @@
 
 -->
 <template>
-  <div>
+  <div class="d-flex flex-column justify-center full-width">
     <v-card
       v-if="display"
       class="d-flex align-center mx-5 mt-1"
       min-height="34"
       flat>
-      <div v-if="$root.selectedCategoryId" class="d-flex align-center flex-grow-0 flex-shrink-0 max-width-fit overflow-x-auto specific-scrollbar">
-        <v-btn
-          class="hidden-xs-only"
-          height="32"
-          width="32"
-          icon
-          @click="$root.selectedCategoryId = null">
-          <v-icon size="24">fa-home</v-icon>
-        </v-btn>
-        <div
-          v-for="(category, index) in breadcrumb"
-          :key="category.id">
-          <div class="d-flex align-center">
-            <v-icon
-              :class="index === 0 && 'hidden-xs-only'"
-              class="mx-2"
-              size="16">
-              {{ chevronIcon }}
-            </v-icon>
-            <spaces-category-chip
-              :category="category"
-              class="flex-shrink-0"
-              selected
-              @click="selectCategory(category)" />
-          </div>
-        </div>
-        <v-divider
-          v-if="selectedSubcategories?.length && level < 2"
-          class="mx-4"
-          vertical />
-      </div>
-      <template v-if="spacesSize">
-        <spaces-category-chips-group
-          v-if="level < 2"
-          :categories="selectedSubcategories"
-          class="flex-grow-1 flex-shrink-1"
-          @select="selectCategory" />
-      </template>
+      <spaces-categories-breadcrumb
+        v-if="displayBreadcrumb"
+        :breadcrumb="breadcrumb"
+        class="text-start"
+        @select="selectCategory" />
+      <v-divider
+        v-if="displayDivider"
+        class="mx-4"
+        vertical />
+      <spaces-category-chips-group
+        v-if="displayChipsSelection"
+        :categories="selectedSubcategories"
+        class="flex-grow-1 flex-shrink-1 text-start"
+        @select="selectCategory" />
     </v-card>
     <spaces-category-tabs-group
-      v-if="level > 1"
-      :selected-category="selectedSecondLevelCategory"
+      v-if="selectedCategoryForTabs"
+      :selected-category="selectedCategoryForTabs"
       @select="selectCategory" />
     <spaces-categories-list-drawer
       ref="drawer" />
@@ -97,8 +73,17 @@ export default {
       }
       return categories;
     },
+    displayBreadcrumb() {
+      return this.$root.selectedCategoryId;
+    },
+    displayChipsSelection() {
+      return this.level < 2 && this.spacesSize && this.selectedSubcategories?.length;
+    },
+    displayDivider() {
+      return this.displayChipsSelection && this.displayBreadcrumb;
+    },
     display() {
-      return this.categories.length > 0;
+      return this.categories.length > 0 && (this.displayChipsSelection || this.displayBreadcrumb);
     },
     breadcrumb() {
       return this.selectedCategory && this.getBreadcrumb(this.selectedCategory);
@@ -106,8 +91,8 @@ export default {
     level() {
       return this.breadcrumb?.length || 0;
     },
-    selectedSecondLevelCategory() {
-      return this.breadcrumb?.[1];
+    selectedCategoryForTabs() {
+      return this.level > 1 && this.selectedCategory && (this.selectedCategory?.categories?.length ? this.selectedCategory : this.level > 2 && this.getCategory(this.selectedCategory.parentId));
     },
     selectedSubcategories() {
       return this.selectedCategory?.categories;
@@ -121,9 +106,11 @@ export default {
   },
   created() {
     this.$root.$on('spaces-list-settings-updated', this.init);
+    this.$root.$on('spaces-list-select-category', this.selectCategory);
     this.init();
   },
   beforeDestroy() {
+    this.$root.$off('spaces-list-select-category', this.selectCategory);
     this.$root.$off('spaces-list-settings-updated', this.init);
   },
   methods: {
@@ -168,17 +155,20 @@ export default {
       const breadcrumb = [category];
       while (breadcrumb[0].parentId && breadcrumb[0].depth > 1) {
         const parentId = breadcrumb?.[0]?.parentId || category.parentId;
-        const parentCategory = this.categories?.find(c => c.id === parentId);
+        const parentCategory = this.getCategory(parentId);
         breadcrumb.unshift(parentCategory);
       }
       return breadcrumb;
     },
+    getCategory(id) {
+      return this.categories?.find?.(c => c.id === id);
+    },
     selectCategory(category) {
-      if (this.$root.selectedCategoryId === category.id) {
+      if (this.$root.selectedCategoryId === category?.id) {
         const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
         this.$root.selectedCategoryId = categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null;
       } else {
-        this.$root.selectedCategoryId = category.id;
+        this.$root.selectedCategoryId = category?.id;
       }
     },
   },
