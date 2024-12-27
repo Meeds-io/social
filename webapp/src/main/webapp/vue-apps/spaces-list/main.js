@@ -35,7 +35,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
     if (settings.allowFilteringPerCategory !== false) {
       settings.allowFilteringPerCategory = true;
     }
-    if (!settings.sortBy) {
+    if (!settings.sortBy || settings.sortBy !== 'lastVisited') {
       settings.sortBy = 'title';
     }
     if (settings.hideQuickActions !== true) {
@@ -43,6 +43,9 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
     }
     if (!settings.nameTranslations) {
       settings.nameTranslations = {};
+    }
+    if (!settings.pageSize) {
+      settings.pageSize = 12;
     }
     if (settings.filterType !== 'template') {
       settings.templateIds = null;
