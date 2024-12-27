@@ -32,48 +32,12 @@
         @click="$emit('select', selectedCategory)">
         {{ $t('spacesList.categories.all') }}
       </v-tab>
-      <template v-for="item in categories">
-        <v-menu
-          v-if="item.categories?.length"
-          :key="item.id"
-          close-delay="500"
-          open-on-hover
-          offset-y
-          bottom>
-          <template #activator="{on, attrs}">
-            <v-tab
-              v-bind="attrs"
-              v-on="on"
-              :value="item.id"
-              @click="$emit('select', item)">
-              {{ item.name }}
-              <v-icon
-                class="ms-2"
-                size="16"
-                right>
-                fa-chevron-down
-              </v-icon>
-            </v-tab>
-          </template>
-          <v-list class="pa-0" dense>
-            <v-list-item
-              v-for="subItem in item.categories"
-              :key="subItem.id"
-              :color="selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
-              dense
-              @click="$emit('select', subItem)">
-              {{ subItem.name }}
-            </v-list-item>
-          </v-list>
-        </v-menu>
-        <v-tab
-          v-else
-          :key="item.id"
-          :value="item.id"
-          @click="$emit('select', item)">
-          {{ item.name }}
-        </v-tab>
-      </template>
+      <spaces-category-tab
+        v-for="item in categories"
+        :key="item.id"
+        :category="item"
+        :selected-category="selectedCategory"
+        @click="$emit('select', $event)" />
     </v-tabs>
     <v-divider class="full-width position-absolute b-0" />
   </div>
@@ -102,8 +66,21 @@ export default {
   },
   watch: {
     selectedCategoryId() {
+      this.updateSelectedIndex();
+    },
+    categories() {
+      this.updateSelectedIndex();
+    },
+  },
+  mounted() {
+    this.updateSelectedIndex();
+  },
+  methods: {
+    async updateSelectedIndex() {
       const index = this.categories.findIndex(cat => cat.id === this.selectedCategoryId || cat?.categories?.find(subCat => subCat.id === this.selectedCategoryId)) + 1;
       if (index > 0) {
+        this.selectedIndex = 0;
+        await this.$nextTick();
         this.selectedIndex = index;
       } else {
         this.selectedIndex = 0;
