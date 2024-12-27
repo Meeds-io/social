@@ -701,6 +701,7 @@
             "sortBy":"title",
             "allowFilteringPerCategory":true,
             "categoryDepth":4,
+            "pageSize":12,
             "filterType":"any",
             "categoryIds": null,
             "templateIds": null
