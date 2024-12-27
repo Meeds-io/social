@@ -54,36 +54,18 @@
       <v-card
         v-else-if="!loadingSpaces"
         min-height="250"
-        class="d-flex text-center noSpacesYetBlock"
+        class="d-flex align-center justify-center noSpacesYetBlock"
         flat>
-        <div class="ma-auto noSpacesYet mb-5">
-          <p class="noSpacesYetIcons">
-            <v-icon class="fa-9x">fa-chevron-left</v-icon>
-            <v-icon class="fa-9x">fa-chevron-right</v-icon>
+        <div class="noSpacesYet">
+          <p>
+            <v-icon color="tertiary" size="60">fa-layer-group</v-icon>
           </p>
-          <template v-if="hasSpaces">
-            <p class="text-title">
-              {{ $t('spacesList.label.noResults') }}
-            </p>
-          </template>
-          <template v-else>
-            <p class="text-title">
-              {{ $t('spacesList.label.noSpacesYet') }}
-            </p>
-            <div>
-              {{ $t('spacesList.label.noSpacesYetDescription1') }}
-            </div>
-            <span>
-              {{ $t('spacesList.label.noSpacesYetDescription2') }}
-              <v-btn
-                link
-                text
-                class="primary--text px-0 pb-1 addNewSpaceLink"
-                @click="$root.$emit('addNewSpace')">
-                {{ $t('spacesList.label.noSpacesLink') }}
-              </v-btn>
-            </span>
-          </template>
+          <p class="text-title">
+            {{ $t('spacesList.noSpacesFound') }}
+          </p>
+          <div v-if="displayNoSpaceOptions && $root.canCreateSpace" v-html="noSpacesFoundAdminOption"></div>
+          <div v-else-if="$root.canEdit" v-html="noSpacesFoundSettingsOption"></div>
+          <div v-else v-html="$t('spacesList.noSpacesFoundUserOption')"></div>
         </div>
       </v-card>
     </div>
@@ -168,6 +150,23 @@ export default {
     },
     selectedCategoryIds() {
       return this.$root.selectedCategoryIds;
+    },
+    displayNoSpaceOptions() {
+      return !this.hasSpaces
+        && this.settings?.filterType === 'any'
+        && this.settings?.sortBy === 'title';
+    },
+    noSpacesFoundAdminOption() {
+      return this.$t('spacesList.noSpacesFoundAdminOption', {
+        0: `<a href="#" onclick="document.dispatchEvent(new CustomEvent('addNewSpaceWithAppId', {detail: ${this.$root.id}}))">`,
+        1: '</a>',
+      });
+    },
+    noSpacesFoundSettingsOption() {
+      return this.$t('spacesList.noSpacesFoundSettingsOption', {
+        0: `<a href="#" onclick="document.dispatchEvent(new CustomEvent('spaces-list-settings-open', {detail: ${this.$root.id}}))">`,
+        1: '</a>',
+      });
     },
   },
   watch: {
