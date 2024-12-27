@@ -22,59 +22,52 @@
 -->
 <template>
   <v-menu
-    v-if="breadcrumb && category.categories?.length"
+    v-if="category.categories?.length"
     ref="menu"
     v-model="menu"
-    :key="category.id"
-    :max-width="350"
+    :key="`${category.id}_menu`"
     close-delay="500"
     open-on-hover
     close-on-click
     offset-y
     bottom>
     <template #activator="{on, attrs}">
-      <v-chip
-        ref="chip"
-        v-on="$listeners?.select && {
-          ...on,
-          click: () => openCategory(category),
-        } || on"
+      <v-tab
         v-bind="attrs"
-        :outlined="!selected"
-        :class="[chipClass, !visible && 'invisible' || '']"
-        class="text-truncate border-box-sizing"
-        color="primary">
+        v-on="$listeners?.click && {
+          ...on,
+          click: () => $listeners.click(category),
+        } || on"
+        :value="category.id">
         <v-card
           :title="category.name"
-          :class="[
-            selected && 'white--text' || 'primary--text',
-          ]"
           :max-width="maxWidth"
           color="transparent"
-          width="auto"
           class="text-truncate"
           flat>
           {{ category.name }}
         </v-card>
         <v-icon
-          v-if="category.categories?.length"
-          :color="selected && 'white' || 'primary'"
           class="ms-2"
           size="16"
           right
           @click.stop.prevent="menu = true">
           fa-chevron-down
         </v-icon>
-      </v-chip>
+      </v-tab>
     </template>
     <v-list class="pa-0" dense>
       <v-list-item
         v-for="subItem in category.categories"
+        v-on="$listeners?.click && {
+          click: () => {
+            $listeners.click(subItem);
+            closeMenu();
+          },
+        }"
         :key="subItem.id"
         :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
-        class="text-truncate"
-        dense
-        @click.prevent.stop="openCategory(subItem)">
+        dense>
         <v-card
           :title="subItem.name"
           :max-width="maxWidth"
@@ -86,84 +79,44 @@
       </v-list-item>
     </v-list>
   </v-menu>
-  <v-chip
+  <v-tab
     v-else
-    ref="chip"
-    :outlined="!selected"
-    :class="[chipClass, !visible && 'invisible' || '']"
-    class="text-truncate border-box-sizing"
-    color="primary"
-    @click.prevent.stop="openCategory(category)">
+    v-on="$listeners?.click && {
+      click: () => $listeners.click(category),
+    }"
+    :key="category.id"
+    :value="category.id">
     <v-card
       :title="category.name"
-      :class="[
-        selected && 'white--text' || 'primary--text',
-      ]"
       :max-width="maxWidth"
-      class="text-truncate"
       color="transparent"
-      width="auto"
+      class="text-truncate"
       flat>
       {{ category.name }}
     </v-card>
-  </v-chip>
+  </v-tab>
 </template>
 <script>
 export default {
   props: {
-    category: {
+    selectedCategory: {
       type: Object,
       default: null,
     },
-    selected: {
-      type: Boolean,
-      default: false,
-    },
-    breadcrumb: {
-      type: Boolean,
-      default: false,
+    category: {
+      type: Object,
+      default: null,
     },
     maxWidth: {
       type: Number,
       default: () => 150,
     },
-    chipClass: {
-      type: String,
-      default: null,
-    },
-    parentWidth: {
-      type: Number,
-      default: null,
-    },
   },
   data: () => ({
     menu: false,
-    width: null,
   }),
-  computed: {
-    visible() {
-      return !this.parentWidth || !this.width || this.width < this.parentWidth;
-    },
-  },
-  watch: {
-    visible: {
-      immediate: true,
-      handler() {
-        if (this.parentWidth && this.width) {
-          this.$emit('initialized', this.visible);
-        }
-      }
-    },
-  },
   created() {
     document.addEventListener('click', this.closeMenuImmediatly);
-  },
-  mounted() {
-    window.setTimeout(() => {
-      if (this.$refs?.chip?.$el) {
-        this.width = this.$refs.chip.$el.offsetLeft + this.$refs.chip.$el.offsetWidth;
-      }
-    }, 10);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.closeMenuImmediatly);
@@ -171,12 +124,6 @@ export default {
   methods: {
     closeMenuImmediatly() {
       this.menu = false;
-    },
-    openCategory(category) {
-      this.$emit('select', category);
-      if (this.menu) {
-        this.closeMenu();
-      }
     },
     closeMenu() {
       window.setTimeout(() => this.menu = false, 50);

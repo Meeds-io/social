@@ -21,29 +21,37 @@
 
 -->
 <template>
-  <div class="d-flex flex-row specific-scrollbar overflow-x-auto position-relative">
-    <template v-if="display">
+  <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
+    <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
       <spaces-category-chip
-        v-for="(category, index) in filteredCategories"
+        v-for="(category, index) in categories"
         :key="category.id"
         :category="category"
-        :class="{
-          'invisible': !initialized,
-          'd-none': initialized && (index + 1) > chipsCount,
-        }"
-        class="flex-shrink-0 me-2"
-        @initialized="setCategoryChipWidth(index, $event)"
-        @click="$emit('select', category)" />
-    </template>
+        :breadcrumb="index > 1"
+        :parent-width="parentWidth"
+        chip-class="flex-shrink-0 me-2"
+        @initialized="setVisible(category, $event)"
+        @select="openCategory" />
+    </div>
     <v-chip
       ref="moreButton"
-      :class="remainingSize < 1 && 'invisible'"
+      :class="{
+        'invisible' : !hasInvisibleItems,
+      }"
+      class="flex-shrink-0 flex-grow-0 ms-2"
       color="grey"
       dark
       @click="$root.$emit('spaces-list-category-open', categories)">
-      {{ $t('spacesList.categories.more', {
-        0: remainingSize,
-      }) }}
+      <v-card
+        :min-width="85"
+        :max-width="85"
+        color="transparent"
+        class="text-truncate"
+        flat>
+        {{ $t('spacesList.categories.more', {
+          0: remainingSize,
+        }) }}
+      </v-card>
     </v-chip>
   </div>
 </template>
@@ -59,74 +67,60 @@ export default {
     resizeObserver: null,
     parentWidth: 0,
     moreButtonWidth: 0,
-    display: true,
-    chipsCount: 0,
-    limitCount: -1,
+    initialized: false,
+    invisibleIds: new Set(),
+    remainingSize: 0,
   }),
   computed: {
-    filteredCategories() {
-      return this.initialized && this.limitCount && this.categories?.slice?.(0, this.limitCount) || this.categories || [];
-    },
-    categoriesCount() {
-      return this.categories?.length || 0;
-    },
-    remainingSize() {
-      return this.categoriesCount - (this.initialized ? this.limitCount : 0);
-    },
-    initialized() {
-      return this.limitCount > -1 || this.chipsCount > this.categoriesCount;
+    hasInvisibleItems() {
+      return this.remainingSize > 0;
     },
   },
   watch: {
-    chipsCount() {
-      if (this.chipsCount === this.categoriesCount && this.limitCount === -1) {
-        this.limitCount = 0;
+    async categories() {
+      this.initialized = false;
+      await this.$nextTick();
+      if (this.categories?.length) {
+        this.categories.forEach(c => c.visible = true);
       }
-    },
-    categories() {
-      this.refreshWidth();
+      this.invisibleIds = new Set();
+      this.remainingSize = 0;
+      this.setParentWidth();
+      this.initialized = true;
     },
   },
   mounted() {
-    this.resizeObserver = new ResizeObserver(this.refreshWidth).observe(this.$el);
+    window.setTimeout(() => {
+      this.resizeObserver = new ResizeObserver(this.setParentWidth).observe(this.$el);
+      this.initialized = true;
+    }, 50);
   },
   beforeDestroy() {
     this.resizeObserver?.disconnect?.();
   },
   methods: {
-    async refreshWidth() {
-      if (this.parentWidth === this.$el.clientWidth - this.moreButtonWidth) {
+    setParentWidth() {
+      if (!this.$el) {
         return;
       }
-      this.setParentWidth();
-      this.display = false;
-      try {
-        await this.$nextTick();
-        this.chipsCount = 0;
-        this.limitCount = -1;
-        await this.$nextTick();
-      } finally {
-        window.setTimeout(() => {
-          this.display = true;
-        }, 10);
-      }
-    },
-    setCategoryChipWidth(index, width) {
-      if (!this.parentWidth) {
-        this.setParentWidth();
-      }
-      if (width < this.parentWidth) {
-        this.chipsCount = Math.max(index + 1, this.chipsCount);
-        this.limitCount = Math.max(index + 1, this.limitCount);
-      } else {
-        this.limitCount = this.limitCount === -1 ? index : Math.min(this.limitCount, index);
-      }
-    },
-    setParentWidth() {
       if (!this.moreButtonWidth && this.$refs?.moreButton) {
-        this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 58;
+        this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 8;
       }
       this.parentWidth = this.$el.clientWidth - this.moreButtonWidth;
+    },
+    openCategory(category) {
+      this.$emit('select', category);
+    },
+    setVisible(category, visible) {
+      if (visible) {
+        this.invisibleIds.delete(category.id);
+      } else {
+        this.invisibleIds.add(category.id);
+      }
+      if (this.timeout) {
+        window.clearTimeout(this.timeout);
+      }
+      this.timeout = window.setTimeout(() => this.remainingSize = this.invisibleIds.size, 50);
     },
   },
 };
