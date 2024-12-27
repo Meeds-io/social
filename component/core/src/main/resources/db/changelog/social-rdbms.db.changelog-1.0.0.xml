@@ -1171,11 +1171,11 @@
         </addColumn>
     </changeSet>
 
-    <changeSet author="social" id="1.0.0-mip-171-2">
+    <changeSet author="social" id="1.0.0-mip-171-02">
         <createSequence sequenceName="SEQ_SOC_PROFILE_PROPERTY_OPTION_ID" startValue="1"/>
     </changeSet>
 
-    <changeSet author="social" id="1.0.0-mip-171-3">
+    <changeSet author="social" id="1.0.0-mip-171-03">
     <createTable tableName="SOC_PROFILE_PROPERTY_OPTION">
         <column name="PROPERTY_OPTION_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
             <constraints nullable="false" primaryKey="true" primaryKeyName="PK_PROPERTY_OPTION_ID" />
@@ -1190,5 +1190,4 @@
         <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
     </modifySql>
     </changeSet>
-
 </databaseChangeLog>

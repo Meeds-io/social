@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.After;
@@ -51,7 +52,8 @@ public class ManagerPropertySettingUpdatedListenerTest {
     PORTAL_CONTAINER.when(PortalContainer::getInstance).thenReturn(portalContainer);
     lenient().when(userACL.getSuperUser()).thenReturn("root");
     ManagerPropertySettingUpdatedListener managerPropertySettingUpdatedListener = new ManagerPropertySettingUpdatedListener(pageStorage, userACL);
-    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting("testProperty",
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting(1L,
+                                                                               "testProperty",
                                                                                "text",
                                                                                false,
                                                                                true,
@@ -63,7 +65,7 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                                                                false,
                                                                                true,
                                                                                false,
-                                                                               1L,
+                                                                               new ArrayList<>(),
                                                                                System.currentTimeMillis());
     Event<ProfilePropertyService, ProfilePropertySetting> event = new Event<>("profile-property-setting-updated", profilePropertyService, profilePropertySetting);
     try {
@@ -81,7 +83,8 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                         "/platform/administrators");
     PageContext pageContext = new PageContext(PageKey.parse("portal::global::organizationalChart"), pageState);
     when(pageStorage.loadPage(any())).thenReturn(pageContext);
-    profilePropertySetting = new ProfilePropertySetting("manager",
+    profilePropertySetting = new ProfilePropertySetting(1L,
+                                                        "manager",
                                                         "text",
                                                         false,
                                                         true,
@@ -93,7 +96,7 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                                         false,
                                                         true,
                                                         false,
-                                                        1L,
+                                                        new ArrayList<>(),
                                                         System.currentTimeMillis());
     event = new Event<>("profile-property-setting-updated", profilePropertyService, profilePropertySetting);
     try {
