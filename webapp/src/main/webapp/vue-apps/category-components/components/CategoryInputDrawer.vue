@@ -51,6 +51,7 @@
           </template>
         </application-toolbar>
         <v-treeview
+          v-if="categoryTreeItems"
           v-model="categoryIds"
           :items="categoryTreeItems"
           :open.sync="openedIds"
@@ -58,6 +59,7 @@
           :filter="filter"
           :load-children="loadChildren"
           :disabled="loading"
+          :class="!initialized && 'invisible'"
           class="hide-disabled-selection ms-n5 me-4"
           expand-icon=""
           item-children="categories"
@@ -65,6 +67,7 @@
           item-text="name"
           item-disabled="disabled"
           selection-type="independent"
+          open-on-click
           disable-per-node
           selectable
           transition
@@ -74,8 +77,7 @@
             <v-btn
               v-if="item.size"
               class="position-absolute z-index-two ms-n2"
-              icon
-              @click.stop.prevent="toogleOpenCategory(item.id)">
+              icon>
               <v-icon
                 :class="{
                   'fa-rotate-90': open && !$vuetify.rtl,
@@ -88,7 +90,7 @@
             <v-card
               v-if="!item.loadMore"
               color="transparent"
-              class="d-flex align-center ps-6"
+              class="d-flex align-center ms-6"
               height="36"
               flat
               @click.stop.prevent="toogleSelectCategory(item.id)">
@@ -176,9 +178,11 @@ export default {
     categoryOwnerId: null,
     categoryRootId: null,
     foundCategories: null,
-    depth: 10,
+    depth: 4,
     pageSize: 10,
+    limit: 10,
     refresh: 1,
+    initialized: false,
   }),
   computed: {
     isMobile() {
@@ -205,6 +209,11 @@ export default {
     keyword() {
       if (this.keyword) {
         this.loading = true;
+      }
+    },
+    loading() {
+      if (!this.loading) {
+        this.initialized = true;
       }
     },
     categories() {
@@ -243,6 +252,7 @@ export default {
   },
   methods: {
     openDrawer() {
+      this.initialized = false;
       this.$refs.drawer.open();
       this.init();
     },
@@ -251,39 +261,43 @@ export default {
     },
     async init() {
       this.loading = true;
-      await this.refreshTree(this.categoryTree, this.depth);
-      window.setTimeout(async () => {
-        this.categoryOwnerId = this.categoryTree?.ownerId;
-        this.categoryRootId = this.categoryTree?.id;
-        const categoryIds = this.value?.slice?.() || [];
-        await this.initOpenedElements(categoryIds);
-        // Wait until opened ids are set
-        await this.$nextTick();
-        // Set selected elements once opened
-        this.categoryIds = categoryIds;
-        this.loading = false;
-      }, 200);
+      const categoryIds = this.value?.slice?.() || [];
+      let index = 0;
+      do {
+        this.limit *= 2;
+        this.depth *= 2;
+        // Can't be parallelized so disable Sonar and ESLint recommandations
+        // eslint-disable-next-line no-await-in-loop
+        await this.refreshTree(this.categoryTree, this.depth, 0, this.limit);
+        index++;
+      } while (!categoryIds.every(id => this.getCategory(id)) && index < 10);
+      await this.$nextTick();
+      this.categoryOwnerId = this.categoryTree?.ownerId;
+      this.categoryRootId = this.categoryTree?.id;
+      const openedIds = categoryIds.map(id => this.getOpenedIds(id))
+        .filter(ids => ids?.length)
+        .flatMap(ids => ids);
+      // Set opened parent elements
+      this.openedIds = [...new Set(openedIds)];
+      // Set selected elements once opened
+      this.categoryIds = categoryIds;
+      this.loading = false;
     },
-    async initOpenedElements(categoryIds) {
-      this.openedIds = [];
-      await Promise.all(categoryIds.map(async id => await this.addOpenedIdWithAncestor(id)));
-    },
-    async addOpenedIdWithAncestor(id) {
-      let category = this.getCategory(id);
-      if (!category) {
-        category = await this.$categoryService.getCategory(id);
-        if (category) {
-          category.ancestorIds = await this.$categoryService.getAncestorIds(id); 
-          await this.loadAncestors(category);
-        }
+    getOpenedIds(id, result) {
+      if (!result) {
+        result = [];
+      } else {
+        result.push(id);
       }
-      if (category?.parentId && this.openedIds.indexOf(category.parentId) < 0) {
-        this.openedIds.push(category.parentId);
-        this.addOpenedIdWithAncestor(category.parentId);
+      const category = this.getCategory(id);
+      if (category?.parentId) {
+        this.getOpenedIds(category.parentId, result);
       }
+      return result;
     },
     filter(item, search, textKey) {
-      return (item[textKey] && item[textKey].indexOf(search) > -1) || this.foundCategories?.find?.(cat => cat.id === item.id);
+      return this.foundCategories?.find?.(cat => cat.id === item.id)
+          || item[textKey]?.toLowerCase?.()?.indexOf?.(search?.toLowerCase?.()) > -1;
     },
     async search() {
       if (this.keyword?.trim?.()?.length) {
@@ -302,7 +316,7 @@ export default {
         return;
       }
       const category = this.getCategory(item.id);
-      if (category.limit) {
+      if (category?.limit) {
         return category.categories;
       } else {
         return await this.refreshTree(item, 1);
@@ -350,13 +364,13 @@ export default {
       this.foundCategories = null;
     },
     async loadAncestors(category) {
-      let limit = 0;
+      let limit;
       while (!this.getCategory(category.id)) {
-        limit += this.pageSize;
         const index = category.ancestorIds.findIndex(id => this.getCategory(id));
         const length = category.ancestorIds.length;
         const ancestorId = category.ancestorIds[index];
         let lastLoadedParent = this.getCategory(ancestorId);
+        limit = lastLoadedParent.limit + this.pageSize;
         // Can't be parallelized so disable Sonar and ESLint recommandations
         // eslint-disable-next-line no-await-in-loop
         await this.refreshTree(lastLoadedParent, length - index, 0, limit); // NOSONAR
@@ -412,13 +426,6 @@ export default {
         this.categoryIds.push(id);
       } else {
         this.categoryIds.splice(this.categoryIds.indexOf(id), 1);
-      }
-    },
-    toogleOpenCategory(id) {
-      if (this.openedIds.indexOf(id) < 0) {
-        this.openedIds.push(id);
-      } else {
-        this.openedIds.splice(this.openedIds.indexOf(id), 1);
       }
     },
     apply() {
