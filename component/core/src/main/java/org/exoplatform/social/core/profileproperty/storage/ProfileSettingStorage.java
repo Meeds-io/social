@@ -20,19 +20,27 @@
 
 package org.exoplatform.social.core.profileproperty.storage;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
+import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertyOptionEntity;
 import org.exoplatform.social.core.jpa.storage.entity.ProfilePropertySettingEntity;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
 public class ProfileSettingStorage {
 
   private final ProfilePropertySettingDAO profilePropertySettingDAO;
 
-  public ProfileSettingStorage(ProfilePropertySettingDAO profilePropertySettingDAO) {
+  private final ProfilePropertyOptionDAO  profilePropertyOptionDAO;
+
+  public ProfileSettingStorage(ProfilePropertySettingDAO profilePropertySettingDAO,
+                               ProfilePropertyOptionDAO profilePropertyOptionDAO) {
     this.profilePropertySettingDAO = profilePropertySettingDAO;
+    this.profilePropertyOptionDAO = profilePropertyOptionDAO;
   }
 
   public List<ProfilePropertySetting> getPropertySettings() {
@@ -66,6 +74,14 @@ public class ProfileSettingStorage {
     profilePropertySettingDAO.delete(profilePropertySettingDAO.find(id));
   }
 
+  public boolean hasChildProperties(Long parentId) {
+    return !profilePropertySettingDAO.findChildProperties(parentId).isEmpty();
+  }
+  
+  public List<ProfilePropertyOption> getProfilePropertyOptions(Long propertySettingId, int offset, int limit) {
+    return toPropertyOptions(profilePropertyOptionDAO.findPropertyOptionsBySettingId(propertySettingId, offset, limit));
+  }
+
   private ProfilePropertySettingEntity convertToEntity(ProfilePropertySetting profilePropertySetting) {
     if (profilePropertySetting == null) {
       return null;
@@ -84,6 +100,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
+    profilePropertySettingEntity.setPropertyOptions(toPropertyOptionEntities(profilePropertySettingEntity, profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setUpdatedDate(new Date(profilePropertySetting.getUpdated()));
     return profilePropertySettingEntity;
   }
@@ -106,12 +123,47 @@ public class ProfileSettingStorage {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setPropertyOptions(toPropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());
     return profilePropertySetting;
   }
 
-  public boolean hasChildProperties(Long parentId) {
-    return !profilePropertySettingDAO.findChildProperties(parentId).isEmpty();
+  private ProfilePropertyOptionEntity toPropertyOptionEntity(ProfilePropertySettingEntity profilePropertySettingEntity,
+                                                             ProfilePropertyOption profilePropertyOption) {
+    if (profilePropertyOption == null) {
+      return null;
+    }
+    return new ProfilePropertyOptionEntity(profilePropertyOption.getId(),
+                                           profilePropertyOption.getValue(),
+                                           profilePropertyOption.getPropertySettingId() != null ? profilePropertySettingDAO.find(profilePropertyOption.getPropertySettingId())
+                                                                                                : profilePropertySettingEntity);
+
+  }
+
+  private ProfilePropertyOption fromPropertyOptionEntity(ProfilePropertyOptionEntity profilePropertyOptionEntity) {
+    if (profilePropertyOptionEntity == null) {
+      return null;
+    }
+    return new ProfilePropertyOption(profilePropertyOptionEntity.getId(),
+                                     profilePropertyOptionEntity.getValue(),
+                                     profilePropertyOptionEntity.getPropertySetting().getId());
+  }
+
+  private List<ProfilePropertyOptionEntity> toPropertyOptionEntities(ProfilePropertySettingEntity profilePropertySettingEntity,
+                                                                     List<ProfilePropertyOption> profilePropertyOptions) {
+    if (profilePropertyOptions == null || profilePropertyOptions.isEmpty()) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptions.stream()
+                                 .map(profileOption -> toPropertyOptionEntity(profilePropertySettingEntity, profileOption))
+                                 .toList();
+  }
+
+  private List<ProfilePropertyOption> toPropertyOptions(List<ProfilePropertyOptionEntity> profilePropertyOptionEntities) {
+    if (profilePropertyOptionEntities == null) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptionEntities.stream().map(this::fromPropertyOptionEntity).toList();
   }
 
 }

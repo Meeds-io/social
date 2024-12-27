@@ -110,6 +110,7 @@ import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
@@ -2017,6 +2018,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setId(profilePropertySetting.getId());
     profilePropertySettingEntity.setActive(profilePropertySetting.isActive());
     profilePropertySettingEntity.setEditable(profilePropertySetting.isEditable());
+    profilePropertySettingEntity.setDropdownList(profilePropertySetting.isDropdownList());
     profilePropertySettingEntity.setVisible(profilePropertySetting.isVisible());
     profilePropertySettingEntity.setPropertyName(profilePropertySetting.getPropertyName());
     profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
@@ -2030,8 +2032,20 @@ public class EntityBuilder {
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
+    profilePropertySettingEntity.setPropertyOptions(toProfilePropertyOptionEntities(profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
     return profilePropertySettingEntity;
+  }
+  
+  public static List<ProfilePropertyOptionEntity> toProfilePropertyOptionEntities(List<ProfilePropertyOption> profilePropertyOptions) {
+    if (profilePropertyOptions == null) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptions.stream()
+                                 .map(option -> new ProfilePropertyOptionEntity(option.getId(),
+                                                                                option.getValue(),
+                                                                                option.getPropertySettingId()))
+                                 .toList();
   }
 
   /**
@@ -2086,6 +2100,7 @@ public class EntityBuilder {
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
     profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
+    profilePropertySetting.setDropdownList(profilePropertySettingEntity.isDropdownList());
     profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
     if (profilePropertySettingEntity.getParentId() == null || profilePropertySettingEntity.getParentId() == 0) {
@@ -2099,8 +2114,20 @@ public class EntityBuilder {
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setPropertyOptions(toProfilePropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
     return profilePropertySetting;
+  }
+
+  public static List<ProfilePropertyOption> toProfilePropertyOptions(List<ProfilePropertyOptionEntity> profilePropertyOptionEntities) {
+    if (profilePropertyOptionEntities == null) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptionEntities.stream()
+                                        .map(option -> new ProfilePropertyOption(option.getId(),
+                                                                                 option.getValue(),
+                                                                                 option.getPropertySettingId()))
+                                        .toList();
   }
 
   public static final <T> T fromJsonString(String value, Class<T> resultClass) {

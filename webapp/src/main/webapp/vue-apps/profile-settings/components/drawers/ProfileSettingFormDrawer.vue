@@ -509,7 +509,7 @@ export default {
           || !this.$refs.settingForm.$el.reportValidity()) { // Standard HTML rules
         return;
       }
-
+      this.setting.propertyType = this.setting.propertyType?.value ?? this.setting.propertyType;
       this.saving = true;
       if (this.newSetting){
         this.setting.labels= this.labels;
@@ -565,7 +565,7 @@ export default {
         this.$root.$emit('cancel-edit-add');
         this.changes= false;
       }
-      this.$refs.settingForm.resetValidation();
+      this.$refs.settingForm?.resetValidation();
     },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'dropdownList', 'visible', 'required', 'editable', 'hiddenable'

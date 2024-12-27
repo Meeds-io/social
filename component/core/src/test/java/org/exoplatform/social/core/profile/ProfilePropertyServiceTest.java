@@ -23,10 +23,12 @@ package org.exoplatform.social.core.profile;
 import static org.junit.Assert.assertThrows;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.test.AbstractCoreTest;
 
@@ -169,6 +171,14 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(propertySetting));
   }
 
+  public void testSavePropertySettingWithOptions() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting dropdownListPropertySetting = createProfileSettingInstanceWithOptions("propDropdown", 3);
+
+    ProfilePropertySetting propertySetting = profilePropertyService.createPropertySetting(dropdownListPropertySetting);
+    assertNotNull(propertySetting);
+    assertEquals(3, propertySetting.getPropertyOptions().size());
+  }
+
   public void testHidePropertySetting() throws ObjectAlreadyExistsException {
     ProfilePropertySetting propertySetting = createProfileSettingInstance("testProp");
     propertySetting.setHiddenbale(true);
@@ -239,6 +249,19 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     profilePropertySetting.setParentId(0L);
     profilePropertySetting.setOrder(0L);
     return profilePropertySetting;
+  }
+
+  private ProfilePropertySetting createProfileSettingInstanceWithOptions(String propertyName, int numberOfOptions) {
+    ProfilePropertySetting propertySetting = createProfileSettingInstance(propertyName);
+    propertySetting.setDropdownList(true);
+
+    List<ProfilePropertyOption> profilePropertyOptions = Stream.generate(ProfilePropertyOption::new)
+                                                               .limit(numberOfOptions)
+                                                               .peek(option -> option.setValue("test"))
+                                                               .toList();
+    propertySetting.setPropertyOptions(profilePropertyOptions);
+
+    return propertySetting;
   }
 
 }
