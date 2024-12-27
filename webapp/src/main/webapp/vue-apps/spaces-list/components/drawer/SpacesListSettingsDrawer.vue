@@ -78,6 +78,15 @@
         </div>
         <div class="mb-2 text-header">{{ $t('spacesList.settings.sortingAndFilterOptions') }}</div>
         <div class="mb-2 d-flex align-center">
+          <div>{{ $t('spacesList.settings.pageSizeLabel') }}</div>
+          <v-spacer />
+          <number-input
+            v-model="settings.pageSize"
+            :step="1"
+            :min="0"
+            :max="50" />
+        </div>
+        <div class="mb-2 d-flex align-center">
           <div>{{ $t('spacesList.settings.SortItemsBy') }}</div>
           <v-spacer />
           <select

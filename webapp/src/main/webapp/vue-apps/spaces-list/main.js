@@ -44,6 +44,9 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
     if (!settings.nameTranslations) {
       settings.nameTranslations = {};
     }
+    if (!settings.pageSize) {
+      settings.pageSize = 12;
+    }
     if (settings.filterType !== 'template') {
       settings.templateIds = null;
     } else if (!settings.templateIds) {

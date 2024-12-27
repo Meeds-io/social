@@ -110,7 +110,6 @@ export default {
     initialized: false,
     hasSpaces: false,
     offset: 0,
-    pageSize: 12,
     limit: 12,
     spaces: [],
     limitToFetch: 0,
@@ -121,6 +120,9 @@ export default {
     cardHeightMobile: 140,
   }),
   computed: {
+    pageSize() {
+      return this.$root.settings.pageSize;
+    },
     canShowMore() {
       return this.loadingSpaces || this.spaces.length >= this.limitToFetch;
     },
@@ -192,6 +194,7 @@ export default {
     },
   }, 
   created() {
+    this.limit = this.pageSize;
     this.originalLimitToFetch = this.limitToFetch = this.limit;
 
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
