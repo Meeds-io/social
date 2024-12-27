@@ -38,7 +38,7 @@
             :category="category"
             max-width="100%"
             class="mb-4"
-            @click="select(category)" />
+            @select="select(category)" />
         </div>
       </div>
     </template>
@@ -65,7 +65,7 @@ export default {
       this.$refs.drawer.close();
     },
     select(category) {
-      this.$root.selectedCategoryId = category.id;
+      this.$root.$emit('spaces-list-select-category', category);
       this.close();
     },
   },
