@@ -18,43 +18,54 @@
 
 */
 
-@import "../../variables.less"; 
+@import "../../variables.less";
 @import "../../mixins.less";
 
 #profileSettings {
 
   @import "../../common/UserCard/Style.less";
 
-    #profileSettingFormDrawer{
-        .addLabelBtn{
-  		  font-size: 16px;
- 		  cursor: pointer;
-        }
-        .v-autocomplete.v-input--is-focused{
-           border: none !important;
-           box-shadow: none !important;
-           webkit-box-shadow: none !important;
-         }
-         .v-text-field--outlined:not(.v-input--has-state, .v-input--is-focused) fieldset{
-           border: Solid 1px @borderColor !important;
-         }
-
-        .v-text-field--outlined.v-input--has-state fieldset,
-        .v-text-field--outlined.v-input--is-focused fieldset {
-          border: 1px solid !important;
-        }
+  #profileSettingFormDrawer {
+    .addLabelBtn {
+      font-size: 16px;
+      cursor: pointer;
     }
 
-   .settings-table {
-     tbody {
-         .settingsActionMenu {
-           top: auto !important;
-           left: auto !important;
-           right: 2vw;
-           transform-origin: left top;
-           min-width: 130px !important;
-         }
-       }
-     }
- }
+    .v-autocomplete.v-input--is-focused {
+      border: none !important;
+      box-shadow: none !important;
+      webkit-box-shadow: none !important;
+    }
+
+    .v-text-field--outlined:not(.v-input--has-state, .v-input--is-focused) fieldset {
+      border: Solid 1px @borderColor !important;
+    }
+
+    .v-text-field--outlined.v-input--has-state fieldset,
+    .v-text-field--outlined.v-input--is-focused fieldset {
+      border: 1px solid !important;
+    }
+  }
+
+  .settings-table {
+    tbody {
+      .settingsActionMenu {
+        top: auto !important;
+        left: auto !important;
+        right: 2vw;
+        transform-origin: left top;
+        min-width: 130px !important;
+      }
+    }
+  }
+}
+
+.profile-property-option-menu-item {
+  min-height: 36px !important;
+
+  .option-menu-icon {
+    width: 28px;
+    height: 36px;
+  }
+}
 
