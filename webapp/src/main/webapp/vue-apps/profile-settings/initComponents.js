@@ -29,6 +29,8 @@ import ProfilePropertyLabels from './components/drawers/ProfilePropertyLabels.vu
 import PropertyLabel from './components/drawers/PropertyLabel.vue';
 import ProfileSettingsOption from './components/views/ProfileSettingsOption.vue';
 import UserCardSettingsDrawer from './components/drawers/UserCardSettingsDrawer.vue';
+import DropdownListValuesDrawer from './components/drawers/DropdownListValuesDrawer.vue';
+import PropertyOptionActionMenu from './components/menu/PropertyOptionActionMenu.vue';
 
 const components = {
   'profile-settings': ProfileSettings,
@@ -41,7 +43,9 @@ const components = {
   'profile-property-labels': ProfilePropertyLabels,
   'property-label': PropertyLabel,
   'profile-settings-option': ProfileSettingsOption,
-  'user-card-settings-drawer': UserCardSettingsDrawer
+  'user-card-settings-drawer': UserCardSettingsDrawer,
+  'dropdown-list-values-drawer': DropdownListValuesDrawer,
+  'property-option-action-menu': PropertyOptionActionMenu
 };
 
 for (const key in components) {
