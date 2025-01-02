@@ -149,7 +149,8 @@
                       <v-btn
                         v-if="isDropdownList"
                         class="my-auto me-2 pa-0"
-                        icon>
+                        icon
+                        @click="openDropdownListDrawer">
                         <v-icon
                           size="20"
                           class="icon-default-color">
@@ -484,7 +485,7 @@ export default {
       this.drawer = true;
     },
     editSetting(setting) {
-      this.initialSetting = {...setting};
+      this.initialSetting = structuredClone(setting);
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
       this.parents = Object.assign([], this.settings);
@@ -567,18 +568,39 @@ export default {
       }
       this.$refs.settingForm?.resetValidation();
     },
+    arePropertyOptionsEqual(options1, options2) {
+      if (!options1 || !options2) {
+        return false;
+      }
+      if (options1?.length !== options2?.length) {
+        return false;
+      }
+      for (let i = 0; i < options1.length; i++) {
+        if (options1[i].value !== options2[i].value) {
+          return false;
+        }
+      }
+      return true;
+    },
     areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'dropdownList', 'visible', 'required', 'editable', 'hiddenable'
+      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
+        'dropdownList', 'visible', 'required', 'editable', 'hiddenable'
       ];
       for (const field of fields) {
         if (field === 'parentId' && setting[field] === '') {
           setting[field] = null;
+        }
+        if (field === 'propertyOptions') {
+          return this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field]);
         }
         if (initialSetting[field] !== setting[field]) {
           return false;
         }
       }
       return true;
+    },
+    openDropdownListDrawer() {
+      this.$emit('open-dropdown-list', this.setting);
     }
   },
 };

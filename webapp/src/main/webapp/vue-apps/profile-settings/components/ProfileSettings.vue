@@ -56,6 +56,13 @@
       :saved-settings="savedCardSettings"
       @closed="setMainPageSelected"
       @save-settings="saveUserCardSettings" />
+    <profile-setting-form-drawer
+      :settings="settings"
+      :languages="languagesData"
+      :un-hiddenable-properties="unHiddenableProperties"
+      @open-dropdown-list="openDropdownListDrawer" />
+    <dropdown-list-values-drawer
+      ref="dropdownListDrawer" />
   </v-app>
 </template>
 
@@ -112,6 +119,9 @@ export default {
     }, 500);
   },
   computed: {
+    languagesData() {
+      return [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
+    },
     attributeSettingsSelected() {
       return this.selectedOption === '#attributesettings';
     },
@@ -120,14 +130,6 @@ export default {
     },
     mainPageSelected() {
       return !this.selectedOption || this.userCardSettingsSelected;
-    },
-    filteredSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
-                                                                  && !setting?.children?.length
-                                                                  && !this.excludedSettingsProp?.includes(setting.propertyName))
-        .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
-        });
     },
     userCardFilteredFieldSettings() {
       return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
@@ -277,6 +279,9 @@ export default {
           }).finally(() => this.isSavingCardSettings = false);
         });
       });
+    },
+    openDropdownListDrawer(setting) {
+      this.$refs.dropdownListDrawer.open(setting);
     }
   }
 };

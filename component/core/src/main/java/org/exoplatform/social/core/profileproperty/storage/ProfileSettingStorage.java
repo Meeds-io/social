@@ -23,6 +23,7 @@ package org.exoplatform.social.core.profileproperty.storage;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertySettingDAO;
@@ -156,7 +157,7 @@ public class ProfileSettingStorage {
     }
     return profilePropertyOptions.stream()
                                  .map(profileOption -> toPropertyOptionEntity(profilePropertySettingEntity, profileOption))
-                                 .toList();
+                                 .collect(Collectors.toList());
   }
 
   private List<ProfilePropertyOption> toPropertyOptions(List<ProfilePropertyOptionEntity> profilePropertyOptionEntities) {
