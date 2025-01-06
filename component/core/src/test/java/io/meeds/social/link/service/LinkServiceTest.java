@@ -58,10 +58,14 @@ import io.meeds.social.link.model.LinkWithIconAttachment;
 import io.meeds.social.link.storage.cache.CachedLinkStorage;
 
 @ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"), })
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"), })
 public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
+
+  private static final String SEE_MORE_NAME        = "SeeMore";
+
+  private static final String HEADER_NAME          = "header";
 
   private static final String USERS_GROUP          = "*:/platform/users";
 
@@ -185,10 +189,10 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testSaveLinkSettingPermissions");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader(Collections.singletonMap("en", "header"));
+    linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
-    linkSetting.setSeeMore("SeeMore");
+    linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
@@ -200,6 +204,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
                                 Collections.singletonMap("en", "Website"),
                                 Collections.singletonMap("en", "Website description"),
                                 "https://localhost/",
+                                "icon",
                                 true,
                                 5,
                                 0);
@@ -218,6 +223,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
                                                                     Collections.singletonMap("en", "Website2"),
                                                                     Collections.singletonMap("en", "Website2 description"),
                                                                     "https://localhost2/",
+                                                                    "icon2",
                                                                     true,
                                                                     4,
                                                                     54444l,
@@ -282,10 +288,10 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testGetLinkIconStream1");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader(Collections.singletonMap("en", "header"));
+    linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
-    linkSetting.setSeeMore("SeeMore");
+    linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
@@ -293,6 +299,7 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
                                                                    Collections.singletonMap("en", "Website2"),
                                                                    Collections.singletonMap("en", "Website description2"),
                                                                    "https://localhost2/",
+                                                                   "icon2",
                                                                    true,
                                                                    4,
                                                                    54444l,
@@ -383,10 +390,10 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     LinkSetting linkSetting = initLinkSetting(LINK_SETTING_NAME, "testSaveLinkSettingPermissions");
     assertNotNull(linkSetting);
 
-    linkSetting.setHeader(Collections.singletonMap("en", "header"));
+    linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
     linkSetting.setShowName(true);
-    linkSetting.setSeeMore("SeeMore");
+    linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
@@ -395,12 +402,13 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     assertEquals(0l, links.size());
 
     Link linkToSave1 = new Link(0,
-            Collections.singletonMap("en", "Website"),
-            Collections.singletonMap("en", "Website description"),
-            "https://localhost/",
-            true,
-            5,
-            0);
+                                Collections.singletonMap("en", "Website"),
+                                Collections.singletonMap("en", "Website description"),
+                                "https://localhost/",
+                                "icon",
+                                true,
+                                5,
+                                0);
     List<Link> linksToSave = Collections.singletonList(linkToSave1.clone());
     linkService.saveLinkSetting(linkSetting, linksToSave, registerAdministratorUser(USERNAME));
     links = linkService.getLinks(LINK_SETTING_NAME, "en", true);

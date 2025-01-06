@@ -37,7 +37,7 @@
       v-else
       :size="iconSize"
       class="icon-default-color">
-      fa-globe
+      {{ icon || 'fa-globe' }}
     </v-icon>
   </component>
 </template>
@@ -49,6 +49,10 @@ export default {
       default: () => 34,
     },
     iconUrl: {
+      type: String,
+      default: null,
+    },
+    icon: {
       type: String,
       default: null,
     },

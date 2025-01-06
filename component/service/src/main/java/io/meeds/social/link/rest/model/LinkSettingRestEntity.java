@@ -45,6 +45,8 @@ public class LinkSettingRestEntity {
 
   private boolean              showName;
 
+  private boolean              showIcon;
+
   private boolean              showDescription;
 
   private String               seeMore;

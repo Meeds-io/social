@@ -18,16 +18,21 @@
 -->
 <template>
   <div>
-    <div class="mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
+    <div v-if="!noLabel" class="mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
     <div class="d-flex align-center">
-      <v-icon size="40" class="icon-default-color">{{ value }}</v-icon>
+      <v-icon
+        v-if="!noIcon"
+        size="40"
+        class="icon-default-color me-4">
+        {{ value }}
+      </v-icon>
       <v-btn
-        class="primary-border-color ms-4"
+        class="primary-border-color"
         color="primary"
         elevation="0"
         outlined
         @click="edit">
-        {{ $t('nodeIconPickerDrawer.edit') }}
+        {{ $t(buttonLabel) }}
       </v-btn>
       <font-icon-drawer
         v-if="drawer"
@@ -47,6 +52,18 @@ export default {
     label: {
       type: String,
       default: null,
+    },
+    buttonLabel: {
+      type: String,
+      default: () => 'nodeIconPickerDrawer.edit',
+    },
+    noLabel: {
+      type: Boolean,
+      default: false,
+    },
+    noIcon: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({

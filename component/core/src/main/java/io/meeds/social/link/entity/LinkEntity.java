@@ -65,6 +65,9 @@ public class LinkEntity implements Serializable {
   @Column(name = "URL", nullable = false)
   private String            url;
 
+  @Column(name = "ICON")
+  private String            icon;
+
   @Column(name = "SAME_TAB")
   private boolean           sameTab;
 
