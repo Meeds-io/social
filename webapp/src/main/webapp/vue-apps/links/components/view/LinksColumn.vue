@@ -27,8 +27,10 @@
     class="px-0"
     flat>
     <links-icon
+      v-if="showIcon"
       :icon-size="iconSize"
       :icon-url="iconUrl"
+      :icon="icon"
       list />
     <v-list-item-content v-if="showName || showDescription">
       <v-list-item-title
@@ -61,6 +63,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    showIcon: {
+      type: Boolean,
+      default: false,
+    },
     largeIcon: {
       type: Boolean,
       default: false,
@@ -89,6 +95,9 @@ export default {
       } else {
         return this.link?.iconUrl;
       }
+    },
+    icon() {
+      return this.link?.icon;
     },
     iconSize() {
       return this.largeIcon && 48 || 34;

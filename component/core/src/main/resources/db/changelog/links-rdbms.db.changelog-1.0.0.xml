@@ -96,4 +96,22 @@
     <createSequence sequenceName="SEQ_SOC_LINK_SETTINGS_ID" startValue="1" incrementBy="1" />
   </changeSet>
 
+  <changeSet author="links" id="1.0.0-mip-57-01">
+    <addColumn tableName="SOC_LINKS">
+      <column name="ICON" type="NVARCHAR(50)"></column>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="links" id="1.0.0-mip-57-02">
+    <sql>
+      UPDATE SOC_LINKS SET ICON = 'fa-globe' WHERE ICON_FILE_ID = 0;
+    </sql>
+  </changeSet>
+
+  <changeSet author="links" id="1.0.0-mip-57-03">
+    <addColumn tableName="SOC_LINK_SETTINGS">
+      <column name="SHOW_ICON" type="BOOLEAN" defaultValueBoolean="true" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

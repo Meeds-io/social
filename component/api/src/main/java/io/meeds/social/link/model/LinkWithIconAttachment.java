@@ -47,11 +47,12 @@ public class LinkWithIconAttachment extends Link implements Cloneable {
                                 Map<String, String> name,
                                 Map<String, String> description,
                                 String url,
+                                String icon,
                                 boolean sameTab,
                                 int order,
                                 long iconFileId,
                                 String uploadId) {
-    super(id, name, description, url, sameTab, order, iconFileId);
+    super(id, name, description, url, icon, sameTab, order, iconFileId);
     this.uploadId = uploadId;
   }
 
@@ -61,6 +62,7 @@ public class LinkWithIconAttachment extends Link implements Cloneable {
                                       getName(),
                                       getDescription(),
                                       getUrl(),
+                                      getIcon(),
                                       isSameTab(),
                                       getOrder(),
                                       getIconFileId(),
@@ -68,7 +70,14 @@ public class LinkWithIconAttachment extends Link implements Cloneable {
   }
 
   public Link toLink() {
-    return new Link(getId(), getName(), getDescription(), getUrl(), isSameTab(), getOrder(), getIconFileId());
+    return new Link(getId(),
+                    getName(),
+                    getDescription(),
+                    getUrl(),
+                    getIcon(),
+                    isSameTab(),
+                    getOrder(),
+                    getIconFileId());
   }
 
 }

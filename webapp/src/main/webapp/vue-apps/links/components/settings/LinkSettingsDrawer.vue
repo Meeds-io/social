@@ -173,6 +173,16 @@
                     </div>
                     <div class="d-flex mb-4">
                       <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+                        {{ $t('links.label.showIcon') }}
+                      </div>
+                      <v-switch
+                        v-model="settings.showIcon"
+                        class="my-0 me-n2"
+                        dense
+                        hide-details />
+                    </div>
+                    <div v-if="settings.showIcon" class="d-flex mb-4">
+                      <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
                         {{ $t('links.label.largeIcons') }}
                       </div>
                       <v-switch
@@ -353,6 +363,9 @@ export default {
         ],
       };
     },
+    showIcon() {
+      return this.settings?.showIcon || false;
+    },
   },
   watch: {
     showHeader() {
@@ -385,6 +398,11 @@ export default {
         this.refreshValidation();
       },
     },
+    showIcon() {
+      if (!this.showIcon && this.settings) {
+        this.settings.largeIcon = false;
+      }
+    },
     expanded() {
       if (this.expanded) {
         this.stepper = 2;
@@ -409,6 +427,9 @@ export default {
       this.$nextTick().then(() => this.$refs?.drawer?.open?.());
       this.$linkService.getSettings(this.$root.name)
         .then(settings => {
+          if (settings.showIcon !== false) {
+            settings.showIcon = true;
+          }
           this.settings = settings;
           this.links = settings?.links || [];
           this.links.forEach(link => {

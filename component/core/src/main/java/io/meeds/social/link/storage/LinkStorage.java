@@ -66,6 +66,7 @@ public class LinkStorage {
       linkSettingEntity.setName(name);
       linkSettingEntity.setPageReference(pageReference);
       linkSettingEntity.setSpaceId(spaceId);
+      linkSettingEntity.setShowIcon(true);
       linkSettingEntity.setType(LinkDisplayType.ROW);
       linkSettingEntity.setLastModified(Instant.now());
       return toModel(linkSettingDAO.create(linkSettingEntity));

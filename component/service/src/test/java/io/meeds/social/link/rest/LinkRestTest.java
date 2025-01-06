@@ -362,14 +362,23 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     linkDescriptions.put("fr", "Description-fr");
 
     List<LinkRestEntity> links = new ArrayList<>();
-    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url1", true, 2, null, 0, UPLOAD_ID));
+    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url1", "icon1", true, 2, null, 0, UPLOAD_ID));
     uploadResource();
-    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url2", false, 1, null, 0, null));
+    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url2", "icon2", false, 1, null, 0, null));
 
     Map<String, String> linkHeaders = new HashMap<>();
     linkHeaders.put("en", "Header-en");
     linkHeaders.put("fr", "Header-fr");
-    return new LinkSettingRestEntity(0, LINK_SETTING_NAME, linkHeaders, LinkDisplayType.CARD, true, true, true, "#SeeMore", links);
+    return new LinkSettingRestEntity(0,
+                                     LINK_SETTING_NAME,
+                                     linkHeaders,
+                                     LinkDisplayType.CARD,
+                                     true,
+                                     true,
+                                     true,
+                                     true,
+                                     "#SeeMore",
+                                     links);
   }
 
   private LinkSetting initLinkSetting(String linkSettingName, String pageName, boolean anonymous) {
@@ -414,7 +423,8 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
   private org.exoplatform.services.security.Identity registerAdministratorUser(String user) {
     org.exoplatform.services.security.Identity identity =
                                                         new org.exoplatform.services.security.Identity(user,
-                                                                                                       Arrays.asList(MembershipEntry.parse(ADMINISTRATORS_GROUP), MembershipEntry.parse(USERS_GROUP)));
+                                                                                                       Arrays.asList(MembershipEntry.parse(ADMINISTRATORS_GROUP),
+                                                                                                                     MembershipEntry.parse(USERS_GROUP)));
     identityRegistry.register(identity);
     ConversationState.setCurrent(new ConversationState(identity));
     resetRestUtils();

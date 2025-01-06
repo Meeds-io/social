@@ -42,12 +42,15 @@
       class="d-flex flex-column full-height full-width transparent border-box-sizing align-center justify-start overflow-hidden text-none"
       flat>
       <links-icon
+        v-if="showIcon"
         :icon-size="iconSize"
         :icon-url="iconUrl"
+        :icon="icon"
         :class="showName && 'pb-0 col-6 align-end' || 'col-12 align-center'"
         class="justify-center" />
       <div
         v-if="showName && name"
+        :class="!showIcon && 'pb-3 my-auto'"
         class="pt-3 px-1 full-width text-truncate-2 text-body">
         {{ showName && name || '' }}
       </div>
@@ -66,6 +69,10 @@ export default {
       default: null,
     },
     showName: {
+      type: Boolean,
+      default: false,
+    },
+    showIcon: {
       type: Boolean,
       default: false,
     },
@@ -100,6 +107,9 @@ export default {
       } else {
         return this.link?.iconUrl;
       }
+    },
+    icon() {
+      return this.link?.icon;
     },
     iconSize() {
       return this.largeIcon && 48 || 34;
