@@ -91,10 +91,10 @@ export default {
       setTimeout(() => this.menu = false, this.waitTime);
     },
     editPropertyOption() {
-      //
+      this.$emit('edit');
     },
     deletePropertyOption() {
-      //
+      this.$emit('delete');
     }
   }
 };
