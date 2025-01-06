@@ -362,9 +362,9 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     linkDescriptions.put("fr", "Description-fr");
 
     List<LinkRestEntity> links = new ArrayList<>();
-    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url1", true, 2, null, 0, UPLOAD_ID));
+    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url1", "icon1", true, 2, null, 0, UPLOAD_ID));
     uploadResource();
-    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url2", false, 1, null, 0, null));
+    links.add(new LinkRestEntity(0, linkNames, linkDescriptions, "url2", "icon2", false, 1, null, 0, null));
 
     Map<String, String> linkHeaders = new HashMap<>();
     linkHeaders.put("en", "Header-en");

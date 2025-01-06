@@ -23,7 +23,14 @@
     <links-icon
       :icon-size="iconSize"
       :icon-url="iconUrl"
-      class="flex-grow-0 flex-shrink-0 me-2" />
+      :icon="icon"
+      class="flex-grow-0 flex-shrink-0 me-4" />
+    <font-icon-input
+      v-model="icon"
+      class="my-auto me-4"
+      button-label="links.button.chooseIcon"
+      no-label
+      no-icon />
     <div class="position-relative overflow-hidden">
       <v-file-input
         v-if="!resetInput"
@@ -67,6 +74,7 @@ export default {
     maxFileSize: 102400,
     sending: false,
     resetInput: false,
+    icon: null,
   }),
   computed: {
     iconUrl() {
@@ -79,6 +87,17 @@ export default {
     isDefault() {
       return !this.link?.iconSrc && !this.link?.iconUrl;
     },
+  },
+  watch: {
+    icon() {
+      if (this.icon) {
+        this.reset();
+      }
+      this.$emit('icon', this.icon);
+    },
+  },
+  mounted() {
+    this.icon = this.link.icon;
   },
   methods: {
     reset() {

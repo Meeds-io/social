@@ -44,6 +44,7 @@
       <links-icon
         :icon-size="iconSize"
         :icon-url="iconUrl"
+        :icon="icon"
         :class="showName && 'pb-0 col-6 align-end' || 'col-12 align-center'"
         class="justify-center" />
       <div
@@ -100,6 +101,9 @@ export default {
       } else {
         return this.link?.iconUrl;
       }
+    },
+    icon() {
+      return this.link?.icon;
     },
     iconSize() {
       return this.largeIcon && 48 || 34;

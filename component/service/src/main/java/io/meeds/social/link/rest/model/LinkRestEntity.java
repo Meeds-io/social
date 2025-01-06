@@ -38,6 +38,8 @@ public class LinkRestEntity {
 
   private String              url;
 
+  private String              icon;
+
   private boolean             sameTab;
 
   private int                 order;

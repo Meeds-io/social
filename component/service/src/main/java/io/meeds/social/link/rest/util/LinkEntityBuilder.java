@@ -49,8 +49,8 @@ public class LinkEntityBuilder {
                                      linkSetting.isShowName(),
                                      linkSetting.isShowDescription(),
                                      linkSetting.getSeeMore(),
-                                     CollectionUtils.isEmpty(links) ? Collections.emptyList()
-                                                                    : links.stream().map(l -> build(linkSetting, l)).toList());
+                                     CollectionUtils.isEmpty(links) ? Collections.emptyList() :
+                                                                    links.stream().map(l -> build(linkSetting, l)).toList());
   }
 
   public static LinkRestEntity build(LinkSetting linkSetting, Link link) {
@@ -58,6 +58,7 @@ public class LinkEntityBuilder {
                               link.getName(),
                               link.getDescription(),
                               link.getUrl(),
+                              link.getIcon(),
                               link.isSameTab(),
                               link.getOrder(),
                               buildLinkIconUrl(linkSetting, link),
@@ -69,8 +70,8 @@ public class LinkEntityBuilder {
     if (link.getIconFileId() == 0) {
       return null;
     } else {
-      return RestUtils.getBaseRestUrl() + "/social/links/" + linkSetting.getName() + "/" + link.getId() + "/icon?v="
-          + Objects.hash(linkSetting.getLastModified());
+      return RestUtils.getBaseRestUrl() + "/social/links/" + linkSetting.getName() + "/" + link.getId() + "/icon?v=" +
+          Objects.hash(linkSetting.getLastModified());
     }
   }
 
@@ -99,6 +100,7 @@ public class LinkEntityBuilder {
                       linkEntity.getName(),
                       linkEntity.getDescription(),
                       linkEntity.getUrl(),
+                      linkEntity.getIcon(),
                       linkEntity.isSameTab(),
                       linkEntity.getOrder(),
                       linkEntity.getIconFileId());
@@ -107,6 +109,7 @@ public class LinkEntityBuilder {
                                         linkEntity.getName(),
                                         linkEntity.getDescription(),
                                         linkEntity.getUrl(),
+                                        linkEntity.getIcon(),
                                         linkEntity.isSameTab(),
                                         linkEntity.getOrder(),
                                         linkEntity.getIconFileId(),

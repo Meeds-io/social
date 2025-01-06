@@ -50,9 +50,9 @@ import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
 
 @ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"), })
+  @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
+  @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml"), })
 public class LinkTranslationPluginTest extends AbstractKernelTest { // NOSONAR
 
   private static final String FIELD_NAME           = "name";
@@ -104,6 +104,7 @@ public class LinkTranslationPluginTest extends AbstractKernelTest { // NOSONAR
                                Collections.singletonMap("en", "Website"),
                                Collections.singletonMap("en", "Website description"),
                                "https://localhost/",
+                               "icon",
                                true,
                                5,
                                0);

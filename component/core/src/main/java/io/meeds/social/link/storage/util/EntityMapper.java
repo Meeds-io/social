@@ -77,6 +77,7 @@ public class EntityMapper {
                     null,
                     null,
                     linkEntity.getUrl(),
+                    linkEntity.getIcon(),
                     linkEntity.isSameTab(),
                     linkEntity.getOrder(),
                     linkEntity.getIconFileId());
@@ -85,6 +86,7 @@ public class EntityMapper {
   public static LinkEntity fromModel(Link link, LinkSettingEntity linkSettingEntity) {
     return new LinkEntity(link.getId() == 0 ? null : link.getId(),
                           link.getUrl(),
+                          link.getIcon(),
                           link.isSameTab(),
                           link.getOrder(),
                           link.getIconFileId(),

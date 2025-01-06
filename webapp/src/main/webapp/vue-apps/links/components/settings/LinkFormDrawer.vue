@@ -92,20 +92,28 @@
           </div>
           <v-switch
             v-model="link.sameTab"
-            class="my-0 me-n2"
+            class="my-0 me-n2 pa-0"
             dense
             hide-details />
         </div>
-
         <div class="d-flex flex-column mb-4">
-          <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
-            {{ $t('links.label.updateIcon') }}
+          <div class="d-flex justify-center flex-grow-1 flex-shrink-1">
+            <div class="flex-grow-1 flex-shrink-1 text-truncate">
+              {{ $t('links.label.updateIcon') }}
+            </div>
+            <v-switch
+              v-model="displayIcon"
+              class="my-0 me-n2 pa-0"
+              dense
+              hide-details />
           </div>
           <links-icon-input
+            v-if="displayIcon"
             v-model="link.iconUploadId"
             :link="link"
             class="mt-2"
             @reset="resetIcon"
+            @icon="link.icon = $event"
             @src="link.iconSrc = $event" />
         </div>
       </v-form>
@@ -135,6 +143,7 @@ export default {
     drawer: false,
     edit: false,
     canValidate: false,
+    displayIcon: false,
     index: -1,
     valid: true,
     maxNameLength: 50,
@@ -209,7 +218,20 @@ export default {
           }
         }, 200);
       }
-    }
+    },
+    displayIcon() {
+      if (this.drawer) {
+        if (this.displayIcon) {
+          this.link.icon = 'fa-globe';
+        } else {
+          this.link.icon = null;
+          this.link.iconUploadId = null;
+          this.link.iconFileId = 0;
+          this.link.iconSrc = null;
+          this.link.iconUrl = null;
+        }
+      }
+    },
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
@@ -221,7 +243,7 @@ export default {
     this.$root.$off('links-form-drawer', this.open);
   },
   methods: {
-    open(link, edit, index) {
+    async open(link, edit, index) {
       if (!link) {
         link = {};
         link.name = {};
@@ -238,12 +260,17 @@ export default {
       if (!link.iconSrc) {
         link.iconSrc = null;
       }
+      if (!link.icon) {
+        link.icon = null;
+      }
       this.link = JSON.parse(JSON.stringify(link));
       this.originalLink = JSON.parse(JSON.stringify(link));
       this.edit = edit;
       this.index = index;
       this.canValidate = false;
+      this.displayIcon = !!(link.icon || link.iconUrl);
       this.valid = false;
+      await this.$nextTick();
       this.$refs.drawer.open();
     },
     reset() {
