@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
+import org.exoplatform.social.core.plugin.ProfilePropertySettingOptionTranslationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -128,7 +129,8 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ComplementaryFilterSearchConnectorTest.class,
   ProfileIndexingServiceConnectorTest.class,
   OrganizationalChartHeaderTranslationTest.class,
-  ManagerPropertySettingUpdatedListenerTest.class
+  ManagerPropertySettingUpdatedListenerTest.class,
+  ProfilePropertySettingOptionTranslationTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

@@ -144,32 +144,14 @@
             </v-col>
           </v-row>
           <div v-else>
-            <v-row
+            <span
               v-for="option in sortedOptions"
-              :key="option.id"
-              class="border-bottom-color">
-              <v-col
-                cols="8"
-                class="d-flex py-1 px-0">
-                <span class="my-auto">
-                  {{ option.value }}
-                </span>
-              </v-col>
-              <v-col
-                cols="4"
-                class="text-end py-1 px-0">
-                <v-btn
-                  class="me-1"
-                  icon>
-                  <v-icon
-                    class="icon-default-color"
-                    size="20">
-                    fas fa-language
-                  </v-icon>
-                </v-btn>
-                <property-option-action-menu />
-              </v-col>
-            </v-row>
+              :key="option.id || option.uuid">
+              <dropdown-list-option-item-value
+                :option="option"
+                @data-translations="initCurrentTranslations"
+                @translation-updated="translationUpdated" />
+            </span>
           </div>
         </v-container>
       </div>
@@ -182,9 +164,10 @@ export default {
   data() {
     return {
       propertyOptions: [],
+      currentPropertyOptions: [],
       propertyValue: null,
       enableWriteValue: false,
-      setting: null
+      setting: null,
     };
   },
   watch: {
@@ -195,9 +178,27 @@ export default {
   computed: {
     sortedOptions() {
       return [...this.propertyOptions].sort((a, b) => a.value.localeCompare(b.value, {numeric: true}));
-    }
+    },
+  },
+  created() {
+    this.$root.$on('cancel-edit-add', this.resetTranslations);
   },
   methods: {
+    translationUpdated(option, translations) {
+      const index = this.propertyOptions.findIndex(item =>
+        (option.id ? item.id === option.id : item.uuid === option.uuid)
+      );
+      this.propertyOptions[index].translations = translations;
+      this.checkTranslationUpdated(index);
+    },
+    initCurrentTranslations(option, translations) {
+      const index = this.propertyOptions.findIndex(item => item.id === option.id);
+      this.currentPropertyOptions[index].translations = translations;
+    },
+    checkTranslationUpdated() {
+      this.$root.$emit('setting-translation-updated',
+        JSON.stringify(this.currentPropertyOptions) !== JSON.stringify(this.propertyOptions));
+    },
     addPropertyValue() {
       if (!this.propertyValue) {
         return;
@@ -207,6 +208,7 @@ export default {
         this.propertyOptions.push({
           value,
           propertySettingId: this.setting?.id || null,
+          uuid: crypto.randomUUID()
         });
       });
       this.setting.propertyOptions = this.propertyOptions;
@@ -215,6 +217,9 @@ export default {
     open(setting) {
       this.setting = setting;
       this.propertyOptions = setting.propertyOptions || [];
+      if (!this.currentPropertyOptions?.length) {
+        this.currentPropertyOptions = structuredClone(this.propertyOptions);
+      }
       this.resetValues();
       this.$refs.dropdownListDrawer.open();
     },
@@ -224,6 +229,9 @@ export default {
     },
     close() {
       this.$refs.dropdownListDrawer.close();
+    },
+    resetTranslations() {
+      this.propertyOptions = structuredClone(this.currentPropertyOptions);
     }
   }
 };

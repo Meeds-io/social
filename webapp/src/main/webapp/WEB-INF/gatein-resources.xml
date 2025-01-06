@@ -1865,6 +1865,9 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
+        <module>translationField</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>
