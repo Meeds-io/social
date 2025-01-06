@@ -108,4 +108,10 @@
     </sql>
   </changeSet>
 
+  <changeSet author="links" id="1.0.0-mip-57-03">
+    <addColumn tableName="SOC_LINK_SETTINGS">
+      <column name="SHOW_ICON" type="BOOLEAN" defaultValueBoolean="true" />
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

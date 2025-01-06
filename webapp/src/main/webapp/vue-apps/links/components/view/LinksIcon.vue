@@ -34,10 +34,10 @@
       contain
       eager />
     <v-icon
-      v-else-if="icon"
+      v-else
       :size="iconSize"
       class="icon-default-color">
-      {{ icon }}
+      {{ icon || 'fa-globe' }}
     </v-icon>
   </component>
 </template>

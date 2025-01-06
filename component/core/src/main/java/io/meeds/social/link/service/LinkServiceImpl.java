@@ -209,6 +209,7 @@ public class LinkServiceImpl implements LinkService {
     existingLinkSetting.setLargeIcon(linkSetting.isLargeIcon());
     existingLinkSetting.setSeeMore(linkSetting.getSeeMore());
     existingLinkSetting.setShowName(linkSetting.isShowName());
+    existingLinkSetting.setShowIcon(linkSetting.isShowIcon());
     existingLinkSetting.setShowDescription(linkSetting.isShowDescription());
     existingLinkSetting = linkStorage.saveLinkSetting(existingLinkSetting);
 

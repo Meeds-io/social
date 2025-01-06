@@ -27,6 +27,7 @@
     class="px-0"
     flat>
     <links-icon
+      v-if="showIcon"
       :icon-size="iconSize"
       :icon-url="iconUrl"
       :icon="icon"
@@ -59,6 +60,10 @@ export default {
       default: false,
     },
     showDescription: {
+      type: Boolean,
+      default: false,
+    },
+    showIcon: {
       type: Boolean,
       default: false,
     },

@@ -50,6 +50,8 @@ public class LinkSetting implements Serializable, Cloneable {
 
   private boolean             showName;
 
+  private boolean             showIcon;
+
   private boolean             showDescription;
 
   private String              seeMore;
@@ -66,6 +68,7 @@ public class LinkSetting implements Serializable, Cloneable {
                            type,
                            largeIcon,
                            showName,
+                           showIcon,
                            showDescription,
                            seeMore,
                            lastModified);

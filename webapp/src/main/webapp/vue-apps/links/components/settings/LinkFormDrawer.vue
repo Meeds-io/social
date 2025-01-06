@@ -97,18 +97,10 @@
             hide-details />
         </div>
         <div class="d-flex flex-column mb-4">
-          <div class="d-flex justify-center flex-grow-1 flex-shrink-1">
-            <div class="flex-grow-1 flex-shrink-1 text-truncate">
-              {{ $t('links.label.updateIcon') }}
-            </div>
-            <v-switch
-              v-model="displayIcon"
-              class="my-0 me-n2 pa-0"
-              dense
-              hide-details />
+          <div class="d-flex justify-center text-truncate">
+            {{ $t('links.label.updateIcon') }}
           </div>
           <links-icon-input
-            v-if="displayIcon"
             v-model="link.iconUploadId"
             :link="link"
             class="mt-2"
@@ -143,7 +135,6 @@ export default {
     drawer: false,
     edit: false,
     canValidate: false,
-    displayIcon: false,
     index: -1,
     valid: true,
     maxNameLength: 50,
@@ -219,19 +210,6 @@ export default {
         }, 200);
       }
     },
-    displayIcon() {
-      if (this.drawer) {
-        if (this.displayIcon) {
-          this.link.icon = 'fa-globe';
-        } else {
-          this.link.icon = null;
-          this.link.iconUploadId = null;
-          this.link.iconFileId = 0;
-          this.link.iconSrc = null;
-          this.link.iconUrl = null;
-        }
-      }
-    },
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
@@ -268,7 +246,6 @@ export default {
       this.edit = edit;
       this.index = index;
       this.canValidate = false;
-      this.displayIcon = !!(link.icon || link.iconUrl);
       this.valid = false;
       await this.$nextTick();
       this.$refs.drawer.open();

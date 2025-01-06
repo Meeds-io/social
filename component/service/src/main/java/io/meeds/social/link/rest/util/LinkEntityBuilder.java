@@ -47,6 +47,7 @@ public class LinkEntityBuilder {
                                      linkSetting.getType(),
                                      linkSetting.isLargeIcon(),
                                      linkSetting.isShowName(),
+                                     linkSetting.isShowIcon(),
                                      linkSetting.isShowDescription(),
                                      linkSetting.getSeeMore(),
                                      CollectionUtils.isEmpty(links) ? Collections.emptyList() :
@@ -84,6 +85,7 @@ public class LinkEntityBuilder {
                            linkSettingEntity.getType(),
                            linkSettingEntity.isLargeIcon(),
                            linkSettingEntity.isShowName(),
+                           linkSettingEntity.isShowIcon(),
                            linkSettingEntity.isShowDescription(),
                            linkSettingEntity.getSeeMore(),
                            0);

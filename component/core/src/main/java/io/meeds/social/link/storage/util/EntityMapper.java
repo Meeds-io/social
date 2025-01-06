@@ -46,6 +46,7 @@ public class EntityMapper {
                            linkSettingEntity.getType(),
                            linkSettingEntity.isLargeIcon(),
                            linkSettingEntity.isShowName(),
+                           linkSettingEntity.isShowIcon(),
                            linkSettingEntity.isShowDescription(),
                            linkSettingEntity.getSeeMore(),
                            linkSettingEntity.getLastModified().toEpochMilli());
@@ -66,6 +67,7 @@ public class EntityMapper {
                                  linkSetting.getType(),
                                  linkSetting.isLargeIcon(),
                                  linkSetting.isShowName(),
+                                 linkSetting.isShowIcon(),
                                  linkSetting.isShowDescription(),
                                  linkSetting.getSeeMore(),
                                  Instant.now(),
