@@ -23,6 +23,7 @@
     <links-icon
       :icon-size="iconSize"
       :icon-url="iconUrl"
+      :icon="icon"
       class="flex-grow-0 flex-shrink-0 me-2" />
     <div class="flex-grow-1 flex-shrink-1 text-truncate-2 text-color text-start me-2">
       {{ name || url }}
@@ -100,6 +101,9 @@ export default {
       } else {
         return this.link?.iconUrl;
       }
+    },
+    icon() {
+      return this.link?.icon;
     },
   },
   methods: {

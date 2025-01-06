@@ -92,13 +92,12 @@
           </div>
           <v-switch
             v-model="link.sameTab"
-            class="my-0 me-n2"
+            class="my-0 me-n2 pa-0"
             dense
             hide-details />
         </div>
-
         <div class="d-flex flex-column mb-4">
-          <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+          <div class="d-flex align-center text-truncate">
             {{ $t('links.label.updateIcon') }}
           </div>
           <links-icon-input
@@ -106,6 +105,7 @@
             :link="link"
             class="mt-2"
             @reset="resetIcon"
+            @icon="link.icon = $event"
             @src="link.iconSrc = $event" />
         </div>
       </v-form>
@@ -209,7 +209,7 @@ export default {
           }
         }, 200);
       }
-    }
+    },
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
@@ -221,7 +221,7 @@ export default {
     this.$root.$off('links-form-drawer', this.open);
   },
   methods: {
-    open(link, edit, index) {
+    async open(link, edit, index) {
       if (!link) {
         link = {};
         link.name = {};
@@ -238,12 +238,16 @@ export default {
       if (!link.iconSrc) {
         link.iconSrc = null;
       }
+      if (!link.icon) {
+        link.icon = null;
+      }
       this.link = JSON.parse(JSON.stringify(link));
       this.originalLink = JSON.parse(JSON.stringify(link));
       this.edit = edit;
       this.index = index;
       this.canValidate = false;
       this.valid = false;
+      await this.$nextTick();
       this.$refs.drawer.open();
     },
     reset() {

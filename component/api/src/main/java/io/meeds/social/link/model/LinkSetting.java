@@ -46,11 +46,13 @@ public class LinkSetting implements Serializable, Cloneable {
 
   private LinkDisplayType     type;
 
-  private boolean             largeIcon;
+  private boolean             largeIcon        = false;
 
-  private boolean             showName;
+  private boolean             showName         = false;
 
-  private boolean             showDescription;
+  private boolean             showIcon         = true;
+
+  private boolean             showDescription  = false;
 
   private String              seeMore;
 
@@ -66,6 +68,7 @@ public class LinkSetting implements Serializable, Cloneable {
                            type,
                            largeIcon,
                            showName,
+                           showIcon,
                            showDescription,
                            seeMore,
                            lastModified);

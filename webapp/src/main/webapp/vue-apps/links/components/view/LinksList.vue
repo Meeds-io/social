@@ -34,9 +34,10 @@
         :is="componentName"
         :link="link"
         :type="type"
-        :large-icon="largeIcon"
         :show-name="showName"
-        :show-description="showDescription" />
+        :show-description="showDescription"
+        :show-icon="showIcon"
+        :large-icon="largeIcon" />
     </component>
   </div>
 </template>
@@ -62,8 +63,11 @@ export default {
     showDescription() {
       return this.settings?.showDescription || false;
     },
+    showIcon() {
+      return this.settings?.showIcon || false;
+    },
     largeIcon() {
-      return this.settings?.largeIcon || false;
+      return this.showIcon && this.settings?.largeIcon || false;
     },
     header() {
       return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];

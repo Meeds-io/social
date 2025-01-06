@@ -42,6 +42,8 @@ public class Link implements Serializable, Cloneable {
 
   private String              url;
 
+  private String              icon;
+
   private boolean             sameTab;
 
   private int                 order;
@@ -53,6 +55,7 @@ public class Link implements Serializable, Cloneable {
     name = new HashMap<>(link.name);
     description = new HashMap<>(link.description);
     url = link.url;
+    icon = link.icon;
     sameTab = link.sameTab;
     order = link.order;
     iconFileId = link.iconFileId;

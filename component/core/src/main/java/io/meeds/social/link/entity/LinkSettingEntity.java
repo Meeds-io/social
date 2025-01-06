@@ -79,6 +79,9 @@ public class LinkSettingEntity implements Serializable {
   @Column(name = "SHOW_NAME")
   private boolean           showName;
 
+  @Column(name = "SHOW_ICON")
+  private boolean           showIcon;
+
   @Column(name = "SHOW_DESCRIPTION")
   private boolean           showDescription;
 
