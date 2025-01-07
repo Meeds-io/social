@@ -43,8 +43,6 @@
           :languages="languages"
           :settings="settings"
           :un-hiddenable-properties="unHiddenableProperties"
-          @create-setting="createSetting"
-          @edit-setting="editSetting"
           @back-to-main-page="setMainPageSelected" />
       </v-card>
     </v-main>
@@ -57,6 +55,7 @@
       @closed="setMainPageSelected"
       @save-settings="saveUserCardSettings" />
     <profile-setting-form-drawer
+      ref="settingFormDrawer"
       :settings="settings"
       :languages="languagesData"
       :un-hiddenable-properties="unHiddenableProperties"
@@ -82,7 +81,9 @@ export default {
       userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
       userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
       isSavingCardSettings: false,
-      savedCardSettings: null
+      savedCardSettings: null,
+      settingOptionObjectType: 'propertySettingOption',
+      settingOptionFieldName: 'optionValue',
     };
   },
   props: {
@@ -171,8 +172,9 @@ export default {
     },
     editSetting(setting, refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        this.$root.$emit('close-settings-form-drawer');
-        if (refresh){
+        return this.saveOptionsTranslations(null, setting.propertyOptions);
+      }).then(() => {
+        if (refresh) {
           this.getSettings();
         }
         this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
@@ -183,24 +185,50 @@ export default {
     },
     createSetting(setting) {
       this.$profileSettingsService.addSetting(setting).then(storedSetting => {
-        if (setting.labels && setting.labels.length>0){
-          setting.labels.forEach(element => {
-            element.objectId=storedSetting.id;
+        const promises = [];
+        if (setting?.labels?.length) {
+          setting.labels.forEach(label => {
+            label.objectId = storedSetting.id;
           });
-          this.$profileLabelService.addLabels(setting.labels).then(() => {
-            this.$root.$emit('close-settings-form-drawer');
-            this.getSettings();
-            this.$root.$emit('alert-message', this.$t('profileSettings.create.success.message'), 'success');
-          });
-        } else {
+          promises.push(this.$profileLabelService.addLabels(setting.labels));
+        }
+
+        promises.push(this.saveOptionsTranslations(storedSetting, setting.propertyOptions));
+        return Promise.all(promises);
+      })
+        .then(() => {
           this.$root.$emit('close-settings-form-drawer');
           this.getSettings();
-          this.$root.$emit('alert-message', this.$t('profileSettings.create.success.message'), 'success');
-        }
-      }).catch(e => {
-        console.error(e);
-        this.$root.$emit('alert-message', this.$t(e.message), 'error');
-      });
+          this.$root.$emit(
+            'alert-message',
+            this.$t('profileSettings.create.success.message'),
+            'success'
+          );
+        })
+        .catch(error => {
+          console.error(error);
+          this.$root.$emit(
+            'alert-message',
+            this.$t(error.message || 'profileSettings.create.error.message'),
+            'error'
+          );
+        });
+    },
+    saveOptionsTranslations(savedSetting, options) {
+      if (options?.length) {
+        const promises = options.filter(option => option?.translations)
+          .map((option, index) => {
+            option.id ??= savedSetting?.propertyOptions?.[index]?.id;
+            this.$translationService.saveTranslations(
+              this.settingOptionObjectType,
+              option.id,
+              this.settingOptionFieldName,
+              option.translations
+            );
+          });
+        return Promise.all(promises);
+      }
+      return Promise.resolve();
     },
     updateLabels(labels) {
       this.$profileLabelService.updateLabels(labels);
