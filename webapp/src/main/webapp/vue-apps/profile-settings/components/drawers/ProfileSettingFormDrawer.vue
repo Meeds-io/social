@@ -389,6 +389,7 @@ export default {
     initialSetting: {},
     initialLabels: [],
     areLabelsChanged: false,
+    translationsUpdated: false
   }),
   computed: {
     propertyTypes () {
@@ -410,7 +411,7 @@ export default {
     },
     isSaveButtonDisabled() {
       if (!this.newSetting) {
-        return !this.areLabelsChanged && this.areSettingsEqual(this.initialSetting, this.setting);
+        return !this.areLabelsChanged && !this.translationsUpdated && this.areSettingsEqual(this.initialSetting, this.setting) ;
       }
       return false;
     },
@@ -431,6 +432,7 @@ export default {
     },
     drawer() {
       if (this.drawer) {
+        this.translationsUpdated = false;
         this.$refs.profileSettingFormDrawer.open();
       } else {
         this.$refs.profileSettingFormDrawer.close();
@@ -460,6 +462,7 @@ export default {
     this.$root.$on('open-settings-create-drawer', this.addNewSetting);
     this.$root.$on('open-settings-edit-drawer', this.editSetting);
     this.$root.$on('close-settings-form-drawer', this.cancel);
+    this.$root.$on('setting-translation-updated', this.settingTranslationUpdated);
   },
   methods: {
     blurAutocomplete() {
@@ -512,14 +515,15 @@ export default {
       }
       this.setting.propertyType = this.setting.propertyType?.value ?? this.setting.propertyType;
       this.saving = true;
-      if (this.newSetting){
-        this.setting.labels= this.labels;
+      if (this.newSetting) {
+        this.setting.labels = this.labels;
         this.$root.$emit('create-setting', this.setting);
       } else {
         this.mergeLabels();
         this.$root.$emit('update-setting', this.setting,true);
       }
       this.saving = false;
+      this.translationsUpdated = false;
     },
     mergeLabels() {
       const labelstoCreate = [];
@@ -601,6 +605,9 @@ export default {
     },
     openDropdownListDrawer() {
       this.$emit('open-dropdown-list', this.setting);
+    },
+    settingTranslationUpdated(translationsUpdated) {
+      this.translationsUpdated = translationsUpdated;
     }
   },
 };
