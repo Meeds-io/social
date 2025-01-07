@@ -674,10 +674,14 @@
 
   <portlet>
     <portlet-name>SpacesList</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.SpacesListPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/spacesList.jsp</value>
+    </init-param>
+    <init-param>
+      <name>layout-content-editable</name>
+      <value>true</value>
     </init-param>
     <supports>
       <mime-type>text/html</mime-type>
@@ -687,6 +691,24 @@
     <portlet-info>
       <title>Spaces List</title>
     </portlet-info>
+     <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+            "hideQuickActions":false,
+            "nameTranslations":{},
+            "sortBy":"title",
+            "allowFilteringPerCategory":true,
+            "categoryDepth":4,
+            "pageSize":12,
+            "filterType":"any",
+            "categoryIds": null,
+            "templateIds": null
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
   </portlet>
 
   <portlet>
@@ -1069,6 +1091,27 @@
     <portlet-info>
       <title>Space Template Management</title>
       <keywords>Space Template Management</keywords>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>CategoryManagement</portlet-name>
+    <display-name>Category Management</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/categoryManagement.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.CategoryManagement</resource-bundle>
+    <portlet-info>
+      <title>Category Management</title>
+      <keywords>Category Management</keywords>
     </portlet-info>
   </portlet>
 

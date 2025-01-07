@@ -19,6 +19,7 @@
 package io.meeds.social.navigation.plugin;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -91,9 +92,9 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
   }
 
   @Override
-  protected void buildSpaceFilter(SidebarItem item, SpaceFilter spaceFilter) {
+  protected void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter) {
     String spaceTemplateId = item.getProperties().get(SPACE_TEMPLATE_ID_PROP_NAME);
-    spaceFilter.setTemplateId(Long.parseLong(spaceTemplateId));
+    spaceFilter.setTemplateIds(Collections.singletonList(Long.parseLong(spaceTemplateId)));
   }
 
   private SidebarItem toSidebarItem(SpaceTemplate spaceTemplate) {

@@ -123,6 +123,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public Metadata getMetadataById(long id) {
+    return metadataStorage.getMetadataById(id);
+  }
+
+  @Override
   public MetadataItem createMetadataItem(MetadataObject metadataObject,
                                          MetadataKey metadataKey,
                                          long userIdentityId) throws ObjectAlreadyExistsException {
@@ -566,7 +571,18 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   @Override
   public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
-    return metadataStorage.getMetadatasByProperty(propertyKey, propertyValue, limit);
+    List<Long> ids = metadataStorage.getMetadataIdsByProperty(propertyKey, propertyValue, 0l, limit, true);
+    return ids.stream().map(this::getMetadataById).toList();
+  }
+
+  @Override
+  public long countMetadataIdsByProperty(String propertyKey, String propertyValue) {
+    return metadataStorage.countMetadataIdsByProperty(propertyKey, propertyValue);
+  }
+
+  @Override
+  public List<Long> getMetadataIdsByProperty(String propertyKey, String propertyValue, long offset, long limit) {
+    return metadataStorage.getMetadataIdsByProperty(propertyKey, propertyValue, offset, limit, false);
   }
 
   @Override

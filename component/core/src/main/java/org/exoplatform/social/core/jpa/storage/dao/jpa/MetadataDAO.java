@@ -18,7 +18,6 @@
  */
 package org.exoplatform.social.core.jpa.storage.dao.jpa;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +30,6 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataEntity;
 
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
 public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
@@ -84,11 +82,11 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
   }
 
   public List<String> getMetadataNamesByUser(long metadataTypeId,
-                                                long creatorIdentityId,
-                                                Set<Long> audienceIds,
-                                                long limit) {
+                                             long creatorIdentityId,
+                                             Set<Long> audienceIds,
+                                             long limit) {
     TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.getMetadataNamesByUser",
-            String.class);
+                                                                   String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
     query.setParameter(AUDIENCE_IDS, audienceIds);
     query.setParameter(CREATOR_ID, creatorIdentityId);
@@ -142,7 +140,12 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
       return result.stream().distinct().collect(Collectors.toList());
     }
   }
-  public List<String> findMetadataNamesByUserAndQuery(String term, long metadataTypeId, long creatorIdentityId, Set<Long> audienceIds, long limit) {
+
+  public List<String> findMetadataNamesByUserAndQuery(String term,
+                                                      long metadataTypeId,
+                                                      long creatorIdentityId,
+                                                      Set<Long> audienceIds,
+                                                      long limit) {
     TypedQuery<String> query = getEntityManager().createNamedQuery("SocMetadataEntity.findMetadataNameByUserAndQuery",
                                                                    String.class);
     query.setParameter(METADATA_TYPE, metadataTypeId);
@@ -187,42 +190,36 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     }
   }
 
-  public List<String> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
-    try {
-      Query query = getMetadatasByPropertyQuery(propertyKey, propertyValue);
-      return getResultsFromQuery(query, limit);
-    } catch (NoResultException e) {
-      return Collections.emptyList();
-    }
-  }
-
-  private Query getMetadatasByPropertyQuery(String propertyKey, String propertyValue) {
-    StringBuilder queryStringBuilder = null;
-    queryStringBuilder = new StringBuilder("SELECT DISTINCT sm.metadata_id ");
-    queryStringBuilder.append(" FROM SOC_METADATAS sm \n");
-    queryStringBuilder.append(" INNER JOIN SOC_METADATA_PROPERTIES sm_prop \n");
-    queryStringBuilder.append(" ON sm.metadata_id = sm_prop.metadata_id \n");
-    queryStringBuilder.append(" AND EXISTS ( SELECT sm_prop_tmp.metadata_id FROM SOC_METADATA_PROPERTIES as sm_prop_tmp \n");
-    queryStringBuilder.append(" WHERE sm_prop_tmp.metadata_id = sm.metadata_id \n");
-    queryStringBuilder.append(" AND sm_prop_tmp.name = '").append(propertyKey).append("' \n");
-    queryStringBuilder.append(" AND sm_prop_tmp.value = '").append(propertyValue).append("' ) \n");
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
-  }
-
-  private List<String> getResultsFromQuery(Query query, long limit) {
+  public List<Long> getMetadataIdsByProperty(String propertyKey,
+                                             String propertyValue,
+                                             long offset,
+                                             long limit,
+                                             boolean orderByName) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery(orderByName ?
+                                                                             "SocMetadataEntity.getMetadatasByPropertyOrderByName" :
+                                                                             "SocMetadataEntity.getMetadatasByPropertyOrderById",
+                                                                 Long.class);
     if (limit > 0) {
       query.setMaxResults((int) limit);
     }
-    List<?> resultList = query.getResultList();
-    List<String> result = new ArrayList<>();
-    for (Object object : resultList) {
-      String resultObject = String.valueOf(object);
-      if (resultObject == null) {
-        continue;
-      }
-      result.add(resultObject);
+    if (offset > 0) {
+      query.setFirstResult((int) offset);
     }
-    return result;
+    query.setParameter("propertyName", propertyKey);
+    query.setParameter("propertyValue", propertyValue);
+    return query.getResultList();
+  }
+
+  public long countMetadataIdsByProperty(String propertyKey, String propertyValue) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocMetadataEntity.countMetadataIdsByProperty", Long.class);
+    query.setParameter("propertyName", propertyKey);
+    query.setParameter("propertyValue", propertyValue);
+    try {
+      Long result = query.getSingleResult();
+      return result == null ? 0l : result.longValue();
+    } catch (NoResultException e) {
+      return 0l;
+    }
   }
 
 }

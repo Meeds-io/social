@@ -22,6 +22,7 @@ import SpaceSettingOverview from './components/main/SpaceSettingOverview.vue';
 import SpaceSettingRoles from './components/main/SpaceSettingRoles.vue';
 import SpaceSettingAccess from './components/main/SpaceSettingAccess.vue';
 import SpaceSettingPublicSite from './components/main/SpaceSettingPublicSite.vue';
+import SpaceSettingCategories from './components/main/SpaceSettingCategories.vue';
  
 import SpaceSettingOverviewSection from './components/section/SpaceSettingOverviewSection.vue';
 import SpaceSettingRolesSection from './components/section/SpaceSettingRolesSection.vue';
@@ -45,6 +46,7 @@ const components = {
   'space-setting-roles': SpaceSettingRoles,
   'space-setting-access': SpaceSettingAccess,
   'space-setting-public-site': SpaceSettingPublicSite,
+  'space-setting-categories': SpaceSettingCategories,
 
   'space-setting-overview-section': SpaceSettingOverviewSection,
 

@@ -32,74 +32,98 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MapKeyColumn;
-import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity(name = "SocMetadataEntity")
 @Table(name = "SOC_METADATAS")
-@NamedQueries(
-  {
-      @NamedQuery(
-          name = "SocMetadataEntity.findMetadata",
-          query = "SELECT sm FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type AND"
-              + " sm.name = :name AND"
-              + " sm.audienceId = :audienceId"
-      ),
-      @NamedQuery(
-          name = "SocMetadataEntity.getMetadataNamesByAudiences",
-          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type AND"
-              + " sm.audienceId IN ( :audienceIds )"
-              + " ORDER BY sm.name ASC"
-      ),
-      @NamedQuery(
-          name = "SocMetadataEntity.getMetadataNamesByCreator",
-          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type AND"
-              + " sm.creatorId = :creatorId"
-              + " ORDER BY sm.name ASC"
-      ),
-          @NamedQuery(
-                  name = "SocMetadataEntity.getMetadataNamesByUser",
-                  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-                          + " sm.type = :type AND"
-                          + " sm.creatorId = :creatorId or sm.audienceId IN ( :audienceIds )"
-                          + " ORDER BY sm.createdDate DESC, sm.name DESC"
-          ),
-      @NamedQuery(
-          name = "SocMetadataEntity.findMetadataNameByAudiencesAndQuery",
-          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type AND"
-              + " sm.audienceId IN ( :audienceIds ) AND"
-              + " LOWER(sm.name) LIKE :term"
-              + " ORDER BY sm.name ASC"
-      ),
-      @NamedQuery(
-          name = "SocMetadataEntity.findMetadataNameByCreatorAndQuery",
-          query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type AND"
-              + " sm.creatorId = :creatorId AND"
-              + " LOWER(sm.name) LIKE :term"
-              + " ORDER BY sm.name ASC"
-      ),
-          @NamedQuery(
-                  name = "SocMetadataEntity.findMetadataNameByUserAndQuery",
-                  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
-                          + " sm.type = :type AND"
-                          + " (sm.creatorId = :creatorId OR sm.audienceId IN ( :audienceIds )) AND"
-                          + " LOWER(sm.name) LIKE :term"
-                          + " ORDER BY sm.createdDate DESC, sm.name DESC"
-          ),
-      @NamedQuery(
-          name = "SocMetadataEntity.getMetadatas",
-          query = "SELECT sm FROM SocMetadataEntity sm WHERE"
-              + " sm.type = :type"
-              + " ORDER BY sm.name ASC"
-      ),
-  }
+@NamedQuery(
+  name = "SocMetadataEntity.findMetadata",
+  query = "SELECT sm FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type AND"
+      + " sm.name = :name AND"
+      + " sm.audienceId = :audienceId"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadataNamesByAudiences",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type AND"
+      + " sm.audienceId IN ( :audienceIds )"
+      + " ORDER BY sm.name ASC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadataNamesByCreator",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type AND"
+      + " sm.creatorId = :creatorId"
+      + " ORDER BY sm.name ASC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadataNamesByUser",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+          + " sm.type = :type AND"
+          + " sm.creatorId = :creatorId or sm.audienceId IN ( :audienceIds )"
+          + " ORDER BY sm.createdDate DESC, sm.name DESC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.findMetadataNameByAudiencesAndQuery",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type AND"
+      + " sm.audienceId IN ( :audienceIds ) AND"
+      + " LOWER(sm.name) LIKE :term"
+      + " ORDER BY sm.name ASC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.findMetadataNameByCreatorAndQuery",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type AND"
+      + " sm.creatorId = :creatorId AND"
+      + " LOWER(sm.name) LIKE :term"
+      + " ORDER BY sm.name ASC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.findMetadataNameByUserAndQuery",
+  query = "SELECT sm.name FROM SocMetadataEntity sm WHERE"
+          + " sm.type = :type AND"
+          + " (sm.creatorId = :creatorId OR sm.audienceId IN ( :audienceIds )) AND"
+          + " LOWER(sm.name) LIKE :term"
+          + " ORDER BY sm.createdDate DESC, sm.name DESC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadatas",
+  query = "SELECT sm FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type"
+      + " ORDER BY sm.name ASC"
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadatasByPropertyOrderByName",
+  query = """
+    SELECT sm.id FROM SocMetadataEntity sm
+    INNER JOIN sm.properties prop
+    ON key(prop) = :propertyName
+    AND value(prop) = :propertyValue
+    ORDER BY sm.name ASC
+  """
+)
+@NamedQuery(
+  name = "SocMetadataEntity.getMetadatasByPropertyOrderById",
+  query = """
+    SELECT sm.id FROM SocMetadataEntity sm
+    INNER JOIN sm.properties prop
+    ON key(prop) = :propertyName
+    AND value(prop) = :propertyValue
+    ORDER BY sm.id DESC
+  """
+)
+@NamedQuery(
+  name = "SocMetadataEntity.countMetadataIdsByProperty",
+  query = """
+    SELECT COUNT(sm.id) FROM SocMetadataEntity sm
+    INNER JOIN sm.properties prop
+    ON key(prop) = :propertyName
+    AND value(prop) = :propertyValue
+  """
 )
 public class MetadataEntity implements Serializable {
 

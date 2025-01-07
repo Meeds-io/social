@@ -26,6 +26,10 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.cache.future.FutureCache;
+import org.exoplatform.commons.cache.future.FutureExoCache;
+import org.exoplatform.services.cache.CacheService;
+import org.exoplatform.services.cache.ExoCache;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
@@ -43,26 +47,47 @@ import jakarta.persistence.Tuple;
 
 public class MetadataStorage {
 
-  private static final Log   LOG           = ExoLogger.getLogger(MetadataStorage.class);
+  private static final Log                       LOG           = ExoLogger.getLogger(MetadataStorage.class);
 
-  private MetadataDAO        metadataDAO;
+  private MetadataDAO                            metadataDAO;
 
-  private MetadataItemDAO    metadataItemDAO;
+  private MetadataItemDAO                        metadataItemDAO;
 
-  private List<MetadataType> metadataTypes = new ArrayList<>();
+  private List<MetadataType>                     metadataTypes = new ArrayList<>();
 
-  public MetadataStorage(MetadataDAO metadataDAO, MetadataItemDAO metadataItemDAO) {
+  private ExoCache<Long, Metadata>               metadataCache;
+
+  private FutureCache<Long, Metadata, Object>    metadataFutureCache;
+
+  private ExoCache<MetadataKey, Long>            metadataKeyCache;
+
+  private FutureCache<MetadataKey, Long, Object> metadataKeyFutureCache;
+
+  public MetadataStorage(MetadataDAO metadataDAO,
+                         MetadataItemDAO metadataItemDAO,
+                         CacheService cacheService) {
     this.metadataDAO = metadataDAO;
     this.metadataItemDAO = metadataItemDAO;
+    this.metadataCache = cacheService.getCacheInstance("social.metadata");
+    this.metadataFutureCache = new FutureExoCache<>((c, k) -> fromEntity(metadataDAO.find(k)), metadataCache);
+    this.metadataKeyCache = cacheService.getCacheInstance("social.metadataKey");
+    this.metadataKeyFutureCache = new FutureExoCache<>((c, k) -> {
+      String type = k.getType();
+      MetadataType metadataType = getMetadataTypeWithCheck(type);
+      MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(),
+                                                                    k.getName(),
+                                                                    k.getAudienceId());
+      return metadataEntity == null ? null : metadataEntity.getId();
+    }, metadataKeyCache);
   }
 
   public Metadata getMetadataByKey(MetadataKey metadataKey) {
-    String type = metadataKey.getType();
-    MetadataType metadataType = getMetadataTypeWithCheck(type);
-    MetadataEntity metadataEntity = this.metadataDAO.findMetadata(metadataType.getId(),
-                                                                  metadataKey.getName(),
-                                                                  metadataKey.getAudienceId());
-    return fromEntity(metadataEntity);
+    Long id = this.metadataKeyFutureCache.get(null, metadataKey);
+    return id == null || id == 0 ? null : getMetadataById(id);
+  }
+
+  public Metadata getMetadataById(long id) {
+    return this.metadataFutureCache.get(null, id);
   }
 
   public Metadata createMetadata(Metadata metadata) {
@@ -72,17 +97,25 @@ public class MetadataStorage {
   }
 
   public Metadata updateMetadata(Metadata metadata) {
-    MetadataEntity metadataEntity = toEntity(metadata);
-    metadataEntity = this.metadataDAO.update(metadataEntity);
-    return fromEntity(metadataEntity);
+    try {
+      MetadataEntity metadataEntity = toEntity(metadata);
+      metadataEntity = this.metadataDAO.update(metadataEntity);
+      return fromEntity(metadataEntity);
+    } finally {
+      this.metadataCache.remove(metadata.getId());
+    }
   }
 
   public Metadata deleteMetadataById(long id) {
-    MetadataEntity metadataEntity = this.metadataDAO.find(id);
-    if (metadataEntity != null) {
-      this.metadataDAO.delete(metadataEntity);
+    try {
+      MetadataEntity metadataEntity = this.metadataDAO.find(id);
+      if (metadataEntity != null) {
+        this.metadataDAO.delete(metadataEntity);
+      }
+      return fromEntity(metadataEntity);
+    } finally {
+      this.metadataCache.remove(id);
     }
-    return fromEntity(metadataEntity);
   }
 
   public int deleteMetadataItemsBySpaceId(long spaceId) {
@@ -221,21 +254,20 @@ public class MetadataStorage {
   public List<MetadataItem> getMetadataItemsByFilter(MetadataFilter metadataFilter, long offset, long limit) {
     MetadataType metadataType = getMetadataTypeWithCheck(metadataFilter.getMetadataTypeName());
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByFilter(metadataFilter,
-                                                                                        metadataType.getId(),
-                                                                                        offset,
-                                                                                        limit);
+                                                                                             metadataType.getId(),
+                                                                                             offset,
+                                                                                             limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
-
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
-                                                                                     String metadataTypeName,
-                                                                                     String objectType,
-                                                                                     List<Long> spaceIds,
-                                                                                     long offset,
+                                                                                      String metadataTypeName,
+                                                                                      String objectType,
+                                                                                      List<Long> spaceIds,
+                                                                                      long offset,
                                                                                       long limit) {
     MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities =
@@ -294,7 +326,10 @@ public class MetadataStorage {
   }
 
   public List<MetadataItem> deleteByMetadataTypeAndCreatorId(long metadataType, long userIdentityId) {
-    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndCreator(metadataType, userIdentityId, 0, -1);
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndCreator(metadataType,
+                                                                                                             userIdentityId,
+                                                                                                             0,
+                                                                                                             -1);
     for (MetadataItemEntity metadataItemEntity : metadataItemEntities) {
       deleteMetadataItemById(metadataItemEntity.getId());
     }
@@ -364,8 +399,8 @@ public class MetadataStorage {
 
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(long metadataType, MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType,
-        object.getType(),
-        object.getId());
+                                                                                                            object.getType(),
+                                                                                                            object.getId());
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -402,18 +437,17 @@ public class MetadataStorage {
     return metadatasEntities.stream().map(this::fromEntity).toList();
   }
 
-  public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
-    List<String> metadatasEntitiesIds = metadataDAO.getMetadatasByProperty(propertyKey, propertyValue, limit);
-    List<MetadataEntity> metadatasEntities = new ArrayList<>();
-    if (metadatasEntitiesIds != null && !metadatasEntitiesIds.isEmpty()) {
-      for (String id : metadatasEntitiesIds) {
-        MetadataEntity metadataEntity = this.metadataDAO.find(Long.parseLong(id));
-        if (metadataEntity != null) {
-          metadatasEntities.add(metadataEntity);
-        }
-      }
-    }
-    return metadatasEntities.stream().map(this::fromEntity).toList();
+  public List<Long> getMetadataIdsByProperty(String propertyKey,
+                                             String propertyValue,
+                                             long offset,
+                                             long limit,
+                                             boolean orderByName) {
+    return metadataDAO.getMetadataIdsByProperty(propertyKey, propertyValue, offset, limit, orderByName);
+  }
+
+  public long countMetadataIdsByProperty(String propertyKey,
+                                               String propertyValue) {
+    return metadataDAO.countMetadataIdsByProperty(propertyKey, propertyValue);
   }
 
   public MetadataType getMetadataType(String name) {
@@ -421,6 +455,11 @@ public class MetadataStorage {
                         .filter(metadataType -> StringUtils.equals(metadataType.getName(), name))
                         .findFirst()
                         .orElse(null);
+  }
+
+  public void clearCaches() {
+    metadataCache.clearCache();
+    metadataKeyCache.clearCache();
   }
 
   public List<MetadataType> getMetadataTypes() {

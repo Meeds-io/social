@@ -1199,7 +1199,7 @@ public class SpaceServiceImpl implements SpaceService {
     }
   }
 
-  private void triggerSpaceUpdate(Space newSpace, Space oldSpace) {
+  private void triggerSpaceUpdate(Space newSpace, Space oldSpace) { // NOSONAR
     if (oldSpace != null) {
       if (StringUtils.isBlank(newSpace.getEditor())
           && ArrayUtils.isNotEmpty(oldSpace.getManagers())) {
@@ -1210,6 +1210,19 @@ public class SpaceServiceImpl implements SpaceService {
       }
       if (!oldSpace.getVisibility().equals(newSpace.getVisibility())) {
         spaceLifeCycle.spaceAccessEdited(newSpace, newSpace.getEditor());
+      }
+      List<Long> categoryIds = oldSpace.getCategoryIds() == null ? Collections.emptyList() : oldSpace.getCategoryIds();
+      List<Long> newCategoryIds = newSpace.getCategoryIds() == null ? Collections.emptyList() : newSpace.getCategoryIds();
+      if (!CollectionUtils.isEqualCollection(categoryIds, newCategoryIds)) {
+        List<Long> categoryIdsToAdd = new ArrayList<>(newCategoryIds);
+        categoryIdsToAdd.removeAll(categoryIds);
+        categoryIdsToAdd.forEach(categoryId -> spaceLifeCycle.spaceCategoryAdded(newSpace, newSpace.getEditor(), categoryId));
+
+        List<Long> categoryIdsToRemove = new ArrayList<>(categoryIds);
+        categoryIdsToRemove.removeAll(newCategoryIds);
+        categoryIdsToRemove.forEach(categoryId -> spaceLifeCycle.spaceCategoryRemoved(newSpace,
+                                                                                      newSpace.getEditor(),
+                                                                                      categoryId));
       }
       if (oldSpace.getPublicSiteId() == 0 && newSpace.getPublicSiteId() != oldSpace.getPublicSiteId()) {
         spaceLifeCycle.spacePublicSiteCreated(newSpace, newSpace.getEditor());

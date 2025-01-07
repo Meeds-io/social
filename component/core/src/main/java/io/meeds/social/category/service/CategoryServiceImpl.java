@@ -1,0 +1,717 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package io.meeds.social.category.service;
+
+import static io.meeds.social.category.utils.Utils.isManagerOf;
+import static io.meeds.social.category.utils.Utils.isMemberOf;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryFilter;
+import io.meeds.social.category.model.CategoryRootTree;
+import io.meeds.social.category.model.CategorySearchFilter;
+import io.meeds.social.category.model.CategorySearchResult;
+import io.meeds.social.category.model.CategoryTree;
+import io.meeds.social.category.model.CategoryWithName;
+import io.meeds.social.category.plugin.CategoryTranslationPlugin;
+import io.meeds.social.category.storage.CategoryStorage;
+import io.meeds.social.translation.service.TranslationService;
+
+import lombok.SneakyThrows;
+
+@Service
+public class CategoryServiceImpl implements CategoryService {
+
+  public static final String ADMINISTRATORS_GROUP = "/platform/administrators";
+
+  private static final Log   LOG                  = ExoLogger.getLogger(CategoryServiceImpl.class);
+
+  private static final long  MAX_LIMIT            = 100l;
+
+  @Autowired
+  private IdentityManager    identityManager;
+
+  @Autowired
+  private TranslationService translationService;
+
+  @Autowired
+  private CategoryStorage    categoryStorage;
+
+  @Autowired
+  private SpaceService       spaceService;
+
+  @Autowired
+  private UserACL            userAcl;
+
+  private long               adminGroupOwnerId;
+
+  @Override
+  public CategoryTree getCategoryTree(CategoryFilter filter, String username, Locale locale) { // NOSONAR
+    long parentId = filter.getParentId();
+    long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
+    long limit = checkLimit(filter.getLimit());
+    Category category = parentId == 0 ? getRootCategory(ownerId) : getCategory(parentId);
+    if (category == null || !canAccess(category, username)
+        || (parentId != 0 && filter.isLinkPermission() && !canManageLink(category, username))) {
+      return null;
+    }
+    List<Long> identityIds = getUserMemberIdentityIds(username);
+    CategoryTree categoryTree = buildCategoryTree(category,
+                                                  username,
+                                                  identityIds,
+                                                  locale,
+                                                  filter.getOffset(),
+                                                  limit,
+                                                  filter.isLinkPermission(),
+                                                  filter.isSortByName(),
+                                                  filter.getDepth(),
+                                                  0);
+    return categoryTree.getParentId() == 0 ? new CategoryRootTree(categoryTree,
+                                                                  isManagerOf(identityManager,
+                                                                              spaceService,
+                                                                              userAcl,
+                                                                              categoryTree.getOwnerId(),
+                                                                              username)) :
+                                           categoryTree;
+  }
+
+  @Override
+  public List<CategorySearchResult> findCategories(CategorySearchFilter filter,
+                                                   String username,
+                                                   Locale locale) {
+    long parentId = filter.getParentId();
+    long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
+    long limit = checkLimit(filter.getLimit());
+    Category category = parentId == 0 ? getRootCategory(ownerId) : getCategory(parentId);
+    if (category == null || !canAccess(category, username)) {
+      return Collections.emptyList();
+    }
+    List<Long> identityIds = getUserMemberIdentityIds(username);
+    if (CollectionUtils.isEmpty(identityIds)) {
+      return Collections.emptyList();
+    }
+    filter = filter.clone();
+    filter.setLimit(limit);
+    List<Category> categories = categoryStorage.findCategories(filter, identityIds, locale);
+    return categories.stream()
+                     .map(CategorySearchResult::new)
+                     .map(categorySearchResult -> {
+                       String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
+                                                                                     categorySearchResult.getId(),
+                                                                                     CategoryTranslationPlugin.NAME_FIELD,
+                                                                                     locale);
+                       categorySearchResult.setName(name);
+                       categorySearchResult.setAncestorIds(getAncestorIds(categorySearchResult.getId()));
+                       return categorySearchResult;
+                     })
+                     .toList();
+  }
+
+  @Override
+  public List<Long> getAncestorIds(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException {
+    Category category = getCategory(categoryId, username, Locale.ENGLISH);
+    return getAncestorIds(category.getId());
+  }
+
+  @Override
+  public List<Long> getAncestorIds(long categoryId) {
+    Category category = getCategory(categoryId);
+    if (category == null) {
+      return Collections.emptyList();
+    } else {
+      List<Long> ancestors = new ArrayList<>();
+      addAncestorId(category, ancestors);
+      return ancestors;
+    }
+  }
+
+  @Override
+  public List<Long> getSubcategoryIds(String username, long categoryId, long offset, long limit, long depth) {
+    List<Long> ids = new ArrayList<>();
+    addSubcategories(username, getUserMemberIdentityIds(username), categoryId, offset, limit, depth, ids);
+    return ids;
+  }
+
+  @Override
+  public List<Long> getSubcategoryIds(long categoryId, long offset, long limit, long depth) {
+    List<Long> ids = new ArrayList<>();
+    addSubcategories(categoryId, offset, limit, depth, ids);
+    return ids;
+  }
+
+  @Override
+  public CategoryWithName getCategory(long categoryId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                                       IllegalAccessException {
+    Category category = getCategory(categoryId);
+    if (category == null) {
+      throw new ObjectNotFoundException(String.format("Category with id %s doesn't exists", categoryId));
+    } else if (!canAccess(category, username)) {
+      throw new IllegalAccessException(String.format("Category with id %s doesn't exists", categoryId));
+    }
+    String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
+                                                                  category.getId(),
+                                                                  CategoryTranslationPlugin.NAME_FIELD,
+                                                                  locale);
+    return new CategoryWithName(category, name);
+  }
+
+  @Override
+  public Category getCategory(long categoryId) {
+    return categoryStorage.getCategory(categoryId);
+  }
+
+  @Override
+  @SneakyThrows
+  public Category getRootCategory(long ownerId) {
+    Category rootCategory = categoryStorage.getRootCategory(ownerId);
+    if (rootCategory == null && ownerId == getAdminGroupIdentityId()) {
+      Identity userIdentity = identityManager.getOrCreateUserIdentity(userAcl.getSuperUser());
+      rootCategory = new Category(0l,
+                                  0l,
+                                  null,
+                                  Long.parseLong(userIdentity.getId()),
+                                  ownerId,
+                                  Collections.emptyList(),
+                                  Arrays.asList(ownerId));
+      rootCategory = categoryStorage.createCategory(rootCategory);
+    }
+    return rootCategory;
+  }
+
+  @Override
+  public Category createCategory(Category category, String username) throws ObjectAlreadyExistsException,
+                                                                     ObjectNotFoundException,
+                                                                     IllegalAccessException {
+    checkNotNull(category);
+    checkEmptyId(category);
+    checkOwnerId(category);
+    checkParentCreation(category);
+    checkCanEdit(category, username);
+
+    Identity userIdentity = identityManager.getOrCreateUserIdentity(username);
+    category.setCreatorId(Long.parseLong(userIdentity.getId()));
+    return categoryStorage.createCategory(category);
+  }
+
+  @Override
+  public Category updateCategory(Category category, String username) throws ObjectNotFoundException, IllegalAccessException {
+    checkNotNull(category);
+    checkNotEmptyId(category);
+    checkOwnerId(category);
+    checkParentUpdate(category);
+    Category existingCategory = checkCategoryExists(category.getId());
+    if (existingCategory.getOwnerId() != category.getOwnerId()) {
+      throw new IllegalArgumentException("Category Owner Id is missing");
+    }
+    checkCanEdit(category, username);
+
+    category.setCreatorId(existingCategory.getCreatorId());
+    return categoryStorage.updateCategory(category);
+  }
+
+  @Override
+  public Category deleteCategory(long categoryId, String username) throws ObjectNotFoundException, IllegalAccessException {
+    Category category = checkCategoryExists(categoryId);
+    checkCanEdit(category, username);
+    translationService.deleteTranslationLabels(CategoryTranslationPlugin.OBJECT_TYPE, categoryId);
+    return categoryStorage.deleteCategory(categoryId);
+  }
+
+  @Override
+  public boolean canEdit(long categoryId, String username) {
+    Category category = getCategory(categoryId);
+    return canEdit(category, username);
+  }
+
+  @Override
+  public boolean canEdit(Category category, String username) {
+    return category != null && isManagerOf(identityManager,
+                                           spaceService,
+                                           userAcl,
+                                           category.getOwnerId(),
+                                           username);
+  }
+
+  @Override
+  public boolean canAccess(long categoryId, String username) {
+    return categoryId == 0 || canAccess(getCategory(categoryId), username);
+  }
+
+  @Override
+  public boolean canAccess(Category category, String username) {
+    return canAccess(category, username, true);
+  }
+
+  @Override
+  public boolean canManageLink(long categoryId, String username) {
+    return canManageLink(categoryStorage.getCategory(categoryId), username);
+  }
+
+  @Override
+  public boolean canManageLink(Category category, String username) {
+    return canManageLink(category, username, true);
+  }
+
+  private long getAdminGroupIdentityId() {
+    if (adminGroupOwnerId == 0) {
+      Identity adminGroupIdentity = identityManager.getOrCreateGroupIdentity(ADMINISTRATORS_GROUP);
+      adminGroupOwnerId = adminGroupIdentity == null ? 0l : Long.parseLong(adminGroupIdentity.getId());
+    }
+    return adminGroupOwnerId;
+  }
+
+  private long checkOwnerId(long ownerId, long parentId) {
+    if (ownerId == 0 && parentId == 0) {
+      ownerId = getAdminGroupIdentityId();
+      if (ownerId == 0) {
+        throw new IllegalArgumentException("Either Parent Id or Owner Id has to be specified");
+      }
+    }
+    return ownerId;
+  }
+
+  private long checkLimit(long limit) {
+    if (limit <= 0) {
+      limit = MAX_LIMIT;
+    }
+    return limit;
+  }
+
+  private void checkNotNull(Category category) {
+    if (category == null) {
+      throw new IllegalArgumentException("Category is mandatory");
+    }
+  }
+
+  private void checkEmptyId(Category category) {
+    if (category.getId() != 0) {
+      throw new IllegalArgumentException("Category id has to be empty");
+    }
+  }
+
+  private void checkNotEmptyId(Category category) {
+    if (category.getId() <= 0) {
+      throw new IllegalArgumentException("Category id is mandatory");
+    }
+  }
+
+  private void checkOwnerId(Category category) {
+    if (category.getOwnerId() <= 0) {
+      throw new IllegalArgumentException("Category owner identifier is mandatory");
+    }
+  }
+
+  private void checkParentCreation(Category category) throws ObjectNotFoundException, ObjectAlreadyExistsException {
+    if (category.getParentId() == 0) {
+      Category rootCategory = getRootCategory(category.getOwnerId());
+      if (rootCategory != null) {
+        throw new ObjectAlreadyExistsException("Category root element already exists, thus can't recreate it");
+      }
+    } else {
+      checkParentExists(category);
+    }
+  }
+
+  private void checkParentUpdate(Category category) throws ObjectNotFoundException {
+    if (category.getParentId() == 0) {
+      Category rootCategory = getRootCategory(category.getOwnerId());
+      if (rootCategory.getId() != category.getId()) {
+        throw new IllegalArgumentException("Category root element already exists, thus can't change it");
+      }
+    } else {
+      checkParentExists(category);
+    }
+  }
+
+  private void checkParentExists(Category category) throws ObjectNotFoundException {
+    Category parentCategory = getCategory(category.getParentId());
+    if (parentCategory == null) {
+      throw new ObjectNotFoundException(String.format("Parent Category with id %s doesn't exist", category.getParentId()));
+    }
+  }
+
+  private Category checkCategoryExists(long id) throws ObjectNotFoundException {
+    Category category = getCategory(id);
+    if (category == null) {
+      throw new ObjectNotFoundException(String.format("Can't update a not found Category with id %s", id));
+    }
+    return category;
+  }
+
+  private void checkCanEdit(Category category, String username) throws IllegalAccessException {
+    if (!canEdit(category, username)) {
+      throw new IllegalAccessException("Not allowed to update Category tree");
+    }
+  }
+
+  private CategoryTree buildCategoryTree(Category category, // NOSONAR
+                                         String username,
+                                         List<Long> identityIds,
+                                         Locale locale,
+                                         long offset,
+                                         long limit,
+                                         boolean linkPermission,
+                                         boolean sortByName,
+                                         long depthLimit,
+                                         long depth) {
+    CategoryTree categoryTree = new CategoryTree(category);
+    if (linkPermission && category.getParentId() > 0) {
+      categoryTree.setCanLink(canManageLink(category, username));
+    }
+    long categoryId = categoryTree.getId();
+    long size = categoryStorage.countSubcategories(categoryId);
+    String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
+                                                                  category.getId(),
+                                                                  CategoryTranslationPlugin.NAME_FIELD,
+                                                                  locale);
+    categoryTree.setName(name);
+    if (depth < depthLimit) {
+      categoryTree.setOffset(offset);
+      categoryTree.setLimit(limit);
+      if (size > 0) {
+        List<CategoryTree> categories = buildSubCategories(categoryId,
+                                                           username,
+                                                           identityIds,
+                                                           locale,
+                                                           offset,
+                                                           limit,
+                                                           size,
+                                                           linkPermission,
+                                                           sortByName,
+                                                           depthLimit,
+                                                           depth);
+        categoryTree.setCategories(categories);
+        if (categories.size() < limit) {
+          categoryTree.setSize(offset + categories.size());
+        } else if (canEdit(categoryTree, username)) {
+          categoryTree.setSize(size);
+        } else {
+          try {
+            categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(categoryId),
+                                                                    getUserMemberIdentityIds(username),
+                                                                    locale));
+          } catch (Exception e) {
+            LOG.warn("Error while retrieving subcategories size of category {}. generic value {} without ACL filtering will be used as size instead",
+                     categoryId,
+                     size,
+                     e);
+            categoryTree.setSize(size);
+          }
+        }
+      }
+    } else {
+      try {
+        categoryTree.setSize(categoryStorage.countSubcategories(new CategorySearchFilter(categoryId),
+                                                                getUserMemberIdentityIds(username),
+                                                                locale));
+      } catch (Exception e) {
+        LOG.warn("Error while retrieving subcategories size of category {}. 0 size will be used instead", categoryId, e);
+      }
+    }
+    return categoryTree;
+  }
+
+  private List<CategoryTree> buildSubCategories(long categoryId, // NOSONAR
+                                                String username,
+                                                List<Long> identityIds,
+                                                Locale locale,
+                                                long offset,
+                                                long limit,
+                                                long size,
+                                                boolean linkPermission,
+                                                boolean sortByName,
+                                                long depthLimit,
+                                                long depth) {
+    boolean sortByNameSubcategories = sortByName && size > limit;
+    List<Long> ids = getSubcategoryIds(categoryId,
+                                       offset,
+                                       limit,
+                                       identityIds,
+                                       locale,
+                                       linkPermission,
+                                       sortByNameSubcategories);
+    long loadedCount = ids == null ? 0 : ids.size();
+    List<CategoryTree> categories;
+    if (CollectionUtils.isNotEmpty(ids)) {
+      categories = toCategories(ids,
+                                username,
+                                identityIds,
+                                locale,
+                                offset,
+                                limit,
+                                linkPermission,
+                                sortByName,
+                                depthLimit,
+                                depth + 1);
+      long offsetToFetch = offset;
+      long limitToFetch = Math.max(limit, 10);
+      boolean limitReached = categories.size() == ids.size() || ids.size() < limit;
+      while (!limitReached) {
+        // Loop in order to filter on user permissions
+        offsetToFetch += limitToFetch;
+        ids = getSubcategoryIds(categoryId,
+                                offsetToFetch,
+                                limitToFetch,
+                                identityIds,
+                                locale,
+                                linkPermission,
+                                sortByNameSubcategories);
+        loadedCount += ids.size();
+        List<CategoryTree> additionalCategories = toCategories(ids,
+                                                               username,
+                                                               identityIds,
+                                                               locale,
+                                                               offsetToFetch,
+                                                               limitToFetch,
+                                                               linkPermission,
+                                                               sortByName,
+                                                               depthLimit,
+                                                               depth + 1);
+        if (CollectionUtils.isNotEmpty(additionalCategories)) {
+          categories = new ArrayList<>(categories);
+          categories.addAll(additionalCategories.stream()
+                                                .limit(limit - categories.size())
+                                                .toList());
+        }
+        limitReached = categories.size() >= limit || ids.size() < limitToFetch;
+      }
+    } else {
+      categories = Collections.emptyList();
+    }
+    boolean sortApplied = true;
+    if (sortByName
+        && locale != null
+        && categories.size() < limit
+        && loadedCount < (size - offset)) {
+      LOG.debug("Incoherent result from Elasticsearch while retrieving categories. Thus retrieve data from DB");
+      sortApplied = false;
+      categories = buildSubCategories(categoryId,
+                                      username,
+                                      identityIds,
+                                      locale,
+                                      offset,
+                                      limit,
+                                      size,
+                                      linkPermission,
+                                      false,
+                                      depthLimit,
+                                      depth);
+    }
+    if ((!sortApplied || !sortByNameSubcategories) && CollectionUtils.isNotEmpty(categories)) {
+      categories = new ArrayList<>(categories);
+      categories.sort((c1, c2) -> StringUtils.compare(c1.getName(), c2.getName()));
+    }
+    return categories;
+  }
+
+  private List<CategoryTree> toCategories(List<Long> categoryIds, // NOSONAR
+                                          String username,
+                                          List<Long> identityIds,
+                                          Locale locale,
+                                          long offset,
+                                          long limit,
+                                          boolean linkPermission,
+                                          boolean sortByName,
+                                          long depthLimit,
+                                          long depth) {
+    return categoryIds.stream()
+                      .map(categoryStorage::getCategory)
+                      .filter(cat -> linkPermission ? canManageLink(cat, username, false) : canAccess(cat, username, false))
+                      .map(cat -> buildCategoryTree(cat,
+                                                    username,
+                                                    identityIds,
+                                                    locale,
+                                                    offset,
+                                                    limit,
+                                                    linkPermission,
+                                                    sortByName,
+                                                    depthLimit,
+                                                    depth))
+                      .toList();
+  }
+
+  private List<Long> getSubcategoryIds(long parentId,
+                                       long offset,
+                                       long limit,
+                                       List<Long> identityIds,
+                                       Locale locale,
+                                       boolean linkPermission,
+                                       boolean sortByName) {
+    if (sortByName && locale != null) {
+      if (CollectionUtils.isEmpty(identityIds)) {
+        return Collections.emptyList();
+      } else {
+        try {
+          return categoryStorage.findCategoryIds(new CategorySearchFilter(null,
+                                                                          0,
+                                                                          parentId,
+                                                                          offset,
+                                                                          limit,
+                                                                          linkPermission,
+                                                                          sortByName),
+                                                 identityIds,
+                                                 locale);
+        } catch (Exception e) {
+          LOG.warn("Error while retrieving subcategories of parent category {}. Information will be retrieved from database instead",
+                   parentId,
+                   e);
+        }
+      }
+    }
+    return categoryStorage.getSubcategoryIds(parentId, offset, limit);
+  }
+
+  private void addSubcategories(long categoryId, long offset, long limit, long depth, List<Long> result) {
+    List<Long> subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit);
+    if (CollectionUtils.isNotEmpty(subcategoryIds)) {
+      result.addAll(subcategoryIds);
+      if (depth > 1 || depth < 0) {
+        subcategoryIds.forEach(id -> addSubcategories(id, offset, limit, depth - 1, result));
+      }
+    }
+  }
+
+  private void addSubcategories(String username, // NOSONAR
+                                List<Long> identityIds,
+                                long categoryId,
+                                long offset,
+                                long limit,
+                                long depth,
+                                List<Long> result) {
+
+    List<Long> subcategoryIds;
+    try {
+      subcategoryIds = categoryStorage.findCategoryIds(new CategorySearchFilter(null,
+                                                                                0,
+                                                                                categoryId,
+                                                                                offset,
+                                                                                limit,
+                                                                                false,
+                                                                                false),
+                                                       identityIds,
+                                                       Locale.ENGLISH);
+    } catch (Exception e) {
+      subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit)
+                                      .stream()
+                                      .filter(id -> canAccess(id, username))
+                                      .toList();
+    }
+    if (CollectionUtils.isNotEmpty(subcategoryIds)) {
+      result.addAll(subcategoryIds);
+      if (depth > 1 || depth < 0) {
+        subcategoryIds.forEach(id -> addSubcategories(username, identityIds, id, offset, limit, depth - 1, result));
+      }
+    }
+  }
+
+  private boolean canAccess(Category category, String username, boolean checkAncestors) {
+    if (category == null) {
+      return false;
+    } else if (category.getParentId() == 0 && category.getOwnerId() == getAdminGroupIdentityId()) {
+      return StringUtils.isNotBlank(username);
+    } else if (isMemberOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
+      return true;
+    } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
+      return false;
+    } else {
+      return (!checkAncestors || canAccess(category.getParentId(), username))
+             && category.getAccessPermissionIds()
+                        .stream()
+                        .anyMatch(id -> isMemberOf(identityManager,
+                                                   spaceService,
+                                                   userAcl,
+                                                   id,
+                                                   username));
+    }
+  }
+
+  private boolean canManageLink(Category category, String username, boolean checkAccessToAncestors) {
+    if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
+      return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
+    } else {
+      return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
+             || (canAccess(category, username, checkAccessToAncestors)
+                 && category.getLinkPermissionIds()
+                            .stream()
+                            .anyMatch(id -> isMemberOf(identityManager,
+                                                       spaceService,
+                                                       userAcl,
+                                                       id,
+                                                       username)));
+    }
+  }
+
+  private List<Long> getUserMemberIdentityIds(String username) {
+    org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
+    if (userAclIdentity == null) {
+      return Collections.emptyList();
+    } else {
+      return userAclIdentity.getGroups()
+                            .stream()
+                            .map(groupId -> {
+                              if (StringUtils.startsWith(groupId, SpaceUtils.SPACE_GROUP_PREFIX)) {
+                                Space space = spaceService.getSpaceByGroupId(groupId);
+                                if (space == null) {
+                                  return null;
+                                } else {
+                                  Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+                                  return Long.parseLong(identity.getId());
+                                }
+                              } else {
+                                Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
+                                return identity == null ? null : Long.parseLong(identity.getId());
+                              }
+                            })
+                            .filter(Objects::nonNull)
+                            .toList();
+    }
+  }
+
+  private void addAncestorId(Category category, List<Long> ancestors) {
+    long parentId = category.getParentId();
+    if (parentId > 0) {
+      ancestors.add(parentId);
+      Category parentCategory = getCategory(parentId);
+      addAncestorId(parentCategory, ancestors);
+    }
+  }
+
+}

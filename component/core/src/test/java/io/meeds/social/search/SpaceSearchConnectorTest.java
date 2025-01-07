@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -152,7 +153,8 @@ public class SpaceSearchConnectorTest {
   public void testCountFavorites() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
                                                      true,
@@ -170,7 +172,8 @@ public class SpaceSearchConnectorTest {
   public void testSearchFavorites() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
                                                      true,
@@ -195,7 +198,8 @@ public class SpaceSearchConnectorTest {
   public void testSearchManagingSpaces() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      null,
                                                      true,
@@ -223,11 +227,34 @@ public class SpaceSearchConnectorTest {
   }
 
   @Test
+  public void testSearchSpacesByCategoryIds() {
+    List<Long> categoryIds = new ArrayList<>();
+    categoryIds.add(25l);
+    categoryIds.add(37l);
+    SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
+                                                     USER_IDENTITY_ID,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
+                                                     categoryIds,
+                                                     null,
+                                                     true,
+                                                     null,
+                                                     null,
+                                                     null,
+                                                     null);
+    when(client.sendRequest(argThat(esQuery -> hasCategoryIdsQueryPart(esQuery, categoryIds)),
+                            eq(index))).thenReturn(SEARCH_RESULT);
+    List<SpaceSearchResult> search = spaceSearchConnector.search(filter, 0, 10);
+    assertEquals(1, search.size());
+  }
+
+  @Test
   public void testNotSearchWhenNotUnifiedSearch() {
     assertThrows(IllegalArgumentException.class,
                  () -> spaceSearchConnector.search(new SpaceSearchFilter(USER_NAME,
                                                                          USER_IDENTITY_ID,
-                                                                         0,
+                                                                         Collections.emptyList(),
+                                                                         Collections.emptyList(),
                                                                          Collections.emptyList(),
                                                                          null,
                                                                          false,
@@ -273,7 +300,8 @@ public class SpaceSearchConnectorTest {
   public void testSearchSpaceNoMembership() {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      PHRASE,
                                                      false,
@@ -303,7 +331,8 @@ public class SpaceSearchConnectorTest {
     SpaceSearchFilter filter =
                              new SpaceSearchFilter(USER_NAME,
                                                    USER_IDENTITY_ID,
-                                                   0,
+                                                   Collections.emptyList(),
+                                                   Collections.emptyList(),
                                                    Collections.emptyList(),
                                                    null,
                                                    false,
@@ -328,7 +357,8 @@ public class SpaceSearchConnectorTest {
   private void checkPermissionField(SpaceMembershipStatus status, String fieldName) {
     SpaceSearchFilter filter = new SpaceSearchFilter(USER_NAME,
                                                      USER_IDENTITY_ID,
-                                                     0,
+                                                     Collections.emptyList(),
+                                                     Collections.emptyList(),
                                                      Collections.emptyList(),
                                                      TERM,
                                                      false,
@@ -369,6 +399,17 @@ public class SpaceSearchConnectorTest {
            && StreamSupport.stream(permission.spliterator(), false)
                            .allMatch(e -> Stream.of(permissionValues)
                                                 .anyMatch(v -> v.equals(e.asText())));
+  }
+
+  @SneakyThrows
+  private boolean hasCategoryIdsQueryPart(String esQuery, List<Long> categoryIds) {
+    JsonNode categoryId = getFilterNode(esQuery, "categoryId");
+    return categoryId != null
+           && categoryId.size() == 2
+           && StreamSupport.stream(categoryId.spliterator(), false)
+                           .allMatch(e -> categoryIds
+                                                     .stream()
+                                                     .anyMatch(v -> v.equals(e.asLong())));
   }
 
   @SneakyThrows

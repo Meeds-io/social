@@ -24,6 +24,8 @@ import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
+
 import lombok.Getter;
 
 public class SpaceListenerPluginMock extends SpaceListenerPlugin {
@@ -109,6 +111,16 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   @Override
   public void spaceRenamed(SpaceLifeCycleEvent event) {
     events.add(Type.SPACE_RENAMED);
+  }
+
+  @Override
+  public void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    events.add(Type.CATEGORY_ADDED);
+  }
+
+  @Override
+  public void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    events.add(Type.CATEGORY_REMOVED);
   }
 
   public void reset() {

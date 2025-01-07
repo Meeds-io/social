@@ -18,6 +18,8 @@ package org.exoplatform.social.core.space.spi;
 
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
+
 
 /**
  * A listener to follow the liecycle of a space.
@@ -208,4 +210,23 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   default void spaceBannerEdited(SpaceLifeCycleEvent event) {
     // No default implementation
   }
+
+  /**
+   * Triggered when a space category is newly associated
+   * 
+   * @param event the space lifecycle event
+   */
+  default void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
+   * Triggered when a space category association is removed
+   * 
+   * @param event the space lifecycle event
+   */
+  default void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    // No default implementation
+  }
+
 }

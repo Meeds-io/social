@@ -19,9 +19,10 @@ package org.exoplatform.social.core.space;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 
-import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
 
 /**
  * Implementation of the lifecycle of spaces. <br>
@@ -62,6 +63,12 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       break;
     case SPACE_REMOVED:
       listener.spaceRemoved(event);
+      break;
+    case CATEGORY_ADDED:
+      listener.categoryAdded((SpaceCategoryLifeCycleEvent) event);
+      break;
+    case CATEGORY_REMOVED:
+      listener.categoryRemoved((SpaceCategoryLifeCycleEvent) event);
       break;
     case JOINED:
       if (isSpaceProperEvent(event)) {
@@ -179,9 +186,17 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
   public void spaceBannerEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_BANNER_EDITED));
   }
-
+  
   public void spaceAccessEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_HIDDEN));
+  }
+
+  public void spaceCategoryAdded(Space space, String userId, long categoryId) {
+    broadcast(new SpaceCategoryLifeCycleEvent(space, userId, categoryId, Type.CATEGORY_ADDED));
+  }
+
+  public void spaceCategoryRemoved(Space space, String userId, long categoryId) {
+    broadcast(new SpaceCategoryLifeCycleEvent(space, userId, categoryId, Type.CATEGORY_REMOVED));
   }
 
   public void spaceRegistrationEdited(Space space, String userId) {

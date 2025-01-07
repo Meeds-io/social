@@ -1126,4 +1126,43 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-mip-170-01">
+    <createTable tableName="SOC_SPACE_CATEGORIES">
+      <column
+        name="SPACE_ID"
+        type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column
+        name="CATEGORY_ID"
+        type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column
+        name="CREATED_DATE"
+        type="TIMESTAMP">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <addPrimaryKey
+      tableName="SOC_SPACE_CATEGORIES"
+      columnNames="SPACE_ID, CATEGORY_ID"
+      constraintName="PK_SOC_SPACE_CATEGORIES_01" />
+    <createIndex
+      tableName="SOC_SPACE_CATEGORIES"
+      indexName="IDX_SOC_SPACE_CATEGORIES_01">
+      <column name="SPACE_ID" type="BIGINT" />
+    </createIndex>
+  </changeSet>
+
+  <changeSet
+    author="social"
+    id="1.0.0-mip-170-02">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column
+        name="SPACE_CATEGORY_IDS"
+        type="NVARCHAR(2000)"></column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

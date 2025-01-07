@@ -17,28 +17,50 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import SpacesList from './components/SpacesList.vue';
-import SpacesToolbar from './components/SpacesToolbar.vue';
-import SpacesCardList from './components/SpacesCardList.vue';
-import SpacesListFilterDrawer from './components/SpacesListFilterDrawer.vue';
-import SpaceCard from './components/SpaceCard.vue';
-import SpaceCardButton from './components/SpaceCardButton.vue';
-import SpaceCardMenu from './components/SpaceCardMenu.vue';
-import SpaceCardMenuItem from './components/SpaceCardMenuItem.vue';
-import SpaceCardUnreadBadge from './components/SpaceCardUnreadBadge.vue';
-import SpaceFavoriteAction from './components/SpaceFavoriteAction.vue';
-import SpacePendingButton from './components/SpacePendingButton.vue';
-import SpacePendingDrawer from './components/SpacePendingDrawer.vue';
-import SpaceRoleListItem from './components/SpaceRoleListItem.vue';
-import SpaceRoleList from './components/SpaceRoleList.vue';
+
+import SpacesToolbar from './components/toolbar/SpacesToolbar.vue';
+import SpacePendingButton from './components/toolbar/SpacePendingButton.vue';
+
+import SpacesCategoriesToolbar from './components/space-categories/SpacesCategoriesToolbar.vue';
+import SpacesCategoriesBreadcrumb from './components/space-categories/SpacesCategoriesBreadcrumb.vue';
+import SpacesCategoryChipsGroup from './components/space-categories/SpacesCategoryChipsGroup.vue';
+import SpacesCategoryChip from './components/space-categories/SpacesCategoryChip.vue';
+import SpacesCategoryTabsGroup from './components/space-categories/SpacesCategoryTabsGroup.vue';
+import SpacesCategoryTab from './components/space-categories/SpacesCategoryTab.vue';
+
+import SpacesCardList from './components/list/SpacesCardList.vue';
+
+import SpacesListFilterDrawer from './components/drawer/SpacesListFilterDrawer.vue';
+import SpacePendingDrawer from './components/drawer/SpacePendingDrawer.vue';
+import SpacesCategoryListDrawer from './components/drawer/SpacesCategoryListDrawer.vue';
+import SpacesListSettingsDrawer from './components/drawer/SpacesListSettingsDrawer.vue';
+
+import SpaceCard from './components/space-card/SpaceCard.vue';
+import SpaceCardMenu from './components/space-card/menu/SpaceCardMenu.vue';
+import SpaceCardMenuItem from './components/space-card/menu/SpaceCardMenuItem.vue';
+import SpaceRoleListItem from './components/space-card/menu/SpaceRoleListItem.vue';
+import SpaceRoleList from './components/space-card/menu/SpaceRoleList.vue';
+
+import SpaceCardButton from './components/common/SpaceCardButton.vue';
+import SpaceCardUnreadBadge from './components/common/SpaceCardUnreadBadge.vue';
+import SpaceFavoriteAction from './components/common/SpaceFavoriteAction.vue';
 
 const components = {
   'spaces-list': SpacesList,
   'spaces-toolbar': SpacesToolbar,
+  'spaces-categories-toolbar': SpacesCategoriesToolbar,
+  'spaces-categories-breadcrumb': SpacesCategoriesBreadcrumb,
+  'spaces-category-chip': SpacesCategoryChip,
+  'spaces-category-chips-group': SpacesCategoryChipsGroup,
+  'spaces-category-tabs-group': SpacesCategoryTabsGroup,
+  'spaces-category-tab': SpacesCategoryTab,
   'spaces-card-list': SpacesCardList,
   'spaces-pending-drawer': SpacePendingDrawer,
   'spaces-role-list-item': SpaceRoleListItem,
   'spaces-role-list': SpaceRoleList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
+  'spaces-list-settings-drawer': SpacesListSettingsDrawer,
+  'spaces-categories-list-drawer': SpacesCategoryListDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
   'space-card-menu': SpaceCardMenu,

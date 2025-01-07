@@ -288,7 +288,7 @@ export default {
         this.$root.$emit('sidebar-item-edit-site', this.settings, item);
       } else if (item.type === 'LINK') {
         this.$root.$emit('sidebar-item-edit-link', this.settings, item);
-      } else if (item.type === 'SPACES' || item.type === 'SPACE_TEMPLATE') {
+      } else if (item.type === 'SPACES' || item.type === 'SPACE_TEMPLATE' || item.type === 'SPACE_CATEGORY') {
         this.$root.$emit('sidebar-item-edit-spaces', this.settings, item);
       }
     },

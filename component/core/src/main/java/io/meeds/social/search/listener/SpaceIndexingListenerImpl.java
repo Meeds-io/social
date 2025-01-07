@@ -38,6 +38,8 @@ import org.exoplatform.social.metadata.tag.TagService;
 import org.exoplatform.social.metadata.tag.model.TagName;
 import org.exoplatform.social.metadata.tag.model.TagObject;
 
+import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
+
 public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
 
   public static final String METADATA_OBJECT_TYPE = "space";
@@ -148,6 +150,16 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   @Override
   public void removePendingUser(SpaceLifeCycleEvent event) {
     reindex(event, "user canceled request access to space");
+  }
+
+  @Override
+  public void categoryAdded(SpaceCategoryLifeCycleEvent event) {
+    reindex(event, "space category added");
+  }
+
+  @Override
+  public void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
+    reindex(event, "space category removed");
   }
 
   private void reindex(SpaceLifeCycleEvent event, String cause) {

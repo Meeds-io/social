@@ -38,9 +38,11 @@ public class SpaceSearchFilter {
 
   private long                  userIdentityId;
 
-  private long                  templateId;
+  private List<Long>            templateIds;
 
   private List<Long>            managingTemplateIds;
+
+  private List<Long>            categoryIds;
 
   private String                term;
 
