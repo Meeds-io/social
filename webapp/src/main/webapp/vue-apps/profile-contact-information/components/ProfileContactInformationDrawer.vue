@@ -12,7 +12,9 @@
         ref="profileContactForm"
         class="form-horizontal"
         flat>
-        <div v-for="property in properties" :key="property.id">
+        <div
+          v-for="property in properties"
+          :key="property.id">
           <profile-contact-user-type-property
             v-if="property.propertyType=== 'user'"
             :property="property"
@@ -21,6 +23,11 @@
             v-else-if="property.multiValued || property?.children?.length"
             :property="property"
             @propertyUpdated="propertyUpdated" />
+          <profile-dropdown-property
+            v-else-if="property.dropdownList"
+            :property="property"
+            :property-label="getResolvedName(property)"
+            @property-updated="propertyUpdated" />
           <div v-else>
             <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
               {{ getResolvedName(property) }}
@@ -72,6 +79,7 @@
 <script>
 export default {
   data: () => ({
+    lang: eXo?.env.portal.language,
     propertiesToSave: [],
     properties: [],
     saving: null,
@@ -238,19 +246,17 @@ export default {
       this.disabled = true;
       this.$refs.profileContactInformationDrawer.open();
     },
-    propertyUpdated(item){
+    propertyUpdated(item) {
       this.disabled = false;
       if (!this.propertiesToSave.some(e => e.id === item.id)) {
         this.propertiesToSave.push(item);
       }    
     },
-    getResolvedName(item){
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+    getResolvedName(property) {
+      return property.labels?.find(label => label.language === this.lang)?.label
+          || (this.$te?.(`profileContactInformation.${property.propertyName}`)
+            ? this.$t(`profileContactInformation.${property.propertyName}`)
+            : property.propertyName);
     }
   },
 };

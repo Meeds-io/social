@@ -23,7 +23,7 @@
     class="d-flex">
     <div
       class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
-      {{ getResolvedName(property) }}
+      {{ propertyLabel }}
       <profile-hidden-property-info
         :property="property"
         :hover="hover"
@@ -48,18 +48,18 @@
       </div>
       <v-btn
         v-else-if="searchable"
-        v-autolinker="property.value"
+        v-autolinker="propertyDisplayValue"
         class="primary--text pa-0 font-weight-regular"
         min-width="auto"
         text
         @click="quickSearch">
-        {{ property.value }}
+        {{ propertyDisplayValue }}
       </v-btn>
       <span
         v-else
         class="font-weight-regular"
         v-autolinker="property.value">
-        {{ property.value }}
+        {{ propertyDisplayValue }}
       </span>
     </div>
   </v-flex>
@@ -72,6 +72,10 @@ export default {
     property: {
       type: Object,
       default: () => null,
+    },
+    propertyLabel: {
+      type: String,
+      default: null
     },
     searchable: {
       type: Boolean,
@@ -89,19 +93,19 @@ export default {
   computed: {
     userProperty() {
       return this.property.propertyType === 'user';
+    },
+    propertyOption() {
+      return this.property.dropdownList
+        ? this.property.propertyOptions?.find(option => `${option.id}` === `${this.property.value}`)
+        : null;
+    },
+    propertyDisplayValue() {
+      return this.propertyOption?.translatedValue ?? this.propertyOption?.value ?? this.property.value;
     }
   },
   methods: {
     quickSearch() {
       this.$emit('quick-search', this.property);
-    },
-    getResolvedName(item) {
-      const lang = eXo?.env?.portal?.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
     }
   }
 };
