@@ -78,16 +78,19 @@ export default {
       }
     }
     this.displayActivityDetail(this.$root.selectedActivityId, this.$root.selectedCommentId);
-    window.addEventListener('load', () => {
-      const urlHash = window.location.hash;
-      if (urlHash) {
-        const elementId = urlHash.substring(1);
+  },
+  mounted() {
+    const urlHash = window.location.hash;
+    if (urlHash) {
+      const elementId = urlHash.substring(1);
+      const interval = setInterval(() => {
         const targetElement = document.getElementById(elementId);
         if (targetElement) {
-          targetElement.scrollIntoView({behavior: 'smooth'});
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+          clearInterval(interval);
         }
-      }
-    });
+      }, 500);
+    }
   },
   methods: {
     displayActivityDetail(activityId, commentId) {
@@ -102,7 +105,7 @@ export default {
         }
       } else {
         this.$root.selectedCommentId = '';
-        window.history.replaceState('', '', `${window.location.pathname}?id=${activityId}${urlHash}`);
+        window.history.replaceState('', '', `${window.location.pathname}${urlHash}`);
       }
       this.$nextTick().then(() => this.loaded = true);
     },
