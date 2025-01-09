@@ -21,15 +21,27 @@
         </v-btn>
       </div>
     </div>
-    <v-flex v-for="(childProperty, i) in property.children" :key="i">
-      <profile-contact-edit-multi-field-select
-        v-if="childProperty.isNew || (childProperty.visible && childProperty.active && childProperty.value) || (property.multiValued && property.active && property.visible && childProperty.value)"
-        :property="childProperty"
-        :parent-propery="property"
-        :properties="property.children"
-        :multi-valued="property.multiValued"
-        @propertyUpdated="propertyUpdated"
-        @remove="remove(i)" />
+    <v-flex
+      v-for="(childProperty, index) in property.children"
+      :key="childProperty.id">
+      <div v-if="showChild(childProperty, property)">
+        <profile-dropdown-property
+          v-if="property.dropdownList"
+          :multi-valued="true"
+          :parent-property="property"
+          :property="childProperty"
+          :property-label="getResolvedName(childProperty)"
+          @remove="remove(index)"
+          @property-updated="propertyUpdated" />
+        <profile-contact-edit-multi-field-select
+          v-else
+          :property="childProperty"
+          :parent-propery="property"
+          :properties="property.children"
+          :multi-valued="property.multiValued"
+          @propertyUpdated="propertyUpdated"
+          @remove="remove(index)" />
+      </div>
     </v-flex>
   </v-card-text>
 </template>
@@ -43,6 +55,11 @@ export default {
     }
   },
   methods: {
+    showChild(property, parent) {
+      return property.isNew
+          || (property.value && property.visible && property.active)
+          || (parent.multiValued && property.value && parent.active && parent.visible);
+    },
     remove(i) {
       if (this.property.children[i].isNew) {
         this.property.children.splice(i, 1);
@@ -56,7 +73,7 @@ export default {
       this.property.children.push(item);
       this.$forceUpdate();
     },
-    propertyUpdated(){
+    propertyUpdated() {
       this.$emit('propertyUpdated',this.property);
     },
     getResolvedName(item){

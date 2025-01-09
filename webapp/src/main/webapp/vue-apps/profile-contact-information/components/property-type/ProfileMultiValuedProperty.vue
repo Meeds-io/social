@@ -78,14 +78,14 @@
             </span>
             <v-btn
               v-if="searchable"
-              v-autolinker="childProperty.value"
+              v-autolinker="getPropertyDisplayValue(childProperty)"
               class="primary--text font-weight-regular pa-0 ma-auto"
               min-width="auto"
               text
               @click="quickSearch(childProperty)" />
             <span
               v-else
-              v-autolinker="childProperty.value"></span>
+              v-autolinker="getPropertyDisplayValue(childProperty)"></span>
           </div>
         </v-hover>
       </div>
@@ -124,19 +124,17 @@ export default {
   computed: {
     userProperty() {
       return this.property.propertyType === 'user';
-    }
+    },
   },
   methods: {
     quickSearch(childProperty) {
       this.$emit('quick-search', this.property, childProperty);
     },
-    getResolvedName(item) {
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+    getResolvedName(property) {
+      return property.labels?.find(label => label.language === this.lang)?.label
+          || (this.$te?.(`profileContactInformation.${property.propertyName}`)
+            ? this.$t(`profileContactInformation.${property.propertyName}`)
+            : property.propertyName);
     },
     canShowHiddenChildProperty(property) {
       return !property.hidden || (property.hidden && (this.isAdmin || this.owner));
@@ -144,6 +142,13 @@ export default {
     canShowChild(childProperty) {
       return (childProperty.value && childProperty.visible && childProperty.active && this.canShowHiddenChildProperty(childProperty))
                || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
+    },
+    getPropertyOption(property) {
+      return this.property.dropdownList ? this.property.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
+    },
+    getPropertyDisplayValue(property) {
+      const propertyOption = this.getPropertyOption(property);
+      return propertyOption?.translatedValue ?? propertyOption?.value ?? property.value;
     }
   },
 };
