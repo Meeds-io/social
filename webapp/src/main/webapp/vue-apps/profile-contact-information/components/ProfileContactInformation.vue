@@ -61,6 +61,7 @@
                   v-else
                   :hover="hover"
                   :property="property"
+                  :property-label="getResolvedName(property)"
                   :is-mobile="isMobile"
                   :searchable="isSearchable(property)"
                   @quick-search="quickSearch" />
@@ -93,6 +94,7 @@ export default {
     },
   },
   data: () => ({
+    lang: eXo?.env.portal.language,
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     properties: [],
     user: null,
@@ -183,6 +185,12 @@ export default {
     },
     editContactInformation() {
       this.$root.$emit('open-profile-contact-information-drawer', this.properties);
+    },
+    getResolvedName(property) {
+      return property.labels?.find(label => label.language === this.lang)?.label
+          || (this.$te?.(`profileContactInformation.${property.propertyName}`)
+            ? this.$t(`profileContactInformation.${property.propertyName}`)
+            : property.propertyName);
     }
   },
 };

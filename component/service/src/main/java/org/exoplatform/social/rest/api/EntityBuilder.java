@@ -74,6 +74,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfig;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.localization.LocaleContextInfoUtils;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.Visibility;
@@ -213,6 +214,10 @@ public class EntityBuilder {
   public static final String              SETTINGS                                   = "settings";
 
   public static final String              USER_CARD_SETTINGS                         = "UserCardSettings";
+
+  private static final String             PROFILE_PROPERTY_FIELD_NAME                = "optionValue";
+
+  private static final String             PROFILE_PROPERTY_OBJECT_TYPE               = "propertySettingOption";
 
   private static UserPortalConfigService  userPortalConfigService;
 
@@ -2043,11 +2048,7 @@ public class EntityBuilder {
     if (profilePropertyOptions == null) {
       return new ArrayList<>();
     }
-    return profilePropertyOptions.stream()
-                                 .map(option -> new ProfilePropertyOptionEntity(option.getId(),
-                                                                                option.getValue(),
-                                                                                option.getPropertySettingId()))
-                                 .toList();
+    return profilePropertyOptions.stream().map(EntityBuilder::toProfilePropertyOptionEntity).toList();
   }
 
   /**
@@ -2475,4 +2476,18 @@ public class EntityBuilder {
     return Arrays.stream(users).collect(Collectors.toSet()).size();
   }
 
+  private static ProfilePropertyOptionEntity toProfilePropertyOptionEntity(ProfilePropertyOption profilePropertyOption) {
+    if (profilePropertyOption == null) {
+      return null;
+    }
+    String translatedValue =
+                           getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                                                profilePropertyOption.getId(),
+                                                                                PROFILE_PROPERTY_FIELD_NAME,
+                                                                                LocaleContextInfoUtils.getUserLocale(getCurrentUserName()));
+    return new ProfilePropertyOptionEntity(profilePropertyOption.getId(),
+                                           profilePropertyOption.getValue(),
+                                           translatedValue,
+                                           profilePropertyOption.getPropertySettingId());
+  }
 }

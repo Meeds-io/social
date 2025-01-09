@@ -33,5 +33,7 @@ public class ProfilePropertyOptionEntity {
 
   private String value;
 
+  private String translatedValue;
+
   private Long propertySettingId;
 }
