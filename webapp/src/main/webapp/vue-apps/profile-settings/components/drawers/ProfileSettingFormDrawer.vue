@@ -595,9 +595,10 @@ export default {
           setting[field] = null;
         }
         if (field === 'propertyOptions') {
-          return this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field]);
-        }
-        if (initialSetting[field] !== setting[field]) {
+          if (!this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field])) {
+            return false;
+          }
+        } else if (initialSetting[field] !== setting[field]) {
           return false;
         }
       }
