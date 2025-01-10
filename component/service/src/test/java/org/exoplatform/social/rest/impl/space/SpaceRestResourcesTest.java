@@ -42,14 +42,12 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
-  private IdentityManager        identityManager;
 
   private OrganizationService    organizationService;
-
-  private UserACL                userACL;
 
   private ActivityManager        activityManager;
 
@@ -81,6 +79,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+    CategoryService categoryService = getContainer().getComponentInstanceOfType(CategoryService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
@@ -94,6 +93,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
     spaceRestResources = new SpaceRest(spaceService,
                                        spaceLayoutService,
+                                       categoryService,
                                        identityManager,
                                        uploadService,
                                        imageThumbnailService,

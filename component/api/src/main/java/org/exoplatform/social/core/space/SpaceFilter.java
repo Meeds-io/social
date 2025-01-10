@@ -55,6 +55,9 @@ public class SpaceFilter implements Cloneable {
 
   private List<Long>            categoryIds;
 
+public List<Long> getCategoryIds() {
+  return categoryIds;
+}
   private List<Long>            managingTemplateIds;
 
   private SpaceMembershipStatus status;

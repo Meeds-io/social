@@ -49,6 +49,7 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -94,6 +95,7 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.service.SpaceLayoutService;
@@ -155,6 +157,8 @@ public class SpaceRest implements ResourceContainer {
 
   private final SpaceService           spaceService;
 
+  private final CategoryService        categoryService;
+
   private final SpaceLayoutService     spaceLayoutService;
 
   private final SecuritySettingService securitySettingService;
@@ -167,12 +171,14 @@ public class SpaceRest implements ResourceContainer {
 
   public SpaceRest(SpaceService spaceService,
                    SpaceLayoutService spaceLayoutService,
+                   CategoryService categoryService,
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
                    SecuritySettingService securitySettingService) {
     this.spaceService = spaceService;
     this.spaceLayoutService = spaceLayoutService;
+    this.categoryService = categoryService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
@@ -270,7 +276,19 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setTagNames(tagNames);
     spaceFilter.setTemplateIds(templateIds);
     spaceFilter.setExcludedIds(excludedIds);
-    spaceFilter.setCategoryIds(categoryIds);
+    if (CollectionUtils.isNotEmpty(categoryIds)) {
+      spaceFilter.setCategoryIds(categoryIds.stream()
+                                            .filter(id -> categoryService.canAccess(id, authenticatedUser))
+                                            .toList());
+      if (CollectionUtils.isEmpty(spaceFilter.getCategoryIds())) {
+        CollectionEntity collectionSpace = new CollectionEntity(Collections.emptyList(),
+                                                                EntityBuilder.SPACES_TYPE,
+                                                                offset,
+                                                                limit);
+        return EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK)
+                            .build();
+      }
+    }
     spaceFilter.setRegistration(registration);
     spaceFilter.setVisibility(visibility);
 
