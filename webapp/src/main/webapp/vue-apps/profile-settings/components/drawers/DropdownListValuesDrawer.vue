@@ -150,6 +150,7 @@
               <dropdown-list-option-item-value
                 :option="option"
                 @data-translations="initCurrentTranslations"
+                @delete-option="openConfirmDialogOnDelete"
                 @translation-updated="translationUpdated" />
             </span>
           </div>
@@ -160,6 +161,7 @@
 </template>
 
 <script>
+
 export default {
   data() {
     return {
@@ -184,10 +186,24 @@ export default {
     this.$root.$on('cancel-edit-add', this.resetTranslations);
   },
   methods: {
+    deleteOption(option) {
+      this.propertyOptions.splice(this.getOptionIndex(option), 1);
+    },
+    openConfirmDialogOnDelete(option) {
+      this.$root.$emit('open-confirm-dialog', {
+        title: this.$t('profileSettings.dialog.deleteOption.title'),
+        message: this.$t('profileSettings.dialog.deleteOption.message', {0: `<strong>${option.value}</strong>`}),
+        okLabel: this.$t('profileSettings.dialog.deleteOption.ok'),
+        cancelLabel: this.$t('profileSettings.dialog.deleteOption.cancel'),
+        callback: () => this.deleteOption(option)
+      });
+    },
+    getOptionIndex(option) {
+      return this.propertyOptions.findIndex(item =>
+        (option.id ? item.id === option.id : item.uuid === option.uuid));
+    },
     translationUpdated(option, translations) {
-      const index = this.propertyOptions.findIndex(item =>
-        (option.id ? item.id === option.id : item.uuid === option.uuid)
-      );
+      const index = this.getOptionIndex(option);
       this.propertyOptions[index].translations = translations;
       this.checkTranslationUpdated(index);
     },

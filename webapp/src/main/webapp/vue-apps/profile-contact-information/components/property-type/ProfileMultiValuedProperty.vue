@@ -50,7 +50,7 @@
       </div>
       <div
         v-else
-        v-for="(childProperty, i) in property.children"
+        v-for="(childProperty, i) in filteredChildren"
         :key="i"
         :title="getPropertyDisplayValue(childProperty)"
         class="text-no-wrap text-truncate">
@@ -125,6 +125,9 @@ export default {
     userProperty() {
       return this.property.propertyType === 'user';
     },
+    filteredChildren() {
+      return this.property.children.filter(property => !this.excludedDropdown(property));
+    }
   },
   methods: {
     quickSearch(childProperty) {
@@ -142,6 +145,9 @@ export default {
     canShowChild(childProperty) {
       return (childProperty.value && childProperty.visible && childProperty.active && this.canShowHiddenChildProperty(childProperty))
                || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
+    },
+    excludedDropdown(property) {
+      return this.property.dropdownList && !this.getPropertyOption(property);
     },
     getPropertyOption(property) {
       return this.property.dropdownList ? this.property.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
