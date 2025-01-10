@@ -138,6 +138,10 @@
         <name>clientSecret</name>
         <value>${exo.oauth.openid.clientSecret}</value>
       </value-param>
+      <value-param>
+        <name>oidcCookieLifetime</name>
+        <value>${exo.oauth.openid.cookie.lifetime:86400}</value>
+      </value-param>
       <!-- URL to redirect from OpenId during Openid authentication -->
       <value-param>
         <name>redirectURL</name>
@@ -356,6 +360,30 @@
         <value-param>
           <name>loginUrl</name>
           <value>/@@portal.container.name@@/login</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
+
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>OpenIdAuthenticationFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.web.openid.OpenIdAuthenticationFilter</value>
+        </value-param>
+        <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/login</value>
         </value-param>
       </init-params>
     </component-plugin>
