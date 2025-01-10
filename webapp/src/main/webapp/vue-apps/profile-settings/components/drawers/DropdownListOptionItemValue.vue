@@ -20,7 +20,6 @@
 
 <template>
   <v-row class="border-bottom-color">
-    {{ userLangOptionValue }}
     <v-col
       cols="8"
       class="d-flex py-1 px-0">
@@ -108,7 +107,7 @@ export default {
       this.$refs?.[`option${this.option.id || this.option.uuid}`]?.openDrawer();
     },
     deleteOption() {
-      //
+      this.$emit('delete-option', this.option);
     }
   }
 };

@@ -46,6 +46,14 @@
           @back-to-main-page="setMainPageSelected" />
       </v-card>
     </v-main>
+    <confirm-dialog
+      ref="dialog"
+      :title="dialogTitle"
+      :message="dialogMessage"
+      :ok-label="dialogOkLabel"
+      :cancel-label="dialogCancelLabel"
+      @ok="onDialogOk"
+      @closed="confirmDialogClosed" />
     <user-card-settings-drawer
       ref="userCardSettings"
       :user="user"
@@ -84,6 +92,11 @@ export default {
       savedCardSettings: null,
       settingOptionObjectType: 'propertySettingOption',
       settingOptionFieldName: 'optionValue',
+      dialogTitle: null,
+      dialogMessage: null,
+      dialogOkLabel: null,
+      dialogCancelLabel: null,
+      dialogCallback: null
     };
   },
   props: {
@@ -114,6 +127,7 @@ export default {
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
     this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
+    this.$root.$on('open-confirm-dialog', this.openConfirmDialog);
     window.addEventListener('popstate', this.updateSelected);
     setTimeout(() => {
       this.openUserCardSettingsDrawer();
@@ -310,6 +324,20 @@ export default {
     },
     openDropdownListDrawer(setting) {
       this.$refs.dropdownListDrawer.open(setting);
+    },
+    confirmDialogClosed() {
+      this.dialogCallback = null;
+    },
+    openConfirmDialog(setting) {
+      this.dialogTitle = setting.title;
+      this.dialogMessage = setting.message;
+      this.dialogOkLabel = setting.okLabel;
+      this.dialogCancelLabel = setting.cancelLabel;
+      this.dialogCallback = setting.callback;
+      this.$refs.dialog.open();
+    },
+    onDialogOk() {
+      this.dialogCallback?.();
     }
   }
 };
