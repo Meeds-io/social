@@ -110,8 +110,8 @@ export default {
       return this.user?.isAdmin;
     },
     filteredProperties() {
-      return this.properties.filter(property => property.visible &&
-               (property.value || (property.children.length && property.children.some(e => e.value))));
+      return this.properties.filter(property => property.visible && !this.excludedDropdown(property, property)
+               && (property.value || (property.children?.some(e => e.value && !this.excludedDropdown(e, property)))));
     },
     title() {
       return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
@@ -191,7 +191,14 @@ export default {
           || (this.$te?.(`profileContactInformation.${property.propertyName}`)
             ? this.$t(`profileContactInformation.${property.propertyName}`)
             : property.propertyName);
-    }
+    },
+    getPropertyOption(property, parent) {
+      return parent.dropdownList
+        ? parent.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
+    },
+    excludedDropdown(property, parent) {
+      return !property.children?.length && parent.dropdownList && !this.getPropertyOption(property, parent);
+    },
   },
 };
 </script>
