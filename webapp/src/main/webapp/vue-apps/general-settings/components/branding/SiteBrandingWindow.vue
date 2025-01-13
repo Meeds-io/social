@@ -22,8 +22,8 @@
   <v-row class="ma-0 position-relative">
     <v-col
       cols="12"
-      lg="6"
-      class="pa-0 mb-12 pb-5">
+      lg="12"
+      class="pa-0">
       <portal-general-settings-branding-site 
         :branding="branding"
         :custom-css="customStylesheet"
@@ -34,12 +34,10 @@
     <v-col
       cols="12"
       lg="6"
-      class="pa-0">
-      <portal-general-settings-branding-site-preview />
+      :class="customStylesheetEnabled && 'mt-3' || 'mt-12'">
       <portal-general-settings-custom-style-input
         v-if="customStylesheetEnabled"
-        v-model="customStylesheet"
-        class="mt-8" />
+        v-model="customStylesheet" />
     </v-col>
   </v-row>
 </template>
