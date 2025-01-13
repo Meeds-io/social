@@ -105,7 +105,11 @@ export default {
         }
       } else {
         this.$root.selectedCommentId = '';
-        window.history.replaceState('', '', `${window.location.pathname}${urlHash}`);
+        if (activityId) {
+          window.history.replaceState('', '', `${window.location.pathname}?id=${activityId}${urlHash}`);
+        } else {
+          window.history.replaceState('', '', `${window.location.pathname}${urlHash}`);
+        }
       }
       this.$nextTick().then(() => this.loaded = true);
     },
