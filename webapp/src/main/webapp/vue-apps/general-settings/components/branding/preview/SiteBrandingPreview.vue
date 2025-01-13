@@ -19,13 +19,14 @@
 
 -->
 <template>
-  <div class="d-none d-lg-block">
+  <div class="d-none d-lg-flex flex-column">
     <div class="text-header">
       {{ $t('generalSettings.preview.title') }}
     </div>
     <div
       ref="iframeParent"
-      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius">
+      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius"
+      :style="`height: ${iframeParentHeight}`">
       <iframe
         v-if="initialized && parentWidth"
         id="previewIframe" 
@@ -37,7 +38,6 @@
         name="pageHomeLink"
         class="no-border">
       </iframe>
-      <div class="flex-grow-0 flex-shrink-1 position-absolute full-width full-height t-0"></div>
     </div>
   </div>
 </template>
@@ -47,7 +47,8 @@ export default {
     initialized: false,
     sites: null,
     parentWidth: 0,
-    zoom: 0.4,
+    zoom: 0.5,
+    iframeParentHeight: '600px'
   }),
   computed: {
     iframeWidthPercentage() {
