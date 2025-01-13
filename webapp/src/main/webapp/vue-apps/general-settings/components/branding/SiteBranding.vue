@@ -24,7 +24,7 @@
       cols="12"
       lg="7"
       class="pa-0 mb-4">
-      <div class="text-header mb-4">
+      <div class="text-header mb-6">
         {{ $t('generalSettings.companyNameTitle') }}
       </div>
       <v-card
