@@ -22,12 +22,13 @@
   <v-row class="ma-0">
     <v-col
       cols="12"
+      lg="7"
       class="pa-0 mb-4">
-      <div class="text-header mb-2">
+      <div class="text-header mb-4">
         {{ $t('generalSettings.companyNameTitle') }}
       </div>
       <v-card
-        max-width="350px"
+        max-width="450px"
         class="me-2"
         flat>
         <v-text-field
@@ -45,9 +46,10 @@
       </v-card>
     </v-col>
     <v-col
-      cols="6"
+      cols="12"
+      lg="2"
       class="pa-0 mb-4 d-flex flex-column">
-      <div class="my-4 text-header">
+      <div class="mb-2 text-header">
         <help-label
           label="generalSettings.companyLogo.label"
           label-class="text-header"
@@ -72,9 +74,10 @@
         class="my-auto" />
     </v-col>
     <v-col
-      cols="6"
+      cols="12"
+      lg="3"
       class="pa-0 mb-4 d-flex flex-column">
-      <div class="my-4 text-header">
+      <div class="mb-2 text-header">
         {{ $t('generalSettings.companyFaviconTitle') }}
       </div>
       <portal-general-settings-company-favicon
@@ -84,90 +87,15 @@
         class="my-auto" />
     </v-col>
     <v-col
-      cols="12"
-      class="pa-0 mb-4">
-      <div class="mt-4 mb-0 text-header">
-        <help-label
-          label="generalSettings.themeColors.label"
-          label-class="text-header"
-          tooltip="generalSettings.themeColors.tooltip">
-          <template slot="helpContent">
-            <p>
-              {{ $t('generalSettings.themeColors.help1') }}
-            </p>
-            <p>
-              {{ $t('generalSettings.themeColors.help2') }}
-            </p>
-            <p>
-              {{ $t('generalSettings.themeColors.help3') }}
-            </p>
-            <p>
-              {{ $t('generalSettings.themeColors.help4') }}
-            </p>
-          </template>
-        </help-label>
-      </div>
-      <div class="d-flex flex-wrap justify-space-between pe-4">
-        <div>
-          <portal-general-settings-color-picker
-            v-model="primaryColor"
-            :label="$t('generalSettings.primaryColor.label')" />
-        </div>
-        <div>
-          <portal-general-settings-color-picker
-            v-model="secondaryColor"
-            :label="$t('generalSettings.secondaryColor.label')" />
-        </div>
-        <div>
-          <portal-general-settings-color-picker
-            v-model="tertiaryColor"
-            :label="$t('generalSettings.tertiaryColor.label')" />
-        </div>
-      </div>
-    </v-col>
-    <v-col
-      cols="12"
-      class="pa-0 mb-4">
-      <div class="mb-0 mt-2 text-header">
-        {{ $t('generalSettings.globalPlatformDesign') }}
-      </div>
-      <v-switch
-        v-model="fullWindow"
-        class="mt-4 me-n2">
-        <template #label>
-          {{ $t('generalSettings.globalPageFullWindow') }}
-        </template>
-      </v-switch>
-      <portal-general-settings-background-input
-        v-if="backgroundProperties"
-        ref="backgroundInput"
-        v-model="backgroundProperties"
-        :default-background-color="defaultBackgroundColor"
-        class="mt-2 pe-4"
-        @initialized="setAsInitialized">
-        <template #title>
-          {{ $t('generalSettings.globalPageBackground') }}
-        </template>
-      </portal-general-settings-background-input>
-    </v-col>
-    <v-col
-      cols="12"
-      class="pa-0 mb-4">
-      <div class="mb-0 mt-2 text-header">
-        {{ $t('generalSettings.widgetAndAppStyle.title') }}
-      </div>
-      <div class="my-2">
-        {{ $t('generalSettings.widgetAndAppStyle.radius') }}
-      </div>
-      <portal-general-settings-border-radius
-        v-model="borderRadius"
-        ref="borderRadius"
-        @input="borderRadius = $event" />
+        cols="12"
+        lg="8"
+        class="pa-0">
+      <portal-general-settings-branding-site-preview />
     </v-col>
     <v-col
       cols="12"
       class="pa-0">
-      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end pb-5">
+      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end mt-2 pb-2">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"
