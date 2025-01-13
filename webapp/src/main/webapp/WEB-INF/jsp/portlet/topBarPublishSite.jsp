@@ -1,3 +1,4 @@
+<%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="java.util.Arrays"%>
 <%@page import="org.exoplatform.portal.config.model.PortalConfig"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
@@ -24,9 +25,9 @@
 %>
 <%
   LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
-  PortalConfig portalConfig = layoutService.getPortalConfig("public");
+  PortalConfig portalConfig = PortalRequestContext.getCurrentInstance().getPortalConfig();
   boolean publisSiteAccessible = portalConfig != null && Arrays.asList(portalConfig.getAccessPermissions()).contains("Everyone");
-  long siteId = portalConfig == null ? 0 : Long.parseLong(portalConfig.getStorageId().replace("site_", ""));
+  long siteId = portalConfig == null ? 0 : portalConfig.getId();
 %>
 <div class="VuetifyApp">
   <div
