@@ -24,7 +24,7 @@
     :active="active"
     active-class="v-list-item--active"
     class="treeView-item list-border-active my-2"
-    item-key="name"
+    item-key="uri"
     hoverable
     activatable
     open-on-click
@@ -58,10 +58,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    selectedName: {
-      type: String,
-      default: null
-    },
   },
   data: () => ({
     selectedNodeUri: eXo.env.portal.selectedNodeUri,
@@ -69,10 +65,12 @@ export default {
   }),
   computed: {
     openLevel() {
-      if (this.selectedName) {
-        const ids = [this.selectedName];
+      if (this.currentSite === this.siteName) {
+        const ids = [];
         const splittedCurrentUri = this.selectedNodeUri.split('/');
-        ids.push (...splittedCurrentUri.slice(1));
+        for (let i = 1; i < splittedCurrentUri.length; i++) {
+          ids.push(splittedCurrentUri.slice(0, i).join('/'));
+        }
         return ids;
       } else if (this.collapsed) {
         return [];
@@ -81,7 +79,7 @@ export default {
         if (this.navigations?.length) {
           this.navigations.forEach(nav => {
             ids.push(nav.name);
-            ids.push(...nav.children?.length && nav.children?.map(nav => nav.name) || []);
+            ids.push(...nav.children?.length && nav.children?.map(nav => nav.uri) || []);
           });
         }
         const splittedCurrentUri = this.selectedNodeUri.split('/');
@@ -107,8 +105,7 @@ export default {
       if (this.siteName !== this.currentSite) {
         return [];
       }
-      const splittedCurrentUri = this.selectedNodeUri.split('/');
-      return [splittedCurrentUri[splittedCurrentUri.length -1]];
+      return [this.selectedNodeUri];
     },
   },
   methods: {

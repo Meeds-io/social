@@ -53,7 +53,6 @@
         :navigations="site.siteNavigations"
         :site-name="site?.name"
         :enable-change-home="enableChangeHome"
-        :selected-name="name"
         collapsed />
     </v-card>
     <exo-confirm-dialog
@@ -94,7 +93,6 @@ export default {
   },
   data: () => ({
     selectedNavigation: null,
-    name: null,
     homeLink: eXo.env.portal.homeLink,
   }),
   computed: {
@@ -107,7 +105,6 @@ export default {
   created() {
     this.$root.$on('update-home-link', this.selectHome);
     document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
-    this.name = eXo.env.portal.siteKeyName === this.site.name && eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
   },
   beforeDestroy() {
     this.$root.$off('update-home-link', this.selectHome);
