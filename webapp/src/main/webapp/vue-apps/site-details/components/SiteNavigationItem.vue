@@ -78,8 +78,6 @@ export default {
     },
   },
   data: () => ({
-    selectedNodeUri: eXo.env.portal.selectedNodeUri,
-    selectedNavigation: null,
     homeLink: eXo.env.portal.homeLink,
     showAction: false,
   }),
