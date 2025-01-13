@@ -256,7 +256,7 @@ export default {
       return this.user?.enabled;
     },
     externalUser() {
-      return this.user?.external === 'true';
+      return this.user?.external === 'true' || this.user?.dataEntity?.external === 'true';
     },
     profileUrl() {
       return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user?.username}`;
