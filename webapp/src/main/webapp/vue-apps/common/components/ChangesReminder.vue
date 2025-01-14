@@ -8,7 +8,7 @@
       @click:outside="dialog = false">
       <v-card class="pb-4">
         <v-card-title class="text-title pb-6">
-          {{ $t('changes.reminder.WhatNew') }}
+          {{ reminderTypeLabel }}
           <v-spacer />
           <v-tooltip bottom>
             <template #activator="{ on, attrs }">
@@ -63,6 +63,18 @@ export default {
       dialog: false,
       loading: false,
     };
+  },
+  computed: {
+    reminderType() {
+      return this.reminder.type || 'new';
+    },
+    reminderTypeLabel() {
+      const titles = {
+        new: this.$t('changes.reminder.WhatNew'),
+        guide: this.$t('changes.reminder.howDoesWork'),
+      };
+      return titles[this.reminderType];
+    }
   },
   watch: {
     dialog() {
