@@ -61,7 +61,8 @@ export default {
       userLocale: eXo.env.portal.language,
       objectType: 'propertySettingOption',
       fieldName: 'optionValue',
-      defaultLangValue: null
+      defaultLangValue: null,
+      optionObject: null
     };
   },
   props: {
@@ -72,14 +73,23 @@ export default {
   },
   computed: {
     displayedValue() {
-      return this.option?.translations?.[this.userLocale] || this.defaultLangValue
-                                                          || this.option.value;
+      return this.optionObject?.translations?.[this.userLocale] || this.defaultLangValue
+                                                                || this.optionObject.value;
     }
   },
   created() {
     this.getSavedTranslations();
+    this.cloneOptionObject();
+  },
+  watch: {
+    option() {
+      this.cloneOptionObject();
+    }
   },
   methods: {
+    cloneOptionObject() {
+      this.optionObject = structuredClone(this.option);
+    },
     getSavedTranslations() {
       if (this.option?.id) {
         this.$translationService.getTranslations(this.objectType, this.option.id, this.fieldName).then(translations => {
@@ -88,6 +98,7 @@ export default {
       }
     },
     translationUpdated(translations) {
+      this.optionObject = {...this.optionObject, translations};
       this.$emit('translation-updated', this.option, translations);
     },
     updateFieldValue(value) {
