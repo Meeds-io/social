@@ -234,8 +234,8 @@ export default {
       immediate: true,
       handler: function() {
         this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
-        const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale] || '';
-        this.defaultLanguageValue = defaultLanguageValue.replace('_', '-');
+        const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale.replace('_', '-')] || '';
+        this.defaultLanguageValue = defaultLanguageValue;
       },
     },
     isI18N(newVal, oldVal) {
