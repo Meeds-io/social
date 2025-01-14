@@ -33,7 +33,6 @@ export default {
     loaded: false,
     canPostInitialized: false,
     spaceId: eXo.env.portal.spaceId,
-    forceReload: false,
     hasActivities: false,
     activityId: null,
     activityTypes: {},
@@ -80,15 +79,37 @@ export default {
     }
     this.displayActivityDetail(this.$root.selectedActivityId, this.$root.selectedCommentId);
   },
+  mounted() {
+    const urlHash = window.location.hash;
+    if (urlHash) {
+      const elementId = urlHash.substring(1);
+      const interval = setInterval(() => {
+        const targetElement = document.getElementById(elementId);
+        if (targetElement) {
+          targetElement.scrollIntoView({ behavior: 'smooth' });
+          clearInterval(interval);
+        }
+      }, 500);
+    }
+  },
   methods: {
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;
-      this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
-      if (commentId && !this.$root.selectedCommentId) {
-        this.$root.selectedCommentId = commentId;
-        window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
-        this.forceReload = true;
+      const urlHash = window.location.hash;
+      if (urlHash.includes('#comment')){
+        this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
+        if (commentId && !this.$root.selectedCommentId) {
+          this.$root.selectedCommentId = commentId;
+          window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
+        }
+      } else {
+        this.$root.selectedCommentId = '';
+        if (activityId) {
+          window.history.replaceState('', '', `${window.location.pathname}?id=${activityId}${urlHash}`);
+        } else {
+          window.history.replaceState('', '', `${window.location.pathname}${urlHash}`);
+        }
       }
       this.$nextTick().then(() => this.loaded = true);
     },
