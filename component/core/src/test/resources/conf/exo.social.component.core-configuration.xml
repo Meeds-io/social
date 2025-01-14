@@ -1180,21 +1180,11 @@
             <field name="templateLocation">
               <string>classpath:/org/exoplatform/portal/config/conf</string>
             </field>
-          </object>
-        </object-param>
-        <object-param>
-          <name>group.configuration</name>
-          <description>description</description>
-          <object type="org.exoplatform.portal.config.NewPortalConfig">
-            <field name="predefinedOwner">
-              <collection type="java.util.HashSet">
-              </collection>
+            <field name="override">
+              <boolean>false</boolean>
             </field>
-            <field name="ownerType">
-              <string>group</string>
-            </field>
-            <field name="templateLocation">
-              <string>classpath:/org/exoplatform/portal/config/conf</string>
+            <field name="importMode">
+              <string>insert</string>
             </field>
           </object>
         </object-param>
@@ -1465,22 +1455,31 @@
   <external-component-plugins>
     <target-component>org.exoplatform.portal.config.UserPortalConfigService</target-component>
     <component-plugin>
-      <name>spacePublic.portal.template</name>
+      <name>portal_templates</name>
       <set-method>initListener</set-method>
       <type>org.exoplatform.portal.config.NewPortalConfigListener</type>
       <init-params>
         <object-param>
-          <name>site.templates.location</name>
-          <object type="org.exoplatform.portal.config.SiteConfigTemplates">
-            <field name="location">
-              <string>classpath:/portal/config/portal</string>
-            </field>
-            <field name="portalTemplates">
+          <name>portal.configuration</name>
+          <object type="org.exoplatform.portal.config.NewPortalConfig">
+            <field name="predefinedOwner">
               <collection type="java.util.HashSet">
                 <value>
                   <string>spacePublic</string>
                 </value>
               </collection>
+            </field>
+            <field name="ownerType">
+              <string>portal_template</string>
+            </field>
+            <field name="location">
+              <string>classpath:/portal/config/portal</string>
+            </field>
+            <field name="override">
+              <boolean>false</boolean>
+            </field>
+            <field name="importMode">
+              <string>insert</string>
             </field>
           </object>
         </object-param>
