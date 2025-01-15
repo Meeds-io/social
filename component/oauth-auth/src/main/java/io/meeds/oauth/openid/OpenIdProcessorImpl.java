@@ -22,11 +22,14 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.SimpleTimeZone;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -87,6 +90,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   private final String                applicationName;
 
   private String                      issuer;
+  private int                         oidcCookieLifetime;
 
   private final int                   chunkLength;
 
@@ -97,6 +101,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   public OpenIdProcessorImpl(ExoContainerContext context, InitParams params, SecureRandomService secureRandomService) {
     this.clientID = params.getValueParam("clientId").getValue();
     this.clientSecret = params.getValueParam("clientSecret").getValue();
+    this.oidcCookieLifetime = Integer.parseInt(params.getValueParam("oidcCookieLifetime").getValue());
     String redirectURLParam = params.getValueParam("redirectURL").getValue();
     this.wellKnownConfigurationUrl = params.getValueParam("wellKnownConfigurationUrl").getValue();
     this.wellKnownConfigurationLoaded = false;
@@ -175,6 +180,12 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
       session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
 
+      SimpleDateFormat expireFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz");
+      expireFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
+      Date d = new Date();
+      d.setTime(d.getTime() + oidcCookieLifetime * 1000);
+      String cookieLifeTime = expireFormat.format(d);
+      response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+tokenResponse.getAccessToken()+" ; Path=/portal/login; Expires=" + cookieLifeTime + "; Secure; HttpOnly; SameSite=strict");
       return new InteractionState<>(InteractionState.State.FINISH, accessTokenContext);
     }
 
@@ -290,7 +301,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       }.executeRequest(params);
 
       if (log.isTraceEnabled()) {
-        log.trace("Successfully obtained accessToken from openid: " + tokenResponse);
+        log.trace("Successfully obtained accessToken from openid: " + tokenResponse.toString());
       }
 
       return tokenResponse;
