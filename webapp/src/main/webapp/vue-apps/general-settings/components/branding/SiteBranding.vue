@@ -87,10 +87,16 @@
         class="my-auto" />
     </v-col>
     <v-col
-        cols="12"
-        lg="8"
-        class="pa-0">
+      cols="12"
+      lg="8"
+      class="pa-0">
       <portal-general-settings-branding-site-preview />
+    </v-col>
+    <v-col
+      cols="12"
+      lg="4"
+      class="pa-0">
+      <portal-general-settings-branding-options />
     </v-col>
     <v-col
       cols="12"
@@ -120,6 +126,12 @@
         </v-btn>
       </div>
     </v-col>
+    <portal-general-settings-branding-update-colors-drawer
+      :theme-colors="{
+        'primaryColor': primaryColor,
+        'secondaryColor': secondaryColor,
+        'tertiaryColor': tertiaryColor
+      }" />
   </v-row>
 </template>
 <script>
@@ -252,8 +264,14 @@ export default {
       this.init();
     },
   },
+  created() {
+    this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
+  },
   mounted() {
     this.init();
+  },
+  beforeDestroy() {
+    this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
   },
   methods: {
     init() {
@@ -351,6 +369,11 @@ export default {
         .catch(e => this.errorMessage = String(e))
         .finally(() => this.$root.loading = false);
     },
+    updateBrandingThemeColors(primary, secondary, tertiary) {
+      this.primaryColor = primary;
+      this.secondaryColor = secondary;
+      this.tertiaryColor = tertiary;
+    }
   }
 };
 </script>
