@@ -41,7 +41,9 @@ public class SiteEntity {
   private String                    displayName;
 
   private String                    description;
-  
+
+  private String                    icon;
+
   private UserNodeRestEntity        rootNode;
 
   private List<Map<String, Object>> accessPermissions;
