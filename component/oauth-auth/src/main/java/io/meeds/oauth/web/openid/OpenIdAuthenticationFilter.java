@@ -85,7 +85,6 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
     if (cookies != null) {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("OPENID_ACCESS_TOKEN")) {
-          log.info("Cookie OPENID_ACCESS_TOKEN found, value={}",cookie.getValue());
           try {
             openIdProcessor.processOAuthInteraction(request, response);
           } catch (OAuthException | ExecutionException | InterruptedException | IOException ex) {
