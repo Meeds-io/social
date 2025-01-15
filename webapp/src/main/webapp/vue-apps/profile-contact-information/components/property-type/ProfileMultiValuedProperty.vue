@@ -144,7 +144,8 @@ export default {
                || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
     },
     getPropertyOption(property) {
-      return this.property.dropdownList ? this.property.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
+      return this.property.dropdownList ?
+        this.property.propertyOptions?.find(option => `${option.id}` === `${property?.value?.split(':')[0]}`) : null;
     },
     getPropertyDisplayValue(property) {
       const propertyOption = this.getPropertyOption(property);

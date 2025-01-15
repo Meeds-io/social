@@ -20,9 +20,7 @@
 
 package org.exoplatform.social.core.profileproperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
@@ -197,6 +195,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     try {
+      if (profilePropertySetting.isDropdownList()) {
+        listenerService.broadcast("property_options_updated", createdProfilePropertySetting, profilePropertySetting);
+      }
       listenerService.broadcast("profile-property-setting-updated", this, profilePropertySetting);
     } catch (Exception e) {
       LOG.error("An error occurred when broadcasting the update event of the property setting {}", profilePropertySetting.getPropertyName(), e);

@@ -96,7 +96,7 @@ export default {
     },
     propertyOption() {
       return this.property.dropdownList
-        ? this.property.propertyOptions?.find(option => `${option.id}` === `${this.property.value}`)
+        ? this.property.propertyOptions?.find(option => `${option.id}` === `${this.property?.value?.split(':')[0]}`)
         : null;
     },
     propertyDisplayValue() {
