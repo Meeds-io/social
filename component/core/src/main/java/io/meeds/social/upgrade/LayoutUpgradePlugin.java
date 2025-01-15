@@ -115,7 +115,7 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
                  portalName);
       } else {
         boolean fullyUpgraded = true;
-        if (upgrade.isUpdatePortalConfig()) {
+        if (upgrade.isUpdatePortalConfig() || upgrade.isUpdatePortalProperties()) {
           fullyUpgraded = upgradePortalLayout(upgrade, portalType, portalName) && fullyUpgraded;
         }
         if (upgrade.isUpdatePageLayout()) {
