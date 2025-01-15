@@ -53,6 +53,9 @@ import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/
 import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
 import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
 import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
+import SiteBrandingOptions from './components/branding/options/SiteBrandingOptions.vue';
+import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingOptionsItem.vue';
+import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -64,6 +67,9 @@ const components = {
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,
   'portal-general-settings-border-radius': BorderRadiusSelector,
+  'portal-general-settings-branding-options': SiteBrandingOptions,
+  'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
+  'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BackgroundInput,
   'portal-general-settings-custom-style-input': CustomStyleInput,
