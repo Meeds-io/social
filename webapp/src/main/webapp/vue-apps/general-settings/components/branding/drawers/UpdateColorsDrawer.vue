@@ -20,12 +20,13 @@
 -->
 <template>
   <exo-drawer
-    ref="siteBrandingUpdateColorsDrawer"
+    ref="drawer"
+    v-model="drawer"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('generalSettings.themeColors.option.label') }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" #content>
       <v-card class="pa-4" flat>
         <p>
           {{ $t('generalSettings.themeColors.help1') }}
@@ -61,7 +62,7 @@
         </div>
       </v-card>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex justify-end">
         <v-btn
           class="btn ms-2"
@@ -71,7 +72,7 @@
         <v-btn
           class="btn btn-primary ms-2"
           :disabled="saveButtonDisabled"
-          @click="updateBrandingThemeColors()">
+          @click="updateBrandingThemeColors">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
       </div>
@@ -81,6 +82,7 @@
 <script>
 export default {
   data: () => ({
+    drawer: false,
     primaryColor: null,
     secondaryColor: null,
     tertiaryColor: null,
@@ -110,18 +112,18 @@ export default {
       this.secondaryColor = this.themeColors?.secondaryColor;
       this.tertiaryColor = this.themeColors?.tertiaryColor;
     },
-    rest() {
+    reset() {
       this.primaryColor = null;
       this.secondaryColor = null;
       this.tertiaryColor = null;
     },
     open() {
       this.init();
-      this.$refs.siteBrandingUpdateColorsDrawer.open();
+      this.$refs.drawer.open();
     },
     close() {
-      this.rest();
-      this.$refs.siteBrandingUpdateColorsDrawer.close();
+      this.reset();
+      this.$refs.drawer.close();
     },
     updateBrandingThemeColors() {
       this.$root.$emit('update-branding-theme-colors', this.primaryColor, this.secondaryColor, this.tertiaryColor);

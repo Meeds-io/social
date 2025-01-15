@@ -275,6 +275,9 @@ export default {
   mounted() {
     this.init();
   },
+  beforeDestroy() {
+    this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
+  },
   methods: {
     init() {
       this.$refs.companyLogo?.resetLogo();
