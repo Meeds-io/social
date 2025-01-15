@@ -2260,6 +2260,7 @@ public class EntityBuilder {
                           siteName,
                           siteLabel,
                           siteDescription,
+                          site.getIcon(),
                           rootNode == null ? null : new UserNodeRestEntity(rootNode),
                           accessPermissions,
                           editPermission,
