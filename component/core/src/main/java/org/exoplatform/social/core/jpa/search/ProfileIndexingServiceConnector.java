@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.meeds.social.translation.model.TranslationField;
+import io.meeds.social.translation.service.TranslationService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -40,6 +42,7 @@ import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 
@@ -61,18 +64,26 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final ProfilePropertyService profilePropertyService;
 
-  private static final String          HIDDEN_VALUE = "hidden";
+  private final TranslationService     translationService;
+
+  private static final String          HIDDEN_VALUE                 = "hidden";
+
+  private static final String          PROFILE_PROPERTY_FIELD_NAME  = "optionValue";
+
+  private static final String          PROFILE_PROPERTY_OBJECT_TYPE = "propertySettingOption";
 
   public ProfileIndexingServiceConnector(InitParams initParams,
                                          IdentityManager identityManager,
                                          IdentityDAO identityDAO,
                                          ConnectionDAO connectionDAO,
-                                         ProfilePropertyService profilePropertyService) {
+                                         ProfilePropertyService profilePropertyService,
+                                         TranslationService translationService) {
     super(initParams);
     this.identityManager = identityManager;
     this.identityDAO = identityDAO;
     this.connectionDAO = connectionDAO;
     this.profilePropertyService = profilePropertyService;
+    this.translationService = translationService;
   }
 
   @Override
@@ -256,21 +267,25 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
       if (profilePropertySetting.isVisible() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
-        // Avoid indexing invisible and not editable properties
-        if (profile.getProperty(profilePropertySetting.getPropertyName()) != null && profile.getProperty(profilePropertySetting.getPropertyName()) instanceof String value) {
-          if (StringUtils.isNotEmpty(value)) {
-            // Avoid having dots in field names in ES, otherwise properties with String values may be converted in Objects in some cases
-            addPropertyToDocumentFields(fields, profilePropertySetting.getPropertyName(), value, Long.parseLong(id));
-          }
-        } else {
-          List<Map<String, String>> multiValues = (List<Map<String, String>>) profile.getProperty(profilePropertySetting.getPropertyName());
+        Object propertyValue = profile.getProperty(profilePropertySetting.getPropertyName());
+        if (propertyValue instanceof String value && StringUtils.isNotEmpty(value)) {
+          addPropertyToDocumentFields(fields,
+                                      profilePropertySetting.getPropertyName(),
+                                      parseValue(profilePropertySetting, value),
+                                      Long.parseLong(id));
+        } else if (propertyValue instanceof List) {
+          List<Map<String, String>> multiValues = (List<Map<String, String>>) propertyValue;
           if (CollectionUtils.isNotEmpty(multiValues)) {
             String value = multiValues.stream()
-                .filter(property -> property.get("value") != null)
-                .map(property -> property.get("value"))
-                .collect(Collectors.joining(",", "", ""));
+                                      .filter(property -> property.get("value") != null)
+                                      .map(property -> parseValue(profilePropertySetting, property.get("value")))
+                                      .collect(Collectors.joining(",", "", ""));
+
             if (StringUtils.isNotEmpty(value)) {
-              addPropertyToDocumentFields(fields, profilePropertySetting.getPropertyName(), removeAccents(value), Long.parseLong(id));
+              addPropertyToDocumentFields(fields,
+                                          profilePropertySetting.getPropertyName(),
+                                          removeAccents(value),
+                                          Long.parseLong(id));
             }
           }
         }
@@ -314,5 +329,29 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       string = string.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
     }
     return string;
+  }
+
+  private String parseValue(ProfilePropertySetting profilePropertySetting, String value) {
+    if (!profilePropertySetting.isDropdownList()) {
+      return value;
+    }
+    String optionValue = profilePropertySetting.getPropertyOptions()
+                                               .stream()
+                                               .filter(option -> option.getId() == Long.parseLong(value))
+                                               .findFirst()
+                                               .map(ProfilePropertyOption::getValue)
+                                               .orElse(value);
+    try {
+      TranslationField translationField = translationService.getTranslationField(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                                                 Long.parseLong(value),
+                                                                                 PROFILE_PROPERTY_FIELD_NAME);
+      if (translationField != null && !translationField.getLabels().isEmpty()) {
+        String translations = String.join(",", translationField.getLabels().values());
+        return String.join(",", optionValue, translations);
+      }
+    } catch (Exception e) {
+      LOG.error("Error parsing profile property value translations", e);
+    }
+    return optionValue;
   }
 }

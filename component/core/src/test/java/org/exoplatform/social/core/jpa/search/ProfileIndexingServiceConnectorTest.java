@@ -1,5 +1,8 @@
 package org.exoplatform.social.core.jpa.search;
 
+import io.meeds.social.translation.service.TranslationService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,6 +24,12 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 
 import io.meeds.social.core.profileproperty.storage.CachedProfileSettingStorage;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Stream;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
 
@@ -37,6 +46,8 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
   private ProfilePropertyService          profilePropertyService;
 
   private ProfileIndexingServiceConnector profileIndexingServiceConnector;
+  
+  private TranslationService              translationService;
 
   @Override
   @Before
@@ -44,6 +55,7 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     super.setUp();
     identityManager = getService(IdentityManagerImpl.class);
     profilePropertyService = getService(ProfilePropertyService.class);
+    translationService = getService(TranslationService.class);
     getService(CachedProfileSettingStorage.class).clearCaches();
 
     InitParams initParams = new InitParams();
@@ -55,21 +67,72 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     Profile profile = userIdentity.getProfile();
     profile.setProperty("profession", "Developer");
+
     identityManager.updateProfile(profile, true);
     this.profileIndexingServiceConnector = new ProfileIndexingServiceConnector(initParams,
                                                                                identityManager,
                                                                                identityDAO,
                                                                                connectionDAO,
-                                                                               profilePropertyService);
+                                                                               profilePropertyService,
+                                                                               translationService);
   }
 
   @Test
   public void testUpdate() {
     Document document = profileIndexingServiceConnector.update(userIdentity.getId());
-    assertEquals("Developer",document.getFields().get("profession"));
+    assertEquals("Developer", document.getFields().get("profession"));
     profilePropertyService.hidePropertySetting(Long.parseLong(userIdentity.getId()),
                                                profilePropertyService.getProfileSettingByName("profession").getId());
     document = profileIndexingServiceConnector.update(userIdentity.getId());
-    assertEquals("hidden",document.getFields().get("profession"));
+    assertEquals("hidden", document.getFields().get("profession"));
+  }
+
+  @Test
+  public void testIndexDropdownPropertyOptionValue() throws Exception {
+    ProfilePropertySetting dropdownListPropertySetting = createProfileSettingDropdownInstance("propDropdownTest");
+    ProfilePropertySetting dropdownPropertySetting = profilePropertyService.createPropertySetting(dropdownListPropertySetting);
+
+    Map<Locale, String> labels = new HashMap<>();
+    labels.put(Locale.US, "option en");
+    labels.put(Locale.FRANCE, "option fr");
+
+
+    userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
+    Profile profile = userIdentity.getProfile();
+    profile.setProperty("propDropdownTest", dropdownPropertySetting.getPropertyOptions().getFirst().getId());
+    identityManager.updateProfile(profile, true);
+
+    Document document = profileIndexingServiceConnector.update(userIdentity.getId());
+    assertEquals("option", document.getFields().get("propDropdownTest"));
+
+    translationService.saveTranslationLabels("propertySettingOption",
+                                             dropdownPropertySetting.getPropertyOptions().getFirst().getId(),
+                                             "optionValue",
+                                             labels);
+
+    document = profileIndexingServiceConnector.update(userIdentity.getId());
+    assertEquals("option,option fr,option en", document.getFields().get("propDropdownTest"));
+  }
+
+
+  private ProfilePropertySetting createProfileSettingDropdownInstance(String propertyName) {
+    ProfilePropertySetting profilePropertySetting = new ProfilePropertySetting();
+    profilePropertySetting.setActive(true);
+    profilePropertySetting.setEditable(true);
+    profilePropertySetting.setVisible(true);
+    profilePropertySetting.setPropertyName(propertyName);
+    profilePropertySetting.setGroupSynchronized(false);
+    profilePropertySetting.setMultiValued(false);
+    profilePropertySetting.setPropertyType("text");
+    profilePropertySetting.setParentId(0L);
+    profilePropertySetting.setOrder(0L);
+    profilePropertySetting.setDropdownList(true);
+
+    List<ProfilePropertyOption> profilePropertyOptions = Stream.generate(ProfilePropertyOption::new)
+                                                               .limit(2)
+                                                               .peek(option -> option.setValue("option"))
+                                                               .toList();
+    profilePropertySetting.setPropertyOptions(profilePropertyOptions);
+    return profilePropertySetting;
   }
 }
