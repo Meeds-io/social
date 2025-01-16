@@ -23,6 +23,7 @@
     <!-- name -->
     <td
       :width="$root.isMobile && '100%' || 'auto'"
+      colspan="2"
       class="pe-0">
       <div class="d-flex align-center">
         <v-card
@@ -35,14 +36,14 @@
       </div>
     </td>
     <!-- description -->
-    <td v-if="!$root.isMobile">
+    <td v-if="!$vuetify.breakpoint.lgAndDown">
       <div
         v-sanitized-html="description"
-        class="text-truncate-3">
+        class="text-truncate-3 text-break">
       </div>
     </td>
     <td
-      v-if="!$root.isMobile"
+      v-if="!$vuetify.breakpoint.lgAndDown"
       class="text-center"
       width="120px">
       <space-templates-management-item-permission
@@ -52,7 +53,7 @@
         class="ma-1" />
     </td>
     <td
-      v-if="!$root.isMobile"
+      v-if="!$vuetify.breakpoint.lgAndDown"
       class="text-truncate text-center"
       width="120px">
       <v-chip
