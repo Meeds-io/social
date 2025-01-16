@@ -2281,8 +2281,6 @@ public class EntityBuilder {
     String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) :
                                                                            translateSiteDescription;
 
-    List<Map<String, Object>> accessPermissions = computePermissions(site.getAccessPermissions());
-    Map<String, Object> editPermission = computePermission(site.getEditPermission());
     return new SiteEntity(siteId,
                           siteType,
                           siteName,
@@ -2290,8 +2288,8 @@ public class EntityBuilder {
                           siteDescription,
                           site.getIcon(),
                           rootNode == null ? null : new UserNodeRestEntity(rootNode),
-                          accessPermissions,
-                          editPermission,
+                          site.getAccessPermissions(),
+                          site.getEditPermission(),
                           site.isDisplayed(),
                           site.getDisplayOrder(),
                           isMetaSite(siteName),
@@ -2361,40 +2359,6 @@ public class EntityBuilder {
       return userPortal.getNode(navigation, Scope.ALL, builder.build(), null);
     }
     return null;
-  }
-
-  private static List<Map<String, Object>> computePermissions(String[] permissions) {
-    return permissions != null ? Arrays.stream(permissions).map(EntityBuilder::computePermission).toList() :
-                               new ArrayList<>();
-  }
-
-  private static Map<String, Object> computePermission(String permission) {
-    Map<String, Object> sitePermission = new HashMap<>();
-    try {
-      if (permission != null) {
-        String[] permissionParts = permission.split(":");
-        String sitePermissionGroupId;
-        if (permissionParts.length == 1) {
-          if (permission.equals("Everyone")) {
-            sitePermission.put("membershipType", permission);
-            return sitePermission;
-          }
-          sitePermissionGroupId = permission;
-        } else if (permissionParts.length == 2) {
-          sitePermission.put("membershipType", permissionParts[0]);
-          sitePermissionGroupId = permissionParts[1];
-        } else {
-          return sitePermission;
-        }
-        if (!sitePermissionGroupId.startsWith("/")) {
-          sitePermissionGroupId = "/" + sitePermissionGroupId;
-        }
-        sitePermission.put(GROUP, getOrganizationService().getGroupHandler().findGroupById(sitePermissionGroupId));
-      }
-    } catch (Exception e) {
-      LOG.error("Error while computing user permission {}", permission, e);
-    }
-    return sitePermission;
   }
 
   private static UserPortalConfigService getUserPortalConfigService() {
