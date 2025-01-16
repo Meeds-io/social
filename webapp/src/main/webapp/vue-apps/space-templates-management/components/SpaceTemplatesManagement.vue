@@ -20,7 +20,7 @@
 -->
 <template>
   <v-app>
-    <v-card class="application-body position-static pb-5" flat>
+    <v-main class="application-body pb-5">
       <h4 class="text-title px-5 pt-5 ma-0">
         {{ $t('spaceTemplates.title') }}
       </h4>
@@ -30,7 +30,7 @@
       <space-templates-management-list
         ref="list"
         :keyword="keyword" />
-    </v-card>
+    </v-main>
     <space-templates-management-name-drawer />
     <space-templates-management-characteristics-drawer />
     <space-templates-management-list-by-template-drawer />
