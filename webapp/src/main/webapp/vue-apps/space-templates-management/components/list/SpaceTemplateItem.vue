@@ -23,13 +23,13 @@
     <!-- name -->
     <td
       :width="$root.isMobile && '100%' || 'auto'"
-      class="px-0">
+      class="pe-0">
       <div class="d-flex align-center">
         <v-card
-          class="d-flex align-center justify-center me-2"
-          width="36"
+          class="d-flex align-center justify-center me-4"
+          min-width="35"
           flat>
-          <v-icon size="20">{{ icon }}</v-icon>
+          <v-icon size="28">{{ icon }}</v-icon>
         </v-card>
         <div v-sanitized-html="name" class="text-truncate"></div>
       </div>
