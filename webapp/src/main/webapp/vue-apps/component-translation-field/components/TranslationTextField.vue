@@ -21,7 +21,6 @@
     <v-btn
       v-if="button"
       :title="iconTitle"
-      :class="buttonClass"
       :aria-label="$t('translationButton.ariaLabel')"
       icon
       @click="openDrawer">
@@ -30,15 +29,15 @@
     <div
       v-else
       class="translation-text-field">
-      <div v-if="$slots.default || $slots.title" class="d-flex">
+      <div v-if="$slots.default || $slots.title" class="d-flex align-center text-start">
         <div v-if="$slots.title" class="flex-grow-1">
           <slot name="title"></slot>
         </div>
-        <div class="d-flex me-n1">
+        <div class="d-flex align-center position-relative me-n1 py-4">
           <v-btn
             :title="iconTitle"
-            :class="buttonClass"
-            class="mt-n1 pt-2px"
+            :class="$vuetify.rtl && 'l-0' || 'r-0'"
+            class="absolute-vertical-center"
             icon
             @click="openDrawer">
             <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
@@ -182,10 +181,6 @@ export default {
     richEditorOembed: {
       type: Boolean,
       default: false,
-    },
-    buttonClass: {
-      type: String,
-      default: null,
     },
     maxlength: {
       type: Number,
