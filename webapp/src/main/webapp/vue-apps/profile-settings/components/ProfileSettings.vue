@@ -186,8 +186,6 @@ export default {
     },
     editSetting(setting, refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        return this.saveOptionsTranslations(null, setting.propertyOptions);
-      }).then(() => {
         if (refresh) {
           this.getSettings();
         }
@@ -206,8 +204,6 @@ export default {
           });
           promises.push(this.$profileLabelService.addLabels(setting.labels));
         }
-
-        promises.push(this.saveOptionsTranslations(storedSetting, setting.propertyOptions));
         return Promise.all(promises);
       })
         .then(() => {
@@ -227,22 +223,6 @@ export default {
             'error'
           );
         });
-    },
-    saveOptionsTranslations(savedSetting, options) {
-      if (options?.length) {
-        const promises = options.filter(option => option?.translations)
-          .map((option, index) => {
-            option.id ??= savedSetting?.propertyOptions?.[index]?.id;
-            this.$translationService.saveTranslations(
-              this.settingOptionObjectType,
-              option.id,
-              this.settingOptionFieldName,
-              option.translations
-            );
-          });
-        return Promise.all(promises);
-      }
-      return Promise.resolve();
     },
     updateLabels(labels) {
       this.$profileLabelService.updateLabels(labels);
