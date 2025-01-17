@@ -82,38 +82,24 @@ export default {
     showAction: false,
   }),
   computed: {
-    navigationUri() {
-      if (!this.navigation.pageKey || !this.navigation.siteKey) {
-        return '';
-      }
-      let url = null;
-      if (this.navigation.pageLink) {
-        url = this.navigation.pageLink;
-      } else if (this.navigation.siteKey.type === 'GROUP') {
-        url = `${eXo.env.portal.context}/g/${this.navigation.siteKey.name.replace?.(/\//g, ':')}/${this.navigation.uri}`;
+    baseSiteUri() {
+      if (this.navigation.siteKey.type === 'GROUP') {
+        return `${eXo.env.portal.context}/g/${this.navigation.siteKey.name.replace?.(/\//g, ':')}/`;
       } else {
-        url = `${eXo.env.portal.context}/${this.navigation.siteKey.name}/${this.navigation.uri}`;
+        return `${eXo.env.portal.context}/${this.navigation.siteKey.name}/`;
       }
-      if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-        url = `//${url}`;
-      }
-      return url;
     },
     uri() {
-      return this.isNodeGroup ? null : this.navigationUri && this.$utils.toLinkUrl(this.navigationUri, {
-        urls: true,
-        email: true,
-        phone: true,
-      }) || this.navigationUri;
+      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
     },
     target() {
-      return this.navigation?.target === 'SAME_TAB' && '_self' || '_blank';
+      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
     },
     rel() {
-      return this.target === '_blank' && 'nofollow noreferrer noopener' || null;
+      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
     },
     icon() {
-      return this.navigation?.icon || 'fas fa-folder';
+      return this.navigation?.icon || 'fa-folder';
     },
     isNodeGroup() {
       return !this.navigation.pageKey;
@@ -141,7 +127,7 @@ export default {
     selectHome(event) {
       event.preventDefault();
       event.stopPropagation();
-      if (this.homeLink !== this.navigationUri) {
+      if (this.homeLink !== this.uri) {
         this.$root.$emit('update-home-link', this.navigation);
       }
     },
