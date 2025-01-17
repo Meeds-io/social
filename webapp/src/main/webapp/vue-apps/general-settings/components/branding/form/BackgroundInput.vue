@@ -8,7 +8,6 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
-
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -22,121 +21,136 @@
 <template>
   <div>
     <div class="d-flex align-center">
+      <slot v-if="$slots.title" name="title"></slot>
       <v-switch
-        v-model="enabled"
-        class="my-auto me-n2">
-        <template #label>
-          <slot name="title"></slot>
-        </template>
-      </v-switch>
+          v-model="enabled"
+          class="ms-auto my-auto me-n2" />
     </div>
     <v-list-item
-      v-if="enabled"
-      class="pa-0"
-      dense>
+        v-if="enabled"
+        class="pa-0"
+        dense>
       <v-list-item-content class="my-auto">
         <v-radio-group
-          v-model="choice"
-          class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
-          mandatory>
+            v-model="choice"
+            class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
+            mandatory>
           <v-radio
-            value="color"
-            class="ma-0">
+              value="color"
+              class="mx-0">
             <template #label>
-              <span class="text-font-size text-color">{{ $t('generalSettings.color') }}</span>
+              <span>{{ $t('generalSettings.color') }}</span>
             </template>
           </v-radio>
-          <div v-if="choice === 'color'" class="mx-auto pe-6">
-            <portal-general-settings-color-picker
-              v-model="branding.pageBackgroundColor"
-              class="my-auto" />
-          </div>
-          <div class="d-flex align-center">
-            <v-radio
-              value="image"
-              class="mx-0 mt-2">
-              <template #label>
-                <div class="d-flex align-center">
-                  <span class="text-font-size text-color">{{ $t('generalSettings.image') }}</span>
-                </div>
-              </template>
-            </v-radio>
-            <portal-general-settings-background-image-attachment
-              v-if="choice === 'image'"
-              v-model="backgroundImageUploadId"
-              ref="backgroundImage"
-              :has-file="hasFile"
-              class="my-auto ms-4"
-              @image-data-updated="setPageBackgroundData"
-              @reset="deletePageBackground" />
-          </div>
+          <v-radio
+              value="gradient"
+              class="mx-0">
+            <template #label>
+              <span>{{ $t('generalSettings.gradient') }}</span>
+            </template>
+          </v-radio>
         </v-radio-group>
       </v-list-item-content>
+      <v-list-item-action
+          :class="choice === 'color' && 'mb-auto' || 'my-auto'"
+          class="me-0 ms-auto">
+        <portal-general-settings-color-picker
+            v-if="choice === 'color'"
+            v-model="branding.backgroundColor"
+            class="my-auto" />
+        <div v-else>
+          <portal-general-settings-color-picker
+              v-model="backgroundGradientFrom"
+              :label="$t('generalSettings.gradientFrom')"
+              class="my-auto" />
+          <portal-general-settings-color-picker
+              v-model="backgroundGradientTo"
+              :label="$t('generalSettings.gradientTo')"
+              class="my-auto" />
+        </div>
+      </v-list-item-action>
     </v-list-item>
-    <div v-if="hasFile" class="d-flex">
+
+    <v-list-item
+        v-if="enabled"
+        class="pa-0"
+        dense>
+      <v-list-item-content class="my-auto">
+        {{ $t('generalSettings.image') }}
+      </v-list-item-content>
+      <v-list-item-action class="my-auto me-0 ms-auto">
+        <portal-general-settings-background-image-attachment
+            v-model="backgroundImageUploadId"
+            :has-file="hasFile"
+            class="ms-auto my-auto me-n2"
+            @image-data-updated="setbackgroundData"
+            @reset="deletebackground" />
+      </v-list-item-action>
+    </v-list-item>
+    <div v-if="hasFile && enabled" class="d-flex">
       <v-radio-group
-        v-model="backgroundImageStyle"
-        class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
-        mandatory>
+          v-model="backgroundImageStyle"
+          class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
+          mandatory>
         <v-radio
-          value="cover"
-          class="mx-0">
+            value="cover"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imageSizeCover') }}</span>
+            <span>{{ $t('generalSettings.imageSizeCover') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="contain"
-          class="mx-0">
+            value="contain"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imageSizeContain') }}</span>
+            <span>{{ $t('generalSettings.imageSizeContain') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="repeat"
-          class="mx-0">
+            value="repeat"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imageRepeat') }}</span>
+            <span>{{ $t('generalSettings.imageRepeat') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="no-repeat"
-          class="mx-0">
+            value="no-repeat"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imageNoRepeat') }}</span>
+            <span>{{ $t('generalSettings.imageNoRepeat') }}</span>
           </template>
         </v-radio>
       </v-radio-group>
       <v-radio-group
-        v-model="branding.pageBackgroundPosition"
-        class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
-        mandatory>
+          v-model="branding.backgroundPosition"
+          class="my-auto text-no-wrap flex-grow-1 flex-shrink-0"
+          mandatory>
         <v-radio
-          value="top left"
-          class="mx-0">
+            value="top left"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imagePositionTopLeft') }}</span>
+            <span>{{ $t('generalSettings.imagePositionTopLeft') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="top right"
-          class="mx-0">
+            value="top right"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imagePositionTopRight') }}</span>
+            <span>{{ $t('generalSettings.imagePositionTopRight') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="bottom left"
-          class="mx-0">
+            value="bottom left"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imagePositionBottomLeft') }}</span>
+            <span>{{ $t('generalSettings.imagePositionBottomLeft') }}</span>
           </template>
         </v-radio>
         <v-radio
-          value="bottom right"
-          class="mx-0">
+            value="bottom right"
+            class="mx-0">
           <template #label>
-            <span class="text-font-size text-color">{{ $t('generalSettings.imagePositionBottomRight') }}</span>
+            <span>{{ $t('generalSettings.imagePositionBottomRight') }}</span>
           </template>
         </v-radio>
       </v-radio-group>
@@ -152,7 +166,11 @@ export default {
     },
     defaultBackgroundColor: {
       type: String,
-      default: () => '#FFFFFFFF',
+      default: () => '#F2F2F2FF',
+    },
+    pageStyle: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -160,105 +178,145 @@ export default {
     enabled: false,
     choice: null,
     backgroundImageStyle: null,
+    backgroundGradientFrom: null,
+    backgroundGradientTo: null,
     backgroundImageUploadId: null,
     initialized: false,
+    defaultBranding: null
   }),
   computed: {
-    backgroundImage() {
-      return this.branding.pageBackground?.fileId;
-    },
     hasFile() {
-      return this.backgroundImageUploadId !== 0 && (this.backgroundImageUploadId || this.backgroundImage);
+      return this.backgroundImageUploadId !== 0 && (this.backgroundImageUploadId || this.branding.background?.fileId !== 0);
     },
   },
   watch: {
+    branding: {
+      deep: true,
+      handler() {
+        if (this.branding) {
+          this.$emit('input', this.branding);
+          if (this.initialized) {
+            this.emitChange(this.branding);
+          }
+        }
+      },
+    },
+    enabled() {
+      if (this.initialized) {
+        this.branding.backgroundColor = this.enabled && this.branding.backgroundColor || this.defaultBackgroundColor || null;
+        this.branding.backgroundImage = null;
+        this.backgroundImageStyle = null;
+        this.backgroundGradientFrom = null;
+        this.backgroundGradientTo = null;
+      }
+    },
     initialized: {
       immediate: true,
       handler() {
         this.$emit('initialized');
       },
     },
-    branding: {
-      deep: true,
-      handler() {
-        if (this.branding) {
-          this.$emit('input', this.branding);
-        }
-      },
-    },
-    enabled() {
-      if (this.initialized) {
-        this.branding.pageBackgroundColor = this.enabled && this.defaultBackgroundColor || null;
-        this.branding.pageBackground = {};
-        this.backgroundImageStyle = null;
-      }
-    },
     backgroundImageStyle() {
       if (this.initialized) {
         if (this.backgroundImageStyle === 'cover' || this.backgroundImageStyle === 'contain') {
-          this.branding.pageBackgroundSize = this.backgroundImageStyle;
-          this.branding.pageBackgroundRepeat = null;
+          this.branding.backgroundSize = this.backgroundImageStyle;
+          this.branding.backgroundRepeat = null;
         } else {
-          this.branding.pageBackgroundSize = null;
-          this.branding.pageBackgroundRepeat = this.backgroundImageStyle;
+          this.branding.backgroundSize = null;
+          this.branding.backgroundRepeat = this.backgroundImageStyle;
         }
       }
     },
-    backgroundImageUploadId() {
-      if (this.initialized && this.branding.pageBackground) {
-        this.branding.pageBackground.uploadId = this.backgroundImageUploadId || 0;
-        this.branding.pageBackground.fileId = 0;
+    backgroundGradientFrom() {
+      if (this.backgroundGradientFrom && this.backgroundGradientTo && this.choice === 'gradient') {
+        this.branding.backgroundEffect = `linear-gradient(${this.backgroundGradientFrom}, ${this.backgroundGradientTo})`;
+      } else {
+        this.branding.backgroundEffect = null;
+      }
+    },
+    backgroundGradientTo() {
+      if (this.backgroundGradientFrom && this.backgroundGradientTo && this.choice === 'gradient') {
+        this.branding.backgroundEffect = `linear-gradient(${this.backgroundGradientFrom}, ${this.backgroundGradientTo})`;
+      } else {
+        this.branding.backgroundEffect = null;
       }
     },
     choice() {
       if (this.initialized) {
         if (this.choice === 'color') {
-          this.branding.pageBackgroundColor = this.defaultBackgroundColor;
-          this.branding.pageBackground = {
-            data: null,
-            fileId: 0,
-            uploadId: 0,
-          };
-          this.backgroundImageUploadId = 0;
-          this.backgroundImageStyle = null;
-        } else if (this.choice === 'image') {
-          this.branding.pageBackgroundColor = null;
-          this.branding.pageBackground = {};
-          this.backgroundImageUploadId = null;
+          this.branding.backgroundColor = this.branding.backgroundColor || this.defaultBackgroundColor;
+          this.backgroundGradientFrom = null;
+          this.backgroundGradientTo = null;
+        } else if (this.choice === 'gradient') {
+          if (this.branding.backgroundEffect) {
+            this.backgroundGradientFrom = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[0].trim();
+            this.backgroundGradientTo = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[1].replace(/\)$/g, '').trim();
+          } else {
+            this.backgroundGradientFrom = this.branding.backgroundColor;
+            this.backgroundGradientTo = '#999999FF';
+          }
+          this.branding.backgroundColor = this.defaultBackgroundColor;
         }
+      }
+    },
+    backgroundImageUploadId() {
+      if (this.initialized && this.branding.background) {
+        this.branding.background.uploadId = this.backgroundImageUploadId || 0;
+        this.branding.background.fileId = 0;
       }
     },
   },
   created() {
     this.branding = this.value;
-    if (this.branding.pageBackgroundSize || this.branding.pageBackgroundRepeat) {
-      if (this.branding.pageBackgroundSize === 'cover'
-          || this.branding.pageBackgroundSize === 'contain') {
-        this.backgroundImageStyle = this.branding.pageBackgroundSize;
+    if (this.branding.backgroundSize || this.branding.backgroundRepeat) {
+      if (this.branding.backgroundSize === 'cover'
+          || this.branding.backgroundSize === 'contain') {
+        this.backgroundImageStyle = this.branding.backgroundSize;
       } else {
-        this.backgroundImageStyle = this.branding.pageBackgroundRepeat;
+        this.backgroundImageStyle = this.branding.backgroundRepeat;
       }
     }
-    if (this.branding.pageBackground?.fileId) {
-      this.choice = 'image';
+    if (this.branding.backgroundEffect) {
+      this.choice = 'gradient';
+      this.backgroundGradientFrom = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[0].trim();
+      this.backgroundGradientTo = this.branding.backgroundEffect.replace('linear-gradient(', '').split(',')[1].replace(/\)$/g, '').trim();
     } else {
       this.choice = 'color';
     }
-    this.enabled = !!this.branding.pageBackgroundColor || !!this.branding.pageBackground.fileId;
+
+    this.enabled = !!this.branding.backgroundColor || !!this.branding.backgroundImage;
+    if (this.enabled && !this.branding.backgroundColor) {
+      this.branding.backgroundColor = this.defaultBackgroundColor;
+    }
+    this.defaultBranding = JSON.parse(JSON.stringify(this.branding));
     this.$nextTick().then(() => this.initialized = true);
   },
   methods: {
-    deletePageBackground() {
-      this.branding.pageBackground = {
+    deletebackground() {
+      this.branding.background = {
         data: null,
         fileId: 0,
+        updatedDate: 0,
         uploadId: 0,
       };
+      this.branding.backgroundSize = null;
+      this.branding.backgroundPosition = null;
+      this.branding.backgroundRepeat = null;
+      this.$emit('change', true);
     },
-    setPageBackgroundData(data) {
-      this.branding.pageBackground.data = data;
+    setbackgroundData(data) {
+      this.branding.background.data = data;
       this.$emit('input', this.branding);
+      this.$emit('change', true);
     },
+    emitChange(branding) {
+      const changed = branding?.backgroundColor !== this.defaultBranding.backgroundColor ||
+          branding?.backgroundEffect !== this.defaultBranding.backgroundEffect;
+      if (changed) {
+        this.$emit('change', true);
+      }
+      this.$root.$emit('change', false);
+    }
   },
 };
 </script>

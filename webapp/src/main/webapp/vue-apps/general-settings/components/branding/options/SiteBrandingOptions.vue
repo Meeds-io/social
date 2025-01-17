@@ -20,7 +20,7 @@
 -->
 <template>
   <div class="d-block ps-lg-6">
-    <div class="text-header">
+    <div class="text-header mb-1">
       {{ $t('generalSettings.options.title') }}
     </div>
     <portal-general-settings-branding-options-item
@@ -36,6 +36,10 @@ export default {
       {
         name: 'themeColors',
         event: 'open-update-theme-colors-drawer'
+      },
+      {
+        name: 'pageAndAppsStyle',
+        event: 'open-update-page-style-drawer'
       },
     ]
   }),

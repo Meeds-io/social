@@ -132,6 +132,14 @@
         'secondaryColor': secondaryColor,
         'tertiaryColor': tertiaryColor
       }" />
+    <portal-general-settings-branding-update-page-styling-drawer
+      :page-styling-properties="{
+        backgroundProperties,
+        defaultBackgroundColor,
+        fullWindow
+      }"
+      :apps-styling-properties="{}"
+      @initialized="setAsInitialized"/>
   </v-row>
 </template>
 <script>
@@ -200,6 +208,8 @@ export default {
       const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         ...this.originalBackgroundProperties,
       });
+      console.log(this.originalBackgroundProperties);
+      console.log(this.backgroundProperties);
       const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         companyName: this.companyName,
         ...this.backgroundProperties,
@@ -240,12 +250,6 @@ export default {
         }
       });
     },
-    backgroundProperties: {
-      deep: true,
-      handler() {
-        this.setBackgroungPropertiesPreview();
-      },
-    },
     tertiaryColor() {
       this.$root.$emit('refresh-style-property', {
         detail: {
@@ -271,12 +275,14 @@ export default {
   },
   created() {
     this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$on('update-page-styling-properties',this.updatePageStylingProperties);
   },
   mounted() {
     this.init();
   },
   beforeDestroy() {
     this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$off('update-page-styling-properties',this.updatePageStylingProperties);
   },
   methods: {
     init() {
@@ -294,6 +300,7 @@ export default {
         pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
         pageBackgroundColor: this.branding?.pageBackgroundColor || null,
+        pageBackgroundEffect: this.branding?.pageBackgroundEffect || null
       };
       this.logoUploadId = null;
       this.faviconUploadId = null;
@@ -325,7 +332,12 @@ export default {
         if (this.backgroundProperties.pageBackground?.data) {
           this.$root.$emit('refresh-body-style-property', {
             name: 'background-image',
-            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})`,
+            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})${this.backgroundProperties?.pageBackgroundEffect ? `,${this.backgroundProperties.pageBackgroundEffect}` : ''}`,
+          });
+        } else if (this.backgroundProperties?.pageBackgroundEffect) {
+          this.$root.$emit('refresh-body-style-property', {
+            name: 'background-image',
+            value: `${this.backgroundProperties.pageBackgroundEffect}`,
           });
         } else if (this.backgroundProperties.pageBackgroundColor
             || (!this.backgroundProperties.pageBackground?.uploadId && !this.backgroundProperties.pageBackground?.fileId)) {
@@ -364,6 +376,7 @@ export default {
         pageBackgroundRepeat: this.backgroundProperties.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
         pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
+        pageBackgroundEffect: this.backgroundProperties.pageBackgroundEffect || null,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
         customCss: this.customCss,
       });
@@ -382,6 +395,18 @@ export default {
       this.primaryColor = primary;
       this.secondaryColor = secondary;
       this.tertiaryColor = tertiary;
+    },
+    updatePageStylingProperties(backgroundProperties, fullWindow) {
+      this.backgroundProperties = {
+        pageBackground: backgroundProperties?.background || null,
+        pageBackgroundSize: backgroundProperties?.backgroundSize || null,
+        pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || null,
+        pageBackgroundPosition: backgroundProperties?.backgroundPosition || null,
+        pageBackgroundColor: backgroundProperties?.backgroundColor || null,
+        pageBackgroundEffect: backgroundProperties?.backgroundEffect || null,
+      };
+      this.fullWindow = fullWindow;
+      this.setBackgroungPropertiesPreview();
     }
   }
 };
