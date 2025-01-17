@@ -24,14 +24,25 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Locale;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfilePropertyOption {
 
-  private Long   id;
+  private Long                id;
 
-  private String value;
+  private String              value;
 
-  private Long   propertySettingId;
+  private Long                propertySettingId;
+
+  private Map<String, String> translations;
+
+  public ProfilePropertyOption(Long id, String value, Long propertySettingId) {
+    this.id = id;
+    this.value = value;
+    this.propertySettingId = propertySettingId;
+  }
 }

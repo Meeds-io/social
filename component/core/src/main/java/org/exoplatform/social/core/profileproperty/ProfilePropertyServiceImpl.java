@@ -20,11 +20,15 @@
 
 package org.exoplatform.social.core.profileproperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import io.meeds.social.translation.model.TranslationField;
+import io.meeds.social.translation.service.TranslationService;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.picocontainer.Startable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -57,6 +61,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private final IndexingService                      indexingService;
 
   private final ListenerService                      listenerService;
+  
+  private final TranslationService                   translationService;
 
   private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
 
@@ -77,16 +83,21 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private static final String                        HIDDEN_PROFILE_PROPERTY_SETTINGS_KEY   = "HiddenProfilePropertySettings";
 
+  private static final String                        PROFILE_PROPERTY_FIELD_NAME            = "optionValue";
+
+  private static final String                        PROFILE_PROPERTY_OBJECT_TYPE           = "propertySettingOption";
+  
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
                                     SettingService settingService,
                                     IndexingService indexingService,
-                                    ListenerService listenerService) {
+                                    ListenerService listenerService, TranslationService translationService) {
     this.profileSettingStorage = profileSettingStorage;
     this.settingService = settingService;
     this.indexingService = indexingService;
     this.listenerService = listenerService;
-    if (params != null) {
+    this.translationService = translationService;
+      if (params != null) {
       try {
         synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
                                                                   .getValue()
@@ -156,21 +167,22 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
 
     profilePropertySetting.setUpdated(System.currentTimeMillis());
-    profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, true);
-    
-    if (profilePropertySetting.getOrder() == null) {
-      profilePropertySetting.setOrder(profilePropertySetting.getId());
-      profilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
+                                                                                                          true);
+    savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions(), false);
+    if (storedProfilePropertySetting.getOrder() == null) {
+      storedProfilePropertySetting.setOrder(storedProfilePropertySetting.getId());
+      storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(storedProfilePropertySetting, false);
     }
     
     try {
-      listenerService.broadcast("profile-property-setting-created", this, profilePropertySetting);
+      listenerService.broadcast("profile-property-setting-created", this, storedProfilePropertySetting);
     } catch (Exception e) {
       LOG.error("An error occurred while broadcasting the creation event for the property setting '{}'.",
-                profilePropertySetting.getPropertyName(),
+              storedProfilePropertySetting.getPropertyName(),
                 e);
     }
-    return profilePropertySetting;
+    return storedProfilePropertySetting;
   }
 
   @Override
@@ -195,14 +207,15 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       profilePropertySetting.setPropertyType(createdProfilePropertySetting.getPropertyType());
     }
     profilePropertySetting.setUpdated(System.currentTimeMillis());
-    profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    ProfilePropertySetting updatedPropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions(), true);
     try {
-      listenerService.broadcast("profile-property-setting-updated", this, profilePropertySetting);
+      listenerService.broadcast("profile-property-setting-updated", this, updatedPropertySetting);
     } catch (Exception e) {
-      LOG.error("An error occurred when broadcasting the update event of the property setting {}", profilePropertySetting.getPropertyName(), e);
+      LOG.error("An error occurred when broadcasting the update event of the property setting {}", updatedPropertySetting.getPropertyName(), e);
     }
   }
-
+  
   @Override
   public void deleteProfilePropertySetting(Long id) {
     if (id <= 0) {
@@ -335,6 +348,44 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
     if (profilePropertySetting.isDropdownList() && !"text".equals(profilePropertySetting.getPropertyType())) {
       throw new IllegalArgumentException("Only text properties can be dropdown lists.");
+    }
+  }
+
+  private void savePropertyOptionsTranslations(ProfilePropertySetting savedProfilePropertySetting,
+                                               List<ProfilePropertyOption> newOptions,
+                                               boolean update) {
+    if (!savedProfilePropertySetting.isDropdownList()) {
+      return;
+    }
+    List<ProfilePropertyOption> savedOptions =
+                                             profileSettingStorage.getProfilePropertyOptions(savedProfilePropertySetting.getId(),
+                                                                                             0,
+                                                                                             0);
+    for (int i = 0; i < savedOptions.size(); i++) {
+      ProfilePropertyOption savedOption = savedOptions.get(i);
+      ProfilePropertyOption newOption = i < newOptions.size() ? newOptions.get(i) : null;
+      if (savedOption == null || newOption == null) {
+        continue;
+      }
+      try {
+        TranslationField translationField = translationService.getTranslationField(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                                                   savedOption.getId(),
+                                                                                   PROFILE_PROPERTY_FIELD_NAME);
+        Map<Locale, String> translations = newOption.getTranslations()
+                                                    .entrySet()
+                                                    .stream()
+                                                    .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
+                                                                              Map.Entry::getValue));
+        translationService.saveTranslationLabels(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                 savedOption.getId(),
+                                                 PROFILE_PROPERTY_FIELD_NAME,
+                                                 translations);
+        if (update && translationField != null && !translationField.getLabels().equals(translations)) {
+          listenerService.broadcast("property_options_updated", newOption, translationField.getLabels());
+        }
+      } catch (Exception e) {
+        LOG.error("Error while saving translation labels for profile property option {}", savedOption.getId(), e);
+      }
     }
   }
 }
