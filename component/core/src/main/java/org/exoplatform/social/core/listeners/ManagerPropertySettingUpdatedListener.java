@@ -54,7 +54,7 @@ public class ManagerPropertySettingUpdatedListener extends Listener<ProfilePrope
           PageState page = pageContext.getState();
           PageState pageState = new PageState(page.getDisplayName(),
                                               page.getDescription(),
-                                              page.getShowMaxWindow(),
+                                              page.isShowMaxWindow(),
                                               page.getFactoryId(),
                                               propertySetting.isActive() ? List.of(ALL_USERS_PERMISSION) :
                                                                          List.of(userACL.getSuperUser()),

@@ -80,9 +80,7 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                         false,
                                         "PagesFactory",
                                         List.of("/platform/users"),
-                                        "/platform/administrators",
-                                        "page",
-                                        "/myteam");
+                                        "/platform/administrators");
     PageContext pageContext = new PageContext(PageKey.parse("portal::global::organizationalChart"), pageState);
     when(pageStorage.loadPage(any())).thenReturn(pageContext);
     profilePropertySetting = new ProfilePropertySetting(1L,
