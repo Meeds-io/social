@@ -2131,7 +2131,8 @@ public class EntityBuilder {
     return profilePropertyOptionEntities.stream()
                                         .map(option -> new ProfilePropertyOption(option.getId(),
                                                                                  option.getValue(),
-                                                                                 option.getPropertySettingId()))
+                                                                                 option.getPropertySettingId(),
+                                                                                 option.getTranslations()))
                                         .toList();
   }
 
