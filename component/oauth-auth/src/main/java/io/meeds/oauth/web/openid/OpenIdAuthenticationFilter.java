@@ -45,11 +45,21 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
   private static Log log = ExoLogger.getLogger(OpenIdAuthenticationFilter.class);
   private AuthenticationRegistry authenticationRegistry;
   private OpenIdProcessor openIdProcessor;
+
+  private boolean openIdEnabled;
   @Override
   protected void initImpl() {
-    authenticationRegistry = getExoContainer().getComponentInstanceOfType(AuthenticationRegistry.class);
-    OAuthProviderTypeRegistry oAuthProviderTypeRegistry = getExoContainer().getComponentInstanceOfType(OAuthProviderTypeRegistry.class);
-    openIdProcessor = (OpenIdProcessor) oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_OPEN_ID, OpenIdAccessTokenContext.class).getOauthProviderProcessor();
+    this.openIdEnabled = Boolean.parseBoolean(System.getProperty("exo.oauth.openid.enabled"));
+    if (this.openIdEnabled) {
+      authenticationRegistry = getExoContainer().getComponentInstanceOfType(AuthenticationRegistry.class);
+      OAuthProviderTypeRegistry
+          oAuthProviderTypeRegistry =
+          getExoContainer().getComponentInstanceOfType(OAuthProviderTypeRegistry.class);
+      openIdProcessor =
+          (OpenIdProcessor) oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_OPEN_ID,
+                                                                       OpenIdAccessTokenContext.class)
+                                                     .getOauthProviderProcessor();
+    }
   }
 
   @Override
@@ -60,7 +70,7 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
 
     // Simply continue with request if we are already authenticated
-    if (request.getRemoteUser() != null) {
+    if (!this.openIdEnabled || request.getRemoteUser() != null) {
       filterChain.doFilter(request, response);
       return;
     }
