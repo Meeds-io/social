@@ -24,7 +24,6 @@ import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -44,7 +43,6 @@ public class SiteEntity {
 
   private String                   icon;
 
-  @EqualsAndHashCode.Exclude
   private UserNodeRestEntity       rootNode;
 
   private String[]                 accessPermissions;
@@ -57,7 +55,6 @@ public class SiteEntity {
 
   private boolean                  metaSite;
 
-  @EqualsAndHashCode.Exclude
   private List<UserNodeRestEntity> siteNavigations;
 
   private boolean                  canEdit;
