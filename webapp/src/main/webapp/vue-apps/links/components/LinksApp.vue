@@ -40,7 +40,6 @@
           v-if="hasLinks"
           :settings="$root.settings"
           :links="$root.links"
-          class="full-width"
           @edit="editSettings()" />
       </v-card>
     </v-hover>
@@ -89,7 +88,15 @@ export default {
       }
       this.loading = true;
       this.$linkService.getSettings(this.$root.name, this.$root.language)
-        .then(settings => this.$root.settings = settings)
+        .then(settings => {
+          if (!settings.vAlign) {
+            settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+          }
+          if (!settings.hAlign) {
+            settings.hAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+          }
+          this.$root.settings = settings;
+        })
         .then(() => this.loading = false);
     },
     editSettings(openForm) {

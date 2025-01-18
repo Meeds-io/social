@@ -183,13 +183,14 @@
                     </div>
                     <div v-if="settings.showIcon" class="d-flex mb-4">
                       <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
-                        {{ $t('links.label.largeIcons') }}
+                        {{ $t('links.label.iconsSize') }}
                       </div>
-                      <v-switch
-                        v-model="settings.largeIcon"
-                        class="my-0 me-n2"
-                        dense
-                        hide-details />
+                      <number-input
+                        v-model="settings.iconSize"
+                        :min="12"
+                        :max="60"
+                        :step="1"
+                        class="ms-auto my-n2" />
                     </div>
                     <div class="d-flex mb-4">
                       <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
@@ -236,6 +237,63 @@
                           type="text"
                           outlined
                           dense />
+                      </div>
+                    </div>
+                    <div class="d-flex flex-column mb-4">
+                      <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color mb-2">
+                        {{ $t('links.label.align') }}
+                      </div>
+                      <div class="d-flex">
+                        <div class="col-6 pa-0">
+                          <v-radio-group v-model="settings.hAlign">
+                            <v-radio
+                              value="START"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.left') }}</span>
+                              </template>
+                            </v-radio>
+                            <v-radio
+                              value="CENTER"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.center') }}</span>
+                              </template>
+                            </v-radio>
+                            <v-radio
+                              value="END"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.right') }}</span>
+                              </template>
+                            </v-radio>
+                          </v-radio-group>
+                        </div>
+                        <div class="col-6 pa-0">
+                          <v-radio-group v-model="settings.vAlign">
+                            <v-radio
+                              value="START"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.top') }}</span>
+                              </template>
+                            </v-radio>
+                            <v-radio
+                              value="CENTER"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.middle') }}</span>
+                              </template>
+                            </v-radio>
+                            <v-radio
+                              value="END"
+                              class="ma-0 pa-0">
+                              <template #label>
+                                <span class="text-body">{{ $t('links.label.bottom') }}</span>
+                              </template>
+                            </v-radio>
+                          </v-radio-group>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -399,8 +457,8 @@ export default {
       },
     },
     showIcon() {
-      if (!this.showIcon && this.settings) {
-        this.settings.largeIcon = false;
+      if (this.settings && !this.settings.iconSize) {
+        this.settings.iconSize = 34;
       }
     },
     expanded() {
@@ -427,6 +485,9 @@ export default {
       this.$nextTick().then(() => this.$refs?.drawer?.open?.());
       this.$linkService.getSettings(this.$root.name)
         .then(settings => {
+          if (settings.showIcon !== false) {
+            settings.showIcon = true;
+          }
           if (settings.showIcon !== false) {
             settings.showIcon = true;
           }

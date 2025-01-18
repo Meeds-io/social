@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Set;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 
 import jakarta.persistence.Column;
@@ -45,11 +46,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@NamedQuery(
-  name = "LinkSettingEntity.findByName",
-  query = "SELECT s from SocLinkSetting s"
-      + " WHERE s.name = :name"
-)
+@NamedQuery(name = "LinkSettingEntity.findByName", query = "SELECT s from SocLinkSetting s" + " WHERE s.name = :name")
 public class LinkSettingEntity implements Serializable {
 
   private static final long serialVersionUID = -3658613044697163309L;
@@ -73,8 +70,23 @@ public class LinkSettingEntity implements Serializable {
   @Column(name = "TYPE", nullable = false)
   private LinkDisplayType   type;
 
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "V_ALIGN")
+  private LinkAlignType     vAlign;
+
+  @Enumerated(EnumType.ORDINAL)
+  @Column(name = "H_ALIGN")
+  private LinkAlignType     hAlign;
+
+  /**
+   * @deprecated use iconSize instead
+   */
+  @Deprecated(since = "7.0")
   @Column(name = "LARGE_ICON")
   private boolean           largeIcon;
+
+  @Column(name = "ICON_SIZE")
+  private int               iconSize;
 
   @Column(name = "SHOW_NAME")
   private boolean           showName;

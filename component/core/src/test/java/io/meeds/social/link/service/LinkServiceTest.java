@@ -49,6 +49,7 @@ import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.mock.MockUploadService;
 import org.exoplatform.upload.UploadService;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 import io.meeds.social.link.dao.LinkDAO;
 import io.meeds.social.link.dao.LinkSettingDAO;
@@ -137,9 +138,12 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
     assertNotNull(linkSetting);
 
     linkSetting.setLargeIcon(true);
+    linkSetting.setIconSize(12);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore1");
     linkSetting.setType(LinkDisplayType.COLUMN);
+    linkSetting.setVAlign(LinkAlignType.CENTER);
+    linkSetting.setHAlign(LinkAlignType.END);
     assertThrows(IllegalAccessException.class, () -> linkService.saveLinkSetting(linkSetting, null, null));
     assertThrows(IllegalAccessException.class,
                  () -> linkService.saveLinkSetting(linkSetting, null, registerInternalUser(USERNAME)));
@@ -159,9 +163,12 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
     linkSetting.setHeader(Collections.singletonMap("en", "header2"));
     linkSetting.setLargeIcon(false);
+    linkSetting.setIconSize(12);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore("SeeMore2");
     linkSetting.setType(LinkDisplayType.CARD);
+    linkSetting.setVAlign(LinkAlignType.END);
+    linkSetting.setHAlign(LinkAlignType.START);
 
     Thread.sleep(2); // NOSONAR wait for 10 milliseconds to have a different
                      // modification timestamp after saving the link setting
@@ -191,9 +198,12 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
     linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
+    linkSetting.setIconSize(12);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
+    linkSetting.setVAlign(LinkAlignType.CENTER);
+    linkSetting.setHAlign(LinkAlignType.START);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
     List<Link> links = linkService.getLinks(LINK_SETTING_NAME, null, true);
@@ -290,9 +300,12 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
     linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
+    linkSetting.setIconSize(12);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
+    linkSetting.setVAlign(LinkAlignType.START);
+    linkSetting.setHAlign(LinkAlignType.END);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
     LinkWithIconAttachment linkToSave = new LinkWithIconAttachment(0,
@@ -392,9 +405,12 @@ public class LinkServiceTest extends AbstractKernelTest { // NOSONAR
 
     linkSetting.setHeader(Collections.singletonMap("en", HEADER_NAME));
     linkSetting.setLargeIcon(true);
+    linkSetting.setIconSize(12);
     linkSetting.setShowName(true);
     linkSetting.setSeeMore(SEE_MORE_NAME);
     linkSetting.setType(LinkDisplayType.COLUMN);
+    linkSetting.setVAlign(LinkAlignType.END);
+    linkSetting.setHAlign(LinkAlignType.START);
     linkService.saveLinkSetting(linkSetting, null, registerAdministratorUser(USERNAME));
 
     List<Link> links = linkService.getLinks(LINK_SETTING_NAME, null, true);

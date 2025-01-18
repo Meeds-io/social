@@ -22,6 +22,7 @@ package io.meeds.social.link.rest.model;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 
 import lombok.AllArgsConstructor;
@@ -41,7 +42,13 @@ public class LinkSettingRestEntity {
 
   private LinkDisplayType      type;
 
+  private LinkAlignType        vAlign;
+
+  private LinkAlignType        hAlign;
+
   private boolean              largeIcon;
+
+  private int                  iconSize;
 
   private boolean              showName;
 

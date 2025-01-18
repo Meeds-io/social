@@ -65,6 +65,12 @@ export function init(appId, name, canEdit) {
           retrieveSettings() {
             return this.$linkService.getSettings(this.name, this.language)
               .then(settings => {
+                if (!settings.vAlign) {
+                  settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+                }
+                if (!settings.hAlign) {
+                  settings.hAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+                }
                 this.settings = settings;
                 this.computeDefaultTranslations();
               });
