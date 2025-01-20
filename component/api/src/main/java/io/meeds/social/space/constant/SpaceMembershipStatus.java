@@ -20,5 +20,5 @@
 package io.meeds.social.space.constant;
 
 public enum SpaceMembershipStatus {
-  MEMBER, MANAGER, REDACTOR, PENDING, INVITED, IGNORED, PUBLISHER;
+  MEMBER, MANAGER, REDACTOR, PENDING, INVITED, IGNORED, PUBLISHER, DISABLED;
 }
