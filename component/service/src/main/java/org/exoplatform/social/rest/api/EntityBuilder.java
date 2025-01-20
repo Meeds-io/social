@@ -116,6 +116,7 @@ import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
 import org.exoplatform.social.core.service.LinkProvider;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.utils.MentionUtils;
@@ -1040,11 +1041,11 @@ public class EntityBuilder {
                      .filter(Objects::nonNull)
                      .filter(Identity::isUser)
                      .map(identity -> buildSpaceMembership(spaceService,
-                                                           space,
-                                                           identity.getRemoteId(),
-                                                           membershipType,
-                                                           uriInfo.getPath(),
-                                                           expand))
+                             space,
+                             identity.getRemoteId(),
+                             membershipType,
+                             uriInfo.getPath(),
+                             expand))
                      .toList();
   }
 
@@ -1054,7 +1055,8 @@ public class EntityBuilder {
                                                  MembershipType membershipType,
                                                  String restPath,
                                                  String expand) {
-    if (getMembershipTypePredicate(spaceService, membershipType).test(space, userId)) {
+    if (SpaceUtils.DISABLED.equals(membershipType.getRole()) ||
+            getMembershipTypePredicate(spaceService, membershipType).test(space, userId)) {
       return buildSpaceMembershipEntity(space,
                                         userId,
                                         membershipType.getRole(),
