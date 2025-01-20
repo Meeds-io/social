@@ -24,6 +24,7 @@ import static io.meeds.social.link.storage.util.EntityMapper.toModel;
 import java.time.Instant;
 import java.util.List;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 import io.meeds.social.link.dao.LinkDAO;
 import io.meeds.social.link.dao.LinkSettingDAO;
@@ -67,7 +68,10 @@ public class LinkStorage {
       linkSettingEntity.setPageReference(pageReference);
       linkSettingEntity.setSpaceId(spaceId);
       linkSettingEntity.setShowIcon(true);
+      linkSettingEntity.setIconSize(34);
       linkSettingEntity.setType(LinkDisplayType.ROW);
+      linkSettingEntity.setVAlign(LinkAlignType.CENTER);
+      linkSettingEntity.setHAlign(LinkAlignType.CENTER);
       linkSettingEntity.setLastModified(Instant.now());
       return toModel(linkSettingDAO.create(linkSettingEntity));
     } else {

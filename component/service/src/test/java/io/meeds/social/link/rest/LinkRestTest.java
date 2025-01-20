@@ -52,6 +52,7 @@ import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 import io.meeds.social.link.dao.LinkDAO;
 import io.meeds.social.link.dao.LinkSettingDAO;
@@ -201,6 +202,7 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
     assertEquals(newLinkSettingRestEntity.getSeeMore(), linkSettingRestEntity.getSeeMore());
     assertEquals(newLinkSettingRestEntity.getType(), linkSettingRestEntity.getType());
     assertEquals(newLinkSettingRestEntity.isLargeIcon(), linkSettingRestEntity.isLargeIcon());
+    assertEquals(newLinkSettingRestEntity.getIconSize(), linkSettingRestEntity.getIconSize());
     assertEquals(newLinkSettingRestEntity.isShowName(), linkSettingRestEntity.isShowName());
     assertEquals(newLinkSettingRestEntity.isShowDescription(), linkSettingRestEntity.isShowDescription());
 
@@ -373,7 +375,10 @@ public class LinkRestTest extends AbstractResourceTest { // NOSONAR
                                      LINK_SETTING_NAME,
                                      linkHeaders,
                                      LinkDisplayType.CARD,
+                                     LinkAlignType.CENTER,
+                                     LinkAlignType.END,
                                      true,
+                                     12,
                                      true,
                                      true,
                                      true,

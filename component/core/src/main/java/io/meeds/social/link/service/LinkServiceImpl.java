@@ -206,7 +206,10 @@ public class LinkServiceImpl implements LinkService {
     String linkSettingName = linkSetting.getName();
     LinkSetting existingLinkSetting = linkStorage.getLinkSetting(linkSettingName);
     existingLinkSetting.setType(linkSetting.getType());
+    existingLinkSetting.setVAlign(linkSetting.getVAlign());
+    existingLinkSetting.setHAlign(linkSetting.getHAlign());
     existingLinkSetting.setLargeIcon(linkSetting.isLargeIcon());
+    existingLinkSetting.setIconSize(linkSetting.getIconSize());
     existingLinkSetting.setSeeMore(linkSetting.getSeeMore());
     existingLinkSetting.setShowName(linkSetting.isShowName());
     existingLinkSetting.setShowIcon(linkSetting.isShowIcon());

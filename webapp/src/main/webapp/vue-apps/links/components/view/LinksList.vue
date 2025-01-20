@@ -19,12 +19,11 @@
 
 -->
 <template>
-  <div :class="!isColumn && 'my-auto'">
+  <div class="max-width-fit overflow-hidden" :class="[vAlignClass, hAlignClass]">
     <component
       v-if="links?.length"
       :is="isColumn && 'v-list' || 'card-carousel'"
       :class="isColumn && 'pa-0' || 'mt-n2 mb-n4'"
-      class="full-width"
       v-bind="isColumn && {
         dense: !largeIcon
       }">
@@ -37,6 +36,7 @@
         :show-name="showName"
         :show-description="showDescription"
         :show-icon="showIcon"
+        :icon-size="iconSize"
         :large-icon="largeIcon" />
     </component>
   </div>
@@ -66,8 +66,11 @@ export default {
     showIcon() {
       return this.settings?.showIcon || false;
     },
+    iconSize() {
+      return this.showIcon && this.settings?.iconSize || (this.settings?.largeIcon && 48 || 34) || 0;
+    },
     largeIcon() {
-      return this.showIcon && this.settings?.largeIcon || false;
+      return this.iconSize > 40;
     },
     header() {
       return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
@@ -84,6 +87,30 @@ export default {
     },
     componentName() {
       return this.isColumn && 'links-column' || 'links-card';
+    },
+    hAlign() {
+      return this.settings?.hAlign || 'CENTER';
+    },
+    vAlign() {
+      return this.settings?.vAlign || 'MIDDLE';
+    },
+    vAlignClass() {
+      if (this.vAlign === 'START') {
+        return 'mb-auto';
+      } else if (this.vAlign === 'END') {
+        return 'mt-auto';
+      } else {
+        return 'my-auto';
+      }
+    },
+    hAlignClass() {
+      if (this.hAlign === 'START') {
+        return 'me-auto';
+      } else if (this.hAlign === 'END') {
+        return 'ms-auto';
+      } else {
+        return 'mx-auto';
+      }
     },
   },
 };
