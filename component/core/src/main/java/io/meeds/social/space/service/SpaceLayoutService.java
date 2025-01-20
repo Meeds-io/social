@@ -39,14 +39,14 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
+import lombok.SneakyThrows;
+
 @Service
 public class SpaceLayoutService {
 
   public static final String      DEFAULT_PUBLIC_SITE_TEMPLATE = "spacePublic";
 
   public static final String      DEFAULT_SITE_TEMPLATE        = "space";
-
-  public static final String      DEFAULT_SITE_TEMPLATE_PATH   = "war:/conf/portal";
 
   private UserPortalConfigService portalConfigService;
 
@@ -182,15 +182,14 @@ public class SpaceLayoutService {
     }
   }
 
+  @SneakyThrows
   private long createSpacePublicSite(Space space,
                                      String name,
                                      String label,
                                      String[] accessPermissions) {
     String siteName = StringUtils.firstNonBlank(name, space.getPrettyName());
-    portalConfigService.createUserPortalConfig(PortalConfig.PORTAL_TYPE,
-                                               siteName,
-                                               DEFAULT_PUBLIC_SITE_TEMPLATE,
-                                               DEFAULT_SITE_TEMPLATE_PATH);
+    portalConfigService.createSiteFromTemplate(SiteKey.portalTemplate(DEFAULT_PUBLIC_SITE_TEMPLATE),
+                                               SiteKey.portal(siteName));
     PortalConfig portalConfig = layoutService.getPortalConfig(siteName);
 
     String editPermission = SpaceUtils.MANAGER + ":" + space.getGroupId();
@@ -262,8 +261,10 @@ public class SpaceLayoutService {
       return new String[] { SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_USERS_GROUP };
     }
     case SpaceUtils.AUTHENTICATED: {
-      return new String[] { SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_USERS_GROUP,
-                            SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_EXTERNALS_GROUP };
+      return new String[] {
+        SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_USERS_GROUP,
+        SpaceUtils.MEMBER + ":" + SpaceUtils.PLATFORM_EXTERNALS_GROUP
+      };
     }
     case SpaceUtils.EVERYONE: {
       return new String[] { UserACL.EVERYONE };

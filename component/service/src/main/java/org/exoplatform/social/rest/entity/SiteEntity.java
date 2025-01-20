@@ -18,7 +18,6 @@ package org.exoplatform.social.rest.entity;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.rest.model.UserNodeRestEntity;
@@ -32,54 +31,38 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SiteEntity {
 
-  private long                      siteId;
+  private long                     siteId;
 
-  private SiteType                  siteType;
+  private SiteType                 siteType;
 
-  private String                    name;
+  private String                   name;
 
-  private String                    displayName;
+  private String                   displayName;
 
-  private String                    description;
-  
-  private UserNodeRestEntity        rootNode;
+  private String                   description;
 
-  private List<Map<String, Object>> accessPermissions;
+  private String                   icon;
 
-  private Map<String, Object>       editPermission;
+  private UserNodeRestEntity       rootNode;
 
-  private boolean                   displayed;
+  private String[]                 accessPermissions;
 
-  private int                       displayOrder;
+  private String                   editPermission;
 
-  private boolean                   metaSite;
+  private boolean                  displayed;
 
-  private List<UserNodeRestEntity>  siteNavigations;
+  private int                      displayOrder;
 
-  private boolean                   canEdit;
+  private boolean                  metaSite;
 
-  private long                      bannerFileId;
+  private List<UserNodeRestEntity> siteNavigations;
 
-  private String                    bannerUrl;
+  private boolean                  canEdit;
 
-  private Map<String, String>       properties;
-  
-  @Override
-  public int hashCode() {
-    int result = 17;
-    result = 31 * result + (displayName != null ? displayName.hashCode() : 0);
-    result = 31 * result + (description != null ? description.hashCode() : 0);
-    result = 31 * result + (accessPermissions != null ? Objects.hash(accessPermissions) : 0);
-    result = 31 * result + (editPermission != null ? editPermission.hashCode() : 0);
-    result = 31 * result + (displayed ? 1 : 0);
-    result = 31 * result + displayOrder;
-    result = 31 * result + (siteNavigations != null ? Objects.hash(siteNavigations) : 0);
-    result = 31 * result + (bannerUrl != null ? bannerUrl.hashCode() : 0);
-    return result;
-  }
-  
-  @Override
-  public boolean equals(Object obj) {
-    return (this == obj);
-  }
+  private long                     bannerFileId;
+
+  private String                   bannerUrl;
+
+  private Map<String, String>      properties;
+
 }

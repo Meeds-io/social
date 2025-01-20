@@ -63,12 +63,20 @@ export default {
     headers() {
       return this.$root.isMobile && [
         {
+          text: '',
+          value: 'icon',
+          align: 'left',
+          sortable: false,
+          class: 'space-template-icon-header',
+          width: '35px'
+        },
+        {
           text: this.$t('spaceTemplates.label.name'),
           value: 'name',
           align: 'left',
           sortable: true,
           class: 'space-template-name-header',
-          width: '20%'
+          width: 'auto'
         },
         {
           text: this.$t('spaceTemplates.label.actions'),
@@ -78,13 +86,54 @@ export default {
           class: 'space-template-actions-header',
           width: '50px'
         },
-      ] || [
+      ] || (this.$vuetify.breakpoint.lgAndDown && [
+        {
+          text: '',
+          value: 'icon',
+          align: 'left',
+          sortable: false,
+          class: 'space-template-icon-header',
+          width: '35px'
+        },
         {
           text: this.$t('spaceTemplates.label.name'),
           value: 'name',
           align: 'left',
           sortable: true,
-          class: 'space-template-name-header',
+          class: 'space-template-name-header ps-0',
+          width: 'auto'
+        },
+        {
+          text: this.$t('spaceTemplates.label.status'),
+          value: 'enabled',
+          align: 'center',
+          sortable: true,
+          class: 'space-template-category-header text-no-wrap',
+          width: '90px'
+        },
+        {
+          text: this.$t('spaceTemplates.label.actions'),
+          value: 'actions',
+          align: 'center',
+          sortable: false,
+          class: 'space-template-actions-header text-no-wrap',
+          width: '90px'
+        },
+      ]) || [
+        {
+          text: '',
+          value: 'icon',
+          align: 'left',
+          sortable: false,
+          class: 'space-template-icon-header',
+          width: '35px'
+        },
+        {
+          text: this.$t('spaceTemplates.label.name'),
+          value: 'name',
+          align: 'left',
+          sortable: true,
+          class: 'space-template-name-header ps-0',
           width: 'auto'
         },
         {
