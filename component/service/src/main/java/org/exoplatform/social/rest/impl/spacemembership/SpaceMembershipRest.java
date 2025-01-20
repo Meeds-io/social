@@ -81,7 +81,8 @@ public class SpaceMembershipRest implements ResourceContainer {
     MEMBER(SpaceUtils.MEMBER, SpaceMembershipStatus.MEMBER),
     MANAGER(SpaceUtils.MANAGER, SpaceMembershipStatus.MANAGER),
     PUBLISHER(SpaceUtils.PUBLISHER, SpaceMembershipStatus.PUBLISHER),
-    REDACTOR(SpaceUtils.REDACTOR, SpaceMembershipStatus.REDACTOR);
+    REDACTOR(SpaceUtils.REDACTOR, SpaceMembershipStatus.REDACTOR),
+    DISABLED(SpaceUtils.DISABLED, SpaceMembershipStatus.DISABLED);
 
     @Getter
     private final SpaceMembershipStatus status;

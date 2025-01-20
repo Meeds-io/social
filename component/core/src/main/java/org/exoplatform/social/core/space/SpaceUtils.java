@@ -96,6 +96,8 @@ public class SpaceUtils {
 
   public static final String  IGNORED                    = "ignored";
 
+  public static final String  DISABLED                    = "disabled";
+
   public static final String  MENU_CONTAINER             = "Menu";
 
   public static final String  APPLICATION_CONTAINER      = "Application";
