@@ -38,8 +38,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.google.javascript.jscomp.jarjar.com.google.common.base.Objects;
-
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -105,7 +103,7 @@ public class LinkRest implements ResourceContainer {
       if (linkSetting == null) {
         return Response.status(Status.NOT_FOUND).build();
       }
-      EntityTag eTag = new EntityTag(String.valueOf(Objects.hashCode(name, lang, String.valueOf(linkSetting.getLastModified()))));
+      EntityTag eTag = new EntityTag(String.valueOf(linkSetting.hashCode()));
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
       if (builder == null) {
         builder = Response.ok(getLinkSettingEntity(linkSetting, lang));

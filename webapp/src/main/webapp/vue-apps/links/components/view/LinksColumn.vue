@@ -71,6 +71,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    iconSize: {
+      type: Number,
+      default: () => 0,
+    },
   },
   computed: {
     name() {
@@ -98,9 +102,6 @@ export default {
     },
     icon() {
       return this.link?.icon;
-    },
-    iconSize() {
-      return this.largeIcon && 48 || 34;
     },
   },
 };

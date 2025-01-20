@@ -114,4 +114,26 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="links" id="1.0.0-mip-92-01">
+    <addColumn tableName="SOC_LINK_SETTINGS">
+      <column name="ICON_SIZE" type="INT" defaultValueNumeric="0" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="links" id="1.0.0-mip-92-02">
+    <addColumn tableName="SOC_LINK_SETTINGS">
+      <column name="H_ALIGN" type="TINYINT" defaultValueNumeric="0" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="links" id="1.0.0-mip-92-03">
+    <addColumn tableName="SOC_LINK_SETTINGS">
+      <column name="V_ALIGN" type="TINYINT" defaultValueNumeric="0" />
+    </addColumn>
+  </changeSet>
+  <changeSet author="links" id="1.0.0-mip-92-04">
+    <sql>
+      UPDATE SOC_LINK_SETTINGS SET V_ALIGN = 1 WHERE TYPE = 2;
+      UPDATE SOC_LINK_SETTINGS SET H_ALIGN = 1 WHERE TYPE = 2;
+    </sql>
+  </changeSet>
+
 </databaseChangeLog>

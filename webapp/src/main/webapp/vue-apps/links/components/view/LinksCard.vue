@@ -30,8 +30,12 @@
     :is="isCard && 'v-card' || 'v-btn'"
     :href="url"
     :target="target"
+    :min-width="itemWidth"
     :width="itemWidth"
+    :max-width="itemWidth"
+    :min-height="itemHeight"
     :height="itemHeight"
+    :max-height="itemHeight"
     class="mx-2">
     <v-card
       :title="description || name"
@@ -80,6 +84,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    iconSize: {
+      type: Number,
+      default: () => 0,
+    },
   },
   data: () => ({
     hover: false,
@@ -111,11 +119,8 @@ export default {
     icon() {
       return this.link?.icon;
     },
-    iconSize() {
-      return this.largeIcon && 48 || 34;
-    },
     itemSize() {
-      return this.largeIcon && 150 || 135;
+      return this.iconSize * 4;
     },
     itemWidth() {
       return this.showName && this.itemSize || parseInt(this.itemSize / 2);

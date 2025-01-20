@@ -21,6 +21,7 @@ package io.meeds.social.link.model;
 import java.io.Serializable;
 import java.util.Map;
 
+import io.meeds.social.link.constant.LinkAlignType;
 import io.meeds.social.link.constant.LinkDisplayType;
 
 import lombok.AllArgsConstructor;
@@ -46,7 +47,17 @@ public class LinkSetting implements Serializable, Cloneable {
 
   private LinkDisplayType     type;
 
+  private LinkAlignType       vAlign;
+
+  private LinkAlignType       hAlign;
+
+  /**
+   * @deprecated use iconSize instead
+   */
+  @Deprecated(since = "7.0")
   private boolean             largeIcon        = false;
+
+  private int                 iconSize         = 0;
 
   private boolean             showName         = false;
 
@@ -66,7 +77,10 @@ public class LinkSetting implements Serializable, Cloneable {
                            spaceId,
                            header,
                            type,
+                           vAlign,
+                           hAlign,
                            largeIcon,
+                           iconSize,
                            showName,
                            showIcon,
                            showDescription,
