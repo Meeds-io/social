@@ -32,8 +32,8 @@
         <v-list-item-action class="me-2 my-0">
           <v-card
             :color="value"
-            height="50px"
-            width="50px"
+            :height="height"
+            :width="width"
             v-on="on" />
         </v-list-item-action>
         <v-list-item-content class="d-flex flex-column align-start me-2">
@@ -88,6 +88,14 @@ export default {
       type: String,
       default: null,
     },
+    height: {
+      type: String,
+      default: '50px'
+    },
+    width: {
+      type: String,
+      default: '50px'
+    }
   },
   data: () => ({
     modal: false,
