@@ -49,7 +49,8 @@
       center-active
       optional
       height="57"
-      slider-size="4">
+      slider-size="4"
+      background-color="transparent">
       <navigation-menu-item
         v-for="(navigation, index) in navigations"
         :key="navigation.id"
