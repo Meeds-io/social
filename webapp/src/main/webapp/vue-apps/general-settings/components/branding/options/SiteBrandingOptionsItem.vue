@@ -19,15 +19,16 @@
 
 -->
 <template>
-  <div class="option-item">
+  <div class="option-item mt-2">
     <v-list-item
+      dense
       class="pa-0">
       <v-list-item-content>
         <v-list-item-title>
           {{ $t(`generalSettings.${option?.name}.option.label`) }}
         </v-list-item-title>
       </v-list-item-content>
-      <v-list-item-action class="d-flex flex-row">
+      <v-list-item-action class="d-flex flex-row my-auto">
         <v-btn
           icon
           @click="emitOptionEvent">
