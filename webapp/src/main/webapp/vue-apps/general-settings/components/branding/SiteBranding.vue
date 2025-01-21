@@ -132,6 +132,7 @@
         'secondaryColor': secondaryColor,
         'tertiaryColor': tertiaryColor
       }" />
+    <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
   </v-row>
 </template>
 <script>
@@ -160,6 +161,8 @@ export default {
     originalBackgroundProperties: null,
     backgroundProperties: null,
     defaultBackgroundColor: '#F2F2F2FF',
+    topBarStylingProperties: null,
+    isTopBarStylingPropertiesChanged: false
   }),
   computed: {
     defaultCompanyName() {
@@ -194,7 +197,7 @@ export default {
       if (!this.branding) {
         return false;
       }
-      if (this.logoUploadId || this.faviconUploadId) {
+      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged) {
         return true;
       }
       const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
@@ -271,6 +274,8 @@ export default {
   },
   created() {
     this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
+
   },
   mounted() {
     this.init();
@@ -287,7 +292,6 @@ export default {
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
       this.borderRadius = this.defaultBorderRadius;
-      this.borderRadius = this.defaultBorderRadius;
       this.backgroundProperties = {
         pageBackground: this.branding?.pageBackground || null,
         pageBackgroundSize: this.branding?.pageBackgroundSize || null,
@@ -299,6 +303,18 @@ export default {
       this.faviconUploadId = null;
       this.errorMessage = null;
       this.fullWindow = !!this.branding?.pageWidth;
+      this.topBarStylingProperties = {
+        topBarTextColor: this.branding?.themeStyle?.topBarTextColor || null,
+        topBarTextFontSize: this.branding?.themeStyle?.topBarTextFontSize || null,
+        topBarTextFontStyle: this.branding?.themeStyle?.topBarTextFontStyle || null,
+        topBarTextFontWeight: this.branding?.themeStyle?.topBarTextFontWeight || null,
+        topBarBackgroundColor: this.branding?.themeStyle?.topBarBackgroundColor || null,
+        topBarBackgroundPosition: this.branding?.themeStyle?.topBarBackgroundPosition || null,
+        topBarBackgroundRepeat: this.branding?.themeStyle?.topBarBackgroundRepeat || null,
+        topBarBackgroundSize: this.branding?.themeStyle?.topBarBackgroundSize || null,
+        topBarBackgroundEffect: this.branding?.themeStyle?.topBarBackgroundImage || null,
+        topBarBackground: this.branding?.topBarBackground || null,
+      };
     },
     setBackgroungPropertiesPreview() {
       if (this.changed && this.originalBackgroundProperties) {
@@ -341,22 +357,26 @@ export default {
     },
     save() {
       this.errorMessage = null;
-
+      const topBarBackground = this.topBarStylingProperties.topBarBackground;
+      delete this.topBarStylingProperties.topBarBackground;
+      let themeStyle = {
+        primaryColor: this.primaryColor,
+        secondaryColor: this.secondaryColor,
+        tertiaryColor: this.tertiaryColor,
+        borderRadius: `${this.borderRadius}px`,
+      };
+      themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
       const branding = Object.assign({}, this.branding);
       Object.assign(branding, {
         companyName: this.companyName,
-        themeStyle: {
-          primaryColor: this.primaryColor,
-          secondaryColor: this.secondaryColor,
-          tertiaryColor: this.tertiaryColor,
-          borderRadius: `${this.borderRadius}px`,
-        },
         logo: {
           uploadId: this.logoUploadId,
         },
         favicon: {
           uploadId: this.faviconUploadId,
         },
+        themeStyle: themeStyle,
+        topBarBackground: topBarBackground,
         pageBackground: {
           uploadId: this.backgroundProperties.pageBackground?.uploadId,
         },
@@ -367,11 +387,10 @@ export default {
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
         customCss: this.customCss,
       });
-
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
         .then(() => this.$emit('saved'))
-        .then(() =>  {
+        .then(() => {
           this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
           this.$root.$emit('refresh-iframe');
         })
@@ -382,6 +401,48 @@ export default {
       this.primaryColor = primary;
       this.secondaryColor = secondary;
       this.tertiaryColor = tertiary;
+    },
+    updateTopBarProperties(topBarBackgroundProperties, topBarTextProperties) {
+      this.topBarStylingProperties.topBarTextColor = topBarTextProperties.textColor;
+      this.topBarStylingProperties.topBarTextFontSize = topBarTextProperties.textFontSize;
+      this.topBarStylingProperties.topBarTextFontStyle = topBarTextProperties.textFontStyle;
+      this.topBarStylingProperties.topBarTextFontWeight = topBarTextProperties.textFontWeight;
+      this.topBarStylingProperties.topBarBackgroundColor = topBarBackgroundProperties.backgroundColor;
+      this.topBarStylingProperties.topBarBackgroundPosition = topBarBackgroundProperties.backgroundPosition;
+      this.topBarStylingProperties.topBarBackgroundRepeat = topBarBackgroundProperties.backgroundRepeat || 'unset';
+      this.topBarStylingProperties.topBarBackgroundSize = topBarBackgroundProperties.backgroundSize || 'unset';
+      this.topBarStylingProperties.topBarBackground = topBarBackgroundProperties.background;
+      this.topBarStylingProperties.topBarBackgroundImage = topBarBackgroundProperties.backgroundEffect || null;
+      this.isTopBarStylingPropertiesChanged = true;
+      this.refreshTopBarPreview();
+    },
+    refreshTopBarPreview() {
+      const properties = {
+        '--allPagesTopBarTextColor': this.topBarStylingProperties.topBarTextColor,
+        '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
+        '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
+        '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
+        '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
+        '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
+        '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
+        '--allPagesTopBarBackgroundSize': this.topBarStylingProperties.topBarBackgroundSize,
+      };
+
+      // Determine the background image property
+      if (this.topBarStylingProperties.topBarBackground?.data) {
+        let url = `url(${this.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
+        if (this.topBarStylingProperties?.topBarBackgroundImage) {
+          url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
+        }
+        properties['--allPagesTopBarBackgroundImage'] = url;
+      } else if (this.topBarStylingProperties.topBarBackground?.fileId && this.topBarStylingProperties?.topBarBackgroundImage) {
+        properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v="), ${this.topBarStylingProperties?.topBarBackgroundImage}`;
+      } else if (this.topBarStylingProperties?.topBarBackgroundImage) {
+        properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
+      } else {
+        properties['--allPagesTopBarBackgroundImage'] = 'none';
+      }
+      this.$root.$emit('refresh-style-properties', { detail: properties });
     }
   }
 };
