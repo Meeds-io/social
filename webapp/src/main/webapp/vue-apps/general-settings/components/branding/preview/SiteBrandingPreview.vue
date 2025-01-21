@@ -67,6 +67,7 @@ export default {
     this.$root.$on('refresh-iframe', this.reloadURL);
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
+    this.$root.$on('refresh-style-properties', this.setStyleProperties);
     this.init();
   },
   mounted() {
@@ -78,6 +79,7 @@ export default {
     this.$root.$off('refresh-iframe', this.reloadURL);
     this.$root.$off('refresh-company-name', this.refreshCompanyName);
     this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
+    this.$root.$off('refresh-style-properties', this.setStyleProperties);
   },
   methods: {
     init() {
@@ -128,6 +130,20 @@ export default {
         const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementById?.('UserHomePortalLink').getElementsByTagName('img')[0];
         if (companyNameElement) {
           companyNameElement.src = event;
+        }
+      }
+    },
+    setStyleProperties(event) {
+      if (this.initialized && event?.detail) {
+        const properties = event.detail;
+        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+
+        if (iframeDoc) {
+          for (const [propertyName, propertyValue] of Object.entries(properties)) {
+            if (propertyName && propertyValue) {
+              iframeDoc.style.setProperty(propertyName, propertyValue);
+            }
+          }
         }
       }
     }
