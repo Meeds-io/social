@@ -72,7 +72,7 @@ export default {
     this.refreshActivityActions();
     this.refreshCommentActions();
     const queryParamId = this.getQueryParam('id');
-    if (queryParamId.includes('comment')) {
+    if (queryParamId && queryParamId.includes('comment')) {
       this.$root.selectedCommentId = queryParamId;
     }
     if (window.location.pathname.endsWith('/activity')) {
@@ -101,7 +101,7 @@ export default {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;
       const urlHash = window.location.hash;
-      if (urlHash.includes('#comment') || commentId.includes('comment')){
+      if (urlHash && urlHash.includes('#comment') || commentId && commentId.includes('comment')){
         this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
         if (commentId && !this.$root.selectedCommentId) {
           this.$root.selectedCommentId = commentId;
