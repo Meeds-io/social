@@ -37,6 +37,10 @@ export default {
         name: 'themeColors',
         event: 'open-update-theme-colors-drawer'
       },
+      {
+        name: 'topBarStyling',
+        event: 'open-top-bar-styling-drawer'
+      },
     ]
   }),
 };
