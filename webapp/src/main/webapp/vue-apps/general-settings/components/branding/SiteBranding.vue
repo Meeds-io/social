@@ -133,6 +133,7 @@
         'tertiaryColor': tertiaryColor
       }" />
     <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
+    <portal-general-settings-branding-sidebar-styling-drawer :side-bar-styling-properties="sideBarStylingProperties" />
   </v-row>
 </template>
 <script>
@@ -162,7 +163,9 @@ export default {
     backgroundProperties: null,
     defaultBackgroundColor: '#F2F2F2FF',
     topBarStylingProperties: null,
-    isTopBarStylingPropertiesChanged: false
+    isTopBarStylingPropertiesChanged: false,
+    sideBarStylingProperties: null,
+    isSideBarStylingPropertiesChanged: false
   }),
   computed: {
     defaultCompanyName() {
@@ -197,7 +200,7 @@ export default {
       if (!this.branding) {
         return false;
       }
-      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged) {
+      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged || this.isSideBarStylingPropertiesChanged) {
         return true;
       }
       const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
@@ -275,6 +278,7 @@ export default {
   created() {
     this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
     this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
+    this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
 
   },
   mounted() {
@@ -314,6 +318,22 @@ export default {
         topBarBackgroundSize: this.branding?.themeStyle?.topBarBackgroundSize || null,
         topBarBackgroundImage: this.branding?.themeStyle?.topBarBackgroundImage || null,
         topBarBackground: this.branding?.topBarBackground || null,
+      };
+      this.sideBarStylingProperties = {
+        sideBarTextColor: this.branding?.themeStyle?.sideBarTextColor || null,
+        sideBarTextFontSize: this.branding?.themeStyle?.sideBarTextFontSize || null,
+        sideBarTextFontStyle: this.branding?.themeStyle?.sideBarTextFontStyle || null,
+        sideBarTextFontWeight: this.branding?.themeStyle?.sideBarTextFontWeight || null,
+        sideBarTextSubtitleColor: this.branding?.themeStyle?.sideBarTextSubtitleColor,
+        sideBarTextSubtitleFontSize: this.branding?.themeStyle?.sideBarTextSubtitleFontSize,
+        sideBarTextSubtitleFontStyle: this.branding?.themeStyle?.sideBarTextSubtitleFontStyle,
+        sideBarTextSubtitleFontWeight: this.branding?.themeStyle?.sideBarTextSubtitleFontWeight,
+        sideBarBackgroundColor: this.branding?.themeStyle?.sideBarBackgroundColor || null,
+        sideBarBackgroundPosition: this.branding?.themeStyle?.sideBarBackgroundPosition || null,
+        sideBarBackgroundRepeat: this.branding?.themeStyle?.sideBarBackgroundRepeat || null,
+        sideBarBackgroundSize: this.branding?.themeStyle?.sideBarBackgroundSize || null,
+        sideBarBackgroundImage: this.branding?.themeStyle?.sideBarBackgroundImage || null,
+        sideBarBackground: this.branding?.sideBarBackground || null,
       };
     },
     setBackgroungPropertiesPreview() {
@@ -359,6 +379,8 @@ export default {
       this.errorMessage = null;
       const topBarBackground = this.topBarStylingProperties.topBarBackground;
       delete this.topBarStylingProperties.topBarBackground;
+      const sideBarBackground = this.sideBarStylingProperties.sideBarBackground;
+      delete this.sideBarStylingProperties.sideBarBackground;
       let themeStyle = {
         primaryColor: this.primaryColor,
         secondaryColor: this.secondaryColor,
@@ -366,6 +388,7 @@ export default {
         borderRadius: `${this.borderRadius}px`,
       };
       themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
+      themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
       const branding = Object.assign({}, this.branding);
       Object.assign(branding, {
         companyName: this.companyName,
@@ -377,6 +400,7 @@ export default {
         },
         themeStyle: themeStyle,
         topBarBackground: topBarBackground,
+        sideBarBackground: sideBarBackground,
         pageBackground: {
           uploadId: this.backgroundProperties.pageBackground?.uploadId,
         },
@@ -441,6 +465,57 @@ export default {
         properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
       } else {
         properties['--allPagesTopBarBackgroundImage'] = 'none';
+      }
+      this.$root.$emit('refresh-style-properties', { detail: properties });
+    },
+    updateSideBarProperties(sideBarBackgroundProperties, sideBarTextProperties) {
+      this.sideBarStylingProperties.sideBarTextColor = sideBarTextProperties.textColor;
+      this.sideBarStylingProperties.sideBarTextFontSize = sideBarTextProperties.textFontSize;
+      this.sideBarStylingProperties.sideBarTextFontStyle = sideBarTextProperties.textFontStyle;
+      this.sideBarStylingProperties.sideBarTextFontWeight = sideBarTextProperties.textFontWeight;
+      this.sideBarStylingProperties.sideBarTextSubtitleColor = sideBarTextProperties.textSubtitleColor;
+      this.sideBarStylingProperties.sideBarTextSubtitleFontSize = sideBarTextProperties.textSubtitleFontSize;
+      this.sideBarStylingProperties.sideBarTextSubtitleFontStyle = sideBarTextProperties.textSubtitleFontStyle;
+      this.sideBarStylingProperties.sideBarTextSubtitleFontWeight = sideBarTextProperties.textSubtitleFontWeight;
+      this.sideBarStylingProperties.sideBarBackgroundColor = sideBarBackgroundProperties.backgroundColor;
+      this.sideBarStylingProperties.sideBarBackgroundPosition = sideBarBackgroundProperties.backgroundPosition;
+      this.sideBarStylingProperties.sideBarBackgroundRepeat = sideBarBackgroundProperties.backgroundRepeat || 'unset';
+      this.sideBarStylingProperties.sideBarBackgroundSize = sideBarBackgroundProperties.backgroundSize || 'unset';
+      this.sideBarStylingProperties.sideBarBackground = sideBarBackgroundProperties.background;
+      this.sideBarStylingProperties.sideBarBackgroundImage = sideBarBackgroundProperties.backgroundEffect || null;
+      this.isSideBarStylingPropertiesChanged = true;
+      this.refreshSideBarPreview();
+      console.log(this.sideBarStylingProperties);
+    },
+    refreshSideBarPreview() {
+      const properties = {
+        '--allPagesSideBarTextColor': this.sideBarStylingProperties.sideBarTextColor,
+        '--allPagesSideBarTextFontSize': this.sideBarStylingProperties.sideBarTextFontSize,
+        '--allPagesSideBarTextFontStyle': this.sideBarStylingProperties.sideBarTextFontStyle,
+        '--allPagesSideBarTextFontWeight': this.sideBarStylingProperties.sideBarTextFontWeight,
+        '--allPagesSideBarTextSubtitleColor': this.sideBarStylingProperties.sideBarTextSubtitleColor,
+        '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
+        '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
+        '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
+        '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
+        '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
+        '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
+        '--allPagesSideBarBackgroundSize': this.sideBarStylingProperties.sideBarBackgroundSize,
+      };
+
+      // Determine the background image property
+      if (this.sideBarStylingProperties.sideBarBackground?.data) {
+        let url = `url(${this.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
+        if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
+          url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
+        }
+        properties['--allPagesSideBarBackgroundImage'] = url;
+      } else if (this.sideBarStylingProperties.sideBarBackground?.fileId && this.sideBarStylingProperties?.sideBarBackgroundImage) {
+        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v="), ${this.topBarStylingProperties?.topBarBackgroundImage}`;
+      } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
+        properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
+      } else {
+        properties['--allPagesSideBarBackgroundImage'] = 'none';
       }
       this.$root.$emit('refresh-style-properties', { detail: properties });
     }
