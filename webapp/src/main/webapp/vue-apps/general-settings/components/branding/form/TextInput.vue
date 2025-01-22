@@ -50,9 +50,10 @@
       </v-list-item-action>
       <v-list-item-action
         class="me-0 my-auto">
-        <layout-editor-color-picker
+        <portal-general-settings-color-picker
           v-model="textTitleColor"
-          min-text-width="64"
+          :height="'36px'"
+          :width="'36px'"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -86,9 +87,10 @@
       </v-list-item-action>
       <v-list-item-action
         class="me-0 my-auto">
-        <layout-editor-color-picker
+        <portal-general-settings-color-picker
           v-model="textHeaderColor"
-          min-text-width="64"
+          :height="'36px'"
+          :width="'36px'"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -159,9 +161,10 @@
       </v-list-item-action>
       <v-list-item-action
         class="me-0 my-auto">
-        <layout-editor-color-picker
+        <portal-general-settings-color-picker
           v-model="textSubtitleColor"
-          min-text-width="64"
+          :height="'36px'"
+          :width="'36px'"
           class="my-auto" />
       </v-list-item-action>
     </v-list-item>
@@ -326,7 +329,6 @@ export default {
     if (this.branding?.textFontStyle === 'italic') {
       this.textStyle.push('italic');
     }
-
     this.textSubtitleColor = this.branding?.textSubtitleColor;
     this.textSubtitleFontSize = this.branding?.textSubtitleFontSize?.replace?.('px', '');
     this.textSubtitleStyle = (this.branding?.textSubtitleFontWeight || this.branding?.textSubtitleFontStyle) && [] || null;
