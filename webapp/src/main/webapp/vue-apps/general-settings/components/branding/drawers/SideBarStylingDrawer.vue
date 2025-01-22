@@ -24,15 +24,15 @@
     v-model="drawer"
     right>
     <template #title>
-      {{ $t('generalSettings.topBarStyling.drawer.title') }}
+      {{ $t('generalSettings.sideBarStyling.drawer.title') }}
     </template>
     <template v-if="drawer" #content>
       <v-card class="pa-4" flat>
         <p>
-          {{ $t('generalSettings.topBarStyling.help1') }}
+          {{ $t('generalSettings.sideBarStyling.help1') }}
         </p>
         <p>
-          {{ $t('generalSettings.topBarStyling.help2') }} <a href="/portal/administration#navigation" target="_blank">{{ $t('generalSettings.help.link') }}</a>
+          {{ $t('generalSettings.sideBarStyling.help2') }} <a href="/portal/administration#navigation" target="_blank">{{ $t('generalSettings.help.link') }}</a>
         </p>
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
@@ -49,10 +49,10 @@
           </span>
         </div>
         <portal-general-settings-branding-text-input
-          v-model="topBarTextProperties"
+          v-model="sideBarTextProperties"
           :custom-header="false"
           :custom-text="true"
-          :custom-sub-title="false"
+          :custom-sub-title="true"
           :custom-title="false" />
       </v-card>
     </template>
@@ -66,7 +66,7 @@
         <v-btn
           class="btn btn-primary ms-2"
           :disabled="saveButtonDisabled"
-          @click="updatePageStylingProperties">
+          @click="updateSideBarStylingProperties">
           {{ $t('generalSettings.button.save') }}
         </v-btn>
       </div>
@@ -79,61 +79,65 @@ export default {
   data: () => ({
     drawer: false,
     backgroundProperties: null,
-    topBarTextProperties: null,
-    defaultTopBarStylingProperties: null,
+    sideBarTextProperties: null,
+    defaultSideBarStylingProperties: null,
     initialized: false,
   }),
   props: {
-    topBarStylingProperties: {
+    sideBarStylingProperties: {
       type: Object,
       required: true
     },
   },
   computed: {
     saveButtonDisabled() {
-      if (!this.backgroundProperties && !this.topBarTextProperties) {
+      if (!this.backgroundProperties && !this.sideBarTextProperties) {
         return false;
       }
-      const oldTopBarProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultTopBarStylingProperties)));
-      const newTopBarProperties = {
+      const oldSideBarProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultSideBarStylingProperties)));
+      const newSideBarProperties = {
         backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
+        sideBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.sideBarTextProperties))),
       };
-      return JSON.stringify(oldTopBarProperties) === JSON.stringify(newTopBarProperties);
+      return JSON.stringify(oldSideBarProperties) === JSON.stringify(newSideBarProperties);
     },
   },
   created() {
-    this.$root.$on('open-top-bar-styling-drawer', this.open);
+    this.$root.$on('open-sidebar-styling-drawer', this.open);
   },
   beforeDestroy() {
-    this.$root.$off('open-top-bar-styling-drawer', this.open);
+    this.$root.$off('open-sidebar-styling-drawer', this.open);
   },
   methods: {
     init() {
       this.backgroundProperties = {
-        backgroundColor: this.topBarStylingProperties?.topBarBackgroundColor || null,
-        backgroundPosition: this.topBarStylingProperties?.topBarBackgroundPosition || null,
-        background: this.topBarStylingProperties?.topBarBackground || null,
-        backgroundRepeat: this.topBarStylingProperties?.topBarBackgroundRepeat || null,
-        backgroundSize: this.topBarStylingProperties?.topBarBackgroundSize || null,
-        backgroundEffect: this.getTopBarBackgroundEffect()
+        backgroundColor: this.sideBarStylingProperties?.sideBarBackgroundColor || null,
+        backgroundPosition: this.sideBarStylingProperties?.sideBarBackgroundPosition || null,
+        background: this.sideBarStylingProperties?.sideBarBackground || null,
+        backgroundRepeat: this.sideBarStylingProperties?.sideBarBackgroundRepeat || null,
+        backgroundSize: this.sideBarStylingProperties?.sideBarBackgroundSize || null,
+        backgroundEffect: this.getSideBarBackgroundEffect()
       };
-      this.topBarTextProperties = {
-        textColor: this.topBarStylingProperties?.topBarTextColor,
-        textFontSize: this.topBarStylingProperties?.topBarTextFontSize,
-        textFontStyle: this.topBarStylingProperties?.topBarTextFontStyle,
-        textFontWeight: this.topBarStylingProperties?.topBarTextFontWeight
+      this.sideBarTextProperties = {
+        textColor: this.sideBarStylingProperties?.sideBarTextColor,
+        textFontSize: this.sideBarStylingProperties?.sideBarTextFontSize,
+        textFontStyle: this.sideBarStylingProperties?.sideBarTextFontStyle,
+        textFontWeight: this.sideBarStylingProperties?.sideBarTextFontWeight,
+        textSubtitleColor: this.sideBarStylingProperties?.sideBarTextSubtitleColor,
+        textSubtitleFontSize: this.sideBarStylingProperties?.sideBarTextSubtitleFontSize,
+        textSubtitleFontStyle: this.sideBarStylingProperties?.sideBarTextSubtitleFontStyle,
+        textSubtitleFontWeight: this.sideBarStylingProperties?.sideBarTextSubtitleFontWeight
       };
-      this.defaultTopBarStylingProperties = {
+      this.defaultSideBarStylingProperties = {
         backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
+        sideBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.sideBarTextProperties))),
       };
       this.initialized = true;
     },
     reset() {
       this.backgroundProperties = null;
-      this.topBarTextProperties = null;
-      this.defaultTopBarStylingProperties = null;
+      this.sideBarTextProperties = null;
+      this.defaultSideBarStylingProperties = null;
       this.initialized = false;
     },
     open() {
@@ -144,8 +148,8 @@ export default {
       this.reset();
       this.$refs.drawer.close();
     },
-    getTopBarBackgroundEffect() {
-      const effect = this.topBarStylingProperties?.topBarBackgroundImage;
+    getSideBarBackgroundEffect() {
+      const effect = this.sideBarStylingProperties?.sideBarBackgroundImage;
       if (!effect || effect === 'none') {
         return null;
       }
@@ -154,8 +158,9 @@ export default {
       }
       return effect;
     },
-    updatePageStylingProperties() {
-      this.$root.$emit('update-top-bar-styling-properties', this.backgroundProperties, this.topBarTextProperties);
+    updateSideBarStylingProperties() {
+      console.log('sideprop', this.sideBarTextProperties);
+      this.$root.$emit('update-sidebar-styling-properties', this.backgroundProperties, this.sideBarTextProperties);
       this.close();
     }
   }
