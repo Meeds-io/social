@@ -307,7 +307,7 @@ export default {
         topBarBackgroundPosition: this.branding?.themeStyle?.topBarBackgroundPosition || null,
         topBarBackgroundRepeat: this.branding?.themeStyle?.topBarBackgroundRepeat || null,
         topBarBackgroundSize: this.branding?.themeStyle?.topBarBackgroundSize || null,
-        topBarBackgroundEffect: this.branding?.themeStyle?.topBarBackgroundImage || null,
+        topBarBackgroundImage: this.branding?.themeStyle?.topBarBackgroundImage || null,
         topBarBackground: this.branding?.topBarBackground || null,
       };
     },
