@@ -88,5 +88,5 @@ export function init(publicSiteVisible, publicSiteId) {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n
       }, `#${appId}`, 'General Settings')
-    );
+    ).finally(() => Vue.prototype.$utils.includeExtensions('generalSettings'));
 }

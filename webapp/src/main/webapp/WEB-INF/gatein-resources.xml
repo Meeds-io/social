@@ -1530,6 +1530,7 @@
   <portlet>
     <name>GeneralSettings</name>
     <module>
+      <load-group>generalSettingsGrp</load-group>
       <script>
         <minify>false</minify>
         <path>/js/generalSettings.bundle.js</path>
