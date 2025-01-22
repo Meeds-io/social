@@ -41,6 +41,10 @@ export default {
         name: 'topBarStyling',
         event: 'open-top-bar-styling-drawer'
       },
+      {
+        name: 'sideBarStyling',
+        event: 'open-sidebar-styling-drawer'
+      },
     ]
   }),
 };
