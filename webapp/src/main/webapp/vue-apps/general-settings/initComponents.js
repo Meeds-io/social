@@ -58,6 +58,7 @@ import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingO
 import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
 import TopBarStylingDrawer from './components/branding/drawers/TopBarStylingDrawer.vue';
 import TextInput from './components/branding/form/TextInput.vue';
+import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -73,6 +74,7 @@ const components = {
   'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
   'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
   'portal-general-settings-branding-top-bar-styling-drawer': TopBarStylingDrawer,
+  'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
   'portal-general-settings-branding-text-input': TextInput,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BackgroundInput,
