@@ -81,6 +81,9 @@ public class ProfilePropertySettingEntity implements Serializable {
   @Column(name = "IS_DROPDOWN")
   private boolean                           isDropdownList;
 
+  @Column(name = "INDEX_IN_ANALYTICS")
+  private boolean                           indexInAnalytics;
+  
   @Column(name = "PROPERTY_TYPE")
   private String                            propertyType;
 
@@ -107,6 +110,7 @@ public class ProfilePropertySettingEntity implements Serializable {
     builder.append(":").append(isRequired());
     builder.append(":").append(isGroupSynchronized());
     builder.append(":").append(isHiddenable());
+    builder.append(":").append(isIndexInAnalytics());
     builder.append(":").append(getPropertyType());
     builder.append(":").append(getParentId());
     return builder.toString();
