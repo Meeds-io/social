@@ -254,6 +254,7 @@ export default {
     } else {
       this.choice = 'color';
     }
+    this.backgroundImageUploadId = this.branding.background.uploadId;
     this.defaultBranding = JSON.parse(JSON.stringify(this.branding));
     this.$nextTick().then(() => this.initialized = true);
   },
