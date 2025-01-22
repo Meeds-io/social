@@ -145,7 +145,7 @@ export default {
       this.$refs.drawer.close();
     },
     getTopBarBackgroundEffect() {
-      const effect = this.topBarStylingProperties?.topBarBackgroundEffect;
+      const effect = this.topBarStylingProperties?.topBarBackgroundImage;
       if (!effect || effect === 'none') {
         return null;
       }
