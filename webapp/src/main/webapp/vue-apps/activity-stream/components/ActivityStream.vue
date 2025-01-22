@@ -71,8 +71,12 @@ export default {
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
+    const queryParamId = this.getQueryParam('id');
+    if (queryParamId && queryParamId.includes('comment')) {
+      this.$root.selectedCommentId = queryParamId;
+    }
     if (window.location.pathname.endsWith('/activity')) {
-      this.$root.selectedActivityId = this.getQueryParam('id');
+      this.$root.selectedActivityId = queryParamId;
       if (window.location.hash) {
         this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
       }
@@ -97,12 +101,12 @@ export default {
       this.loaded = false;
       this.$root.selectedActivityId = this.activityId = activityId;
       const urlHash = window.location.hash;
-      if (urlHash.includes('#comment')){
+      if (urlHash && urlHash.includes('#comment') || commentId && commentId.includes('comment')){
         this.$root.selectedCommentId = window.location.hash.replace('#comment-reply-', '').replace('#comment-reply', '').replace('#comment-', '');
         if (commentId && !this.$root.selectedCommentId) {
           this.$root.selectedCommentId = commentId;
-          window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
         }
+        window.history.replaceState('', window.document.title, `${window.location.pathname}?id=${activityId}#comment-${commentId}`);
       } else {
         this.$root.selectedCommentId = '';
         if (activityId) {
