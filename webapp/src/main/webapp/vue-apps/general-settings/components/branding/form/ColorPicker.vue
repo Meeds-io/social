@@ -26,8 +26,7 @@
     width="290px">
     <template #activator="{ on }">
       <v-list-item
-        two-line
-        class="px-0"
+        class="pa-0"
         dense>
         <v-list-item-action class="me-2 my-0">
           <v-card
