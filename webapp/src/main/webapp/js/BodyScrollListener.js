@@ -53,10 +53,12 @@ function() {
       if (topBarBoxShadow && topBarBoxShadow.style.visibility === 'hidden') {
         document.querySelector('#TopBarBoxShadow').style.visibility = '';
       }
+      siteBody.classList.add('site-scroll-top');
     } else {
       if (topBarBoxShadow && topBarBoxShadow.style.visibility !== 'hidden') {
         document.querySelector('#TopBarBoxShadow').style.visibility = 'hidden';
       }
+      siteBody.classList.remove('site-scroll-top');
     }
   }
 
