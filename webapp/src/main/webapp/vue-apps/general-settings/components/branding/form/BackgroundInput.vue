@@ -50,18 +50,22 @@
         <portal-general-settings-color-picker
           v-if="choice === 'color'"
           v-model="branding.backgroundColor"
-          :height="'36px'"
-          :width="'36px'"
+          :height="colorInputHeight"
+          :width="colorInputWidth"
           class="my-auto" />
         <div v-else>
           <portal-general-settings-color-picker
             v-model="backgroundGradientFrom"
             :label="$t('generalSettings.gradientFrom')"
-            class="my-auto" />
+            :height="colorInputHeight"
+            :width="colorInputWidth"
+            class="ma-auto" />
           <portal-general-settings-color-picker
             v-model="backgroundGradientTo"
             :label="$t('generalSettings.gradientTo')"
-            class="my-auto" />
+            :height="colorInputHeight"
+            :width="colorInputWidth"
+            class="ma-auto" />
         </div>
       </v-list-item-action>
     </v-list-item>
@@ -171,7 +175,9 @@ export default {
     backgroundGradientTo: null,
     backgroundImageUploadId: null,
     initialized: false,
-    defaultBranding: null
+    defaultBranding: null,
+    colorInputWidth: '36px',
+    colorInputHeight: '36px'
   }),
   computed: {
     hasFile() {
