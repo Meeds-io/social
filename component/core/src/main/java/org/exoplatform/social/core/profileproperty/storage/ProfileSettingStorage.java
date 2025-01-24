@@ -100,6 +100,7 @@ public class ProfileSettingStorage {
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setHiddenable(profilePropertySetting.isHiddenbale());
+    profilePropertySettingEntity.setIndexInAnalytics(profilePropertySetting.isIndexInAnalytics());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     profilePropertySettingEntity.setPropertyOptions(toPropertyOptionEntities(profilePropertySettingEntity, profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setUpdatedDate(new Date(profilePropertySetting.getUpdated()));
@@ -123,6 +124,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
+    profilePropertySetting.setIndexInAnalytics(profilePropertySettingEntity.isIndexInAnalytics());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
     profilePropertySetting.setPropertyOptions(toPropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());

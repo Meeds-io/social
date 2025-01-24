@@ -64,6 +64,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private static final String                        EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM = "excludedQuickSearchProperties";
 
+  private static final String                        EXCLUDED_ANALYTICS_INDEX_PROPERTIES    = "excludedAnalyticsIndexProperties";
+
   protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins                 = new ArrayList<>();
 
   private List<String>                               synchronizedGroupDisabledProperties    = new ArrayList<>();
@@ -71,6 +73,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private static List<String>                        nonHiddenableProps                     = new ArrayList<>();
 
   private static List<String>                        excludedQuickSearchProps               = new ArrayList<>();
+  
+  private static List<String>                        excludedAnalyticsIndexProps           = new ArrayList<>();
 
   private static final Scope                         HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE =
                                                                                             Scope.APPLICATION.id("ProfilePropertySettings");
@@ -95,6 +99,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
         excludedQuickSearchProps = Arrays.asList(params.getValueParam(EXCLUDED_QUICK_SEARCH_PROPERTIES_PARAM)
                                                        .getValue()
                                                        .split(","));
+        excludedAnalyticsIndexProps = Arrays.asList(params.getValueParam(EXCLUDED_ANALYTICS_INDEX_PROPERTIES)
+                                                          .getValue()
+                                                          .split(","));
       } catch (Exception e) {
         LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
       }
@@ -114,6 +121,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public ProfilePropertySetting getProfileSettingByName(String name) {
     return profileSettingStorage.findProfileSettingByName(name);
+  }
+
+  @Override
+  public List<String> getExcludedAnalyticsIndexProperties() {
+    return excludedAnalyticsIndexProps;
   }
 
   @Override

@@ -48,4 +48,6 @@ public class ProfileProperty {
 
   private boolean hiddenable;
 
+  private boolean indexInAnalytics;
+
 }

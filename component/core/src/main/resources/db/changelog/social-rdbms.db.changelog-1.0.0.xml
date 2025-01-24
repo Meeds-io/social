@@ -1190,4 +1190,10 @@
         <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci" />
     </modifySql>
     </changeSet>
+
+    <changeSet author="social" id="1.0.0-mip-171-04">
+        <addColumn tableName="SOC_PROFILE_PROPERTY_SETTING">
+            <column name="INDEX_IN_ANALYTICS" type="BOOLEAN" defaultValue="false"/>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>
