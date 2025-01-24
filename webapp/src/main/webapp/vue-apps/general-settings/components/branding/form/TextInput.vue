@@ -299,9 +299,8 @@ export default {
   },
   created() {
     this.branding = this.value;
-
     this.textTitleColor = this.branding?.textTitleColor;
-    this.textTitleFontSize = this.branding.textTitleFontSize?.replace?.('px', '');
+    this.textTitleFontSize = this.branding?.textTitleFontSize?.replace?.('px', '');
     this.textTitleStyle = (this.branding?.textTitleFontWeight || this.branding?.textTitleFontStyle) && [] || null;
     if (this.branding?.textTitleFontWeight === 'bold') {
       this.textTitleStyle.push('bold');

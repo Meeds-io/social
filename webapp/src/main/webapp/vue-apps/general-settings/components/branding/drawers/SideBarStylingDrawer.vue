@@ -159,7 +159,6 @@ export default {
       return effect;
     },
     updateSideBarStylingProperties() {
-      console.log('sideprop', this.sideBarTextProperties);
       this.$root.$emit('update-sidebar-styling-properties', this.backgroundProperties, this.sideBarTextProperties);
       this.close();
     }
