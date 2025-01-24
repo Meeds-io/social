@@ -134,6 +134,7 @@
       }" />
     <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
     <portal-general-settings-branding-sidebar-styling-drawer :side-bar-styling-properties="sideBarStylingProperties" />
+    <portal-general-settings-branding-drawer-styling :drawer-styling-properties="drawerStylingProperties" />
   </v-row>
 </template>
 <script>
@@ -161,7 +162,14 @@ export default {
     topBarStylingProperties: null,
     isTopBarStylingPropertiesChanged: false,
     sideBarStylingProperties: null,
-    isSideBarStylingPropertiesChanged: false
+    isSideBarStylingPropertiesChanged: false,
+    drawerStylingProperties: null,
+    isDrawerStylingPropertiesChanged: false,
+    brandingStylingType: Object.freeze({
+      TOP_BAR: 'topBar',
+      SIDE_BAR: 'sideBar',
+      DRAWER: 'drawer',
+    }),
   }),
   computed: {
     defaultCompanyName() {
@@ -196,7 +204,8 @@ export default {
       if (!this.branding) {
         return false;
       }
-      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged || this.isSideBarStylingPropertiesChanged) {
+      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged
+          || this.isSideBarStylingPropertiesChanged || this.isDrawerStylingPropertiesChanged ) {
         return true;
       }
       const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
@@ -274,13 +283,16 @@ export default {
     this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
     this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
     this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
-
+    this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
   },
   mounted() {
     this.init();
   },
   beforeDestroy() {
     this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
+    this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
+    this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
+    this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
   },
   methods: {
     init() {
@@ -302,34 +314,9 @@ export default {
       this.faviconUploadId = null;
       this.errorMessage = null;
       this.fullWindow = !!this.branding?.pageWidth;
-      this.topBarStylingProperties = {
-        topBarTextColor: this.branding?.themeStyle?.topBarTextColor || null,
-        topBarTextFontSize: this.branding?.themeStyle?.topBarTextFontSize || null,
-        topBarTextFontStyle: this.branding?.themeStyle?.topBarTextFontStyle || null,
-        topBarTextFontWeight: this.branding?.themeStyle?.topBarTextFontWeight || null,
-        topBarBackgroundColor: this.branding?.themeStyle?.topBarBackgroundColor || null,
-        topBarBackgroundPosition: this.branding?.themeStyle?.topBarBackgroundPosition || null,
-        topBarBackgroundRepeat: this.branding?.themeStyle?.topBarBackgroundRepeat || null,
-        topBarBackgroundSize: this.branding?.themeStyle?.topBarBackgroundSize || null,
-        topBarBackgroundImage: this.branding?.themeStyle?.topBarBackgroundImage || null,
-        topBarBackground: this.branding?.topBarBackground || null,
-      };
-      this.sideBarStylingProperties = {
-        sideBarTextColor: this.branding?.themeStyle?.sideBarTextColor || null,
-        sideBarTextFontSize: this.branding?.themeStyle?.sideBarTextFontSize || null,
-        sideBarTextFontStyle: this.branding?.themeStyle?.sideBarTextFontStyle || null,
-        sideBarTextFontWeight: this.branding?.themeStyle?.sideBarTextFontWeight || null,
-        sideBarTextSubtitleColor: this.branding?.themeStyle?.sideBarTextSubtitleColor,
-        sideBarTextSubtitleFontSize: this.branding?.themeStyle?.sideBarTextSubtitleFontSize,
-        sideBarTextSubtitleFontStyle: this.branding?.themeStyle?.sideBarTextSubtitleFontStyle,
-        sideBarTextSubtitleFontWeight: this.branding?.themeStyle?.sideBarTextSubtitleFontWeight,
-        sideBarBackgroundColor: this.branding?.themeStyle?.sideBarBackgroundColor || null,
-        sideBarBackgroundPosition: this.branding?.themeStyle?.sideBarBackgroundPosition || null,
-        sideBarBackgroundRepeat: this.branding?.themeStyle?.sideBarBackgroundRepeat || null,
-        sideBarBackgroundSize: this.branding?.themeStyle?.sideBarBackgroundSize || null,
-        sideBarBackgroundImage: this.branding?.themeStyle?.sideBarBackgroundImage || null,
-        sideBarBackground: this.branding?.sideBarBackground || null,
-      };
+      this.topBarStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.TOP_BAR);
+      this.sideBarStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.SIDE_BAR);
+      this.drawerStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.DRAWER);
     },
     setBackgroungPropertiesPreview() {
       if (this.changed && this.originalBackgroundProperties) {
@@ -373,6 +360,8 @@ export default {
       delete this.topBarStylingProperties.topBarBackground;
       const sideBarBackground = this.sideBarStylingProperties.sideBarBackground;
       delete this.sideBarStylingProperties.sideBarBackground;
+      const drawerBackground = this.drawerStylingProperties.drawerBackground;
+      delete this.drawerStylingProperties.drawerBackground;
       let themeStyle = {
         primaryColor: this.primaryColor,
         secondaryColor: this.secondaryColor,
@@ -381,6 +370,7 @@ export default {
       };
       themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
       themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
+      themeStyle = Object.assign(this.drawerStylingProperties, themeStyle);
       const branding = Object.assign({}, this.branding);
       Object.assign(branding, {
         companyName: this.companyName,
@@ -393,6 +383,7 @@ export default {
         themeStyle: themeStyle,
         topBarBackground: topBarBackground,
         sideBarBackground: sideBarBackground,
+        drawerBackground: drawerBackground,
         pageBackground: {
           uploadId: this.backgroundProperties.pageBackground?.uploadId,
         },
@@ -418,16 +409,7 @@ export default {
       this.tertiaryColor = tertiary;
     },
     updateTopBarProperties(topBarBackgroundProperties, topBarTextProperties) {
-      this.topBarStylingProperties.topBarTextColor = topBarTextProperties.textColor;
-      this.topBarStylingProperties.topBarTextFontSize = topBarTextProperties.textFontSize;
-      this.topBarStylingProperties.topBarTextFontStyle = topBarTextProperties.textFontStyle;
-      this.topBarStylingProperties.topBarTextFontWeight = topBarTextProperties.textFontWeight;
-      this.topBarStylingProperties.topBarBackgroundColor = topBarBackgroundProperties.backgroundColor;
-      this.topBarStylingProperties.topBarBackgroundPosition = topBarBackgroundProperties.backgroundPosition;
-      this.topBarStylingProperties.topBarBackgroundRepeat = topBarBackgroundProperties.backgroundRepeat || 'unset';
-      this.topBarStylingProperties.topBarBackgroundSize = topBarBackgroundProperties.backgroundSize || 'unset';
-      this.topBarStylingProperties.topBarBackground = topBarBackgroundProperties.background;
-      this.topBarStylingProperties.topBarBackgroundImage = topBarBackgroundProperties.backgroundEffect || null;
+      this.topBarStylingProperties = this.updateStylingProperties(topBarBackgroundProperties, topBarTextProperties, this.brandingStylingType.TOP_BAR);
       this.isTopBarStylingPropertiesChanged = true;
       this.refreshTopBarPreview();
     },
@@ -460,23 +442,9 @@ export default {
       this.$root.$emit('refresh-style-properties', { detail: properties });
     },
     updateSideBarProperties(sideBarBackgroundProperties, sideBarTextProperties) {
-      this.sideBarStylingProperties.sideBarTextColor = sideBarTextProperties.textColor;
-      this.sideBarStylingProperties.sideBarTextFontSize = sideBarTextProperties.textFontSize;
-      this.sideBarStylingProperties.sideBarTextFontStyle = sideBarTextProperties.textFontStyle;
-      this.sideBarStylingProperties.sideBarTextFontWeight = sideBarTextProperties.textFontWeight;
-      this.sideBarStylingProperties.sideBarTextSubtitleColor = sideBarTextProperties.textSubtitleColor;
-      this.sideBarStylingProperties.sideBarTextSubtitleFontSize = sideBarTextProperties.textSubtitleFontSize;
-      this.sideBarStylingProperties.sideBarTextSubtitleFontStyle = sideBarTextProperties.textSubtitleFontStyle;
-      this.sideBarStylingProperties.sideBarTextSubtitleFontWeight = sideBarTextProperties.textSubtitleFontWeight;
-      this.sideBarStylingProperties.sideBarBackgroundColor = sideBarBackgroundProperties.backgroundColor;
-      this.sideBarStylingProperties.sideBarBackgroundPosition = sideBarBackgroundProperties.backgroundPosition;
-      this.sideBarStylingProperties.sideBarBackgroundRepeat = sideBarBackgroundProperties.backgroundRepeat || 'unset';
-      this.sideBarStylingProperties.sideBarBackgroundSize = sideBarBackgroundProperties.backgroundSize || 'unset';
-      this.sideBarStylingProperties.sideBarBackground = sideBarBackgroundProperties.background;
-      this.sideBarStylingProperties.sideBarBackgroundImage = sideBarBackgroundProperties.backgroundEffect || null;
+      this.sideBarStylingProperties = this.updateStylingProperties(sideBarBackgroundProperties, sideBarTextProperties, this.brandingStylingType.SIDE_BAR);
       this.isSideBarStylingPropertiesChanged = true;
       this.refreshSideBarPreview();
-      console.log(this.sideBarStylingProperties);
     },
     refreshSideBarPreview() {
       const properties = {
@@ -502,13 +470,121 @@ export default {
         }
         properties['--allPagesSideBarBackgroundImage'] = url;
       } else if (this.sideBarStylingProperties.sideBarBackground?.fileId && this.sideBarStylingProperties?.sideBarBackgroundImage) {
-        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v="), ${this.topBarStylingProperties?.topBarBackgroundImage}`;
+        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v="), ${this.sideBarStylingProperties?.sideBarBackgroundImage}`;
       } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
         properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
       } else {
         properties['--allPagesSideBarBackgroundImage'] = 'none';
       }
       this.$root.$emit('refresh-style-properties', { detail: properties });
+    },
+    updateDrawerProperties(drawerBackgroundProperties, drawerTextProperties) {
+      this.drawerStylingProperties = this.updateStylingProperties(drawerBackgroundProperties, drawerTextProperties, this.brandingStylingType.DRAWER);
+      this.isDrawerStylingPropertiesChanged = true;
+      this.refreshDrawerPreview();
+    },
+    refreshDrawerPreview() {
+      const properties = {
+        '--allPagesDrawerTextColor': this.drawerStylingProperties.drawerTextColor,
+        '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
+        '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
+        '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
+        '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
+        '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
+        '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
+        '--allPagesDrawerTextSubtitleFontWeight': this.drawerStylingProperties.drawerTextSubtitleFontWeight,
+        '--allPagesDrawerTextTitleColor': this.drawerStylingProperties.drawerTextTitleColor,
+        '--allPagesDrawerTextTitleFontSize': this.drawerStylingProperties.drawerTextTitleFontSize,
+        '--allPagesDrawerTextTitleFontStyle': this.drawerStylingProperties.drawerTextTitleFontStyle,
+        '--allPagesDrawerTextTitleFontWeight': this.drawerStylingProperties.drawerTextTitleFontWeight,
+        '--allPagesDrawerTextHeaderColor': this.drawerStylingProperties.drawerTextHeaderColor,
+        '--allPagesDrawerTextHeaderFontSize': this.drawerStylingProperties.drawerTextHeaderFontSize,
+        '--allPagesDrawerTextHeaderFontStyle': this.drawerStylingProperties.drawerTextHeaderFontStyle,
+        '--allPagesDrawerTextHeaderFontWeight': this.drawerStylingProperties.drawerTextHeaderFontWeight,
+        '--allPagesDrawerBackgroundColor': this.drawerStylingProperties.drawerBackgroundColor,
+        '--allPagesDrawerBackgroundPosition': this.drawerStylingProperties.drawerBackgroundPosition,
+        '--allPagesDrawerBackgroundRepeat': this.drawerStylingProperties.drawerBackgroundRepeat,
+        '--allPagesDrawerBackgroundSize': this.drawerStylingProperties.drawerBackgroundSize,
+      };
+
+      // Determine the background image property
+      if (this.drawerStylingProperties.drawerBackground?.data) {
+        let url = `url(${this.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
+        if (this.drawerStylingProperties?.drawerBackgroundImage) {
+          url = `${url}, ${this.drawerStylingProperties.drawerBackgroundImage}`;
+        }
+        properties['--allPagesDrawerBackgroundImage'] = url;
+      } else if (this.drawerStylingProperties.drawerBackground?.fileId && this.drawerStylingProperties?.drawerBackgroundImage) {
+        properties['--allPagesDrawerBackgroundImage'] = `url(/portal/rest/v1/platform/branding/drawerBackground?v="), ${this.drawerStylingProperties?.drawerBackgroundImage}`;
+      } else if (this.drawerStylingProperties?.drawerBackgroundImage) {
+        properties['--allPagesDrawerBackgroundImage'] = this.drawerStylingProperties?.drawerBackgroundImage;
+      } else {
+        properties['--allPagesDrawerBackgroundImage'] = 'none';
+      }
+      this.$root.$emit('refresh-style-properties', { detail: properties });
+    },
+    createStylingProperties(branding, type) {
+      const properties =  {
+        [`${type}BackgroundColor`]: branding?.themeStyle?.[`${type}BackgroundColor`] || null,
+        [`${type}BackgroundPosition`]: branding?.themeStyle?.[`${type}BackgroundPosition`] || null,
+        [`${type}BackgroundRepeat`]: branding?.themeStyle?.[`${type}BackgroundRepeat`] || null,
+        [`${type}BackgroundSize`]: branding?.themeStyle?.[`${type}BackgroundSize`] || null,
+        [`${type}BackgroundImage`]: branding?.themeStyle?.[`${type}BackgroundImage`] || null,
+        [`${type}Background`]: branding?.[`${type}Background`] || null,
+        [`${type}TextColor`]: branding?.themeStyle?.[`${type}TextColor`] || null,
+        [`${type}TextFontSize`]: branding?.themeStyle?.[`${type}TextFontSize`] || null,
+        [`${type}TextFontStyle`]: branding?.themeStyle?.[`${type}TextFontStyle`] || null,
+        [`${type}TextFontWeight`]: branding?.themeStyle?.[`${type}TextFontWeight`] || null,
+      };
+      if (type !== 'topBar') {
+        properties[`${type}TextSubtitleColor`] = branding?.themeStyle?.[`${type}TextSubtitleColor`] || null;
+        properties[`${type}TextSubtitleFontSize`] = branding?.themeStyle?.[`${type}TextSubtitleFontSize`] || null;
+        properties[`${type}TextSubtitleFontStyle`] = branding?.themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
+        properties[`${type}TextSubtitleFontWeight`] = branding?.themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
+      }
+      if (type !== 'topBar' && type !== 'sideBar') {
+        properties[`${type}TextTitleColor`] = branding?.themeStyle?.[`${type}TextTitleColor`] || null;
+        properties[`${type}TextTitleFontSize`] = branding?.themeStyle?.[`${type}TextTitleFontSize`] || null;
+        properties[`${type}TextTitleFontStyle`] = branding?.themeStyle?.[`${type}TextTitleFontStyle`] || null;
+        properties[`${type}TextTitleFontWeight`] = branding?.themeStyle?.[`${type}TextTitleFontWeight`] || null;
+        properties[`${type}TextHeaderColor`] = branding?.themeStyle?.[`${type}TextHeaderColor`] || null;
+        properties[`${type}TextHeaderFontSize`] = branding?.themeStyle?.[`${type}TextHeaderFontSize`] || null;
+        properties[`${type}TextHeaderFontStyle`] = branding?.themeStyle?.[`${type}TextHeaderFontStyle`] || null;
+        properties[`${type}TextHeaderFontWeight`] = branding?.themeStyle?.[`${type}TextHeaderFontWeight`] || null;
+      }
+      return properties;
+    },
+    updateStylingProperties(backgroundProperties, textProperties, type) {
+      const properties =  {
+        [`${type}BackgroundColor`]: backgroundProperties.backgroundColor,
+        [`${type}BackgroundPosition`]: backgroundProperties.backgroundPosition,
+        [`${type}BackgroundRepeat`]: backgroundProperties.backgroundRepeat || 'unset',
+        [`${type}BackgroundSize`]: backgroundProperties.backgroundSize || 'unset',
+        [`${type}BackgroundImage`]: backgroundProperties.backgroundEffect || null,
+        [`${type}Background`]: backgroundProperties.background,
+        [`${type}TextColor`]: textProperties.textColor,
+        [`${type}TextFontSize`]: textProperties.textFontSize,
+        [`${type}TextFontStyle`]: textProperties.textFontStyle,
+        [`${type}TextFontWeight`]: textProperties.textFontWeight,
+      };
+      if (type !== this.brandingStylingType.TOP_BAR) {
+        properties[`${type}TextSubtitleColor`] = textProperties.textSubtitleColor;
+        properties[`${type}TextSubtitleFontSize`] = textProperties.textSubtitleFontSize;
+        properties[`${type}TextSubtitleFontStyle`] = textProperties.textSubtitleFontStyle;
+        properties[`${type}TextSubtitleFontWeight`] = textProperties.textSubtitleFontWeight;
+      }
+      // Add title and header properties if type is drawer
+      if (type !== this.brandingStylingType.TOP_BAR && type !== this.brandingStylingType.SIDE_BAR) {
+        properties[`${type}TextTitleColor`] = textProperties.textTitleColor;
+        properties[`${type}TextTitleFontSize`] = textProperties.textTitleFontSize;
+        properties[`${type}TextTitleFontStyle`] = textProperties.textTitleFontStyle;
+        properties[`${type}TextTitleFontWeight`] = textProperties.textTitleFontWeight;
+        properties[`${type}TextHeaderColor`] = textProperties.textHeaderColor;
+        properties[`${type}TextHeaderFontSize`] = textProperties.textHeaderFontSize;
+        properties[`${type}TextHeaderFontStyle`] = textProperties.textHeaderFontStyle;
+        properties[`${type}TextHeaderFontWeight`] = textProperties.textHeaderFontWeight;
+      }
+      return properties;
     }
   }
 };
