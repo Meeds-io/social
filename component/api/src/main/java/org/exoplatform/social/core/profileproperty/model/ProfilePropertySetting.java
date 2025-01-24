@@ -53,6 +53,8 @@ public class ProfilePropertySetting {
 
   private boolean                    isHiddenbale;
 
+  private boolean                    indexInAnalytics;
+
   private boolean                    isRequired;
 
   private boolean                    isMultiValued;

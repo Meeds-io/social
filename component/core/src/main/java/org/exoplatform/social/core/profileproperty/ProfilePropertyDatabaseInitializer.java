@@ -89,6 +89,7 @@ public class ProfilePropertyDatabaseInitializer extends BaseComponentPlugin impl
         profilePropertySetting.setEditable(data.isEditable());
         profilePropertySetting.setOrder(Long.valueOf(data.getOrder()));
         profilePropertySetting.setDropdownList(data.isDropdownList());
+        profilePropertySetting.setIndexInAnalytics(data.isIndexInAnalytics());
         profilePropertySetting.setVisible(data.isVisible());
         profilePropertySetting.setGroupSynchronized(data.isGroupSynchronized());
         profilePropertySetting.setRequired(data.isRequired());
