@@ -333,6 +333,47 @@
               </v-tooltip>
             </v-list-item-action>
           </v-list-item>
+          <v-list-item>
+            <v-list-item-content
+              transition="fade-transition"
+              class="d-flex activeLabel py-0">
+              <v-list-item-title
+                class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.index.in.analytics') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                class="mt-n3">
+                <span
+                  class="caption">
+                  {{ $t('profileSettings.label.index.in.analytics.info') }}
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-tooltip
+                bottom
+                :disabled="!excludedAnalyticsIndexSetting">
+                <template #activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on">
+                    <v-switch
+                      v-model="setting.indexInAnalytics"
+                      :disabled="saving || excludedAnalyticsIndexSetting"
+                      :alt="$t('profileSettings.label.index.in.analytics')
+                        || $t('profileSettings.hide.property.alt')"
+                      :ripple="false"
+                      color="primary"
+                      :aria-labelledBy="$t('profileSettings.label.index.in.analytics')"
+                      class="activeSwitcher my-auto" />
+                  </div>
+                </template>
+                {{ $t('profileSettings.label.excluded.index.in.analytics.info') }}
+              </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
         </div>
       </v-form>
     </template>
@@ -369,6 +410,10 @@ export default {
       type: Array,
       default: () => []
     },
+    excludedAnalyticsIndexProperties: {
+      type: Array,
+      default: () => []
+    },
     languages: {
       type: Object,
       default: null
@@ -400,6 +445,9 @@ export default {
         {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
     },
     unHiddenableSetting() {
+      return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+    },
+    excludedAnalyticsIndexSetting() {
       return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
     },
     title() {
@@ -463,6 +511,7 @@ export default {
     this.$root.$on('open-settings-edit-drawer', this.editSetting);
     this.$root.$on('close-settings-form-drawer', this.cancel);
     this.$root.$on('setting-translation-updated', this.settingTranslationUpdated);
+    this.$root.$on('setting-updated', this.handleSettingUpdated);
   },
   methods: {
     blurAutocomplete() {
@@ -499,6 +548,9 @@ export default {
       this.labels = JSON.parse(JSON.stringify(this.setting.labels));
       this.changes= false;
       this.drawer = true;     
+    },
+    handleSettingUpdated(setting) {
+      this.initialSetting = structuredClone(setting);
     },
     saveSetting(event) {
       this.changes=true;
@@ -588,7 +640,7 @@ export default {
     },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
-        'dropdownList', 'visible', 'required', 'editable', 'hiddenable'
+        'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
       ];
       for (const field of fields) {
         if (field === 'parentId' && setting[field] === '') {
