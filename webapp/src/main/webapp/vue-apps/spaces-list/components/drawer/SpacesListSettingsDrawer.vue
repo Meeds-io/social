@@ -77,7 +77,7 @@
             back-icon />
         </div>
         <div class="mb-2 text-header">{{ $t('spacesList.settings.sortingAndFilterOptions') }}</div>
-        <div class="mb-2 d-flex align-center">
+        <div class="mb-2 d-flex align-center text-left">
           <div>{{ $t('spacesList.settings.pageSizeLabel') }}</div>
           <v-spacer />
           <number-input
@@ -86,7 +86,7 @@
             :min="0"
             :max="50" />
         </div>
-        <div class="mb-2 d-flex align-center">
+        <div class="mb-2 d-flex align-center text-left">
           <div>{{ $t('spacesList.settings.SortItemsBy') }}</div>
           <v-spacer />
           <select
@@ -101,14 +101,14 @@
             </option>
           </select>
         </div>
-        <div class="d-flex align-center">
+        <div class="d-flex align-center text-left">
           <div>{{ $t('spacesList.settings.allowFilteringPerCategory') }}</div>
           <v-spacer />
           <v-switch
             v-model="settings.allowFilteringPerCategory"
             class="ma-0 width-fit-content" />
         </div>
-        <div v-if="settings.allowFilteringPerCategory" class="mt-2 d-flex align-center">
+        <div v-if="settings.allowFilteringPerCategory" class="mt-2 d-flex align-center text-left">
           <div>{{ $t('spacesList.settings.maximumSubcategoryDepth') }}</div>
           <v-spacer />
           <number-input
