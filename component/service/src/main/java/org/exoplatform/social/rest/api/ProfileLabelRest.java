@@ -72,7 +72,7 @@ public class ProfileLabelRest implements ResourceContainer {
                            @PathParam("id")
                            String id,
                            @Parameter(description = "language", required = true)
-                           @PathParam("id")
+                           @PathParam("language")
                            String language) {
     try {
       ProfileLabel profileLabel = profileLabelService.findLabelByObjectTypeAndObjectIdAndLang(type, id, language);

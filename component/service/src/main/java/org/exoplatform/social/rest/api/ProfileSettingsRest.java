@@ -92,6 +92,7 @@ public class ProfileSettingsRest implements ResourceContainer {
         properties = properties.stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
       }
       List<String> unHiddenbaleProperties = profilePropertyService.getUnhiddenableProfileProperties();
+      List<String> excludedAnalyticsIndexProperties = profilePropertyService.getExcludedAnalyticsIndexProperties();
       List<String> excludedQuickSearchProperties = profilePropertyService.getExcludedQuickSearchProperties();
       List<ProfilePropertySettingEntity> propertySettingEntities =
                                                                  EntityBuilder.buildEntityProfilePropertySettingList(properties,
@@ -102,6 +103,8 @@ public class ProfileSettingsRest implements ResourceContainer {
       settings.put("settings", propertySettingEntities);
       settings.put("unHiddenableProperties", unHiddenbaleProperties);
       settings.put("excludedQuickSearchProperties", excludedQuickSearchProperties);
+      settings.put("excludedAnalyticsIndexProperties", excludedAnalyticsIndexProperties);
+
       return Response.ok(settings).build();
     }catch (Exception e) {
       LOG.error("An error occurred while getting list of settings", e);

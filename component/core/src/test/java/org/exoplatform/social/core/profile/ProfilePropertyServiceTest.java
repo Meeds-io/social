@@ -171,6 +171,13 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(propertySetting));
   }
 
+  public void testIndexedInAnalyticsPropertySetting() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting indexedInAnalyticsPropertySetting = createProfileSettingInstance("propIndexedInAnalytics");
+    indexedInAnalyticsPropertySetting.setIndexInAnalytics(true);
+    ProfilePropertySetting propertySetting = profilePropertyService.createPropertySetting(indexedInAnalyticsPropertySetting);
+    assertTrue(propertySetting.isIndexInAnalytics());
+  }
+
   public void testSavePropertySettingWithOptions() throws ObjectAlreadyExistsException {
     ProfilePropertySetting dropdownListPropertySetting = createProfileSettingInstanceWithOptions("propDropdown", 3);
 

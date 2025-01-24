@@ -65,6 +65,7 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                                                                false,
                                                                                true,
                                                                                false,
+                                                                               false,
                                                                                new ArrayList<>(),
                                                                                System.currentTimeMillis());
     Event<ProfilePropertyService, ProfilePropertySetting> event = new Event<>("profile-property-setting-updated", profilePropertyService, profilePropertySetting);
@@ -95,6 +96,7 @@ public class ManagerPropertySettingUpdatedListenerTest {
                                                         false,
                                                         false,
                                                         true,
+                                                        false,
                                                         false,
                                                         new ArrayList<>(),
                                                         System.currentTimeMillis());

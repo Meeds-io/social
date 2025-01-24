@@ -67,6 +67,7 @@
       :settings="settings"
       :languages="languagesData"
       :un-hiddenable-properties="unHiddenableProperties"
+      :excluded-analytics-index-properties="excludedAnalyticsIndexProperties"
       @open-dropdown-list="openDropdownListDrawer" />
     <dropdown-list-values-drawer
       ref="dropdownListDrawer" />
@@ -81,6 +82,7 @@ export default {
       selectedOption: window.location.hash,
       settings: [],
       unHiddenableProperties: [],
+      excludedAnalyticsIndexProperties: [],
       fieldsToRetrieve: 'settings',
       excludedSettingsProp: [],
       userCardSettingsContextKey: 'GLOBAL',
@@ -182,6 +184,7 @@ export default {
           this.settings = settings?.settings || [];
           this.unHiddenableProperties = settings?.unHiddenableProperties;
           this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
+          this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
         });
     },
     editSetting(setting, refresh) {
@@ -189,6 +192,7 @@ export default {
         if (refresh) {
           this.getSettings();
         }
+        this.$root.$emit('setting-updated', setting);
         this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
       }).catch(e => {
         console.error(e);

@@ -159,4 +159,10 @@ public interface ProfilePropertyService {
    */
   List<Long> getHiddenProfilePropertyIds(long userIdentityId);
 
+  /**
+   * Gets excluded analytics index properties
+   *
+   * @return {@link List} of {@link String}
+   */
+  List<String> getExcludedAnalyticsIndexProperties();
 }

@@ -75,6 +75,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isHiddenable;
 
+  private boolean                            indexInAnalytics;
+
   private List<ProfileLabel>                 labels;
 
   private List<ProfilePropertySettingEntity> children;
