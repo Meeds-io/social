@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -1266,7 +1267,11 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
         }
       }
     }
-    String result = name.replaceAll("\\B.|\\P{L}", "").toUpperCase();
+    String result = Arrays.stream(name.split(" "))
+                          .filter(word -> word != null && word.length() > 0)
+                          .map(word -> word.substring(0, 1).toUpperCase())
+                          .limit(2)
+                          .collect(Collectors.joining());
     if (result.length() > 2) {
       return result.substring(0, 2);
     } else {
