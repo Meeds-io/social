@@ -35,19 +35,23 @@ export default {
     options: [
       {
         name: 'themeColors',
-        event: 'open-update-theme-colors-drawer'
+        event: 'open-update-theme-colors-drawer',
+        resetEvent: 'reset-theme-colors'
       },
       {
         name: 'topBarStyling',
-        event: 'open-top-bar-styling-drawer'
+        event: 'open-top-bar-styling-drawer',
+        resetEvent: 'reset-top-bar-styling'
       },
       {
         name: 'sideBarStyling',
-        event: 'open-sidebar-styling-drawer'
+        event: 'open-sidebar-styling-drawer',
+        resetEvent: 'reset-sidebar-styling'
       },
       {
         name: 'drawerStyling',
-        event: 'open-drawer-styling'
+        event: 'open-drawer-styling',
+        resetEvent: 'reset-drawer-styling'
       },
     ]
   }),
