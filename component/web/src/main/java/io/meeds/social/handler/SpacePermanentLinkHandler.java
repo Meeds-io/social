@@ -36,7 +36,6 @@ import org.exoplatform.web.controller.QualifiedName;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
-
 import jakarta.servlet.ServletConfig;
 
 public class SpacePermanentLinkHandler extends WebRequestHandler {
@@ -76,6 +75,10 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String spaceId = controllerContext.getParameter(REQUEST_SPACE_ID);
     String path = controllerContext.getParameter(REQUEST_PATH);
+    String queryString = controllerContext.getRequest().getQueryString();
+    if (StringUtils.isNotEmpty(queryString)) {
+      path = path + "?" + queryString;
+    }
     Space space = spaceService.getSpaceById(spaceId);
     if (StringUtils.isBlank(username)
         || space == null
