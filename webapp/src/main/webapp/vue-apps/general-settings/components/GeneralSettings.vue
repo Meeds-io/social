@@ -226,6 +226,7 @@
 export default {
   data: () => ({
     branding: null,
+    defaultBrandingThemeStyle: null,
     registrationSettings: null,
     errorMessage: null,
     intialized: false,
@@ -234,6 +235,9 @@ export default {
   watch: {
     branding() {
       this.$root.branding = this.branding;
+    },
+    defaultBrandingThemeStyle() {
+      this.$root.defaultBrandingThemeStyle = this.defaultBrandingThemeStyle;
     },
     errorMessage() {
       if (this.errorMessage) {
@@ -267,6 +271,7 @@ export default {
       this.$root.loading = true;
       return this.initBranding()
         .then(this.initRegistration)
+        .then(this.initThemeStyle)
         .finally(() => this.$root.loading = false);
     },
     initBranding() {
@@ -276,6 +281,10 @@ export default {
     initRegistration() {
       return this.$registrationService.getRegistrationSettings()
         .then(data => this.registrationSettings = data);
+    },
+    initThemeStyle() {
+      return this.$brandingService.getDefaultBrandingThemeStyle()
+        .then(data => this.defaultBrandingThemeStyle = data);
     },
     close() {
       if (this.changed) {
