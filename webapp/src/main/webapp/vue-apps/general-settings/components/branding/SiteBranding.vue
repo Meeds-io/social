@@ -289,6 +289,10 @@ export default {
     this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
     this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
+    this.$root.$on('reset-theme-colors', this.resetThemeStyleColors);
+    this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
+    this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
+    this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
   },
   mounted() {
     this.init();
@@ -298,6 +302,10 @@ export default {
     this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
     this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
     this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
+    this.$root.$off('reset-theme-colors', this.resetThemeStyleColors);
+    this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
+    this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
+    this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
   },
   methods: {
     init() {
@@ -319,9 +327,9 @@ export default {
       this.faviconUploadId = null;
       this.errorMessage = null;
       this.fullWindow = !!this.branding?.pageWidth;
-      this.topBarStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.TOP_BAR);
-      this.sideBarStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.SIDE_BAR);
-      this.drawerStylingProperties = this.createStylingProperties(this.branding, this.brandingStylingType.DRAWER);
+      this.topBarStylingProperties = this.createStylingProperties(this.branding.themeStyle,this.branding.topBarBackground, this.brandingStylingType.TOP_BAR);
+      this.sideBarStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.sideBarBackground, this.brandingStylingType.SIDE_BAR);
+      this.drawerStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.drawerBackground, this.brandingStylingType.DRAWER);
     },
     setBackgroungPropertiesPreview() {
       if (this.changed && this.originalBackgroundProperties) {
@@ -532,34 +540,34 @@ export default {
       }
       this.$root.$emit('refresh-style-properties', { detail: properties });
     },
-    createStylingProperties(branding, type) {
+    createStylingProperties(themeStyle, background, type) {
       const properties =  {
-        [`${type}BackgroundColor`]: branding?.themeStyle?.[`${type}BackgroundColor`] || null,
-        [`${type}BackgroundPosition`]: branding?.themeStyle?.[`${type}BackgroundPosition`] || null,
-        [`${type}BackgroundRepeat`]: branding?.themeStyle?.[`${type}BackgroundRepeat`] || null,
-        [`${type}BackgroundSize`]: branding?.themeStyle?.[`${type}BackgroundSize`] || null,
-        [`${type}BackgroundImage`]: branding?.themeStyle?.[`${type}BackgroundImage`] || null,
-        [`${type}Background`]: branding?.[`${type}Background`] || null,
-        [`${type}TextColor`]: branding?.themeStyle?.[`${type}TextColor`] || null,
-        [`${type}TextFontSize`]: branding?.themeStyle?.[`${type}TextFontSize`] || null,
-        [`${type}TextFontStyle`]: branding?.themeStyle?.[`${type}TextFontStyle`] || null,
-        [`${type}TextFontWeight`]: branding?.themeStyle?.[`${type}TextFontWeight`] || null,
+        [`${type}BackgroundColor`]: themeStyle?.[`${type}BackgroundColor`] || null,
+        [`${type}BackgroundPosition`]: themeStyle?.[`${type}BackgroundPosition`] || null,
+        [`${type}BackgroundRepeat`]: themeStyle?.[`${type}BackgroundRepeat`] || null,
+        [`${type}BackgroundSize`]: themeStyle?.[`${type}BackgroundSize`] || null,
+        [`${type}BackgroundImage`]: themeStyle?.[`${type}BackgroundImage`] || null,
+        [`${type}Background`]: background || null,
+        [`${type}TextColor`]: themeStyle?.[`${type}TextColor`] || null,
+        [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
+        [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
+        [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
       };
       if (type !== 'topBar') {
-        properties[`${type}TextSubtitleColor`] = branding?.themeStyle?.[`${type}TextSubtitleColor`] || null;
-        properties[`${type}TextSubtitleFontSize`] = branding?.themeStyle?.[`${type}TextSubtitleFontSize`] || null;
-        properties[`${type}TextSubtitleFontStyle`] = branding?.themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
-        properties[`${type}TextSubtitleFontWeight`] = branding?.themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
+        properties[`${type}TextSubtitleColor`] = themeStyle?.[`${type}TextSubtitleColor`] || null;
+        properties[`${type}TextSubtitleFontSize`] = themeStyle?.[`${type}TextSubtitleFontSize`] || null;
+        properties[`${type}TextSubtitleFontStyle`] = themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
+        properties[`${type}TextSubtitleFontWeight`] = themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
       }
       if (type !== 'topBar' && type !== 'sideBar') {
-        properties[`${type}TextTitleColor`] = branding?.themeStyle?.[`${type}TextTitleColor`] || null;
-        properties[`${type}TextTitleFontSize`] = branding?.themeStyle?.[`${type}TextTitleFontSize`] || null;
-        properties[`${type}TextTitleFontStyle`] = branding?.themeStyle?.[`${type}TextTitleFontStyle`] || null;
-        properties[`${type}TextTitleFontWeight`] = branding?.themeStyle?.[`${type}TextTitleFontWeight`] || null;
-        properties[`${type}TextHeaderColor`] = branding?.themeStyle?.[`${type}TextHeaderColor`] || null;
-        properties[`${type}TextHeaderFontSize`] = branding?.themeStyle?.[`${type}TextHeaderFontSize`] || null;
-        properties[`${type}TextHeaderFontStyle`] = branding?.themeStyle?.[`${type}TextHeaderFontStyle`] || null;
-        properties[`${type}TextHeaderFontWeight`] = branding?.themeStyle?.[`${type}TextHeaderFontWeight`] || null;
+        properties[`${type}TextTitleColor`] = themeStyle?.[`${type}TextTitleColor`] || null;
+        properties[`${type}TextTitleFontSize`] = themeStyle?.[`${type}TextTitleFontSize`] || null;
+        properties[`${type}TextTitleFontStyle`] = themeStyle?.[`${type}TextTitleFontStyle`] || null;
+        properties[`${type}TextTitleFontWeight`] = themeStyle?.[`${type}TextTitleFontWeight`] || null;
+        properties[`${type}TextHeaderColor`] = themeStyle?.[`${type}TextHeaderColor`] || null;
+        properties[`${type}TextHeaderFontSize`] = themeStyle?.[`${type}TextHeaderFontSize`] || null;
+        properties[`${type}TextHeaderFontStyle`] = themeStyle?.[`${type}TextHeaderFontStyle`] || null;
+        properties[`${type}TextHeaderFontWeight`] = themeStyle?.[`${type}TextHeaderFontWeight`] || null;
       }
       return properties;
     },
@@ -594,7 +602,43 @@ export default {
         properties[`${type}TextHeaderFontWeight`] = textProperties.textHeaderFontWeight;
       }
       return properties;
+    },
+    resetThemeStyleColors() {
+      this.primaryColor = this.$root.defaultBrandingThemeStyle?.primaryColor;
+      this.secondaryColor = this.$root.defaultBrandingThemeStyle?.secondaryColor;
+      this.tertiaryColor = this.$root.defaultBrandingThemeStyle?.tertiaryColor;
+    },
+    resetTopBarStylingProperties() {
+      this.topBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+        data: null,
+        fileId: 0,
+        updatedDate: 0,
+        uploadId: 0,
+      }, this.brandingStylingType.TOP_BAR);
+      this.isTopBarStylingPropertiesChanged = true;
+      this.refreshTopBarPreview();
+    },
+    resetSidebarStylingProperties() {
+      this.sideBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+        data: null,
+        fileId: 0,
+        updatedDate: 0,
+        uploadId: 0,
+      }, this.brandingStylingType.SIDE_BAR);
+      this.isSideBarStylingPropertiesChanged = true;
+      this.refreshSideBarPreview();
+    },
+    resetDrawerStylingProperties() {
+      this.drawerStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+        data: null,
+        fileId: 0,
+        updatedDate: 0,
+        uploadId: 0,
+      }, this.brandingStylingType.DRAWER);
+      this.isDrawerStylingPropertiesChanged = true;
+      this.refreshDrawerPreview();
     }
+
   }
 };
 </script>

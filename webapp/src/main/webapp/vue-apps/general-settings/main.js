@@ -48,6 +48,7 @@ export function init(publicSiteVisible, publicSiteId) {
           loading: false,
           publicSiteVisible,
           publicSiteId,
+          defaultBrandingThemeStyle: null
         },
         computed: {
           isMobile() {
