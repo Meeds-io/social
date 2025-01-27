@@ -97,81 +97,23 @@
               </span>
             </v-tooltip>
           </label>
-          <label
-            for="settingParentField"
-            class="mx-4 mt-2">
-            {{ $t('profileSettings.label.parent') }}
-            <v-autocomplete
-              ref="settingParentField"
-              id="settingParentField"
-              v-model="setting.parentId"
-              :items="parents"
-              :placeholder="$t('profileSettings.placeholder.parent')"
-              class="py-4"
-              outlined
-              dense
-              width="100%"
-              max-width="100%"
-              item-text="resolvedLabel"
-              item-value="id"
-              @blur="blurAutocomplete()" />
-          </label>
-          <v-tooltip
-            bottom
-            :disabled="!isUserType">
-            <template #activator="{ on, attrs }">
-              <div
-                v-bind="attrs"
-                v-on="on"
-                class="mt-4">
-                <v-list-item>
-                  <v-list-item-content
-                    :class="{'text--disabled': isUserType}"
-                    transition="fade-transition"
-                    class="d-flex visibleLabel py-0">
-                    <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
-                      <div>
-                        {{ $t('profileSettings.label.dropdownList') }}
-                      </div>
-                    </v-list-item-title>
-                    <v-list-item-subtitle
-                      class="mt-n3">
-                      <span
-                        :class="{'text--disabled': isUserType}"
-                        class="caption">
-                        {{ $t('profileSettings.dropdownList.info') }}
-                      </span>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                  <v-list-item-action :class="{'my-0': isDropdownList}">
-                    <div
-                      class="d-flex">
-                      <v-btn
-                        v-if="isDropdownList"
-                        class="my-auto me-2 pa-0"
-                        icon
-                        @click="openDropdownListDrawer">
-                        <v-icon
-                          size="20"
-                          class="icon-default-color">
-                          fas fa-edit
-                        </v-icon>
-                      </v-btn>
-                      <v-switch
-                        v-model="setting.dropdownList"
-                        :disabled="saving || isUserType"
-                        :ripple="false"
-                        color="primary"
-                        class="align-center my-auto" />
-                    </div>
-                  </v-list-item-action>
-                </v-list-item>
-              </div>
-            </template>
-            <span v-if="isUserType">
-              {{ $t('profileSettings.dropdownList.available.info') }}
-            </span>
-          </v-tooltip>
+          <v-list-item class="mt-4">
+            <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
+              <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.active') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.active"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="activeSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
           <v-list-item>
             <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
               <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
@@ -187,98 +129,6 @@
                 :ripple="false"
                 color="primary"
                 class="visibleSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
-              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.editable') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.editable"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="editableSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
-              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.required') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.required"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
-              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.multiValued') }}
-                </div>
-              </v-list-item-title>
-              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
-                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.multiValued"
-                :disabled="saving || setting.default"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
-              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.groupSynchronized') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.groupSynchronized"
-                :disabled="saving || !setting.groupSynchronizationEnabled"
-                :ripple="false"
-                color="primary"
-                class="groupSynchronizedSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
-              <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.active') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.active"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="activeSwitcher my-auto" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
@@ -331,6 +181,132 @@
                   {{ $t('profileSettings.unHiddenable.property.tooltip') }}
                 </span>
               </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
+              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.editable') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.editable"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="editableSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
+              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.required') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.required"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-tooltip
+            bottom
+            :disabled="!isUserType">
+            <template #activator="{ on, attrs }">
+              <div
+                v-bind="attrs"
+                v-on="on">
+                <v-list-item>
+                  <v-list-item-content
+                    :class="{'text--disabled': isUserType}"
+                    transition="fade-transition"
+                    class="d-flex visibleLabel py-0">
+                    <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
+                      <div>
+                        {{ $t('profileSettings.label.dropdownList') }}
+                      </div>
+                    </v-list-item-title>
+                    <v-list-item-subtitle
+                      class="mt-n3">
+                      <span
+                        :class="{'text--disabled': isUserType}"
+                        class="caption">
+                        {{ $t('profileSettings.dropdownList.info') }}
+                      </span>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action :class="{'my-0': isDropdownList}">
+                    <div
+                      class="d-flex">
+                      <v-btn
+                        v-if="isDropdownList"
+                        class="my-auto me-2 pa-0"
+                        icon
+                        @click="openDropdownListDrawer">
+                        <v-icon
+                          size="20"
+                          class="icon-default-color">
+                          fas fa-edit
+                        </v-icon>
+                      </v-btn>
+                      <v-switch
+                        v-model="setting.dropdownList"
+                        :disabled="saving || isUserType"
+                        :ripple="false"
+                        color="primary"
+                        class="align-center my-auto" />
+                    </div>
+                  </v-list-item-action>
+                </v-list-item>
+              </div>
+            </template>
+            <span v-if="isUserType">
+              {{ $t('profileSettings.dropdownList.available.info') }}
+            </span>
+          </v-tooltip>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.multiValued') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
+                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.multiValued"
+                :disabled="saving || setting.default"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
+              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.groupSynchronized') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.groupSynchronized"
+                :disabled="saving || !setting.groupSynchronizationEnabled"
+                :ripple="false"
+                color="primary"
+                class="groupSynchronizedSwitcher my-auto" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
@@ -427,7 +403,6 @@ export default {
     saving: false,
     confirmNewPassword: null,
     setting: {},
-    parents: [],
     labels: [],
     changes: false,
     labelsObjectType: 'profileProperty',
@@ -514,10 +489,6 @@ export default {
     this.$root.$on('setting-updated', this.handleSettingUpdated);
   },
   methods: {
-    blurAutocomplete() {
-      this.$refs.settingParentField.isFocused = false;
-      this.$refs.settingParentField.isMenuActive = false;
-    },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
       const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
@@ -529,9 +500,6 @@ export default {
     addNewSetting() {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
-      this.parents = Object.assign([], this.settings);
-      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued);
-      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
       this.drawer = true;
@@ -540,10 +508,6 @@ export default {
       this.initialSetting = structuredClone(setting);
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
-      this.parents = Object.assign([], this.settings);
-      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued) || [];
-      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
-      this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
       this.labels = JSON.parse(JSON.stringify(this.setting.labels));
       this.changes= false;
@@ -551,6 +515,7 @@ export default {
     },
     handleSettingUpdated(setting) {
       this.initialSetting = structuredClone(setting);
+      this.areLabelsChanged = false;
     },
     saveSetting(event) {
       this.changes=true;
@@ -639,13 +604,10 @@ export default {
       return true;
     },
     areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
+      const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
         'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
       ];
       for (const field of fields) {
-        if (field === 'parentId' && setting[field] === '') {
-          setting[field] = null;
-        }
         if (field === 'propertyOptions') {
           if (!this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field])) {
             return false;
