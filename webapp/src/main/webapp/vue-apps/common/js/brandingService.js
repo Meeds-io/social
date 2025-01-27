@@ -38,6 +38,13 @@ export function getBrandingInformation() {
   }).then(resp => resp.json());
 }
 
+export function getDefaultBrandingThemeStyle() {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/default`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => resp.json());
+}
+
 export function throwErrorFromServerCall(serverResponse, defaultErrorMessage) {
   if (!serverResponse || !serverResponse.ok) {
     const contentType = serverResponse && serverResponse.headers && serverResponse.headers.get('content-type');
