@@ -1268,7 +1268,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
       }
     }
     String result = Arrays.stream(name.split(" "))
-                          .filter(word -> word != null && word.length() > 0)
+                          .filter(StringUtils::isNotBlank)
                           .map(word -> word.substring(0, 1).toUpperCase())
                           .limit(2)
                           .collect(Collectors.joining());
