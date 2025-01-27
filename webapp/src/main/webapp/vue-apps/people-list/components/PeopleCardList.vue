@@ -257,10 +257,13 @@ export default {
           space: this.spaceId,
           returnSize: true,
           signal: this.abortController.signal,
-        }).then(data => ({
-          size: data.size || 0,
-          users: data?.spacesMemberships?.map?.(m => m.user),
-        }));
+        }).then(data => { 
+          this.$root.space.membersCount = data.size;
+          return {
+            size: data.size || 0,
+            users: data?.spacesMemberships?.map?.(m => m.user),
+          };
+        });
       } else if (profileSettings) {
         this.advancedFilterSettings = profileSettings;
         searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
