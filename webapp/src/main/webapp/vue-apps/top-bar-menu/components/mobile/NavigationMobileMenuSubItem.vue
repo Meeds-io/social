@@ -23,10 +23,11 @@
   <v-bottom-sheet
     v-model="showChildren"
     inset
-    content-class="topBar-navigation-bottom-drop-menu"
+    content-class="topBar-navigation-bottom-drop-menu top-bar-background"
     hide-overlay>
     <v-sheet
-      v-if="showChildren">
+      v-if="showChildren"
+      class="transparent">
       <div
         v-if="navigationObject.previous">
         <v-btn
@@ -40,7 +41,7 @@
         </v-btn>
       </div>
       <v-list
-        class="mt-n3"
+        class="mt-n3 transparent"
         dense>
         <v-list-item-group>
           <template v-for="nav in navigationObject">
@@ -53,7 +54,9 @@
               :link="!!nav.pageKey"
               @click="checkLink(nav, $event)">
               <v-list-item-content>
-                <v-list-item-title v-text="nav.label" />
+                <v-list-item-title>
+                  <span class="top-bar-text-body">{{nav.label}}</span>
+                </v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon
                 v-if="nav.children?.length"
