@@ -2061,6 +2061,34 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>SimpleStorage</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/simpleStorage.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
   <module>
     <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
