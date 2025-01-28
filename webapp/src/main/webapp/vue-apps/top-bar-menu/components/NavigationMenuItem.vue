@@ -23,7 +23,7 @@
   <v-menu
     v-model="showMenu"
     rounded
-    content-class="topBar-navigation-drop-menu"
+    content-class="topBar-navigation-drop-menu top-bar-background"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     bottom
@@ -37,7 +37,7 @@
         :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
-        :class="`mx-auto text-break ${notClickable}`"
+        :class="`mx-auto text-break ${notClickable} top-bar-text-body`"
         :value="navigationNodeUri"
         v-on="on"
         v-bind="attrs"
@@ -61,6 +61,7 @@
     </template>
     <navigation-menu-sub-item
       v-for="children in navigation.children"
+      class="transparent"
       :key="children.id"
       :navigation="children"
       :base-site-uri="baseSiteUri"
