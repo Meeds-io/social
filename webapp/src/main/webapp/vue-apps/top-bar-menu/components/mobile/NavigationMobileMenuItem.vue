@@ -26,7 +26,7 @@
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
-        class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
+        class="mx-auto pa-1 text-break top-bar-text-body navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
