@@ -95,7 +95,8 @@ let config = {
     breadcrumb: './src/main/webapp/vue-apps/breadcrumb/main.js',
     complementaryFilter: './src/main/webapp/vue-apps/complementary-filter/main.js',
     organizationalChart: './src/main/webapp/vue-apps/organizational-chart/main.js',
-    organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js'
+    organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js',
+    simpleStorage: './src/main/webapp/vue-apps/simple-storage/main.js'
   },
   module: {
     rules: [
