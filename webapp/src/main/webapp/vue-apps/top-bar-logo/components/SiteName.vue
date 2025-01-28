@@ -26,7 +26,7 @@
       :class="$root.displaySiteLogo && 'ms-4'"
       :title="tooltip"
       class="align-self-center brandingContainer">
-      <div class="siteTitle text-body text-truncate">
+      <div class="siteTitle top-bar-text-body text-truncate">
         {{ $root.siteTitle }}
       </div>
     </a>
