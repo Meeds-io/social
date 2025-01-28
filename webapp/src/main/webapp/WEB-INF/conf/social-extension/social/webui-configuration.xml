@@ -77,10 +77,6 @@
         </values-param>
       </init-params>
     </component-plugin>
-  </external-component-plugins>
-
-  <external-component-plugins>
-    <target-component>org.exoplatform.groovyscript.text.TemplateService</target-component>
     <component-plugin>
       <name>UIPortalApplication-head</name>
       <set-method>addTemplateExtension</set-method>
@@ -90,6 +86,30 @@
           <name>templates</name>
           <description>The list of templates to include in HTML Page Header with UIPortalApplication.gtmpl</description>
           <value>war:/groovy/social/webui/UISocialPortalApplicationHead.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>UIPortalApplication-Start-body</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>A template that will be imported at the start of page body</description>
+          <value>war:/groovy/portal/webui/container/UITopbarLoadingContainer.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
+    <component-plugin>
+      <name>UIPortalApplication-End-Body</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>A template that will be imported at the end of page</description>
+          <value>war:/groovy/portal/webui/container/UIBottomAllContainer.gtmpl</value>
         </values-param>
       </init-params>
     </component-plugin>
