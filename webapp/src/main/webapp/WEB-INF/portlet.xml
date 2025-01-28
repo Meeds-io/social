@@ -1066,4 +1066,25 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>SimpleStorage</portlet-name>
+    <display-name>Simple storage portlet</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/simpleStorage.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Simple storage</title>
+      <keywords>Simple storage</keywords>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
