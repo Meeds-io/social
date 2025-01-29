@@ -9,7 +9,7 @@
     :fixed="fixed"
     :width="width"
     :hide-overlay="!showOverlay"
-    :temporary="!showOverlay"
+    temporary
     touchless
     stateless
     height="100%"
@@ -149,6 +149,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    noExternalOverlay: {
+      type: Boolean,
+      default: false,
+    },
     confirmCloseLabels: {
       type: Object,
       default: () => ({
@@ -234,7 +238,7 @@ export default {
     drawer() {
       if (!this.permanent) {
         if (this.drawer) {
-          document.dispatchEvent(new CustomEvent('drawerOpened'));
+          document.dispatchEvent(new CustomEvent('drawerOpened', {detail: this.showOverlay || this.noExternalOverlay}));
           if (!this.initialized) {
             this.initialized = true;
           }
@@ -244,7 +248,7 @@ export default {
             document.body.style.overscrollBehaviorY = 'contain';
           }
         } else {
-          document.dispatchEvent(new CustomEvent('drawerClosed'));
+          document.dispatchEvent(new CustomEvent('drawerClosed', {detail: this.showOverlay || this.noExternalOverlay}));
           if (eXo.openedDrawers) {
             const currentOpenedDrawerIndex = eXo.openedDrawers.indexOf(this);
             if (currentOpenedDrawerIndex >= 0) {
