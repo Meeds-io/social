@@ -24,7 +24,9 @@
     ref="drawer"
     :drawer-width="width"
     :style="drawerStyle"
-    :permanent="$root.icon"
+    :permanent="permanent"
+    :show-overlay="showOverlay"
+    no-external-overlay
     attached
     left>
     <template #content>
@@ -57,6 +59,12 @@ export default {
     },
     stickyAllowed() {
       return this.$root.stickyAllowed;
+    },
+    showOverlay() {
+      return !this.$root.icon || this.$root.expand;
+    },
+    permanent() {
+      return this.$root.icon;
     },
   },
   watch: {
