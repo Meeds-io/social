@@ -49,8 +49,8 @@
             class="pt-5 pb-5"
             :class="hasPage && ' ' || ' not-clickable '"
             @mouseleave="showMenu = false"
-            @mouseover="showMenu = true" >
-            <span class="top-bar-text-body">{{navigation.label}}</span>
+            @mouseover="showMenu = true">
+            <span class="top-bar-text-body">{{ navigation.label }}</span>
           </v-list-item-title>
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
