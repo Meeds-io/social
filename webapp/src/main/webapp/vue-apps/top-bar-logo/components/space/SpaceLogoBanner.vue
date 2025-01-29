@@ -48,7 +48,10 @@
           </a>
         </v-card>
       </template>
-      <v-card v-if="menu" class="top-bar-background" elevation="2">
+      <v-card
+        v-if="menu"
+        class="top-bar-background"
+        elevation="2">
         <v-list class="pa-0 transparent">
           <v-list-item class="pt-3">
             <v-list-item-avatar
