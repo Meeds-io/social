@@ -23,7 +23,7 @@
                 :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'"
                 :disabled="!breadcrumb.uri"
                 :class="!breadcrumb.uri && 'text-subtitle-color'"
-                height="52"
+                height="var(--appHeight, 52)"
                 min-width="45px"
                 max-width="250px"
                 class="pa-0 d-flex align-center"
@@ -42,7 +42,7 @@
           v-else
           disabled
           min-width="45px"
-          height="52"
+          height="var(--appHeight, 52)"
           class="pa-0 text-subtitle-color d-flex align-center justify-center flex-shrink-1"
           flat>
           {{ breadcrumb.label }}
