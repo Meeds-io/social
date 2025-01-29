@@ -46,6 +46,7 @@ export function init(cacheId, parentNodeId) {
       data: {
         cacheId,
         parentNodeId,
+        isTopBarElement: true
       },
       template: `<top-bar-navigation-menu v-cacheable id="${appId}" />`,
       vuetify,
