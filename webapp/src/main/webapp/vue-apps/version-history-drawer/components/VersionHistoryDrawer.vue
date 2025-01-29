@@ -18,9 +18,8 @@
   <exo-drawer
     ref="versionHistoryDrawer"
     class="versionHistoryDrawer"
-    @closed="closed"
-    show-overlay
-    right>
+    right
+    @closed="closed">
     <template slot="title">
       {{ $t('versionHistory.label.title') }}
     </template>
