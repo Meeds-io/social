@@ -24,7 +24,6 @@
     :loading="loading > 0"
     class="notifDrawer"
     body-classes="hide-scroll"
-    attached
     allow-expand
     right
     @closed="$emit('closed')"

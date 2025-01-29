@@ -141,10 +141,10 @@ export function init(
             if (this.icon) {
               window.setTimeout(() => {
                 if (this.expand && !this.openedOverlay) {
-                  document.dispatchEvent(new CustomEvent('drawerOpened'));
+                  document.dispatchEvent(new CustomEvent('drawerOpened', {detail: true}));
                   this.openedOverlay = true;
                 } else if (!this.expand && this.openedOverlay) {
-                  document.dispatchEvent(new CustomEvent('drawerClosed'));
+                  document.dispatchEvent(new CustomEvent('drawerClosed', {detail: true}));
                   this.openedOverlay = false;
                 }
               }, 200);
