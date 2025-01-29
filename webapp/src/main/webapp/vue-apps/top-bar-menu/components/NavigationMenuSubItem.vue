@@ -50,7 +50,7 @@
             :class="hasPage && ' ' || ' not-clickable '"
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true">
-            <span class="top-bar-text-body">{{ navigation.label }}</span>
+            <span class="text-body">{{ navigation.label }}</span>
           </v-list-item-title>
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
