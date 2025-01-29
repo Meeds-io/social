@@ -30,8 +30,8 @@
       </v-list-item-content>
       <v-list-item-action class="d-flex flex-row my-auto">
         <v-btn
-            icon
-            @click="emitOptionResetEvent">
+          icon
+          @click="emitOptionResetEvent">
           <v-icon size="18" class="icon-default-color">fa-undo</v-icon>
         </v-btn>
         <v-btn

@@ -55,7 +55,7 @@
               @click="checkLink(nav, $event)">
               <v-list-item-content>
                 <v-list-item-title>
-                  <span class="top-bar-text-body">{{nav.label}}</span>
+                  <span class="top-bar-text-body">{{ nav.label }}</span>
                 </v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon
