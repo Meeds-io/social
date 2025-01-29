@@ -26,7 +26,7 @@
     }"
     class="d-flex align-center">
     <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate widget-text-header text-start">
-      {{ $t(header) }}
+      {{ header }}
     </div>
     <v-spacer />
     <div
@@ -118,7 +118,7 @@ export default {
       return this.header?.length || this.seeMoreUrl?.length;
     },
     header() {
-      return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
+      return this.$t(this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage]);
     },
     seeMoreUrl() {
       return this.$utils.toLinkUrl(this.settings?.seeMore, {

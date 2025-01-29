@@ -20,7 +20,7 @@
 -->
 <template>
   <v-list-item
-    :title="description || $t(name)"
+    :title="description || name"
     :href="url"
     :target="target"
     :dense="!largeIcon"
@@ -37,7 +37,7 @@
         v-if="showName && name"
         class="text-color text-start text-wrap"
         :class="showDescription && description && 'text-truncate' || 'text-truncate-2'">
-        {{ $t(name) }}
+        {{ name }}
       </v-list-item-title>
       <v-list-item-subtitle
         v-if="showDescription && description"
@@ -78,7 +78,7 @@ export default {
   },
   computed: {
     name() {
-      return this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
     },
     description() {
       return this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage];

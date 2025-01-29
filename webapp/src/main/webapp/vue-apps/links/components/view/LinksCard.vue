@@ -38,7 +38,7 @@
     :max-height="itemHeight"
     class="mx-2">
     <v-card
-      :title="description || $t(name)"
+      :title="description || name"
       :min-width="itemWidth"
       :max-width="itemWidth"
       :min-height="itemHeight"
@@ -56,7 +56,7 @@
         v-if="showName && name"
         :class="!showIcon && 'pb-3 my-auto'"
         class="pt-3 px-1 full-width text-truncate-2 text-body">
-        {{ showName && $t(name) || '' }}
+        {{ showName && name || '' }}
       </div>
     </v-card>
   </component>
@@ -94,7 +94,7 @@ export default {
   }),
   computed: {
     name() {
-      return this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
     },
     description() {
       return this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage];
