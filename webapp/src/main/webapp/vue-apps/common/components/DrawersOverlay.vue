@@ -40,14 +40,27 @@ export default {
     },
     closeDisplayedDrawer(event) {
       if (this.openedDrawers && (!event || event.key === 'Escape')) {
-        document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
+        this.closeDisplayedDrawerEffectively();
       }
     },
-    showOverlay() {
+    closeDisplayedDrawerEffectively() {
+      document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
+    },
+    showOverlay(event) {
       this.uiPortalApplicationElement.classList.add('decrease-z-index');
-      window.setTimeout(() => {
-        this.openedDrawers += 1;
-      }, 10);
+      const showOverlay = !event?.detail;
+      if (showOverlay) {
+        window.setTimeout(() => {
+          this.openedDrawers += 1;
+        }, 10);
+      } else {
+        window.setTimeout(() => {
+          const openedOverlay = document.querySelector('.PORTLET-FRAGMENT .v-overlay--active');
+          if (openedOverlay) {
+            openedOverlay.onclick = this.closeDisplayedDrawerEffectively;
+          }
+        }, 200);
+      }
       const searchDialog = document.querySelector('#searchDialog');
       if (searchDialog) {
         searchDialog.style.zIndex = 'revert';
