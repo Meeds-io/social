@@ -22,13 +22,15 @@
         <space-invite-buttons-group
           v-if="isManager"
           class="me-4" />
-        <div v-if="peopleCount"
+        <div
+          v-if="peopleCount"
           class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
           {{ $t('peopleList.label.peopleCount', {0: peopleCount}) }}
         </div>
-        <div v-else
+        <div
+          v-else
           class="showingPeopleText text-subtitle d-none my-auto d-sm-flex">
-          {{ $t('Search.noResults')}}
+          {{ $t('Search.noResults') }}
         </div>
       </div>
     </template>
