@@ -23,7 +23,7 @@
   <v-menu
     v-model="showMenu"
     rounded
-    content-class="topBar-navigation-drop-menu top-bar-background"
+    :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     bottom
@@ -37,7 +37,7 @@
         :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
-        :class="`mx-auto text-break ${notClickable} top-bar-text-body`"
+        :class="`mx-auto text-break ${notClickable}`"
         :value="navigationNodeUri"
         v-on="on"
         v-bind="attrs"
@@ -119,6 +119,9 @@ export default {
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   watch: {
     showMenu() {
