@@ -26,7 +26,7 @@
     offset-y>
     <template #activator="{ attrs, on }">
       <v-tab
-        class="mx-auto pa-1 text-break top-bar-text-body navigation-mobile-menu-tab"
+        class="mx-auto pa-1 text-break navigation-mobile-menu-tab"
         v-bind="attrs"
         :href="navigationNodeUri"
         :target="navigationNodeTarget"
@@ -61,6 +61,7 @@
     </template>
     <navigation-mobile-menu-sub-item
       v-if="hasChildren"
+      class="transparent"
       :navigation="navigation.children"
       :base-site-uri="baseSiteUri"
       :show-menu="showMenu"

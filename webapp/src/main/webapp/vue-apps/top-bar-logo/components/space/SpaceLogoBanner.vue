@@ -10,7 +10,7 @@
       transition="slide-x-transition"
       max-width="350"
       min-width="300"
-      content-class="no-box-shadow full-height pa-1 mt-6 "
+      content-class="no-box-shadow full-height pa-1 mt-6"
       offset-y>
       <template #activator="{ on, attrs }">
         <v-card
@@ -42,7 +42,7 @@
             :href="$root.spacePortalPath"
             :class="$root.displaySiteLogo && 'ms-4'"
             class="align-self-center brandingContainer space">
-            <div class="logoTitle top-bar-text-body text-truncate">
+            <div class="logoTitle text-body menu-text-color font-weight-bold text-truncate">
               {{ $root.spaceLogoTitle }}
             </div>
           </a>
@@ -50,7 +50,7 @@
       </template>
       <v-card
         v-if="menu"
-        class="top-bar-background"
+        :class="isTopBarElement && 'layout-top-bar' || ''"
         elevation="2">
         <v-list class="pa-0 transparent">
           <v-list-item class="pt-3">
@@ -76,7 +76,7 @@
                 <span>{{ $root.spaceLogoTitle }}</span>
               </v-tooltip>
               <v-list-item-subtitle>
-                <span class="top-bar-text-body">{{ $root.membersNumber }} {{ $t('space.logo.banner.popover.members') }}</span>
+                <span class="text-body">{{ $root.membersNumber }} {{ $t('space.logo.banner.popover.members') }}</span>
               </v-list-item-subtitle>
               <p v-sanitized-html="$root.spaceDescription" class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
             </v-list-item-content>
@@ -89,7 +89,7 @@
                 <v-row no-gutters class="align-center">
                   <v-col
                     cols="6"
-                    class="text-truncate top-bar-text-body text-left">
+                    class="text-truncate text-body text-left">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
                   <v-col
@@ -168,6 +168,9 @@ export default {
         canRedactOnSpace: this.$root.canRedactOnSpace,
       };
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   created() {
     document.addEventListener('metadata.favorite.updated', this.favoriteUpdated);
