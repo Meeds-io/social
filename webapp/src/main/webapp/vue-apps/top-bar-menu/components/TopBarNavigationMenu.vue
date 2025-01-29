@@ -23,11 +23,12 @@
   <v-app :class="componentId" class="topBarMenu">
     <v-footer
       v-if="isMobile && mobileNavigations.length"
-      class="top-bar-background pt-0 pr-0 pl-0 elevation-2"
+      class="pt-0 pr-0 pl-0 elevation-2"
       inset
       fixed>
       <v-tabs
         class="navigation-mobile-menu"
+        :class="isTopBarElement && 'layout-top-bar' || ''"
         v-model="tab"
         color="none"
         optional
@@ -109,6 +110,9 @@ export default {
     baseSiteUri() {
       return `${eXo.env.portal.context}/${this.siteUri}/`;
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   watch: {
     isMobile() {
