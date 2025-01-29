@@ -45,6 +45,7 @@ export function init(params) {
         isSitePage: params.isSitePage,
         siteIcon: params.siteIcon,
         isStandaloneSite: !document.querySelector('#HamburgerNavigationMenu'),
+        isTopBarElement: false
       },
       computed: {
         xl() {
@@ -108,6 +109,9 @@ export function init(params) {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
         document.addEventListener('homeLinkUpdated', this.updateUserHome);
         document.addEventListener('sidebar-mode-changed', this.updateSidebarMode);
+      },
+      mounted() {
+        this.isTopBarElement = !!this.$el.closest('.layout-top-bar');
       },
       methods: {
         updateUserHome(event) {
