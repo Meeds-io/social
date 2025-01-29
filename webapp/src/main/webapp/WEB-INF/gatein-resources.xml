@@ -2938,9 +2938,6 @@
     <script>
       <path>/js/TopbarLoading.js</path>
     </script>
-    <depends>
-      <module>jquery</module>
-    </depends>
   </module>
 
   <module>
