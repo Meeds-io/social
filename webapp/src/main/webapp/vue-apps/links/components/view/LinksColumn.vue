@@ -20,7 +20,7 @@
 -->
 <template>
   <v-list-item
-    :title="description || name"
+    :title="description || $t(name)"
     :href="url"
     :target="target"
     :dense="!largeIcon"
@@ -37,7 +37,7 @@
         v-if="showName && name"
         class="text-color text-start text-wrap"
         :class="showDescription && description && 'text-truncate' || 'text-truncate-2'">
-        {{ name }}
+        {{ $t(name) }}
       </v-list-item-title>
       <v-list-item-subtitle
         v-if="showDescription && description"

@@ -38,7 +38,7 @@
     :max-height="itemHeight"
     class="mx-2">
     <v-card
-      :title="description || name"
+      :title="description || $t(name)"
       :min-width="itemWidth"
       :max-width="itemWidth"
       :min-height="itemHeight"
@@ -56,7 +56,7 @@
         v-if="showName && name"
         :class="!showIcon && 'pb-3 my-auto'"
         class="pt-3 px-1 full-width text-truncate-2 text-body">
-        {{ showName && name || '' }}
+        {{ showName && $t(name) || '' }}
       </div>
     </v-card>
   </component>

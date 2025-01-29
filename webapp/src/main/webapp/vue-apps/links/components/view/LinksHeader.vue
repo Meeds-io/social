@@ -26,7 +26,7 @@
     }"
     class="d-flex align-center">
     <div v-if="header" class="flex-grow-1 flex-shrink-1 text-truncate widget-text-header text-start">
-      {{ header }}
+      {{ $t(header) }}
     </div>
     <v-spacer />
     <div
