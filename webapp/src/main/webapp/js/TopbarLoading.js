@@ -1,4 +1,4 @@
-(function($) {
+(function() {
   document.addEventListener("readystatechange", () => {
     if (document.readyState === 'complete') {
       document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
@@ -9,7 +9,7 @@
     init: () => {
       document.addEventListener('displayTopBarLoading', () => {
         operationsInProgress++;
-        $('.TopbarLoadingContainer').removeClass('hidden');
+        document.querySelector('#TopbarLoading').classList.remove('hidden');
       });
 
       document.addEventListener('hideTopBarLoading', () => {
@@ -17,9 +17,10 @@
           operationsInProgress--;
         }
         if (operationsInProgress === 0) {
-          $('.TopbarLoadingContainer').addClass('hidden');
+          document.querySelector('#TopbarLoading').classList.add('hidden');
         }
       });
+      document.querySelector('#TopbarLoading').classList.add('hidden');
     },
   };
 })($);
