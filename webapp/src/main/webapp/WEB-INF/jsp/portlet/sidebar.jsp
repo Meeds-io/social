@@ -49,7 +49,7 @@ PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getC
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean isExternalFeatureEnabled = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN || securitySettingService.isRegistrationExternalUser();
 %>
-<div class="VuetifyApp">
+<div class="VuetifyApp layout-side-bar">
   <div id="HamburgerNavigationMenu" data-app="true" class="v-application HamburgerNavigationMenu v-application--is-ltr theme--light" id="app" color="transaprent" flat="">
     <div class="v-application--wrap">
       <% if (mode == SidebarMode.STICKY) { %>
@@ -74,7 +74,7 @@ PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getC
         }
       </script>
       <% } else { %>
-      <a class="HamburgerNavigationMenuLink">
+      <a class="HamburgerNavigationMenuLink layout-top-bar">
         <div class="d-flex justify-center" style="min-width: 69px;">
           <% if (mode == SidebarMode.HIDDEN) { %>
           <i aria-hidden="true"

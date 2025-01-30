@@ -23,7 +23,7 @@
     <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-card
         min-height="58"
-        class="d-flex align-center full-width"
+        class="d-flex align-center full-width transparent"
         flat>
         <v-list-item class="text-truncate full-width" dense>
           <v-list-item-icon
@@ -77,6 +77,7 @@
     <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-tabs
         v-model="selectedFilterIndex"
+        background-color="transparent"
         slider-size="4"
         fixed-tabs>
         <v-tab

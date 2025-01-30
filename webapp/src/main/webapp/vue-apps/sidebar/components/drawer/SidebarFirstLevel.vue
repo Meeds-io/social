@@ -26,7 +26,7 @@
     :drawer-width="drawerWidth"
     :drawer-style="drawerStyle"
     :levels-opened="levelsOpened"
-    class="HamburgerMenuFirstLevelParent no-box-shadow border-box-sizing"
+    class="HamburgerMenuFirstLevelParent layout-side-bar no-box-shadow border-box-sizing"
     @opened="$emit('firstLevelDrawer', true)"
     @closed="$emit('firstLevelDrawer', false)">
     <v-hover v-model="$root.hoverFirstLevel">
@@ -34,7 +34,7 @@
         :aria-label="$t('menu.role.navigation.first.level')"
         :max-width="drawerWidth"
         max-height="var(--100vh, 100vh)"
-        class="d-flex flex-column fill-height HamburgerNavigationMenu"
+        class="d-flex flex-column fill-height HamburgerNavigationMenu transparent"
         role="navigation"
         color="white"
         flat
