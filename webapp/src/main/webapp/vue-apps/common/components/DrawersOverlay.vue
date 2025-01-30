@@ -25,7 +25,6 @@ export default {
     document.addEventListener('drawerClosed', this.hideOverlay);
     document.addEventListener('modalOpened', this.modalOpened);
     document.addEventListener('modalClosed', this.modalClosed);
-
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
     this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
