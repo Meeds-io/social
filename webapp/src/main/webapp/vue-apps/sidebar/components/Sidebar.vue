@@ -29,7 +29,7 @@
         :unread-per-space="unreadPerSpace"
         @open-drawer="openFirstLevel" />
     </v-hover>
-    <div>
+    <div class="layout-side-bar">
       <template v-if="$root.displaySequentially">
         <sidebar-third-level
           v-if="allowDisplayLevels"

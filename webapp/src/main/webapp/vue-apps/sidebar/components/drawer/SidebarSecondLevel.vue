@@ -26,7 +26,7 @@
     :width="drawerWidth"
     :style="drawerOffsetStyle"
     :right="$vuetify.rtl"
-    class="HamburgerMenuSecondLevelParent border-box-sizing z-index-drawer"
+    class="HamburgerMenuSecondLevelParent layout-side-bar border-box-sizing z-index-drawer"
     max-width="100%"
     hide-overlay>
     <v-hover v-if="drawer" v-model="$root.hoverSecondLevel">
