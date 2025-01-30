@@ -38,6 +38,7 @@
     </template>
     <v-list
       v-if="space && menu"
+      class="layout-side-bar"
       max-width="auto"
       min-width="auto"
       width="auto">
@@ -53,7 +54,7 @@
         <v-list-item-icon class="my-auto me-2 ms-0">
           <v-icon size="18">{{ extension.icon }}</v-icon>
         </v-list-item-icon>
-        <v-list-item-content class="ms-0 my-auto">
+        <v-list-item-content class="ms-0 text-body my-auto">
           <v-list-item-title>
             {{ $t(extension.titleKey) }}
           </v-list-item-title>
