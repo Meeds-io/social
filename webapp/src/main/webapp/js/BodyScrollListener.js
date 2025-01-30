@@ -32,11 +32,15 @@ function() {
   }
 
   function controlBodyScrollClass() {
-    const siteBody = document.querySelector(getScrollableSelector()) || document.querySelector('#UIPageBody');
+    const siteBody = document.querySelector('.site-scroll-parent')
+      || document.querySelector(getScrollableSelector())
+      || document.querySelector('#UIPageBody');
     if(siteBody.scrollTop) {
       siteBody.classList.add('site-scroll-top');
+      document.body.classList.add('scroll-top');
     } else {
       siteBody.classList.remove('site-scroll-top');
+      document.body.classList.remove('scroll-top');
     }
   }
 
