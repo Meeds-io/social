@@ -93,11 +93,13 @@ public class NavigationConfigurationPageDisplayListener
                         .filter(item -> item.getType() == SidebarItemType.PAGE)
                         .map(item -> {
                           String nodeId = item.getProperties().get(NODE_ID_PROP_NAME);
-                          NodeData node = navigationService.getNodeById(Long.parseLong(nodeId));
-                          if (node.getState().getPageRef() != null) {
-                            Page page = layoutService.getPage(node.getState().getPageRef());
-                            if (PageType.PAGE.name().equals(page.getType())) {
-                              return page;
+                          if (nodeId != null) {
+                            NodeData node = navigationService.getNodeById(Long.parseLong(nodeId));
+                            if (node != null && node.getState().getPageRef() != null) {
+                              Page page = layoutService.getPage(node.getState().getPageRef());
+                              if (PageType.PAGE.name().equals(page.getType())) {
+                                return page;
+                              }
                             }
                           }
                           return null;

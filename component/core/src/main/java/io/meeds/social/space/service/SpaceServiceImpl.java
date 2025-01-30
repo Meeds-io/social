@@ -1025,6 +1025,7 @@ public class SpaceServiceImpl implements SpaceService {
       } else {
         return isSuperManager(username)
                || (CollectionUtils.isNotEmpty(spaceTemplate.getAdminPermissions())
+                   && userIdentity != null
                    && spaceTemplate.getAdminPermissions()
                                    .stream()
                                    .anyMatch(permission -> userIdentity.isMemberOf(getMembershipEntry(permission))));
