@@ -20,7 +20,7 @@
     <v-card
       v-if="site"
       flat
-      class="full-height">
+      class="full-height transparent">
       <row
         v-if="!$root.displaySequentially && !displaySequentially"
         class="px-4 pt-3 position-absolute z-index-one">

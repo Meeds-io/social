@@ -22,17 +22,17 @@
 <template>
   <v-hover v-model="hover">
     <v-card
-      class="d-flex flex-column overflow-hidden"
+      class="d-flex flex-column overflow-hidden transparent"
       min-height="100%"
       height="fit-content"
       max-height="100%"
       flat>
-      <v-list class="list-border-active d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
-        <sidebar-list-header class="flex-grow-0 flex-shrink-0" />
+      <v-list class="list-border-active transparent d-flex flex-column overflow-hidden py-0 flex-grow-1 flex-shrink-1">
+        <sidebar-list-header class="flex-grow-0 flex-shrink-0 transparent" />
         <sidebar-list-content
           :class="overflowClass"
-          class="flex-grow-1 flex-shrink-1 overflow-x-hidden specific-scrollbar" />
-        <sidebar-list-footer class="flex-grow-0 flex-shrink-0" />
+          class="flex-grow-1 flex-shrink-1 overflow-x-hidden specific-scrollbar transparent" />
+        <sidebar-list-footer class="flex-grow-0 flex-shrink-0 transparent" />
       </v-list>
       <sidebar-home-dialog />
     </v-card>

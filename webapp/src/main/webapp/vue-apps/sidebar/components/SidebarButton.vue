@@ -22,8 +22,8 @@
   <v-btn
     v-if="!$root.sticky"
     :title="$t('menu.spaces.openSidebarTooltip')"
-    class="HamburgerNavigationMenuLink border-box-sizing"
-    height="56"
+    class="HamburgerNavigationMenuLink border-box-sizing rounded-0 layout-top-bar"
+    height="54"
     width="69"
     text
     @click="$emit('open-drawer', $event)">
