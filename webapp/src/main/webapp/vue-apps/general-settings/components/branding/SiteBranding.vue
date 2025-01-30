@@ -440,8 +440,8 @@ export default {
           url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
         }
         properties['--allPagesTopBarBackgroundImage'] = url;
-      } else if (this.topBarStylingProperties.topBarBackground?.fileId && this.topBarStylingProperties?.topBarBackgroundImage) {
-        properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v="), ${this.topBarStylingProperties?.topBarBackgroundImage}`;
+      } else if (this.topBarStylingProperties.topBarBackground?.fileId) {
+        properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v=") ${', ' && this.topBarStylingProperties?.topBarBackgroundImage || ''}`;
       } else if (this.topBarStylingProperties?.topBarBackgroundImage) {
         properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
       } else {
@@ -477,8 +477,8 @@ export default {
           url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
         }
         properties['--allPagesSideBarBackgroundImage'] = url;
-      } else if (this.sideBarStylingProperties.sideBarBackground?.fileId && this.sideBarStylingProperties?.sideBarBackgroundImage) {
-        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v="), ${this.sideBarStylingProperties?.sideBarBackgroundImage}`;
+      } else if (this.sideBarStylingProperties.sideBarBackground?.fileId) {
+        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v=") ${', ' && this.sideBarStylingProperties?.backgroundImage || ';'}`;
       } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
         properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
       } else {

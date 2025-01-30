@@ -34,6 +34,7 @@
       <v-menu
         v-model="showMenu"
         rounded
+        :content-class="isTopBarElement && 'layout-top-bar' || ''"
         :position-x="positionX"
         :position-y="positionY"
         transition="slide-x-reverse-transition"
@@ -69,6 +70,7 @@
         </template>
         <navigation-menu-sub-item
           v-for="children in navigation.children"
+          class="transparent"
           :key="children.id"
           :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
@@ -131,6 +133,9 @@ export default {
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   watch: {
     isSelected: {
