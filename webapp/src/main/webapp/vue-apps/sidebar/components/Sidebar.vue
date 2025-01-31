@@ -57,8 +57,7 @@
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
         <v-overlay
-          v-show="secondLevelDrawer || thirdLevelDrawer"
-          id="drawers-overlay"
+          v-if="showInnerOverlay"
           absolute />
       </template>
       <template v-else>
@@ -135,6 +134,9 @@ export default {
     },
     mode() {
       return this.$root.mode;
+    },
+    showInnerOverlay() {
+      return this.$root.sticky && (this.secondLevelDrawer || this.thirdLevelDrawer);
     },
   },
   watch: {
