@@ -25,21 +25,17 @@
 <%@page import="java.util.Arrays"%>
 <%@page import="org.exoplatform.portal.config.model.PortalConfig"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@page import="org.exoplatform.portal.mop.service.LayoutService"%>
 <%
   UserACL userAcl = ExoContainerContext.getService(UserACL.class);
-  LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
   PortalConfig portalConfig = PortalRequestContext.getCurrentInstance().getPortalConfig();
   if (userAcl.hasEditPermission(portalConfig, ConversationState.getCurrent().getIdentity())) {
-    boolean publisSiteAccessible = portalConfig != null && Arrays.asList(portalConfig.getAccessPermissions()).contains("Everyone");
-    long siteId = portalConfig == null ? 0 : portalConfig.getId();
 %>
 <div class="VuetifyApp">
   <div
    class="v-application border-box-sizing theme--light"
    id="topBarPublishSite">
    <script type="text/javascript">
-     require(['PORTLET/social/TopBarPublishSite'], app => app.init(<%=publisSiteAccessible%>, <%=siteId%>));
+     require(['PORTLET/social/TopBarPreview'], app => app.init());
    </script>
   </div>
 </div>
