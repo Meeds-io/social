@@ -19,6 +19,7 @@
     id="verticalMenuSiteDetails"
     :loading="loading"
     :class="extraClass"
+    color="transparent"
     min-height="100%"
     flat>
     <site-details
@@ -34,7 +35,7 @@ export default {
   props: {
     extraClass: {
       type: String,
-      default: ' '
+      default: null
     }
   },
   data: () => ({
