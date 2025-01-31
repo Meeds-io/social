@@ -139,6 +139,7 @@ if (!window.drawersOverlayInitialized) {
 }
 
 export function init(i18n) {
+  const parentElement = document.querySelector('#drawers-overlay');
   if (!document.querySelector('#drawers-overlay')) {
     return;
   }
@@ -147,7 +148,8 @@ export function init(i18n) {
       template: '<drawers-overlay id="drawers-overlay" />',
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
-    }).$mount('#drawers-overlay');
+    }).$mount(parentElement);
+    parentElement.id = null;
     let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#body-end-container');
     let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
     if (!alertNotificationsElement) {

@@ -16,22 +16,18 @@
 -->
 <template>
   <v-app>
-    <vertical-menu-content v-if="fullDisplayAllowed" :extra-class="extraClass" />
-    <template v-else>
-      <vertical-menu-button />
-      <vertical-menu-drawer />
-    </template>
+    <v-main class="application-body">
+      <v-card
+        min-height="var(--100vh, 100vh)"
+        color="transparent"
+        flat>
+        <vertical-menu-content :extra-class="extraClass" />
+        <template v-if="$root.isMobile">
+          <vertical-menu-button />
+          <vertical-menu-drawer />
+        </template>
+      </v-card>
+    </v-main>
   </v-app>
 </template>
-<script>
-export default {
-  computed: {
-    fullDisplayAllowed() {
-      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
-    },
-    extraClass() {
-      return eXo.env.portal.orientation === 'rtl' ? 'VerticalMenu right-0' : 'VerticalMenu';
-    },
-  }
-};
-</script>
+<script></script>
