@@ -59,6 +59,8 @@ public class SiteEntity {
 
   private boolean                  canEdit;
 
+  private boolean                  canRestore;
+
   private long                     bannerFileId;
 
   private String                   bannerUrl;
