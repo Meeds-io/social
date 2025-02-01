@@ -2255,6 +2255,9 @@ public class EntityBuilder {
     String siteDescription = StringUtils.isBlank(translateSiteDescription) ? getSiteDescription(siteKey, userPortal) :
                                                                            translateSiteDescription;
 
+    boolean canRestore = StringUtils.contains(request.getParameter("expand"), "canRestore")
+                         && getUserPortalConfigService().canRestore(site.getType(), site.getName());
+    boolean canEdit = getUserACL().hasEditPermission(site, ConversationState.getCurrent().getIdentity());
     return new SiteEntity(siteId,
                           siteType,
                           siteName,
@@ -2268,7 +2271,8 @@ public class EntityBuilder {
                           site.getDisplayOrder(),
                           isMetaSite(siteName),
                           siteNavigations,
-                          getUserACL().hasEditPermission(site, ConversationState.getCurrent().getIdentity()),
+                          canEdit,
+                          canRestore,
                           site.getBannerFileId(),
                           LinkProvider.buildSiteBannerUrl(siteName, site.getBannerFileId()),
                           site.getProperties());
