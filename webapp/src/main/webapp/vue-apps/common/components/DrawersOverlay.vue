@@ -4,6 +4,7 @@
       <v-overlay
         v-show="overlay"
         id="drawers-overlay"
+        z-index="1030"
         absolute />
     </v-fade-transition>
   </v-app>
@@ -60,10 +61,6 @@ export default {
           }
         }, 200);
       }
-      const searchDialog = document.querySelector('#searchDialog');
-      if (searchDialog) {
-        searchDialog.style.zIndex = 'revert';
-      }
     },
     forceHideOverlay() {
       this.openedDrawers = 1;
@@ -75,10 +72,6 @@ export default {
           this.openedDrawers -= 1;
           if (this.openedDrawers === 0) {
             this.uiPortalApplicationElement.classList.remove('decrease-z-index');
-          }
-          const searchDialog = document.querySelector('#searchDialog');
-          if (searchDialog) {
-            searchDialog.style.zIndex = '';
           }
         }, 10);
       }
