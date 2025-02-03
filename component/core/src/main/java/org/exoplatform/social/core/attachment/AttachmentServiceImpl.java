@@ -109,6 +109,10 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                          Identity userAclIdentity) throws ObjectNotFoundException,
                                                                                    IllegalAccessException {
     checkEditPermissions(attachmentList, userAclIdentity);
+    if (!this.attachmentPlugins.get(attachmentList.getObjectType()).canUpdateAttachmentList()) {
+      throw new IllegalStateException("Updating the attachment list is not allowed for object type: "
+          + attachmentList.getObjectType());
+    }
     return saveAttachments(attachmentList);
   }
 
@@ -154,6 +158,7 @@ public class AttachmentServiceImpl implements AttachmentService {
     broadcastAttachmentsChange(ATTACHMENTS_UPDATED_EVENT, objectType, objectId, username);
     return report;
   }
+
 
   @Override
   public void saveAttachment(UploadedAttachmentDetail uploadedAttachmentDetail,
@@ -203,6 +208,41 @@ public class AttachmentServiceImpl implements AttachmentService {
   }
 
   @Override
+  public ObjectAttachmentDetail createAttachment(String objectType,
+                                                 String objectId,
+                                                 FileAttachmentObject attachmentObject,
+                                                 Identity userAclIdentity) throws ObjectNotFoundException,
+                                                                           IllegalAccessException {
+    checkAccessPermission(objectType, objectId, userAclIdentity);
+    String uploadId = attachmentObject.getUploadId();
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    if (uploadResource != null) {
+      String fileId = null;
+      Map<String, String> properties = new HashMap<>();
+      properties.put(ATTACHMENT_ALT_TEXT, attachmentObject.getAltText());
+      properties.put(ATTACHMENT_FORMAT, attachmentObject.getFormat());
+      String fileDiskLocation = uploadResource.getStoreLocation();
+      try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
+        long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId()).getId());
+        fileId = attachmentStorage.uploadAttachment(null,
+                                                    objectType,
+                                                    objectId,
+                                                    uploadResource.getFileName(),
+                                                    uploadResource.getMimeType(),
+                                                    inputStream,
+                                                    userIdentityId);
+        createAttachment(fileId, objectType, objectId, null, userIdentityId, properties);
+      } catch (Exception e) {
+        LOG.error("Error creating attachment of objectType: {} and objectId: {}", objectType, objectId, e);
+      } finally {
+        uploadService.removeUploadResource(uploadId);
+      }
+      return getAttachment(objectType, objectId, fileId);
+    }
+    return null;
+  }
+
+  @Override
   public void deleteAttachments(String objectType, String objectId) {
     List<String> fileIds = getAttachmentFileIds(objectType, objectId);
     fileIds.forEach(fileId -> deleteAttachment(objectType, objectId, fileId));
@@ -220,8 +260,17 @@ public class AttachmentServiceImpl implements AttachmentService {
   public ObjectAttachmentList getAttachments(String objectType,
                                              String objectId,
                                              Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException {
+    return getAttachments(objectType, objectId, userAclIdentity, 0, 0);
+  }
+  
+  @Override
+  public ObjectAttachmentList getAttachments(String objectType,
+                                             String objectId,
+                                             Identity userAclIdentity,
+                                             int offset,
+                                             int limit) throws ObjectNotFoundException, IllegalAccessException {
     checkAccessPermission(objectType, objectId, userAclIdentity);
-    return getAttachments(objectType, objectId);
+    return getAttachments(objectType, objectId, offset, limit);
   }
 
   @Override
@@ -234,41 +283,14 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @Override
   public List<String> getAttachmentFileIds(String objectType, String objectId) {
-    return metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE.getName(), objectType, objectId)
-                          .stream()
-                          .toList();
+    return getAttachmentFileIds(objectType, objectId, 0, 0);
   }
 
   @Override
   public ObjectAttachmentList getAttachments(String objectType, String objectId) {
-    List<String> fileIds = getAttachmentFileIds(objectType, objectId);
-    List<ObjectAttachmentDetail> attachments =
-                                             fileIds.stream()
-                                                    .map(fileId -> attachmentStorage.getAttachment(new ObjectAttachmentId(fileId,
-                                                                                                                          objectType,
-                                                                                                                          objectId)))
-                                                    .filter(Objects::nonNull)
-                                                    .toList();
-    if (CollectionUtils.isNotEmpty(attachments)) {
-      attachments.forEach(attachment -> {
-        List<MetadataItem> attachmentItem =
-                                          metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
-                                                                                                         AttachmentService.METADATA_TYPE.getName(),
-                                                                                                         objectType,
-                                                                                                         objectId,
-                                                                                                         0,
-                                                                                                         0);
-        if (CollectionUtils.isNotEmpty(attachmentItem) && attachmentItem.get(0).getProperties() != null
-            && attachmentItem.get(0).getProperties().containsKey(ATTACHMENT_ALT_TEXT)) {
-          Map<String, String> metadataItemProperties = attachmentItem.get(0).getProperties();
-          attachment.setAltText(metadataItemProperties.get(ATTACHMENT_ALT_TEXT));
-          attachment.setFormat(metadataItemProperties.get(ATTACHMENT_FORMAT));
-        }
-      });
-    }
-    return new ObjectAttachmentList(attachments, objectType, objectId);
+   return getAttachments(objectType, objectId, 0, 0);
   }
-
+  
   @Override
   public ObjectAttachmentDetail getAttachment(String objectType,
                                               String objectId,
@@ -282,7 +304,11 @@ public class AttachmentServiceImpl implements AttachmentService {
   public ObjectAttachmentDetail getAttachment(String objectType, String objectId, String fileId) {
     List<String> fileIds = getAttachmentFileIds(objectType, objectId);
     if (fileIds.contains(fileId)) {
-      return attachmentStorage.getAttachment(new ObjectAttachmentId(fileId, objectType, objectId));
+      ObjectAttachmentDetail attachmentDetail = attachmentStorage.getAttachment(new ObjectAttachmentId(fileId,
+                                                                                                       objectType,
+                                                                                                       objectId));
+      enrichAttachmentWithMetadata(attachmentDetail, objectType, objectId);
+      return attachmentDetail;
     } else {
       return null;
     }
@@ -620,4 +646,50 @@ public class AttachmentServiceImpl implements AttachmentService {
     return userAclIdentity == null || IdentityConstants.ANONIM.equals(userAclIdentity.getUserId());
   }
 
+  private List<String> getAttachmentFileIds(String objectType, String objectId, int offset, int limit) {
+    return metadataService.getMetadataNamesByMetadataTypeAndObject(METADATA_TYPE.getName(), objectType, objectId, offset, limit)
+            .stream()
+            .toList();
+  }
+
+  private ObjectAttachmentList getAttachments(String objectType, String objectId, int offset, int limit) {
+    List<String> fileIds = getAttachmentFileIds(objectType, objectId, offset, limit);
+    if (fileIds.isEmpty()) {
+      return new ObjectAttachmentList(Collections.emptyList(), objectType, objectId);
+    }
+
+    List<ObjectAttachmentDetail> attachments =
+                                             fileIds.stream()
+                                                    .map(fileId -> attachmentStorage.getAttachment(new ObjectAttachmentId(fileId,
+                                                                                                                          objectType,
+                                                                                                                          objectId)))
+                                                    .filter(Objects::nonNull)
+                                                    .toList();
+
+    if (attachments.isEmpty()) {
+      return new ObjectAttachmentList(Collections.emptyList(), objectType, objectId);
+    }
+    attachments.forEach(attachment -> enrichAttachmentWithMetadata(attachment, objectType, objectId));
+    return new ObjectAttachmentList(attachments, objectType, objectId);
+  }
+
+  private void enrichAttachmentWithMetadata(ObjectAttachmentDetail attachment, String objectType, String objectId) {
+    List<MetadataItem> attachmentItems =
+                                       metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
+                                                                                                      AttachmentService.METADATA_TYPE.getName(),
+                                                                                                      objectType,
+                                                                                                      objectId,
+                                                                                                      0,
+                                                                                                      0);
+
+    if (CollectionUtils.isNotEmpty(attachmentItems)) {
+      MetadataItem metadataItem = attachmentItems.getFirst();
+      Map<String, String> properties = metadataItem.getProperties();
+
+      if (properties != null && properties.containsKey(ATTACHMENT_ALT_TEXT)) {
+        attachment.setAltText(properties.get(ATTACHMENT_ALT_TEXT));
+        attachment.setFormat(properties.get(ATTACHMENT_FORMAT));
+      }
+    }
+  }
 }

@@ -348,7 +348,9 @@ public class MetadataStorage {
     MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType.getId(),
                                                                                                             object.getType(),
-                                                                                                            object.getId());
+                                                                                                            object.getId(),
+                                                                                                            0,
+                                                                                                            0);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
@@ -400,7 +402,24 @@ public class MetadataStorage {
   public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(long metadataType, MetadataObject object) {
     List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType,
                                                                                                             object.getType(),
-                                                                                                            object.getId());
+                                                                                                            object.getId(),
+                                                                                                            0,
+                                                                                                            0);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObject(long metadataType,
+                                                                    MetadataObject object,
+                                                                    int offset,
+                                                                    int limit) {
+    List<MetadataItemEntity> metadataItemEntities = metadataItemDAO.getMetadataItemsByMetadataTypeAndObject(metadataType,
+                                                                                                            object.getType(),
+                                                                                                            object.getId(),
+                                                                                                            offset,
+                                                                                                            limit);
     if (CollectionUtils.isEmpty(metadataItemEntities)) {
       return Collections.emptyList();
     }
