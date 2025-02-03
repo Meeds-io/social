@@ -44,6 +44,7 @@
     <v-tabs
       v-else
       v-model="tab"
+      background-color="transparent"
       color="none"
       show-arrows
       center-active
