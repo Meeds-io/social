@@ -105,7 +105,8 @@ export default {
   },
   methods: {
     quickSearch() {
-      this.$emit('quick-search', this.property);
+      const property = { ...this.property, value: this.property.dropDownList ?? this.propertyDisplayValue };
+      this.$emit('quick-search', property);
     }
   }
 };
