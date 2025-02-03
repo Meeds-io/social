@@ -4,7 +4,11 @@
     :right="rightDrawer"
     :left="leftDrawer"
     :bottom="bottomDrawer"
-    :class="[!drawer && 'd-none d-sm-flex', bottom && 'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5']"
+    :class="{
+      'd-none d-sm-flex': !drawer,
+      'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5': bottom,
+      'layout-drawer': isBrandingLayout
+    }"
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
@@ -177,6 +181,10 @@ export default {
     permanent: {
       type: Boolean,
       default: false,
+    },
+    isBrandingLayout: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => ({
