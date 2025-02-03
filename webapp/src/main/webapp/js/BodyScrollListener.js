@@ -13,7 +13,9 @@ function() {
 
   function installScrollControlListener() {
     computeViewPort();
-    const siteBody = document.querySelector(getScrollableSelector()) || document.querySelector('#UIPageBody');
+    const siteBody = document.querySelector(getScrollableSelector())
+      || document.querySelector('#UIPageBody')
+      || document.querySelector('#UISiteBody');
     if (!siteBody) {
       return;
     }
@@ -31,18 +33,19 @@ function() {
   function controlBodyScrollClass() {
     const siteBody = document.querySelector('.site-scroll-parent')
       || document.querySelector(getScrollableSelector())
-      || document.querySelector('#UIPageBody');
-    if(siteBody.scrollTop) {
-      if (!siteBody.classList?.contains?.('site-scroll-top')) {
-        siteBody.classList.add('site-scroll-top');
-      }
+      || document.querySelector('#UIPageBody')
+      || document.querySelector('#UISiteBody');
+    if (siteBody.scrollTop) {
+      // Add 'scroll-top' if not exists only for performances optimization
       if (!document.body.classList?.contains?.('scroll-top')) {
         document.body.classList.add('scroll-top');
         siteBody.style.maxHeight = `calc(var(--100vh, 100vh) - ${siteBody.getBoundingClientRect().y}px)`;
       }
     } else {
-      siteBody.classList.remove('site-scroll-top');
-      document.body.classList.remove('scroll-top');
+      // Remove 'scroll-top' if exists only for performances optimization
+      if (document.body.classList?.contains?.('scroll-top')) {
+        document.body.classList.remove('scroll-top');
+      }
     }
   }
 
