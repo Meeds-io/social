@@ -3058,4 +3058,28 @@
     </depends>
   </module>
 
+  <module>
+    <name>coediting</name>
+    <load-group>coeditingGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/coediting.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
 </gatein-resources>
