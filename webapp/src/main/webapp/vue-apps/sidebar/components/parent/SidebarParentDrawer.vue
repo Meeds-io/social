@@ -26,6 +26,7 @@
     :style="drawerStyle"
     :permanent="permanent"
     :show-overlay="showOverlay"
+    :is-branding-layout="false"
     no-external-overlay
     attached
     left>
