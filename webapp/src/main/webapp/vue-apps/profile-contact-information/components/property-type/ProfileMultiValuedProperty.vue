@@ -131,7 +131,11 @@ export default {
   },
   methods: {
     quickSearch(childProperty) {
-      this.$emit('quick-search', this.property, childProperty);
+      const child = {
+        ...childProperty,
+        value: this.property.dropDownList ?? this.getPropertyDisplayValue(childProperty)
+      };
+      this.$emit('quick-search', this.property, child);
     },
     getResolvedName(property) {
       return property.labels?.find(label => label.language === this.lang)?.label
