@@ -114,13 +114,35 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
-  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType, String objectType, String objectId) {
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType,
+                                                                          String objectType,
+                                                                          String objectId) {
     TypedQuery<MetadataItemEntity> query =
                                          getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObject",
                                                                              MetadataItemEntity.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
+    return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObject(long metadataType,
+                                                                          String objectType,
+                                                                          String objectId,
+                                                                          int offset,
+                                                                          int limit) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(OBJECT_ID, objectId);
+    if (offset > 0) {
+      query.setFirstResult(offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
     return query.getResultList();
   }
 

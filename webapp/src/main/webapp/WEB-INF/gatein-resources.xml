@@ -2081,6 +2081,9 @@
         <module>applicationToolbarComponent</module>
       </depends>
       <depends>
+        <module>attachImage</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
