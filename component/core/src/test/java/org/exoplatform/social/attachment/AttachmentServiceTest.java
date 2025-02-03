@@ -66,6 +66,8 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
   private static final String   OBJECT_TYPE          = "objectType";
 
+  private static final String   PUBLIC_OBJECT_TYPE   = "public";
+
   private static final String   DEST_OBJECT_TYPE     = "destinationObjectType";
 
   private static final Random   RANDOM               = new Random();
@@ -113,35 +115,11 @@ public class AttachmentServiceTest extends AbstractCoreTest {
       listenerService.addListener(ATTACHMENTS_UPDATED_EVENT, listener);
       listenerService.addListener(ATTACHMENTS_DELETED_EVENT, listener);
 
-      AttachmentPlugin attachmentPlugin = new AttachmentPlugin() {
+      AttachmentPlugin attachmentPlugin = createAttachmentPlugin(OBJECT_TYPE,true);
+      AttachmentPlugin publicAttachmentPlugin = createAttachmentPlugin(PUBLIC_OBJECT_TYPE, false);
 
-        @Override
-        public boolean hasEditPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException {
-          return hasEditPermission.get();
-        }
-
-        @Override
-        public boolean hasAccessPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException {
-          return hasViewPermission.get();
-        }
-
-        @Override
-        public long getSpaceId(String objectId) throws ObjectNotFoundException {
-          return attachmentSpaceId;
-        }
-
-        @Override
-        public String getObjectType() {
-          return OBJECT_TYPE;
-        }
-
-        @Override
-        public long getAudienceId(String objectId) throws ObjectNotFoundException {
-          return attachmentAudienceId;
-        }
-
-      };
       attachmentService.addPlugin(attachmentPlugin);
+      attachmentService.addPlugin(publicAttachmentPlugin);
     } else {
       eventCounts.clear();
     }
@@ -181,6 +159,10 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     hasEditPermission.set(true);
     hasViewPermission.set(false);
 
+    attachmentList.setObjectType(PUBLIC_OBJECT_TYPE);
+    assertThrows(IllegalStateException.class, () -> attachmentService.saveAttachments(attachmentList, userAcl));
+
+    attachmentList.setObjectType(OBJECT_TYPE);
     assertListenerCount(1l, 0l, 1l, 0l);
 
     ObjectAttachmentOperationReport report = attachmentService.saveAttachments(attachmentList, userAcl);
@@ -219,7 +201,7 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(2, attachments.size());
     attachmentDetail = attachments.get(0);
     assertNotNull(attachmentDetail);
-    assertEquals(fileId, attachments.get(0).getId());
+    assertEquals(fileId, attachments.getLast().getId());
     assertEquals(FILE_NAME, attachmentDetail.getName());
     assertEquals(MIME_TYPE, attachmentDetail.getMimetype());
     assertNotNull(attachmentDetail.getId());
@@ -266,15 +248,15 @@ public class AttachmentServiceTest extends AbstractCoreTest {
 
     String fileId = createAttachment(USERNAME);
 
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(null, objectId, userAcl));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, null, userAcl));
-    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, objectId, null));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(null, objectId, userAcl, 0, 0));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, null, userAcl, 0, 0));
+    assertThrows(IllegalArgumentException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, objectId, null, 0, 0));
     hasEditPermission.set(true);
-    assertThrows(IllegalAccessException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, objectId, userAcl));
+    assertThrows(IllegalAccessException.class, () -> attachmentService.getAttachments(OBJECT_TYPE, objectId, userAcl, 0, 0));
     hasEditPermission.set(false);
     hasViewPermission.set(true);
 
-    ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId, userAcl);
+    ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId, userAcl, 0, 10);
     assertNotNull(objectAttachmentList);
 
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
@@ -414,4 +396,82 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     assertEquals(0, sourceObjectAttachmentList.getAttachments().size());
   }
 
+  public void testCreateAttachment() throws Exception {
+    Identity userAcl = startSessionAndRegisterAs(USERNAME);
+
+    // Create a FileAttachmentObject
+    FileAttachmentObject fileAttachmentObject = new FileAttachmentObject();
+    fileAttachmentObject.setUploadId(UPLOAD_ID);
+    fileAttachmentObject.setAltText(ALT_TEXT);
+    fileAttachmentObject.setFormat(FORMAT);
+
+    // Test the case when the object type or object ID is null
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.createAttachment(null, objectId, fileAttachmentObject, userAcl));
+    assertThrows(IllegalArgumentException.class,
+                 () -> attachmentService.createAttachment(PUBLIC_OBJECT_TYPE, null, fileAttachmentObject, userAcl));
+    assertThrows(IllegalAccessException.class, () -> attachmentService.createAttachment(PUBLIC_OBJECT_TYPE, objectId, null, userAcl));
+
+    // Test for insufficient permissions
+    hasEditPermission.set(false);
+    assertThrows(IllegalAccessException.class,
+                 () -> attachmentService.createAttachment(PUBLIC_OBJECT_TYPE, objectId, fileAttachmentObject, userAcl));
+
+    // Test for valid permissions
+    hasEditPermission.set(true);
+    hasViewPermission.set(true);
+    uploadResource();
+    ObjectAttachmentDetail createdAttachment = attachmentService.createAttachment(PUBLIC_OBJECT_TYPE,
+                                                                                  objectId,
+                                                                                  fileAttachmentObject,
+                                                                                  userAcl);
+
+    // Validate that the attachment was created
+    assertNotNull(createdAttachment);
+    assertEquals(ALT_TEXT, createdAttachment.getAltText());
+    assertEquals(FORMAT, createdAttachment.getFormat());
+
+    // Validate that the attachment is now part of the object
+    ObjectAttachmentList objectAttachmentList = attachmentService.getAttachments(PUBLIC_OBJECT_TYPE, objectId);
+    assertNotNull(objectAttachmentList);
+    assertEquals(1, objectAttachmentList.getAttachments().size());
+    ObjectAttachmentDetail attachmentDetail = objectAttachmentList.getAttachments().getFirst();
+    assertEquals(createdAttachment.getId(), attachmentDetail.getId());
+    assertEquals(ALT_TEXT, attachmentDetail.getAltText());
+    assertEquals(FORMAT, attachmentDetail.getFormat());
+  }
+  
+  private AttachmentPlugin createAttachmentPlugin(String objectType, boolean canUpdateList) {
+    return new AttachmentPlugin() {
+      @Override
+      public boolean hasEditPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException {
+        return hasEditPermission.get();
+      }
+
+      @Override
+      public boolean hasAccessPermission(Identity userIdentity, String entityId) throws ObjectNotFoundException {
+        return hasViewPermission.get();
+      }
+
+      @Override
+      public long getSpaceId(String objectId) throws ObjectNotFoundException {
+        return attachmentSpaceId;
+      }
+
+      @Override
+      public String getObjectType() {
+        return objectType;
+      }
+
+      @Override
+      public long getAudienceId(String objectId) throws ObjectNotFoundException {
+        return attachmentAudienceId;
+      }
+
+      @Override
+      public boolean  canUpdateAttachmentList() {
+        return canUpdateList;
+      }
+    };
+  }
 }

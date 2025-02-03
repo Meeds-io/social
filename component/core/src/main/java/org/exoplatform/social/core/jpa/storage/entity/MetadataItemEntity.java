@@ -67,6 +67,15 @@ import jakarta.persistence.Table;
         + " ORDER BY mi.id ASC"
 )
 @NamedQuery(
+    name = "SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
+    query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.objectId = :objectId"
+        + " ORDER BY COALESCE(mi.updatedDate, mi.createdDate) DESC,"
+        + " mi.createdDate DESC, mi.id DESC"
+)
+@NamedQuery(
     name = "SocMetadataItemEntity.getMetadataObjectIds",
     query = "SELECT mi.objectId, mi.createdDate, mi.id FROM SocMetadataItemEntity mi WHERE "
         + " mi.metadata.type = :metadataType AND"

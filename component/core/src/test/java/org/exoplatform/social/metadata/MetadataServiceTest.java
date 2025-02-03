@@ -735,12 +735,16 @@ public class MetadataServiceTest extends AbstractCoreTest {
     String parentObjectId = "parentObjectIdTest";
     String objectType = "objectTypeTest";
     String name = "testMetadataJohn";
+    String name1 = "testMetadataJohn1";
     String type = userMetadataType.getName();
     MetadataKey metadataKey = new MetadataKey(type, name, audienceId);
+    MetadataKey metadataKey1 = new MetadataKey(type, name1, audienceId);
     MetadataObject metadataObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
+    MetadataObject metadataObject1 = newMetadataObjectInstance(objectType, objectId, parentObjectId);
 
     try {
       metadataService.createMetadataItem(metadataObject, metadataKey, creatorId);
+      metadataService.createMetadataItem(metadataObject1, metadataKey1, creatorId);
     } catch (ObjectAlreadyExistsException e) {
       // Expected
     }
@@ -748,6 +752,10 @@ public class MetadataServiceTest extends AbstractCoreTest {
                                                                                          objectType,
                                                                                          objectId);
     assertNotNull(metadataNames);
+    assertEquals(2, metadataNames.size());
+
+    metadataNames =
+                  metadataService.getMetadataNamesByMetadataTypeAndObject(userMetadataType.getName(), objectType, objectId, 0, 1);
     assertEquals(1, metadataNames.size());
   }
 
