@@ -24,6 +24,7 @@
     ref="drawer"
     :drawer-width="width"
     :style="drawerStyle"
+    :is-branding-layout="false"
     :permanent="$root.icon"
     attached
     left>
