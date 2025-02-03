@@ -20,6 +20,7 @@ let config = {
   entry: {
     animationComponents: './src/main/webapp/vue-apps/animations/main.js',
     applicationToolbarComponent: './src/main/webapp/vue-apps/application-toolbar/main.js',
+    coediting: './src/main/webapp/vue-apps/coediting/main.js',
     commonVueComponents: './src/main/webapp/vue-apps/common/main.js',
     categoryManagement: './src/main/webapp/vue-apps/category-management/main.js',
     categoryVueComponents: './src/main/webapp/vue-apps/category-components/main.js',
