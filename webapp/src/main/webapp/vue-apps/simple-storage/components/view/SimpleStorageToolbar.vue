@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
+
 <template>
   <application-toolbar
     :right-text-filter="{
@@ -29,9 +30,9 @@
     @filter-text-input-end-typing="$emit('filter-changed-end-typing', $event)">
     <template #left>
       <v-btn
-        id="applicationToolbarLeftButton"
         :aria-label="$t('simpleStorage.addImage.label')"
-        class="btn btn-primary text-truncate">
+        class="btn btn-primary text-truncate"
+        @click="openFileExplorer">
         <v-icon
           size="18">
           fa-plus
@@ -40,11 +41,19 @@
           {{ $t('simpleStorage.addImage.label') }}
         </span>
       </v-btn>
+      <simple-storage-image-input-file
+        ref="inputFile"
+        @update-images="$emit('images-uploaded', $event)" />
     </template>
   </application-toolbar>
 </template>
 
 <script>
 export default {
+  methods: {
+    openFileExplorer() {
+      this.$refs.inputFile.openFileExplorer();
+    }
+  }
 };
 </script>

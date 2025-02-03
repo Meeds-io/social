@@ -34,8 +34,9 @@ export function saveAttachments(attachmentResource) {
   });
 }
 
-export function getAttachments(objectType, objectId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}`, {
+export function getAttachments(objectType, objectId, offset, limit) {
+  const params = new URLSearchParams({ offset, limit }).toString();
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}?${params}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {
@@ -43,6 +44,23 @@ export function getAttachments(objectType, objectId) {
       return resp.json();
     } else {
       throw new Error(`Error retrieving attachments from server, response code = ${resp.status}`);
+    }
+  });
+}
+
+export function createAttachment(attachmentResource) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments`, {
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    method: 'POST',
+    credentials: 'include',
+    body: JSON.stringify(attachmentResource)
+  }).then(resp => {
+    if (resp?.ok) {
+      return resp.json();
+    } else {
+      throw new Error('Error saving attachment');
     }
   });
 }

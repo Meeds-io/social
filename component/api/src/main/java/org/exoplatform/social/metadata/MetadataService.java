@@ -349,6 +349,21 @@ public interface MetadataService {
   List<String> getMetadataNamesByMetadataTypeAndObject(String metadataTypeName, String objectType, String objectId);
 
   /**
+   * Retrieves list of metadata names associated with a specific metadata type,
+   * object type, and object ID.
+   *
+   * @param  metadataTypeName The name of the metadata type used to filter the results.
+   * @param  objectType The type of the object that the metadata is associated with.
+   * @param  objectId The unique identifier of the object to filter the metadata by.
+   * @param  offset The number of records to skip before starting to return results (used for pagination).
+   * @param  limit The maximum number of results to return (used for pagination).
+   * @return A {@link List} of {@link String} containing the metadata names associated with the specified
+   *         metadata type, object type, and object ID, sorted in descending order by the metadata ID.
+   */
+  List<String> getMetadataNamesByMetadataTypeAndObject(String metadataTypeName, String objectType, String objectId, int offset, int limit);
+
+
+  /**
    * Retrieves the list of Metadata attached to an object identified by its name
    * and identifier
    * 

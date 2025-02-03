@@ -28,11 +28,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
-import org.exoplatform.social.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
-import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
+import org.exoplatform.social.attachment.model.*;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.model.MetadataType;
 
@@ -93,6 +89,21 @@ public interface AttachmentService {
                       long userIdentityId) throws IOException, ObjectAlreadyExistsException, ObjectNotFoundException;
 
   /**
+   * Creates an attachment associated with a specific object.
+   *
+   * @param objectType The type of the object to which the attachment belongs.
+   * @param objectId The unique identifier of the object.
+   * @param attachmentObject The attachment details, including metadata and file
+   *          information.
+   * @param userAclIdentity The identity acl of the user creating the attachment.
+   * @return {@link ObjectAttachmentDetail}
+   */
+  ObjectAttachmentDetail createAttachment(String objectType,
+                        String objectId,
+                        FileAttachmentObject attachmentObject,
+                        Identity userAclIdentity) throws ObjectNotFoundException, IllegalAccessException;
+
+    /**
    * Delete attachments of a given object identified by its type and id
    * 
    * @param objectType object type, can be of any type: activity, comment,
@@ -114,30 +125,6 @@ public interface AttachmentService {
   /**
    * Retrieves the list of attachments of a given object identified by its id
    *
-   * @param  objectType              object type, can be of any type: activity,
-   *                                   comment, notes...
-   * @param  objectId                object technical unique identifier
-   * @param  userAclIdentity         user ACL identity retrieved used
-   *                                   {@link IdentityRegistry}
-   * @return                         {@link ObjectAttachmentList} with the list
-   *                                 of attached files. If no attached files, it
-   *                                 will return an object containing empty list
-   * @throws IllegalAccessException  when user identified by its
-   *                                   {@link org.exoplatform.social.core.identity.model.Identity}
-   *                                   id doesn't have "read" permission of
-   *                                   selected object
-   * @throws ObjectNotFoundException when the object identified by its id in
-   *                                   {@link FileAttachmentResourceList}
-   *                                   doesn't exists
-   */
-  ObjectAttachmentList getAttachments(String objectType,
-                                      String objectId,
-                                      Identity userAclIdentity) throws ObjectNotFoundException,
-                                                                IllegalAccessException;
-
-  /**
-   * Retrieves the list of attachments of a given object identified by its id
-   *
    * @param  objectType object type, can be of any type: activity, comment,
    *                      notes...
    * @param  objectId   object technical unique identifier
@@ -147,6 +134,37 @@ public interface AttachmentService {
    */
   ObjectAttachmentList getAttachments(String objectType,
                                       String objectId);
+
+  /**
+   * Retrieves a list of {@link ObjectAttachmentDetail} objects associated with a
+   * specific object type and object ID, with metadata enrichment based on the
+   * given user's access identity.The result is paginated based on the provided
+   * offset and limit.
+   * <p>
+   * If no attachments are found, an empty {@link ObjectAttachmentList} is
+   * returned. If the user does not have the necessary access permissions, an
+   * {@link IllegalAccessException} will be thrown.
+   * </p>
+   *
+   * @param objectType The type of the object associated with the attachments.
+   * @param objectId The unique ID of the object associated with the attachments.
+   * @param userAclIdentity The identity of the user requesting the attachments,
+   *          used for access control checks.
+   * @param offset The offset to be used for pagination (zero-based index).
+   * @param limit The maximum number of items to return (for pagination).
+   * @return {@link ObjectAttachmentList} A list of attachments associated with
+   *         the specified object type and object ID, enriched with metadata
+   *         (e.g., alt text and format) where applicable.
+   * @throws ObjectNotFoundException If the object associated with the provided
+   *           object ID does not exist.
+   * @throws IllegalAccessException If the user does not have the necessary
+   *           permissions to access the requested attachments.
+   */
+  ObjectAttachmentList getAttachments(String objectType,
+                                      String objectId,
+                                      Identity userAclIdentity,
+                                      int offset,
+                                      int limit) throws ObjectNotFoundException, IllegalAccessException;
 
   /**
    * @param objectType object type, can be of any type: activity, comment,

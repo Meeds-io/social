@@ -77,4 +77,13 @@ public abstract class AttachmentPlugin extends BaseComponentPlugin {
    */
   public abstract long getSpaceId(String objectId) throws ObjectNotFoundException;
 
+  /**
+   * Determines whether the attachment list can be updated.
+   *
+   * @return {@code true} if the attachment list can be updated, {@code false}
+   *         otherwise.
+   */
+  public boolean canUpdateAttachmentList() {
+    return true;
+  }
 }
