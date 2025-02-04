@@ -29,16 +29,22 @@
         :items="mappedOptions"
         :ref="`propertyOptions${property.id}`"
         :name="`propertyOptions${property.id}`"
-        :label="$t('profileContactInformation.dropdown.property.choose.label')"
-        class="elevation-0 mt-2 pt-0 no-border"
+        class="elevation-0 mt-2 pt-0 no-border dropdownPropertyInput"
         item-text="translatedValue"
         item-value="id"
+        clear-icon="fas fa-times"
         clearable
         single-line
         solo
         flat
         outlined
-        dense />
+        dense>
+        <template #label>
+          <span class="text-sub-title">
+            {{ $t('profileContactInformation.dropdown.property.choose.label') }}
+          </span>
+        </template>
+      </v-combobox>
       <profile-hide-property-button
         v-if="!multiValued"
         :property="propertyObject" />
