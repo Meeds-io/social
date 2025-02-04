@@ -64,3 +64,16 @@ export function createAttachment(attachmentResource) {
     }
   });
 }
+
+export function deleteAttachment(objectType, objectId, fileId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}/${fileId}`, {
+    method: 'DELETE',
+    credentials: 'include',
+  }).then(resp => {
+    if (resp.ok) {
+      return resp.text();
+    } else {
+      throw new Error('Error deleting attachment');
+    }
+  });
+}

@@ -33,6 +33,7 @@
         :image-list="images"
         :loading="loading"
         @copy-link="copyImageAttachmentLink"
+        @delete="openDeleteAttachmentConfirmDialog"
         @open-preview="openImagePreview" />
       <v-card-actions class="d-flex">
         <v-btn
@@ -46,6 +47,14 @@
     </v-card>
     <attachments-image-preview-dialog
       ref="previewDialog" />
+    <confirm-dialog
+      ref="dialog"
+      :title="$t('simpleStorage.dialog.deleteOption.title')"
+      :message="dialogMessage"
+      :ok-label="$t('simpleStorage.dialog.deleteOption.ok')"
+      :cancel-label="$t('simpleStorage.dialog.deleteOption.cancel')"
+      @ok="onDialogOk"
+      @closed="confirmDialogClosed" />
   </v-app>
 </template>
 
@@ -59,10 +68,12 @@ export default {
       objectType: 'public',
       objectId: 'images',
       loading: false,
-      pageSize: 9,
+      pageSize: 10,
       limit: 0,
       offset: 0,
-      hasMore: false
+      hasMore: false,
+      dialogMessage: null,
+      dialogCallback: null
     };
   },
   created() {
@@ -83,6 +94,9 @@ export default {
       return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId, this.offset, this.limit + 1).then(data => {
         const newImages = data?.attachments?.map(this.mapImageAttachment) || [];
         this.hasMore = newImages.length > this.limit;
+        if (this.hasMore) {
+          newImages.pop();
+        }
         this.images.push(...newImages);
       }).finally(() => this.loading = false);
     },
@@ -98,11 +112,19 @@ export default {
         size: attachment.size,
       };
     },
-    copyImageAttachmentLink(id) {
-      navigator.clipboard.writeText(this.getImageAttachmentLink(id)).then(() => {
+    copyImageAttachmentLink(fileId) {
+      navigator.clipboard.writeText(this.getImageAttachmentLink(fileId)).then(() => {
         this.$root.$emit('alert-message', this.$t('simpleStorage.copyLink.success.message'), 'success');
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('simpleStorage.copyLink.error.message'), 'error');
+      });
+    },
+    deleteImageAttachment(fileId) {
+      return this.$fileAttachmentService.deleteAttachment(this.objectType, this.objectId, fileId).then(() => {
+        this.$root.$emit('alert-message', this.$t('simpleStorage.delete.success.message'), 'success');
+        this.images.splice(this.images.findIndex(file => file.id === fileId), 1);
+      }).catch(() => {
+        this.$root.$emit('alert-message', this.$t('simpleStorage.delete.error.message'), 'success');
       });
     },
     handleImageSaved(image, uploadId) {
@@ -111,6 +133,17 @@ export default {
         Object.assign(existingImage, this.mapImageAttachment(image));
       }
     },
+    confirmDialogClosed() {
+      this.dialogCallback = null;
+    },
+    openDeleteAttachmentConfirmDialog(file) {
+      this.dialogMessage = this.$t('simpleStorage.dialog.deleteOption.message', {0: `<strong>${file.name}</strong>`});
+      this.dialogCallback = () => this.deleteImageAttachment(file.id);
+      this.$refs.dialog.open();
+    },
+    onDialogOk() {
+      this.dialogCallback?.();
+    }
   }
 };
 </script>
