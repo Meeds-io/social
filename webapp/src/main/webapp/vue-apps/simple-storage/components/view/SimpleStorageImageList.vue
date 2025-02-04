@@ -84,16 +84,26 @@
       <template #item.size="{ item }">
         {{ formatFileSize(item.size) }}
       </template>
-      <template #item.actions>
+      <template #item.actions="{ item }">
         <div class="d-flex py-1">
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                :disabled="!item.id"
+                class="icon-default-color"
+                icon
+                @click="$emit('copy-link', item.id)">
+                <v-icon size="20">
+                  fas fa-link
+                </v-icon>
+              </v-btn>
+            </template>
+            {{ $t('simpleStorage.copyLink.label') }}
+          </v-tooltip>
           <v-btn
-            class="icon-default-color"
-            icon>
-            <v-icon size="20">
-              fas fa-link
-            </v-icon>
-          </v-btn>
-          <v-btn
+            :disabled="!item.id"
             class="error-color"
             icon>
             <v-icon

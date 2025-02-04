@@ -32,6 +32,7 @@
       <simple-storage-image-list
         :image-list="images"
         :loading="loading"
+        @copy-link="copyImageAttachmentLink"
         @open-preview="openImagePreview" />
       <v-card-actions class="d-flex">
         <v-btn
@@ -53,6 +54,7 @@
 export default {
   data() {
     return {
+      baseRestUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}`,
       images: [],
       objectType: 'public',
       objectId: 'images',
@@ -84,14 +86,24 @@ export default {
         this.images.push(...newImages);
       }).finally(() => this.loading = false);
     },
+    getImageAttachmentLink(id) {
+      return `${this.baseRestUrl}/v1/social/attachments/${this.objectType}/${this.objectId}/${id}`;
+    },
     mapImageAttachment(attachment) {
       return {
         id: attachment.id,
-        thumbnail: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${attachment.id}?size=60x26`,
+        thumbnail: `${this.getImageAttachmentLink(attachment.id)}?size=60x26`,
         name: attachment.name,
         creationDate: attachment.updated,
         size: attachment.size,
       };
+    },
+    copyImageAttachmentLink(id) {
+      navigator.clipboard.writeText(this.getImageAttachmentLink(id)).then(() => {
+        this.$root.$emit('alert-message', this.$t('simpleStorage.copyLink.success.message'), 'success');
+      }).catch(() => {
+        this.$root.$emit('alert-message', this.$t('simpleStorage.copyLink.error.message'), 'error');
+      });
     },
     handleImageSaved(image, uploadId) {
       const existingImage = this.images.find(img => img.uploadId === uploadId);
