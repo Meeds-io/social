@@ -77,6 +77,7 @@ export default {
         this.$emit('update-images', newImages);
         this.uploadQueue.push(...newImages);
         this.processUploadQueue();
+        this.$refs.fileInput.$el.querySelector('input').value = '';
       }
     },
     generateUploadId() {

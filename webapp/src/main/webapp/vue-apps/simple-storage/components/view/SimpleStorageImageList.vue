@@ -92,6 +92,7 @@
                 v-bind="attrs"
                 v-on="on"
                 :disabled="!item.id"
+                :aria-label="$t('simpleStorage.copyLink.label')"
                 class="icon-default-color"
                 icon
                 @click="$emit('copy-link', item.id)">
@@ -102,15 +103,24 @@
             </template>
             {{ $t('simpleStorage.copyLink.label') }}
           </v-tooltip>
-          <v-btn
-            :disabled="!item.id"
-            class="error-color"
-            icon>
-            <v-icon
-              size="20">
-              fas fa-trash-alt
-            </v-icon>
-          </v-btn>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                :aria-label="$t('simpleStorage.delete.label') "
+                :disabled="!item.id"
+                class="error-color"
+                icon
+                @click="$emit('delete', item)">
+                <v-icon
+                  size="20">
+                  fas fa-trash
+                </v-icon>
+              </v-btn>
+            </template>
+            {{ $t('simpleStorage.delete.label') }}
+          </v-tooltip>
         </div>
       </template>
     </v-data-table>
