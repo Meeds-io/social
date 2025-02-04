@@ -262,7 +262,8 @@
                         :disabled="saving || isUserType"
                         :ripple="false"
                         color="primary"
-                        class="align-center my-auto" />
+                        class="align-center my-auto"
+                        @change="openDropdownListDrawerOnSwitch" />
                     </div>
                   </v-list-item-action>
                 </v-list-item>
@@ -468,11 +469,7 @@ export default {
         const areEqualsLabels = this.initialLabels.length === newItems.length && this.initialLabels.every((item, index) => {
           return item.id === newItems[index].id && item.label === newItems[index].label && item.language === newItems[index].language;
         });
-        if (!areEqualsLabels) {
-          this.areLabelsChanged = true;
-        } else {
-          this.areLabelsChanged = false;
-        }
+        this.areLabelsChanged = !areEqualsLabels;
       },
     },
     'setting.dropdownList': function () {
@@ -620,6 +617,11 @@ export default {
     },
     openDropdownListDrawer() {
       this.$emit('open-dropdown-list', this.setting);
+    },
+    openDropdownListDrawerOnSwitch() {
+      if (this.isDropdownList) {
+        this.openDropdownListDrawer();
+      }
     },
     settingTranslationUpdated(translationsUpdated) {
       this.translationsUpdated = translationsUpdated;
