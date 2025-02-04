@@ -478,6 +478,7 @@ export default {
     'setting.dropdownList': function () {
       if (this.isDropdownList) {
         this.setting.propertyType = this.propertyTypes[0];
+        this.openDropdownListDrawer();
       }
     }
   },
