@@ -4,10 +4,10 @@
     v-model="dialog"
     :persistent="persistent"
     :width="width"
-    content-class="uiPopup"
+    :content-class="`uiPopup ${isBrandingLayout && 'layout-drawer' || ''}`"
     max-width="100vw">
-    <v-card class="elevation-12">
-      <div class="ignore-vuetify-classes popupHeader ClearFix">
+    <v-card class="elevation-12 transparent">
+      <div class="ignore-vuetify-classes popupHeader ClearFix" :class="isBrandingLayout && 'layout-drawer' || ''">
         <a
           class="uiIconClose pull-right"
           aria-hidden="true"
@@ -92,6 +92,10 @@ export default {
         return '400px';
       },
     },
+    isBrandingLayout: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     dialog: false,
