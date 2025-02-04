@@ -34,14 +34,20 @@
     elevation="0"
     max-width="350"
     min-width="350">
-    <user-popover-content v-if="isUserIdentity" :identity="identity" />
-    <space-popover-content v-if="isSpaceIdentity" :space="space" />
+    <user-popover-content v-if="isUserIdentity" :identity="identity" :class="isBrandingLayout && 'layout-drawer' || ''" />
+    <space-popover-content v-if="isSpaceIdentity" :space="space" :class="isBrandingLayout && 'layout-drawer' || ''" />
   </v-menu>
 </template>
 
 <script>
 
 export default {
+  props: {
+    isBrandingLayout: {
+      type: Boolean,
+      default: true
+    }
+  },
   data() {
     return {
       top: true,
