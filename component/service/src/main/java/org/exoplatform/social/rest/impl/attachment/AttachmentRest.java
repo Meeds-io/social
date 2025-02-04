@@ -304,6 +304,42 @@ public class AttachmentRest implements ResourceContainer {
     }
   }
 
+  @DELETE
+  @Path("{objectType}/{objectId}/{fileId}")
+  @RolesAllowed("administrators")
+  @Produces(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Delete an attachment", description = "Delete an attachment", method = "DELETE")
+  @ApiResponses(value = { 
+          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input"),
+          @ApiResponse(responseCode = "404", description = "Object not found"),
+          @ApiResponse(responseCode = "500", description = "Internal server error")})
+  public Response deleteAttachment(@Parameter(description = "attachment object type") @PathParam("objectType") String objectType, 
+                                   @Parameter(description = "attachment object id") @PathParam("objectId") String objectId,
+                                   @Parameter(description = "attachment file id") @PathParam("fileId") String fileId) {
+    
+    if (objectType == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE).build();
+    }
+    if (objectId == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE).build();
+    }
+    if (fileId == null) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment file id is mandatory").build();
+    }
+    ObjectAttachmentDetail objectAttachmentDetail = attachmentService.getAttachment(objectType, objectId, fileId);
+    if (objectAttachmentDetail == null) {
+      return Response.status(Status.NOT_FOUND).entity("attachment not found").build();
+    }
+    try {
+      attachmentService.deleteAttachment(objectType, objectId, fileId);
+      return Response.status(Status.NO_CONTENT).build();
+    } catch (Exception e) {
+      LOG.error("Error while deleting attachment", e);
+      return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
   private Response.ResponseBuilder buildAttachmentResponse(String objectType, // NOSONAR
                                                            String objectId,
                                                            String fileId,
