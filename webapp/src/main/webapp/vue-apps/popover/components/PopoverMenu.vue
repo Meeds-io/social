@@ -34,8 +34,14 @@
     elevation="0"
     max-width="350"
     min-width="350">
-    <user-popover-content v-if="isUserIdentity" :identity="identity" :class="isBrandingLayout && 'layout-drawer' || ''" />
-    <space-popover-content v-if="isSpaceIdentity" :space="space" :class="isBrandingLayout && 'layout-drawer' || ''" />
+    <user-popover-content
+      v-if="isUserIdentity"
+      :identity="identity"
+      :class="isBrandingLayout && 'layout-drawer' || ''" />
+    <space-popover-content
+      v-if="isSpaceIdentity"
+      :space="space"
+      :class="isBrandingLayout && 'layout-drawer' || ''" />
   </v-menu>
 </template>
 
