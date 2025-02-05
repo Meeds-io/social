@@ -65,13 +65,13 @@
             </div>
           </template>
         </application-toolbar>
-        <div v-if="filteredAdmins?.length">
-          <v-list
-            v-for="(admin, index) in filteredAdmins"
-            :key="index">
-            <admin-card :membership="admin" />
-          </v-list>
-        </div>
+        <v-list
+          v-if="filteredAdmins?.length">
+          <admin-card
+            v-for="admin in filteredAdmins"
+            :key="admin.userName"
+            :membership="admin" />
+        </v-list>
       </template>
       <template v-if="hasMore" #footer>
         <v-btn
