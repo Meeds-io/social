@@ -26,7 +26,7 @@
           popover
           avatar />
         <div class="flex-grow-1 flex-shrink-1 overflow-hidden">
-          <div class="px-2 py-1 flex-grow-1 activity-comment-background border-box-sizing rounded-lg">
+          <div class="px-2 py-1 flex-grow-1 border-box-sizing rounded-lg" :class="!isDrawerElement && 'activity-comment-background'">
             <v-list-item-title class="pt-1 font-weight-bold d-flex justify-space-between">
               <exo-user-avatar
                 :identity="posterIdentity"
@@ -147,6 +147,7 @@ export default {
   },
   data: () => ({
     displayedSubCommentCount: 2,
+    isDrawerElement: false,
   }),
   computed: {
     activityId() {
@@ -256,6 +257,7 @@ export default {
     } else if (this.highlightReplies) {
       this.$nextTick().then(this.scrollToReplies);
     }
+    this.isDrawerElement = !!this.$el.closest('.layout-drawer');
   },
   methods: {
     openReplies() {

@@ -63,7 +63,7 @@
     <template #content>
       <div
         :class="expanded && 'pa-4'"
-        class="d-flex light-grey-background-color fill-height">
+        class="d-flex fill-height">
         <div
           class="singlePageApplication pa-0 d-flex fill-height">
           <v-card

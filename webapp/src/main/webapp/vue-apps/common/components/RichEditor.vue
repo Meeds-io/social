@@ -178,7 +178,8 @@ export default {
     baseUrl: eXo.env.server.portalBaseURL,
     containInvalidUsers: false,
     spaceId: null,
-    backUpMessage: null
+    backUpMessage: null,
+    isDrawerElement: false,
   }),
   computed: {
     ckEditorInstanceId() {
@@ -282,6 +283,7 @@ export default {
     this.updateSpaceId();
   },
   mounted() {
+    this.isDrawerElement = !!this.$el.closest('.layout-drawer');
     if (!this.value?.length && this.useDraftManagement) {
       const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
       const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
@@ -397,6 +399,7 @@ export default {
         pasteFilter: 'p; div; a[!href]; strong; i',
         toolbarLocation: this.toolbarPosition,
         supportsOembed: this.supportsOembed,
+        bodyClass: this.isDrawerElement && 'layout-drawer-editor-body' || '',
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
