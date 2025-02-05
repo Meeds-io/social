@@ -101,7 +101,7 @@
     <v-col
       cols="12"
       class="pa-0">
-      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end mt-2 pb-2">
+      <div class="d-flex justify-end mt-4 pb-2">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"
@@ -142,10 +142,6 @@ export default {
   props: {
     branding: {
       type: Object,
-      default: null,
-    },
-    customCss: {
-      type: String,
       default: null,
     },
   },
@@ -219,7 +215,6 @@ export default {
         companyName: this.companyName,
         ...this.backgroundProperties,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
-        customCss: this.customCss,
       });
       newBranding.themeStyle.primaryColor = this.primaryColor;
       newBranding.themeStyle.secondaryColor = this.secondaryColor;
@@ -367,9 +362,6 @@ export default {
         }
       }
     },
-    setAsInitialized() {
-      this.originalBackgroundProperties = JSON.parse(JSON.stringify(this.backgroundProperties));
-    },
     save() {
       this.errorMessage = null;
       const topBarBackground = this.topBarStylingProperties.topBarBackground;
@@ -408,7 +400,6 @@ export default {
         pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
         pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
         pageWidth: this.fullWindow && this.fullWindowWidth || null,
-        customCss: this.customCss,
       });
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
