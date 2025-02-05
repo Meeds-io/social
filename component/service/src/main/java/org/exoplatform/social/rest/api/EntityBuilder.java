@@ -74,6 +74,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfig;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.PortalConfig;
+import org.exoplatform.portal.localization.LocaleContextInfoUtils;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.Visibility;
@@ -110,6 +111,7 @@ import org.exoplatform.social.core.processor.I18NActivityProcessor;
 import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profilelabel.ProfileLabelService;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
 import org.exoplatform.social.core.relationship.model.Relationship.Type;
@@ -212,6 +214,10 @@ public class EntityBuilder {
   public static final String              SETTINGS                                   = "settings";
 
   public static final String              USER_CARD_SETTINGS                         = "UserCardSettings";
+
+  private static final String             PROFILE_PROPERTY_FIELD_NAME                = "optionValue";
+
+  private static final String             PROFILE_PROPERTY_OBJECT_TYPE               = "propertySettingOption";
 
   private static UserPortalConfigService  userPortalConfigService;
 
@@ -2019,6 +2025,7 @@ public class EntityBuilder {
     profilePropertySettingEntity.setId(profilePropertySetting.getId());
     profilePropertySettingEntity.setActive(profilePropertySetting.isActive());
     profilePropertySettingEntity.setEditable(profilePropertySetting.isEditable());
+    profilePropertySettingEntity.setDropdownList(profilePropertySetting.isDropdownList());
     profilePropertySettingEntity.setVisible(profilePropertySetting.isVisible());
     profilePropertySettingEntity.setPropertyName(profilePropertySetting.getPropertyName());
     profilePropertySettingEntity.setParentId(profilePropertySetting.getParentId());
@@ -2029,11 +2036,20 @@ public class EntityBuilder {
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
     profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
     profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
+    profilePropertySettingEntity.setIndexInAnalytics(profilePropertySetting.isIndexInAnalytics());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
                                                                                                 String.valueOf(profilePropertySetting.getId())));
+    profilePropertySettingEntity.setPropertyOptions(toProfilePropertyOptionEntities(profilePropertySetting.getPropertyOptions()));
     profilePropertySettingEntity.setDefault(profilePropertyService.isDefaultProperties(profilePropertySetting));
     return profilePropertySettingEntity;
+  }
+  
+  public static List<ProfilePropertyOptionEntity> toProfilePropertyOptionEntities(List<ProfilePropertyOption> profilePropertyOptions) {
+    if (profilePropertyOptions == null) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptions.stream().map(EntityBuilder::toProfilePropertyOptionEntity).toList();
   }
 
   /**
@@ -2088,6 +2104,7 @@ public class EntityBuilder {
     profilePropertySetting.setId(profilePropertySettingEntity.getId());
     profilePropertySetting.setActive(profilePropertySettingEntity.isActive());
     profilePropertySetting.setEditable(profilePropertySettingEntity.isEditable());
+    profilePropertySetting.setDropdownList(profilePropertySettingEntity.isDropdownList());
     profilePropertySetting.setVisible(profilePropertySettingEntity.isVisible());
     profilePropertySetting.setPropertyName(profilePropertySettingEntity.getPropertyName());
     if (profilePropertySettingEntity.getParentId() == null || profilePropertySettingEntity.getParentId() == 0) {
@@ -2100,9 +2117,22 @@ public class EntityBuilder {
     profilePropertySetting.setOrder(profilePropertySettingEntity.getOrder());
     profilePropertySetting.setMultiValued(profilePropertySettingEntity.isMultiValued());
     profilePropertySetting.setHiddenbale(profilePropertySettingEntity.isHiddenable());
+    profilePropertySetting.setIndexInAnalytics(profilePropertySettingEntity.isIndexInAnalytics());
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
+    profilePropertySetting.setPropertyOptions(toProfilePropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdated());
     return profilePropertySetting;
+  }
+
+  public static List<ProfilePropertyOption> toProfilePropertyOptions(List<ProfilePropertyOptionEntity> profilePropertyOptionEntities) {
+    if (profilePropertyOptionEntities == null) {
+      return new ArrayList<>();
+    }
+    return profilePropertyOptionEntities.stream()
+                                        .map(option -> new ProfilePropertyOption(option.getId(),
+                                                                                 option.getValue(),
+                                                                                 option.getPropertySettingId()))
+                                        .toList();
   }
 
   public static final <T> T fromJsonString(String value, Class<T> resultClass) {
@@ -2448,4 +2478,18 @@ public class EntityBuilder {
     return Arrays.stream(users).collect(Collectors.toSet()).size();
   }
 
+  private static ProfilePropertyOptionEntity toProfilePropertyOptionEntity(ProfilePropertyOption profilePropertyOption) {
+    if (profilePropertyOption == null) {
+      return null;
+    }
+    String translatedValue =
+                           getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE,
+                                                                                profilePropertyOption.getId(),
+                                                                                PROFILE_PROPERTY_FIELD_NAME,
+                                                                                LocaleContextInfoUtils.getUserLocale(getCurrentUserName()));
+    return new ProfilePropertyOptionEntity(profilePropertyOption.getId(),
+                                           profilePropertyOption.getValue(),
+                                           translatedValue,
+                                           profilePropertyOption.getPropertySettingId());
+  }
 }

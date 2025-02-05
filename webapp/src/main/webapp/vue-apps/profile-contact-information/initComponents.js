@@ -1,14 +1,15 @@
 import ProfileContactInformation from './components/ProfileContactInformation.vue';
 import ProfileContactInformationDrawer from './components/ProfileContactInformationDrawer.vue';
-import ProfileMultiValuedProperty from './components/ProfileMultiValuedProperty.vue';
-import ProfileContactEditMultiField from './components/ProfileContactEditMultiField.vue';
-import ProfileContactEditMultiFieldSelect from './components/ProfileContactEditMultiFieldSelect.vue';
-import ProfileSingleValuedProperty from './components/ProfileSingleValuedProperty.vue';
+import ProfileMultiValuedProperty from './components/property-type/ProfileMultiValuedProperty.vue';
+import ProfileContactEditMultiField from './components/property-type/action/ProfileContactEditMultiField.vue';
+import ProfileContactEditMultiFieldSelect from './components/property-type/action/ProfileContactEditMultiFieldSelect.vue';
+import ProfileSingleValuedProperty from './components/property-type/ProfileSingleValuedProperty.vue';
 import QuickSearchUsersListDrawer from './components/QuickSearchUsersListDrawer.vue';
-import ProfileHidePropertyButton from './components/ProfileHidePropertyButton.vue';
-import ProfileHiddenPropertyInfo from './components/ProfileHiddenPropertyInfo.vue';
-import ProfileContactUserTypeProperty from './components/ProfileContactUserTypeProperty.vue';
-import ProfileUserTypePropertyValues from './components/ProfileUserTypePropertyValues.vue';
+import ProfileHidePropertyButton from './components/property-type/action/ProfileHidePropertyButton.vue';
+import ProfileHiddenPropertyInfo from './components/property-type/ProfileHiddenPropertyInfo.vue';
+import ProfileContactUserTypeProperty from './components/property-type/ProfileContactUserTypeProperty.vue';
+import ProfileUserTypePropertyValues from './components/property-type/ProfileUserTypePropertyValues.vue';
+import ProfileDropdownProperty from './components/property-type/ProfileDropdownProperty.vue';
 
 const components = {
   'profile-contact-information': ProfileContactInformation,
@@ -21,7 +22,8 @@ const components = {
   'profile-hide-property-button': ProfileHidePropertyButton,
   'profile-hidden-property-info': ProfileHiddenPropertyInfo,
   'profile-contact-user-type-property': ProfileContactUserTypeProperty,
-  'profile-user-type-property-values': ProfileUserTypePropertyValues
+  'profile-user-type-property-values': ProfileUserTypePropertyValues,
+  'profile-dropdown-property': ProfileDropdownProperty
 };
 
 for (const key in components) {

@@ -17,77 +17,89 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div v-if="translationConfiguration" class="translation-text-field">
-    <div v-if="$slots.default || $slots.title" class="d-flex align-center text-start">
-      <div v-if="$slots.title" class="flex-grow-1">
-        <slot name="title"></slot>
-      </div>
-      <div class="d-flex align-center position-relative me-n1 py-4">
-        <v-btn
-          :title="iconTitle"
-          :class="$vuetify.rtl && 'l-0' || 'r-0'"
-          class="absolute-vertical-center"
-          icon
-          @click="openDrawer">
-          <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
-        </v-btn>
-      </div>
-    </div>
-    <slot v-if="$slots.default"></slot>
-    <v-text-field
-      v-else-if="isI18N"
-      :id="id"
-      :name="id"
-      :placeholder="placeholder"
-      :rules="rules || []"
-      :value="$t(defaultLanguageValue)"
-      :autofocus="autofocus"
-      :hide-details="noRulesValidation"
-      class="border-box-sizing width-auto pt-0"
-      type="text"
-      outlined
-      readonly
-      dense>
-      <template v-if="!$slots.title" #append>
-        <div class="mt-n2">
-          <v-btn
-            :title="iconTitle"
-            class="my-auto pt-2px"
-            icon
-            @click="isI18N = false">
-            <v-icon :color="iconColor">far fa-times-circle</v-icon>
-          </v-btn>
-        </div>
-      </template>
-    </v-text-field>
-    <v-text-field
+  <div v-if="translationConfiguration">
+    <v-btn
+      v-if="button"
+      :title="iconTitle"
+      :aria-label="$t('translationButton.ariaLabel')"
+      icon
+      @click="openDrawer">
+      <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+    </v-btn>
+    <div
       v-else
-      v-model="defaultLanguageValue"
-      :id="id"
-      :name="id"
-      :placeholder="placeholder"
-      :required="required || null"
-      :aria-required="required"
-      :autofocus="autofocus"
-      :maxlength="maxlength"
-      :rules="rules || []"
-      :hide-details="noRulesValidation"
-      class="border-box-sizing width-auto pt-0"
-      type="text"
-      outlined
-      dense>
-      <template #append>
-        <div v-if="!$slots.title" class="mt-n2">
+      class="translation-text-field">
+      <div v-if="$slots.default || $slots.title" class="d-flex align-center text-start">
+        <div v-if="$slots.title" class="flex-grow-1">
+          <slot name="title"></slot>
+        </div>
+        <div class="d-flex align-center position-relative me-n1 py-4">
           <v-btn
             :title="iconTitle"
-            class="my-auto pt-2px"
+            :class="$vuetify.rtl && 'l-0' || 'r-0'"
+            class="absolute-vertical-center"
             icon
             @click="openDrawer">
             <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
           </v-btn>
         </div>
-      </template>
-    </v-text-field>
+      </div>
+      <slot v-if="$slots.default"></slot>
+      <v-text-field
+        v-else-if="isI18N"
+        :id="id"
+        :name="id"
+        :placeholder="placeholder"
+        :rules="rules || []"
+        :value="$t(defaultLanguageValue)"
+        :autofocus="autofocus"
+        :hide-details="noRulesValidation"
+        class="border-box-sizing width-auto pt-0"
+        type="text"
+        outlined
+        readonly
+        dense>
+        <template v-if="!$slots.title" #append>
+          <div class="mt-n2">
+            <v-btn
+              :title="iconTitle"
+              class="my-auto pt-2px"
+              icon
+              @click="isI18N = false">
+              <v-icon :color="iconColor">far fa-times-circle</v-icon>
+            </v-btn>
+          </div>
+        </template>
+      </v-text-field>
+      <v-text-field
+        v-else
+        v-model="defaultLanguageValue"
+        :id="id"
+        :name="id"
+        :placeholder="placeholder"
+        :required="required || null"
+        :aria-required="required"
+        :autofocus="autofocus"
+        :maxlength="maxlength"
+        :rules="rules || []"
+        :hide-details="noRulesValidation"
+        class="border-box-sizing width-auto pt-0"
+        type="text"
+        outlined
+        dense>
+        <template #append>
+          <div v-if="!$slots.title" class="mt-n2">
+            <v-btn
+              :title="iconTitle"
+              class="my-auto pt-2px"
+              icon
+              @click="openDrawer">
+              <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+            </v-btn>
+          </div>
+        </template>
+      </v-text-field>
+    </div>
     <translation-drawer
       v-if="initialized"
       ref="translationDrawer"
@@ -186,6 +198,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    button: {
+      type: Boolean,
+      default: false
+    }
   },
   data: () => ({
     initialized: false,

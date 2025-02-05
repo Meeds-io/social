@@ -27,6 +27,7 @@ import org.exoplatform.social.core.model.ProfileLabel;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -41,6 +42,8 @@ public class ProfilePropertySettingEntity {
   private String                             resolvedLabel;
 
   private String                             propertyType;
+
+  private boolean                            isDropdownList;
 
   private boolean                            isVisible;
 
@@ -72,9 +75,13 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isHiddenable;
 
+  private boolean                            indexInAnalytics;
+
   private List<ProfileLabel>                 labels;
 
   private List<ProfilePropertySettingEntity> children;
+
+  private List<ProfilePropertyOptionEntity>  propertyOptions;
 
   private boolean                            isDefault;
 

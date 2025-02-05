@@ -140,6 +140,10 @@
     </component>
 
     <component>
+        <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfilePropertyOptionDAO</type>
+    </component>
+
+    <component>
         <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfileLabelDAO</type>
     </component>
 
@@ -608,6 +612,10 @@
                 <name>excludedQuickSearchProperties</name>
                 <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
             </value-param>
+            <value-param>
+                <name>excludedAnalyticsIndexProperties</name>
+                <value>${social.profile.excludedAnalyticsIndex.properties:fullName,firstName,lastName,email}</value>
+            </value-param>
         </init-params>
     </component>
 
@@ -841,6 +849,11 @@
             <name>organizationalChart</name>
             <set-method>addPlugin</set-method>
             <type>org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslation</type>
+        </component-plugin>
+        <component-plugin>
+            <name>profilePropertySettingOption</name>
+            <set-method>addPlugin</set-method>
+            <type>org.exoplatform.social.core.plugin.ProfilePropertySettingOptionTranslation</type>
         </component-plugin>
     </external-component-plugins>
     <external-component-plugins>

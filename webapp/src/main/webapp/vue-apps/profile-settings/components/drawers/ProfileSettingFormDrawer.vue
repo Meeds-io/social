@@ -68,7 +68,7 @@
             {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
               bottom
-              :disabled="newSetting">
+              :disabled="newSetting && !isDropdownList">
               <template #activator="{ on, attrs }">
                 <div
                   v-bind="attrs"
@@ -77,7 +77,7 @@
                     ref="propertyType"
                     v-model="setting.propertyType"
                     :items="propertyTypes"
-                    :disabled="!newSetting"
+                    :disabled="!newSetting || isDropdownList"
                     :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
                     :rules="[v => !!v || $t('profileSettings.message.field.required')]"
                     name="propertyType"
@@ -89,121 +89,15 @@
                     @blur="$refs.propertyType.blur();" />
                 </div>
               </template>
-              {{ $t('profileSettings.propertyType.disabled.label') }}
+              <span v-if="isDropdownList && newSetting">
+                {{ $t('profileSettings.dropdownList.disabled.propertyType.info') }}
+              </span>
+              <span v-else>
+                {{ $t('profileSettings.propertyType.disabled.label') }}
+              </span>
             </v-tooltip>
           </label>
-          <label
-            for="settingParentField"
-            class="mx-4 mt-2">
-            {{ $t('profileSettings.label.parent') }}
-            <v-autocomplete
-              ref="settingParentField"
-              id="settingParentField"
-              v-model="setting.parentId"
-              :items="parents"
-              :placeholder="$t('profileSettings.placeholder.parent')"
-              class="py-4"
-              outlined
-              dense
-              width="100%"
-              max-width="100%"
-              item-text="resolvedLabel"
-              item-value="id"
-              @blur="blurAutocomplete()" />
-          </label>
-          <v-list-item class="pt-4">
-            <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
-              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.visible') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.visible"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="visibleSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
-              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.editable') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.editable"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="editableSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
-              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.required') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.required"
-                :disabled="saving"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
-              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.multiValued') }}
-                </div>
-              </v-list-item-title>
-              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
-                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
-              </v-list-item-subtitle>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.multiValued"
-                :disabled="saving || setting.default"
-                :ripple="false"
-                color="primary"
-                class="requiredSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
-              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
-                <div>
-                  {{ $t('profileSettings.label.groupSynchronized') }}
-                </div>
-              </v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-action>
-              <v-switch
-                v-model="setting.groupSynchronized"
-                :disabled="saving || !setting.groupSynchronizationEnabled"
-                :ripple="false"
-                color="primary"
-                class="groupSynchronizedSwitcher my-auto" />
-            </v-list-item-action>
-          </v-list-item>
-
-          <v-list-item>
+          <v-list-item class="mt-4">
             <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
               <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
@@ -218,6 +112,23 @@
                 :ripple="false"
                 color="primary"
                 class="activeSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
+              <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.visible') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.visible"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="visibleSwitcher my-auto" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
@@ -272,6 +183,174 @@
               </v-tooltip>
             </v-list-item-action>
           </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
+              <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.editable') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.editable"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="editableSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
+              <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.required') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.required"
+                :disabled="saving"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-tooltip
+            bottom
+            :disabled="!isUserType">
+            <template #activator="{ on, attrs }">
+              <div
+                v-bind="attrs"
+                v-on="on">
+                <v-list-item>
+                  <v-list-item-content
+                    :class="{'text--disabled': isUserType}"
+                    transition="fade-transition"
+                    class="d-flex visibleLabel py-0">
+                    <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
+                      <div>
+                        {{ $t('profileSettings.label.dropdownList') }}
+                      </div>
+                    </v-list-item-title>
+                    <v-list-item-subtitle
+                      class="mt-n3">
+                      <span
+                        :class="{'text--disabled': isUserType}"
+                        class="caption">
+                        {{ $t('profileSettings.dropdownList.info') }}
+                      </span>
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                  <v-list-item-action :class="{'my-0': isDropdownList}">
+                    <div
+                      class="d-flex">
+                      <v-btn
+                        v-if="isDropdownList"
+                        class="my-auto me-2 pa-0"
+                        icon
+                        @click="openDropdownListDrawer">
+                        <v-icon
+                          size="20"
+                          class="icon-default-color">
+                          fas fa-edit
+                        </v-icon>
+                      </v-btn>
+                      <v-switch
+                        v-model="setting.dropdownList"
+                        :disabled="saving || isUserType"
+                        :ripple="false"
+                        color="primary"
+                        class="align-center my-auto"
+                        @change="openDropdownListDrawerOnSwitch" />
+                    </div>
+                  </v-list-item-action>
+                </v-list-item>
+              </div>
+            </template>
+            <span v-if="isUserType">
+              {{ $t('profileSettings.dropdownList.available.info') }}
+            </span>
+          </v-tooltip>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+              <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.multiValued') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
+                <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.multiValued"
+                :disabled="saving || setting.default"
+                :ripple="false"
+                color="primary"
+                class="requiredSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
+              <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.groupSynchronized') }}
+                </div>
+              </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch
+                v-model="setting.groupSynchronized"
+                :disabled="saving || !setting.groupSynchronizationEnabled"
+                :ripple="false"
+                color="primary"
+                class="groupSynchronizedSwitcher my-auto" />
+            </v-list-item-action>
+          </v-list-item>
+          <v-list-item>
+            <v-list-item-content
+              transition="fade-transition"
+              class="d-flex activeLabel py-0">
+              <v-list-item-title
+                class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
+                <div>
+                  {{ $t('profileSettings.label.index.in.analytics') }}
+                </div>
+              </v-list-item-title>
+              <v-list-item-subtitle
+                class="mt-n3">
+                <span
+                  class="caption">
+                  {{ $t('profileSettings.label.index.in.analytics.info') }}
+                </span>
+              </v-list-item-subtitle>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-tooltip
+                bottom
+                :disabled="!excludedAnalyticsIndexSetting">
+                <template #activator="{ on, attrs }">
+                  <div
+                    v-bind="attrs"
+                    v-on="on">
+                    <v-switch
+                      v-model="setting.indexInAnalytics"
+                      :disabled="saving || excludedAnalyticsIndexSetting"
+                      :alt="$t('profileSettings.label.index.in.analytics')
+                        || $t('profileSettings.hide.property.alt')"
+                      :ripple="false"
+                      color="primary"
+                      :aria-labelledBy="$t('profileSettings.label.index.in.analytics')"
+                      class="activeSwitcher my-auto" />
+                  </div>
+                </template>
+                {{ $t('profileSettings.label.excluded.index.in.analytics.info') }}
+              </v-tooltip>
+            </v-list-item-action>
+          </v-list-item>
         </div>
       </v-form>
     </template>
@@ -308,6 +387,10 @@ export default {
       type: Array,
       default: () => []
     },
+    excludedAnalyticsIndexProperties: {
+      type: Array,
+      default: () => []
+    },
     languages: {
       type: Object,
       default: null
@@ -321,23 +404,27 @@ export default {
     saving: false,
     confirmNewPassword: null,
     setting: {},
-    parents: [],
     labels: [],
     changes: false,
     labelsObjectType: 'profileProperty',
     initialSetting: {},
     initialLabels: [],
     areLabelsChanged: false,
+    translationsUpdated: false
   }),
   computed: {
     propertyTypes () {
-      return this.$t && [
-        {label: this.$t('profileSettings.label.text.propertyType'), value: 'text'},
-        {label: this.$t('profileSettings.label.user.propertyType'), value: 'user'}
-      ];
+      return !this.isDropdownList && [
+        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'},
+        {label: this?.$t('profileSettings.label.user.propertyType'), value: 'user'}
+      ] || [
+        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
     },
     unHiddenableSetting() {
       return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+    },
+    excludedAnalyticsIndexSetting() {
+      return this.excludedAnalyticsIndexProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
     },
     title() {
       if (this.newSetting) {
@@ -348,9 +435,15 @@ export default {
     },
     isSaveButtonDisabled() {
       if (!this.newSetting) {
-        return !this.areLabelsChanged && this.areSettingsEqual(this.initialSetting, this.setting);
+        return !this.areLabelsChanged && !this.translationsUpdated && this.areSettingsEqual(this.initialSetting, this.setting) ;
       }
       return false;
+    },
+    isDropdownList() {
+      return this.setting?.dropdownList;
+    },
+    isUserType() {
+      return this.setting.propertyType === 'user';
     }
   },
   watch: {
@@ -363,6 +456,7 @@ export default {
     },
     drawer() {
       if (this.drawer) {
+        this.translationsUpdated = false;
         this.$refs.profileSettingFormDrawer.open();
       } else {
         this.$refs.profileSettingFormDrawer.close();
@@ -375,24 +469,23 @@ export default {
         const areEqualsLabels = this.initialLabels.length === newItems.length && this.initialLabels.every((item, index) => {
           return item.id === newItems[index].id && item.label === newItems[index].label && item.language === newItems[index].language;
         });
-        if (!areEqualsLabels) {
-          this.areLabelsChanged = true;
-        } else {
-          this.areLabelsChanged = false;
-        }
+        this.areLabelsChanged = !areEqualsLabels;
       },
     },
+    'setting.dropdownList': function () {
+      if (this.isDropdownList) {
+        this.setting.propertyType = this.propertyTypes[0];
+      }
+    }
   },
   created() {
     this.$root.$on('open-settings-create-drawer', this.addNewSetting);
     this.$root.$on('open-settings-edit-drawer', this.editSetting);
     this.$root.$on('close-settings-form-drawer', this.cancel);
+    this.$root.$on('setting-translation-updated', this.settingTranslationUpdated);
+    this.$root.$on('setting-updated', this.handleSettingUpdated);
   },
   methods: {
-    blurAutocomplete() {
-      this.$refs.settingParentField.isFocused = false;
-      this.$refs.settingParentField.isMenuActive = false;
-    },
     getResolvedName(item){
       const lang = eXo && eXo.env.portal.language || 'en';
       const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
@@ -404,25 +497,22 @@ export default {
     addNewSetting() {
       this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
       this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
-      this.parents = Object.assign([], this.settings);
-      this.parents = this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued);
-      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
       this.newSetting = true;
       this.changes= false;
       this.drawer = true;
     },
     editSetting(setting) {
-      this.initialSetting = {...setting};
+      this.initialSetting = structuredClone(setting);
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
-      this.parents = Object.assign([], this.settings);
-      this.parents = !(Array.isArray(this.setting?.children) && this.setting?.children.length) && this.parents.filter(setting => setting.id !== this.setting.id && !setting.parentId && !setting.multiValued) || [];
-      this.parents.forEach(setting => setting.resolvedLabel = this.getResolvedName(setting));
-      this.parents.unshift({resolvedLabel: ''});
       this.newSetting = false;
       this.labels = JSON.parse(JSON.stringify(this.setting.labels));
       this.changes= false;
       this.drawer = true;     
+    },
+    handleSettingUpdated(setting) {
+      this.initialSetting = structuredClone(setting);
+      this.areLabelsChanged = false;
     },
     saveSetting(event) {
       this.changes=true;
@@ -437,16 +527,17 @@ export default {
           || !this.$refs.settingForm.$el.reportValidity()) { // Standard HTML rules
         return;
       }
-
+      this.setting.propertyType = this.setting.propertyType?.value ?? this.setting.propertyType;
       this.saving = true;
-      if (this.newSetting){
-        this.setting.labels= this.labels;
+      if (this.newSetting) {
+        this.setting.labels = this.labels;
         this.$root.$emit('create-setting', this.setting);
       } else {
         this.mergeLabels();
         this.$root.$emit('update-setting', this.setting,true);
       }
       this.saving = false;
+      this.translationsUpdated = false;
     },
     mergeLabels() {
       const labelstoCreate = [];
@@ -493,20 +584,47 @@ export default {
         this.$root.$emit('cancel-edit-add');
         this.changes= false;
       }
-      this.$refs.settingForm.resetValidation();
+      this.$refs.settingForm?.resetValidation();
     },
-    areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'parentId', 'active', 'groupSynchronized', 'multiValued', 'visible', 'required', 'editable', 'hiddenable'
-      ];
-      for (const field of fields) {
-        if (field === 'parentId' && setting[field] === '') {
-          setting[field] = null;
-        }
-        if (initialSetting[field] !== setting[field]) {
+    arePropertyOptionsEqual(options1, options2) {
+      if (!options1 || !options2) {
+        return false;
+      }
+      if (options1?.length !== options2?.length) {
+        return false;
+      }
+      for (let i = 0; i < options1.length; i++) {
+        if (options1[i].value !== options2[i].value) {
           return false;
         }
       }
       return true;
+    },
+    areSettingsEqual(initialSetting, setting) {
+      const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
+        'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
+      ];
+      for (const field of fields) {
+        if (field === 'propertyOptions') {
+          if (!this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field])) {
+            return false;
+          }
+        } else if (initialSetting[field] !== setting[field]) {
+          return false;
+        }
+      }
+      return true;
+    },
+    openDropdownListDrawer() {
+      this.$emit('open-dropdown-list', this.setting);
+    },
+    openDropdownListDrawerOnSwitch() {
+      if (this.isDropdownList) {
+        this.openDropdownListDrawer();
+      }
+    },
+    settingTranslationUpdated(translationsUpdated) {
+      this.translationsUpdated = translationsUpdated;
     }
   },
 };

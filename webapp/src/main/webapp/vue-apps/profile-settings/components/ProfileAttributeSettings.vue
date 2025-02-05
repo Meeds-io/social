@@ -38,10 +38,6 @@
     </div>
     <profile-settings-header :filter="filter" />
     <profile-settings-table :settings="filteredSettings" />
-    <profile-setting-form-drawer
-      :settings="settings"
-      :languages="languagesData"
-      :un-hiddenable-properties="unHiddenableProperties" />
   </div>
 </template>
 
@@ -67,7 +63,6 @@ export default {
   }),
   created() {
     this.$root.$on('settings-set-filter', this.setFilter);
-    this.languagesData = [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
   },
   computed: {
     filteredSettings(){

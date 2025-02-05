@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2025 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -18,36 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.exoplatform.social.core.profileproperty;
+package org.exoplatform.social.core.profileproperty.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class ProfileProperty {
-  private String  propertyName;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProfilePropertyOption {
 
-  private boolean dropdownList;
+  private Long   id;
 
-  private boolean visible;
+  private String value;
 
-  private String  propertyType;
-
-  private boolean editable;
-
-  private String  parentName;
-
-  private int     order;
-
-  private boolean active;
-
-  private boolean groupSynchronized;
-
-  private boolean required;
-
-  private boolean multiValued;
-
-  private boolean hiddenable;
-
-  private boolean indexInAnalytics;
-
+  private Long   propertySettingId;
 }

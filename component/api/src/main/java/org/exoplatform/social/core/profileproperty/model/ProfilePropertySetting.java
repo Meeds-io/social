@@ -18,41 +18,48 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-
 package org.exoplatform.social.core.profileproperty.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfilePropertySetting {
 
-  private String  propertyName;
+  private Long                       id;
 
-  private String  propertyType;
-  
-  private boolean isVisible;
+  private String                     propertyName;
 
-  private boolean isEditable;
+  private String                     propertyType;
 
-  private Long    parentId;
+  private boolean                    isDropdownList;
 
-  private Long    order;
+  private boolean                    isVisible;
 
-  private boolean isActive;
+  private boolean                    isEditable;
 
-  private boolean isGroupSynchronized;
+  private Long                       parentId;
 
-  private boolean isHiddenbale;
-  
-  private boolean isRequired;
+  private Long                       order;
 
-  private boolean isMultiValued;
+  private boolean                    isActive;
 
-  private Long    id;
+  private boolean                    isGroupSynchronized;
 
-  private Long    updated;
+  private boolean                    isHiddenbale;
+
+  private boolean                    indexInAnalytics;
+
+  private boolean                    isRequired;
+
+  private boolean                    isMultiValued;
+
+  private List<ProfilePropertyOption> propertyOptions;
+
+  private Long                       updated;
 }

@@ -43,11 +43,17 @@
           :languages="languages"
           :settings="settings"
           :un-hiddenable-properties="unHiddenableProperties"
-          @create-setting="createSetting"
-          @edit-setting="editSetting"
           @back-to-main-page="setMainPageSelected" />
       </v-card>
     </v-main>
+    <confirm-dialog
+      ref="dialog"
+      :title="dialogTitle"
+      :message="dialogMessage"
+      :ok-label="dialogOkLabel"
+      :cancel-label="dialogCancelLabel"
+      @ok="onDialogOk"
+      @closed="confirmDialogClosed" />
     <user-card-settings-drawer
       ref="userCardSettings"
       :user="user"
@@ -56,6 +62,15 @@
       :saved-settings="savedCardSettings"
       @closed="setMainPageSelected"
       @save-settings="saveUserCardSettings" />
+    <profile-setting-form-drawer
+      ref="settingFormDrawer"
+      :settings="settings"
+      :languages="languagesData"
+      :un-hiddenable-properties="unHiddenableProperties"
+      :excluded-analytics-index-properties="excludedAnalyticsIndexProperties"
+      @open-dropdown-list="openDropdownListDrawer" />
+    <dropdown-list-values-drawer
+      ref="dropdownListDrawer" />
   </v-app>
 </template>
 
@@ -67,6 +82,7 @@ export default {
       selectedOption: window.location.hash,
       settings: [],
       unHiddenableProperties: [],
+      excludedAnalyticsIndexProperties: [],
       fieldsToRetrieve: 'settings',
       excludedSettingsProp: [],
       userCardSettingsContextKey: 'GLOBAL',
@@ -75,7 +91,14 @@ export default {
       userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
       userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
       isSavingCardSettings: false,
-      savedCardSettings: null
+      savedCardSettings: null,
+      settingOptionObjectType: 'propertySettingOption',
+      settingOptionFieldName: 'optionValue',
+      dialogTitle: null,
+      dialogMessage: null,
+      dialogOkLabel: null,
+      dialogCancelLabel: null,
+      dialogCallback: null
     };
   },
   props: {
@@ -106,12 +129,16 @@ export default {
     this.$root.$on('move-up-setting', this.moveUpSetting);
     this.$root.$on('move-down-setting', this.moveDownSetting);
     this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
+    this.$root.$on('open-confirm-dialog', this.openConfirmDialog);
     window.addEventListener('popstate', this.updateSelected);
     setTimeout(() => {
       this.openUserCardSettingsDrawer();
     }, 500);
   },
   computed: {
+    languagesData() {
+      return [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
+    },
     attributeSettingsSelected() {
       return this.selectedOption === '#attributesettings';
     },
@@ -120,14 +147,6 @@ export default {
     },
     mainPageSelected() {
       return !this.selectedOption || this.userCardSettingsSelected;
-    },
-    filteredSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
-                                                                  && !setting?.children?.length
-                                                                  && !this.excludedSettingsProp?.includes(setting.propertyName))
-        .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
-        });
     },
     userCardFilteredFieldSettings() {
       return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
@@ -165,14 +184,17 @@ export default {
           this.settings = settings?.settings || [];
           this.unHiddenableProperties = settings?.unHiddenableProperties;
           this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
+          this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
         });
     },
     editSetting(setting, refresh) {
       this.$profileSettingsService.updateSetting(setting).then(() => {
-        this.$root.$emit('close-settings-form-drawer');
-        if (refresh){
+        return this.saveOptionsTranslations(null, setting.propertyOptions);
+      }).then(() => {
+        if (refresh) {
           this.getSettings();
         }
+        this.$root.$emit('setting-updated', setting);
         this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
       }).catch(e => {
         console.error(e);
@@ -181,24 +203,50 @@ export default {
     },
     createSetting(setting) {
       this.$profileSettingsService.addSetting(setting).then(storedSetting => {
-        if (setting.labels && setting.labels.length>0){
-          setting.labels.forEach(element => {
-            element.objectId=storedSetting.id;
+        const promises = [];
+        if (setting?.labels?.length) {
+          setting.labels.forEach(label => {
+            label.objectId = storedSetting.id;
           });
-          this.$profileLabelService.addLabels(setting.labels).then(() => {
-            this.$root.$emit('close-settings-form-drawer');
-            this.getSettings();
-            this.$root.$emit('alert-message', this.$t('profileSettings.create.success.message'), 'success');
-          });
-        } else {
+          promises.push(this.$profileLabelService.addLabels(setting.labels));
+        }
+
+        promises.push(this.saveOptionsTranslations(storedSetting, setting.propertyOptions));
+        return Promise.all(promises);
+      })
+        .then(() => {
           this.$root.$emit('close-settings-form-drawer');
           this.getSettings();
-          this.$root.$emit('alert-message', this.$t('profileSettings.create.success.message'), 'success');
-        }
-      }).catch(e => {
-        console.error(e);
-        this.$root.$emit('alert-message', this.$t(e.message), 'error');
-      });
+          this.$root.$emit(
+            'alert-message',
+            this.$t('profileSettings.create.success.message'),
+            'success'
+          );
+        })
+        .catch(error => {
+          console.error(error);
+          this.$root.$emit(
+            'alert-message',
+            this.$t(error.message || 'profileSettings.create.error.message'),
+            'error'
+          );
+        });
+    },
+    saveOptionsTranslations(savedSetting, options) {
+      if (options?.length) {
+        const promises = options.filter(option => option?.translations)
+          .map((option, index) => {
+            option.id ??= savedSetting?.propertyOptions?.[index]?.id;
+            this.$translationService.saveTranslations(
+              this.settingOptionObjectType,
+              option.id,
+              this.settingOptionFieldName,
+              option.translations
+            );
+          });
+        return Promise.all(promises);
+      }
+      return Promise.resolve();
     },
     updateLabels(labels) {
       this.$profileLabelService.updateLabels(labels);
@@ -277,6 +325,23 @@ export default {
           }).finally(() => this.isSavingCardSettings = false);
         });
       });
+    },
+    openDropdownListDrawer(setting) {
+      this.$refs.dropdownListDrawer.open(setting);
+    },
+    confirmDialogClosed() {
+      this.dialogCallback = null;
+    },
+    openConfirmDialog(setting) {
+      this.dialogTitle = setting.title;
+      this.dialogMessage = setting.message;
+      this.dialogOkLabel = setting.okLabel;
+      this.dialogCancelLabel = setting.cancelLabel;
+      this.dialogCallback = setting.callback;
+      this.$refs.dialog.open();
+    },
+    onDialogOk() {
+      this.dialogCallback?.();
     }
   }
 };
