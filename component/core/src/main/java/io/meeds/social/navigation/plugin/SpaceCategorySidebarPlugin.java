@@ -30,11 +30,11 @@ import org.springframework.stereotype.Component;
 
 import org.exoplatform.social.core.space.SpaceFilter;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryWithName;
 import io.meeds.social.category.service.CategoryService;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.util.JsonUtils;
 
 import lombok.SneakyThrows;

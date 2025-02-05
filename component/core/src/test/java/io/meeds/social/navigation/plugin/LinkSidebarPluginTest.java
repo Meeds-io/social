@@ -26,9 +26,9 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.navigation.AbstractNavigationConfigurationTest;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.util.JsonUtils;
 
 public class LinkSidebarPluginTest extends AbstractNavigationConfigurationTest {
@@ -67,7 +67,8 @@ public class LinkSidebarPluginTest extends AbstractNavigationConfigurationTest {
                                        "icon",
                                        SidebarItemType.LINK,
                                        null,
-                                       Collections.singletonMap(LinkSidebarPlugin.LINK_NAMES, namesJsonString));
+                                       Collections.singletonMap(LinkSidebarPlugin.LINK_NAMES, namesJsonString),
+                                       false);
 
     SidebarItem result = linkSidebarPlugin.resolveProperties(item, null, Locale.ENGLISH);
     assertNotNull(result);

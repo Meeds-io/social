@@ -1,8 +1,7 @@
-<%
-  import java.util.Locale;
+<%import java.util.Locale;
 
-  import io.meeds.social.navigation.model.TopbarConfiguration;
-  import io.meeds.social.navigation.service.NavigationConfigurationService;
+  import io.meeds.portal.navigation.model.TopbarConfiguration;
+  import io.meeds.portal.navigation.service.NavigationConfigurationService;
 
   import org.exoplatform.portal.webui.workspace.UIPortalApplication;
   import org.exoplatform.commons.utils.HTMLEntityEncoder;
@@ -31,8 +30,7 @@
   }
 
   NavigationConfigurationService navigationConfigurationService = uicomponent.getApplicationComponent(NavigationConfigurationService.class);
-  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getConfiguration().getTopbar();
-%>
+  TopbarConfiguration topbarConfiguration = navigationConfigurationService.getConfiguration().getTopbar();%>
 <div class="UIContainer <%=uiComponentClass%> <%=uicomponent.getName()%>" id="${uicomponent.id}" ${cssStyle}>
   <div class="NormalContainerBlock UIComponentBlock">
     <div class="VIEW-CONTAINER VIEW-BLOCK">

@@ -28,11 +28,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.meeds.social.navigation.constant.SidebarMode;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.model.SidebarConfiguration;
-import io.meeds.social.navigation.model.TopbarConfiguration;
-import io.meeds.social.navigation.service.NavigationConfigurationService;
+import io.meeds.portal.navigation.constant.SidebarMode;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.portal.navigation.model.SidebarConfiguration;
+import io.meeds.portal.navigation.model.TopbarConfiguration;
+import io.meeds.portal.navigation.service.NavigationConfigurationService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -51,9 +51,7 @@ public class NavigationConfigurationRest {
 
   @GetMapping
   @Secured("users")
-  @Operation(summary = "Retrieve Topbar and Sidebar settings",
-             method = "GET",
-             description = "This retrieves the complete configuration of Topbar and Sidebar")
+  @Operation(summary = "Retrieve Topbar and Sidebar settings", method = "GET", description = "This retrieves the complete configuration of Topbar and Sidebar")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -63,9 +61,7 @@ public class NavigationConfigurationRest {
 
   @GetMapping("/topbar")
   @Secured("users")
-  @Operation(summary = "Retrieve Topbar settings",
-  method = "GET",
-  description = "This retrieves the configuration of Topbar switch user roles")
+  @Operation(summary = "Retrieve Topbar settings", method = "GET", description = "This retrieves the configuration of Topbar switch user roles")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
@@ -97,11 +93,9 @@ public class NavigationConfigurationRest {
 
   @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
   @Secured("administrators")
-  @Operation(summary = "Updates Topbar and Sidebar settings",
-             method = "PUT",
-             description = "This updates the Topbar and Sidebar Menu settings")
+  @Operation(summary = "Updates Topbar and Sidebar settings", method = "PUT", description = "This updates the Topbar and Sidebar Menu settings")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "204", description = "Request fulfilled"),
   })
   public void updateNavigationConfiguration(HttpServletRequest request,
                                             @RequestBody

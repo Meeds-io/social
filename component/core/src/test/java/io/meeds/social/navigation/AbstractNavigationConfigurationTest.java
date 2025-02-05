@@ -28,6 +28,7 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 
 import io.meeds.kernel.test.AbstractSpringTest;
+import io.meeds.portal.navigation.service.NavigationConfigurationService;
 import io.meeds.social.AbstractSpringConfigurationTest;
 import io.meeds.social.navigation.plugin.LinkSidebarPlugin;
 import io.meeds.social.navigation.plugin.PageSidebarPlugin;
@@ -35,7 +36,6 @@ import io.meeds.social.navigation.plugin.SiteSidebarPlugin;
 import io.meeds.social.navigation.plugin.SpaceListSidebarPlugin;
 import io.meeds.social.navigation.plugin.SpaceTemplateSidebarPlugin;
 import io.meeds.social.navigation.service.NavigationConfigurationImportService;
-import io.meeds.social.navigation.service.NavigationConfigurationService;
 import io.meeds.social.space.template.entity.SpaceTemplateEntity;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;

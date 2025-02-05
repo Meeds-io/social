@@ -39,8 +39,8 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.social.core.space.SpaceFilter;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 
 @Component
 @Order(40)
@@ -104,7 +104,8 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
                                                      "fa-layer-group",
                                                      SidebarItemType.SPACES,
                                                      null,
-                                                     properties));
+                                                     properties,
+                                                     false));
   }
 
   @Override

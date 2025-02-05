@@ -30,8 +30,8 @@ import org.springframework.stereotype.Component;
 
 import org.exoplatform.services.resources.LocaleConfigService;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 
 @Component
 @Order(50)

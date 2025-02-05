@@ -55,7 +55,7 @@ import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.controller.QualifiedName;
 
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.translation.service.TranslationService;
 
 import lombok.SneakyThrows;
@@ -133,6 +133,7 @@ public abstract class AbstractLayoutSidebarPlugin implements SidebarPlugin {
         item.setTarget(node.getState().getTarget());
       } else {
         item.setUrl(getNodeUri(node));
+        item.setDefaultPath(true);
       }
     }
     return item;

@@ -1,5 +1,5 @@
-<%@page import="io.meeds.social.navigation.constant.SidebarMode"%>
-<%@page import="io.meeds.social.navigation.service.NavigationConfigurationService"%>
+<%@page import="io.meeds.portal.navigation.constant.SidebarMode"%>
+<%@page import="io.meeds.portal.navigation.service.NavigationConfigurationService"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.exoplatform.social.core.identity.model.Identity"%>

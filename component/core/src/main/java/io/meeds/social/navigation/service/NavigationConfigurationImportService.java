@@ -32,12 +32,13 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
 import io.meeds.common.ContainerTransactional;
+import io.meeds.portal.navigation.constant.SidebarMode;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.portal.navigation.model.SidebarConfiguration;
+import io.meeds.portal.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.model.TopbarConfiguration;
+import io.meeds.portal.navigation.service.NavigationConfigurationService;
 import io.meeds.social.common.ContainerStartableService;
-import io.meeds.social.navigation.constant.SidebarMode;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.model.SidebarConfiguration;
-import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.navigation.model.TopbarConfiguration;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 
 /**
@@ -50,7 +51,7 @@ public class NavigationConfigurationImportService implements ContainerStartableS
                                              ExoLogger.getLogger(NavigationConfigurationImportService.class);
 
   @Autowired
-  private NavigationConfigurationService navigationConfigurationService;
+  private NavigationConfigurationService   navigationConfigurationService;
 
   @Autowired
   private List<SidebarPlugin>            menuPlugins;
