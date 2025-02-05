@@ -18,6 +18,7 @@
 -->
 <template>
   <v-img
+    :lazy-src="thumbnailUrl"
     :src="thumbnailUrl"
     :aspect-ratio="2"
     :height="!isMobile && '80vh' || '75vh'"

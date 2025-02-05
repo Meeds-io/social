@@ -21,7 +21,7 @@
 <template>
   <v-file-input
     ref="fileInput"
-    accept=".png,.jpg,.jpeg,.webp,.svg,.gif,.tiff,.bmp"
+    accept=".png,.jpg,.jpeg,.webp,.gif,.bmp"
     class="d-none position-absolute"
     multiple
     hide-input
@@ -33,6 +33,7 @@
 export default {
   data() {
     return {
+      allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'],
       maxImageSize: 20971520, // 20MB
       uploadQueue: [],
       isUploading: false,
@@ -54,6 +55,11 @@ export default {
     handleFileChange(files) {
       if (files.length) {
         const newImages = Array.from(files).map(file => {
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          if (!file.type.startsWith('image/') || !this.allowedExtensions.includes(fileExtension)) {
+            this.$root.$emit('alert-message', this.$t('simpleStorage.invalid.format.error.message'), 'error');
+            return;
+          }
           if (file.size > this.maxImageSize) {
             this.$root.$emit('alert-message', this.$t('simpleStorage.size.upload.error.message'), 'error');
             return;

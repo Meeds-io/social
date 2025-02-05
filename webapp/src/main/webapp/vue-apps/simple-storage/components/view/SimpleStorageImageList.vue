@@ -33,7 +33,9 @@
       item-key="id"
       class="px-5"
       item-class="py-2 align-center"
+      sort-by="creationDate"
       :items-per-page="-1"
+      sort-desc
       hide-default-footer
       dense>
       <!-- eslint-disable vue/valid-v-slot -->
@@ -61,7 +63,9 @@
           @click="$emit('open-preview', item)" />
       </template>
       <template #item.name="{ item }">
-        <p class="text-truncate-2 mb-0">
+        <p
+          class="text-truncate-2 mb-0 clickable"
+          @click="$emit('open-preview', item)">
           {{ item.name }}
         </p>
       </template>
@@ -168,7 +172,7 @@ export default {
   },
   computed: {
     small() {
-      return this.$vuetify.breakpoint.mdAndDown;
+      return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.md;
     },
     filteredHeaders() {
       return this.small && this.headers.filter(header => this.minimalColumns.includes(header.value)) || this.headers;
@@ -187,7 +191,7 @@ export default {
     },
     handleDrop(event) {
       event.preventDefault();
-      const files = Array.from(event.dataTransfer.files).filter(file => file.type.startsWith('image/'));
+      const files = Array.from(event.dataTransfer.files);
       this.isDragging = false;
       this.$root.$emit('handle-upload-images', files);
     },

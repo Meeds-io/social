@@ -36,12 +36,9 @@ const url = `/social/i18n/locale.portlet.SimpleStorage?lang=${lang}`;
 const vuetify = Vue.prototype.vuetifyOptions;
 const appId = 'simpleStorage';
 
-export function init(languages) {
+export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
-      data: {
-        languages: languages,
-      },
       template: '<simple-storage-app />',
       vuetify,
       i18n
