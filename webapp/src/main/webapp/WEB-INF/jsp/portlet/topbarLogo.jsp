@@ -1,12 +1,12 @@
 <%@page import="org.apache.commons.collections4.CollectionUtils"%>
-<%@page import="io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin"%>
-<%@page import="io.meeds.social.navigation.constant.SidebarItemType"%>
-<%@page import="io.meeds.social.navigation.model.SidebarItem"%>
-<%@page import="io.meeds.social.navigation.constant.SidebarMode"%>
-<%@page import="io.meeds.social.navigation.model.SidebarConfiguration"%>
-<%@page import="io.meeds.social.navigation.model.NavigationConfiguration"%>
-<%@page import="io.meeds.social.navigation.model.TopbarConfiguration"%>
-<%@page import="io.meeds.social.navigation.service.NavigationConfigurationService"%>
+<%@ page import="io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin"%>
+<%@ page import="io.meeds.portal.navigation.constant.SidebarItemType"%>
+<%@ page import="io.meeds.portal.navigation.model.SidebarItem"%>
+<%@ page import="io.meeds.portal.navigation.constant.SidebarMode"%>
+<%@ page import="io.meeds.portal.navigation.model.SidebarConfiguration"%>
+<%@ page import="io.meeds.portal.navigation.model.NavigationConfiguration"%>
+<%@ page import="io.meeds.portal.navigation.model.TopbarConfiguration"%>
+<%@ page import="io.meeds.portal.navigation.service.NavigationConfigurationService"%>
 <%@ page import="org.exoplatform.services.security.IdentityConstants"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="org.apache.commons.lang3.StringUtils"%>
@@ -64,7 +64,7 @@ String spaceId = null;
     portalPath = "/portal/public";
   } else {
     if (sidebarConfiguration.isAllowUserCustomHome()) {
-  portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
+      portalPath = portalConfigService.getUserHomePage(request.getRemoteUser());
     }
     if (portalPath == null) {
   portalPath = portalConfigService.getDefaultPath(request.getRemoteUser());
@@ -95,10 +95,10 @@ String spaceId = null;
     membersNumber = space.getMembers().length;
     spaceDescription = Optional.ofNullable(space.getDescription()).orElse("");
     if (authenticatedUser != null) {
-  for(String username : space.getManagers()) {
-    Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
-    managers.add(profile);
-  }
+      for(String username : space.getManagers()) {
+        Profile profile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username).getProfile();
+        managers.add(profile);
+      }
     }
   }
 

@@ -25,7 +25,7 @@ import org.json.JSONObject;
 
 import org.exoplatform.services.resources.LocaleConfigService;
 
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.model.SidebarItem;
 
 public class SidebarPluginUtils {
 

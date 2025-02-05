@@ -29,11 +29,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.category.AbstractCategoryConfigurationTest;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategoryTree;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 
 import lombok.SneakyThrows;
 

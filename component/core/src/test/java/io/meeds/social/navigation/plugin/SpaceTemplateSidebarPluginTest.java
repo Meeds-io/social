@@ -30,9 +30,9 @@ import org.junit.Test;
 
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.navigation.AbstractNavigationConfigurationTest;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 
 public class SpaceTemplateSidebarPluginTest extends AbstractNavigationConfigurationTest {
 
