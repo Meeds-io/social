@@ -34,8 +34,8 @@ import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 
 import lombok.SneakyThrows;
 
@@ -84,7 +84,8 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
                            null,
                            SidebarItemType.SPACE,
                            null,
-                           properties);
+                           properties,
+                           false);
   }
 
   private SortBy getSortField(SidebarItem item, SidebarSpaceSortBy sortBy) { // NOSONAR

@@ -32,10 +32,10 @@ import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
 
-import io.meeds.social.navigation.constant.SidebarMode;
-import io.meeds.social.navigation.constant.TopbarItemType;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.model.TopbarApplication;
+import io.meeds.portal.navigation.constant.SidebarMode;
+import io.meeds.portal.navigation.constant.TopbarItemType;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.portal.navigation.model.TopbarApplication;
 import io.meeds.social.util.JsonUtils;
 
 @Component

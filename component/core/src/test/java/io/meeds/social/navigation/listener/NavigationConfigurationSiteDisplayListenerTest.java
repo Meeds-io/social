@@ -30,10 +30,10 @@ import org.exoplatform.portal.mop.SiteFilter;
 import org.exoplatform.portal.mop.SiteKey;
 import org.exoplatform.portal.mop.SiteType;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.navigation.AbstractNavigationConfigurationTest;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.model.SidebarItem;
 
 public class NavigationConfigurationSiteDisplayListenerTest extends AbstractNavigationConfigurationTest {
 
