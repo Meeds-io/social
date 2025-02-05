@@ -133,28 +133,15 @@ export default {
         credentials: 'include',
       }).then(resp => {
         if (!resp || !resp.ok) {
-          console.warn('error');
-          //throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
         } else {
           return resp.json();
         }
       }).then(data => {
-        console.warn('ddata',data);
         this.admins = data && data.entities || [];
         this.totalSize = data && data.size || 0;
         this.$root.$emit('platform-settings-admins-updated', this.totalSize, this.admins);
         this.hasMore = this.totalSize > this.admins.length;
-        /*
-                          if (this.keyword) {
-                            return this.$nextTick().then(() => {
-                              const totalSize = this.totalSize;
-                              this.totalSize = this.filteredMemberships.length;
-                              if (itemsPerPage < totalSize && this.filteredMemberships.length < this.options.itemsPerPage) {
-                                const limitToFetch = Math.min(itemsPerPage * 2, totalSize);
-                                return this.searchMemberships(limitToFetch);
-                              }
-                            });
-                          }*/
       })
         .finally(() => this.loading = false);
     },

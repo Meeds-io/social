@@ -1089,8 +1089,8 @@
   </portlet>
 
   <portlet>
-    <portlet-name>AdminsPortlet</portlet-name>
-    <display-name>Admins Portlet</display-name>
+    <portlet-name>PlatformAdminsWidget</portlet-name>
+    <display-name>Platform Admins Widget</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
@@ -1102,10 +1102,10 @@
       <mime-type>text/html</mime-type>
     </supports>
     <supported-locale>en</supported-locale>
-    <resource-bundle>locale.portlet.Admins</resource-bundle>
+    <resource-bundle>locale.portlet.PlatformAdminsWidget</resource-bundle>
     <portlet-info>
-      <title>Admins Portlet</title>
-      <keywords>Site admins</keywords>
+      <title>Platform Admins Widget</title>
+      <keywords>admins</keywords>
     </portlet-info>
   </portlet>
 

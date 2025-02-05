@@ -21,8 +21,8 @@ import './initComponents.js';
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const lang = eXo && eXo.env.portal.language || 'en';
-const url = `/social/i18n/locale.portlet.social.AdminsPortlet?lang=${lang}`;
-const appId = 'AdminsPortlet';
+const url = `/social/i18n/locale.portlet.PlatformAdminsWidget?lang=${lang}`;
+const appId = 'PlatformAdminsWidget';
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
@@ -30,6 +30,6 @@ export function init() {
       template: `<admins id="${appId}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
-    }, `#${appId}`, 'Admins Portlet');
+    }, `#${appId}`, 'Platform Admins Widget');
   });
 }
