@@ -159,7 +159,7 @@
                         <translation-text-field
                           ref="linksHeader"
                           id="linksHeader"
-                          v-model="settings.header"
+                          v-model="header"
                           :rules="rules.header"
                           :placeholder="$t('links.label.headerPlaceHolder')"
                           :maxlength="maxHeaderLength"
@@ -424,6 +424,9 @@ export default {
     showIcon() {
       return this.settings?.showIcon || false;
     },
+    header() {
+      return this.settings?.header || '';
+    }
   },
   watch: {
     showHeader() {
@@ -466,6 +469,15 @@ export default {
         this.stepper = 2;
       } else {
         this.stepper = 1;
+      }
+    },
+    header() {
+      if (this.header) {
+        if (this.$root.language) {
+          this.header[this.$root.language] = this.$t(this.settings?.header?.[this.$root.language]);
+        } else {
+          this.header[this.$root.defaultLanguage] = this.$t(this.settings?.header?.[this.$root.defaultLanguage]);
+        }
       }
     }
   },
