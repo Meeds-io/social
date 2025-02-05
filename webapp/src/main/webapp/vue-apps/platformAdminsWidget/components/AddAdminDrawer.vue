@@ -46,7 +46,7 @@
         height="100"
         append-icon=""
         menu-props="closeOnClick, maxHeight = 100"
-        class="identitySuggester mx-4"
+        class="identitySuggester mx-4 border-color-grey"
         content-class="identitySuggesterContent"
         width="100%"
         max-width="100%"
@@ -83,6 +83,7 @@
           <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
         </template>
       </v-autocomplete>
+      <div v-if="adminExists" class="px-4 error-color"> {{ $t('social.admins.drawer.addAdmin.adminExists') }} </div>
     </template>
     <template #footer>
       <div class="d-flex">
@@ -116,22 +117,28 @@ export default {
     previousSearchTerm: null,
     loadingSuggestions: 0,
     users: [],
-    membership: {}
+    admins: [],
+    adminExists: false
   }),
   computed: {
     saveButtonDisabled() {
-      return this.saving || !this.memberships.length;
+      return this.saving || !this.memberships.length || this.adminExists;
     },
   },
   watch: {
     selectedUsers() {
+      this.adminExists = false;
       this.selectedUsers.forEach(user => {
         if (!this.memberships.some(membership => membership.userName === user)) {
-          this.memberships.push({
-            groupId: '/platform/administrators',
-            membershipType: '*',
-            userName: user
-          });
+          if (this.admins.some(admin => admin.userName === user)) {
+            this.adminExists = true;
+          } else {
+            this.memberships.push({
+              groupId: '/platform/administrators',
+              membershipType: '*',
+              userName: user
+            });
+          }
         }
       });
     },
@@ -158,9 +165,11 @@ export default {
   },
   created() {
     this.$root.$on('admins-add-drawer-open', this.open);
+    this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
   },
   beforeDestroy() {
     this.$root.$off('admins-add-drawer-open', this.open);
+    this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
   },
   methods: {
     open() {
@@ -183,7 +192,7 @@ export default {
       }
       this.saving = true;
 
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=${this.membership.id || ''}`, {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=''`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -204,10 +213,14 @@ export default {
       }).then(() => this.$root.$emit('platform-settings-admins-refresh'))
         .then(() => this.$refs.drawer.close())
         .finally(() => {
+          this.selectedUsers = [];
           this.memberships = [];
           this.saving = false;
         });
     },
+    searchAdmins(adminsCount, admins) {
+      this.admins = admins;
+    }
   },
 };
 </script>
