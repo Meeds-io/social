@@ -402,9 +402,6 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
-        return;
-      }
       this.openByRootEvent(e?.detail);
     },
     openByRootEvent(templateId) {
