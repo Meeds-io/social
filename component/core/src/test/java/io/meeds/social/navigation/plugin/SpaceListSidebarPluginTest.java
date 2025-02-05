@@ -32,9 +32,9 @@ import org.junit.Test;
 
 import org.exoplatform.social.core.space.model.Space;
 
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.navigation.AbstractNavigationConfigurationTest;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
 import io.meeds.social.util.JsonUtils;
 
 public class SpaceListSidebarPluginTest extends AbstractNavigationConfigurationTest {
@@ -93,7 +93,8 @@ public class SpaceListSidebarPluginTest extends AbstractNavigationConfigurationT
                                        "icon",
                                        SidebarItemType.SPACES,
                                        null,
-                                       Collections.singletonMap(SPACES_NAMES, namesJsonString));
+                                       Collections.singletonMap(SPACES_NAMES, namesJsonString),
+                                       false);
 
     SidebarItem result = spaceListSidebarPlugin.resolveProperties(item, null, Locale.ENGLISH);
     assertNotNull(result);

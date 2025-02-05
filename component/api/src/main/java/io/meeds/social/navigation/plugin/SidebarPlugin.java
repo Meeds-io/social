@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 
 /**
  * A class to allow managing Sidebar item types

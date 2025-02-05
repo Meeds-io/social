@@ -40,9 +40,9 @@ import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.ListenerBase;
 import org.exoplatform.services.listener.ListenerService;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.service.NavigationConfigurationService;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.social.navigation.service.NavigationConfigurationServiceImpl;
 
 import jakarta.annotation.PostConstruct;
 
@@ -61,7 +61,7 @@ public class NavigationConfigurationPageDisplayListener
 
   @PostConstruct
   public void init() {
-    listenerService.addListener(NavigationConfigurationService.NAVIGATION_CONFIGURATION_UPDATED_EVENT, this);
+    listenerService.addListener(NavigationConfigurationServiceImpl.NAVIGATION_CONFIGURATION_UPDATED_EVENT, this);
   }
 
   @Override

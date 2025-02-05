@@ -34,8 +34,8 @@ import org.springframework.stereotype.Component;
 
 import org.exoplatform.social.core.space.SpaceFilter;
 
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.model.SidebarItem;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
@@ -105,7 +105,8 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
                            spaceTemplate.getIcon(),
                            SidebarItemType.SPACE_TEMPLATE,
                            null,
-                           buildSpaceTemplateProperties(spaceTemplate));
+                           buildSpaceTemplateProperties(spaceTemplate),
+                           false);
   }
 
   private Map<String, String> buildSpaceTemplateProperties(SpaceTemplate spaceTemplate) {

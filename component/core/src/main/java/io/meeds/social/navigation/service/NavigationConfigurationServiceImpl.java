@@ -28,25 +28,26 @@ import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.commons.addons.AddOnService;
-import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.portal.config.model.Application;
 import org.exoplatform.portal.config.model.TransientApplicationState;
 import org.exoplatform.services.listener.ListenerService;
 
 import io.meeds.common.ContainerTransactional;
-import io.meeds.social.navigation.constant.SidebarItemType;
-import io.meeds.social.navigation.constant.SidebarMode;
-import io.meeds.social.navigation.constant.TopbarItemType;
-import io.meeds.social.navigation.model.NavigationConfiguration;
-import io.meeds.social.navigation.model.SidebarConfiguration;
-import io.meeds.social.navigation.model.SidebarItem;
-import io.meeds.social.navigation.model.TopbarApplication;
-import io.meeds.social.navigation.model.TopbarConfiguration;
+import io.meeds.portal.navigation.constant.SidebarItemType;
+import io.meeds.portal.navigation.constant.SidebarMode;
+import io.meeds.portal.navigation.constant.TopbarItemType;
+import io.meeds.portal.navigation.model.NavigationConfiguration;
+import io.meeds.portal.navigation.model.SidebarConfiguration;
+import io.meeds.portal.navigation.model.SidebarItem;
+import io.meeds.portal.navigation.model.TopbarApplication;
+import io.meeds.portal.navigation.model.TopbarConfiguration;
+import io.meeds.portal.navigation.service.NavigationConfigurationService;
 import io.meeds.social.navigation.plugin.DefaultSidebarPlugin;
 import io.meeds.social.navigation.plugin.SidebarPlugin;
 import io.meeds.social.navigation.storage.NavigationConfigurationStorage;
 
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
 
@@ -54,7 +55,7 @@ import lombok.SneakyThrows;
  * A Service to manage Topbar and Sidebar configurations
  */
 @Service
-public class NavigationConfigurationService {
+public class NavigationConfigurationServiceImpl implements NavigationConfigurationService {
 
   public static final String             NAVIGATION_CONFIGURATION_UPDATED_EVENT = "social.navigation.configuration.updated";
 
@@ -67,25 +68,26 @@ public class NavigationConfigurationService {
   private static final SidebarPlugin     DEFAULT_MENU_PLUGIN                    = new DefaultSidebarPlugin();
 
   @Autowired
-  private NavigationConfigurationStorage navigationConfigurationStorage;
-
-  @Autowired
-  private UserPortalConfigService        userPortalConfigService;
-
-  @Autowired
   private AddOnService                   addonContainerService;
-
-  @Autowired
-  private Environment                    environment;
 
   @Autowired
   private ListenerService                listenerService;
 
   @Autowired
+  private NavigationConfigurationStorage navigationConfigurationStorage;
+
+  @Autowired
   private List<SidebarPlugin>            menuPlugins;
+
+  @Autowired
+  private Environment                    environment;
 
   @Setter
   private List<TopbarApplication>        defaultTopbarApplications;
+
+  @Getter
+  @Setter
+  private boolean                        allowUserHome                          = true;
 
   @PostConstruct
   @ContainerTransactional
@@ -93,23 +95,16 @@ public class NavigationConfigurationService {
     this.defaultTopbarApplications = getDefaultTopbarApplications();
     NavigationConfiguration configuration = getConfiguration();
     if (configuration != null) {
-      userPortalConfigService.setAllowUserHome(configuration.getSidebar().isAllowUserCustomHome());
+      this.allowUserHome = configuration.getSidebar().isAllowUserCustomHome();
     }
   }
 
-  /**
-   * @return {@link NavigationConfiguration} with the complete configuration of
-   *         Navigation
-   */
+  @Override
   public NavigationConfiguration getConfiguration() {
     return getConfiguration(null, null, false);
   }
 
-  /**
-   * @param resolve either resolve name and icon of elements or not
-   * @return {@link NavigationConfiguration} with the complete configuration of
-   *         Navigation
-   */
+  @Override
   public NavigationConfiguration getConfiguration(String username, Locale locale, boolean resolve) {
     NavigationConfiguration configuration = navigationConfigurationStorage.getConfiguration(defaultTopbarApplications);
     if (configuration == null) {
@@ -126,22 +121,12 @@ public class NavigationConfigurationService {
     }
   }
 
-  /**
-   * @param username User name
-   * @param locale {@link Locale} to compute Menu item names
-   * @return {@link TopbarConfiguration} switch user role and customized
-   *         settings
-   */
+  @Override
   public TopbarConfiguration getTopbarConfiguration(String username, Locale locale) {
     return getConfiguration(username, locale, true).getTopbar();
   }
 
-  /**
-   * @param username User name
-   * @param locale {@link Locale} to compute Menu item names
-   * @return {@link SidebarConfiguration} switch user role and customized
-   *         settings
-   */
+  @Override
   public SidebarConfiguration getSidebarConfiguration(String username, Locale locale) {
     SidebarConfiguration sidebarConfiguration = getConfiguration(username, locale, true).getSidebar();
     if (StringUtils.isNotBlank(username)) {
@@ -151,45 +136,29 @@ public class NavigationConfigurationService {
     return sidebarConfiguration;
   }
 
-  /**
-   * Retrieves the preferred mode of sidebar by a user
-   * 
-   * @param username User name as identifier
-   * @return preferred {@link SidebarMode} or default if not set by user yet
-   */
+  @Override
   public SidebarMode getSidebarUserMode(String username) {
     NavigationConfiguration configuration = navigationConfigurationStorage.getConfiguration(defaultTopbarApplications);
     return getSidebarUserMode(username, configuration.getSidebar());
   }
 
-  /**
-   * Updates the preferred mode of sidebar by the user
-   * 
-   * @param username User name as identifier
-   * @param mode Preferred {@link SidebarMode} by the user
-   */
+  @Override
   public void updateSidebarUserMode(String username, SidebarMode mode) {
     navigationConfigurationStorage.updateSidebarUserMode(username, mode);
   }
 
-  /**
-   * Updates the Navigation configuration
-   * 
-   * @param navigationConfiguration
-   */
+  @Override
   public void updateConfiguration(NavigationConfiguration navigationConfiguration) {
     NavigationConfiguration existingConfiguration = getConfiguration();
     try {
       navigationConfigurationStorage.updateConfiguration(navigationConfiguration);
       listenerService.broadcast(NAVIGATION_CONFIGURATION_UPDATED_EVENT, existingConfiguration, navigationConfiguration);
     } finally {
-      userPortalConfigService.setAllowUserHome(navigationConfiguration.getSidebar().isAllowUserCustomHome());
+      this.allowUserHome = navigationConfiguration.getSidebar().isAllowUserCustomHome();
     }
   }
 
-  /**
-   * @return Default Topbar Applications as configured in {@link AddOnService}
-   */
+  @Override
   public List<TopbarApplication> getDefaultTopbarApplications() {
     if (defaultTopbarApplications == null) {
       defaultTopbarApplications = addonContainerService.getApplications(TOP_NAVIGATION_ADDON_CONTAINER)
