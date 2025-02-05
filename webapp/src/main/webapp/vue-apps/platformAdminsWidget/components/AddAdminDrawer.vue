@@ -83,7 +83,6 @@
           <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
         </template>
       </v-autocomplete>
-      <div v-if="adminExists" class="px-4 error-color"> {{ $t('social.admins.drawer.addAdmin.adminExists') }} </div>
     </template>
     <template #footer>
       <div class="d-flex">
@@ -132,6 +131,7 @@ export default {
         if (!this.memberships.some(membership => membership.userName === user)) {
           if (this.admins.some(admin => admin.userName === user)) {
             this.adminExists = true;
+            this.$root.$emit('alert-message', this.$t('social.admins.drawer.addAdmin.adminExists'), 'error');
           } else {
             this.memberships.push({
               groupId: '/platform/administrators',
