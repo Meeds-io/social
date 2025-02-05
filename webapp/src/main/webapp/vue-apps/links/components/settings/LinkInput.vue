@@ -85,8 +85,7 @@ export default {
   }),
   computed: {
     name() {
-      return this.link?.name
-          && (this.link?.name[this.$root.language] || this.link?.name[this.$root.defaultLanguage]);
+      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
     },
     url() {
       return this.$utils.toLinkUrl(this.link?.url, {
