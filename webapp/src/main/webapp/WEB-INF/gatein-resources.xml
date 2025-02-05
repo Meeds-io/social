@@ -2092,6 +2092,68 @@
     </module>
   </portlet>
 
+  <portlet>
+    <name>PlatformAdminsWidget</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/admins.bundle.js</path>
+      </script>
+      <depends>
+        <module>peopleListComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
+        <module>attachImage</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>PlatformAccess</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/platformAccess.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
   <module>
     <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
