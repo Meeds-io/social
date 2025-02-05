@@ -97,7 +97,7 @@ let config = {
     complementaryFilter: './src/main/webapp/vue-apps/complementary-filter/main.js',
     organizationalChart: './src/main/webapp/vue-apps/organizational-chart/main.js',
     organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js',
-    admins: './src/main/webapp/vue-apps/admins/main.js',
+    admins: './src/main/webapp/vue-apps/platformAdminsWidget/main.js',
   },
   module: {
     rules: [

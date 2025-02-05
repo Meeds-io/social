@@ -18,8 +18,6 @@
  */
 import './initComponents.js';
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.PlatformAdminsWidget?lang=${lang}`;
 const appId = 'PlatformAdminsWidget';
