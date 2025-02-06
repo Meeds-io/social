@@ -1,8 +1,3 @@
-<%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
-<%@page import="java.util.Arrays"%>
-<%@page import="org.exoplatform.portal.config.model.PortalConfig"%>
-<%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@page import="org.exoplatform.portal.mop.service.LayoutService"%>
 <%
 /**
  * This file is part of the Meeds project (https://meeds.io/).
@@ -13,6 +8,7 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -23,11 +19,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 %>
+<%@page import="org.exoplatform.services.security.ConversationState"%>
+<%@page import="org.exoplatform.portal.config.UserACL"%>
+<%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
+<%@page import="java.util.Arrays"%>
+<%@page import="org.exoplatform.portal.config.model.PortalConfig"%>
+<%@page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="org.exoplatform.portal.mop.service.LayoutService"%>
 <%
+  UserACL userAcl = ExoContainerContext.getService(UserACL.class);
   LayoutService layoutService = ExoContainerContext.getService(LayoutService.class);
   PortalConfig portalConfig = PortalRequestContext.getCurrentInstance().getPortalConfig();
-  boolean publisSiteAccessible = portalConfig != null && Arrays.asList(portalConfig.getAccessPermissions()).contains("Everyone");
-  long siteId = portalConfig == null ? 0 : portalConfig.getId();
+  if (userAcl.hasEditPermission(portalConfig, ConversationState.getCurrent().getIdentity())) {
+    boolean publisSiteAccessible = portalConfig != null && Arrays.asList(portalConfig.getAccessPermissions()).contains("Everyone");
+    long siteId = portalConfig == null ? 0 : portalConfig.getId();
 %>
 <div class="VuetifyApp">
   <div
@@ -38,3 +43,6 @@
    </script>
   </div>
 </div>
+<%
+  }
+%>

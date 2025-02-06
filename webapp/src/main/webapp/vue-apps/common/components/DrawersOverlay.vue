@@ -4,6 +4,7 @@
       <v-overlay
         v-show="overlay"
         id="drawers-overlay"
+        z-index="1030"
         absolute />
     </v-fade-transition>
   </v-app>
@@ -25,7 +26,6 @@ export default {
     document.addEventListener('drawerClosed', this.hideOverlay);
     document.addEventListener('modalOpened', this.modalOpened);
     document.addEventListener('modalClosed', this.modalClosed);
-
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
     this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
@@ -40,17 +40,26 @@ export default {
     },
     closeDisplayedDrawer(event) {
       if (this.openedDrawers && (!event || event.key === 'Escape')) {
-        document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
+        this.closeDisplayedDrawerEffectively();
       }
     },
-    showOverlay() {
+    closeDisplayedDrawerEffectively() {
+      document.dispatchEvent(new CustomEvent('closeDisplayedDrawer'));
+    },
+    showOverlay(event) {
       this.uiPortalApplicationElement.classList.add('decrease-z-index');
-      window.setTimeout(() => {
-        this.openedDrawers += 1;
-      }, 10);
-      const searchDialog = document.querySelector('#searchDialog');
-      if (searchDialog) {
-        searchDialog.style.zIndex = 'revert';
+      const showOverlay = !event?.detail;
+      if (showOverlay) {
+        window.setTimeout(() => {
+          this.openedDrawers += 1;
+        }, 10);
+      } else {
+        window.setTimeout(() => {
+          const openedOverlay = document.querySelector('.PORTLET-FRAGMENT .v-overlay--active');
+          if (openedOverlay) {
+            openedOverlay.onclick = this.closeDisplayedDrawerEffectively;
+          }
+        }, 200);
       }
     },
     forceHideOverlay() {
@@ -63,10 +72,6 @@ export default {
           this.openedDrawers -= 1;
           if (this.openedDrawers === 0) {
             this.uiPortalApplicationElement.classList.remove('decrease-z-index');
-          }
-          const searchDialog = document.querySelector('#searchDialog');
-          if (searchDialog) {
-            searchDialog.style.zIndex = '';
           }
         }, 10);
       }

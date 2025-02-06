@@ -131,15 +131,11 @@ export default {
     },
     decrementNumber() {
       this.adjust();
-      if (Number(this.num) > this.min) {
-        this.num = Number(this.num) - this.step;
-      }
+      this.num = Math.max(this.min, Number(this.num) - this.step);
     },
     incrementNumber() {
       this.adjust();
-      if (Number(this.num) < this.max) {
-        this.num = Number(this.num) + this.step;
-      }
+      this.num = Math.min(this.max, Number(this.num) + this.step);
     },
     handleInputValidation() {
       if (!this.initialized) {

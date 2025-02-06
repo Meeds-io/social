@@ -19,8 +19,9 @@
   <v-container class="siteDetails" :class="extraClass">
     <v-card
       v-if="site"
-      flat
-      class="full-height">
+      class="full-height"
+      color="transparent"
+      flat>
       <row
         v-if="!$root.displaySequentially && !displaySequentially"
         class="px-4 pt-3 position-absolute z-index-one">
@@ -40,7 +41,7 @@
         :alt="site?.displayName"
         width="100%"
         height="auto"
-        class="mx-1 mt-1 card-border-radius"
+        class="mt-1 card-border-radius"
         eager>
       <v-card-title :title="site?.displayName" class="text-body font-weight-bold">
         {{ site?.displayName }}

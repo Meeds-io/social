@@ -174,14 +174,6 @@
       <name>prefetch.resources</name>
       <value>true</value>
     </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social/SpaceInfos</value>
-    </init-param>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -474,14 +466,12 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/topbarPreview.html</value>
+      <value>/WEB-INF/jsp/portlet/topbarPreview.jsp</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
       <value>no-layout-style</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -752,15 +742,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/peopleOverview.jsp</value>
-    </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>PORTLET/social/PeopleOverview</value>
+      <value>/html/peopleOverview.html</value>
     </init-param>
     <init-param>
       <name>prefetch.resources</name>
@@ -770,6 +752,8 @@
       <name>prefetch.resource.rest</name>
       <value><![CDATA[/portal/rest/v1/social/users/connections/pending?offset=0&limit=0&expand=&returnSize=true|/portal/rest/v1/social/users/connections/invitations?offset=0&limit=0&expand=&returnSize=true]]></value>
     </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -843,15 +827,7 @@
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/html/blank.html</value>
-    </init-param>
-    <init-param>
-      <name>use-js-manager</name>
-      <value>true</value>
-    </init-param>
-    <init-param>
-      <name>js-manager-jsModule</name>
-      <value>SHARED/popover</value>
+      <value>/html/popover.html</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
@@ -952,27 +928,6 @@
   </portlet>
 
   <portlet>
-    <portlet-name>DrawersOverlay</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
-    <init-param>
-      <name>portlet-view-dispatched-file-path</name>
-      <value>/html/drawersOverlay.html</value>
-    </init-param>
-    <init-param>
-      <name>layout-css-class</name>
-      <value>no-layout-style</value>
-    </init-param>
-    <expiration-cache>-1</expiration-cache>
-    <cache-scope>PUBLIC</cache-scope>
-    <supports>
-      <mime-type>text/html</mime-type>
-    </supports>
-    <portlet-info>
-      <title>Technical Drawers Overlay Portlet</title>
-    </portlet-info>
-  </portlet>
-
-  <portlet>
     <portlet-name>NotificationAdministration</portlet-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
     <init-param>
@@ -998,10 +953,6 @@
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/html/verticalMenu.html</value>
-    </init-param>
-    <init-param>
-      <name>layout-css-class</name>
-      <value>no-layout-style</value>
     </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>

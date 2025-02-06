@@ -123,46 +123,34 @@ if (eXo.env.portal.userIdentityId) {
 
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
-const urls = [
-  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
-  `/social/i18n/locale.social.Webui?lang=${lang}`,
-  `/social/i18n/locale.commons.Commons?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.UserPopup?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`,
-  `/social/i18n/locale.portal?lang=${lang}`,
-];
 
 if (!window.drawersOverlayInitialized) {
+  const urls = [
+    `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+    `/social/i18n/locale.social.Webui?lang=${lang}`,
+    `/social/i18n/locale.commons.Commons?lang=${lang}`,
+    `/social/i18n/locale.portlet.social.UserPopup?lang=${lang}`,
+    `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`,
+    `/social/i18n/locale.portal?lang=${lang}`,
+  ];
   window.drawersOverlayInitialized = true;
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => init(i18n));
 }
 
 export function init(i18n) {
+  const parentElement = document.querySelector('#drawers-overlay');
+  if (!document.querySelector('#drawers-overlay')) {
+    return;
+  }
   if ((document.readyState === 'interactive' && document.querySelector('#drawers-overlay')) || document.readyState === 'complete') {
-    if (document.querySelector('#drawers-overlay')) {
-      new Vue({
-        template: '<drawers-overlay id="drawers-overlay" />',
-        vuetify: Vue.prototype.vuetifyOptions,
-        i18n,
-      }).$mount('#drawers-overlay');
-    } else { // Needed for anonymous pages (login, register ...)
-      const parentDrawersOverlayElement = document.querySelector('#MiddleToolBarChildren') || document.body;
-      let drawersOverlayElement = parentDrawersOverlayElement.querySelector('#drawers-overlay');
-      if (!drawersOverlayElement) {
-        drawersOverlayElement = document.createElement('div');
-        drawersOverlayElement.id = 'drawers-overlay';
-        drawersOverlayElement.class = 'v-application v-application--is-ltr transparent theme--light';
-        parentDrawersOverlayElement.appendChild(drawersOverlayElement);
-        parentDrawersOverlayElement.classList.add('VuetifyApp');
-        new Vue({
-          template: '<drawers-overlay id="drawers-overlay" />',
-          vuetify: Vue.prototype.vuetifyOptions,
-          i18n,
-        }).$mount(drawersOverlayElement);
-      }
-    }
-    let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#bottom-all-container');
+    new Vue({
+      template: '<drawers-overlay id="drawers-overlay" />',
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n,
+    }).$mount(parentElement);
+    parentElement.id = null;
+    let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#body-end-container');
     let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
     if (!alertNotificationsElement) {
       if (!parentNotificationsElement) {

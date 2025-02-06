@@ -19,9 +19,10 @@
 
 -->
 <template>
-  <v-app class="singlePageApplication">
+  <v-app class="application-body">
     <v-card
       class="pageNotFoundInfo py-12 text-center"
+      color="transparent"
       flat>
       <v-card-text>
         <v-icon color="primary" class="fa-7x">

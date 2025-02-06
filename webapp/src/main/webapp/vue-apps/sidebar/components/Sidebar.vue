@@ -56,6 +56,9 @@
           :opened-space="space"
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
+        <v-overlay
+          v-if="showInnerOverlay"
+          absolute />
       </template>
       <template v-else>
         <sidebar-first-level
@@ -132,13 +135,16 @@ export default {
     mode() {
       return this.$root.mode;
     },
+    showInnerOverlay() {
+      return this.$root.sticky && (this.secondLevelDrawer || this.thirdLevelDrawer);
+    },
   },
   watch: {
     showOverlay() {
       if (this.showOverlay) {
-        document.dispatchEvent(new CustomEvent('drawerOpened'));
+        document.dispatchEvent(new CustomEvent('drawerOpened', {detail: true}));
       } else {
-        document.dispatchEvent(new CustomEvent('drawerClosed'));
+        document.dispatchEvent(new CustomEvent('drawerClosed', {detail: true}));
       }
     },
     iconDisplay: {

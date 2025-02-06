@@ -19,6 +19,39 @@
 
 
 export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions, excludeGroupNodesWithoutPageChildNodes, temporalCheck, visibility) {
+  return getSitesByFilter({
+    siteType,
+    excludedSiteType,
+    excludedSiteName,
+    excludeEmptyNavigationSites,
+    excludeSpaceSites,
+    expandNavigations,
+    filterByDisplayed,
+    sortByDisplayOrder,
+    displayed,
+    filterByPermissions,
+    excludeGroupNodesWithoutPageChildNodes,
+    temporalCheck,
+    visibility
+  });
+}
+
+export function getSitesByFilter({
+  siteType,
+  excludedSiteType,
+  excludedSiteName,
+  excludeEmptyNavigationSites,
+  excludeSpaceSites,
+  expandNavigations,
+  filterByDisplayed,
+  sortByDisplayOrder,
+  displayed,
+  filterByPermissions,
+  excludeGroupNodesWithoutPageChildNodes,
+  temporalCheck,
+  visibility,
+  expand
+}) {
   const formData = new FormData();
   if (siteType) {
     formData.append('siteType', siteType);
@@ -31,22 +64,25 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
     formData.append('excludedSiteName', excludedSiteName);
   }
   formData.append('lang', eXo.env.portal.language);
-  formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites);
-  formData.append('excludeGroupNodesWithoutPageChildNodes', excludeGroupNodesWithoutPageChildNodes);
-  formData.append('temporalCheck', temporalCheck);
-  formData.append('excludeSpaceSites', excludeSpaceSites);
-  formData.append('expandNavigations', expandNavigations);
+  formData.append('excludeEmptyNavigationSites', excludeEmptyNavigationSites || false);
+  formData.append('excludeGroupNodesWithoutPageChildNodes', excludeGroupNodesWithoutPageChildNodes || false);
+  formData.append('temporalCheck', temporalCheck || false);
+  formData.append('excludeSpaceSites', excludeSpaceSites || false);
+  formData.append('expandNavigations', expandNavigations || false);
   if (visibility) {
     visibility.forEach(visibility => {
       formData.append('visibility', visibility);
     });
   }
-  formData.append('filterByDisplayed', filterByDisplayed);
-  formData.append('sortByDisplayOrder', sortByDisplayOrder);
+  formData.append('filterByDisplayed', filterByDisplayed || false);
+  formData.append('sortByDisplayOrder', sortByDisplayOrder || false);
   if (filterByDisplayed) {
     formData.append('displayed', displayed);
   }
-  formData.append('filterByPermissions', filterByPermissions);
+  if (expand) {
+    formData.append('expand', expand);
+  }
+  formData.append('filterByPermissions', filterByPermissions || false);
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites?${params}`, {
