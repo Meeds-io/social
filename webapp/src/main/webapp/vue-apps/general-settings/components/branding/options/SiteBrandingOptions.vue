@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <div class="d-block ps-lg-6">
+  <div class="d-block ps-lg-6 mt-10">
     <div class="text-header">
       {{ $t('generalSettings.options.title') }}
     </div>
