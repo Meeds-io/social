@@ -55,9 +55,6 @@
                       <template v-else-if="$root.selectedTab === 'login'">
                         {{ $t('generalSettings.loginCharacteristics') }}
                       </template>
-                      <template v-else-if="$root.selectedTab === 'access'">
-                        {{ $t('generalSettings.access') }}
-                      </template>
                       <template v-else-if="$root.selectedTab === 'navigation'">
                         {{ $t('generalSettings.navigationCharacteristics') }}
                       </template>
@@ -79,13 +76,6 @@
               v-else-if="$root.selectedTab === 'login'"
               ref="loginSettings"
               :branding="branding"
-              @saved="init"
-              @changed="changed = $event"
-              @close="close" />
-            <portal-general-settings-hub-access
-              v-else-if="$root.selectedTab === 'access'"
-              ref="registrationSettings"
-              :registration-settings="registrationSettings"
               @saved="init"
               @changed="changed = $event"
               @close="close" />
@@ -143,23 +133,6 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'login'">
-                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
-                  </v-btn>
-                </v-list-item-action>
-              </v-list-item>
-              <v-list-item class="px-0" two-line>
-                <v-list-item-content>
-                  <v-list-item-title class="text-title">
-                    {{ $t('generalSettings.access') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ $t('generalSettings.subtitle.access') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-                <v-list-item-action>
-                  <v-btn
-                    icon
-                    @click="$root.selectedTab = 'access'">
                     <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
                   </v-btn>
                 </v-list-item-action>
@@ -226,7 +199,6 @@
 export default {
   data: () => ({
     branding: null,
-    registrationSettings: null,
     errorMessage: null,
     intialized: false,
     changed: false,
@@ -244,9 +216,7 @@ export default {
     },
   },
   created() {
-    if (window.location.hash === '#platformaccess') {
-      this.$root.selectedTab = 'access';
-    } else if (window.location.hash === '#display') {
+    if (window.location.hash === '#display') {
       this.$root.selectedTab = 'branding';
     } else if (window.location.hash === '#navigation') {
       this.$root.selectedTab = 'navigation';
@@ -266,16 +236,11 @@ export default {
     init() {
       this.$root.loading = true;
       return this.initBranding()
-        .then(this.initRegistration)
         .finally(() => this.$root.loading = false);
     },
     initBranding() {
       return this.$brandingService.getBrandingInformation()
         .then(data => this.branding = data);
-    },
-    initRegistration() {
-      return this.$registrationService.getRegistrationSettings()
-        .then(data => this.registrationSettings = data);
     },
     close() {
       if (this.changed) {
