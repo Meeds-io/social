@@ -39,6 +39,11 @@ export default {
         resetEvent: 'reset-theme-colors'
       },
       {
+        name: 'pageStylingDrawer',
+        event: 'open-page-styling-drawer',
+        resetEvent: 'reset-page-styling'
+      },
+      {
         name: 'topBarStyling',
         event: 'open-top-bar-styling-drawer',
         resetEvent: 'reset-top-bar-styling'
