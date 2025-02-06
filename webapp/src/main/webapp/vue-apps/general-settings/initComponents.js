@@ -56,6 +56,7 @@ import TopBarStylingDrawer from './components/branding/drawers/TopBarStylingDraw
 import TextInput from './components/branding/form/TextInput.vue';
 import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDrawer.vue';
 import DrawerStyling from './components/branding/drawers/DrawerStyling.vue';
+import PageStylingDrawer from './components/branding/drawers/PageStylingDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -73,6 +74,7 @@ const components = {
   'portal-general-settings-branding-top-bar-styling-drawer': TopBarStylingDrawer,
   'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
   'portal-general-settings-branding-drawer-styling': DrawerStyling,
+  'portal-general-settings-branding-page-styling-drawer': PageStylingDrawer,
   'portal-general-settings-branding-text-input': TextInput,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BackgroundInput,
