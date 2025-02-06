@@ -101,7 +101,7 @@
     <v-col
       cols="12"
       class="pa-0">
-      <div :class="!isMobile && 'position-absolute b-0 r-0' || ''" class="d-flex justify-end mt-2 pb-2">
+      <div class="d-flex justify-end mt-4 pb-2">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
           :disabled="loading"
@@ -135,6 +135,7 @@
     <portal-general-settings-branding-top-bar-styling-drawer :top-bar-styling-properties="topBarStylingProperties" />
     <portal-general-settings-branding-sidebar-styling-drawer :side-bar-styling-properties="sideBarStylingProperties" />
     <portal-general-settings-branding-drawer-styling :drawer-styling-properties="drawerStylingProperties" />
+    <portal-general-settings-branding-page-styling-drawer :page-styling-properties="pageStylingProperties" />
   </v-row>
 </template>
 <script>
@@ -150,21 +151,19 @@ export default {
     primaryColor: null,
     secondaryColor: null,
     tertiaryColor: null,
-    borderRadius: null,
     errorMessage: null,
     logoUploadId: null,
-    fullWindowWidth: '100%',
-    fullWindow: null,
     faviconUploadId: null,
-    originalBackgroundProperties: null,
-    backgroundProperties: null,
-    defaultBackgroundColor: '#F2F2F2FF',
+    defaultCustomPageWidth: '1320px',
+    defaultPageBackground: '#F0F0F0',
     topBarStylingProperties: null,
     isTopBarStylingPropertiesChanged: false,
     sideBarStylingProperties: null,
     isSideBarStylingPropertiesChanged: false,
     drawerStylingProperties: null,
     isDrawerStylingPropertiesChanged: false,
+    pageStylingProperties: null,
+    isPageStylingPropertiesChanged: false,
     brandingStylingType: Object.freeze({
       TOP_BAR: 'topBar',
       SIDE_BAR: 'sideBar',
@@ -197,30 +196,15 @@ export default {
       return this.companyName?.length
           && this.primaryColor?.length
           && this.secondaryColor?.length
-          && this.tertiaryColor?.length
-          && this.borderRadius >= 0;
+          && this.tertiaryColor?.length;
     },
     changed() {
       if (!this.branding) {
         return false;
       }
-      if (this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged
-          || this.isSideBarStylingPropertiesChanged || this.isDrawerStylingPropertiesChanged ) {
-        return true;
-      }
-      const oldBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
-        ...this.originalBackgroundProperties,
-      });
-      const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
-        companyName: this.companyName,
-        ...this.backgroundProperties,
-        pageWidth: this.fullWindow && this.fullWindowWidth || null,
-      });
-      newBranding.themeStyle.primaryColor = this.primaryColor;
-      newBranding.themeStyle.secondaryColor = this.secondaryColor;
-      newBranding.themeStyle.tertiaryColor = this.tertiaryColor;
-      newBranding.themeStyle.borderRadius = `${this.borderRadius}px`;
-      return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
+      return this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged
+          || this.isSideBarStylingPropertiesChanged || this.isDrawerStylingPropertiesChanged
+          || this.isPageStylingPropertiesChanged;
     },
   },
   watch: {
@@ -250,25 +234,11 @@ export default {
         }
       });
     },
-    backgroundProperties: {
-      deep: true,
-      handler() {
-        this.setBackgroungPropertiesPreview();
-      },
-    },
     tertiaryColor() {
       this.$root.$emit('refresh-style-property', {
         detail: {
           propertyName: '--allPagesTertiaryColor',
           propertyValue: this.tertiaryColor
-        }
-      });
-    },
-    borderRadius() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesBorderRadius',
-          propertyValue: `${this.borderRadius}px`
         }
       });
     },
@@ -288,6 +258,8 @@ export default {
     this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
     this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
     this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
+    this.$root.$on('update-page-styling-properties', this.updatePageStylingProperties);
+    this.$root.$on('reset-page-styling', this.resetPageStyling);
   },
   mounted() {
     this.init();
@@ -301,6 +273,8 @@ export default {
     this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
     this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
     this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
+    this.$root.$off('update-page-styling-properties', this.updatePageStylingProperties);
+    this.$root.$off('reset-page-styling', this.resetPageStyling);
   },
   methods: {
     init() {
@@ -310,57 +284,22 @@ export default {
       this.primaryColor = this.defaultPrimaryColor;
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
-      this.borderRadius = this.defaultBorderRadius;
-      this.backgroundProperties = {
+      this.pageStylingProperties = {
         pageBackground: this.branding?.pageBackground || null,
         pageBackgroundSize: this.branding?.pageBackgroundSize || null,
         pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
         pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
         pageBackgroundColor: this.branding?.pageBackgroundColor || null,
+        pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
+        borderRadius: this.defaultBorderRadius,
+        pageWidth: this.branding.pageWidth
       };
       this.logoUploadId = null;
       this.faviconUploadId = null;
       this.errorMessage = null;
-      this.fullWindow = !!this.branding?.pageWidth;
       this.topBarStylingProperties = this.createStylingProperties(this.branding.themeStyle,this.branding.topBarBackground, this.brandingStylingType.TOP_BAR);
       this.sideBarStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.sideBarBackground, this.brandingStylingType.SIDE_BAR);
       this.drawerStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.drawerBackground, this.brandingStylingType.DRAWER);
-    },
-    setBackgroungPropertiesPreview() {
-      if (this.changed && this.originalBackgroundProperties) {
-        this.$root.$emit('refresh-body-style-property', {
-          name: '--allPagesBackgroundColor',
-          value: this.backgroundProperties.pageBackgroundColor || this.defaultBackgroundColor,
-        });
-        this.$root.$emit('refresh-body-style-property', {
-          name: '--allPagesBackgroundRepeat',
-          value: this.backgroundProperties.pageBackgroundRepeat || 'no-repeat',
-        });
-        this.$root.$emit('refresh-body-style-property', {
-          name: '--allPagesBackgroundSize',
-          value: this.backgroundProperties.pageBackgroundSize || 'unset',
-        });
-        this.$root.$emit('refresh-body-style-property', {
-          name: '--allPagesBackgroundPosition',
-          value: this.backgroundProperties.pageBackgroundPosition || 'unset',
-        });
-        this.$root.$emit('refresh-body-style-property', {
-          name: 'background-image',
-          value: null,
-        });
-        if (this.backgroundProperties.pageBackground?.data) {
-          this.$root.$emit('refresh-body-style-property', {
-            name: 'background-image',
-            value: `url(${this.$utils.convertImageDataAsSrc(this.backgroundProperties.pageBackground?.data)})`,
-          });
-        } else if (this.backgroundProperties.pageBackgroundColor
-            || (!this.backgroundProperties.pageBackground?.uploadId && !this.backgroundProperties.pageBackground?.fileId)) {
-          this.$root.$emit('refresh-body-style-property', {
-            name: '--allPagesBackgroundImage',
-            value: 'none',
-          });
-        }
-      }
     },
     save() {
       this.errorMessage = null;
@@ -374,7 +313,7 @@ export default {
         primaryColor: this.primaryColor,
         secondaryColor: this.secondaryColor,
         tertiaryColor: this.tertiaryColor,
-        borderRadius: `${this.borderRadius}px`,
+        borderRadius: `${this.pageStylingProperties.borderRadius}px`,
       };
       themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
       themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
@@ -393,13 +332,14 @@ export default {
         sideBarBackground: sideBarBackground,
         drawerBackground: drawerBackground,
         pageBackground: {
-          uploadId: this.backgroundProperties.pageBackground?.uploadId,
+          uploadId: this.pageStylingProperties.pageBackground?.uploadId,
         },
-        pageBackgroundSize: this.backgroundProperties.pageBackgroundSize || null,
-        pageBackgroundRepeat: this.backgroundProperties.pageBackgroundRepeat || null,
-        pageBackgroundPosition: this.backgroundProperties.pageBackgroundPosition || null,
-        pageBackgroundColor: this.backgroundProperties.pageBackgroundColor || null,
-        pageWidth: this.fullWindow && this.fullWindowWidth || null,
+        pageBackgroundSize: this.pageStylingProperties.pageBackgroundSize || null,
+        pageBackgroundRepeat: this.pageStylingProperties.pageBackgroundRepeat || null,
+        pageBackgroundPosition: this.pageStylingProperties.pageBackgroundPosition || null,
+        pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
+        pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
+        pageWidth: this.pageStylingProperties.pageWidth,
       });
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
@@ -628,8 +568,77 @@ export default {
       }, this.brandingStylingType.DRAWER);
       this.isDrawerStylingPropertiesChanged = true;
       this.refreshDrawerPreview();
+    },
+    updatePageStylingProperties(backgroundProperties, borderRadius, pageWidth) {
+      this.pageStylingProperties = {
+        pageBackground: backgroundProperties?.background,
+        pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
+        pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
+        pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
+        pageBackgroundColor: backgroundProperties?.backgroundColor ,
+        pageBackgroundEffect: backgroundProperties?.backgroundEffect,
+        borderRadius: borderRadius,
+        pageWidth: pageWidth
+      };
+      this.isPageStylingPropertiesChanged = true;
+      this.updatePagePropertiesPreview();
+    },
+    updatePagePropertiesPreview() {
+      this.$root.$emit('refresh-style-property', {
+        detail: {
+          propertyName: '--allPagesBorderRadius',
+          propertyValue: `${this.pageStylingProperties.borderRadius}px`
+        }
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundColor',
+        value: this.pageStylingProperties.pageBackgroundColor || this.defaultBackgroundColor,
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundRepeat',
+        value: this.pageStylingProperties.pageBackgroundRepeat || 'no-repeat',
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundSize',
+        value: this.pageStylingProperties.pageBackgroundSize || 'unset',
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundPosition',
+        value: this.pageStylingProperties.pageBackgroundPosition || 'unset',
+      });
+      this.$root.$emit('refresh-body-style-property', {
+        name: 'background-image',
+        value: null,
+      });
+      let url = null;
+      if (this.pageStylingProperties.pageBackground?.data) {
+        url = `url(${this.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
+        if (this.pageStylingProperties?.pageBackgroundEffect) {
+          url = `${url}, ${this.pageStylingProperties.pageBackgroundEffect}`;
+        }
+      } else if (this.pageStylingProperties.pageBackground?.fileId && this.pageStylingProperties?.pageBackgroundEffect) {
+        url = `url(/portal/rest/v1/platform/branding/pageBackground?v="), ${this.pageStylingProperties?.pageBackgroundEffect}`;
+      } else if (this.pageStylingProperties?.pageBackgroundEffect) {
+        url = this.pageStylingProperties?.pageBackgroundEffect;
+      }
+      this.$root.$emit('refresh-body-style-property', {
+        name: '--allPagesBackgroundImage',
+        value: url !== null && url || 'none',
+      });
+    },
+    resetPageStyling() {
+      this.pageStylingProperties.pageBackground = {
+        data: null,
+        fileId: 0,
+        updatedDate: 0,
+        uploadId: 0,
+      };
+      this.pageStylingProperties.pageWidth = this.defaultCustomPageWidth;
+      this.pageStylingProperties.borderRadius = this.$root.defaultBrandingThemeStyle.borderRadius.split('px')[0];
+      this.pageStylingProperties.pageBackgroundColor = this.defaultPageBackground;
+      this.pageStylingProperties.pageBackgroundEffect = null;
+      this.isPageStylingPropertiesChanged = true;
     }
-
   }
 };
 </script>
