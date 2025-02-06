@@ -203,6 +203,7 @@ export default {
     errorMessage: null,
     intialized: false,
     changed: false,
+    defaultBrandingThemeStyle: null,
   }),
   watch: {
     branding() {
