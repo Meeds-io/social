@@ -20,15 +20,14 @@
 
 package org.exoplatform.social.core.profileproperty;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import io.meeds.social.translation.model.TranslationField;
-import io.meeds.social.translation.service.TranslationService;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.picocontainer.Startable;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -46,8 +45,12 @@ import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.search.ProfileIndexingServiceConnector;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.profileproperty.storage.ProfileSettingStorage;
+
+import io.meeds.social.translation.model.TranslationField;
+import io.meeds.social.translation.service.TranslationService;
 
 public class ProfilePropertyServiceImpl implements ProfilePropertyService, Startable {
 
@@ -61,7 +64,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private final IndexingService                      indexingService;
 
   private final ListenerService                      listenerService;
-  
+
   private final TranslationService                   translationService;
 
   private static final String                        SYNCHRONIZED_DISABLED_PROPERTIES       = "synchronizationDisabledProperties";
@@ -72,16 +75,6 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private static final String                        EXCLUDED_ANALYTICS_INDEX_PROPERTIES    = "excludedAnalyticsIndexProperties";
 
-  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins                 = new ArrayList<>();
-
-  private List<String>                               synchronizedGroupDisabledProperties    = new ArrayList<>();
-
-  private static List<String>                        nonHiddenableProps                     = new ArrayList<>();
-
-  private static List<String>                        excludedQuickSearchProps               = new ArrayList<>();
-  
-  private static List<String>                        excludedAnalyticsIndexProps           = new ArrayList<>();
-
   private static final Scope                         HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE =
                                                                                             Scope.APPLICATION.id("ProfilePropertySettings");
 
@@ -90,18 +83,29 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private static final String                        PROFILE_PROPERTY_FIELD_NAME            = "optionValue";
 
   private static final String                        PROFILE_PROPERTY_OBJECT_TYPE           = "propertySettingOption";
-  
+
+  protected List<ProfilePropertyDatabaseInitializer> profielPropertyPlugins                 = new ArrayList<>();
+
+  private List<String>                               synchronizedGroupDisabledProperties    = new ArrayList<>();
+
+  private List<String>                               nonHiddenableProps                     = new ArrayList<>();
+
+  private List<String>                               excludedQuickSearchProps               = new ArrayList<>();
+
+  private List<String>                               excludedAnalyticsIndexProps            = new ArrayList<>();
+
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
                                     SettingService settingService,
                                     IndexingService indexingService,
-                                    ListenerService listenerService, TranslationService translationService) {
+                                    ListenerService listenerService,
+                                    TranslationService translationService) {
     this.profileSettingStorage = profileSettingStorage;
     this.settingService = settingService;
     this.indexingService = indexingService;
     this.listenerService = listenerService;
     this.translationService = translationService;
-      if (params != null) {
+    if (params != null) {
       try {
         synchronizedGroupDisabledProperties = Arrays.asList(params.getValueParam(SYNCHRONIZED_DISABLED_PROPERTIES)
                                                                   .getValue()
@@ -155,43 +159,40 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   }
 
   @Override
-  public boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting) {
-    if (nonHiddenableProps.contains(propertySetting.getPropertyName()) || hasChildProperties(propertySetting)) {
-      return false;
-    }
-    return propertySetting.isHiddenbale();
+  public boolean isPropertySettingHiddenable(Long id) {
+    return isPropertySettingHiddenable(getProfileSettingById(id));
   }
 
   @Override
   public ProfilePropertySetting createPropertySetting(ProfilePropertySetting profilePropertySetting) throws ObjectAlreadyExistsException {
 
     validatePropertySetting(profilePropertySetting);
-    
+
     ProfilePropertySetting storedProfilePropertySetting =
                                                         profileSettingStorage.findProfileSettingByName(profilePropertySetting.getPropertyName());
     if (storedProfilePropertySetting != null) {
       throw new ObjectAlreadyExistsException(storedProfilePropertySetting,
                                              "A profile property with the provided name already exists.");
     }
-    
+
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
     }
 
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting,
-                                                                                                          true);
+                                                                                    true);
     savePropertyOptionsTranslations(storedProfilePropertySetting, profilePropertySetting.getPropertyOptions(), false);
     if (storedProfilePropertySetting.getOrder() == null) {
       storedProfilePropertySetting.setOrder(storedProfilePropertySetting.getId());
       storedProfilePropertySetting = profileSettingStorage.saveProfilePropertySetting(storedProfilePropertySetting, false);
     }
-    
+
     try {
       listenerService.broadcast("profile-property-setting-created", this, storedProfilePropertySetting);
     } catch (Exception e) {
       LOG.error("An error occurred while broadcasting the creation event for the property setting '{}'.",
-              storedProfilePropertySetting.getPropertyName(),
+                storedProfilePropertySetting.getPropertyName(),
                 e);
     }
     return storedProfilePropertySetting;
@@ -199,9 +200,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   @Override
   public void updatePropertySetting(ProfilePropertySetting profilePropertySetting) {
-    
+
     validatePropertySetting(profilePropertySetting);
-    
+
     if (profilePropertySetting.isHiddenbale()
         && getUnhiddenableProfileProperties().contains(profilePropertySetting.getPropertyName())) {
       throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
@@ -214,20 +215,24 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (createdProfilePropertySetting != null && isDefaultProperties(profilePropertySetting)) {
       profilePropertySetting.setMultiValued(createdProfilePropertySetting.isMultiValued());
     }
-    // Prevent any attempt to update the property type of created property setting
+    // Prevent any attempt to update the property type of created property
+    // setting
     if (createdProfilePropertySetting != null) {
       profilePropertySetting.setPropertyType(createdProfilePropertySetting.getPropertyType());
     }
     profilePropertySetting.setUpdated(System.currentTimeMillis());
-    ProfilePropertySetting updatedPropertySetting = profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
+    ProfilePropertySetting updatedPropertySetting =
+                                                  profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
     savePropertyOptionsTranslations(updatedPropertySetting, profilePropertySetting.getPropertyOptions(), true);
     try {
       listenerService.broadcast("profile-property-setting-updated", this, updatedPropertySetting);
     } catch (Exception e) {
-      LOG.error("An error occurred when broadcasting the update event of the property setting {}", updatedPropertySetting.getPropertyName(), e);
+      LOG.error("An error occurred when broadcasting the update event of the property setting {}",
+                updatedPropertySetting.getPropertyName(),
+                e);
     }
   }
-  
+
   @Override
   public void deleteProfilePropertySetting(Long id) {
     if (id <= 0) {
@@ -237,15 +242,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   }
 
   @Override
-  public boolean isGroupSynchronizedEnabledProperty(ProfilePropertySetting profilePropertySetting) {
-    if (synchronizedGroupDisabledProperties.contains(profilePropertySetting.getPropertyName())) {
-      return false;
-    }
-    if (profilePropertySetting.getParentId() != null && profilePropertySetting.getParentId() > 0) {
-      ProfilePropertySetting parent = profileSettingStorage.getProfileSettingById(profilePropertySetting.getParentId());
-      return parent == null || !synchronizedGroupDisabledProperties.contains(parent.getPropertyName());
-    }
-    return true;
+  public boolean isGroupSynchronizedEnabledProperty(Long id) {
+    return isGroupSynchronizedEnabledProperty(getProfileSettingById(id));
   }
 
   @Override
@@ -258,7 +256,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
    */
   @Override
   public void hidePropertySetting(long userIdentityId, long profilePropertyId) {
-    List<Long> hiddenProperties = getHiddenProfilePropertyIds(userIdentityId);hiddenProperties.remove(profilePropertyId);
+    List<Long> hiddenProperties = getHiddenProfilePropertyIds(userIdentityId);
+    hiddenProperties.remove(profilePropertyId);
     hiddenProperties.add(profilePropertyId);
     settingService.set(Context.USER.id(String.valueOf(userIdentityId)),
                        HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE,
@@ -280,7 +279,6 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
                        SettingValue.create(hiddenProperties.toString()));
     indexingService.reindex(ProfileIndexingServiceConnector.TYPE, String.valueOf(userIdentityId));
   }
-
 
   /**
    * {@inheritDoc}
@@ -331,11 +329,6 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   }
 
   @Override
-  public boolean hasChildProperties(ProfilePropertySetting propertySetting) {
-    return profileSettingStorage.hasChildProperties(propertySetting.getId());
-  }
-
-  @Override
   public boolean isDefaultProperties(ProfilePropertySetting propertySetting) {
     for (ProfilePropertyDatabaseInitializer plugin : profielPropertyPlugins) {
       if (plugin.getConfig().getProfileProperties() != null && !plugin.getConfig().getProfileProperties().isEmpty()
@@ -348,7 +341,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
     return false;
   }
-  
+
   private void validatePropertySetting(ProfilePropertySetting profilePropertySetting) {
     if (profilePropertySetting == null) {
       throw new IllegalArgumentException("Profile property setting object is mandatory.");
@@ -400,4 +393,24 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       }
     }
   }
+
+  private boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting) {
+    return propertySetting != null
+           && !nonHiddenableProps.contains(propertySetting.getPropertyName())
+           && !propertySetting.isHasChildProperties()
+           && propertySetting.isHiddenbale();
+  }
+
+  private boolean isGroupSynchronizedEnabledProperty(ProfilePropertySetting profilePropertySetting) {
+    if (profilePropertySetting == null
+        || synchronizedGroupDisabledProperties.contains(profilePropertySetting.getPropertyName())) {
+      return false;
+    }
+    if (profilePropertySetting.getParentId() != null && profilePropertySetting.getParentId() > 0) {
+      ProfilePropertySetting parent = profileSettingStorage.getProfileSettingById(profilePropertySetting.getParentId());
+      return parent == null || !synchronizedGroupDisabledProperties.contains(parent.getPropertyName());
+    }
+    return true;
+  }
+
 }
