@@ -12,7 +12,11 @@
   }
 %>
 <div class="VuetifyApp">
-  <div id="spaceInfosApp" class="uiBox">
-    <v-cacheable-dom-app cache-id="spaceInfosApp_<%=space == null ? "0" : space.getId()%>"></v-cacheable-dom-app>
+  <div data-app="true"
+    class="v-application spaceMenuParent v-application--is-ltr theme--light"
+    id="spaceInfosApp">
+    <script type="text/javascript">
+      require(['PORTLET/social/SpaceInfos'], app => app.init());
+    </script>
   </div>
 </div>
