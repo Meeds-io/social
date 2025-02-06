@@ -22,7 +22,7 @@
   <v-app class="py-2 px-6">
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="py-0">
-        <v-list-item-subtitle class="text-header pt-2">
+        <v-list-item-subtitle class="text-title pt-2">
           {{ $t('generalSettings.access.summary1') }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="text-body py-2">
@@ -54,7 +54,6 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mb-4"
       dense
       v-on="accessType === 'OPEN' && {
         click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
@@ -141,7 +140,6 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mb-4"
       dense
       v-on="accessType === 'RESTRICTED' && {
         click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
@@ -204,7 +202,7 @@
 
     <v-list-item class="pa-0 mt-4 mb-2">
       <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ $t('generalSettings.access.platformAuthentication') }}
         </v-list-item-title>
       </v-list-item-content>
@@ -242,7 +240,7 @@
 
     <v-list-item class="pa-0 mt-4 mb-2">
       <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ $t('generalSettings.access.startSettingPlatform') }}
         </v-list-item-title>
       </v-list-item-content>
