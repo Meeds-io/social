@@ -29,16 +29,30 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action class="d-flex flex-row my-auto">
-        <v-btn
-            icon
-            @click="emitOptionResetEvent">
-          <v-icon size="18" class="icon-default-color">fa-undo</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          @click="emitOptionEvent">
-          <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
-        </v-btn>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              icon
+              @click="emitOptionResetEvent">
+              <v-icon size="18" class="icon-default-color">fa-undo</v-icon>
+            </v-btn>
+          </template>
+          {{ $t('generalSettings.restore.button.tooltip') }}
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template #activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              icon
+              @click="emitOptionEvent">
+              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+            </v-btn>
+          </template>
+          {{ $t('generalSettings.edit.button.tooltip') }}
+        </v-tooltip>
       </v-list-item-action>
     </v-list-item>
   </div>
