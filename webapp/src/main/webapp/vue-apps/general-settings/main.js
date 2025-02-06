@@ -63,11 +63,7 @@ export function init(publicSiteVisible, publicSiteId) {
             }
           },
           selectedTab() {
-            if (this.selectedTab === 'access') {
-              if (window.location.hash !== '#platformaccess') {
-                window.location.hash = '#platformaccess';
-              }
-            } else if (this.selectedTab === 'branding') {
+            if (this.selectedTab === 'branding') {
               if (window.location.hash !== '#display') {
                 window.location.hash = '#display';
               }
