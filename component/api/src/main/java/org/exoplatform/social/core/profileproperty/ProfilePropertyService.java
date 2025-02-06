@@ -44,16 +44,16 @@ public interface ProfilePropertyService {
   List<ProfilePropertySetting> getSynchronizedPropertySettings();
 
   /**
-   * Retrieves the ProfileProperty item with given {@link ProfilePropertySetting}
-   * propertyName
+   * Retrieves the ProfileProperty item with given
+   * {@link ProfilePropertySetting} propertyName
    *
    * @return {@link ProfilePropertySetting} if exist or null if not
    */
   ProfilePropertySetting getProfileSettingById(Long id);
 
   /**
-   * Retrieves the ProfileProperty item with given {@link ProfilePropertySetting}
-   * propertyName
+   * Retrieves the ProfileProperty item with given
+   * {@link ProfilePropertySetting} propertyName
    *
    * @return {@link ProfilePropertySetting} if exist or null if not
    */
@@ -82,12 +82,13 @@ public interface ProfilePropertyService {
   void deleteProfilePropertySetting(Long id);
 
   /**
-   * Checks if the given {@link ProfilePropertySetting} object can be synchronized
-   * with a group
-   *
+   * Checks if the given {@link ProfilePropertySetting} object can be
+   * synchronized with a group
+   * 
+   * @param id {@link ProfilePropertySetting} identifier
    * @return {@link Boolean}
    */
-  boolean isGroupSynchronizedEnabledProperty(ProfilePropertySetting profilePropertySetting);
+  boolean isGroupSynchronizedEnabledProperty(Long id);
 
   /**
    * Retreive the list {@link List} of {@link String} of property settings names
@@ -99,16 +100,10 @@ public interface ProfilePropertyService {
   void addProfilePropertyPlugin(ComponentPlugin profilePropertyInitPlugin);
 
   /**
-   * Checks if the current property has child properties
+   * Checks if the current property is a default property
+   * 
    * @param propertySetting
-   * @return Boolean : true if the current property has child properties
-   */
-  boolean hasChildProperties(ProfilePropertySetting propertySetting);
-
-  /**
-   * Checks if the current property is a default propertie
-   * @param propertySetting
-   * @return Boolean : true if the current property is a default propertie
+   * @return Boolean : true if the current property is a default property
    */
   boolean isDefaultProperties(ProfilePropertySetting propertySetting);
 
@@ -129,10 +124,10 @@ public interface ProfilePropertyService {
   /**
    * Checks if property is hiddenable
    *
-   * @param propertySetting profile property setting
+   * @param id {@link ProfilePropertySetting} identifier
    * @return true if property is hiddenbale and false otherwise
    */
-  boolean isPropertySettingHiddenable(ProfilePropertySetting propertySetting);
+  boolean isPropertySettingHiddenable(Long id);
 
   /**
    * Hide profile property setting
@@ -141,7 +136,6 @@ public interface ProfilePropertyService {
    * @param profilePropertyId profile property id
    */
   void hidePropertySetting(long userIdentityId, long profilePropertyId);
-
 
   /**
    * Show profile property setting
