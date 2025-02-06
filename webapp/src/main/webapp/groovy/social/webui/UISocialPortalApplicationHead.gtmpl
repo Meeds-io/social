@@ -1,4 +1,6 @@
 <%
+  import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+  import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
   import org.exoplatform.ws.frameworks.cometd.ContinuationService;
   import org.mortbay.cometd.continuation.EXoContinuationBayeux;
   import org.exoplatform.commons.api.settings.ExoFeatureService;
@@ -28,6 +30,8 @@
   Set<String> supportedAttachmentObjectTypes = attachmentService.getSupportedObjectTypes();
   String viewerIdentityId = Utils.getViewerIdentityId();
   String ownerIdentityId = Utils.getOwnerIdentityId();
+  ProfilePropertyService profilePropertyService = uicomponent.getApplicationComponent(ProfilePropertyService.class);
+  ProfilePropertySetting profilePropertySetting = profilePropertyService.getProfileSettingByName("manager");
 %>
 <script type="text/javascript" id="socialHeadScripts">
      eXo.env.portal.spaceId = "<%=space == null ? "" : space.getId()%>" ;
@@ -45,6 +49,7 @@
      eXo.env.portal.isExternal = <%=Utils.isExternal(Utils.getViewerIdentity())%>;
      eXo.env.portal.cometdToken = "<%=cometdToken%>";
      eXo.env.portal.cometdContext = "<%=cometdContext%>";
+     eXo.env.portal.isOrganizationalChartEnabled = <%=profilePropertySetting != null && profilePropertySetting.isActive()%>;
      eXo.env.server.sessionId = "<%=rcontext.getRequest().getSession(true).getId()%>";
      eXo.env.portal.vuetifyPreset = {
        dark: true,

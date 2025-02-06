@@ -2034,8 +2034,8 @@ public class EntityBuilder {
     profilePropertySettingEntity.setOrder(profilePropertySetting.getOrder());
     profilePropertySettingEntity.setUpdated(profilePropertySetting.getUpdated());
     profilePropertySettingEntity.setMultiValued(profilePropertySetting.isMultiValued());
-    profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting));
-    profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting));
+    profilePropertySettingEntity.setGroupSynchronizationEnabled(profilePropertyService.isGroupSynchronizedEnabledProperty(profilePropertySetting.getId()));
+    profilePropertySettingEntity.setHiddenable(profilePropertyService.isPropertySettingHiddenable(profilePropertySetting.getId()));
     profilePropertySettingEntity.setIndexInAnalytics(profilePropertySetting.isIndexInAnalytics());
     profilePropertySettingEntity.setPropertyType(profilePropertySetting.getPropertyType());
     profilePropertySettingEntity.setLabels(profileLabelService.findLabelByObjectTypeAndObjectId(objectType,
@@ -2462,7 +2462,7 @@ public class EntityBuilder {
     ProfilePropertySetting profilePropertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
     return profilePropertySetting != null
            && (profilePropertySetting.isVisible()
-               || !getProfilePropertyService().isPropertySettingHiddenable(profilePropertySetting));
+               || !getProfilePropertyService().isPropertySettingHiddenable(profilePropertySetting.getId()));
   }
 
   private static org.exoplatform.services.security.Identity getCurrentUserIdentity() {

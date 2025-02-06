@@ -1729,7 +1729,7 @@ public class UserRest implements ResourceContainer, Startable {
               if (propertySetting == null) {
                 userImportResultEntity.addWarnMessage("ALL", "PROFILE_PROPERTY_DOES_NOT_EXIST:" + field);
                 unauthorizedFields.add(field);
-              } else if (profilePropertyService.hasChildProperties(propertySetting)) {
+              } else if (propertySetting.isHasChildProperties()) {
                 userImportResultEntity.addWarnMessage("ALL", "PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:" + field);
                 unauthorizedFields.add(field);
               } else if(propertySetting.isMultiValued() && !systemParentAndMultivaluedFields.contains(field)) {
