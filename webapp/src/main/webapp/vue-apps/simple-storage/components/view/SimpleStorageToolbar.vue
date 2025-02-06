@@ -24,6 +24,7 @@
       minCharacters: 1,
       placeholder: $t('simpleStorage.filter.placeholder'),
       tooltip: $t('simpleStorage.filter.placeholder'),
+      hide: true
     }"
     class="px-1"
     @filter-text-input="$emit('filter-changed', $event)"
