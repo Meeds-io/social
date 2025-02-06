@@ -23,7 +23,7 @@
     :is="list && 'v-list-item-avatar' || 'v-avatar'"
     :height="iconSize"
     :min-width="iconSize"
-    :style="`width: calc(${iconSize}px + 8px);`"
+    :width="iconSize + 8"
     class="d-flex justify-center align-center me-2"
     tile>
     <v-img
