@@ -25,14 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -51,10 +44,7 @@ import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.attachment.AttachmentService;
-import org.exoplatform.social.attachment.model.FileAttachmentResourceList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
-import org.exoplatform.social.attachment.model.ObjectAttachmentList;
-import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
+import org.exoplatform.social.attachment.model.*;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.service.rest.api.VersionResources;
 
@@ -157,7 +147,9 @@ public class AttachmentRest implements ResourceContainer {
                                  String objectType,
                                  @Parameter(description = "Identifier of object to which attachment will be associated", required = true)
                                  @PathParam("objectId")
-                                 String objectId) {
+                                 String objectId,
+                                 @QueryParam("offset") @DefaultValue("0") int offset,
+                                 @QueryParam("limit") @DefaultValue("0") int limit) {
     if (StringUtils.isBlank(objectType)) {
       return Response.status(Status.BAD_REQUEST)
                      .entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE)
@@ -172,7 +164,7 @@ public class AttachmentRest implements ResourceContainer {
     }
     try {
       Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
-      ObjectAttachmentList attachmentList = attachmentService.getAttachments(objectType, objectId, authenticatedUserIdentity);
+      ObjectAttachmentList attachmentList = attachmentService.getAttachments(objectType, objectId, authenticatedUserIdentity, offset, limit);
       return Response.ok(attachmentList).build();
     } catch (IllegalAccessException e) {
       return Response.status(Status.UNAUTHORIZED)
@@ -273,6 +265,78 @@ public class AttachmentRest implements ResourceContainer {
       return Response.status(Status.NOT_FOUND).entity(ATTACHMENT_OBJECT_NOT_FOUND_MESSAGE).build();
     } catch (IOException e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity("attachment.fileReadingError").build();
+    }
+  }
+
+  @POST
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Create an attachment", description = "Create an attachment", method = "POST")
+  @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "400", description = "Invalid query input"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized request") })
+  public Response createAttachment(@RequestBody(description = "Object file Attachment", required = true)
+                                   FileAttachmentResource attachmentResource) {
+
+    if (attachmentResource == null) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment resource object is mandatory").build();
+    }
+    if (attachmentResource.getFileAttachmentObject() == null) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment file object is mandatory").build();
+    }
+    if (attachmentResource.getObjectType() == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE).build();
+    }
+    if (attachmentResource.getObjectId() == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE).build();
+    }
+    try {
+      ObjectAttachmentDetail attachmentDetail = attachmentService.createAttachment(attachmentResource.getObjectType(),
+                                                                                   attachmentResource.getObjectId(),
+                                                                                   attachmentResource.getFileAttachmentObject(),
+                                                                                   RestUtils.getCurrentUserAclIdentity());
+      return Response.status(Status.CREATED).entity(attachmentDetail).build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    } catch (Exception e) {
+      return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
+
+  @DELETE
+  @Path("{objectType}/{objectId}/{fileId}")
+  @RolesAllowed("administrators")
+  @Produces(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Delete an attachment", description = "Delete an attachment", method = "DELETE")
+  @ApiResponses(value = { 
+          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "400", description = "Invalid query input"),
+          @ApiResponse(responseCode = "404", description = "Object not found"),
+          @ApiResponse(responseCode = "500", description = "Internal server error")})
+  public Response deleteAttachment(@Parameter(description = "attachment object type") @PathParam("objectType") String objectType, 
+                                   @Parameter(description = "attachment object id") @PathParam("objectId") String objectId,
+                                   @Parameter(description = "attachment file id") @PathParam("fileId") String fileId) {
+    
+    if (objectType == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_TYPE_REQUIRED_MESSAGE).build();
+    }
+    if (objectId == null) {
+      return Response.status(Status.BAD_REQUEST).entity(ATTACHMENT_OBJECT_ID_REQUIRED_MESSAGE).build();
+    }
+    if (fileId == null) {
+      return Response.status(Status.BAD_REQUEST).entity("attachment file id is mandatory").build();
+    }
+    ObjectAttachmentDetail objectAttachmentDetail = attachmentService.getAttachment(objectType, objectId, fileId);
+    if (objectAttachmentDetail == null) {
+      return Response.status(Status.NOT_FOUND).entity("attachment not found").build();
+    }
+    try {
+      attachmentService.deleteAttachment(objectType, objectId, fileId);
+      return Response.status(Status.NO_CONTENT).build();
+    } catch (Exception e) {
+      LOG.error("Error while deleting attachment", e);
+      return Response.status(Status.INTERNAL_SERVER_ERROR).build();
     }
   }
 

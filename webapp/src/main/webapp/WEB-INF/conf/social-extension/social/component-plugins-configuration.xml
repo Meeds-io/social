@@ -183,6 +183,11 @@
       <set-method>addPlugin</set-method>
       <type>io.meeds.social.image.plugin.ImageAttachmentPlugin</type>
     </component-plugin>
+    <component-plugin>
+      <name>PublicImageAttachmentPlugin</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.social.image.plugin.PublicImageAttachmentPlugin</type>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>
