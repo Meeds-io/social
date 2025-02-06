@@ -1,0 +1,5 @@
+              2025-02-06 eXo Support <support@exoplatform.org> 
+
+   # 6.5.5-exo Patches changelog: 
+
+
