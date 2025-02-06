@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <div class="pb-1">
+  <v-app class="py-2 px-6">
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="py-0">
         <v-list-item-subtitle class="text-header pt-2">
@@ -342,19 +342,13 @@
         </span>
       </v-btn>
     </div>
-    <portal-general-settings-default-spaces-drawer
+    <portal-general-default-spaces-drawer
       ref="defaultSpaceDrawer"
       v-model="defaultSpaceIds" />
-  </div>
+  </v-app>
 </template>
 <script>
 export default {
-  props: {
-    registrationSettings: {
-      type: Object,
-      default: null,
-    },
-  },
   data: () => ({
     createUsersLink: '/portal/administration/home/organisation/users',
     mandatorySpacesLink: '/portal/administration/home/organisation/spaces',
@@ -363,6 +357,7 @@ export default {
     externalUserRestrictedRegistration: false,
     defaultSpaceIds: [],
     initialized: false,
+    registrationSettings: null,
   }),
   computed: {
     validForm() {
@@ -419,7 +414,12 @@ export default {
     },
   },
   created() {
-    this.init();
+    this.$registrationService.getRegistrationSettings()
+      .then(data => {
+        this.registrationSettings = data;
+        this.init();
+      });
+
   },
   mounted() {
     this.$nextTick().then(() => this.initialized = true);

@@ -34,9 +34,6 @@ import SiteBranding from './components/branding/SiteBranding.vue';
 import SiteBrandingWindow from './components/branding/SiteBrandingWindow.vue';
 import SiteBrandingPreview from './components/branding/preview/SiteBrandingPreview.vue';
 
-import HubAccess from './components/registration/HubAccess.vue';
-import DefaultSpacesDrawer from './components/registration/DefaultSpacesDrawer.vue';
-
 import PublicSiteEditDrawer from './components/public-site/PublicSiteEditDrawer.vue';
 import DefaultLanguageDrawer from './components/language/DefaultLanguageDrawer.vue';
 
@@ -68,8 +65,6 @@ const components = {
   'portal-general-settings-background-input': BackgroundInput,
   'portal-general-settings-custom-style-input': CustomStyleInput,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,
-  'portal-general-settings-hub-access': HubAccess,
-  'portal-general-settings-default-spaces-drawer': DefaultSpacesDrawer,
   'portal-general-settings-public-site-drawer': PublicSiteEditDrawer,
   'portal-general-settings-default-language-drawer': DefaultLanguageDrawer,
   'portal-general-settings-navigation-settings': NavigationSettings,
