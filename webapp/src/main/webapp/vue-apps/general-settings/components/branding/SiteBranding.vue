@@ -164,6 +164,7 @@ export default {
     isDrawerStylingPropertiesChanged: false,
     pageStylingProperties: null,
     isPageStylingPropertiesChanged: false,
+    isThemeColorsChanged: false,
     brandingStylingType: Object.freeze({
       TOP_BAR: 'topBar',
       SIDE_BAR: 'sideBar',
@@ -204,7 +205,7 @@ export default {
       }
       return this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged
           || this.isSideBarStylingPropertiesChanged || this.isDrawerStylingPropertiesChanged
-          || this.isPageStylingPropertiesChanged;
+          || this.isPageStylingPropertiesChanged || this.isThemeColorsChanged;
     },
   },
   watch: {
@@ -355,6 +356,7 @@ export default {
       this.primaryColor = primary;
       this.secondaryColor = secondary;
       this.tertiaryColor = tertiary;
+      this.isThemeColorsChanged = true;
     },
     updateTopBarProperties(topBarBackgroundProperties, topBarTextProperties) {
       this.topBarStylingProperties = this.updateStylingProperties(topBarBackgroundProperties, topBarTextProperties, this.brandingStylingType.TOP_BAR);
