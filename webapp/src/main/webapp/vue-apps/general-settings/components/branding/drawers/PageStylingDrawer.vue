@@ -68,9 +68,10 @@
               <number-input
                 v-if="choice === 'custom'"
                 v-model="pageWidth"
-                :min="1"
+                :min="100"
                 :max="3000"
-                :step="1" />
+                :step="10"
+                editable />
             </v-list-item-action>
           </v-list-item>
           <span class="text-header mt-2">
