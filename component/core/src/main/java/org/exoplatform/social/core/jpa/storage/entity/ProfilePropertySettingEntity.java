@@ -31,16 +31,18 @@ import org.hibernate.annotations.BatchSize;
 @Entity(name = "SocProfileSettingEntity")
 @Table(name = "SOC_PROFILE_PROPERTY_SETTING ")
 
-@NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName", query = "SELECT c FROM SocProfileSettingEntity c WHERE propertyName = :name")
-@NamedQuery(name = "SocProfileSettingEntity.findSynchronizedSettings", query = "SELECT c FROM SocProfileSettingEntity c WHERE isGroupSynchronized = true")
+@NamedQuery(name = "SocProfileSettingEntity.findProfileSettingByName", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.propertyName = :name")
+@NamedQuery(name = "SocProfileSettingEntity.findSynchronizedSettings", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.isGroupSynchronized = true")
 @NamedQuery(name = "SocProfileSettingEntity.findOrderedSettings", query = "SELECT c FROM SocProfileSettingEntity c order by c.order")
-@NamedQuery(name = "SocProfileSettingEntity.findChildProperties", query = "SELECT c FROM SocProfileSettingEntity c WHERE parentId = :parentId order by c.order")
+@NamedQuery(name = "SocProfileSettingEntity.countChildProperties", query = "SELECT COUNT(c) FROM SocProfileSettingEntity c WHERE c.parentId = :id")
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
 public class ProfilePropertySettingEntity implements Serializable {
+
+  private static final long                 serialVersionUID = -2657229462239171339L;
 
   @Id
   @SequenceGenerator(name = "SEQ_SOC_PROPERTY_SETTING_ID", sequenceName = "SEQ_SOC_PROPERTY_SETTING_ID", allocationSize = 1)

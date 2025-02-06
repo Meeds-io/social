@@ -45,14 +45,13 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     super.setUp();
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
     profilePropertySettingDAO = getContainer().getComponentInstanceOfType(ProfilePropertySettingDAO.class);
-    getService(CachedProfileSettingStorage.class).clearCaches();
+    cleanData();
   }
 
   @Override
-  public void tearDown() throws Exception {
-    restartTransaction();
-    profilePropertySettingDAO.deleteAll();
-    super.tearDown();
+  protected void afterClass() {
+    cleanData();
+    super.afterClass();
   }
 
   public void testCreateProfilePropertySetting() throws Exception {
@@ -143,18 +142,24 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     assertFalse(profilePropertyService.getExcludedQuickSearchProperties().isEmpty());
   }
 
+  public void testIsSystemPropertySettingNonHiddenable() throws ObjectAlreadyExistsException {
+    ProfilePropertySetting unHiddenableProfilePropertySetting = createProfileSettingInstance("fullName");
+    unHiddenableProfilePropertySetting = profilePropertyService.createPropertySetting(unHiddenableProfilePropertySetting);
+    assertFalse(profilePropertyService.isPropertySettingHiddenable(unHiddenableProfilePropertySetting.getId()));
+  }
+
   public void testIsPropertySettingHiddenable() throws ObjectAlreadyExistsException {
-    ProfilePropertySetting unHiddenableprofilePropertySetting = createProfileSettingInstance("fullName");
-    ProfilePropertySetting hiddenableprofilePropertySetting = createProfileSettingInstance("prop");
-    hiddenableprofilePropertySetting.setHiddenbale(true);
-    ProfilePropertySetting propertySetting = profilePropertyService.createPropertySetting(hiddenableprofilePropertySetting);
+    ProfilePropertySetting propertySetting = createProfileSettingInstance("prop");
+    propertySetting.setHiddenbale(true);
+    propertySetting = profilePropertyService.createPropertySetting(propertySetting);
+
     ProfilePropertySetting childProp = createProfileSettingInstance("childProp");
-    assertFalse(profilePropertyService.isPropertySettingHiddenable(unHiddenableprofilePropertySetting));
-    assertTrue(profilePropertyService.isPropertySettingHiddenable(hiddenableprofilePropertySetting));
+    assertTrue(profilePropertyService.isPropertySettingHiddenable(propertySetting.getId()));
+
     ProfilePropertySetting chilePropertySetting = profilePropertyService.createPropertySetting(childProp);
     chilePropertySetting.setParentId(propertySetting.getId());
     profilePropertyService.updatePropertySetting(chilePropertySetting);
-    assertFalse(profilePropertyService.isPropertySettingHiddenable(propertySetting));
+    assertFalse(profilePropertyService.isPropertySettingHiddenable(propertySetting.getId()));
   }
 
   public void testDropdownListPropertySetting() throws ObjectAlreadyExistsException {
@@ -269,6 +274,12 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     propertySetting.setPropertyOptions(profilePropertyOptions);
 
     return propertySetting;
+  }
+
+  private void cleanData() {
+    restartTransaction();
+    profilePropertySettingDAO.deleteAll();
+    getService(CachedProfileSettingStorage.class).clearCaches();
   }
 
 }

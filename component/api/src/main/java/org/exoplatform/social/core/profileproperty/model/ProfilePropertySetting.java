@@ -31,35 +31,37 @@ import java.util.List;
 @AllArgsConstructor
 public class ProfilePropertySetting {
 
-  private Long                       id;
+  private Long                        id;
 
-  private String                     propertyName;
+  private String                      propertyName;
 
-  private String                     propertyType;
+  private String                      propertyType;
 
-  private boolean                    isDropdownList;
+  private boolean                     isDropdownList;
 
-  private boolean                    isVisible;
+  private boolean                     isVisible;
 
-  private boolean                    isEditable;
+  private boolean                     isEditable;
 
-  private Long                       parentId;
+  private Long                        parentId;
 
-  private Long                       order;
+  private Long                        order;
 
-  private boolean                    isActive;
+  private boolean                     isActive;
 
-  private boolean                    isGroupSynchronized;
+  private boolean                     isGroupSynchronized;
 
-  private boolean                    isHiddenbale;
+  private boolean                     isHiddenbale;
 
-  private boolean                    indexInAnalytics;
+  private boolean                     indexInAnalytics;
 
-  private boolean                    isRequired;
+  private boolean                     isRequired;
 
-  private boolean                    isMultiValued;
+  private boolean                     isMultiValued;
+
+  private boolean                     hasChildProperties;
 
   private List<ProfilePropertyOption> propertyOptions;
 
-  private Long                       updated;
+  private Long                        updated;
 }

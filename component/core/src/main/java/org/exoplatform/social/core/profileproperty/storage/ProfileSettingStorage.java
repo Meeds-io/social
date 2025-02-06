@@ -75,10 +75,6 @@ public class ProfileSettingStorage {
     profilePropertySettingDAO.delete(profilePropertySettingDAO.find(id));
   }
 
-  public boolean hasChildProperties(Long parentId) {
-    return !profilePropertySettingDAO.findChildProperties(parentId).isEmpty();
-  }
-  
   public List<ProfilePropertyOption> getProfilePropertyOptions(Long propertySettingId, int offset, int limit) {
     return toPropertyOptions(profilePropertyOptionDAO.findPropertyOptionsBySettingId(propertySettingId, offset, limit));
   }
@@ -128,6 +124,7 @@ public class ProfileSettingStorage {
     profilePropertySetting.setPropertyType(profilePropertySettingEntity.getPropertyType());
     profilePropertySetting.setPropertyOptions(toPropertyOptions(profilePropertySettingEntity.getPropertyOptions()));
     profilePropertySetting.setUpdated(profilePropertySettingEntity.getUpdatedDate().getTime());
+    profilePropertySetting.setHasChildProperties(hasChildProperties(profilePropertySettingEntity.getId()));
     return profilePropertySetting;
   }
 
@@ -141,6 +138,10 @@ public class ProfileSettingStorage {
                                            profilePropertyOption.getPropertySettingId() != null ? profilePropertySettingDAO.find(profilePropertyOption.getPropertySettingId())
                                                                                                 : profilePropertySettingEntity);
 
+  }
+
+  private boolean hasChildProperties(Long id) {
+    return profilePropertySettingDAO.hasChildProperties(id);
   }
 
   private ProfilePropertyOption fromPropertyOptionEntity(ProfilePropertyOptionEntity profilePropertyOptionEntity) {
