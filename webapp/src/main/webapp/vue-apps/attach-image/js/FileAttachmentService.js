@@ -35,7 +35,14 @@ export function saveAttachments(attachmentResource) {
 }
 
 export function getAttachments(objectType, objectId, offset, limit) {
-  const params = new URLSearchParams({ offset, limit }).toString();
+  const formData = new FormData();
+  if (offset || offset === 0) {
+    formData.append('offset', offset);
+  }
+  if (limit || limit === 0) {
+    formData.append('limit', limit);
+  }
+  const params = new URLSearchParams(formData).toString();
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}?${params}`, {
     method: 'GET',
     credentials: 'include',
