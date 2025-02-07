@@ -21,6 +21,7 @@ package io.meeds.social.navigation.service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +51,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.SneakyThrows;
+
+import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.SITE_NAME_PROP_NAME;
 
 /**
  * A Service to manage Topbar and Sidebar configurations
@@ -167,6 +170,19 @@ public class NavigationConfigurationServiceImpl implements NavigationConfigurati
                                                        .toList();
     }
     return defaultTopbarApplications;
+  }
+
+  @Override
+  public boolean isMetaSiteNavigation(String siteName) {
+    if (getConfiguration() == null) {
+      return false;
+    }
+    return getConfiguration().getSidebar()
+                             .getItems()
+                             .stream()
+                             .anyMatch(sidebarItem -> sidebarItem.getProperties() != null
+                                 && Objects.equals(sidebarItem.getProperties().get(SITE_NAME_PROP_NAME), siteName)
+                                 && SidebarItemType.SITE.equals(sidebarItem.getType()));
   }
 
   private TopbarApplication toTopbarApplication(Application app) {
