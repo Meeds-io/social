@@ -136,7 +136,7 @@ export default {
       return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
     },
     isAdmin() {
-      return this.user?.isAdmin || this.isSpaceManager;
+      return this.user?.isAdmin === 'true' || this.isSpaceManager;
     },
     savedHeaderTranslations() {
       return this.$root.settings?.headerTranslations;
