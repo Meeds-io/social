@@ -126,28 +126,28 @@ CKEDITOR.editorConfig = function(config) {
   const retrieveSpaceRoles = function(query, space) {
     const result = [];
     if (space) {
-      if (space.membersCount && (!query?.length || membersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      if (space.membersCount && (!query?.length || membersLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').includes(query.normalize("NFD").replace(/[\u0300-\u036f]/g, '').toLowerCase()))) {
         result.push({
           uid: `member:${space.identityId}`,
           name: membersLabel,
           icon: 'fa-users',
         });
       }
-      if (space.managersCount && (!query?.length || managersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      if (space.managersCount && (!query?.length || managersLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').includes(query.normalize("NFD").replace(/[\u0300-\u036f]/g, '').toLowerCase()))) {
         result.push({
           uid: `manager:${space.identityId}`,
           name: managersLabel,
           icon: 'fa-user-cog',
         });
       }
-      if (space.redactorsCount && (!query?.length || redactorsLabel.toLowerCase().includes(query.toLowerCase()))) {
+      if (space.redactorsCount && (!query?.length || redactorsLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').includes(query.normalize("NFD").replace(/[\u0300-\u036f]/g, '').toLowerCase()))) {
         result.push({
           uid: `redactor:${space.identityId}`,
           name: redactorsLabel,
           icon: 'fa-user-edit',
         });
       }
-      if (space.publishersCount && (!query?.length || publishersLabel.toLowerCase().includes(query.toLowerCase()))) {
+      if (space.publishersCount && (!query?.length || publishersLabel.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, '').includes(query.normalize("NFD").replace(/[\u0300-\u036f]/g, '').toLowerCase()))) {
         result.push({
           uid: `publisher:${space.identityId}`,
           name: publishersLabel,
