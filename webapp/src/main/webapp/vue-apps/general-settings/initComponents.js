@@ -49,6 +49,14 @@ import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/
 import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
 import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
 import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
+import SiteBrandingOptions from './components/branding/options/SiteBrandingOptions.vue';
+import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingOptionsItem.vue';
+import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
+import TopBarStylingDrawer from './components/branding/drawers/TopBarStylingDrawer.vue';
+import TextInput from './components/branding/form/TextInput.vue';
+import SideBarStylingDrawer from './components/branding/drawers/SideBarStylingDrawer.vue';
+import DrawerStyling from './components/branding/drawers/DrawerStyling.vue';
+import PageStylingDrawer from './components/branding/drawers/PageStylingDrawer.vue';
 
 const components = {
   'portal-general-settings': GeneralSettings,
@@ -60,6 +68,14 @@ const components = {
   'portal-general-settings-company-logo': CompanyLogo,
   'portal-general-settings-company-favicon': CompanyFavicon,
   'portal-general-settings-border-radius': BorderRadiusSelector,
+  'portal-general-settings-branding-options': SiteBrandingOptions,
+  'portal-general-settings-branding-options-item': SiteBrandingOptionsItem,
+  'portal-general-settings-branding-update-colors-drawer': UpdateColorsDrawer,
+  'portal-general-settings-branding-top-bar-styling-drawer': TopBarStylingDrawer,
+  'portal-general-settings-branding-sidebar-styling-drawer': SideBarStylingDrawer,
+  'portal-general-settings-branding-drawer-styling': DrawerStyling,
+  'portal-general-settings-branding-page-styling-drawer': PageStylingDrawer,
+  'portal-general-settings-branding-text-input': TextInput,
   'portal-general-settings-background-image-attachment': BackgroundImageAttachment,
   'portal-general-settings-background-input': BackgroundInput,
   'portal-general-settings-login-background-selector': LoginBackgroundSelector,

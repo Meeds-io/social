@@ -19,13 +19,14 @@
 
 -->
 <template>
-  <div class="d-none d-lg-block">
+  <div class="d-none d-lg-flex flex-column">
     <div class="text-header">
       {{ $t('generalSettings.preview.title') }}
     </div>
     <div
       ref="iframeParent"
-      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius">
+      class="mt-4 position-relative border-color full-width aspect-ratio-1 overflow-hidden border-radius"
+      :style="`height: ${iframeParentHeight}`">
       <iframe
         v-if="initialized && parentWidth"
         id="previewIframe" 
@@ -37,7 +38,6 @@
         name="pageHomeLink"
         class="no-border">
       </iframe>
-      <div class="flex-grow-0 flex-shrink-1 position-absolute full-width full-height t-0"></div>
     </div>
   </div>
 </template>
@@ -47,7 +47,8 @@ export default {
     initialized: false,
     sites: null,
     parentWidth: 0,
-    zoom: 0.4,
+    zoom: 0.5,
+    iframeParentHeight: '600px'
   }),
   computed: {
     iframeWidthPercentage() {
@@ -66,6 +67,7 @@ export default {
     this.$root.$on('refresh-iframe', this.reloadURL);
     this.$root.$on('refresh-company-name', this.refreshCompanyName);
     this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
+    this.$root.$on('refresh-style-properties', this.setStyleProperties);
     this.init();
   },
   mounted() {
@@ -77,6 +79,7 @@ export default {
     this.$root.$off('refresh-iframe', this.reloadURL);
     this.$root.$off('refresh-company-name', this.refreshCompanyName);
     this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
+    this.$root.$off('refresh-style-properties', this.setStyleProperties);
   },
   methods: {
     init() {
@@ -127,6 +130,20 @@ export default {
         const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementById?.('UserHomePortalLink').getElementsByTagName('img')[0];
         if (companyNameElement) {
           companyNameElement.src = event;
+        }
+      }
+    },
+    setStyleProperties(event) {
+      if (this.initialized && event?.detail) {
+        const properties = event.detail;
+        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+
+        if (iframeDoc) {
+          for (const [propertyName, propertyValue] of Object.entries(properties)) {
+            if (propertyName && propertyValue) {
+              iframeDoc.style.setProperty(propertyName, propertyValue);
+            }
+          }
         }
       }
     }

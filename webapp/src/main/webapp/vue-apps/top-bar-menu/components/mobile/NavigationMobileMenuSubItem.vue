@@ -23,10 +23,11 @@
   <v-bottom-sheet
     v-model="showChildren"
     inset
-    content-class="topBar-navigation-bottom-drop-menu"
+    :content-class="`topBar-navigation-bottom-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     hide-overlay>
     <v-sheet
-      v-if="showChildren">
+      v-if="showChildren"
+      class="transparent">
       <div
         v-if="navigationObject.previous">
         <v-btn
@@ -40,7 +41,7 @@
         </v-btn>
       </div>
       <v-list
-        class="mt-n3"
+        class="mt-n3 transparent"
         dense>
         <v-list-item-group>
           <template v-for="nav in navigationObject">
@@ -53,7 +54,7 @@
               :link="!!nav.pageKey"
               @click="checkLink(nav, $event)">
               <v-list-item-content>
-                <v-list-item-title v-text="nav.label" />
+                <v-list-item-title class="text-body" v-text="nav.label" />
               </v-list-item-content>
               <v-list-item-icon
                 v-if="nav.children?.length"
@@ -98,6 +99,11 @@ export default {
     navigationObject: null,
     showChildren: false,
   }),
+  computed: {
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
+  },
   watch: {
     showMenu(value) {
       this.showChildren = value;

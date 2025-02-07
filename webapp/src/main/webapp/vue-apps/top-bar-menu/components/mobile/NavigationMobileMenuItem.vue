@@ -61,6 +61,7 @@
     </template>
     <navigation-mobile-menu-sub-item
       v-if="hasChildren"
+      class="transparent"
       :navigation="navigation.children"
       :base-site-uri="baseSiteUri"
       :show-menu="showMenu"

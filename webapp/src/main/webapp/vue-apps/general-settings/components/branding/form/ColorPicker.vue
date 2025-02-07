@@ -26,17 +26,16 @@
     width="290px">
     <template #activator="{ on }">
       <v-list-item
-        two-line
-        class="px-0"
+        class="pa-0"
         dense>
         <v-list-item-action class="me-2 my-0">
           <v-card
             :color="value"
-            height="50px"
-            width="50px"
+            :height="height"
+            :width="width"
             v-on="on" />
         </v-list-item-action>
-        <v-list-item-content class="d-flex flex-column align-start me-2">
+        <v-list-item-content class="d-flex flex-column align-start py-1 me-2">
           <template v-if="label">
             <v-list-item-title class="me-auto">
               {{ label }} {{ $t('generalSettings.color.label') }}
@@ -88,6 +87,14 @@ export default {
       type: String,
       default: null,
     },
+    height: {
+      type: String,
+      default: '50px'
+    },
+    width: {
+      type: String,
+      default: '50px'
+    }
   },
   data: () => ({
     modal: false,

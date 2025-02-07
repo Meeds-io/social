@@ -10,7 +10,7 @@
       transition="slide-x-transition"
       max-width="350"
       min-width="300"
-      content-class="no-box-shadow full-height pa-1 mt-6 "
+      content-class="no-box-shadow full-height pa-1 mt-6"
       offset-y>
       <template #activator="{ on, attrs }">
         <v-card
@@ -23,7 +23,7 @@
             v-if="$root.displaySiteLogo"
             :href="$root.spacePortalPath"
             :aria-label="$t('space.avatar.href.title',{0: $root.spaceLogoTitle})">
-            <v-list-item-avatar 
+            <v-list-item-avatar
               v-if="$root.spaceLogoPath"
               id="UserHomePortalLink"
               size="28"
@@ -48,8 +48,11 @@
           </a>
         </v-card>
       </template>
-      <v-card v-if="menu" elevation="2">
-        <v-list class="pa-0">
+      <v-card
+        v-if="menu"
+        :class="isTopBarElement && 'layout-top-bar' || ''"
+        elevation="2">
+        <v-list class="pa-0 transparent">
           <v-list-item class="pt-3">
             <v-list-item-avatar
               class="spaceAvatar mt-0 align-self-start"
@@ -73,20 +76,20 @@
                 <span>{{ $root.spaceLogoTitle }}</span>
               </v-tooltip>
               <v-list-item-subtitle>
-                {{ $root.membersNumber }} {{ $t('space.logo.banner.popover.members') }}
+                <span class="text-body">{{ $root.membersNumber }} {{ $t('space.logo.banner.popover.members') }}</span>
               </v-list-item-subtitle>
               <p v-sanitized-html="$root.spaceDescription" class="text-truncate-2 text-caption text--primary font-weight-medium"></p>
             </v-list-item-content>
           </v-list-item>
         </v-list>
-        <v-list class="pa-0 mt-0 mb-0">
+        <v-list class="pa-0 mt-0 mb-0 transparent">
           <v-list-item class="pt-0 pb-0">
             <v-list-item-content>
               <v-container class="pa-0">
                 <v-row no-gutters class="align-center">
                   <v-col
                     cols="6"
-                    class="text-truncate text-left">
+                    class="text-truncate text-body text-left">
                     {{ $t('space.logo.banner.popover.managers') }}
                   </v-col>
                   <v-col
@@ -111,7 +114,7 @@
         </v-list>
         <v-divider />
         <v-list
-          class="pa-0 mt-0 mb-0">
+          class="pa-0 mt-0 mb-0 transparent">
           <v-list-item
             class="pt-0 pb-0 justify-end">
             <v-list-item-action class="space-logo-popover flex-row mr-0">
@@ -165,6 +168,9 @@ export default {
         canRedactOnSpace: this.$root.canRedactOnSpace,
       };
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   created() {
     document.addEventListener('metadata.favorite.updated', this.favoriteUpdated);
