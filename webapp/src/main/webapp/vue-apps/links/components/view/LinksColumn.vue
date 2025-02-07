@@ -31,6 +31,7 @@
       :icon-size="iconSize"
       :icon-url="iconUrl"
       :icon="icon"
+      class="me-2"
       list />
     <v-list-item-content v-if="showName || showDescription">
       <v-list-item-title
@@ -78,10 +79,10 @@ export default {
   },
   computed: {
     name() {
-      return this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
     },
     description() {
-      return this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage]);
     },
     url() {
       return this.$utils.toLinkUrl(this.link?.url, {

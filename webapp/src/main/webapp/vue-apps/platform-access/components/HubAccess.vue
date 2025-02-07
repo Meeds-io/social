@@ -19,10 +19,10 @@
 
 -->
 <template>
-  <div class="pb-1">
+  <v-app class="py-2 px-6">
     <v-list-item class="px-0 mb-2" three-line>
       <v-list-item-content class="py-0">
-        <v-list-item-subtitle class="text-header pt-2">
+        <v-list-item-subtitle class="text-title pt-2">
           {{ $t('generalSettings.access.summary1') }}
         </v-list-item-subtitle>
         <v-list-item-subtitle class="text-body py-2">
@@ -54,7 +54,6 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mb-4"
       dense
       v-on="accessType === 'OPEN' && {
         click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
@@ -141,7 +140,6 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item
-      class="mb-4"
       dense
       v-on="accessType === 'RESTRICTED' && {
         click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
@@ -204,7 +202,7 @@
 
     <v-list-item class="pa-0 mt-4 mb-2">
       <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ $t('generalSettings.access.platformAuthentication') }}
         </v-list-item-title>
       </v-list-item-content>
@@ -242,7 +240,7 @@
 
     <v-list-item class="pa-0 mt-4 mb-2">
       <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-header">
+        <v-list-item-title class="text-title">
           {{ $t('generalSettings.access.startSettingPlatform') }}
         </v-list-item-title>
       </v-list-item-content>
@@ -342,19 +340,13 @@
         </span>
       </v-btn>
     </div>
-    <portal-general-settings-default-spaces-drawer
+    <portal-general-default-spaces-drawer
       ref="defaultSpaceDrawer"
       v-model="defaultSpaceIds" />
-  </div>
+  </v-app>
 </template>
 <script>
 export default {
-  props: {
-    registrationSettings: {
-      type: Object,
-      default: null,
-    },
-  },
   data: () => ({
     createUsersLink: '/portal/administration/home/organisation/users',
     mandatorySpacesLink: '/portal/administration/home/organisation/spaces',
@@ -363,6 +355,7 @@ export default {
     externalUserRestrictedRegistration: false,
     defaultSpaceIds: [],
     initialized: false,
+    registrationSettings: null,
   }),
   computed: {
     validForm() {
@@ -419,7 +412,12 @@ export default {
     },
   },
   created() {
-    this.init();
+    this.$registrationService.getRegistrationSettings()
+      .then(data => {
+        this.registrationSettings = data;
+        this.init();
+      });
+
   },
   mounted() {
     this.$nextTick().then(() => this.initialized = true);

@@ -94,10 +94,10 @@ export default {
   }),
   computed: {
     name() {
-      return this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
     },
     description() {
-      return this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage];
+      return this.$t(this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage]);
     },
     url() {
       return this.$utils.toLinkUrl(this.link?.url, {

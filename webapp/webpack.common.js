@@ -97,7 +97,9 @@ let config = {
     complementaryFilter: './src/main/webapp/vue-apps/complementary-filter/main.js',
     organizationalChart: './src/main/webapp/vue-apps/organizational-chart/main.js',
     organizationalChartExtension: './src/main/webapp/vue-apps/organizational-chart/extensions/main.js',
-    simpleStorage: './src/main/webapp/vue-apps/simple-storage/main.js'
+    simpleStorage: './src/main/webapp/vue-apps/simple-storage/main.js',
+    admins: './src/main/webapp/vue-apps/platformAdminsWidget/main.js',
+    platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
   },
   module: {
     rules: [
