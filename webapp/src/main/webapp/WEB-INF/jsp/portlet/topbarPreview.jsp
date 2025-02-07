@@ -33,7 +33,7 @@
 <div class="VuetifyApp">
   <div
    class="v-application border-box-sizing theme--light"
-   id="topBarPublishSite">
+   id="topbarPreview">
    <script type="text/javascript">
      require(['PORTLET/social/TopBarPreview'], app => app.init());
    </script>
