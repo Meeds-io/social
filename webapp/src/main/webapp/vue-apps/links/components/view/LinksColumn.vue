@@ -31,6 +31,7 @@
       :icon-size="iconSize"
       :icon-url="iconUrl"
       :icon="icon"
+      class="me-2"
       list />
     <v-list-item-content v-if="showName || showDescription">
       <v-list-item-title
