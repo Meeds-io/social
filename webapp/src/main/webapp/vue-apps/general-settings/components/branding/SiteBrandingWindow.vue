@@ -26,6 +26,7 @@
       class="pa-0">
       <portal-general-settings-branding-site 
         :branding="branding"
+        :custom-css="customStylesheet"
         @changed="$emit('changed')"
         @saved="$emit('saved')"
         @close="$emit('close')" />

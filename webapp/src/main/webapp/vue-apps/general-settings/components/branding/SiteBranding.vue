@@ -99,6 +99,14 @@
       <portal-general-settings-branding-options />
     </v-col>
     <v-col
+      v-if="customStylesheetEnabled"
+      cols="12"
+      class="pa-0">
+      <portal-general-settings-custom-style-input
+        v-model="customCss"
+        class="mt-8" />
+    </v-col>
+    <v-col
       cols="12"
       class="pa-0">
       <div class="d-flex justify-end mt-4 pb-2">
@@ -156,6 +164,8 @@ export default {
     faviconUploadId: null,
     defaultCustomPageWidth: '1320px',
     defaultPageBackground: '#F0F0F0',
+    customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
+    customCss: null,
     topBarStylingProperties: null,
     isTopBarStylingPropertiesChanged: false,
     sideBarStylingProperties: null,
@@ -190,6 +200,12 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
+    oldCustomStyle() {
+      return this.branding?.customCss;
+    },
+    isCustomStyleChanged() {
+      return this.oldCustomStyle !== this.customCss;
+    },
     validForm() {
       return this.changed && this.isValidForm;
     },
@@ -200,12 +216,15 @@ export default {
           && this.tertiaryColor?.length;
     },
     changed() {
-      if (!this.branding) {
-        return false;
-      }
-      return this.logoUploadId || this.faviconUploadId || this.isTopBarStylingPropertiesChanged
-          || this.isSideBarStylingPropertiesChanged || this.isDrawerStylingPropertiesChanged
-          || this.isPageStylingPropertiesChanged || this.isThemeColorsChanged;
+      return this.branding
+          && (this.logoUploadId
+          || this.faviconUploadId
+          || this.isTopBarStylingPropertiesChanged
+          || this.isSideBarStylingPropertiesChanged
+          || this.isDrawerStylingPropertiesChanged
+          || this.isPageStylingPropertiesChanged
+          || this.isThemeColorsChanged
+          || this.isCustomStyleChanged);
     },
   },
   watch: {
@@ -285,6 +304,7 @@ export default {
       this.primaryColor = this.defaultPrimaryColor;
       this.secondaryColor = this.defaultSecondaryColor;
       this.tertiaryColor = this.defaultTertiaryColor;
+      this.customCss = this.branding?.customCss;
       this.pageStylingProperties = {
         pageBackground: this.branding?.pageBackground || null,
         pageBackgroundSize: this.branding?.pageBackgroundSize || null,
@@ -341,6 +361,7 @@ export default {
         pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
         pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
         pageWidth: this.pageStylingProperties.pageWidth,
+        customCss: this.customCss,
       });
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
