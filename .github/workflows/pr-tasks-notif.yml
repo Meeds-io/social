@@ -5,10 +5,13 @@ on:
     types: [opened, reopened, closed, review_requested]
   pull_request_review:
     types: [submitted]
+  issue_comment:
+    types: [created]
 
 jobs:
   notify_tribe_tasks:
     name: Notify Tribe Tasks
+    if: github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: eXo Tasks Webhook
@@ -22,6 +25,7 @@ jobs:
 
   notify_builders_tasks:
     name: Notify Builders Tasks
+    if: github.event.issue.pull_request
     runs-on: ubuntu-latest
     steps:
       - name: eXo Tasks Webhook
