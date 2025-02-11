@@ -189,7 +189,6 @@ public class SpaceRest implements ResourceContainer {
   }
 
   @GET
-  @RolesAllowed("users")
   @Operation(
              summary = "Gets spaces of user",
              method = "GET",
