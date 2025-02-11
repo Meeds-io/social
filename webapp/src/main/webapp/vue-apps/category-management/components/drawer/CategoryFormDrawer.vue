@@ -134,6 +134,7 @@
           <category-management-permissions
             ref="linkPermissions"
             v-model="category.linkPermissionIds"
+            permissions-type="link"
             class="mb-4"
             users
             admins />
