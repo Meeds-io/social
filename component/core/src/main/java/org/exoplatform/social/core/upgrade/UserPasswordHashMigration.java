@@ -50,6 +50,10 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
   private static final String        PASSWORD_SALT_USER_ATTRIBUTE = "passwordSalt128";
 
   private static final String        DEFAULT_ENCODER              = "org.exoplatform.web.security.hash.Argon2IdPasswordEncoder";
+  
+  private static final String  IDM_DATASOURCE_SCHEMA_NAME = "idm.datasource.schema.name";
+  
+  private String idmDatasourceSchemaName = "";
 
   public UserPasswordHashMigration(EntityManagerService entityManagerService,
                                    PicketLinkIDMService picketLinkIDMService,
@@ -57,6 +61,9 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
     super(initParams);
     this.entityManagerService = entityManagerService;
     this.picketLinkIDMService = picketLinkIDMService;
+    if (initParams.containsKey(IDM_DATASOURCE_SCHEMA_NAME)) {
+      idmDatasourceSchemaName = initParams.getValueParam(IDM_DATASOURCE_SCHEMA_NAME).getValue();
+    }
   }
 
   @Override
@@ -73,6 +80,7 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
           + " GROUP BY jbid_io_attr.IDENTITY_OBJECT_ID) jia ON jbid_io_creden.IDENTITY_OBJECT_ID  = jia.IDENTITY_OBJECT_ID;";
 
       RequestLifeCycle.begin(container);
+      sqlString = sqlString.replace("jbid", idmDatasourceSchemaName + ".jbid");
       Query nativeQuery = entityManager.createNativeQuery(sqlString);
       List<Object[]> result = nativeQuery.getResultList();
       UpgradeReport upgradeReport = new UpgradeReport(result.size());
@@ -88,7 +96,7 @@ public class UserPasswordHashMigration extends UpgradeProductPlugin {
         throw new IllegalStateException("UserPasswordHashMigration upgrade failed due to previous errors");
       }
     } catch (Exception e) {
-      throw new IllegalStateException("UserPasswordHashMigration upgrade failed due to previous errors");
+      throw new IllegalStateException("UserPasswordHashMigration upgrade failed due to previous errors", e);
     } finally {
       RequestLifeCycle.end();
     }
