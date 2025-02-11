@@ -47,6 +47,7 @@ export function init() {
         guestsPermission: '/platform/externals',
         usersPermission: '/platform/users',
         administratorsPermission: '/platform/administrators',
+        everyonePermission: 'Everyone',
         identityIdPerGroup: {},
         groupPerIdentityId: {},
         depth: 4,
