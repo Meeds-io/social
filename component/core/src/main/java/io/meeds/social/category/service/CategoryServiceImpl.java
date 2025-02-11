@@ -646,7 +646,7 @@ public class CategoryServiceImpl implements CategoryService {
     if (category == null) {
       return false;
     } else if (category.getParentId() == 0 && category.getOwnerId() == getAdminGroupIdentityId()) {
-      return StringUtils.isNotBlank(username);
+      return true;
     } else if (isMemberOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
       return true;
     } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
