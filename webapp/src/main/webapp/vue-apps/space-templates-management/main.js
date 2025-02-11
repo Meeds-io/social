@@ -78,5 +78,6 @@ export function init(isExternalFeatureEnabled) {
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
       }, `#${appId}`, 'Space Templates')
-    );
+    )
+    .finally(() => Vue.prototype.$utils.includeExtensions('SpaceTemplateManagementExtension'));
 }
