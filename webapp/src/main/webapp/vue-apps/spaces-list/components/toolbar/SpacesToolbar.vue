@@ -26,7 +26,7 @@
       placeholder: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
-    :right-filter-button="$root.sortBy !== 'lastVisited' && {
+    :right-filter-button="displayRightFilter && {
       text: $t('spaceList.advanced.filter.button.title'),
       displayText: !$root.isMobile,
     }"
@@ -127,6 +127,11 @@ export default {
     loading: 0,
     filterExpand: false,
   }),
+  computed: {
+    displayRightFilter() {
+      return this.$root.sortBy !== 'lastVisited' && !this.$root.anonymous;
+    }
+  },
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
     this.$root.$on('space-list-pending-updated', this.refresh);
