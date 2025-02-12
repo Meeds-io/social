@@ -136,9 +136,7 @@ export default {
       return this.space?.publicSiteName;
     },
     spacePublicSiteUrl() {
-      return this.publicSiteName
-          && this.space?.publicSiteVisibility !== 'manager'
-          && `${eXo.env.portal.context}/${this.publicSiteName}`;
+      return this.publicSiteName && `${eXo.env.portal.context}/${this.publicSiteName}`;
     },
     spaceUrl() {
       if (this.$root.anonymous) {
