@@ -219,8 +219,6 @@ public class EntityBuilder {
 
   private static final String             PROFILE_PROPERTY_OBJECT_TYPE               = "propertySettingOption";
 
-  private static final String             ANONYMOUS_IDENTITY                         = "__anonim";
-
   private static UserPortalConfigService  userPortalConfigService;
 
   private static LayoutService            layoutService;
@@ -799,16 +797,17 @@ public class EntityBuilder {
                                                        int limit,
                                                        String expand,
                                                        UriInfo uriInfo) {
-    Map<Long, Long> unreadItemsPerSpace = !ANONYMOUS_IDENTITY.equals(username) ? buildSpacesUnread(username, expand)
-                                                                               : new HashMap<>();
-    List<DataEntity> spaceInfos = spaces.stream().map(space -> {
-      SpaceEntity spaceInfo = buildEntityFromSpace(space, username, uriInfo.getPath(), expand);
-      DataEntity dataEntity = spaceInfo.getDataEntity();
-      if (unreadItemsPerSpace.containsKey(space.getSpaceId())) {
-        dataEntity.put(RestProperties.UNREAD, unreadItemsPerSpace.get(space.getSpaceId()));
-      }
-      return dataEntity;
-    }).toList();
+    Map<Long, Long> unreadItemsPerSpace = buildSpacesUnread(username, expand);
+    List<DataEntity> spaceInfos = spaces.stream()
+                                        .map(space -> {
+                                          SpaceEntity spaceInfo = buildEntityFromSpace(space, username, uriInfo.getPath(), expand);
+                                          DataEntity dataEntity = spaceInfo.getDataEntity();
+                                          if (unreadItemsPerSpace.containsKey(space.getSpaceId())) {
+                                            dataEntity.put(RestProperties.UNREAD, unreadItemsPerSpace.get(space.getSpaceId()));
+                                          }
+                                          return dataEntity;
+                                        })
+                                        .toList();
     CollectionEntity collectionSpace = new CollectionEntity(spaceInfos, SPACES_TYPE, offset, limit);
     if (MapUtils.isNotEmpty(unreadItemsPerSpace)) {
       collectionSpace.setUnreadPerSpace(unreadItemsPerSpace.entrySet()
@@ -834,7 +833,7 @@ public class EntityBuilder {
     SpaceService spaceService = getSpaceService();
     setPublicSiteDetails(spaceEntity, space);
     populateGeneralFields(spaceEntity, space);
-    if (ANONYMOUS_IDENTITY.equals(userId)) {
+    if (getUserACL().isAnonymousUser(userId)) {
       return spaceEntity;
     }
     boolean canEdit = spaceService.canManageSpace(space, userId);
