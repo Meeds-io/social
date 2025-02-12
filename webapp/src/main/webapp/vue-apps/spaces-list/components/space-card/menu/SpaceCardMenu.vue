@@ -224,10 +224,13 @@ export default {
     url() {
       return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
+    publicSiteName() {
+      return this.space?.publicSiteName;
+    },
     spacePublicSiteUrl() {
-      return this.space.publicSiteName
-        && this.space.publicSiteVisibility !== 'manager'
-        && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
+      return this.publicSiteName
+        && this.space?.publicSiteVisibility !== 'manager'
+        && `${eXo.env.portal.context}/${this.publicSiteName}`;
     },
   },
   watch: {
@@ -320,6 +323,10 @@ export default {
         });
     },
     join() {
+      if (this.$root.anonymous) {
+        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+        return;
+      }
       this.sendingAction = true;
       this.$spaceService.join(this.space.id)
         .then(() => this.$root.$emit('spaces-list-refresh'))
@@ -332,6 +339,10 @@ export default {
         });
     },
     requestJoin() {
+      if (this.$root.anonymous) {
+        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+        return;
+      }
       this.sendingAction = true;
       this.$spaceService.requestJoin(this.space.id)
         .then(() => this.$root.$emit('spaces-list-refresh'))
