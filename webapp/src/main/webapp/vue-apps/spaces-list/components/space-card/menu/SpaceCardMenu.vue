@@ -22,6 +22,16 @@
 -->
 <template>
   <div class="d-flex align-center">
+    <space-card-button
+      v-if="spacePublicSiteUrl"
+      :extension="{
+        icon: 'fas fa-globe',
+        iconOnly: true,
+        title: $t('spacesList.button.visitPublicSite'),
+        click: openSpacePublicSiteUrl
+      }"
+      :space="space"
+      class="mx-2" />
     <space-favorite-action
       v-if="space.isMember"
       :is-favorite="space.isFavorite"
@@ -70,11 +80,6 @@
           label="spacesList.button.copyLink"
           icon="fa-link"
           @click="copyLink" />
-        <space-card-menu-item
-          v-if="spacePublicSiteUrl"
-          :href="spacePublicSiteUrl"
-          label="spacesList.button.visitPublicSite"
-          icon="fa-globe" />
         <space-card-menu-item
           v-if="space.isMember && !space.isUserBound"
           label="spacesList.button.leave"
@@ -385,6 +390,9 @@ export default {
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
       }
+    },
+    openSpacePublicSiteUrl() {
+      window.location.href = `${this.spacePublicSiteUrl}`;
     },
     closeConfirmDialog() {
       this.confirmTitle = '';
