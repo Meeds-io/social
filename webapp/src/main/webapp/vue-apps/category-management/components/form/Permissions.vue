@@ -49,7 +49,7 @@
       </template>
     </v-checkbox>
     <v-checkbox
-      v-if="isAccessPermissions"
+      v-if="showAny"
       v-model="isAnyPermissions"
       class="mt-0">
       <template #label>
@@ -87,37 +87,13 @@
 <script>
 export default {
   props: {
-    label: {
-      type: String,
-      default: null,
-    },
-    helpLabel: {
-      type: String,
-      default: null,
-    },
-    helpTooltip: {
-      type: String,
-      default: null,
-    },
     value: {
       type: String,
       default: null,
     },
-    users: {
+    showAny: {
       type: Boolean,
       default: false,
-    },
-    admins: {
-      type: Boolean,
-      default: false,
-    },
-    spaceAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    permissionsType: {
-      type: String,
-      default: 'access',
     },
   },
   data: () => ({
@@ -131,9 +107,6 @@ export default {
     initialized: false,
   }),
   computed: {
-    isAccessPermissions() {
-      return this.permissionsType === 'access';
-    },
     permissions() {
       const permissions = [];
       if (this.isAnyPermissions) {
