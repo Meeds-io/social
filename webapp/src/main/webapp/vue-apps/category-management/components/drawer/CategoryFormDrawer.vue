@@ -104,8 +104,7 @@
             ref="accessPermissions"
             v-model="category.accessPermissionIds"
             class="mb-4"
-            users
-            admins />
+            show-any />
         </div>
         <v-card
           v-on="step3Enabled && {
@@ -134,10 +133,7 @@
           <category-management-permissions
             ref="linkPermissions"
             v-model="category.linkPermissionIds"
-            permissions-type="link"
-            class="mb-4"
-            users
-            admins />
+            class="mb-4" />
         </div>
       </div>
     </template>

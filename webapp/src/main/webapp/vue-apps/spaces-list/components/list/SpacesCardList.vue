@@ -206,7 +206,9 @@ export default {
     this.resizeObserver = new ResizeObserver(this.computeWidth);
     this.resizeObserver.observe(this.$el);
     this.computeWidth();
-    this.refreshUnreadSpaces();
+    if (!this.$root.anonymous) {
+      this.refreshUnreadSpaces();
+    }
   },
   beforeDestroy() {
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
@@ -230,7 +232,6 @@ export default {
     async searchSpaces() {
       this.$emit('loading-spaces', true);
       try {
-        const expand = this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
         const data = await this.$spaceService.getSpacesByFilter({
           categoryId: this.selectedCategoryIds || this.$root.categoryIds,
           templateId: this.$root.templateIds,
@@ -239,7 +240,7 @@ export default {
           offset: this.offset,
           limit: this.limitToFetch,
           filter: this.$root.sortBy === 'lastVisited' ? 'lastVisited' : this.filter,
-          expand,
+          expand: this.getExpand(),
         });
         this.spaces = data && data.spaces || [];
         this.hasSpaces = this.hasSpaces || this.spacesSize > 0;
@@ -253,6 +254,12 @@ export default {
     loadNextPage() {
       this.originalLimitToFetch = this.limitToFetch += this.pageSize;
     },
+    getExpand() {
+      if (this.$root.anonymous) {
+        return '';
+      }
+      return this.filter === 'requests' ? 'pending,favorite' : 'managers,favorite,groupBinding';
+    }
   }
 };
 </script>
