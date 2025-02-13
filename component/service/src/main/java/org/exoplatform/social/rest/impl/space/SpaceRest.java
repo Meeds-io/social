@@ -258,6 +258,9 @@ public class SpaceRest implements ResourceContainer {
                             @QueryParam("expand")
                             String expand) throws Exception {
 
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      return Response.status(Status.UNAUTHORIZED).build();
+    }
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit >= 0 ? limit : RestUtils.getLimit(uriInfo);
 

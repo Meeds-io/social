@@ -26,6 +26,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import io.meeds.portal.security.constant.UserRegistrationType;
+import io.meeds.portal.security.service.SecuritySettingService;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -356,5 +358,13 @@ public class RestUtils {
       identityManager = ExoContainerContext.getService(IdentityManager.class);
     }
     return identityManager;
+  }
+
+  public static boolean canAccessAnonymousResources() {
+    return canAccessAnonymousResources(ExoContainerContext.getService(SecuritySettingService.class));
+  }
+
+  public static boolean canAccessAnonymousResources(SecuritySettingService securitySettingService) {
+    return !isAnonymous() || securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
   }
 }
