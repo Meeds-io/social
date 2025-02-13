@@ -82,6 +82,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
         id: Math.random() + Math.random(),
         anonymous: !eXo?.env?.portal?.userName?.length,
+        displayNotPubliclyVisible: eXo.env.portal.portalName === 'public' && canEdit,
       },
       computed: {
         isMobile() {

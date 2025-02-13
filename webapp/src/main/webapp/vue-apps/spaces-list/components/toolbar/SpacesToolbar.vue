@@ -87,10 +87,28 @@
         </div>
       </div>
     </template>
-    <template v-if="$root.canEdit && $root.hover && !filterExpand" #right>
+    <template v-if="$root.canEdit" #right>
+      <v-tooltip v-if="displayAccessWaring" top>
+        <template #activator="{attrs, on}">
+          <v-icon
+            size="18"
+            color="warning"
+            class="ms-auto me-2"
+            v-on="on"
+            v-bind="attrs">
+            fa-exclamation-triangle
+          </v-icon>
+        </template>
+        <span>
+          {{ $t('spacesList.label.publicWidgetHiddenTooltipPart1') }}
+          <br>
+          {{ $t('spacesList.label.publicWidgetHiddenTooltipPart2') }}
+        </span>
+      </v-tooltip>
       <v-btn
+        v-if="$root.hover && !filterExpand"
         id="spacesListSettingsButton"
-        class="ms-auto"
+        :class="!displayAccessWaring && 'ms-auto'"
         small
         icon
         @click="$root.$emit('spaces-list-settings-open')">
@@ -126,10 +144,17 @@ export default {
   data: () => ({
     loading: 0,
     filterExpand: false,
+    registrationSettings: null,
   }),
   computed: {
     displayRightFilter() {
       return this.$root.sortBy !== 'lastVisited' && !this.$root.anonymous;
+    },
+    hubAccessOpen() {
+      return !this.registrationSettings || this.registrationSettings?.type === 'OPEN';
+    },
+    displayAccessWaring() {
+      return this.$root.displayNotPubliclyVisible && !this.hubAccessOpen;
     }
   },
   created() {
@@ -144,7 +169,14 @@ export default {
     this.$root.$off('space-list-pending-updated', this.refresh);
   },
   methods: {
+    initRegistration() {
+      return this.getRegistrationSettings()
+        .then(data => this.registrationSettings = data);
+    },
     refresh() {
+      if (this.$root.displayNotPubliclyVisible) {
+        this.initRegistration();
+      }
       this.getSpacesInvitation();
       this.getSpacesPending();
       this.getSpacesRequest();
@@ -172,6 +204,18 @@ export default {
       })
         .then(data => this.$root.requestsCount = data?.size || 0)
         .finally(() => this.loading--);
+    },
+    getRegistrationSettings() {
+      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/registration/settings`, {
+        method: 'GET',
+        credentials: 'include',
+      }).then((resp) => {
+        if (resp?.ok) {
+          return resp.json();
+        } else {
+          throw new Error('Error while getting Registration settings');
+        }
+      });
     },
   },
 };
