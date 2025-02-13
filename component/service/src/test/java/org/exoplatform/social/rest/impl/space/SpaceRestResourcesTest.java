@@ -14,13 +14,15 @@ import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.exoplatform.portal.config.UserACL;
+import io.meeds.portal.security.constant.UserRegistrationType;
 import org.exoplatform.portal.config.model.PortalConfig;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -71,6 +73,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   private MockUploadService      uploadService;
 
+  protected boolean              hubRestricted;
+
   public void setUp() throws Exception {
     super.setUp();
 
@@ -103,6 +107,10 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   public void tearDown() throws Exception {
     super.tearDown();
+    if (hubRestricted) {
+      restartTransaction();
+      setOpenHubAccess();
+    }
     removeResource(spaceRestResources.getClass());
   }
 
@@ -226,6 +234,20 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(2, collections.getEntities().size());
+  }
+
+  public void testGetSpacesByAnonymousWhenRestrictedHubAccess() throws Exception {
+    getSpaceInstance(2, "john");
+    ConversationState state = new ConversationState(new org.exoplatform.services.security.Identity(IdentityConstants.ANONIM));
+    ConversationState.setCurrent(state);
+    ContainerResponse response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    setRestrictedHubAccess();
+    response = service("GET", getURLResource("spaces?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(401, response.getStatus());
   }
 
   public void testShouldUseCacheWhenSpacesDidNotChanged() throws Exception {
@@ -854,5 +876,15 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     assertEquals("true", response.getEntity());
     endSession();
+  }
+
+  protected void setOpenHubAccess() {
+    securitySettingService.saveRegistrationType(UserRegistrationType.OPEN);
+    this.hubRestricted = false;
+  }
+
+  protected void setRestrictedHubAccess() {
+    securitySettingService.saveRegistrationType(UserRegistrationType.RESTRICTED);
+    this.hubRestricted = true;
   }
 }
