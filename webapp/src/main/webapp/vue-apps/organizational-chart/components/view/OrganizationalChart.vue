@@ -98,11 +98,6 @@
 <script>
 
 export default {
-  data() {
-    return {
-      scrollToViewProps: {behavior: 'smooth', block: 'center', inline: 'center'}
-    };
-  },
   props: {
     user: {
       type: Object,
@@ -147,9 +142,6 @@ export default {
         ?.sort((a, b) => this.usersNaturalComparator(a,b));
     }
   },
-  mounted() {
-    this.scrollUserToViewCenter();
-  },
   methods: {
     usersNaturalComparator(a, b) {
       return this.$root.$children[0].usersNaturalComparator(a, b);
@@ -160,11 +152,6 @@ export default {
     updateChart(user) {
       this.$emit('update-chart', user.id);
     },
-    scrollUserToViewCenter() {
-      setTimeout(() => {
-        document.getElementById('chartCenterUser').scrollIntoView(this.scrollToViewProps);
-      }, 500);
-    }
   }
 };
 </script>
