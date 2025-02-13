@@ -27,7 +27,7 @@
       :class="$root.displayCompanyLogo && 'ms-4'"
       :aria-label="$t('menu.companyNameTooltip',{0: $root.logoTitle})"
       class="align-self-center brandingContainer">
-      <div class="logoTitle text-body menu-text-color font-weight-bold text-truncate">
+      <div class="logoTitle text-body menu-text-color font-weight-bold">
         {{ $root.logoTitle }}
       </div>
     </a>

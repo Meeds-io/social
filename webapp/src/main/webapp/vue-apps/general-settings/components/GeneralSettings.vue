@@ -199,13 +199,18 @@
 export default {
   data: () => ({
     branding: null,
+    registrationSettings: null,
     errorMessage: null,
     intialized: false,
     changed: false,
+    defaultBrandingThemeStyle: null,
   }),
   watch: {
     branding() {
       this.$root.branding = this.branding;
+    },
+    defaultBrandingThemeStyle() {
+      this.$root.defaultBrandingThemeStyle = this.defaultBrandingThemeStyle;
     },
     errorMessage() {
       if (this.errorMessage) {
@@ -236,11 +241,16 @@ export default {
     init() {
       this.$root.loading = true;
       return this.initBranding()
+        .then(this.initThemeStyle)
         .finally(() => this.$root.loading = false);
     },
     initBranding() {
       return this.$brandingService.getBrandingInformation()
         .then(data => this.branding = data);
+    },
+    initThemeStyle() {
+      return this.$brandingService.getDefaultBrandingThemeStyle()
+        .then(data => this.defaultBrandingThemeStyle = data);
     },
     close() {
       if (this.changed) {

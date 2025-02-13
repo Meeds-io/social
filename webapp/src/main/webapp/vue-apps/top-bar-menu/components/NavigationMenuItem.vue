@@ -23,7 +23,7 @@
   <v-menu
     v-model="showMenu"
     rounded
-    content-class="topBar-navigation-drop-menu"
+    :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
     :left="$vuetify.rtl"
     :open-on-hover="isOpenedOnHover"
     bottom
@@ -61,6 +61,7 @@
     </template>
     <navigation-menu-sub-item
       v-for="children in navigation.children"
+      class="transparent"
       :key="children.id"
       :navigation="children"
       :base-site-uri="baseSiteUri"
@@ -118,6 +119,9 @@ export default {
     childrenHasPage() {
       return this.checkChildrenHasPage(this.navigation);
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   watch: {
     showMenu() {

@@ -22,10 +22,11 @@
   <v-row class="ma-0 position-relative">
     <v-col
       cols="12"
-      lg="6"
-      class="pa-0 mb-12 pb-5">
+      lg="12"
+      class="pa-0">
       <portal-general-settings-branding-site 
         :branding="branding"
+        :custom-css="customStylesheet"
         @changed="$emit('changed')"
         @saved="$emit('saved')"
         @close="$emit('close')" />

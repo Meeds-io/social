@@ -655,6 +655,18 @@
         </init-params>
     </component>
 
+    <component>
+        <key>CustomStylesheetFeatureProperties</key>
+        <type>org.exoplatform.container.ExtendedPropertyConfigurator</type>
+        <init-params>
+            <properties-param>
+                <name>CustomStylesheetFeatureProperties</name>
+                <description>Custom Stylesheet Button in Theme Admin UI</description>
+                <property name="exo.feature.customStylesheet.enabled" value="false" />
+            </properties-param>
+        </init-params>
+    </component>
+
     <external-component-plugins>
         <target-component>org.exoplatform.services.resources.ResourceBundleService</target-component>
         <component-plugin>

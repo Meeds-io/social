@@ -29,11 +29,12 @@
       :target="navigationNodeTarget"
       :rel="navigationNodeRel"
       :link="!!hasPage"
-      class="pt-0 pb-0"
+      class="pt-0 pb-0 transparent"
       @click="checkLink">
       <v-menu
         v-model="showMenu"
         rounded
+        :content-class="isTopBarElement && 'layout-top-bar' || ''"
         :position-x="positionX"
         :position-y="positionY"
         transition="slide-x-reverse-transition"
@@ -48,9 +49,10 @@
             v-bind="attrs"
             class="pt-5 pb-5"
             :class="hasPage && ' ' || ' not-clickable '"
-            v-text="navigation.label"
             @mouseleave="showMenu = false"
-            @mouseover="showMenu = true" />
+            @mouseover="showMenu = true">
+            <span class="text-body">{{ navigation.label }}</span>
+          </v-list-item-title>
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
             class="ms-0 me-n2 ma-auto full-height"
@@ -68,6 +70,7 @@
         </template>
         <navigation-menu-sub-item
           v-for="children in navigation.children"
+          class="transparent"
           :key="children.id"
           :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
@@ -130,6 +133,9 @@ export default {
     isSelected() {
       return this.navigationNodeUri === this.selectedPath;
     },
+    isTopBarElement() {
+      return this.$root.isTopBarElement;
+    }
   },
   watch: {
     isSelected: {
