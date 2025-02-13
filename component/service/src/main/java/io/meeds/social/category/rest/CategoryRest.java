@@ -20,6 +20,8 @@ package io.meeds.social.category.rest;
 
 import java.util.List;
 
+import io.meeds.portal.security.service.SecuritySettingService;
+import org.exoplatform.social.rest.api.RestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
@@ -59,6 +61,9 @@ public class CategoryRest {
   @Autowired
   private CategoryService categoryService;
 
+  @Autowired
+  private SecuritySettingService securitySettingService;
+
   @GetMapping
   @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree switch a filter")
   @ApiResponses(value = {
@@ -84,6 +89,10 @@ public class CategoryRest {
                                       @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
                                       @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
                                       boolean linkPermission) {
+
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(ownerId,
                                                                                    parentId,
                                                                                    depth,
@@ -109,6 +118,9 @@ public class CategoryRest {
                                   @Parameter(description = "Category Identifier")
                                   @PathVariable(name = "id", required = true)
                                   long id) {
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(0,
                                                                                    id,
                                                                                    0,
@@ -151,6 +163,9 @@ public class CategoryRest {
                                                    @Parameter(description = "Whether to sort by name or by score")
                                                    @RequestParam(name = "sortByName", required = false, defaultValue = "false")
                                                    boolean sortByName) {
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     return categoryService.findCategories(new CategorySearchFilter(query,
                                                                    ownerId,
                                                                    parentId,
@@ -173,6 +188,9 @@ public class CategoryRest {
                                    @Parameter(description = "Parent Category Id")
                                    @PathVariable(name = "id", required = true)
                                    long id) {
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    }
     try {
       return categoryService.getAncestorIds(id, request.getRemoteUser());
     } catch (ObjectNotFoundException e) {
@@ -200,6 +218,9 @@ public class CategoryRest {
                                       @Parameter(description = "Sub Categories Limit per level")
                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
                                       long limit) {
+    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+    } 
     return categoryService.getSubcategoryIds(request.getRemoteUser(), parentId, offset, limit, depth);
   }
 
