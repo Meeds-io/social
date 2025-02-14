@@ -17,7 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
-import './services.js';
 
 const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.PlatformAccess?lang=${lang}`;
