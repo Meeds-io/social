@@ -31,6 +31,7 @@ import HelpLabel from './components/HelpLabel.vue';
 import HelpTooltip from './components/HelpTooltip.vue';
 import NumberInput from './components/NumberInput.vue';
 import NumberFormat from './components/NumberFormat.vue';
+import PublicWidgetHiddenWarning from './components/PublicWidgetHiddenWarning.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -75,6 +76,7 @@ const components = {
   'help-tooltip': HelpTooltip,
   'number-input': NumberInput,
   'number-format': NumberFormat,
+  'public-widget-hidden-warning': PublicWidgetHiddenWarning,
 };
 
 for (const key in components) {
