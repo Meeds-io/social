@@ -132,7 +132,16 @@ export default {
     spaceMembersCount() {
       return this.$t('spaceList.spaceMembers', {0: `<strong>${this.space.membersCount}</strong>`});
     },
+    publicSiteName() {
+      return this.space?.publicSiteName;
+    },
+    spacePublicSiteUrl() {
+      return this.publicSiteName && `${eXo.env.portal.context}/${this.publicSiteName}`;
+    },
     spaceUrl() {
+      if (this.$root.anonymous) {
+        return this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login';
+      }
       return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
     enabledSpaceActionExtensions() {
