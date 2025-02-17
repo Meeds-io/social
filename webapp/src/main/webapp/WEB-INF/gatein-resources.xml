@@ -381,6 +381,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>fontIcons</module>
+      </depends>
     </module>
   </portlet>
 
@@ -1567,6 +1570,9 @@
         <as>Cropper</as>
       </depends>
       <depends>
+        <module>fontIcons</module>
+      </depends>
+      <depends>
         <module>jquery</module>
         <as>$</as>
       </depends>
@@ -2023,6 +2029,9 @@
       </depends>
       <depends>
         <module>spaceForm</module>
+      </depends>
+      <depends>
+        <module>fontIcons</module>
       </depends>
     </module>
   </portlet>
@@ -3148,6 +3157,9 @@
     </depends>
     <depends>
       <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>fontIcons</module>
     </depends>
   </module>
 
