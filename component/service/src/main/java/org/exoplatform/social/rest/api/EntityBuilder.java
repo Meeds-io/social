@@ -2481,7 +2481,10 @@ public class EntityBuilder {
     spaceEntity.setCreatedTime(String.valueOf(space.getCreatedTime()));
     spaceEntity.setPrettyName(space.getPrettyName());
     spaceEntity.setGroupId(space.getGroupId());
+    spaceEntity.setTemplateId(space.getTemplateId());
+    spaceEntity.setCategoryIds(space.getCategoryIds());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
+    spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());
     spaceEntity.setBannerUrl(space.getBannerUrl());
     spaceEntity.setVisibility(space.getVisibility());
