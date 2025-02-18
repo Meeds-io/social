@@ -255,7 +255,7 @@ export default {
         });
     },
     refresh() {
-      return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
+      return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus,settings')
         .then(user => {
           this.user = user;
           this.setPageTitle();
