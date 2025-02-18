@@ -26,7 +26,7 @@
       placeholder: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
-    :right-filter-button="$root.sortBy !== 'lastVisited' && {
+    :right-filter-button="displayRightFilter && {
       text: $t('spaceList.advanced.filter.button.title'),
       displayText: !$root.isMobile,
     }"
@@ -87,15 +87,18 @@
         </div>
       </div>
     </template>
-    <template v-if="$root.canEdit && $root.hover && !filterExpand" #right>
-      <v-btn
-        id="spacesListSettingsButton"
-        class="ms-auto"
-        small
-        icon
-        @click="$root.$emit('spaces-list-settings-open')">
-        <v-icon size="20">fa-cog</v-icon>
-      </v-btn>
+    <template v-if="$root.canEdit && !filterExpand" #right>
+      <div class="ms-auto">
+        <public-widget-hidden-warning />
+        <v-btn
+          v-if="$root.hover"
+          id="spacesListSettingsButton"
+          small
+          icon
+          @click="$root.$emit('spaces-list-settings-open')">
+          <v-icon size="20">fa-cog</v-icon>
+        </v-btn>
+      </div>
     </template>
   </application-toolbar>
 </template>
@@ -127,6 +130,11 @@ export default {
     loading: 0,
     filterExpand: false,
   }),
+  computed: {
+    displayRightFilter() {
+      return this.$root.sortBy !== 'lastVisited' && !this.$root.anonymous;
+    },
+  },
   created() {
     this.$root.$on('spaces-list-refresh', this.refresh);
     this.$root.$on('space-list-pending-updated', this.refresh);

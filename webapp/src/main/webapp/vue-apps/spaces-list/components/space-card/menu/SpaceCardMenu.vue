@@ -22,6 +22,16 @@
 -->
 <template>
   <div class="d-flex align-center">
+    <space-card-button
+      v-if="spacePublicSiteUrl"
+      :extension="{
+        icon: 'fas fa-globe',
+        iconOnly: true,
+        title: $t('spacesList.button.visitPublicSite'),
+        click: openSpacePublicSiteUrl
+      }"
+      :space="space"
+      class="mx-2" />
     <space-favorite-action
       v-if="space.isMember"
       :is-favorite="space.isFavorite"
@@ -70,11 +80,6 @@
           label="spacesList.button.copyLink"
           icon="fa-link"
           @click="copyLink" />
-        <space-card-menu-item
-          v-if="spacePublicSiteUrl"
-          :href="spacePublicSiteUrl"
-          label="spacesList.button.visitPublicSite"
-          icon="fa-globe" />
         <space-card-menu-item
           v-if="space.isMember && !space.isUserBound"
           label="spacesList.button.leave"
@@ -219,10 +224,11 @@ export default {
     url() {
       return `${eXo.env.portal.context}/s/${this.space.id}`;
     },
+    publicSiteName() {
+      return this.space?.publicSiteName;
+    },
     spacePublicSiteUrl() {
-      return this.space.publicSiteName
-        && this.space.publicSiteVisibility !== 'manager'
-        && `${eXo.env.portal.context}/${this.space.publicSiteName}`;
+      return this.publicSiteName && `${eXo.env.portal.context}/${this.publicSiteName}`;
     },
   },
   watch: {
@@ -315,6 +321,10 @@ export default {
         });
     },
     join() {
+      if (this.$root.anonymous) {
+        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+        return;
+      }
       this.sendingAction = true;
       this.$spaceService.join(this.space.id)
         .then(() => this.$root.$emit('spaces-list-refresh'))
@@ -327,6 +337,10 @@ export default {
         });
     },
     requestJoin() {
+      if (this.$root.anonymous) {
+        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+        return;
+      }
       this.sendingAction = true;
       this.$spaceService.requestJoin(this.space.id)
         .then(() => this.$root.$emit('spaces-list-refresh'))
@@ -385,6 +399,9 @@ export default {
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
       }
+    },
+    openSpacePublicSiteUrl() {
+      window.location.href = `${this.spacePublicSiteUrl}`;
     },
     closeConfirmDialog() {
       this.confirmTitle = '';

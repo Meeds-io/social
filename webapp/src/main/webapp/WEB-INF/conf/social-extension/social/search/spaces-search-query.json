@@ -5,6 +5,7 @@
     "bool":{
       @term_query@
       "filter":[
+        @category_query@
         @template_query@
         @favorite_query@
         @permissions_query@

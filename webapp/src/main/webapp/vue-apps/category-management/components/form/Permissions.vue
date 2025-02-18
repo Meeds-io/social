@@ -49,6 +49,16 @@
       </template>
     </v-checkbox>
     <v-checkbox
+      v-if="showAny"
+      v-model="isAnyPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('categoryManagement.permissionsStepEveryone') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
       v-model="isCustomPermissions"
       class="mt-0"
       @click="specificGroupEntries = null">
@@ -77,31 +87,11 @@
 <script>
 export default {
   props: {
-    label: {
-      type: String,
-      default: null,
-    },
-    helpLabel: {
-      type: String,
-      default: null,
-    },
-    helpTooltip: {
-      type: String,
-      default: null,
-    },
     value: {
       type: String,
       default: null,
     },
-    users: {
-      type: Boolean,
-      default: false,
-    },
-    admins: {
-      type: Boolean,
-      default: false,
-    },
-    spaceAdmin: {
+    showAny: {
       type: Boolean,
       default: false,
     },
@@ -110,6 +100,7 @@ export default {
     isAdministrationPermissions: true,
     isUserPermissions: false,
     isGuestPermissions: false,
+    isAnyPermissions: false,
     isCustomPermissions: false,
     specificGroupEntries: null,
     permissionIdentityIds: null,
@@ -118,15 +109,19 @@ export default {
   computed: {
     permissions() {
       const permissions = [];
-      if (this.isUserPermissions) {
-        permissions.push(this.$root.usersPermission);
-      }
-      if (this.isGuestPermissions) {
-        permissions.push(this.$root.guestsPermission);
-      }
-      if (this.specificGroupEntries?.length) {
-        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
-        permissions.push(...specificGroupEntries);
+      if (this.isAnyPermissions) {
+        permissions.push(this.$root.everyonePermission);
+      } else {
+        if (this.isUserPermissions) {
+          permissions.push(this.$root.usersPermission);
+        }
+        if (this.isGuestPermissions) {
+          permissions.push(this.$root.guestsPermission);
+        }
+        if (this.specificGroupEntries?.length) {
+          const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
+          permissions.push(...specificGroupEntries);
+        }
       }
       return permissions;
     },
@@ -148,10 +143,19 @@ export default {
         this.$emit('input', this.permissionIdentityIds);
       }
     },
+    isAnyPermissions() {
+      if (this.isAnyPermissions) {
+        this.isAdministrationPermissions = true;
+        this.isUserPermissions = true;
+        this.isGuestPermissions = true;
+        this.isCustomPermissions = false;
+      }
+    },
   },
   async created() {
     const identityIds = this.value?.slice?.() || [];
     const permissions = await Promise.all(identityIds.map(this.retrieveGroupIdByIdentityId));
+    this.isAnyPermissions = permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
     this.isUserPermissions = permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
     this.isGuestPermissions = permissions?.find?.(p => p === this.$root.guestsPermission) && true || false;
     this.specificGroupEntries = [];
@@ -160,6 +164,7 @@ export default {
       && p !== this.$root.administratorsPermission
       && p !== this.$root.usersPermission
       && p !== this.$root.guestsPermission
+      && p !== this.$root.everyonePermission
     ) || null;
     if (specificGroupEntries?.length) {
       await Promise.all(specificGroupEntries.map(this.retrieveObject));
@@ -206,42 +211,44 @@ export default {
       }
     },
     async computePermissionIdentityIds() {
-      const permissionIdentityIds = await Promise.all(this.permissions.map(this.retrieveIdentityIdByGroupId));
-      this.permissionIdentityIds = permissionIdentityIds.filter(id => id);
+      this.permissionIdentityIds = await Promise.all(this.permissions.map(this.retrieveIdentityIdByGroupId));
     },
     async retrieveIdentityIdByGroupId(groupId) {
       if (Object.hasOwn(this.$root.identityIdPerGroup, groupId)) {
         return this.$root.identityIdPerGroup[groupId];
-      } else {
-        try {
-          if (groupId?.startsWith('/spaces/')) {
-            const space = await this.$spaceService.getSpaceByGroupId(groupId);
-            if (space) {
-              const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
-              if (identity) {
-                const identityId = Number(identity.id);
-                this.$root.identityIdPerGroup[groupId] = identityId;
-                return identityId;
-              }
-            }
-          } else if (groupId?.startsWith('/')) {
-            const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+      } else if (groupId === this.$root.everyonePermission) {
+        return 0;
+      } else {try {
+        if (groupId?.startsWith('/spaces/')) {
+          const space = await this.$spaceService.getSpaceByGroupId(groupId);
+          if (space) {
+            const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
             if (identity) {
               const identityId = Number(identity.id);
               this.$root.identityIdPerGroup[groupId] = identityId;
               return identityId;
             }
           }
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Error while retrieving Identity with groupId : ', groupId);
+        } else if (groupId?.startsWith('/')) {
+          const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          if (identity) {
+            const identityId = Number(identity.id);
+            this.$root.identityIdPerGroup[groupId] = identityId;
+            return identityId;
+          }
         }
-        return 0;
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error('Error while retrieving Identity with groupId : ', groupId);
+      }
+      return 0;
       }
     },
     async retrieveGroupIdByIdentityId(identityId) {
       if (Object.hasOwn(this.$root.groupPerIdentityId, identityId)) {
         return this.$root.groupPerIdentityId[identityId];
+      } else if (identityId === 0) {
+        return this.$root.everyonePermission;
       } else {
         try {
           const identity = await this.$identityService.getIdentityById(identityId);

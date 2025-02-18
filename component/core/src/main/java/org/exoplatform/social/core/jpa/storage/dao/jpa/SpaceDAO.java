@@ -376,8 +376,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       if (spaceFilter.isIncludePrivate() || spaceFilter.isNotHidden()) {
         if ((spaceFilter.getRemoteId() == null || StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM))) {
           suffixes.add("SpacePrivate");
-          predicates.add("s.visibility = :publicVisibility"); // NOSONAR
-          parameterNames.add(PARAM_PUBLIC_VISIBILITY);
+          predicates.add("s.visibility <> :hiddenVisibility"); // NOSONAR
+          parameterNames.add(PARAM_HIDDEN_VISIBILITY);
         } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
           suffixes.add("SpacePrivateOrStatuses");
           predicates.add("(s.visibility <> :hiddenVisibility OR (sm.userId = :userId AND sm.status IN :statuses))");
@@ -394,9 +394,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
         }
       } else {
         if ((spaceFilter.getRemoteId() == null || StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM))) {
-          suffixes.add("SpacePublic");
-          predicates.add("s.visibility = :publicVisibility"); // NOSONAR
-          parameterNames.add(PARAM_PUBLIC_VISIBILITY);
+          suffixes.add("SpacePrivate");
+          predicates.add("s.visibility <> :hiddenVisibility"); // NOSONAR
+          parameterNames.add(PARAM_HIDDEN_VISIBILITY);
         } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
           suffixes.add("SpaceWithStatuses");
           predicates.add("sm.userId = :userId AND sm.status IN :statuses");
@@ -412,9 +412,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       }
     } else if (spaceFilter.getRemoteId() != null) {
       if (StringUtils.equals(spaceFilter.getRemoteId(), IdentityConstants.ANONIM)) {
-        suffixes.add("SpacePublic");
-        predicates.add("s.visibility = :publicVisibility");
-        parameterNames.add(PARAM_PUBLIC_VISIBILITY);
+        suffixes.add("SpacePrivate");
+        predicates.add("s.visibility <> :hiddenVisibility"); // NOSONAR
+        parameterNames.add(PARAM_HIDDEN_VISIBILITY);
       } else if (CollectionUtils.isEmpty(spaceFilter.getManagingTemplateIds())) {
         suffixes.add("SpaceWithVisibleStatus");
         predicates.add("(s.visibility <> :hiddenVisibility OR (sm.userId = :userId AND sm.status IN :visibleStatuses))");
