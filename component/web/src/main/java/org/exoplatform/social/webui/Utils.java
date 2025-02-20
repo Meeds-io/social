@@ -51,7 +51,6 @@ import org.exoplatform.web.application.RequestContext;
 import org.exoplatform.web.controller.QualifiedName;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
-import org.exoplatform.webui.application.WebuiRequestContext;
 
 import jakarta.servlet.http.Cookie;
 
@@ -731,7 +730,7 @@ public class Utils {
    * @return Localized value for msgKey. null if value is not found 
    */
   public static String appRes(String msgKey) {
-    WebuiRequestContext context = RequestContext.getCurrentInstance();
+    RequestContext context = RequestContext.getCurrentInstance();
     try {
       return context.getApplicationResourceBundle().getString(msgKey);
     } catch (MissingResourceException ex) {
