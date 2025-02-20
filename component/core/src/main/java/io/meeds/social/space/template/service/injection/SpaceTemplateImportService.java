@@ -39,11 +39,13 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Context;
 import org.exoplatform.commons.api.settings.data.Scope;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.configuration.ConfigurationManager;
 import org.exoplatform.portal.config.model.Container;
 import org.exoplatform.portal.config.model.ModelUnmarshaller;
 import org.exoplatform.portal.config.model.UnmarshalledObject;
+import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.attachment.AttachmentService;
@@ -61,7 +63,6 @@ import io.meeds.social.space.template.service.injection.model.SpaceTemplateDescr
 import io.meeds.social.space.template.service.injection.model.SpaceTemplateDescriptorList;
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.util.JsonUtils;
-
 import lombok.SneakyThrows;
 
 @Component
@@ -73,10 +74,14 @@ public class SpaceTemplateImportService implements ContainerStartableService {
 
   private static final String                   SPACE_TEMPLATE_VERSION      = "version";
 
+  public static final String SPACE_TEMPLATES_INTIALIZED_EVENT = "space.templates.initialized";
+
   private static final Log                      LOG                         =
                                                     ExoLogger.getLogger(SpaceTemplateImportService.class);
 
   private static final Random                   RANDOM                      = new Random();
+
+  private ListenerService listenerService;
 
   @Autowired
   private SpaceTemplateTranslationImportService layoutTranslationService;
@@ -123,6 +128,10 @@ public class SpaceTemplateImportService implements ContainerStartableService {
                  .flatMap(List::stream)
                  .forEach(this::importDescriptor);
       LOG.info("Importing Space Templates finished successfully");
+
+      if (getSettingValue(SPACE_TEMPLATE_VERSION) == 0l) {
+        getListenerService().broadcast(SPACE_TEMPLATES_INTIALIZED_EVENT, null, null);
+      }
 
       LOG.info("Processing Post Space Templates import");
       layoutTranslationService.postImport(SpaceTemplateTranslationPlugin.OBJECT_TYPE);
@@ -279,6 +288,13 @@ public class SpaceTemplateImportService implements ContainerStartableService {
       FileUtils.copyInputStreamToFile(inputStream, tempFile);
       return tempFile;
     }
+  }
+
+  private ListenerService getListenerService() {
+    if (listenerService == null) {
+      listenerService = ExoContainerContext.getService(ListenerService.class);
+    }
+    return listenerService;
   }
 
 }
