@@ -66,8 +66,9 @@ export default {
       this.openedDrawers = 1;
       this.hideOverlay();
     },
-    hideOverlay() {
-      if (this.openedDrawers > 0) {
+    hideOverlay(event) {
+      const showOverlay = !event?.detail;
+      if (showOverlay && this.openedDrawers > 0) {
         window.setTimeout(() => {
           this.openedDrawers -= 1;
           if (this.openedDrawers === 0) {
