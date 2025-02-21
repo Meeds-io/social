@@ -172,7 +172,10 @@ public class EntityConverterUtils {
         JSONArray arr = null ;
         try {
           arr = new JSONArray(value);
-          isJsonArray = true;
+          if (value.startsWith("[") && value.endsWith("]")) {
+            // a value like "[john] smith" is not a json array
+            isJsonArray = true;
+          }
         } catch (Exception ex) {
           // Ignore this exception
         }
