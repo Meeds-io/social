@@ -221,12 +221,14 @@ export default {
     this.$root.$on('change-spaces-menu', this.changeSpacesMenu);
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.addEventListener('drawerOpened', this.closeDisplayedDrawerIfNotSelf);
   },
   beforeDestroy() {
     this.$root.$off('change-space-menu', this.changeSpaceMenu);
     this.$root.$off('change-spaces-menu', this.changeSpacesMenu);
     this.$root.$off('change-site-menu', this.changeSiteMenu);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
+    document.removeEventListener('drawerOpened', this.closeDisplayedDrawerIfNotSelf);
   },
   methods: {
     async openFirstLevel(mouseEvent) {
@@ -322,6 +324,11 @@ export default {
         this.$root.openedFirstLevelType = 'SITE';
         this.secondLevelDrawer = true;
         this.thirdLevelDrawer = false;
+      }
+    },
+    closeDisplayedDrawerIfNotSelf(event) {
+      if (!event?.detail) {
+        this.closeMenuEffectively(true);
       }
     },
     closeDisplayedDrawer() {
