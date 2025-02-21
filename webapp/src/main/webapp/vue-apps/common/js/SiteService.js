@@ -133,9 +133,6 @@ export function getSiteById(siteId, params) {
   if (params?.expandNavigations) {
     formData.append('expandNavigations', params?.expandNavigations);
   }
-  if (params?.excludeEmptyNavigationSites) {
-    formData.append('excludeEmptyNavigationSites', params?.excludeEmptyNavigationSites);
-  }
   if (params?.excludeGroupNodesWithoutPageChildNodes) {
     formData.append('excludeGroupNodesWithoutPageChildNodes', params?.excludeGroupNodesWithoutPageChildNodes);
   }
