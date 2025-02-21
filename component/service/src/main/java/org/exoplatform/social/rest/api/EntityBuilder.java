@@ -2338,7 +2338,7 @@ public class EntityBuilder {
     UserNavigation navigation = userPortal.getNavigation(siteKey);
     if (navigation != null) {
       UserNodeFilterConfig.Builder builder = UserNodeFilterConfig.builder();
-      builder.withReadWriteCheck().withVisibility(convertVisibilities(visibilityNames));
+      builder.withReadCheckNoPage().withVisibility(convertVisibilities(visibilityNames));
       if (temporalCheck) {
         builder.withTemporalCheck();
       }

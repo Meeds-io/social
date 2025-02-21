@@ -47,19 +47,16 @@ export default {
     this.retrieveCurrentSite();
   },
   methods: {
-    retrieveCurrentSite(){
+    retrieveCurrentSite() {
       this.loading = true;
       return this.$siteService.getSiteById(this.siteId, {
         expandNavigations: true,
-        excludeEmptyNavigationSites: true,
         lang: eXo.env.portal.language,
         visibility: ['displayed', 'temporal'],
         excludeGroupNodesWithoutPageChildNodes: true,
         temporalCheck: true,
       })
-        .then(site => {
-          this.site = site;
-        })
+        .then(site => this.site = site)
         .finally(() => this.loading = false);
     },
   }
