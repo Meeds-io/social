@@ -249,28 +249,30 @@ export default {
     dispatchDismissed() {
       document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
     },
-    openAlert(params) {
+    async openAlert(params) {
       this.reset();
       this.closeAlert();
       this.progression = 100;
-      this.$nextTick().then(() => {
-        this.useHtml = params.useHtml || false;
-        this.confeti = params.confeti || false;
-        this.alertLink = params.alertLink || null;
-        this.alertMessage = params.alertMessage || (params.alertMessageKey && this.$t(params.alertMessageKey)) || null;
-        this.alertLinkText = params.alertLinkText || (params.alertLinkTextKey && this.$t(params.alertLinkTextKey)) || null;
-        this.alertLinkTarget = params.alertLinkTarget || null;
-        this.alertLinkIcon = params.alertLinkIcon || null;
-        this.alertType = params.alertType || 'info';
-        this.alertLinkTooltip = params.alertLinkTooltip || null;
-        this.alertLinkCallback = params.alertLinkCallback || null;
-        this.alertDismissCallback = params.alertDismissCallback || null;
-        this.alertComponent = params.alertComponent || null;
-        this.alertComponentParams = params.alertComponentParams || null;
-        this.alertDismissible = Object.hasOwn(params, 'alertDismissible') ? params.alertDismissible : true;
-        this.timeout = params.alertTimeout || 10000;
-        this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
-      });
+      await this.$nextTick();
+      this.useHtml = params.useHtml || false;
+      this.confeti = params.confeti || false;
+      this.alertLink = params.alertLink || null;
+      this.alertMessage = params.alertMessage || (params.alertMessageKey && this.$t(params.alertMessageKey)) || null;
+      this.alertLinkText = params.alertLinkText || (params.alertLinkTextKey && this.$t(params.alertLinkTextKey)) || null;
+      this.alertLinkTarget = params.alertLinkTarget || null;
+      this.alertLinkIcon = params.alertLinkIcon || null;
+      this.alertType = params.alertType || 'info';
+      this.alertLinkTooltip = params.alertLinkTooltip || null;
+      this.alertLinkCallback = params.alertLinkCallback || null;
+      this.alertDismissCallback = params.alertDismissCallback || null;
+      this.alertComponent = params.alertComponent || null;
+      this.alertComponentParams = params.alertComponentParams || null;
+      this.alertDismissible = Object.hasOwn(params, 'alertDismissible') ? params.alertDismissible : true;
+      this.timeout = params.alertTimeout || 10000;
+      if (this.confeti) {
+        await new Promise(resolve => window.require(['SHARED/animationComponents'], resolve));
+      }
+      this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
     },
     closeAlertIfDismissed(closed) {
       if (!closed) {
