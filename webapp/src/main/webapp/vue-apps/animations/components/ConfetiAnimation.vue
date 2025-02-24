@@ -29,10 +29,20 @@
       <div
         v-for="index in 400"
         :key="index"
-        class="particle"></div>
+        :class="show && 'particle'"></div>
     </div>
   </v-card>
 </template>
+<script>
+export default {
+  data: () => ({
+    show: false,
+  }),
+  mounted() {
+    window.setTimeout(() => this.show = true, 10);
+  },
+};
+</script>
 <style lang="scss">
   $length: 400;
   $particles: 400;
