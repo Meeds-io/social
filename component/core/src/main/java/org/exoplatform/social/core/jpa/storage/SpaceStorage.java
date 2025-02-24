@@ -454,7 +454,7 @@ public class SpaceStorage {
     if (isNew) {
       entity = new SpaceEntity();
       // Ensure unicity of pretty name
-      space.setPrettyName(buildPrettyName(space.getDisplayName()));
+      space.setPrettyName(buildPrettyName(space.getPrettyName(), space.getDisplayName()));
       EntityConverterUtils.buildFrom(space, entity);
 
       //
@@ -788,15 +788,22 @@ public class SpaceStorage {
                                 .minusSeconds(remindPasswordTokenService.getValidityTime());
   }
 
-  private String buildPrettyName(String displayName) {
-    String prettyName = Utils.cleanString(displayName);
-    int index = 0;
-    while (spaceDAO.getSpaceByPrettyName(prettyName) != null) {
-      // Use sapme algorithm to compte new pretty name as for creation
-      // used in SpaceUtils.buildGroupId
-      prettyName = Utils.cleanString(displayName + " " + ++index);
-    }
-    return prettyName;
+  private String buildPrettyName(String... names) {
+    return Arrays.stream(names)
+            .filter(StringUtils::isNotBlank)
+            .map(displayName -> {
+              String name = Utils.cleanString(displayName);
+              int index = 0;
+              while (spaceDAO.getSpaceByPrettyName(name) != null) {
+                // Use sapme algorithm to compte new pretty name as for
+                // creation
+                // used in SpaceUtils.buildGroupId
+                name = Utils.cleanString(displayName + " " + ++index);
+              }
+              return name;
+            })
+            .findFirst()
+            .orElseThrow();
   }
 
 }
