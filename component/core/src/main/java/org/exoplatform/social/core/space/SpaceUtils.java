@@ -16,11 +16,7 @@
  */
 package org.exoplatform.social.core.space;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -38,15 +34,7 @@ import org.exoplatform.portal.mop.service.NavigationService;
 import org.exoplatform.portal.webui.util.Util;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.GroupHandler;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipHandler;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.MembershipTypeHandler;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -217,7 +205,7 @@ public class SpaceUtils {
       parentGroup = groupHandler.findGroupById(SPACE_GROUP);
       // Creates new group
       newGroup = groupHandler.createGroupInstance();
-      shortName = Utils.cleanString(StringUtils.firstNonBlank(groupLabel, spaceName));
+      shortName = Utils.cleanString(StringUtils.firstNonBlank(spaceName, groupLabel));
       groupId = parentGroup.getId() + "/" + shortName;
 
       if (getSpaceService().getSpaceByGroupId(groupId) != null) {
