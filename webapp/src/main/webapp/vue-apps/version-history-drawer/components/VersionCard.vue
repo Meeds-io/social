@@ -20,7 +20,7 @@
       class="author-date-wrapper d-flex justify-space-between">
       <div class="version-author">
         <v-chip
-          class="ma-0 px-2 font-weight-bold"
+          class="ma-0 px-2 font-weight-bold text-subtitle"
           color="primary"
           x-small
           label>
@@ -30,7 +30,7 @@
       </div>
       <div class="version-update-date">
         <date-format
-          class="text-light-color text-truncate caption"
+          class="text-subtitle text-truncate caption"
           :value="versionDate"
           :format="dateTimeFormat" />
       </div>
