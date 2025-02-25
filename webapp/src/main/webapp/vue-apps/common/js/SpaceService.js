@@ -183,6 +183,9 @@ export function getSpacesByFilter(options) {
   if (options.sortDirection) {
     formData.append('order', options.sortDirection);
   }
+  if (options.token) {
+    formData.append('token', options.token);
+  }
   if (options.excludedIds?.length) {
     options.excludedIds.forEach(id => formData.append('excludedId', id));
   }

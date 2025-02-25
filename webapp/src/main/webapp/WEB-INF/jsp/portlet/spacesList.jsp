@@ -1,3 +1,5 @@
+<%@page import="org.exoplatform.services.security.ConversationState"%>
+<%@page import="org.exoplatform.portal.config.UserACL"%>
 <%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.social.rest.api.RestUtils" %>
@@ -6,12 +8,18 @@
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
+<portlet:resourceURL var="getSettingNameUrl" />
 <div class="VuetifyApp">
 <%
   String portletId = (String) request.getAttribute("portletStorageId");
   String domId = "spacesListApplication" + portletId;
   String valueDomId = "spaceListSettingsValue" + portletId;
-  if (RestUtils.canAccessAnonymousResources()) {
+
+  Object settingName = (String[]) request.getAttribute("name");
+  if (settingName != null) {
+    settingName = ((String[]) settingName)[0];
+  }
+  if (RestUtils.canAccessAnonymousResources((String) settingName)) {
     Object filter = request.getAttribute("filter");
     if (filter == null) {
       filter = "";
@@ -25,8 +33,19 @@
     if (settings != null) {
       settings = ((String[]) settings)[0];
     }
+    Object publicAccess = (String[]) request.getAttribute("publicAccess");
+    if (publicAccess != null) {
+      publicAccess = ((String[]) publicAccess)[0];
+    }
     SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
-    boolean isExternalFeatureEnabled = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN || securitySettingService.isRegistrationExternalUser();
+    UserRegistrationType registrationType = securitySettingService.getRegistrationType();
+    boolean isExternalFeatureEnabled = registrationType == UserRegistrationType.OPEN || securitySettingService.isRegistrationExternalUser();
+    UserACL userAcl = ExoContainerContext.getService(UserACL.class);
+    boolean isAdministrator = ConversationState.getCurrent() != null && userAcl.isAdministrator(ConversationState.getCurrent().getIdentity());
+    Object isPublicPage = request.getAttribute("isPublicPage");
+    if (isPublicPage == null) {
+      isPublicPage = false;
+    }
 %>
   <div data-app="true"
        class="v-application transparent v-application--is-ltr theme--light"
@@ -34,7 +53,7 @@
     <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : settings%></textarea>
     <script type="text/javascript">
       require(['PORTLET/social/SpacesList'],
-          app => app.init('<%=domId%>', '<%=filter%>', <%=canCreateSpace%>, <%=isExternalFeatureEnabled%>, <%=canEdit%>, JSON.parse(document.getElementById('<%=valueDomId%>').value), '<%=saveSettingsUrl%>')
+          app => app.init('<%=domId%>', '<%=filter%>', <%=canCreateSpace%>, <%=isExternalFeatureEnabled%>, <%=canEdit%>, JSON.parse(document.getElementById('<%=valueDomId%>').value), '<%=saveSettingsUrl%>', '<%=getSettingNameUrl%>', '<%=settingName == null ? "" : settingName%>', '<%=registrationType%>', <%=isAdministrator%>, <%=isPublicPage%>)
       );
     </script>
   <% } else { %>

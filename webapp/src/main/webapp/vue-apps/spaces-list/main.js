@@ -24,7 +24,20 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, canEdit, settings, settingsSaveUrl) {
+export function init(
+  appId,
+  filter,
+  canCreateSpace,
+  isExternalFeatureEnabled,
+  canEdit,
+  settings,
+  settingsSaveUrl,
+  settingNameUrl,
+  settingName,
+  registrationType,
+  isAdministrator,
+  isPublicPage) {
+
   exoi18n.loadLanguageAsync(lang, url).then(async i18n => {
     if (!settings.filterType) {
       settings.filterType = 'any';
@@ -57,7 +70,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
       if (!settings.categoryIds) {
         settings.categoryIds = [];
       }
-      settingsSubcategories = await getSubcategoryIds(settings.categoryIds);
+      settingsSubcategories = await getSubcategoryIds(settings.categoryIds, settingName);
     } else {
       settings.categoryIds = null;
     }
@@ -71,6 +84,10 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
         settings,
         settingsSubcategories,
         settingsSaveUrl,
+        settingNameUrl,
+        settingName,
+        isAdministrator,
+        isPublicPage,
         invitationsCount: 0,
         pendingCount: 0,
         requestsCount: 0,
@@ -123,7 +140,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
         },
         async selectedCategoryId() {
           if (this.selectedCategoryId) {
-            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId]);
+            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], this.settingName);
           } else {
             this.selectedCategoryIds = null;
           }
@@ -145,7 +162,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
           this.filter = filter;
         },
         async handleSettingsUpdate() {
-          this.settingsSubcategories = await getSubcategoryIds(this.settings.categoryIds);
+          this.settingsSubcategories = await getSubcategoryIds(this.settings.categoryIds, this.settingName);
           this.$root.$emit('spaces-list-refresh');
         },
       },
@@ -156,7 +173,7 @@ export function init(appId, filter, canCreateSpace, isExternalFeatureEnabled, ca
   });
 }
 
-async function getSubcategoryIds(categoryIds) {
+async function getSubcategoryIds(categoryIds, token) {
   if (!categoryIds?.length) {
     return [];
   }
@@ -164,6 +181,7 @@ async function getSubcategoryIds(categoryIds) {
     offset: 0,
     limit: -1,
     depth: -1,
+    token,
   })));
   const subcategoyIdsFlat = subcategoyIds.flatMap(s => s);
   subcategoyIdsFlat.push(...categoryIds);

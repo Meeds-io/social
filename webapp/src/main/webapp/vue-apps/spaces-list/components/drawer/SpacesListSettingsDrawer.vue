@@ -32,6 +32,36 @@
     <template v-if="drawer" #content>
       <div class="pa-5" flat>
         <div class="mb-2 text-header">{{ $t('spacesList.settings.displayOptions') }}</div>
+        <v-tooltip
+          v-if="$root.isPublicPage"
+          :disabled="$root.isAdministrator"
+          bottom>
+          <template #activator="{on, attrs}">
+            <div
+              v-on="on"
+              v-bind="attrs"
+              class="mb-4 d-flex full-width align-start text-start">
+              <v-list-item
+                class="pa-0 me-4"
+                dense>
+                <v-list-item-content class="pa-0">
+                  <v-list-item-title :class="!$root.isAdministrator && 'text--disabled'">
+                    {{ $t('spacesList.settings.anonymousAccess') }}
+                  </v-list-item-title>
+                  <v-list-item-subtitle class="text-wrap">
+                    {{ $t('spacesList.settings.anonymousAccessSubtitle') }}
+                  </v-list-item-subtitle>
+                </v-list-item-content>
+              </v-list-item>
+              <v-spacer />
+              <v-switch
+                v-model="publicAccess"
+                :disabled="!$root.isAdministrator"
+                class="mx-0 mt-n1 pa-0 width-fit-content" />
+            </div>
+          </template>
+          <span>{{ $t('publicWidgetHidden.tooltip.onlyAdminCanChangeValue') }}</span>
+        </v-tooltip>
         <v-radio-group
           v-model="settings.hideQuickActions"
           class="pa-0 mb-2 mt-0 ms-n1"
@@ -252,6 +282,7 @@ export default {
     maxNameLength: 150,
     categoryId: null,
     templateId: null,
+    publicAccess: false,
     selectedSpaceCategories: [],
   }),
   computed: {
@@ -266,7 +297,8 @@ export default {
       };
     },
     modified() {
-      return JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
+      return JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings)
+        || (this.$root.isAdministrator && this.$root.isPublicPage && this.publicAccess !== !!this.$root.settingName);
     },
     disabled() {
       return !this.modified || Object.keys(this.settings.nameTranslations).some(k => this.settings.nameTranslations[k]?.length > this.maxNameLength);
@@ -311,6 +343,7 @@ export default {
   async created() {
     this.$root.$on('spaces-list-settings-open', this.open);
     document.addEventListener('spaces-list-settings-open', this.open);
+    this.publicAccess = !!this.$root.settingName;
     if (!this.$root.spaceTemplates) {
       this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
     }
@@ -345,6 +378,9 @@ export default {
       try {
         const formData = new FormData();
         formData.append('settings', JSON.stringify(this.settings));
+        if (this.publicAccess !== !!this.$root.settingName) {
+          formData.append('publicAccess', this.publicAccess);
+        }
         const urlParams = new URLSearchParams(formData).toString();
         const response = await fetch(this.$root.settingsSaveUrl, {
           method: 'POST',
@@ -359,6 +395,16 @@ export default {
           this.$root.settings = this.settings;
           this.$root.$emit('spaces-list-settings-updated');
           this.close();
+          if (this.publicAccess !== !!this.$root.settingName) {
+            if (!this.publicAccess) {
+              this.$root.settingName = null;
+            } else {
+              this.$root.settingName = await fetch(this.$root.settingNameUrl, {
+                method: 'GET',
+                credentials: 'include',
+              }).then(resp => resp?.ok && resp.text());
+            }
+          }
         } else {
           this.$root.$emit('alert-message', this.$t('spacesList.settings.saveError'), 'error');
         }
