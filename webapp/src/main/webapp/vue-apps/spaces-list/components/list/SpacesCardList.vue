@@ -241,6 +241,7 @@ export default {
           limit: this.limitToFetch,
           filter: this.$root.sortBy === 'lastVisited' ? 'lastVisited' : this.filter,
           expand: this.getExpand(),
+          token: this.$root.anonymous && this.$root.settingName
         });
         this.spaces = data && data.spaces || [];
         this.hasSpaces = this.hasSpaces || this.spacesSize > 0;

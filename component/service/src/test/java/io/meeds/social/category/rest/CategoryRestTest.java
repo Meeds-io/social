@@ -22,7 +22,9 @@ import static io.meeds.social.util.JsonUtils.toJsonString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,8 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Collections;
 import java.util.Locale;
 
-import io.meeds.portal.security.constant.UserRegistrationType;
-import io.meeds.portal.security.service.SecuritySettingService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,6 +63,7 @@ import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategoryTree;
 import io.meeds.social.category.service.CategoryService;
+import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.spring.web.security.PortalAuthenticationManager;
 import io.meeds.spring.web.security.WebSecurityConfiguration;
 
@@ -97,7 +98,7 @@ public class CategoryRestTest {
   private CategoryService       categoryService;
 
   @MockBean
-  private SecuritySettingService securitySettingService;
+  private SpaceDirectoryService spaceDirectoryService;
 
   private MockMvc               mockMvc;
 
@@ -110,7 +111,6 @@ public class CategoryRestTest {
 
   @Test
   public void getCategoryTree() throws Exception {
-    when(securitySettingService.getRegistrationType()).thenReturn(UserRegistrationType.OPEN);
     CategoryTree categoryTree = mock(CategoryTree.class);
     when(categoryService.getCategoryTree(any(), any(), any())).thenReturn(categoryTree);
     ResultActions response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5")
@@ -118,14 +118,12 @@ public class CategoryRestTest {
     response.andExpect(status().isOk());
     verify(categoryService).getCategoryTree(new CategoryFilter(1, 2, 3, 4, 5, false, true), SIMPLE_USER, Locale.ENGLISH);
 
-    when(securitySettingService.getRegistrationType()).thenReturn(UserRegistrationType.RESTRICTED);
     response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5"));
     response.andExpect(status().isUnauthorized());
   }
 
   @Test
   public void findCategories() throws Exception {
-    when(securitySettingService.getRegistrationType()).thenReturn(UserRegistrationType.OPEN);
     when(categoryService.findCategories(any(), any(), any())).thenReturn(Collections.emptyList());
     ResultActions response =
                            mockMvc.perform(get("/categories/search?query=query&ownerId=1&parentId=2&offset=3&limit=4&linkPermission=true&sortByName=true")
@@ -135,9 +133,8 @@ public class CategoryRestTest {
                                            SIMPLE_USER,
                                            Locale.ENGLISH);
 
-    when(securitySettingService.getRegistrationType()).thenReturn(UserRegistrationType.RESTRICTED);
     response =
-            mockMvc.perform(get("/categories/search?query=query&ownerId=1&parentId=2&offset=3&limit=4&linkPermission=true&sortByName=true"));
+             mockMvc.perform(get("/categories/search?query=query&ownerId=1&parentId=2&offset=3&limit=4&linkPermission=true&sortByName=true"));
     response.andExpect(status().isUnauthorized());
   }
 

@@ -98,6 +98,7 @@ import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
+import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.util.JsonUtils;
 
@@ -155,6 +156,8 @@ public class SpaceRest implements ResourceContainer {
 
   private final UploadService          uploadService;
 
+  private final SpaceDirectoryService  spaceDirectoryService;
+
   private final SpaceService           spaceService;
 
   private final CategoryService        categoryService;
@@ -169,7 +172,8 @@ public class SpaceRest implements ResourceContainer {
 
   private byte[]                       defaultSpaceAvatar           = null;
 
-  public SpaceRest(SpaceService spaceService,
+  public SpaceRest(SpaceService spaceService, // NOSONAR
+                   SpaceDirectoryService spaceDirectoryService,
                    SpaceLayoutService spaceLayoutService,
                    CategoryService categoryService,
                    IdentityManager identityManager,
@@ -177,6 +181,7 @@ public class SpaceRest implements ResourceContainer {
                    ImageThumbnailService imageThumbnailService,
                    SecuritySettingService securitySettingService) {
     this.spaceService = spaceService;
+    this.spaceDirectoryService = spaceDirectoryService;
     this.spaceLayoutService = spaceLayoutService;
     this.categoryService = categoryService;
     this.identityManager = identityManager;
@@ -189,14 +194,11 @@ public class SpaceRest implements ResourceContainer {
   }
 
   @GET
-  @Operation(
-             summary = "Gets spaces of user",
-             method = "GET",
-             description = "This returns a list of spaces switch request parameters")
+  @Operation(summary = "Gets spaces of user", method = "GET", description = "This returns a list of spaces switch request parameters")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getSpaces( // NOSONAR
                             @Context
                             UriInfo uriInfo,
@@ -205,16 +207,13 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Space name search information", required = false)
                             @QueryParam("q")
                             String q,
-                            @Parameter(description = "Filter by Space registration",
-                                       required = false)
+                            @Parameter(description = "Filter by Space registration", required = false)
                             @QueryParam("registration")
                             SpaceRegistration registration,
-                            @Parameter(description = "Filter by Space visibility",
-                                       required = false)
+                            @Parameter(description = "Filter by Space visibility", required = false)
                             @QueryParam("visibility")
                             SpaceVisibility visibility,
-                            @Parameter(description = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests",
-                                       required = false)
+                            @Parameter(description = "Type of spaces to retrieve: all, userSpaces, invited, pending or requests", required = false)
                             @Schema(defaultValue = SPACE_FILTER_TYPE_ALL)
                             @QueryParam("filterType")
                             String filterType,
@@ -226,8 +225,7 @@ public class SpaceRest implements ResourceContainer {
                             @Schema(defaultValue = "20")
                             @QueryParam("limit")
                             int limit,
-                            @Parameter(description = "Space Template identifier, if equals to 0, it will not be used",
-                                       required = false)
+                            @Parameter(description = "Space Template identifier, if equals to 0, it will not be used", required = false)
                             @QueryParam("templateId")
                             List<Long> templateIds,
                             @Parameter(description = "Sort", required = false)
@@ -253,12 +251,14 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Excluded space ids", required = false)
                             @QueryParam("excludedId")
                             List<Long> excludedIds,
-                            @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                       required = false)
+                            @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                            @QueryParam("token")
+                            String token,
+                            @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                             @QueryParam("expand")
                             String expand) throws Exception {
 
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+    if (!RestUtils.canAccessAnonymousResources(spaceDirectoryService, token, categoryIds, templateIds)) {
       return Response.status(Status.UNAUTHORIZED).build();
     }
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
@@ -358,19 +358,15 @@ public class SpaceRest implements ResourceContainer {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(
-             summary = "Creates a space",
-             method = "POST",
-             description = "This can only be done by the logged in user.")
+  @Operation(summary = "Creates a space", method = "POST", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response createSpace(
                               @Context
                               UriInfo uriInfo,
-                              @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                         required = false)
+                              @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                               @QueryParam("expand")
                               String expand,
                               @RequestBody(description = "Space object to be created, ex:<br />" +
@@ -410,15 +406,12 @@ public class SpaceRest implements ResourceContainer {
   @Produces(MediaType.TEXT_PLAIN)
   @Path("{spaceId}/checkExternals")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Checks if a specific a space contains an external members",
-             method = "GET",
-             description = "This returns the space if it contains external members")
+  @Operation(summary = "Checks if a specific a space contains an external members", method = "GET", description = "This returns the space if it contains external members")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "404", description = "Resource not found"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response isSpaceContainsExternals(
                                            @Context
                                            UriInfo uriInfo,
@@ -449,14 +442,11 @@ public class SpaceRest implements ResourceContainer {
   @GET
   @Path("{id}")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Gets a specific space by id",
-             method = "GET",
-             description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(summary = "Gets a specific space by id", method = "GET", description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getSpaceById(
                                @Context
                                UriInfo uriInfo,
@@ -465,8 +455,7 @@ public class SpaceRest implements ResourceContainer {
                                @Parameter(description = "Space id", required = true)
                                @PathParam("id")
                                String id,
-                               @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                          required = false)
+                               @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                                @QueryParam("expand")
                                String expand) {
     Space space = spaceService.getSpaceById(id);
@@ -477,10 +466,7 @@ public class SpaceRest implements ResourceContainer {
   @Path("countByTemplate")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")
-  @Operation(
-             summary = "Gets the spaces count by Space Template",
-             method = "GET",
-             description = "This returns the spaces count by Space template identifier")
+  @Operation(summary = "Gets the spaces count by Space Template", method = "GET", description = "This returns the spaces count by Space template identifier")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled") })
   public Response countSpacesByTemplate() {
     return Response.ok(JsonUtils.toJsonString(spaceService.countSpacesByTemplate())).build();
@@ -489,15 +475,11 @@ public class SpaceRest implements ResourceContainer {
   @GET
   @Path("byPrettyName/{prettyName}")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Gets a specific space by pretty name",
-             method = "GET",
-             description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
-  @ApiResponses(
-                value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  @Operation(summary = "Gets a specific space by pretty name", method = "GET", description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getSpaceByPrettyName(
                                        @Context
                                        UriInfo uriInfo,
@@ -506,9 +488,7 @@ public class SpaceRest implements ResourceContainer {
                                        @Parameter(description = "Space id", required = true)
                                        @PathParam("prettyName")
                                        String prettyName,
-                                       @Parameter(
-                                                  description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                                  required = false)
+                                       @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                                        @QueryParam("expand")
                                        String expand) {
 
@@ -519,15 +499,11 @@ public class SpaceRest implements ResourceContainer {
   @GET
   @Path("byGroupSuffix/{groupSuffix}")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Gets a specific space by its group id without /spaces/ prefix",
-             method = "GET",
-             description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
-  @ApiResponses(
-                value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  @Operation(summary = "Gets a specific space by its group id without /spaces/ prefix", method = "GET", description = "This returns the space in the following cases: <br/><ul><li>the authenticated user is a member of the space</li><li>the space is \"public\"</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response getSpaceByGroupSuffix(
                                         @Context
                                         UriInfo uriInfo,
@@ -536,8 +512,7 @@ public class SpaceRest implements ResourceContainer {
                                         @Parameter(description = "Space id", required = true)
                                         @PathParam("groupSuffix")
                                         String groupSuffix,
-                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                                   required = false)
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                                         @QueryParam("expand")
                                         String expand) {
     Space space = spaceService.getSpaceByGroupId(SpaceUtils.SPACE_GROUP + "/" + groupSuffix);
@@ -546,15 +521,12 @@ public class SpaceRest implements ResourceContainer {
 
   @GET
   @Path("{id}/avatar")
-  @Operation(
-             summary = "Gets a space avatar by pretty name",
-             method = "GET",
-             description = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets a space avatar by pretty name", method = "GET", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input"),
-                          @ApiResponse(responseCode = "404", description = "Resource not found") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "404", description = "Resource not found") })
   public Response getSpaceAvatarById(
                                      @Context
                                      UriInfo uriInfo,
@@ -574,9 +546,7 @@ public class SpaceRest implements ResourceContainer {
                                      @DefaultValue("100x100")
                                      @QueryParam("size")
                                      String size,
-                                     @Parameter(
-                                                description = "A mandatory valid token that is used to authorize anonymous request",
-                                                required = false)
+                                     @Parameter(description = "A mandatory valid token that is used to authorize anonymous request", required = false)
                                      @QueryParam("r")
                                      String token) throws IOException {
 
@@ -656,15 +626,12 @@ public class SpaceRest implements ResourceContainer {
 
   @GET
   @Path("{id}/banner")
-  @Operation(
-             summary = "Gets a space banner by id",
-             method = "GET",
-             description = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets a space banner by id", method = "GET", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input"),
-                          @ApiResponse(responseCode = "404", description = "Resource not found") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "404", description = "Resource not found") })
   public Response getSpaceBannerById(
                                      @Context
                                      UriInfo uriInfo,
@@ -680,9 +647,7 @@ public class SpaceRest implements ResourceContainer {
                                      @DefaultValue("false")
                                      @QueryParam("byId")
                                      boolean byId,
-                                     @Parameter(
-                                                description = "A mandatory valid token that is used to authorize anonymous request",
-                                                required = false)
+                                     @Parameter(description = "A mandatory valid token that is used to authorize anonymous request", required = false)
                                      @QueryParam("r")
                                      String token) throws IOException {
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
@@ -758,22 +723,18 @@ public class SpaceRest implements ResourceContainer {
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(
-             summary = "Updates a specific space by id",
-             method = "PUT",
-             description = "This updates the space in the following cases: <br/><ul><li>the authenticated user is a manager of the space</li><li>the authenticated user is the owner of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(summary = "Updates a specific space by id", method = "PUT", description = "This updates the space in the following cases: <br/><ul><li>the authenticated user is a manager of the space</li><li>the authenticated user is the owner of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateSpaceById(
                                   @Context
                                   UriInfo uriInfo,
                                   @Parameter(description = "Space id", required = true)
                                   @PathParam("id")
                                   String id,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers",
-                                             required = false)
+                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: members or managers", required = false)
                                   @QueryParam("expand")
                                   String expand,
                                   @RequestBody(description = "Space object to be updated", required = true)
@@ -821,22 +782,18 @@ public class SpaceRest implements ResourceContainer {
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Deletes a specific space by id",
-             method = "DELETE",
-             description = "This deletes the space in the following cases: <br/><ul><li>the authenticated user is a manager of the space</li><li>the authenticated user is the owner of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
+  @Operation(summary = "Deletes a specific space by id", method = "DELETE", description = "This deletes the space in the following cases: <br/><ul><li>the authenticated user is a manager of the space</li><li>the authenticated user is the owner of the space</li><li>the authenticated user is a spaces super manager</li></ul>")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response deleteSpaceById(
                                   @Context
                                   UriInfo uriInfo,
                                   @Parameter(description = "Space id", required = true)
                                   @PathParam("id")
                                   String id,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource if any",
-                                             required = false)
+                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
                                   @QueryParam("expand")
                                   String expand) {
 
@@ -862,14 +819,11 @@ public class SpaceRest implements ResourceContainer {
   @Path("{id}/users")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-             summary = "Gets users of a specific space",
-             method = "GET",
-             description = "This returns a list of users if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @Operation(summary = "Gets users of a specific space", method = "GET", description = "This returns a list of users if the authenticated user is a member or manager of the space or a spaces super manager.")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated(forRemoval = true, since = "7.0")
   @DeprecatedAPI(value = "Use SpaceMembershipRest.getSpacesMemberships instead", insist = true)
   public Response getSpaceMembers(
@@ -883,8 +837,7 @@ public class SpaceRest implements ResourceContainer {
                                   @Parameter(description = "User name search information", required = false)
                                   @QueryParam("q")
                                   String q,
-                                  @Parameter(description = "Role of the target user in this space: manager, member, invited and pending",
-                                             required = false)
+                                  @Parameter(description = "Role of the target user in this space: manager, member, invited and pending", required = false)
                                   @Schema(defaultValue = "member")
                                   @QueryParam("role")
                                   String role,
@@ -900,8 +853,7 @@ public class SpaceRest implements ResourceContainer {
                                   @Schema(defaultValue = "false")
                                   @QueryParam("returnSize")
                                   boolean returnSize,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource if any",
-                                             required = false)
+                                  @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
                                   @QueryParam("expand")
                                   String expand) throws Exception {
 
@@ -962,14 +914,11 @@ public class SpaceRest implements ResourceContainer {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("{id}/users/{userId}")
   @RolesAllowed("users")
-  @Operation(
-             summary = "Checks if the given user is a member of a specific space or not",
-             method = "GET",
-             description = "This Checks if user is a member of a specific spacer o not.")
+  @Operation(summary = "Checks if the given user is a member of a specific space or not", method = "GET", description = "This Checks if user is a member of a specific spacer o not.")
   @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   @Deprecated(forRemoval = true, since = "7.0")
   @DeprecatedAPI(value = "Use SpaceMembershipRest.getSpacesMemberships instead", insist = true)
   public Response isSpaceMember(
@@ -987,6 +936,69 @@ public class SpaceRest implements ResourceContainer {
     }
     boolean isMember = spaceService.isMember(space, userId);
     return Response.ok().entity("{\"isMember\":\"" + isMember + "\"}").build();
+  }
+
+  @GET
+  @Path("{id}/externalInvitations")
+  @RolesAllowed("users")
+  @Operation(summary = "Gets external invitations of a specific space", method = "GET", description = "This returns a list of external invitations if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getSpaceExternalInvitations(@Context
+  UriInfo uriInfo,
+                                              @Parameter(description = "Space id", required = true)
+                                              @PathParam("id")
+                                              String id) {
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    //
+    Space space = spaceService.getSpaceById(id);
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+    List<SpaceExternalInvitation> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
+    return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK)
+                        .build();
+  }
+
+  @DELETE
+  @Path("externalInvitations/{invitationId}")
+  @RolesAllowed("users")
+  @Operation(summary = "Delete a specific external invitation from a specific space", method = "DELETE", description = "This Delete a specific external invitation from a specific space if the authenticated user is a member or manager of the space or a spaces super manager.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response declineExternalInvitations(@Context
+  UriInfo uriInfo,
+                                             @Parameter(description = "invitation id", required = true)
+                                             @PathParam("invitationId")
+                                             String invitationId) {
+
+    SpaceExternalInvitation spaceExternalInvitation = spaceService.getSpaceExternalInvitationById(invitationId);
+    if (spaceExternalInvitation == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    Space space = spaceService.getSpaceById(spaceExternalInvitation.getSpaceId());
+    if (space == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+
+    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+    if (!spaceService.canManageSpace(space, authenticatedUser)) {
+      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
+    }
+
+    try {
+      spaceService.deleteSpaceExternalInvitation(invitationId);
+    } catch (Exception e) {
+      LOG.error("Unknown error occurred while deleting invitation", e);
+      return Response.serverError().build();
+    }
+    return Response.noContent().build();
   }
 
   @SneakyThrows
@@ -1038,75 +1050,6 @@ public class SpaceRest implements ResourceContainer {
     } else if (StringUtils.isBlank(model.getSubscription()) && space.getId() == null) {
       space.setRegistration(Space.VALIDATION);
     }
-  }
-
-  @GET
-  @Path("{id}/externalInvitations")
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Gets external invitations of a specific space",
-             method = "GET",
-             description = "This returns a list of external invitations if the authenticated user is a member or manager of the space or a spaces super manager.")
-  @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response getSpaceExternalInvitations(@Context
-  UriInfo uriInfo,
-                                              @Parameter(description = "Space id", required = true)
-                                              @PathParam("id")
-                                              String id) {
-
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    //
-    Space space = spaceService.getSpaceById(id);
-    if (!spaceService.canManageSpace(space, authenticatedUser)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-    List<SpaceExternalInvitation> spaceExternalInvitations = spaceService.findSpaceExternalInvitationsBySpaceId(id);
-    return EntityBuilder.getResponseBuilder(spaceExternalInvitations, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK)
-                        .build();
-  }
-
-  @DELETE
-  @Path("externalInvitations/{invitationId}")
-  @RolesAllowed("users")
-  @Operation(
-             summary = "Delete a specific external invitation from a specific space",
-             method = "DELETE",
-             description = "This Delete a specific external invitation from a specific space if the authenticated user is a member or manager of the space or a spaces super manager.")
-  @ApiResponses(value = {
-                          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-                          @ApiResponse(responseCode = "500", description = "Internal server error"),
-                          @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response declineExternalInvitations(@Context
-  UriInfo uriInfo,
-                                             @Parameter(description = "invitation id", required = true)
-                                             @PathParam("invitationId")
-                                             String invitationId) {
-
-    SpaceExternalInvitation spaceExternalInvitation = spaceService.getSpaceExternalInvitationById(invitationId);
-    if (spaceExternalInvitation == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
-    Space space = spaceService.getSpaceById(spaceExternalInvitation.getSpaceId());
-    if (space == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
-    String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!spaceService.canManageSpace(space, authenticatedUser)) {
-      throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
-    try {
-      spaceService.deleteSpaceExternalInvitation(invitationId);
-    } catch (Exception e) {
-      LOG.error("Unknown error occurred while deleting invitation", e);
-      return Response.serverError().build();
-    }
-    return Response.noContent().build();
   }
 
   private void updateProfileField(Space space,
@@ -1218,7 +1161,10 @@ public class SpaceRest implements ResourceContainer {
     }
   }
 
-  private boolean inviteExternalUsers(UriInfo uriInfo, SpaceEntity model, Space space, String authenticatedUser) throws Exception {
+  private boolean inviteExternalUsers(UriInfo uriInfo,
+                                      SpaceEntity model,
+                                      Space space,
+                                      String authenticatedUser) throws Exception {
     int errorsCount = 0;
     if (model.getExternalInvitedUsers() != null
         && (securitySettingService.getRegistrationType() == UserRegistrationType.OPEN

@@ -8,7 +8,6 @@
  modify it under the terms of the GNU Lesser General Public
  License as published by the Free Software Foundation; either
  version 3 of the License, or (at your option) any later version.
-
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -20,46 +19,49 @@
 
 -->
 <template>
-  <v-tooltip v-if="isPublicSite && !hubAccessOpen" top>
+  <v-tooltip v-if="displayWarning" top>
     <template #activator="{attrs, on}">
-      <v-icon
-        class="me-2"
-        color="warning"
-        size="18"
+      <v-btn
         v-on="on"
-        v-bind="attrs">
-        fa-exclamation-triangle
-      </v-icon>
+        v-bind="attrs"
+        class="me-2"
+        small
+        icon
+        @click="openSettingsDrawer">
+        <v-icon
+          color="warning"
+          size="18">
+          fa-exclamation-triangle
+        </v-icon>
+      </v-btn>
     </template>
-    <span>
-      {{ $t('publicWidgetHidden.tooltipPart1') }}
-      <br>
-      {{ $t('publicWidgetHidden.tooltipPart2') }}
+    <span v-if="isAdministrator">
+      {{ $t('publicWidgetHidden.tooltip.adminCase') }}
+    </span>
+    <span v-else>
+      {{ $t('publicWidgetHidden.tooltip.pageEditorCase') }}
     </span>
   </v-tooltip>
 </template>
 <script>
 export default {
-  data: () => ({
-    isPublicSite: eXo.env.portal.portalName === 'public',
-    registrationSettings: null,
-  }),
   computed: {
     hubAccessOpen() {
-      return !this.registrationSettings || this.registrationSettings?.type === 'OPEN';
+      return this.$root.registrationType === 'OPEN';
+    },
+    isAdministrator() {
+      return this.$root.isAdministrator;
+    },
+    displayWarning() {
+      return this.$root.isPublicPage
+        && this.$root.canEdit
+        && !this.hubAccessOpen
+        && !this.$root.settingName;
     },
   },
-  created() {
-    if (this.isPublicSite) {
-      this.initRegistration();
-    }
-  },
   methods: {
-    initRegistration() {
-      return this.$registrationService.getRegistrationSettings()
-        .then(registrationSettings => {
-          this.registrationSettings = registrationSettings;
-        });
+    openSettingsDrawer() {
+      this.$root.$emit('spaces-list-settings-open');
     },
   },
 };

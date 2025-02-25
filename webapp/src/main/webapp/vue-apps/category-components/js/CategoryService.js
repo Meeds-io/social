@@ -38,6 +38,9 @@ export function getCategoryTree(options) {
   if (options.linkPermission) {
     formData.append('linkPermission', options.linkPermission);
   }
+  if (options.token) {
+    formData.append('token', options.token);
+  }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`/social/rest/categories?${urlParams}`, {
     method: 'GET',
@@ -87,6 +90,9 @@ export function getSubcategoryIds(id, options) {
   }
   if (options.limit) {
     formData.append('limit', options.limit);
+  }
+  if (options.token) {
+    formData.append('token', options.token);
   }
   const urlParams = new URLSearchParams(formData).toString();
   return fetch(`/social/rest/categories/${id}/subcategories?${urlParams}`, {
