@@ -42,6 +42,11 @@
     <type>org.exoplatform.social.webNotification.service.test.MockWebNotificationStorage</type>
   </component>
 
+  <component>
+    <key>io.meeds.social.space.service.SpaceDirectoryService</key>
+    <type>io.meeds.social.space.service.SpaceDirectoryServiceTestImpl</type>
+  </component>
+
   <external-component-plugins>
     <target-component>io.meeds.social.translation.service.TranslationService</target-component>
     <component-plugin>

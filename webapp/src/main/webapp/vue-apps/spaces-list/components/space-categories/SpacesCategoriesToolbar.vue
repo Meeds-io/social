@@ -123,6 +123,7 @@ export default {
             depth: this.$root.categoryDepth,
             offset: 0,
             limit: -1,
+            token: this.$root.settingName,
           })));
           this.categoryTree = {
             id: -1,
@@ -135,6 +136,7 @@ export default {
             depth: this.$root.categoryDepth,
             offset: 0,
             limit: -1,
+            token: this.$root.settingName,
           });
         }
       } finally {

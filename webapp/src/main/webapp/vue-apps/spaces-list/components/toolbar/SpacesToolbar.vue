@@ -89,7 +89,7 @@
     </template>
     <template v-if="$root.canEdit && !filterExpand" #right>
       <div class="ms-auto">
-        <public-widget-hidden-warning />
+        <spaces-public-access-warning />
         <v-btn
           v-if="$root.hover"
           id="spacesListSettingsButton"
@@ -136,15 +136,21 @@ export default {
     },
   },
   created() {
-    this.$root.$on('spaces-list-refresh', this.refresh);
-    this.$root.$on('space-list-pending-updated', this.refresh);
+    if (!this.$root.anonymous) {
+      this.$root.$on('spaces-list-refresh', this.refresh);
+      this.$root.$on('space-list-pending-updated', this.refresh);
+    }
   },
   mounted() {
-    this.refresh();
+    if (!this.$root.anonymous) {
+      this.refresh();
+    }
   },
   beforeDestroy() {
-    this.$root.$off('spaces-list-refresh', this.refresh);
-    this.$root.$off('space-list-pending-updated', this.refresh);
+    if (!this.$root.anonymous) {
+      this.$root.$off('spaces-list-refresh', this.refresh);
+      this.$root.$off('space-list-pending-updated', this.refresh);
+    }
   },
   methods: {
     refresh() {

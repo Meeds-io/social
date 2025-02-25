@@ -40,6 +40,8 @@ import io.meeds.social.coediting.service.CoeditingServiceTest;
 import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
 import io.meeds.social.search.SpaceSearchConnectorTest;
 import io.meeds.social.space.administration.service.SpaceAdministrationServiceTest;
+import io.meeds.social.space.service.SpaceDirectoryServiceTest;
+import io.meeds.social.space.storage.SpaceDirectoryStorageTest;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPluginTest;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPluginTest;
 import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
@@ -72,6 +74,8 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     SpaceTemplateServiceTest.class,
     CategoryServiceUnitTest.class,
     CoeditingServiceTest.class,
+    SpaceDirectoryServiceTest.class,
+    SpaceDirectoryStorageTest.class,
 })
 public class NoContainerTestSuite {
 
