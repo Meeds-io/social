@@ -20,6 +20,7 @@ import SpacesList from './components/SpacesList.vue';
 
 import SpacesToolbar from './components/toolbar/SpacesToolbar.vue';
 import SpacePendingButton from './components/toolbar/SpacePendingButton.vue';
+import SpacesPublicAccessWarning from './components/toolbar/SpacesPublicAccessWarning.vue';
 
 import SpacesCategoriesToolbar from './components/space-categories/SpacesCategoriesToolbar.vue';
 import SpacesCategoriesBreadcrumb from './components/space-categories/SpacesCategoriesBreadcrumb.vue';
@@ -68,6 +69,7 @@ const components = {
   'space-card-unread-badge': SpaceCardUnreadBadge,
   'space-favorite-action': SpaceFavoriteAction,
   'space-pending-button': SpacePendingButton,
+  'spaces-public-access-warning': SpacesPublicAccessWarning,
 };
 
 for (const key in components) {

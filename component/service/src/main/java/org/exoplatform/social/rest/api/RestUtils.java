@@ -19,15 +19,19 @@ package org.exoplatform.social.rest.api;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import io.meeds.portal.security.constant.UserRegistrationType;
-import io.meeds.portal.security.service.SecuritySettingService;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -46,19 +50,23 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.rest.entity.DataEntity;
 
+import io.meeds.portal.security.constant.UserRegistrationType;
+import io.meeds.portal.security.service.SecuritySettingService;
+import io.meeds.social.space.service.SpaceDirectoryService;
+
 public class RestUtils {
 
-  public static final int    DEFAULT_LIMIT  = 20;
+  public static final int        DEFAULT_LIMIT   = 20;
 
-  public static final int    DEFAULT_OFFSET = 0;
+  public static final int        DEFAULT_OFFSET  = 0;
 
-  public static final int    HARD_LIMIT     = 500;
+  public static final int        HARD_LIMIT      = 500;
 
-  public static final String SUPPORT_TYPE   = "json";
+  public static final String     SUPPORT_TYPE    = "json";
 
-  public static final String ADMIN_GROUP    = "/platform/administrators";
+  public static final String     ADMIN_GROUP     = "/platform/administrators";
 
-  public static final String DELEGATED_GROUP    = "/platform/delegated";
+  public static final String     DELEGATED_GROUP = "/platform/delegated";
 
   public static final String     INVISIBLE       = "invisible";
 
@@ -76,14 +84,15 @@ public class RestUtils {
    * @return a media type
    */
   public static MediaType getJsonMediaType() {
-    return getMediaType(SUPPORT_TYPE, new String[]{SUPPORT_TYPE});
+    return getMediaType(SUPPORT_TYPE, new String[] { SUPPORT_TYPE });
   }
-  
+
   /**
-   * Gets the media type from an expected format string (usually the input) and an array of supported format strings.
-   * If expectedFormat is not found in the supported format array, Status.UNSUPPORTED_MEDIA_TYPE is thrown.
-   * The supported format must include one of those format: json, xml, atom or rss, otherwise Status.NOT_ACCEPTABLE
-   * could be thrown.
+   * Gets the media type from an expected format string (usually the input) and
+   * an array of supported format strings. If expectedFormat is not found in the
+   * supported format array, Status.UNSUPPORTED_MEDIA_TYPE is thrown. The
+   * supported format must include one of those format: json, xml, atom or rss,
+   * otherwise Status.NOT_ACCEPTABLE could be thrown.
    *
    * @param expectedFormat the expected input format
    * @param supportedFormats the supported format array
@@ -102,7 +111,7 @@ public class RestUtils {
     } else if (expectedFormat.equals("atom") && isSupportedFormat("atom", supportedFormats)) {
       return MediaType.APPLICATION_ATOM_XML_TYPE;
     }
-    //TODO What's about RSS format?
+    // TODO What's about RSS format?
     throw new WebApplicationException(Status.NOT_ACCEPTABLE);
   }
 
@@ -121,7 +130,7 @@ public class RestUtils {
     }
     return false;
   }
-  
+
   /**
    * Check if the authenticated user is a member of the admin group
    * 
@@ -139,21 +148,22 @@ public class RestUtils {
   public static boolean isMemberOfDelegatedGroup() {
     return ConversationState.getCurrent().getIdentity().isMemberOf(DELEGATED_GROUP);
   }
-  
-  /** 
+
+  /**
    * Get base url of rest service
    * 
    * @param type the type of rest service
    * @param id the id of object
-   * 
-   * @return base rest url like : http://localhost:8080/rest/v1/social/users/123456
+   * @return base rest url like :
+   *         http://localhost:8080/rest/v1/social/users/123456
    */
   public static String getRestUrl(String type, String id, String restPath) {
     if (StringUtils.isBlank(restPath)) {
       return null;
     } else {
       String version = restPath.split("/")[1]; // path /v1/social/identities
-      String socialResource = restPath.split("/")[2]; // path /v1/social/identities
+      String socialResource = restPath.split("/")[2]; // path
+                                                      // /v1/social/identities
 
       return new StringBuffer(getBaseRestUrl()).append("/")
                                                .append(version)
@@ -167,7 +177,7 @@ public class RestUtils {
     }
   }
 
-  /** 
+  /**
    * Get base url of rest service
    * 
    * @return base rest url like : https://localhost:8080/rest
@@ -180,7 +190,7 @@ public class RestUtils {
                                          .toString();
   }
 
-  /** 
+  /**
    * Get base url of rest service
    * 
    * @return base rest url like : https://localhost:8080
@@ -200,8 +210,8 @@ public class RestUtils {
    */
   public static boolean isAnonymous() {
     return ConversationState.getCurrent() == null
-        || ConversationState.getCurrent().getIdentity() == null
-        || IdentityConstants.ANONIM.equals(ConversationState.getCurrent().getIdentity().getUserId());
+           || ConversationState.getCurrent().getIdentity() == null
+           || IdentityConstants.ANONIM.equals(ConversationState.getCurrent().getIdentity().getUserId());
   }
 
   public static String getPathParam(UriInfo uriInfo, String name) {
@@ -247,7 +257,7 @@ public class RestUtils {
   public static boolean isReturnSize(UriInfo uriInfo) {
     return Boolean.parseBoolean(getQueryParam(uriInfo, "returnSize"));
   }
-  
+
   public static DataEntity extractInfo(DataEntity inEntity, List<String> returnedProperties) {
     DataEntity outEntity = new DataEntity();
     for (Map.Entry<String, Object> entry : inEntity.entrySet()) {
@@ -257,12 +267,12 @@ public class RestUtils {
     }
     return outEntity;
   }
-  
+
   public static long getBaseTime(String baseDateTime) throws ParseException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
     Date date = sdf.parse(baseDateTime);
-    return date.getTime(); 
+    return date.getTime();
   }
 
   public static Identity getUserIdentity(String user) {
@@ -310,7 +320,10 @@ public class RestUtils {
     for (String user : spaceMembers) {
       UserStateModel userModel = userStateService.getUserState(user);
       boolean isOnline = userStateService.isOnline(user);
-      if (!user.equals(userId) && !user.equals(superUserName) && userModel != null && !INVISIBLE.equals(userModel.getStatus()) && isOnline) {
+      if (!user.equals(userId) && !user.equals(superUserName)
+          && userModel != null
+          && !INVISIBLE.equals(userModel.getStatus())
+          && isOnline) {
         Identity userIdentity = getIdentityManager().getOrCreateUserIdentity(user);
         identities.add(userIdentity);
         if (identities.size() == limit) {
@@ -343,7 +356,8 @@ public class RestUtils {
     String superUserName = userACL.getSuperUser();
     for (UserStateModel userModel : users) {
       String user = userModel == null ? null : userModel.getUserId();
-      if (StringUtils.isBlank(user) || user.equals(userId) || user.equals(superUserName)
+      if (StringUtils.isBlank(user) || user.equals(userId)
+          || user.equals(superUserName)
           || INVISIBLE.equals(userModel.getStatus())) {
         continue;
       }
@@ -353,13 +367,6 @@ public class RestUtils {
     return identities.toArray(new Identity[identities.size()]);
   }
 
-  public static IdentityManager getIdentityManager() {
-    if (identityManager == null) {
-      identityManager = ExoContainerContext.getService(IdentityManager.class);
-    }
-    return identityManager;
-  }
-
   public static boolean canAccessAnonymousResources() {
     return canAccessAnonymousResources(ExoContainerContext.getService(SecuritySettingService.class));
   }
@@ -367,4 +374,27 @@ public class RestUtils {
   public static boolean canAccessAnonymousResources(SecuritySettingService securitySettingService) {
     return !isAnonymous() || securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
   }
+
+  public static boolean canAccessAnonymousResources(String settingName) {
+    return canAccessAnonymousResources(ExoContainerContext.getService(SpaceDirectoryService.class), settingName);
+  }
+
+  public static boolean canAccessAnonymousResources(SpaceDirectoryService spaceDirectoryService, String settingName) {
+    return !isAnonymous() || spaceDirectoryService.canAccessSpacesDirectory(settingName);
+  }
+
+  public static boolean canAccessAnonymousResources(SpaceDirectoryService spaceDirectoryService,
+                                                    String settingName,
+                                                    List<Long> categoryIds,
+                                                    List<Long> templateIds) {
+    return !isAnonymous() || spaceDirectoryService.canAccessSpacesDirectory(settingName, categoryIds, templateIds);
+  }
+
+  public static IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = ExoContainerContext.getService(IdentityManager.class);
+    }
+    return identityManager;
+  }
+
 }

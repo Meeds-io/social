@@ -20,8 +20,7 @@ package io.meeds.social.category.rest;
 
 import java.util.List;
 
-import io.meeds.portal.security.service.SecuritySettingService;
-import org.exoplatform.social.rest.api.RestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
@@ -38,6 +37,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.social.rest.api.RestUtils;
 
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryFilter;
@@ -45,6 +45,7 @@ import io.meeds.social.category.model.CategorySearchFilter;
 import io.meeds.social.category.model.CategorySearchResult;
 import io.meeds.social.category.model.CategoryTree;
 import io.meeds.social.category.service.CategoryService;
+import io.meeds.social.space.service.SpaceDirectoryService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -59,10 +60,10 @@ import jakarta.servlet.http.HttpServletRequest;
 public class CategoryRest {
 
   @Autowired
-  private CategoryService categoryService;
+  private CategoryService       categoryService;
 
   @Autowired
-  private SecuritySettingService securitySettingService;
+  private SpaceDirectoryService spaceDirectoryService;
 
   @GetMapping
   @Operation(summary = "Retrieves the Category Tree", method = "GET", description = "This retrieves the category tree switch a filter")
@@ -86,11 +87,13 @@ public class CategoryRest {
                                       @Parameter(description = "Sub Categories Limit per level")
                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
                                       long limit,
+                                      @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                                      @RequestParam(name = "token", required = false)
+                                      String token,
                                       @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
                                       @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
                                       boolean linkPermission) {
-
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+    if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(ownerId,
@@ -117,8 +120,11 @@ public class CategoryRest {
   public CategoryTree getCategory(HttpServletRequest request,
                                   @Parameter(description = "Category Identifier")
                                   @PathVariable(name = "id", required = true)
-                                  long id) {
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+                                  long id,
+                                  @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                                  @RequestParam(name = "token", required = false)
+                                  String token) {
+    if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(0,
@@ -160,10 +166,13 @@ public class CategoryRest {
                                                    @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
                                                    @RequestParam(name = "linkPermission", required = false, defaultValue = "false")
                                                    boolean linkPermission,
+                                                   @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                                                   @RequestParam(name = "token", required = false)
+                                                   String token,
                                                    @Parameter(description = "Whether to sort by name or by score")
                                                    @RequestParam(name = "sortByName", required = false, defaultValue = "false")
                                                    boolean sortByName) {
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+    if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     return categoryService.findCategories(new CategorySearchFilter(query,
@@ -187,8 +196,11 @@ public class CategoryRest {
   public List<Long> getAncestorIds(HttpServletRequest request,
                                    @Parameter(description = "Parent Category Id")
                                    @PathVariable(name = "id", required = true)
-                                   long id) {
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+                                   long id,
+                                   @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                                   @RequestParam(name = "token", required = false)
+                                   String token) {
+    if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     try {
@@ -217,10 +229,13 @@ public class CategoryRest {
                                       long offset,
                                       @Parameter(description = "Sub Categories Limit per level")
                                       @RequestParam(name = "limit", required = false, defaultValue = "0")
-                                      long limit) {
-    if (!RestUtils.canAccessAnonymousResources(securitySettingService)) {
+                                      long limit,
+                                      @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
+                                      @RequestParam(name = "token", required = false)
+                                      String token) {
+    if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    } 
+    }
     return categoryService.getSubcategoryIds(request.getRemoteUser(), parentId, offset, limit, depth);
   }
 
