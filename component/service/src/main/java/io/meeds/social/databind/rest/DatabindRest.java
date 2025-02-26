@@ -25,7 +25,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.SneakyThrows;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
@@ -36,6 +35,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 @RestController
@@ -46,7 +46,6 @@ public class DatabindRest {
   @Autowired
   private DatabindService databindService;
 
-  @SneakyThrows
   @GetMapping("serialize")
   @Secured("administrators")
   @Operation(summary = "Export Template by object type and object id", method = "POST", description = "Export Template by object type and object id")
@@ -64,13 +63,15 @@ public class DatabindRest {
       File zipFile = databindService.serialize(objectType, objectIds, request.getRemoteUser());
       InputStreamResource resource = new InputStreamResource(new FileInputStream(zipFile));
       return ResponseEntity.ok()
-                           .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + objectType + ".zip")
+                           .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=%s.zip", objectType))
                            .contentType(MediaType.APPLICATION_OCTET_STREAM)
                            .body(resource);
     } catch (ObjectNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+    } catch (FileNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reading generated file", e);
     }
   }
 }
