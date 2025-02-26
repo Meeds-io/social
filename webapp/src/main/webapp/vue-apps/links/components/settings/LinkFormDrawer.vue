@@ -43,7 +43,7 @@
         <translation-text-field
           ref="linkNameInput"
           id="linkNameInput"
-          v-model="name"
+          v-model="link.name"
           :rules="rules.name"
           :placeholder="$t('links.label.linkNamePlaceholder')"
           :maxlength="maxNameLength"
@@ -60,7 +60,7 @@
         <translation-text-field
           ref="linkDescriptionInput"
           id="linkDescriptionInput"
-          v-model="description"
+          v-model="link.description"
           :rules="rules.description"
           :placeholder="$t('links.label.descriptionPlaceholder')"
           :maxlength="maxDescriptionLength"
@@ -187,12 +187,6 @@ export default {
         ],
       };
     },
-    name() {
-      return this.link?.name || '';
-    },
-    description() {
-      return this.link?.description || '';
-    }
   },
   watch: {
     link: {
@@ -216,24 +210,6 @@ export default {
         }, 200);
       }
     },
-    name() {
-      if (this.name) {
-        if (this.$root.language) {
-          this.name[this.$root.language] = this.$t(this.link?.name?.[this.$root.language]);
-        } else {
-          this.name[this.$root.defaultLanguage] = this.$t(this.link?.name?.[this.$root.defaultLanguage]);
-        }
-      }
-    },
-    description() {
-      if (this.description) {
-        if (this.$root.language) {
-          this.description[this.$root.language] = this.$t(this.link?.description?.[this.$root.language]);
-        } else {
-          this.description[this.$root.defaultLanguage] = this.$t(this.link?.description?.[this.$root.defaultLanguage]);
-        }
-      }
-    }
   },
   created() {
     this.$root.$on('links-form-drawer', this.open);
@@ -253,12 +229,8 @@ export default {
         link.description = {};
         link.description[this.$root.defaultLanguage] = '';
       }
-      if (!link.name?.[this.$root.defaultLanguage]) {
-        link.name[this.$root.defaultLanguage] = link.name['en'] || '';
-      }
-      if (!link.description?.[this.$root.defaultLanguage]) {
-        link.description[this.$root.defaultLanguage] = link.description['en'] || '';
-      }
+      this.setLocalizedValue(link, 'name');
+      this.setLocalizedValue(link, 'description');
       if (!link.iconSrc) {
         link.iconSrc = null;
       }
@@ -301,6 +273,18 @@ export default {
       }
       this.close();
     },
+    setLocalizedValue(link, field) {
+      const defaultLang = this.$root.defaultLanguage;
+      const currentLang = this.$root.language;
+      if (!link[field]?.[defaultLang]) {
+        link[field][defaultLang] = link[field]['en'] || '';
+      } else {
+        link[field][defaultLang] = this.$t(link[field][defaultLang]);
+      }
+      if (currentLang && link[field]?.[currentLang]) {
+        link[field][currentLang] = this.$t(link[field][currentLang]);
+      }
+    }
   },
 };
 </script>
