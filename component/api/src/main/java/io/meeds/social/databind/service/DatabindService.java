@@ -21,13 +21,13 @@ package io.meeds.social.databind.service;
 import java.io.File;
 import java.util.List;
 
-import io.meeds.social.databind.plugin.DatabindPreferencePlugin;
+import io.meeds.social.databind.plugin.DatabindPlugin;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 public interface DatabindService {
 
-  void addDataPreferencePlugin(DatabindPreferencePlugin plugin);
+  void addPlugin(DatabindPlugin plugin);
 
   File serialize(String objectType, List<String> objectIds, String username) throws ObjectNotFoundException,
-                                                                                    IllegalAccessException;
+                                                                             IllegalAccessException;
 }
