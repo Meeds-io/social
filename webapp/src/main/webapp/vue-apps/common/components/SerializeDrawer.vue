@@ -20,10 +20,10 @@
 -->
 <template>
   <exo-drawer
-      ref="serializeDrawer"
-      body-classes="hide-scroll decrease-z-index-more"
-      allow-expand
-      right>
+    ref="serializeDrawer"
+    body-classes="hide-scroll decrease-z-index-more"
+    allow-expand
+    right>
     <template #title>
       <slot name="title"></slot>
     </template>
@@ -31,9 +31,9 @@
       <slot name="content"></slot>
       <div class="d-flex justify-center pt-5">
         <v-btn
-            class="btn btn-primary"
-            :href="exportLink">
-          Export
+          class="btn btn-primary"
+          :href="exportLink">
+          {{ $t('databind.export') }}
         </v-btn>
       </div>
     </template>
@@ -61,9 +61,12 @@ export default {
       this.$refs.serializeDrawer.open();
     },
     serialize() {
+      const id = this.id && [this.id];
       const formData = new FormData();
       formData.append('objectType', this.type);
-      formData.append('objectId', this.id);
+      if (id?.length) {
+        id.forEach(id => formData.append('objectId', id));
+      }
       const params = new URLSearchParams(formData).toString();
       return `/social/rest/databind/serialize?${params}`;
     }

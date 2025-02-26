@@ -20,11 +20,14 @@ package io.meeds.social.databind.plugin;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
-import java.io.File;
+import java.util.zip.ZipOutputStream;
 
-public interface DatabindPreferencePlugin {
+public interface DatabindPlugin {
 
-  String getDataType();
+  String getObjectType();
 
-  void serialize(String objectId, File zipFile, String username) throws ObjectNotFoundException, IllegalAccessException;
+  boolean canHandleDatabind(String objectType, String objectId);
+
+  void serialize(String objectId, ZipOutputStream zipOutputStream, String username) throws ObjectNotFoundException,
+                                                                                    IllegalAccessException;
 }

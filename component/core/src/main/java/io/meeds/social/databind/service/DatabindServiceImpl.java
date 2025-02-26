@@ -18,50 +18,40 @@
  */
 package io.meeds.social.databind.service;
 
-import io.meeds.social.databind.plugin.DatabindPreferencePlugin;
+import io.meeds.social.databind.plugin.DatabindPlugin;
+import lombok.SneakyThrows;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Service
 public class DatabindServiceImpl implements DatabindService {
 
-  private final Map<String, DatabindPreferencePlugin> dataPreferencePlugins = new ConcurrentHashMap<>();
+  private final Map<String, DatabindPlugin> dataPreferencePlugins = new ConcurrentHashMap<>();
 
   @Override
-  public void addDataPreferencePlugin(DatabindPreferencePlugin plugin) {
-    dataPreferencePlugins.put(plugin.getDataType(), plugin);
+  public void addPlugin(DatabindPlugin plugin) {
+    dataPreferencePlugins.put(plugin.getObjectType(), plugin);
   }
 
+  @SneakyThrows
   @Override
   public File serialize(String objectType, List<String> objectIds, String username) throws ObjectNotFoundException,
                                                                                     IllegalAccessException {
+    String safePrefix = (objectType.length() >= 3 ? objectType : "obj") + "_";
+    File zipFile = File.createTempFile(safePrefix, ".zip");
 
-    DatabindPreferencePlugin plugin = dataPreferencePlugins.get(objectType);
-    if (plugin == null) {
-      throw new IllegalArgumentException("No plugin found for objectType: " + objectType);
-    }
-    File zipFile;
-    try {
-      zipFile = File.createTempFile(objectType + "_", ".zip");
-      try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zipOutputStream = new ZipOutputStream(fos)) {
-        for (String objectId : objectIds) {
-          File tempFile = File.createTempFile(objectType + "_" + objectId, ".json");
-          plugin.serialize(objectId, tempFile, username);
-          try (FileInputStream fis = new FileInputStream(tempFile)) {
-            ZipEntry zipEntry = new ZipEntry(objectId + ".json");
-            zipOutputStream.putNextEntry(zipEntry);
-            fis.transferTo(zipOutputStream);
-            zipOutputStream.closeEntry();
+    try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zipOutputStream = new ZipOutputStream(fos)) {
+      for (String objectId : objectIds) {
+        for (DatabindPlugin plugin : dataPreferencePlugins.values()) {
+          if (plugin.canHandleDatabind(objectType, objectId)) {
+            plugin.serialize(objectId, zipOutputStream, username);
           }
-          Files.delete(tempFile.toPath());
         }
       }
     } catch (IOException e) {
