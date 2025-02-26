@@ -229,8 +229,6 @@ export default {
         link.description = {};
         link.description[this.$root.defaultLanguage] = '';
       }
-      this.setLocalizedValue(link, 'name');
-      this.setLocalizedValue(link, 'description');
       if (!link.iconSrc) {
         link.iconSrc = null;
       }
@@ -238,7 +236,9 @@ export default {
         link.icon = null;
       }
       this.link = JSON.parse(JSON.stringify(link));
-      this.originalLink = JSON.parse(JSON.stringify(link));
+      this.setLocalizedValue(this.link, 'name');
+      this.setLocalizedValue(this.link, 'description');
+      this.originalLink = JSON.parse(JSON.stringify(this.link));
       this.edit = edit;
       this.index = index;
       this.canValidate = false;
