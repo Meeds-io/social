@@ -795,7 +795,7 @@ public class SpaceStorage {
               String name = Utils.cleanString(displayName);
               int index = 0;
               while (spaceDAO.getSpaceByPrettyName(name) != null) {
-                // Use sapme algorithm to compte new pretty name as for
+                // Use the same algorithm to compute new pretty name as for
                 // creation
                 // used in SpaceUtils.buildGroupId
                 name = Utils.cleanString(displayName + " " + ++index);
