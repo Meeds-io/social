@@ -162,7 +162,7 @@
           :aria-label="$t(`activity.composer.${composerAction}`)"
           type="button"
           class="primary btn no-box-shadow ms-auto"
-          @click="postMessage()">
+          @click="postMessage">
           {{ composerActionLabel }}
         </v-btn>
       </div>
@@ -298,6 +298,8 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
+    document.addEventListener('activity-created', this.cleareActivityMessage);
+    document.addEventListener('activity-updated', this.cleareActivityMessage);
   },
   methods: {
     isActivityBodyEdited(event) {
@@ -359,7 +361,6 @@ export default {
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
           .then(() => {
             document.dispatchEvent(new CustomEvent('activity-updated', {detail: this.activityId}));
-            this.cleareActivityMessage();
             this.close();
           })
           .catch(error => {
@@ -394,7 +395,6 @@ export default {
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
-              this.cleareActivityMessage();
               this.resetAudienceChoice();
               this.close();
             })
