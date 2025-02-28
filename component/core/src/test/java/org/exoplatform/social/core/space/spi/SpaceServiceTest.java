@@ -1219,6 +1219,54 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals("Dragon Ball", createdSpace.getDisplayName());
   }
 
+  public void testCreateSpaceWithExistingName() {
+    Space space = new Space();
+    space.setDisplayName(SPACE1_DISPLAY_NAME);
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space space1 = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(space1);
+
+    space = new Space();
+    space.setDisplayName(SPACE1_DISPLAY_NAME);
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space space2 = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(space2);
+
+    assertNotEquals(space1.getId(), space2.getId());
+    assertNotEquals(space1.getPrettyName(), space2.getPrettyName());
+    assertNotEquals(space1.getGroupId(), space2.getGroupId());
+  }
+
+  public void testCreateSpaceWithExistingPrettyName() {
+    Space space = new Space();
+    space.setPrettyName(SPACE1_NAME);
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space space1 = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(space1);
+
+    space = new Space();
+    space.setPrettyName(SPACE1_NAME);
+    space.setRegistration(Space.OPEN);
+    space.setDescription(SPACE_DESCRIPTION);
+    space.setVisibility(Space.PUBLIC);
+    space.setRegistration(Space.VALIDATION);
+    Space space2 = spaceService.createSpace(space, DRAGON_NAME);
+    assertNotNull(space2);
+
+    assertNotEquals(space1.getId(), space2.getId());
+    assertNotEquals(space1.getPrettyName(), space2.getPrettyName());
+    assertNotEquals(space1.getGroupId(), space2.getGroupId());
+  }
+
   public void testCreateSpaceWithTemplateCharacteristics() throws ObjectNotFoundException, SpaceException {
     SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
