@@ -18,6 +18,11 @@
  */
 package io.meeds.social.permlink.plugin;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -75,9 +80,11 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
     String spaceId = object.getObjectId();
     Space space = StringUtils.isNumeric(spaceId) ? spaceService.getSpaceById(spaceId) : spaceService.getSpaceByPrettyName(spaceId);
     StringBuilder spaceUrl = new StringBuilder("/portal/g/");
-    spaceUrl.append(space.getGroupId().replace("/", ":"))
+    spaceUrl.append(Arrays.stream(space.getGroupId().split("/"))
+                          .map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8))
+                          .collect(Collectors.joining(":")))
             .append("/")
-            .append(space.getUrl())
+            .append(URLEncoder.encode(space.getUrl(), StandardCharsets.UTF_8))
             .append("/");
     if (object.getParameters() != null) {
       if (object.getParameters().containsKey(APPLICATION_URI)) {
