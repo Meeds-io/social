@@ -218,11 +218,12 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    String oldPrettyName = space.getPrettyName();
+  public void renameSpace(Space space) throws SpaceStorageException {
+    Space existingSpace = getSpaceById(space.getSpaceId());
+    String oldPrettyName = existingSpace.getPrettyName();
 
     //
-    super.renameSpace(space, newDisplayName);
+    super.renameSpace(space);
 
     // remove identity and profile from cache
     cachedIdentityStorage = this.getCachedIdentityStorage();

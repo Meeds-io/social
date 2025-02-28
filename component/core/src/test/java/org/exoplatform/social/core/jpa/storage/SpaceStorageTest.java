@@ -1133,7 +1133,8 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     identityStorage.saveIdentity(spaceIdentity);
 
     String newDisplayName = "new display name";
-    spaceStorage.renameSpace(space, newDisplayName);
+    space.setDisplayName(newDisplayName);
+    spaceStorage.renameSpace(space);
 
     got = spaceStorage.getSpaceById(space.getSpaceId());
     assertEquals(newDisplayName, got.getDisplayName());

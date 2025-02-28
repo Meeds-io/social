@@ -46,6 +46,7 @@ import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.ResourceBundleService;
 import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
@@ -357,7 +358,12 @@ public class SpaceServiceImpl implements SpaceService {
 
     // Copy only settable properties from provided DTO
     Space spaceToCreate = new Space();
-    setSpaceProperties(space, spaceToCreate);
+    spaceToCreate.setDisplayName(space.getDisplayName());
+    spaceToCreate.setPrettyName(space.getPrettyName());
+    spaceToCreate.setDescription(space.getDescription());
+    spaceToCreate.setRegistration(space.getRegistration());
+    spaceToCreate.setVisibility(space.getVisibility());
+    spaceToCreate.setTemplateId(space.getTemplateId());
     spaceToCreate.setEditor(username);
     spaceToCreate.setMembers(new String[] { username });
     spaceToCreate.setManagers(new String[] { username });
@@ -436,7 +442,21 @@ public class SpaceServiceImpl implements SpaceService {
   public void renameSpace(Space space, String newDisplayName) {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_RENAMED);
     try {
-      spaceStorage.renameSpace(space, newDisplayName);
+      String oldPrettyName = space.getPrettyName();
+      // Ensure unicity of new pretty name
+      String newPrettyName = buildPrettyName(newDisplayName);
+
+      space.setDisplayName(newDisplayName);
+      space.setPrettyName(newPrettyName);
+      if (oldPrettyName.equals(space.getUrl())) {
+        // Update URL only if legacy
+        // navigation tree which uses pretty name
+        space.setUrl(newPrettyName);
+      } else if (StringUtils.isBlank(space.getUrl())) {
+        space.setUrl(Space.HOME_URL);
+      }
+
+      spaceStorage.renameSpace(space);
       spaceLifeCycle.spaceRenamed(space, space.getEditor());
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.SPACE_RENAMED);
@@ -1046,21 +1066,14 @@ public class SpaceServiceImpl implements SpaceService {
     registerSpaceLifeCycleListener(plugin);
   }
 
-  private void setSpaceProperties(Space space, Space spaceToSave) {
-    spaceToSave.setDisplayName(space.getDisplayName());
-    spaceToSave.setPrettyName(space.getPrettyName());
-    spaceToSave.setDescription(space.getDescription());
-    spaceToSave.setRegistration(space.getRegistration());
-    spaceToSave.setVisibility(space.getVisibility());
-    spaceToSave.setTemplateId(space.getTemplateId());
-  }
-
   private void copySpaceTemplateProperties(Space space,
                                            SpaceTemplate spaceTemplate,
                                            String username,
                                            List<String> invitees) throws SpaceException {
     setSpaceAccess(space, spaceTemplate);
     setSpaceDisplayName(space, invitees);
+    setSpacePrettyName(space);
+
     // Creates the associated group to the space
     String groupId = createSpaceGroup(space, username);
     setDeletePermissions(space, spaceTemplate, groupId);
@@ -1121,6 +1134,10 @@ public class SpaceServiceImpl implements SpaceService {
                || space.getDisplayName().length() > MAX_SPACE_NAME_LENGTH) {
       throw new SpaceException(Code.INVALID_SPACE_NAME);
     }
+  }
+
+  private void setSpacePrettyName(Space space) {
+    space.setPrettyName(buildPrettyName(space.getPrettyName(), space.getDisplayName()));
   }
 
   private String createSpaceGroup(Space space, String username) throws SpaceException {
@@ -1314,6 +1331,24 @@ public class SpaceServiceImpl implements SpaceService {
       spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
     }
     return spaceTemplateService;
+  }
+
+  private String buildPrettyName(String... names) {
+    return Arrays.stream(names)
+            .filter(StringUtils::isNotBlank)
+            .map(displayName -> {
+              String name = Utils.cleanString(displayName);
+              int index = 0;
+              while (getSpaceByPrettyName(name) != null) {
+                // Use the same algorithm to compute new pretty name as for
+                // creation
+                // used in SpaceUtils.buildGroupId
+                name = Utils.cleanString(displayName + " " + ++index);
+              }
+              return name;
+            })
+            .findFirst()
+            .orElseThrow();
   }
 
 }
