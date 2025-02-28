@@ -37,7 +37,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
@@ -393,24 +392,10 @@ public class SpaceStorage {
     return spaceMemberDAO.getSpaceMembershipDate(spaceId, username);
   }
 
-  public void renameSpace(Space space, String newDisplayName) throws SpaceStorageException {
-    String oldPrettyName = space.getPrettyName();
-    // Ensure unicity of new pretty name
-    String newPrettyName = buildPrettyName(newDisplayName);
-
-    space.setDisplayName(newDisplayName);
-    space.setPrettyName(newPrettyName);
-    if (oldPrettyName.equals(space.getUrl())) {
-      // Update URL only if legacy
-      // navigation tree which uses pretty name
-      space.setUrl(newPrettyName);
-    } else if (StringUtils.isBlank(space.getUrl())) {
-      space.setUrl(Space.HOME_URL);
-    }
-
+  public void renameSpace(Space space) throws SpaceStorageException {
     SpaceEntity entity = spaceDAO.find(Long.parseLong(space.getId()));
     // Retrieve identity before saving
-    Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, oldPrettyName);
+    Identity identitySpace = identityStorage.findIdentity(SpaceIdentityProvider.NAME, entity.getPrettyName());
 
     EntityConverterUtils.buildFrom(space, entity);
     entity.setUpdatedDate(new Date());
@@ -425,7 +410,6 @@ public class SpaceStorage {
       profileSpace.setProperty(Profile.URL, space.getUrl());
       identityStorage.saveProfile(profileSpace);
     }
-    LOG.debug("Space {} ({}) saved", space.getPrettyName(), space.getId());
   }
 
   public void ignoreSpace(String spaceId, String userId) {
@@ -454,7 +438,6 @@ public class SpaceStorage {
     if (isNew) {
       entity = new SpaceEntity();
       // Ensure unicity of pretty name
-      space.setPrettyName(buildPrettyName(space.getPrettyName(), space.getDisplayName()));
       EntityConverterUtils.buildFrom(space, entity);
 
       //
@@ -786,24 +769,6 @@ public class SpaceStorage {
     return token == null ? null :
                          Instant.ofEpochMilli(token.getExpirationTimeMillis())
                                 .minusSeconds(remindPasswordTokenService.getValidityTime());
-  }
-
-  private String buildPrettyName(String... names) {
-    return Arrays.stream(names)
-            .filter(StringUtils::isNotBlank)
-            .map(displayName -> {
-              String name = Utils.cleanString(displayName);
-              int index = 0;
-              while (spaceDAO.getSpaceByPrettyName(name) != null) {
-                // Use the same algorithm to compute new pretty name as for
-                // creation
-                // used in SpaceUtils.buildGroupId
-                name = Utils.cleanString(displayName + " " + ++index);
-              }
-              return name;
-            })
-            .findFirst()
-            .orElseThrow();
   }
 
 }
