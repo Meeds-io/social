@@ -15,6 +15,7 @@
           height="auto"
           min-width="100%"
           class="d-flex application-border-radius"
+          contain
           eager>
           <div
             v-if="admin"
