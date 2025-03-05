@@ -20,7 +20,10 @@ package io.meeds.social.databind.service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
+import io.meeds.social.databind.model.DatabindReport;
 import io.meeds.social.databind.plugin.DatabindPlugin;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
@@ -30,4 +33,10 @@ public interface DatabindService {
 
   File serialize(String objectType, List<String> objectIds, String username) throws ObjectNotFoundException,
                                                                              IllegalAccessException;
+
+  CompletableFuture<DatabindReport> deserialize(String objectType,
+                                                String uploadId,
+                                                boolean replaceExisting,
+                                                Map<String, String> params,
+                                                String username);
 }
