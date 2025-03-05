@@ -18,14 +18,20 @@
  */
 package io.meeds.social.databind.service;
 
+import io.meeds.social.databind.model.DatabindReport;
 import io.meeds.social.databind.plugin.DatabindPlugin;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.upload.UploadResource;
+import org.exoplatform.upload.UploadService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipOutputStream;
 
@@ -33,6 +39,9 @@ import java.util.zip.ZipOutputStream;
 public class DatabindServiceImpl implements DatabindService {
 
   private final Map<String, DatabindPlugin> dataPreferencePlugins = new ConcurrentHashMap<>();
+
+  @Autowired
+  private UploadService                     uploadService;
 
   @Override
   public void addPlugin(DatabindPlugin plugin) {
@@ -58,5 +67,32 @@ public class DatabindServiceImpl implements DatabindService {
       throw new IllegalStateException("Error exporting template", e);
     }
     return zipFile;
+  }
+
+  @Async
+  public CompletableFuture<DatabindReport> deserialize(String objectType,
+                                                       String uploadId,
+                                                       boolean replaceExisting,
+                                                       Map<String, String> params,
+                                                       String username) {
+    if (StringUtils.isBlank(uploadId)) {
+      throw new IllegalArgumentException("uploadId is mandatory");
+    }
+    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
+    if (uploadResource == null) {
+      throw new IllegalStateException("Can't find uploaded resource with id : " + uploadId);
+    }
+
+    File zipFile = new File(uploadResource.getStoreLocation());
+    if (!zipFile.exists()) {
+      throw new IllegalArgumentException("ZIP file missing in upload folder.");
+    }
+    CompletableFuture<DatabindReport> databindReportCompletableFuture = null;
+    for (DatabindPlugin plugin : dataPreferencePlugins.values()) {
+      if (plugin.canHandleDatabind(objectType, null)) {
+        databindReportCompletableFuture = plugin.deserialize(zipFile, replaceExisting, params, username);
+      }
+    }
+    return databindReportCompletableFuture;
   }
 }
