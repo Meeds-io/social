@@ -18,6 +18,8 @@
  */
 package io.meeds.social.databind.rest;
 
+import io.meeds.social.databind.model.DatabindReport;
+import io.meeds.social.databind.rest.model.DatabindRestEntity;
 import io.meeds.social.databind.service.DatabindService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,6 +39,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/databind")
@@ -73,5 +76,20 @@ public class DatabindRest {
     } catch (FileNotFoundException e) {
       throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reading generated file", e);
     }
+  }
+
+  @PostMapping("deserialize")
+  @Secured("administrators")
+  @Operation(summary = "Import Multiple Template", method = "POST", description = "Imports multiple Template from a ZIP file")
+  public CompletableFuture<ResponseEntity<DatabindReport>> deserialize(HttpServletRequest request,
+                                                                       @RequestBody DatabindRestEntity databindRestEntity) {
+
+    return databindService.deserialize(databindRestEntity.getObjectType(),
+                                       databindRestEntity.getUploadId(),
+                                       databindRestEntity.isReplaceExisting(),
+                                       databindRestEntity.getParams(),
+                                       request.getRemoteUser())
+                          .thenApply(ResponseEntity::ok)
+                          .exceptionally(ex -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null));
   }
 }
