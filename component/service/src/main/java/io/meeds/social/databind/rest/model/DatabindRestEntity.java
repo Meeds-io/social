@@ -16,27 +16,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.databind.plugin;
 
-import io.meeds.social.databind.model.DatabindReport;
-import org.exoplatform.commons.exception.ObjectNotFoundException;
+package io.meeds.social.databind.rest.model;
 
-import java.io.File;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.zip.ZipOutputStream;
 
-public interface DatabindPlugin {
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-  String getObjectType();
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+public class DatabindRestEntity {
 
-  boolean canHandleDatabind(String objectType, String objectId);
+  private String              objectType;
 
-  void serialize(String objectId, ZipOutputStream zipOutputStream, String username) throws ObjectNotFoundException,
-                                                                                    IllegalAccessException;
+  private String              uploadId;
 
-  CompletableFuture<DatabindReport> deserialize(File zipFile,
-                                                boolean replaceExisting,
-                                                Map<String, String> params,
-                                                String username);
+  private boolean             replaceExisting;
+
+  private Map<String, String> params;
+
 }
