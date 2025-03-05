@@ -33,7 +33,7 @@
       <div class="pa-5" flat>
         <div class="mb-2 text-header">{{ $t('spacesList.settings.displayOptions') }}</div>
         <v-tooltip
-          v-if="$root.isPublicPage"
+          v-if="$root.isPublicPage && $root.registrationType !== 'OPEN'"
           :disabled="$root.isAdministrator"
           bottom>
           <template #activator="{on, attrs}">
