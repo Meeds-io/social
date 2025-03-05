@@ -88,6 +88,7 @@ export function init(
         settingName,
         isAdministrator,
         isPublicPage,
+        registrationType,
         invitationsCount: 0,
         pendingCount: 0,
         requestsCount: 0,
