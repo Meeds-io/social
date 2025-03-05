@@ -66,6 +66,22 @@ export function convertImageDataAsSrc(imageData) {
   }
 }
 
+export async function importSkin(skinType, skinName) {
+  const id = skinType === 'portal' ? skinName : `${skinType}_${skinName}`;
+  if (!document.querySelector(`link#${id}`)) {
+    await new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.id = id;
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      link.href = `/social/rest/skins/${skinType}/${skinName}?orientation=${eXo.env.portal.orientation === 'ltr' ? 'LT' : 'RT'}`;
+      document.head.appendChild(link);
+      link.onload = resolve;
+      link.onerror = reject;
+    });
+  }
+}
+
 export function toLinkUrl(url, options) {
   if (url?.indexOf?.('./') === 0) {
     url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
