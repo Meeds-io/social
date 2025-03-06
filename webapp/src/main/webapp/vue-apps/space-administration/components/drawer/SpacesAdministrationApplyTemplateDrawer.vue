@@ -73,12 +73,9 @@
           <div class="text-header mb-4">
             {{ $t('social.spaces.administration.manageSpaces.chooseTemplateCharacteristicsToApply') }}
           </div>
-          <div class="font-weight-bold mb-2">
-            {{ $t('social.spaces.administration.manageSpaces.layoutAndNavigation') }}
-          </div>
-          <div class="mb-4">
-            {{ $t('social.spaces.administration.manageSpaces.selectedLayoutAndNavigationWillBeApplied') }}
-          </div>
+          <spaces-administration-template-characteristic
+            v-model="updateSite"
+            title="social.spaces.administration.manageSpaces.layoutAndNavigation" />
           <spaces-administration-template-characteristic
             v-model="accessRules"
             title="social.spaces.administration.manageSpaces.accessRules">
@@ -207,6 +204,7 @@ export default {
     spaceTemplateId: null,
     spaceCategories: null,
     spacePermissions: null,
+    updateSite: false,
     accessRules: false,
     editorialMode: false,
     layoutPermissions: false,
@@ -226,6 +224,7 @@ export default {
         && Number(this.spaceTemplateId)
         && (this.spaces?.length
         || (Number(this.spaceTemplateId) !== this.space.templateId
+            || this.updateSite
             || this.accessRules
             || this.editorialMode
             || this.layoutPermissions
@@ -316,6 +315,7 @@ export default {
       this.initialized = false;
       try {
         this.$refs.drawer.open();
+        this.updateSite = false;
         this.accessRules = false;
         this.editorialMode = false;
         this.layoutPermissions = false;
@@ -349,6 +349,7 @@ export default {
         if (this.callback) {
           this.callback({
             templateId: this.spaceTemplateId,
+            updateSite: this.updateSite,
             accessRules: this.accessRules,
             editorialMode: this.editorialMode,
             layoutPermissions: this.layoutPermissions,
@@ -360,6 +361,7 @@ export default {
         } else {
           await this.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
             templateId: this.spaceTemplateId,
+            updateSite: this.updateSite,
             accessRules: this.accessRules,
             editorialMode: this.editorialMode,
             layoutPermissions: this.layoutPermissions,
