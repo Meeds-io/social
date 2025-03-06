@@ -21,7 +21,9 @@
 -->
 <template>
   <div>
-    <div class="d-flex align-center mb-2">
+    <div
+      :class="$slots.spaceValue || $slots.templateValue && 'mb-2' || 'mb-4'"
+      class="d-flex align-center">
       <div class="font-weight-bold" slot="title">
         {{ $t(title) }}
       </div>
@@ -31,7 +33,7 @@
       </div>
       <v-switch v-model="enabled" class="my-0 me-n2" />
     </div>
-    <div class="d-flex flex-column mb-4">
+    <div v-if="$slots.spaceValue && $slots.templateValue" class="d-flex flex-column mb-4">
       <div v-if="$slots.spaceValue" class="d-flex mb-2">
         <div class="col-4 pa-0">
           {{ $t('social.spaces.administration.manageSpaces.spaceCurrentCharacteristic') }}

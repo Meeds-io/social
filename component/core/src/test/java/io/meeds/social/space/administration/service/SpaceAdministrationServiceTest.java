@@ -130,6 +130,7 @@ public class SpaceAdministrationServiceTest {
     when(templatePatch.isLayoutPermissions()).thenReturn(true);
     when(templatePatch.isPublicSitePermissions()).thenReturn(true);
     when(templatePatch.isEditorialMode()).thenReturn(true);
+    when(templatePatch.isUpdateSite()).thenReturn(true);
 
     spaceAdministrationService.applySpaceTemplate(spaceId, templatePatch);
 
