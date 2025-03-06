@@ -21,7 +21,9 @@
 -->
 <template>
   <div>
-    <div class="d-flex align-center mb-2">
+    <div
+      :class="$slots.spaceValue || $slots.templateValue && 'mb-2' || 'mb-4'"
+      class="d-flex align-center">
       <div class="font-weight-bold" slot="title">
         {{ $t(title) }}
       </div>
