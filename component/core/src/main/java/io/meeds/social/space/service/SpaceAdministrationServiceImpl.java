@@ -130,7 +130,9 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
       }
     }
 
-    spaceLayoutService.updateSpaceSite(space);
+    if (templatePatch.isUpdateSite()) {
+      spaceLayoutService.updateSpaceSite(space);
+    }
   }
 
 }

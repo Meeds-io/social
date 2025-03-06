@@ -29,6 +29,8 @@ public class SpaceTemplatePatch {
 
   private long    templateId;
 
+  private boolean updateSite;
+
   private boolean accessRules;
 
   private boolean editorialMode;
