@@ -16,7 +16,7 @@
       @comment-deleted="retrieveLastComment"
       @comment-updated="retrieveLastComment" />
     <v-btn
-      v-if="commentsSize > 0"
+      v-if="showAllCommentsText"
       :disabled="loading"
       class="primary--text font-weight-bold mb-1 px-0"
       link
@@ -57,6 +57,9 @@ export default {
     parentCommentClass() {
       return this.commentsSize && 'pb-0 pt-5' || 'pa-0';
     },
+    showAllCommentsText() {
+      return (this.commentsSize === 1 && !this.displayComments) || (this.commentsSize === 2 && !this.displayComments) || this.commentsSize > this.comments.length;
+    }
   },
   watch: {
     displayComments() {
