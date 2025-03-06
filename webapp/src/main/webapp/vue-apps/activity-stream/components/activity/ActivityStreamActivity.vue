@@ -248,7 +248,11 @@ export default {
         const isNewActivityComment = this.$root.displayCommentActionTypes?.length
                                      && actionType.length
                                      && this.$root.displayCommentActionTypes.indexOf(actionType) >= 0;
-        this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
+        if (this.isActivityDetail) {
+          this.isCollapsed = true;
+        } else {
+          this.isCollapsed = this.unreadMetadata && !isLikeAction && !isNewActivityComment;
+        }
         this.hasNewComment = isNewActivityComment || this.unreadMetadata;
       }
     },
