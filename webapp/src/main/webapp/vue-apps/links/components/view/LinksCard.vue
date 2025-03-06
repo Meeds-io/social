@@ -120,7 +120,7 @@ export default {
       return this.link?.icon;
     },
     itemSize() {
-      return this.iconSize * 4;
+      return this.iconSize * 5;
     },
     itemWidth() {
       return this.showName && this.itemSize || parseInt(this.itemSize / 2);
