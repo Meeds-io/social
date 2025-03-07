@@ -21,7 +21,6 @@ package io.meeds.social.databind.rest.model;
 
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,8 +33,6 @@ public class DatabindRestEntity {
   private String              objectType;
 
   private String              uploadId;
-
-  private boolean             replaceExisting;
 
   private Map<String, String> params;
 
