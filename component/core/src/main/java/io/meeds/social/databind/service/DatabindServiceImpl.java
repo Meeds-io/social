@@ -72,7 +72,6 @@ public class DatabindServiceImpl implements DatabindService {
   @Async
   public CompletableFuture<DatabindReport> deserialize(String objectType,
                                                        String uploadId,
-                                                       boolean replaceExisting,
                                                        Map<String, String> params,
                                                        String username) {
     if (StringUtils.isBlank(uploadId)) {
@@ -90,7 +89,7 @@ public class DatabindServiceImpl implements DatabindService {
     CompletableFuture<DatabindReport> databindReportCompletableFuture = null;
     for (DatabindPlugin plugin : dataPreferencePlugins.values()) {
       if (plugin.canHandleDatabind(objectType, null)) {
-        databindReportCompletableFuture = plugin.deserialize(zipFile, replaceExisting, params, username);
+        databindReportCompletableFuture = plugin.deserialize(zipFile, params, username);
       }
     }
     return databindReportCompletableFuture;
