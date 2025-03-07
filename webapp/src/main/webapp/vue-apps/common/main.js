@@ -145,6 +145,7 @@ if (!window.drawersOverlayInitialized) {
 export function init(i18n) {
   const parentElement = document.querySelector('#drawers-overlay');
   if (!document.querySelector('#drawers-overlay')) {
+    initSnackbar(i18n);
     return;
   }
   if ((document.readyState === 'interactive' && document.querySelector('#drawers-overlay')) || document.readyState === 'complete') {
@@ -154,25 +155,29 @@ export function init(i18n) {
       i18n,
     }).$mount(parentElement);
     parentElement.id = null;
-    let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#body-end-container');
-    let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
-    if (!alertNotificationsElement) {
-      if (!parentNotificationsElement) {
-        parentNotificationsElement = document.createElement('div');
-        document.body.appendChild(parentNotificationsElement);
-      }
-      alertNotificationsElement = document.createElement('div');
-      alertNotificationsElement.id = 'alert-notifications';
-      alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
-      parentNotificationsElement.appendChild(alertNotificationsElement);
-      parentNotificationsElement.classList.add('VuetifyApp');
-      new Vue({
-        template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
-        vuetify: Vue.prototype.vuetifyOptions,
-        i18n,
-      }).$mount(alertNotificationsElement);
-    }
+    initSnackbar(i18n);
   } else {
     window.setTimeout(() => init(i18n), 50);
+  }
+}
+
+export function initSnackbar(i18n) {
+  let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#body-end-container');
+  let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
+  if (!alertNotificationsElement) {
+    if (!parentNotificationsElement) {
+      parentNotificationsElement = document.createElement('div');
+      document.body.appendChild(parentNotificationsElement);
+    }
+    alertNotificationsElement = document.createElement('div');
+    alertNotificationsElement.id = 'alert-notifications';
+    alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
+    parentNotificationsElement.appendChild(alertNotificationsElement);
+    parentNotificationsElement.classList.add('VuetifyApp');
+    new Vue({
+      template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n,
+    }).$mount(alertNotificationsElement);
   }
 }
