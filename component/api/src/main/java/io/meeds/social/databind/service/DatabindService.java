@@ -34,9 +34,5 @@ public interface DatabindService {
   File serialize(String objectType, List<String> objectIds, String username) throws ObjectNotFoundException,
                                                                              IllegalAccessException;
 
-  CompletableFuture<DatabindReport> deserialize(String objectType,
-                                                String uploadId,
-                                                boolean replaceExisting,
-                                                Map<String, String> params,
-                                                String username);
+  CompletableFuture<DatabindReport> deserialize(String objectType, String uploadId, Map<String, String> params, String username);
 }
