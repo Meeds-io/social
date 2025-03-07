@@ -86,7 +86,6 @@ public class DatabindRest {
 
     return databindService.deserialize(databindRestEntity.getObjectType(),
                                        databindRestEntity.getUploadId(),
-                                       databindRestEntity.isReplaceExisting(),
                                        databindRestEntity.getParams(),
                                        request.getRemoteUser())
                           .thenApply(ResponseEntity::ok)
