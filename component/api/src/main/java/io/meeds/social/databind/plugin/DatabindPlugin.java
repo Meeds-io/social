@@ -35,8 +35,5 @@ public interface DatabindPlugin {
   void serialize(String objectId, ZipOutputStream zipOutputStream, String username) throws ObjectNotFoundException,
                                                                                     IllegalAccessException;
 
-  CompletableFuture<DatabindReport> deserialize(File zipFile,
-                                                boolean replaceExisting,
-                                                Map<String, String> params,
-                                                String username);
+  CompletableFuture<DatabindReport> deserialize(File zipFile, Map<String, String> params, String username);
 }
