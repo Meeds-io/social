@@ -33,8 +33,7 @@
           @loading="loadingSpaces = loadingSpaces || $event" />
         <spaces-categories-toolbar
           v-if="$root.allowFilteringPerCategory"
-          v-show="spacesExists"
-          :spaces-size="spacesSize" />
+          v-show="spacesExists" />
         <spaces-card-list
           ref="spacesList"
           :keyword="keyword"
