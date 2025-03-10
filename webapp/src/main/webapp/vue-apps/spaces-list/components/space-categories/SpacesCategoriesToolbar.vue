@@ -52,12 +52,6 @@
 </template>
 <script>
 export default {
-  props: {
-    spacesSize: {
-      type: Number,
-      default: () => 0,
-    }
-  },
   data: () => ({
     categoryTree: null,
     loading: false,
@@ -77,7 +71,7 @@ export default {
       return this.$root.selectedCategoryId;
     },
     displayChipsSelection() {
-      return this.level < 2 && this.spacesSize && this.selectedSubcategories?.length;
+      return this.level < 2 && this.selectedSubcategories?.length;
     },
     displayDivider() {
       return this.displayChipsSelection && this.displayBreadcrumb;
