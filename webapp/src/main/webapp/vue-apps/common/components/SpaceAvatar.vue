@@ -15,7 +15,7 @@
         class="my-auto">
         <img
           :src="defaultAvatarUrl"
-          :alt="displayName"
+          alt=""
           class="object-fit-cover ma-auto"
           loading="lazy">
       </v-avatar>
@@ -47,7 +47,7 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
-          :alt="displayName"
+          alt=""
           class="object-fit-cover ma-auto"
           loading="lazy">
       </v-avatar>
@@ -93,7 +93,7 @@
         <img
           :src="avatarUrl"
           :class="avatarClass"
-          :alt="displayName"
+          alt=""
           class="object-fit-cover ma-auto"
           loading="lazy">
       </v-avatar>
