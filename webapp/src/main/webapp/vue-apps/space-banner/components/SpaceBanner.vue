@@ -1,55 +1,29 @@
 <template>
   <v-app>
-    <v-card
-      class="application-body"
-      flat>
-      <v-hover>
-        <v-img
-          slot-scope="{ hover }"
-          :lazy-src="bannerUrl || ''"
-          :src="bannerUrl || ''"
-          :min-height="minHeight"
-          :max-height="height"
-          :class="!bannerUrl && 'primary'"
-          id="spaceAvatarImg"
-          height="auto"
-          min-width="100%"
-          class="d-flex application-border-radius"
-          contain
-          eager>
-          <div
-            v-if="admin"
-            v-show="hover"
-            class="d-flex flex-grow-1 position-absolute full-height full-width">
-            <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
-              <v-btn
-                v-show="!isDefaultBanner && hover"
-                :title="$t('UIPopupBannerUploader.title.deleteBanner')"
-                id="spaceBannerDeleteButton"
-                class="changeBannerButton mask-color border-color"
-                outlined
-                icon
-                dark
-                @click="removeBanner">
-                <v-icon size="18" color="error">mdi-delete</v-icon>
-              </v-btn>
-              <v-btn
-                v-show="hover"
-                ref="bannerInput"
-                id="spaceBannerEditButton"
-                class="changeBannerButton mask-color border-color"
-                icon
-                outlined
-                dark
-                @click="$refs.imageCropDrawer.open()">
-                <v-icon size="18">fas fa-file-image</v-icon>
-              </v-btn>
-            </div>
-          </div>
-        </v-img>
-      </v-hover>
+    <v-hover v-model="hover" :disabled="!admin">
+      <v-responsive
+        :aspect-ratio="cropOptions.aspectRatio"
+        :class="$root.hasImages && 'transparent' || 'primary'"
+        class="application-body application-dimension overflow-hidden">
+        <space-banner-setting-buttons
+          v-if="admin"
+          :hover="hover"
+          :default-banner="defaultBanner"
+          @edit="$refs.imageCropDrawer.open()"
+          @remove="removeBanner" />
+        <div class="d-flex fill-height fill-width">
+          <img
+            v-if="bannerUrl"
+            :src="bannerUrl"
+            :alt="spaceDisplayName"
+            width="100%"
+            height="100%"
+            class="fill-height fill-width border-box-sizing">
+        </div>
+      </v-responsive>
+    </v-hover>
+    <template v-if="admin">
       <image-crop-drawer
-        v-if="admin"
         ref="imageCropDrawer"
         :crop-options="cropOptions"
         :max-file-size="maxUploadSizeInBytes"
@@ -57,7 +31,7 @@
         max-image-width="1280"
         drawer-title="UIPopupBannerUploader.title.ChangeBanner"
         @input="uploadBanner" />
-    </v-card>
+    </template>
   </v-app>
 </template>
 <script>
@@ -81,30 +55,19 @@ export default {
   },
   data: () => ({
     errorMessage: null,
+    hover: false,
+    spaceDisplayName: eXo.env.portal.spaceDisplayName,
     cropOptions: {
       aspectRatio: 1280 / 175,
       viewMode: 1,
     },
   }),
   computed: {
-    isDefaultBanner() {
-      return this.bannerUrl && this.bannerUrl.includes('/social/images/');
+    defaultBanner() {
+      return this.bannerUrl?.includes?.('/social/images/');
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * ONE_KB * ONE_KB;
-    },
-    minHeight() {
-      return this.isMobile && 36 || 174;
-    },
-    height() {
-      let height = 175;
-      if (this.isMobile) {
-        height -= 50;
-      }
-      return height;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.smAndDown;
     },
   },
   watch: {
