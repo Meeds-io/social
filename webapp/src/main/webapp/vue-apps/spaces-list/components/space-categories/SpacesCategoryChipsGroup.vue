@@ -24,12 +24,12 @@
   <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
     <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
       <spaces-category-chip
-        v-for="(category, index) in categories"
+        v-for="category in categories"
         :key="category.id"
         :category="category"
-        :breadcrumb="index > 1"
         :parent-width="parentWidth"
         chip-class="flex-shrink-0 me-2"
+        breadcrumb
         @initialized="setVisible(category, $event)"
         @select="openCategory" />
     </div>
