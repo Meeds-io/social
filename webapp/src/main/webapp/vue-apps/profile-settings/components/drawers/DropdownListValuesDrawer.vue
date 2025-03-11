@@ -124,7 +124,12 @@
               {{ $t('profileSettings.dropdownList.name.label') }}
             </v-col>
             <v-col
-              cols="4"
+              cols="1"
+              class="font-weight-bold py-4 px-0">
+              {{ $t('profileSettings.dropdownList.name.id') }}
+            </v-col>
+            <v-col
+              cols="3"
               class="text-end font-weight-bold py-4 px-0">
               {{ $t('profileSettings.dropdownList.actions.label') }}
             </v-col>
