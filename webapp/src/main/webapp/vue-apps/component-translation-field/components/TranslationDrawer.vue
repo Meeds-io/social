@@ -129,6 +129,7 @@
           {{ $t('translationDrawer.cancel') }}
         </v-btn>
         <v-btn
+          :disabled="!hasChange"
           :loading="loading"
           class="btn btn-primary"
           @click="apply">
@@ -205,6 +206,9 @@ export default {
     translations: null,
     editorIndex: null,
     existingLanguages: [],
+    originalTranslations: [],
+    originalSelectedLanguages: [],
+    hasChange: false,
   }),
   computed: {
     languages() {
@@ -236,6 +240,9 @@ export default {
       this.editorIndex = null;
       this.translations = this.value && JSON.parse(JSON.stringify(this.value)) || {};
       this.refreshExistingLanguages(true);
+      this.hasChange = false;
+      this.originalSelectedLanguages = JSON.parse(JSON.stringify(this.existingLanguages));
+      this.originalTranslations = JSON.parse(JSON.stringify(this.translations));
       this.$refs.drawer.open();
     },
     apply() {
@@ -260,6 +267,8 @@ export default {
     },
     reset() {
       this.translations = null;
+      this.originalTranslations = null;
+      this.originalSelectedLanguages = [];
     },
     refreshExistingLanguages(sort) {
       if (sort) {
@@ -278,6 +287,7 @@ export default {
         this.existingLanguages = Object.keys(this.translations).slice()
           .filter(l => this.supportedLanguages[l]);
       }
+      this.hasChanges();
     },
     addValue() {
       if (this.hasRemainingLanguages) {
@@ -291,6 +301,7 @@ export default {
     },
     changeLanguage(language, event) {
       const newLanguage = event?.target?.value;
+      
       if (newLanguage && this.supportedLanguages[newLanguage]) {
         this.translations[newLanguage] = this.translations[language];
         delete this.translations[language];
@@ -299,6 +310,7 @@ export default {
     },
     updateValue(language, value) {
       this.translations[language] = value;
+      this.hasChanges();
     },
     openOrCloseEditor(index) {
       if (this.editorIndex === index) {
@@ -306,6 +318,10 @@ export default {
       } else {
         this.editorIndex = index;
       }
+    },
+    hasChanges() {
+      this.hasChange = JSON.stringify(this.translations) !== JSON.stringify(this.originalTranslations) 
+        || JSON.stringify(this.existingLanguages) !== JSON.stringify(this.originalSelectedLanguages);
     },
   },
 };
