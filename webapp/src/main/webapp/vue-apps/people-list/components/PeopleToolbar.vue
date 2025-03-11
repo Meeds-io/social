@@ -22,11 +22,8 @@
 <template>
   <application-toolbar
     id="peopleListApplication"
-    :right-text-filter="{
-      minCharacters: 3,
-      placeholder: $t('peopleList.label.filterPeople'),
-      tooltip: $t('peopleList.label.filterPeople')
-    }"
+    :compact="compactDisplay"
+    :filters-count="advancedFilterCount"
     :right-filter-button="{
       hide: hideRightFilterButton,
       text: $t('pepole.advanced.filter.button.title'),
@@ -36,13 +33,18 @@
       selected:'all',
       items: peopleFilters,
     }"
-    :compact="compactDisplay"
-    :filters-count="advancedFilterCount"
-    @filter-text-input-end-typing="keyword = $event"
+    :right-text-filter="{
+      minCharacters: 3,
+      placeholder: $t('peopleList.label.filterPeople'),
+      tooltip: $t('peopleList.label.filterPeople')
+    }"
     @filter-button-click="openPeopleAdvancedFilterDrawer"
     @filter-select-change="filterValue = $event"
+    @filter-text-input-end-typing="keyword = $event"
     @toggle-select="updateFilter($event)">
-    <template v-if="filterMessage" #left>
+    <template
+      v-if="filterMessage"
+      #left>
       <div :class="filterMessageClass">
         {{ filterMessage }}
       </div>
@@ -50,75 +52,75 @@
   </application-toolbar>
 </template>
 <script>
-export default {
-  props: {
-    filter: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      filter: {
+        type: String,
+        default: null,
+      },
+      hideFilter: {
+        type: Boolean,
+        default: false,
+      },
+      hideRightFilterButton: {
+        type: Boolean,
+        default: false,
+      },
+      compactDisplay: {
+        type: Boolean,
+        default: false,
+      },
+      filterMessage: {
+        type: String,
+        default: null,
+      },
+      filterMessageClass: {
+        type: String,
+        default: '',
+      },
     },
-    hideFilter: {
-      type: Boolean,
-      default: false
+    data: () => ({
+      advancedFilterCount: 0,
+      keyword: null,
+      filterValue: null,
+    }),
+    computed: {
+      peopleFilters () {
+        return [{
+          text: this.$t('peopleList.label.filter.all'),
+          value: 'all',
+        },{
+          text: this.$t('peopleList.label.filter.connections'),
+          value: 'connections',
+        }];
+      },
     },
-    hideRightFilterButton: {
-      type: Boolean,
-      default: false
+    watch: {
+      keyword () {
+        this.$emit('keyword-changed', this.keyword);
+      },
+      filter () {
+        this.filterValue = this.filter;
+      },
+      filterValue () {
+        this.updateFilter();
+      },
     },
-    compactDisplay: {
-      type: Boolean,
-      default: false
-    },
-    filterMessage: {
-      type: String,
-      default: null
-    },
-    filterMessageClass: {
-      type: String,
-      default: ''
-    }
-  },
-  data: () => ({
-    advancedFilterCount: 0,
-    keyword: null,
-    filterValue: null
-  }),
-  created() {
-    this.filterValue = this.filter;
-    this.$root.$on('advanced-filter-count', (filterCount) => this.advancedFilterCount = filterCount);
-    this.$root.$on('reset-advanced-filter-count', () => {
-      this.advancedFilterCount = 0;
-    });
-  },
-  computed: {
-    peopleFilters() {
-      return [{
-        text: this.$t('peopleList.label.filter.all'),
-        value: 'all',
-      },{
-        text: this.$t('peopleList.label.filter.connections'),
-        value: 'connections',
-      }];
-    },
-  },
-  watch: {
-    keyword() {
-      this.$emit('keyword-changed', this.keyword);
-    },
-    filter() {
+    created () {
       this.filterValue = this.filter;
+      this.$root.$on('advanced-filter-count', filterCount => this.advancedFilterCount = filterCount);
+      this.$root.$on('reset-advanced-filter-count', () => {
+        this.advancedFilterCount = 0;
+      });
     },
-    filterValue() {
-      this.updateFilter();
-    }
-  },
-  methods: {
-    updateFilter() {
-      this.$emit('filter-changed', this.filterValue);
+    methods: {
+      updateFilter () {
+        this.$emit('filter-changed', this.filterValue);
+      },
+      openPeopleAdvancedFilterDrawer () {
+        this.$root.$emit('open-people-advanced-filter-drawer');
+      },
     },
-    openPeopleAdvancedFilterDrawer() {
-      this.$root.$emit('open-people-advanced-filter-drawer');
-    },
-  }
-};
+  };
 </script>
 

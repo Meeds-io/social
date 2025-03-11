@@ -24,7 +24,7 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
     'NewUserPlugin',
     'RelationshipReceivedRequestPlugin',
     'SpaceInvitationPlugin',
-    'RequestJoinSpacePlugin'
+    'RequestJoinSpacePlugin',
   ],
   icon: 'fa-people-arrows',
 });

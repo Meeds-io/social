@@ -23,33 +23,37 @@
   <v-autocomplete
     ref="autocomplete"
     v-model="category"
-    :items="filteredCategories"
-    :loading="loading"
-    :placeholder="$t('categorySuggester.searchCategories')"
-    item-text="name"
-    item-value="id"
-    class="mx-0 mt-0 mb-4 pa-0 elevation-0 no-border"
-    return-object
-    no-filter
     attach
+    class="mx-0 mt-0 mb-4 pa-0 elevation-0 no-border"
+    dense
+    hide-details
     hide-no-data
     hide-selected
-    hide-details
+    item-text="name"
+    item-value="id"
+    :items="filteredCategories"
+    :loading="loading"
+    no-filter
     outlined
-    dense
+    :placeholder="$t('categorySuggester.searchCategories')"
+    return-object
     @update:search-input="keyword = $event">
     <template #item="{item}">
       <v-card
         color="transparent"
-        max-width="350"
-        flat>
-        <v-list-item :title="item.name" class="pa-0">
+        flat
+        max-width="350">
+        <v-list-item
+          class="pa-0"
+          :title="item.name">
           <v-list-item-icon class="me-3">
             <v-card
               color="transparent"
-              min-width="20"
-              flat>
-              <v-icon size="20">{{ item.icon }}</v-icon>
+              flat
+              min-width="20">
+              <v-icon size="20">
+                {{ item.icon }}
+              </v-icon>
             </v-card>
           </v-list-item-icon>
           <v-list-item-content>
@@ -63,83 +67,83 @@
   </v-autocomplete>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    initialized: false,
-    loading: false,
-    categories: null,
-    category: null,
-    keyword: null,
-    searchTimeout: null,
-    limit: 25,
-  }),
-  computed: {
-    categoryId() {
-      return this.category?.id;
+    data: () => ({
+      initialized: false,
+      loading: false,
+      categories: null,
+      category: null,
+      keyword: null,
+      searchTimeout: null,
+      limit: 25,
+    }),
+    computed: {
+      categoryId () {
+        return this.category?.id;
+      },
+      filteredCategories () {
+        return this.categories || [];
+      },
     },
-    filteredCategories() {
-      return this.categories || [];
-    },
-  },
-  watch: {
-    keyword() {
-      if (this.initialized) {
-        this.searchCategories();
-      }
-    },
-    categoryId() {
-      if (this.initialized) {
-        this.$emit('input', this.categoryId);
-      }
-    },
-    value() {
-      if (this.value !== this.categoryId) {
-        this.init();
-      }
-    },
-  },
-  async created() {
-    try {
-      await this.init();
-    } finally {
-      await this.$nextTick();
-      window.setTimeout(() => this.initialized = true, 10);
-    }
-  },
-  methods: {
-    async init() {
-      if (this.value) {
-        this.category = await this.$categoryService.getCategory(this.value);
-        this.categories = [this.category];
-      } else {
-        this.category = null;
-        this.categories = [];
-        if (this.$refs?.autocomplete) {
-          this.$refs.autocomplete.isFocused = false;
+    watch: {
+      keyword () {
+        if (this.initialized) {
+          this.searchCategories();
         }
-      }
-    },
-    async searchCategories() {
-      if (this.keyword?.trim?.()?.length) {
-        this.loading = true;
-        try {
-          this.categories = await this.$categoryService.findCategories({
-            query: this.keyword,
-            limit: this.limit,
-          });
-        } finally {
-          this.loading = false;
+      },
+      categoryId () {
+        if (this.initialized) {
+          this.$emit('input', this.categoryId);
         }
-      } else {
-        this.categories = [];
+      },
+      value () {
+        if (this.value !== this.categoryId) {
+          this.init();
+        }
+      },
+    },
+    async created () {
+      try {
+        await this.init();
+      } finally {
+        await this.$nextTick();
+        window.setTimeout(() => this.initialized = true, 10);
       }
     },
-  },
-};
+    methods: {
+      async init () {
+        if (this.value) {
+          this.category = await this.$categoryService.getCategory(this.value);
+          this.categories = [this.category];
+        } else {
+          this.category = null;
+          this.categories = [];
+          if (this.$refs?.autocomplete) {
+            this.$refs.autocomplete.isFocused = false;
+          }
+        }
+      },
+      async searchCategories () {
+        if (this.keyword?.trim?.()?.length) {
+          this.loading = true;
+          try {
+            this.categories = await this.$categoryService.findCategories({
+              query: this.keyword,
+              limit: this.limit,
+            });
+          } finally {
+            this.loading = false;
+          }
+        } else {
+          this.categories = [];
+        }
+      },
+    },
+  };
 </script>

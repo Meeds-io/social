@@ -22,21 +22,21 @@
 <template>
   <v-app class="d-flex align-center">
     <widget-wrapper
-      :title="$t('social.admins.label')"
+      key="admins"
       ref="admins"
-      key="admins">
+      :title="$t('social.admins.label')">
       <template #action>
         <div class="position-relative">
           <exo-user-avatars-list
-            :users="admins"
-            :default-length="adminsCount"
-            :margin-left="admins.length > 1 && 'ml-n5' || ''"
-            :icon-size="33"
-            :max="3"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
             class="absolute-vertical-center"
-            compact
+            :class="$vuetify.rtl && 'l-0' || 'r-0'"
             clickable
+            compact
+            :default-length="adminsCount"
+            :icon-size="33"
+            :margin-left="admins.length > 1 && 'ml-n5' || ''"
+            :max="3"
+            :users="admins"
             @open-detail="$root.$emit('admins-drawer-open')" />
         </div>
       </template>
@@ -45,22 +45,22 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    admins: [],
-    adminsCount: 0
-  }),
-  created() {
-    this.$root.$on('platform-settings-admins-updated', this.refreshAdmins);
-  },
-  beforeDestroy() {
-    this.$root.$off('platform-settings-admins-updated', this.refreshAdmins);
-  },
-  methods: {
-    refreshAdmins(adminsCount, admins) {
-      this.admins = admins;
-      this.adminsCount = adminsCount;
+  export default {
+    data: () => ({
+      admins: [],
+      adminsCount: 0,
+    }),
+    created () {
+      this.$root.$on('platform-settings-admins-updated', this.refreshAdmins);
     },
-  }
-};
+    beforeUnmount () {
+      this.$root.$off('platform-settings-admins-updated', this.refreshAdmins);
+    },
+    methods: {
+      refreshAdmins (adminsCount, admins) {
+        this.admins = admins;
+        this.adminsCount = adminsCount;
+      },
+    },
+  };
 </script>

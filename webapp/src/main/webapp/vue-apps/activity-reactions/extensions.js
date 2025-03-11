@@ -1,4 +1,4 @@
-export function registerActivityReactionTabs() {
+export function registerActivityReactionTabs () {
   extensionRegistry.registerComponent('ActivityReactions', 'activity-reaction-action', {
     id: 'like',
     reactionLabel: 'UIActivity.label.likesLabel',

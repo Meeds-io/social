@@ -22,21 +22,23 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
+    allow-expand
+    class="spaceTemplateNameFormDrawer"
     :confirm-close="modified"
     :confirm-close-labels="closeConfirmLabels"
-    class="spaceTemplateNameFormDrawer"
     right
-    allow-expand
     @expand-updated="expanded = $event">
     <template #title>
       {{ isNew && $t('spaceTemplate.add.drawer.newTemplate') || $t('spaceTemplate.add.drawer.editTemplate') }}
     </template>
-    <template v-if="drawer && spaceTemplate" #content>
+    <template
+      v-if="drawer && spaceTemplate"
+      #content>
       <div class="pa-4 full-wdith overflow-hidden">
         <v-alert
           v-if="step === 1 && !isNew"
-          type="info"
-          outlined>
+          outlined
+          type="info">
           <div class="text-color">
             <div class="mb-2">
               {{ $t('spaceTemplate.editWarningInfo1') }}
@@ -45,14 +47,20 @@
           </div>
         </v-alert>
         <div class="d-flex align-center">
-          <v-icon size="24" class="me-3">{{ spaceTemplate.icon }}</v-icon>
+          <v-icon
+            class="me-3"
+            size="24">
+            {{ spaceTemplate.icon }}
+          </v-icon>
           <span class="text-truncate text-start font-weight-bold flex-grow-1">{{ name }}</span>
           <v-btn
-            :title="$t('spaceTemplate.editName')"
             class="me-n2"
             icon
+            :title="$t('spaceTemplate.editName')"
             @click="openNameDrawer">
-            <v-icon size="20">fa-edit</v-icon>
+            <v-icon size="20">
+              fa-edit
+            </v-icon>
           </v-btn>
         </div>
         <v-card
@@ -60,86 +68,92 @@
           flat
           @click="step = 1">
           <v-card
-            height="24"
-            width="24"
             class="d-flex align-center justify-center tertiary border-radius-circle"
-            flat>
+            flat
+            height="24"
+            width="24">
             1
           </v-card>
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.creationStep') }}
           </div>
         </v-card>
-        <div v-if="step === 1" class="d-flex flex-column mb-4">
+        <div
+          v-if="step === 1"
+          class="d-flex flex-column mb-4">
           <span class="mb-2">{{ $t('spaceTemplate.mandatoryCreationStepDescription') }}</span>
           <v-checkbox
             id="spaceFieldName"
             v-model="spaceFieldName"
+            class="mt-0 mb-2 ms-n1 pa-0"
+            dense
             :label="$t('spaceTemplate.mandatoryCreationStepName')"
             name="spaceFieldName"
-            on-icon="fa-check-square"
-            class="mt-0 mb-2 ms-n1 pa-0"
-            dense />
+            on-icon="fa-check-square" />
           <v-checkbox
             id="spaceFieldInvitation"
             v-model="spaceFieldInvitation"
+            class="mt-0 mb-2 ms-n1 pa-0"
+            dense
             :label="$t('spaceTemplate.mandatoryCreationStepInvitation')"
             name="spaceFieldInvitation"
-            on-icon="fa-check-square"
-            class="mt-0 mb-2 ms-n1 pa-0"
-            dense />
+            on-icon="fa-check-square" />
           <v-checkbox
             id="spaceFieldProperties"
             v-model="spaceFieldProperties"
+            class="mt-0 mb-2 ms-n1 pa-0"
+            dense
             :label="$t('spaceTemplate.mandatoryCreationStepProperties')"
             name="spaceFieldProperties"
-            on-icon="fa-check-square"
-            class="mt-0 mb-2 ms-n1 pa-0"
-            dense />
+            on-icon="fa-check-square" />
           <v-checkbox
             id="spaceFieldAccessControl"
             v-model="spaceFieldAccessControl"
+            class="mt-0 mb-2 ms-n1 pa-0"
+            dense
             :label="$t('spaceTemplate.mandatoryCreationStepAccessControl')"
             name="spaceFieldAccessControl"
-            on-icon="fa-check-square"
-            class="mt-0 mb-2 ms-n1 pa-0"
-            dense />
-          <div v-if="!spaceFieldName && !spaceFieldInvitation" class="error--text mb-2">
+            on-icon="fa-check-square" />
+          <div
+            v-if="!spaceFieldName && !spaceFieldInvitation"
+            class="error--text mb-2">
             {{ $t('spaceTemplate.mandatoryCreationStepNameOrInvitationMandatory') }}
           </div>
         </div>
         <v-card
+          class="d-flex mb-4"
+          flat
           v-on="step2Enabled && {
             click: () => step = 2,
-          }"
-          class="d-flex mb-4"
-          flat>
+          }">
           <v-card
-            :class="step > 1 ? 'tertiary' : 'mask-color'"
-            height="24"
-            width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
-            flat>
+            :class="step > 1 ? 'tertiary' : 'mask-color'"
+            flat
+            height="24"
+            width="24">
             2
           </v-card>
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.spaceTemplateManagement') }}
           </div>
         </v-card>
-        <div v-if="step === 2" class="mb-4">
+        <div
+          v-if="step === 2"
+          class="mb-4">
           <space-templates-management-permissions
             v-model="spaceTemplate.permissions"
-            label="spaceTemplate.permissionsStepCreateSpacePermissionLabel"
+            admins
             class="mb-4"
-            users
-            admins />
+            label="spaceTemplate.permissionsStepCreateSpacePermissionLabel"
+            users />
           <space-templates-management-permissions
             v-model="spaceTemplate.adminPermissions"
+            admins
+            class="mb-4 font-weight-bold"
             help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
             help-tooltip="spaceTemplate.permissionsStepSpaceAdminsPermissionTooltip"
-            class="mb-4 font-weight-bold"
-            users
-            admins>
+            users>
             <template #helpContent>
               <div>
                 <div class="mb-2">
@@ -165,34 +179,36 @@
           </space-templates-management-permissions>
         </div>
         <v-card
+          class="d-flex mb-4"
+          flat
           v-on="step3Enabled && {
             click: () => step = 3,
-          }"
-          class="d-flex mb-4"
-          flat>
+          }">
           <v-card
-            :class="step > 2 ? 'tertiary' : 'mask-color'"
-            height="24"
-            width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
-            flat>
+            :class="step > 2 ? 'tertiary' : 'mask-color'"
+            flat
+            height="24"
+            width="24">
             3
           </v-card>
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.defaultSpaceConfigurationStep') }}
           </div>
         </v-card>
-        <div v-show="step === 3" class="mb-4">
+        <div
+          v-show="step === 3"
+          class="mb-4">
           <div class="d-flex flex-column">
             <span class="mb-4">
               {{ $t('spaceTemplate.defaultSpaceConfigurationStepDescription') }}
             </span>
             <space-templates-management-banner
               ref="bannerInput"
-              :banner-upload-id="bannerUploadId"
               :banner-data="bannerData"
-              :space-template="spaceTemplate"
+              :banner-upload-id="bannerUploadId"
               class="mb-4"
+              :space-template="spaceTemplate"
               @data="bannerData = $event"
               @input="bannerUploadId = $event" />
             <category-input
@@ -210,45 +226,49 @@
           </div>
         </div>
         <v-card
+          class="d-flex mb-4"
+          flat
           v-on="step4Enabled && {
             click: () => step = 4,
-          }"
-          class="d-flex mb-4"
-          flat>
+          }">
           <v-card
-            :class="step > 3 ? 'tertiary' : 'mask-color'"
-            height="24"
-            width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
-            flat>
+            :class="step > 3 ? 'tertiary' : 'mask-color'"
+            flat
+            height="24"
+            width="24">
             4
           </v-card>
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.spacePermissionsStep') }}
           </div>
         </v-card>
-        <div v-if="step === 4" class="d-flex flex-column mb-4">
-          <span v-sanitized-html="permissionsStepDescription1" class="mb-2"></span>
+        <div
+          v-if="step === 4"
+          class="d-flex flex-column mb-4">
+          <span
+            v-sanitized-html="permissionsStepDescription1"
+            class="mb-2"></span>
           <span class="mb-4">
             {{ $t('spaceTemplate.permissionsStepDescription2') }}
           </span>
           <space-templates-management-permissions
             v-model="spaceTemplate.spaceLayoutPermissions"
-            label="spaceTemplate.permissionsStepEditSpaceLayoutPermissionLabel"
-            class="mb-4"
             admins
+            class="mb-4"
+            label="spaceTemplate.permissionsStepEditSpaceLayoutPermissionLabel"
             space-admin />
           <space-templates-management-permissions
             v-model="spaceTemplate.spacePublicSitePermissions"
-            label="spaceTemplate.permissionsStepPublicSitePermissionLabel"
-            class="mb-4"
             admins
+            class="mb-4"
+            label="spaceTemplate.permissionsStepPublicSitePermissionLabel"
             space-admin />
           <space-templates-management-permissions
             v-model="spaceTemplate.spaceDeletePermissions"
-            label="spaceTemplate.permissionsStepDeleteSpacePermissionLabel"
-            class="mb-4"
             admins
+            class="mb-4"
+            label="spaceTemplate.permissionsStepDeleteSpacePermissionLabel"
             space-admin />
         </div>
       </div>
@@ -257,31 +277,31 @@
       <div class="d-flex align-center">
         <v-btn
           v-if="step > 1"
-          :title="$t('links.label.previous')"
-          :disabled="saving"
           class="btn me-2 hidden-xs-only"
+          :disabled="saving"
+          :title="$t('links.label.previous')"
           @click="step--">
           {{ $t('spaceTemplate.previous') }}
         </v-btn>
         <v-btn
-          :title="$t('links.label.cancel')"
           class="btn ms-auto me-2"
+          :title="$t('links.label.cancel')"
           @click="close()">
           {{ $t('spaceTemplate.cancel') }}
         </v-btn>
         <v-btn
           v-if="step < 4"
+          class="btn primary"
           :disabled="disabledNextStep"
           :loading="saving"
-          class="btn primary"
           @click="step++">
           {{ $t('spaceTemplate.next') }}
         </v-btn>
         <v-btn
           v-else-if="step > 3"
+          class="btn primary"
           :disabled="disabled"
           :loading="saving"
-          class="btn primary"
           @click="save">
           {{ isNew && $t('spaceTemplate.create') || $t('spaceTemplate.update') }}
         </v-btn>
@@ -290,225 +310,225 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    expanded: false,
-    saving: false,
-    isNew: false,
-    basicInformationModified: false,
-    spaceTemplate: null,
-    originalSpaceTemplate: null,
-    bannerUploadId: null,
-    bannerData: null,
-    name: null,
-    description: null,
-    nameTranslations: {},
-    descriptionTranslations: {},
-    templateId: null,
-    step: 1,
-    spaceFieldName: false,
-    spaceFieldInvitation: false,
-    spaceFieldProperties: false,
-    spaceFieldAccessControl: false,
-    spacesManagementUrl: '/portal/administration/home/organisation/spaces',
-  }),
-  computed: {
-    rules() {
-      return {
-        name: [
-          v => !!v?.length || ' ',
-          v => !v?.length || v.length < this.maxNameLength || this.$t('spaceTemplate.nameExceedsMaxLength', {
-            0: this.maxNameLength,
-          }),
-        ],
-        description: [
-          v => !v?.length || v.length < this.maxDescriptionLength || this.$t('spaceTemplate.descriptionExceedsMaxLength', {
-            0: this.maxDescriptionLength,
-          }),
-        ],
-      };
-    },
-    disabledFirstStep() {
-      return this.step === 1
-        && !this.spaceTemplate?.spaceFields?.includes?.('name')
-        && !this.spaceTemplate?.spaceFields?.includes?.('invitation');
-    },
-    step2Enabled() {
-      return !this.disabledFirstStep;
-    },
-    step3Enabled() {
-      return this.step2Enabled;
-    },
-    step4Enabled() {
-      return this.step3Enabled;
-    },
-    disabledNextStep() {
-      if (this.step === 1) {
-        return this.disabledFirstStep;
-      } else if (this.step === 2) {
-        return !this.step2Enabled;
-      } else if (this.step === 3) {
-        return !this.step3Enabled;
-      } else if (this.step === 4) {
-        return !this.step4Enabled;
-      } else {
-        return false;
-      }
-    },
-    modified() {
-      return this.isNew
-        || this.basicInformationModified
-        || (JSON.stringify(this.spaceTemplate) !== JSON.stringify(this.originalSpaceTemplate));
-    },
-    closeConfirmLabels() {
-      return {
-        title: this.$t('spaceTemplate.closeConfirmLabels.title'),
-        message: this.$t('spaceTemplate.closeConfirmLabels.message'),
-        ok: this.$t('spaceTemplate.closeConfirmLabels.ok'),
-        cancel: this.$t('spaceTemplate.closeConfirmLabels.cancel'),
-      };
-    },
-    disabled() {
-      return !this.name?.length
+  export default {
+    data: () => ({
+      drawer: false,
+      expanded: false,
+      saving: false,
+      isNew: false,
+      basicInformationModified: false,
+      spaceTemplate: null,
+      originalSpaceTemplate: null,
+      bannerUploadId: null,
+      bannerData: null,
+      name: null,
+      description: null,
+      nameTranslations: {},
+      descriptionTranslations: {},
+      templateId: null,
+      step: 1,
+      spaceFieldName: false,
+      spaceFieldInvitation: false,
+      spaceFieldProperties: false,
+      spaceFieldAccessControl: false,
+      spacesManagementUrl: '/portal/administration/home/organisation/spaces',
+    }),
+    computed: {
+      rules () {
+        return {
+          name: [
+            v => !!v?.length || ' ',
+            v => !v?.length || v.length < this.maxNameLength || this.$t('spaceTemplate.nameExceedsMaxLength', {
+              0: this.maxNameLength,
+            }),
+          ],
+          description: [
+            v => !v?.length || v.length < this.maxDescriptionLength || this.$t('spaceTemplate.descriptionExceedsMaxLength', {
+              0: this.maxDescriptionLength,
+            }),
+          ],
+        };
+      },
+      disabledFirstStep () {
+        return this.step === 1
+          && !this.spaceTemplate?.spaceFields?.includes?.('name')
+          && !this.spaceTemplate?.spaceFields?.includes?.('invitation');
+      },
+      step2Enabled () {
+        return !this.disabledFirstStep;
+      },
+      step3Enabled () {
+        return this.step2Enabled;
+      },
+      step4Enabled () {
+        return this.step3Enabled;
+      },
+      disabledNextStep () {
+        if (this.step === 1) {
+          return this.disabledFirstStep;
+        } else if (this.step === 2) {
+          return !this.step2Enabled;
+        } else if (this.step === 3) {
+          return !this.step3Enabled;
+        } else if (this.step === 4) {
+          return !this.step4Enabled;
+        } else {
+          return false;
+        }
+      },
+      modified () {
+        return this.isNew
+          || this.basicInformationModified
+          || (JSON.stringify(this.spaceTemplate) !== JSON.stringify(this.originalSpaceTemplate));
+      },
+      closeConfirmLabels () {
+        return {
+          title: this.$t('spaceTemplate.closeConfirmLabels.title'),
+          message: this.$t('spaceTemplate.closeConfirmLabels.message'),
+          ok: this.$t('spaceTemplate.closeConfirmLabels.ok'),
+          cancel: this.$t('spaceTemplate.closeConfirmLabels.cancel'),
+        };
+      },
+      disabled () {
+        return !this.name?.length
           || this.name.length > this.maxNameLength
           || (this.description?.length && this.description.length > this.maxDescriptionLength)
           || (!this.spaceTemplate?.spaceFields?.includes?.('name') && !this.spaceTemplate?.spaceFields?.includes?.('invitation'));
+      },
+      permissionsStepDescription1 () {
+        return this.$t('spaceTemplate.permissionsStepDescription1', {
+          0: `<a href="${this.spacesManagementUrl}">`,
+          1: '</a>',
+        });
+      },
+      editWarningInfo2 () {
+        return this.$t('spaceTemplate.editWarningInfo2', {
+          0: `<a href="${this.spacesManagementUrl}">`,
+          1: '</a>',
+        });
+      },
     },
-    permissionsStepDescription1() {
-      return this.$t('spaceTemplate.permissionsStepDescription1', {
-        0: `<a href="${this.spacesManagementUrl}">`,
-        1: '</a>',
-      });
-    },
-    editWarningInfo2() {
-      return this.$t('spaceTemplate.editWarningInfo2', {
-        0: `<a href="${this.spacesManagementUrl}">`,
-        1: '</a>',
-      });
-    },
-  },
-  watch: {
-    description() {
-      if (this.$refs.descriptionTranslation) {
-        this.$refs.descriptionTranslation.setValue(this.description);
-      }
-      if (this.$refs.spaceTemplateDescriptionEditor?.editor && this.description !== this.$refs.spaceTemplateDescriptionEditor.inputVal) {
-        this.$refs.spaceTemplateDescriptionEditor.editor.setData(this.description);
-      }
-    },
-    spaceFieldName(val) {
-      if (!this.drawer) {
-        return;
-      } else if (val) {
-        if (!this.spaceTemplate?.spaceFields?.includes?.('name')) {
-          this.spaceTemplate.spaceFields.push('name');
+    watch: {
+      description () {
+        if (this.$refs.descriptionTranslation) {
+          this.$refs.descriptionTranslation.setValue(this.description);
         }
-      } else if (this.spaceTemplate?.spaceFields?.includes?.('name')) {
-        this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('name'), 1);
-      }
-    },
-    spaceFieldInvitation(val) {
-      if (!this.drawer) {
-        return;
-      } else if (val) {
-        if (!this.spaceTemplate?.spaceFields?.includes?.('invitation')) {
-          this.spaceTemplate.spaceFields.push('invitation');
+        if (this.$refs.spaceTemplateDescriptionEditor?.editor && this.description !== this.$refs.spaceTemplateDescriptionEditor.inputVal) {
+          this.$refs.spaceTemplateDescriptionEditor.editor.setData(this.description);
         }
-      } else if (this.spaceTemplate?.spaceFields?.includes?.('invitation')) {
-        this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('invitation'), 1);
-      }
-    },
-    spaceFieldProperties(val) {
-      if (!this.drawer) {
-        return;
-      } else if (val) {
-        if (!this.spaceTemplate?.spaceFields?.includes?.('properties')) {
-          this.spaceTemplate.spaceFields.push('properties');
+      },
+      spaceFieldName (val) {
+        if (!this.drawer) {
+          return;
+        } else if (val) {
+          if (!this.spaceTemplate?.spaceFields?.includes?.('name')) {
+            this.spaceTemplate.spaceFields.push('name');
+          }
+        } else if (this.spaceTemplate?.spaceFields?.includes?.('name')) {
+          this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('name'), 1);
         }
-      } else if (this.spaceTemplate?.spaceFields?.includes?.('properties')) {
-        this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('properties'), 1);
-      }
-    },
-    spaceFieldAccessControl(val) {
-      if (!this.drawer) {
-        return;
-      } else if (val) {
-        if (!this.spaceTemplate?.spaceFields?.includes?.('access')) {
-          this.spaceTemplate.spaceFields.push('access');
+      },
+      spaceFieldInvitation (val) {
+        if (!this.drawer) {
+          return;
+        } else if (val) {
+          if (!this.spaceTemplate?.spaceFields?.includes?.('invitation')) {
+            this.spaceTemplate.spaceFields.push('invitation');
+          }
+        } else if (this.spaceTemplate?.spaceFields?.includes?.('invitation')) {
+          this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('invitation'), 1);
         }
-      } else if (this.spaceTemplate?.spaceFields?.includes?.('access')) {
-        this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('access'), 1);
-      }
-    },
-  },
-  created() {
-    this.$root.$on('space-templates-characteristics-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-templates-characteristics-open', this.open);
-  },
-  methods: {
-    open(spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
-      this.isNew = !spaceTemplate?.id;
-      this.basicInformationModified = modified;
-      this.spaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
-      this.bannerUploadId = bannerUploadId;
-      this.bannerData = bannerData;
-      this.originalSpaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
-      this.name = name || spaceTemplate?.name;
-      this.description = description || spaceTemplate?.description;
-      this.nameTranslations = nameTranslations;
-      this.descriptionTranslations = descriptionTranslations;
-      this.step = 1;
-      this.spaceFieldName = spaceTemplate.spaceFields.includes('name') || false;
-      this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
-      this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
-      this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
-      this.$refs.drawer.open();
-    },
-    async close() {
-      this.spaceTemplate = null;
-      this.originalSpaceTemplate = null;
-      this.isNew = false;
-      this.basicInformationModified = false;
-      await this.$nextTick();
-      this.$refs.drawer.close();
-    },
-    openNameDrawer() {
-      this.$root.$emit('space-templates-name-open', this.spaceTemplate, this.name, this.nameTranslations, this.description, this.descriptionTranslations, this.modified, this.bannerUploadId, this.bannerData);
-      this.close();
-    },
-    async save() {
-      this.saving = true;
-      try {
-        if (this.isNew) {
-          this.spaceTemplate = await this.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
-          await this.$nextTick();
-        } else {
-          await this.$spaceTemplateService.updateSpaceTemplate(this.spaceTemplate);
+      },
+      spaceFieldProperties (val) {
+        if (!this.drawer) {
+          return;
+        } else if (val) {
+          if (!this.spaceTemplate?.spaceFields?.includes?.('properties')) {
+            this.spaceTemplate.spaceFields.push('properties');
+          }
+        } else if (this.spaceTemplate?.spaceFields?.includes?.('properties')) {
+          this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('properties'), 1);
         }
-        if (this.nameTranslations) {
-          await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'name', this.nameTranslations);
+      },
+      spaceFieldAccessControl (val) {
+        if (!this.drawer) {
+          return;
+        } else if (val) {
+          if (!this.spaceTemplate?.spaceFields?.includes?.('access')) {
+            this.spaceTemplate.spaceFields.push('access');
+          }
+        } else if (this.spaceTemplate?.spaceFields?.includes?.('access')) {
+          this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('access'), 1);
         }
-        if (this.descriptionTranslations) {
-          await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
-        }
-        await this.$refs.bannerInput.save(this.spaceTemplate.id);
-        this.spaceTemplate.name = this.name;
-        this.spaceTemplate.description = this.description;
-        if (this.isNew) {
-          this.$root.$emit('alert-message', this.$t('spaceTemplate.spaceTemplateCreatedSuccessfully'), 'success');
-          this.$root.$emit('space-templates-created', this.spaceTemplate);
-        } else {
-          this.$root.$emit('alert-message', this.$t('spaceTemplate.spaceTemplateUpdatedSuccessfully'), 'success');
-          this.$root.$emit('space-templates-updated', this.spaceTemplate);
-        }
+      },
+    },
+    created () {
+      this.$root.$on('space-templates-characteristics-open', this.open);
+    },
+    beforeUnmount () {
+      this.$root.$off('space-templates-characteristics-open', this.open);
+    },
+    methods: {
+      open (spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
+        this.isNew = !spaceTemplate?.id;
+        this.basicInformationModified = modified;
+        this.spaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
+        this.bannerUploadId = bannerUploadId;
+        this.bannerData = bannerData;
+        this.originalSpaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
+        this.name = name || spaceTemplate?.name;
+        this.description = description || spaceTemplate?.description;
+        this.nameTranslations = nameTranslations;
+        this.descriptionTranslations = descriptionTranslations;
+        this.step = 1;
+        this.spaceFieldName = spaceTemplate.spaceFields.includes('name') || false;
+        this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
+        this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
+        this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
+        this.$refs.drawer.open();
+      },
+      async close () {
+        this.spaceTemplate = null;
+        this.originalSpaceTemplate = null;
+        this.isNew = false;
+        this.basicInformationModified = false;
+        await this.$nextTick();
+        this.$refs.drawer.close();
+      },
+      openNameDrawer () {
+        this.$root.$emit('space-templates-name-open', this.spaceTemplate, this.name, this.nameTranslations, this.description, this.descriptionTranslations, this.modified, this.bannerUploadId, this.bannerData);
         this.close();
-      } finally {
-        this.saving = false;
-      }
+      },
+      async save () {
+        this.saving = true;
+        try {
+          if (this.isNew) {
+            this.spaceTemplate = await this.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
+            await this.$nextTick();
+          } else {
+            await this.$spaceTemplateService.updateSpaceTemplate(this.spaceTemplate);
+          }
+          if (this.nameTranslations) {
+            await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'name', this.nameTranslations);
+          }
+          if (this.descriptionTranslations) {
+            await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
+          }
+          await this.$refs.bannerInput.save(this.spaceTemplate.id);
+          this.spaceTemplate.name = this.name;
+          this.spaceTemplate.description = this.description;
+          if (this.isNew) {
+            this.$root.$emit('alert-message', this.$t('spaceTemplate.spaceTemplateCreatedSuccessfully'), 'success');
+            this.$root.$emit('space-templates-created', this.spaceTemplate);
+          } else {
+            this.$root.$emit('alert-message', this.$t('spaceTemplate.spaceTemplateUpdatedSuccessfully'), 'success');
+            this.$root.$emit('space-templates-updated', this.spaceTemplate);
+          }
+          this.close();
+        } finally {
+          this.saving = false;
+        }
+      },
     },
-  },
-};
+  };
 </script>

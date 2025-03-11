@@ -26,152 +26,184 @@
       'position-x': x,
       'position-y': y,
     }"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
-    :attach="!absolute"
     :absolute="absolute"
+    :attach="!absolute"
+    bottom
     class="z-index-modal"
+    :left="!$vuetify.rtl"
     offset-y
-    bottom>
+    :right="$vuetify.rtl">
     <template #activator="{ on, attrs }">
       <v-btn
         v-show="hoverMenuOrCard"
         v-bind="attrs"
-        v-on="on"
-        small
         icon
+        small
+        v-on="on"
         @mousedown="showMenuNonAbsolute">
-        <v-icon size="16" class="icon-default-color">fas fa-ellipsis-v</v-icon>
+        <v-icon
+          class="icon-default-color"
+          size="16">
+          fas fa-ellipsis-v
+        </v-icon>
       </v-btn>
     </template>
-    <v-hover v-if="menu" @input="hoverMenu = $event">
-      <v-list dense class="white pa-0">
+    <v-hover
+      v-if="menu"
+      @input="hoverMenu = $event">
+      <v-list
+        class="white pa-0"
+        dense>
         <v-list-item
           v-if="url"
+          dense
           :href="url"
           target="_blank"
-          dense
           @mousedown="$emit('read-differ')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="14" class="icon-default-color">fa-external-link-alt</v-icon>
+            <v-icon
+              class="icon-default-color"
+              size="14">
+              fa-external-link-alt
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="pl-0">{{ $t('Notification.openInNewWindow') }}</v-list-item-title>
+          <v-list-item-title class="pl-0">
+            {{ $t('Notification.openInNewWindow') }}
+          </v-list-item-title>
         </v-list-item>
         <v-list-item
           v-if="unread"
           dense
           @click="$emit('read')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="14" class="icon-default-color">fa-envelope-open-text</v-icon>
+            <v-icon
+              class="icon-default-color"
+              size="14">
+              fa-envelope-open-text
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="pl-0">{{ $t('Notification.markRead') }}</v-list-item-title>
+          <v-list-item-title class="pl-0">
+            {{ $t('Notification.markRead') }}
+          </v-list-item-title>
         </v-list-item>
         <v-list-item
           dense
           @click="$emit('remove')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="14" class="icon-default-color">fa-trash</v-icon>
+            <v-icon
+              class="icon-default-color"
+              size="14">
+              fa-trash
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="pl-0">{{ $t('Notification.deleteNotification') }}</v-list-item-title>
+          <v-list-item-title class="pl-0">
+            {{ $t('Notification.deleteNotification') }}
+          </v-list-item-title>
         </v-list-item>
         <v-list-item
           v-if="canMute"
           dense
           @click="$emit('mute')">
           <v-list-item-icon class="mx-1 justify-center">
-            <v-icon size="14" class="icon-default-color">fa-bell-slash</v-icon>
+            <v-icon
+              class="icon-default-color"
+              size="14">
+              fa-bell-slash
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="pl-0">{{ $t('Notification.muteSpaceNotification') }}</v-list-item-title>
+          <v-list-item-title class="pl-0">
+            {{ $t('Notification.muteSpaceNotification') }}
+          </v-list-item-title>
         </v-list-item>
       </v-list>
     </v-hover>
   </v-menu>
 </template>
 <script>
-export default {
-  props: {
-    notification: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      notification: {
+        type: Object,
+        default: null,
+      },
+      unread: {
+        type: Boolean,
+        default: false,
+      },
+      canMute: {
+        type: Boolean,
+        default: false,
+      },
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      url: {
+        type: String,
+        default: null,
+      },
     },
-    unread: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      initialized: true,
+      hoverMenu: false,
+      menu: false,
+      absolute: false,
+      x: 0,
+      y: 0,
+    }),
+    computed: {
+      hoverMenuOrCard () {
+        return this.hoverMenu || this.hover;
+      },
     },
-    canMute: {
-      type: Boolean,
-      default: false,
-    },
-    hover: {
-      type: Boolean,
-      default: false,
-    },
-    url: {
-      type: String,
-      default: null,
-    },
-  },
-  data: () => ({
-    initialized: true,
-    hoverMenu: false,
-    menu: false,
-    absolute: false,
-    x: 0,
-    y: 0,
-  }),
-  computed: {
-    hoverMenuOrCard() {
-      return this.hoverMenu || this.hover;
-    },
-  },
-  watch: {
-    menu() {
-      if (!this.menu) {
-        this.absolute = false;
-      }
-    },
-    absolute() {
-      if (!this.absolute) {
-        this.initialized = false;
-        this.$nextTick(() => {
-          this.x = 0;
-          this.y = 0;
-          this.initialized = true;
-        });
-      }
-    },
-    hoverMenuOrCard() {
-      if (!this.hoverMenuOrCard && this.menu) {
-        if (!this.absolute) {
-          this.menu = false;
+    watch: {
+      menu () {
+        if (!this.menu) {
+          this.absolute = false;
         }
-        window.setTimeout(() => {
-          if (!this.hoverMenuOrCard) {
+      },
+      absolute () {
+        if (!this.absolute) {
+          this.initialized = false;
+          this.$nextTick(() => {
+            this.x = 0;
+            this.y = 0;
+            this.initialized = true;
+          });
+        }
+      },
+      hoverMenuOrCard () {
+        if (!this.hoverMenuOrCard && this.menu) {
+          if (!this.absolute) {
             this.menu = false;
           }
-        }, 200);
-      }
+          window.setTimeout(() => {
+            if (!this.hoverMenuOrCard) {
+              this.menu = false;
+            }
+          }, 200);
+        }
+      },
     },
-  },
-  created() {
-    document.addEventListener('notifications-list-scroll-activated', this.hideMenu);
-  },
-  beforeDestroy() {
-    document.removeEventListener('notifications-list-scroll-activated', this.hideMenu);
-  },
-  methods: {
-    showMenu(x, y) {
-      this.x = x + 2;
-      this.y = y + 2;
-      this.absolute = true;
-      this.$nextTick(() => this.menu = true);
+    created () {
+      document.addEventListener('notifications-list-scroll-activated', this.hideMenu);
     },
-    hideMenu() {
-      this.menu = false;
+    beforeUnmount () {
+      document.removeEventListener('notifications-list-scroll-activated', this.hideMenu);
     },
-    showMenuNonAbsolute() {
-      this.absolute = false;
+    methods: {
+      showMenu (x, y) {
+        this.x = x + 2;
+        this.y = y + 2;
+        this.absolute = true;
+        this.$nextTick(() => this.menu = true);
+      },
+      hideMenu () {
+        this.menu = false;
+      },
+      showMenuNonAbsolute () {
+        this.absolute = false;
+      },
     },
-  },
-};
+  };
 </script>

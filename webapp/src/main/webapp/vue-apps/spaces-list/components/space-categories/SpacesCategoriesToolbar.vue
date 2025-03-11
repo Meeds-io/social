@@ -25,8 +25,8 @@
     <v-card
       v-if="display"
       class="d-flex align-center mx-5 mt-1"
-      min-height="34"
-      flat>
+      flat
+      min-height="34">
       <spaces-categories-breadcrumb
         v-if="displayBreadcrumb"
         :breadcrumb="breadcrumb"
@@ -51,122 +51,122 @@
   </div>
 </template>
 <script>
-export default {
-  data: () => ({
-    categoryTree: null,
-    loading: false,
-    pageSize: 10,
-    refresh: 1,
-    chipsWidthPerCategory: 1,
-  }),
-  computed: {
-    categories() {
-      const categories = [];
-      if (this.categoryTree) {
-        this.addSubcategories(this.categoryTree, categories);
-      }
-      return categories;
-    },
-    displayBreadcrumb() {
-      return this.$root.selectedCategoryId;
-    },
-    displayChipsSelection() {
-      return this.level < 2 && this.selectedSubcategories?.length;
-    },
-    displayDivider() {
-      return this.displayChipsSelection && this.displayBreadcrumb;
-    },
-    display() {
-      return this.categories.length > 0 && (this.displayChipsSelection || this.displayBreadcrumb);
-    },
-    breadcrumb() {
-      return this.selectedCategory && this.getBreadcrumb(this.selectedCategory);
-    },
-    level() {
-      return this.breadcrumb?.length || 0;
-    },
-    selectedCategoryForTabs() {
-      return this.level > 1 && this.selectedCategory && (this.selectedCategory?.categories?.length ? this.selectedCategory : this.level > 2 && this.getCategory(this.selectedCategory.parentId));
-    },
-    selectedSubcategories() {
-      return this.selectedCategory?.categories;
-    },
-    selectedCategory() {
-      return this.categories?.find?.(c => c.id === this.$root.selectedCategoryId) || this.categoryTree;
-    },
-    chevronIcon() {
-      return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
-    },
-  },
-  created() {
-    this.$root.$on('spaces-list-settings-updated', this.init);
-    this.$root.$on('spaces-list-select-category', this.selectCategory);
-    this.init();
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-select-category', this.selectCategory);
-    this.$root.$off('spaces-list-settings-updated', this.init);
-  },
-  methods: {
-    async init() {
-      this.loading = true;
-      try {
-        if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
-          const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
-            parentId: id,
-            depth: this.$root.categoryDepth,
-            offset: 0,
-            limit: -1,
-            token: this.$root.settingName,
-          })));
-          this.categoryTree = {
-            id: -1,
-            parentId: 0,
-            ownerId: subCategories?.[0]?.ownerId,
-            categories: subCategories,
-          };
-        } else {
-          this.categoryTree = await this.$categoryService.getCategoryTree({
-            depth: this.$root.categoryDepth,
-            offset: 0,
-            limit: -1,
-            token: this.$root.settingName,
-          });
+  export default {
+    data: () => ({
+      categoryTree: null,
+      loading: false,
+      pageSize: 10,
+      refresh: 1,
+      chipsWidthPerCategory: 1,
+    }),
+    computed: {
+      categories () {
+        const categories = [];
+        if (this.categoryTree) {
+          this.addSubcategories(this.categoryTree, categories);
         }
-      } finally {
-        this.loading = false;
-      }
+        return categories;
+      },
+      displayBreadcrumb () {
+        return this.$root.selectedCategoryId;
+      },
+      displayChipsSelection () {
+        return this.level < 2 && this.selectedSubcategories?.length;
+      },
+      displayDivider () {
+        return this.displayChipsSelection && this.displayBreadcrumb;
+      },
+      display () {
+        return this.categories.length > 0 && (this.displayChipsSelection || this.displayBreadcrumb);
+      },
+      breadcrumb () {
+        return this.selectedCategory && this.getBreadcrumb(this.selectedCategory);
+      },
+      level () {
+        return this.breadcrumb?.length || 0;
+      },
+      selectedCategoryForTabs () {
+        return this.level > 1 && this.selectedCategory && (this.selectedCategory?.categories?.length ? this.selectedCategory : this.level > 2 && this.getCategory(this.selectedCategory.parentId));
+      },
+      selectedSubcategories () {
+        return this.selectedCategory?.categories;
+      },
+      selectedCategory () {
+        return this.categories?.find?.(c => c.id === this.$root.selectedCategoryId) || this.categoryTree;
+      },
+      chevronIcon () {
+        return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+      },
     },
-    addSubcategories(item, result, depth) {
-      result.push(item);
-      item.depth = depth || 0;
-      if (item?.categories) {
-        item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
-      }
+    created () {
+      this.$root.$on('spaces-list-settings-updated', this.init);
+      this.$root.$on('spaces-list-select-category', this.selectCategory);
+      this.init();
     },
-    getBreadcrumb(category) {
-      if (!category || !category.parentId) {
-        return [];
-      }
-      const breadcrumb = [category];
-      while (breadcrumb[0].parentId && breadcrumb[0].depth > 1) {
-        const parentId = breadcrumb?.[0]?.parentId || category.parentId;
-        const parentCategory = this.getCategory(parentId);
-        breadcrumb.unshift(parentCategory);
-      }
-      return breadcrumb;
+    beforeUnmount () {
+      this.$root.$off('spaces-list-select-category', this.selectCategory);
+      this.$root.$off('spaces-list-settings-updated', this.init);
     },
-    getCategory(id) {
-      return this.categories?.find?.(c => c.id === id);
+    methods: {
+      async init () {
+        this.loading = true;
+        try {
+          if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
+            const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
+              parentId: id,
+              depth: this.$root.categoryDepth,
+              offset: 0,
+              limit: -1,
+              token: this.$root.settingName,
+            })));
+            this.categoryTree = {
+              id: -1,
+              parentId: 0,
+              ownerId: subCategories?.[0]?.ownerId,
+              categories: subCategories,
+            };
+          } else {
+            this.categoryTree = await this.$categoryService.getCategoryTree({
+              depth: this.$root.categoryDepth,
+              offset: 0,
+              limit: -1,
+              token: this.$root.settingName,
+            });
+          }
+        } finally {
+          this.loading = false;
+        }
+      },
+      addSubcategories (item, result, depth) {
+        result.push(item);
+        item.depth = depth || 0;
+        if (item?.categories) {
+          item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
+        }
+      },
+      getBreadcrumb (category) {
+        if (!category || !category.parentId) {
+          return [];
+        }
+        const breadcrumb = [category];
+        while (breadcrumb[0].parentId && breadcrumb[0].depth > 1) {
+          const parentId = breadcrumb?.[0]?.parentId || category.parentId;
+          const parentCategory = this.getCategory(parentId);
+          breadcrumb.unshift(parentCategory);
+        }
+        return breadcrumb;
+      },
+      getCategory (id) {
+        return this.categories?.find?.(c => c.id === id);
+      },
+      selectCategory (category) {
+        if (this.$root.selectedCategoryId === category?.id) {
+          const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
+          this.$root.selectedCategoryId = categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null;
+        } else {
+          this.$root.selectedCategoryId = category?.id;
+        }
+      },
     },
-    selectCategory(category) {
-      if (this.$root.selectedCategoryId === category?.id) {
-        const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
-        this.$root.selectedCategoryId = categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null;
-      } else {
-        this.$root.selectedCategoryId = category?.id;
-      }
-    },
-  },
-};
+  };
 </script>

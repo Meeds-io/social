@@ -24,26 +24,30 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :id="id"
-          :href="link"
-          :target="targetLink"
           :aria-label="providerButtonLabel"
-          min-width="auto"
-          color="primary"
           class="pa-4 text-none"
-          outlined
+          color="primary"
+          :href="link"
           large
+          min-width="auto"
+          outlined
+          :target="targetLink"
           v-bind="attrs"
           v-on="on"
           @click="clickOnProviderButton">
           <v-img
             v-if="providerImage"
-            :src="providerImage"
             :class="displayText && 'me-2'"
+            eager
             height="25"
             max-width="25"
-            eager />
-          <v-icon v-else :class="providerIcon" />
-          <span v-if="displayText" class="text-truncate">{{ providerButtonLabel }}</span>
+            :src="providerImage" />
+          <v-icon
+            v-else
+            :class="providerIcon" />
+          <span
+            v-if="displayText"
+            class="text-truncate">{{ providerButtonLabel }}</span>
         </v-btn>
       </template>
       <span>{{ providerButtonLabel }}</span>
@@ -51,70 +55,70 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    provider: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      provider: {
+        type: Object,
+        default: null,
+      },
+      params: {
+        type: Object,
+        default: null,
+      },
+      displayText: {
+        type: Boolean,
+        default: false,
+      },
+      rememberme: {
+        type: Boolean,
+        default: false,
+      },
     },
-    params: {
-      type: Object,
-      default: null,
+    data: () => ({
+      defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
+    }),
+    computed: {
+      providerKeyLowerCase () {
+        return this.provider?.key?.toLowerCase();
+      },
+      providerKeyCapitalize () {
+        return `${this.providerKeyLowerCase.charAt(0).toUpperCase()}${this.providerKeyLowerCase.substring(1)}`;
+      },
+      id () {
+        return `login-${this.providerKeyLowerCase}`;
+      },
+      link () {
+        const link = this.provider?.url;
+        if (link && link.startsWith('/')) {
+          return this.rememberme && `${link}&_rememberme=true` || link;
+        }
+        return link;
+      },
+      targetLink () {
+        return this.link && this.link.startsWith('/') && '_self' || '_blank';
+      },
+      providerButtonLabel () {
+        const providerName = this.$te(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
+          ? this.$t(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
+          : this.providerKeyCapitalize;
+        return this.$t('UILoginForm.label.singInWith', { 0: providerName });
+      },
+      providerIcon () {
+        return this.provider?.icon;
+      },
+      providerImage () {
+        const image = this.provider?.image;
+        if (!image && this.defaultProviders.indexOf(this.providerKeyLowerCase) >= 0) {
+          return `/platform-ui/skin/images/oauth/${this.providerKeyLowerCase}.png`;
+        } else {
+          return image;
+        }
+      },
     },
-    displayText: {
-      type: Boolean,
-      default: false,
+    methods: {
+      clickOnProviderButton () {
+        this.$emit('submit');
+      },
     },
-    rememberme: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
-  }),
-  computed: {
-    providerKeyLowerCase() {
-      return this.provider?.key?.toLowerCase();
-    },
-    providerKeyCapitalize() {
-      return `${this.providerKeyLowerCase.charAt(0).toUpperCase()}${this.providerKeyLowerCase.substring(1)}`;
-    },
-    id() {
-      return `login-${this.providerKeyLowerCase}`;
-    },
-    link() {
-      const link = this.provider?.url;
-      if (link && link.startsWith('/')) {
-        return this.rememberme && `${link}&_rememberme=true` || link;
-      }
-      return link;
-    },
-    targetLink() {
-      return this.link && this.link.startsWith('/') && '_self' || '_blank';
-    },
-    providerButtonLabel() {
-      const providerName = this.$te(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
-        ? this.$t(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
-        : this.providerKeyCapitalize;
-      return this.$t('UILoginForm.label.singInWith', {0: providerName});
-    },
-    providerIcon() {
-      return this.provider?.icon;
-    },
-    providerImage() {
-      const image = this.provider?.image;
-      if (!image && this.defaultProviders.indexOf(this.providerKeyLowerCase) >= 0) {
-        return `/platform-ui/skin/images/oauth/${this.providerKeyLowerCase}.png`;
-      } else {
-        return image;
-      }
-    },
-  },
-  methods: {
-    clickOnProviderButton() {
-      this.$emit('submit');
-    },
-  },
-};
+  };
 </script>

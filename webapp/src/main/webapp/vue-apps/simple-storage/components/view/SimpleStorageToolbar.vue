@@ -20,13 +20,13 @@
 
 <template>
   <application-toolbar
+    class="px-1"
     :right-text-filter="{
       minCharacters: 1,
       placeholder: $t('simpleStorage.filter.placeholder'),
       tooltip: $t('simpleStorage.filter.placeholder'),
       hide: true
     }"
-    class="px-1"
     @filter-text-input="$emit('filter-changed', $event)"
     @filter-text-input-end-typing="$emit('filter-changed-end-typing', $event)">
     <template #left>
@@ -50,11 +50,11 @@
 </template>
 
 <script>
-export default {
-  methods: {
-    openFileExplorer() {
-      this.$refs.inputFile.openFileExplorer();
-    }
-  }
-};
+  export default {
+    methods: {
+      openFileExplorer () {
+        this.$refs.inputFile.openFileExplorer();
+      },
+    },
+  };
 </script>

@@ -1,4 +1,4 @@
-export function getActivities(spaceId, streamType, limit, expand) {
+export function getActivities (spaceId, streamType, limit, expand) {
   const formData = new FormData();
 
   if (spaceId) {
@@ -31,7 +31,7 @@ export function getActivities(spaceId, streamType, limit, expand) {
   });
 }
 
-export function getActivityById(id, expand) {
+export function getActivityById (id, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
@@ -44,7 +44,7 @@ export function getActivityById(id, expand) {
   });
 }
 
-export function unhideActivity(id) {
+export function unhideActivity (id) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/unhide`, {
     method: 'PUT',
     credentials: 'include',
@@ -55,7 +55,7 @@ export function unhideActivity(id) {
   });
 }
 
-export function getActivityComments(id, sortDescending, offset, limit, expand) {
+export function getActivityComments (id, sortDescending, offset, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?returnSize=true&sortDescending=${sortDescending || false}&offset=${offset || 0}&limit=${limit || 10}&expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
@@ -71,10 +71,10 @@ export function getActivityComments(id, sortDescending, offset, limit, expand) {
   });
 }
 
-export function createActivity(message, activityType, attachments, spaceId, templateParams) {
+export function createActivity (message, activityType, attachments, spaceId, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities?spaceId=${spaceId || ''}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'POST',
@@ -82,8 +82,8 @@ export function createActivity(message, activityType, attachments, spaceId, temp
       'title': message,
       'type': activityType,
       'templateParams': templateParams || {},
-      'files': attachments
-    })
+      'files': attachments,
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -93,18 +93,18 @@ export function createActivity(message, activityType, attachments, spaceId, temp
   });
 }
 
-export function shareActivity(activityId, message, templateParams, spaces) {
+export function shareActivity (activityId, message, templateParams, spaces) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/share`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify({
       title: message,
-      templateParams: templateParams,
-      targetSpaces: spaces
-    })
+      templateParams,
+      targetSpaces: spaces,
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -114,10 +114,10 @@ export function shareActivity(activityId, message, templateParams, spaces) {
   });
 }
 
-export function updateActivity(activityId, message, activityType, files, templateParams) {
+export function updateActivity (activityId, message, activityType, files, templateParams) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'PUT',
@@ -125,8 +125,8 @@ export function updateActivity(activityId, message, activityType, files, templat
       'title': message,
       'type': activityType,
       'templateParams': templateParams || {},
-      'files': files
-    })
+      files,
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -136,7 +136,7 @@ export function updateActivity(activityId, message, activityType, files, templat
   });
 }
 
-export function deleteActivity(id, hide) {
+export function deleteActivity (id, hide) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}?hide=${hide || false}`, {
     method: 'DELETE',
     credentials: 'include',
@@ -149,7 +149,7 @@ export function deleteActivity(id, hide) {
   });
 }
 
-export function pinActivity(activityId) {
+export function pinActivity (activityId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins`, {
     method: 'POST',
     credentials: 'include',
@@ -162,7 +162,7 @@ export function pinActivity(activityId) {
   });
 }
 
-export function unpinActivity(activityId) {
+export function unpinActivity (activityId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${activityId}/pins`, {
     method: 'DELETE',
     credentials: 'include',
@@ -176,7 +176,7 @@ export function unpinActivity(activityId) {
 }
 
 
-export function getActivityLikers(id, offset, limit) {
+export function getActivityLikers (id, offset, limit) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/likes?offset=${offset || 0}&limit=${limit || 50}`, {
     method: 'GET',
     credentials: 'include',
@@ -189,7 +189,7 @@ export function getActivityLikers(id, offset, limit) {
   });
 }
 
-export function likeActivity(id) {
+export function likeActivity (id) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/likes`, {
     method: 'POST',
     credentials: 'include',
@@ -202,7 +202,7 @@ export function likeActivity(id) {
   });
 }
 
-export function unlikeActivity(id) {
+export function unlikeActivity (id) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/likes`, {
     method: 'DELETE',
     credentials: 'include',
@@ -215,20 +215,20 @@ export function unlikeActivity(id) {
   });
 }
 
-export function createComment(id, parentCommentId, message, files, templateParams, expand) {
+export function createComment (id, parentCommentId, message, files, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'POST',
     body: JSON.stringify({
       'title': message,
       'body': message,
-      'parentCommentId': parentCommentId,
+      parentCommentId,
       'templateParams': templateParams || {},
-      'files': files,
-    })
+      files,
+    }),
   }).then(resp => {
     if (resp && resp.ok) {
       return resp.json();
@@ -238,10 +238,10 @@ export function createComment(id, parentCommentId, message, files, templateParam
   });
 }
 
-export function updateComment(id, parentCommentId, commentId, message, files, templateParams, expand) {
+export function updateComment (id, parentCommentId, commentId, message, files, templateParams, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/activities/${id}/comments?expand=${expand || ''}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'PUT',
@@ -249,10 +249,10 @@ export function updateComment(id, parentCommentId, commentId, message, files, te
       'id': commentId,
       'title': message,
       'body': message,
-      'parentCommentId': parentCommentId,
+      parentCommentId,
       'templateParams': templateParams || {},
-      'files': files,
-    })
+      files,
+    }),
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -262,7 +262,7 @@ export function updateComment(id, parentCommentId, commentId, message, files, te
   });
 }
 
-export function computeParentCommentsList(comments) {
+export function computeParentCommentsList (comments) {
   const commentsList = [];
   if (comments && comments.length) {
     const commentsPerId = {};
@@ -305,6 +305,6 @@ export function computeParentCommentsList(comments) {
   return commentsList;
 }
 
-function sortComments(comment1, comment2) {
+function sortComments (comment1, comment2) {
   return new Date(comment1.createDate).getTime() - new Date(comment2.createDate).getTime();
 }

@@ -28,7 +28,9 @@
     <template #title>
       {{ $t('social.spaces.administration.manageSpaces.filterSpaces') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="d-flex flex-column ma-4">
         <div class="text-header mb-2">
           {{ $t('social.spaces.administration.manageSpaces.template') }}
@@ -40,11 +42,9 @@
           <option
             v-for="item in spaceTemplateItems"
             :key="item.value"
-            :value="item.value"
-            class="mt-0 full-width text-truncate">
-            <div class="text-body full-width">
-              {{ item.text }}
-            </div>
+            class="mt-0 full-width text-truncate"
+            :value="item.value">
+            {{ item.text }}
           </option>
         </select>
         <div class="text-header mt-2 mb-2">
@@ -53,13 +53,13 @@
         <v-radio-group
           v-model="selectedRegistration"
           class="ms-n1 mt-0"
-          mandatory
-          inset>
+          inset
+          mandatory>
           <v-radio
             v-for="item in spaceAccessItems"
             :key="item.value"
-            :value="item.value"
-            class="mt-0">
+            class="mt-0"
+            :value="item.value">
             <template #label>
               <div class="text-body full-width">
                 {{ item.text }}
@@ -73,13 +73,13 @@
         <v-radio-group
           v-model="selectedVisibility"
           class="ms-n1 mt-0"
-          mandatory
-          inset>
+          inset
+          mandatory>
           <v-radio
             v-for="item in spaceVisibilityItems"
             :key="item.value"
-            :value="item.value"
-            class="mt-0">
+            class="mt-0"
+            :value="item.value">
             <template #label>
               <div class="text-body full-width">
                 {{ item.text }}
@@ -107,80 +107,80 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    selectedTemplateId: null,
-    selectedRegistration: null,
-    selectedVisibility: null,
-  }),
-  computed: {
-    spaceTemplateItems() {
-      const spaceTemplateItems = [];
-      if (this.$root.spaceTemplates?.length) {
-        spaceTemplateItems.push(...this.$root.spaceTemplates.map(t => ({
-          text: t.name,
-          value: t.id,
-        })));
-      }
-      spaceTemplateItems.sort((a, b) => this.$root.collator.compare(a.text.toLowerCase(), b.text.toLowerCase()));
-      spaceTemplateItems.splice(0, 0, {
-        text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.all'),
-        value: '0',
-      });
-      return spaceTemplateItems;
+  export default {
+    data: () => ({
+      drawer: false,
+      selectedTemplateId: null,
+      selectedRegistration: null,
+      selectedVisibility: null,
+    }),
+    computed: {
+      spaceTemplateItems () {
+        const spaceTemplateItems = [];
+        if (this.$root.spaceTemplates?.length) {
+          spaceTemplateItems.push(...this.$root.spaceTemplates.map(t => ({
+            text: t.name,
+            value: t.id,
+          })));
+        }
+        spaceTemplateItems.sort((a, b) => this.$root.collator.compare(a.text.toLowerCase(), b.text.toLowerCase()));
+        spaceTemplateItems.splice(0, 0, {
+          text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.all'),
+          value: '0',
+        });
+        return spaceTemplateItems;
+      },
+      spaceAccessItems () {
+        return [{
+          text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.anyAccess'),
+          value: '',
+        }, {
+          text: this.$t('social.spaces.administration.manageSpaces.registration.open'),
+          value: 'open',
+        }, {
+          text: this.$t('social.spaces.administration.manageSpaces.registration.validation'),
+          value: 'validation',
+        }, {
+          text: this.$t('social.spaces.administration.manageSpaces.registration.closed'),
+          value: 'closed',
+        }];
+      },
+      spaceVisibilityItems () {
+        return [{
+          text: this.$t('social.spaces.administration.manageSpaces.anyVisibility'),
+          value: '',
+        }, {
+          text: this.$t('social.spaces.administration.manageSpaces.visibility.private'),
+          value: 'private',
+        }, {
+          text: this.$t('social.spaces.administration.manageSpaces.visibility.hidden'),
+          value: 'hidden',
+        }];
+      },
     },
-    spaceAccessItems() {
-      return [{
-        text: this.$t('social.spaces.administration.manageSpaces.spaceTemplates.anyAccess'),
-        value: '',
-      }, {
-        text: this.$t('social.spaces.administration.manageSpaces.registration.open'),
-        value: 'open',
-      }, {
-        text: this.$t('social.spaces.administration.manageSpaces.registration.validation'),
-        value: 'validation',
-      }, {
-        text: this.$t('social.spaces.administration.manageSpaces.registration.closed'),
-        value: 'closed',
-      }];
+    created () {
+      this.$root.$on('spaces-administration-filter-drawer-open', this.open);
     },
-    spaceVisibilityItems() {
-      return [{
-        text: this.$t('social.spaces.administration.manageSpaces.anyVisibility'),
-        value: '',
-      }, {
-        text: this.$t('social.spaces.administration.manageSpaces.visibility.private'),
-        value: 'private',
-      }, {
-        text: this.$t('social.spaces.administration.manageSpaces.visibility.hidden'),
-        value: 'hidden',
-      }];
+    beforeUnmount () {
+      this.$root.$off('spaces-administration-filter-drawer-open', this.open);
     },
-  },
-  created() {
-    this.$root.$on('spaces-administration-filter-drawer-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-administration-filter-drawer-open', this.open);
-  },
-  methods: {
-    open() {
-      this.selectedTemplateId = this.$root.selectedTemplateId;
-      this.selectedRegistration = this.$root.selectedRegistration;
-      this.selectedVisibility = this.$root.selectedVisibility;
-      this.$refs.drawer.open();
+    methods: {
+      open () {
+        this.selectedTemplateId = this.$root.selectedTemplateId;
+        this.selectedRegistration = this.$root.selectedRegistration;
+        this.selectedVisibility = this.$root.selectedVisibility;
+        this.$refs.drawer.open();
+      },
+      apply () {
+        this.$root.selectedTemplateId = this.selectedTemplateId || '0';
+        this.$root.selectedRegistration = this.selectedRegistration || '';
+        this.$root.selectedVisibility = this.selectedVisibility || '';
+        this.$root.$emit('spaces-administration-list-refresh', true);
+        this.close();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
     },
-    apply() {
-      this.$root.selectedTemplateId = this.selectedTemplateId || '0';
-      this.$root.selectedRegistration = this.selectedRegistration || '';
-      this.$root.selectedVisibility = this.selectedVisibility || '';
-      this.$root.$emit('spaces-administration-list-refresh', true);
-      this.close();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-  },
-};
+  };
 </script>

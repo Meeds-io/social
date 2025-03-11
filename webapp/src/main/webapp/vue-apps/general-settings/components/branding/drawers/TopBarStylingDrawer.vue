@@ -26,13 +26,19 @@
     <template #title>
       {{ $t('generalSettings.topBarStyling.drawer.title') }}
     </template>
-    <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+    <template
+      v-if="drawer"
+      #content>
+      <v-card
+        class="pa-4"
+        flat>
         <p>
           {{ $t('generalSettings.topBarStyling.help1') }}
         </p>
         <p>
-          {{ $t('generalSettings.topBarStyling.help2') }} <a href="/portal/administration#navigation" target="_blank">{{ $t('generalSettings.help.link') }}</a>
+          {{ $t('generalSettings.topBarStyling.help2') }} <a
+            href="/portal/administration#navigation"
+            target="_blank">{{ $t('generalSettings.help.link') }}</a>
         </p>
         <div class="mt-2 pe-4 d-flex">
           <span class="text-title">
@@ -51,8 +57,8 @@
         <portal-general-settings-branding-text-input
           v-model="topBarTextProperties"
           :custom-header="false"
-          :custom-text="true"
           :custom-sub-title="false"
+          :custom-text="true"
           :custom-title="false" />
       </v-card>
     </template>
@@ -75,89 +81,89 @@
 </template>
 <script>
 
-export default {
-  data: () => ({
-    drawer: false,
-    backgroundProperties: null,
-    topBarTextProperties: null,
-    defaultTopBarStylingProperties: null,
-    initialized: false,
-  }),
-  props: {
-    topBarStylingProperties: {
-      type: Object,
-      required: true
+  export default {
+    props: {
+      topBarStylingProperties: {
+        type: Object,
+        required: true,
+      },
     },
-  },
-  computed: {
-    saveButtonDisabled() {
-      if (!this.backgroundProperties && !this.topBarTextProperties) {
-        return false;
-      }
-      const oldTopBarProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultTopBarStylingProperties)));
-      const newTopBarProperties = {
-        backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
-      };
-      return JSON.stringify(oldTopBarProperties) === JSON.stringify(newTopBarProperties);
+    data: () => ({
+      drawer: false,
+      backgroundProperties: null,
+      topBarTextProperties: null,
+      defaultTopBarStylingProperties: null,
+      initialized: false,
+    }),
+    computed: {
+      saveButtonDisabled () {
+        if (!this.backgroundProperties && !this.topBarTextProperties) {
+          return false;
+        }
+        const oldTopBarProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultTopBarStylingProperties)));
+        const newTopBarProperties = {
+          backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
+          topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
+        };
+        return JSON.stringify(oldTopBarProperties) === JSON.stringify(newTopBarProperties);
+      },
     },
-  },
-  created() {
-    this.$root.$on('open-top-bar-styling-drawer', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('open-top-bar-styling-drawer', this.open);
-  },
-  methods: {
-    init() {
-      this.backgroundProperties = {
-        backgroundColor: this.topBarStylingProperties?.topBarBackgroundColor || null,
-        backgroundPosition: this.topBarStylingProperties?.topBarBackgroundPosition || null,
-        background: this.topBarStylingProperties?.topBarBackground || null,
-        backgroundRepeat: this.topBarStylingProperties?.topBarBackgroundRepeat || null,
-        backgroundSize: this.topBarStylingProperties?.topBarBackgroundSize || null,
-        backgroundEffect: this.getTopBarBackgroundEffect()
-      };
-      this.topBarTextProperties = {
-        textColor: this.topBarStylingProperties?.topBarTextColor,
-        textFontSize: this.topBarStylingProperties?.topBarTextFontSize,
-        textFontStyle: this.topBarStylingProperties?.topBarTextFontStyle,
-        textFontWeight: this.topBarStylingProperties?.topBarTextFontWeight
-      };
-      this.defaultTopBarStylingProperties = {
-        backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
-      };
-      this.initialized = true;
+    created () {
+      this.$root.$on('open-top-bar-styling-drawer', this.open);
     },
-    reset() {
-      this.backgroundProperties = null;
-      this.topBarTextProperties = null;
-      this.defaultTopBarStylingProperties = null;
-      this.initialized = false;
+    beforeUnmount () {
+      this.$root.$off('open-top-bar-styling-drawer', this.open);
     },
-    open() {
-      this.init();
-      this.$refs.drawer.open();
+    methods: {
+      init () {
+        this.backgroundProperties = {
+          backgroundColor: this.topBarStylingProperties?.topBarBackgroundColor || null,
+          backgroundPosition: this.topBarStylingProperties?.topBarBackgroundPosition || null,
+          background: this.topBarStylingProperties?.topBarBackground || null,
+          backgroundRepeat: this.topBarStylingProperties?.topBarBackgroundRepeat || null,
+          backgroundSize: this.topBarStylingProperties?.topBarBackgroundSize || null,
+          backgroundEffect: this.getTopBarBackgroundEffect(),
+        };
+        this.topBarTextProperties = {
+          textColor: this.topBarStylingProperties?.topBarTextColor,
+          textFontSize: this.topBarStylingProperties?.topBarTextFontSize,
+          textFontStyle: this.topBarStylingProperties?.topBarTextFontStyle,
+          textFontWeight: this.topBarStylingProperties?.topBarTextFontWeight,
+        };
+        this.defaultTopBarStylingProperties = {
+          backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
+          topBarTextProperties: Object.assign(JSON.parse(JSON.stringify(this.topBarTextProperties))),
+        };
+        this.initialized = true;
+      },
+      reset () {
+        this.backgroundProperties = null;
+        this.topBarTextProperties = null;
+        this.defaultTopBarStylingProperties = null;
+        this.initialized = false;
+      },
+      open () {
+        this.init();
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.reset();
+        this.$refs.drawer.close();
+      },
+      getTopBarBackgroundEffect () {
+        const effect = this.topBarStylingProperties?.topBarBackgroundImage;
+        if (!effect || effect === 'none') {
+          return null;
+        }
+        if (effect.includes('url')) {
+          return effect.split('), ')[1];
+        }
+        return effect;
+      },
+      updatePageStylingProperties () {
+        this.$root.$emit('update-top-bar-styling-properties', this.backgroundProperties, this.topBarTextProperties);
+        this.close();
+      },
     },
-    close() {
-      this.reset();
-      this.$refs.drawer.close();
-    },
-    getTopBarBackgroundEffect() {
-      const effect = this.topBarStylingProperties?.topBarBackgroundImage;
-      if (!effect || effect === 'none') {
-        return null;
-      }
-      if (effect.includes('url')) {
-        return effect.split('), ')[1];
-      }
-      return effect;
-    },
-    updatePageStylingProperties() {
-      this.$root.$emit('update-top-bar-styling-properties', this.backgroundProperties, this.topBarTextProperties);
-      this.close();
-    }
-  }
-};
+  };
 </script>

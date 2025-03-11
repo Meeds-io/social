@@ -28,24 +28,26 @@
       offset-y="20"
       top
       @click="$root.$emit('space-settings-users-pending-list-open')">
-      <span slot="badge">
-        <v-avatar
-          v-show="pendingCount"
-          color="secondary"
-          min-height="16"
-          min-width="16"
-          height="auto"
-          width="auto"
-          class="pa-1 aspect-ratio-1 white--text content-box-sizing clickable"
-          @click="$root.$emit('space-settings-users-pending-list-open')">
-          {{ pendingCount }}
-        </v-avatar>
-      </span>
+      <template #badge>
+        <span>
+          <v-avatar
+            v-show="pendingCount"
+            class="pa-1 aspect-ratio-1 white--text content-box-sizing clickable"
+            color="secondary"
+            height="auto"
+            min-height="16"
+            min-width="16"
+            width="auto"
+            @click="$root.$emit('space-settings-users-pending-list-open')">
+            {{ pendingCount }}
+          </v-avatar>
+        </span>
+      </template>
       <v-btn
         id="SpacePendingUsersButton"
-        :title="$t('SpaceSettings.users.pendingMembers')"
         class="ms-2"
         icon
+        :title="$t('SpaceSettings.users.pendingMembers')"
         @click="$root.$emit('space-settings-users-pending-list-open')">
         <v-icon size="22">
           fa-history
@@ -62,14 +64,14 @@
   </div>
 </template>
 <script>
-export default {
-  computed: {
-    pendingCount() {
-      return (this.$root?.space?.pendingUsersCount || 0)
-        + (this.$root?.space?.invitedUsersCount || 0)
-        + (this.$root?.externalInvitations?.length || 0);
+  export default {
+    computed: {
+      pendingCount () {
+        return (this.$root?.space?.pendingUsersCount || 0)
+          + (this.$root?.space?.invitedUsersCount || 0)
+          + (this.$root?.externalInvitations?.length || 0);
+      },
     },
-  },
-};
+  };
 </script>
 

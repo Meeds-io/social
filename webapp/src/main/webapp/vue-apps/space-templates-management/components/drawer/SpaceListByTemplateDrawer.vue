@@ -22,10 +22,10 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
+    allow-expand
     class="spacesListByTemplateDrawer"
-    right
-    allow-expand>
+    :loading="loading"
+    right>
     <template #title>
       {{ $t('spaceTemplate.templateSpacesDrawer.title', {
         0: templateName
@@ -35,14 +35,14 @@
       <div class="full-height d-flex align-center">
         <v-btn
           v-if="role !== 'pending'"
-          :title="$t('spaceTemplate.addSpaceTooltip')"
           color="primary"
           elevation="0"
           small
+          :title="$t('spaceTemplate.addSpaceTooltip')"
           @click="$root.$emit('addNewSpace', templateId)">
           <v-icon
-            color="while"
             class="me-2"
+            color="while"
             size="18">
             fa-plus
           </v-icon>
@@ -58,16 +58,18 @@
         <space-avatar
           v-for="s in spaces"
           :key="s.id"
-          :space="s"
           class="mb-5"
-          list-style />
+          list-style
+          :space="s" />
       </div>
     </template>
-    <template v-if="hasMore" #footer>
+    <template
+      v-if="hasMore"
+      #footer>
       <v-btn
-        :loading="loading"
         block
         class="btn pa-0"
+        :loading="loading"
         @click="loadMore">
         {{ $t('spaceTemplate.templateSpacesDrawer.loadMore') }}
       </v-btn>
@@ -75,62 +77,62 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    loading: false,
-    offset: 0,
-    pageSize: 10,
-    spaces: null,
-    size: 0,
-    templateId: null,
-    templateName: null,
-  }),
-  computed: {
-    hasMore() {
-      return this.spaces?.length && this.spaces?.length < this.size;
+  export default {
+    data: () => ({
+      drawer: false,
+      loading: false,
+      offset: 0,
+      pageSize: 10,
+      spaces: null,
+      size: 0,
+      templateId: null,
+      templateName: null,
+    }),
+    computed: {
+      hasMore () {
+        return this.spaces?.length && this.spaces?.length < this.size;
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-list-by-template-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-list-by-template-open', this.open);
-  },
-  methods: {
-    open(templateId, templateName) {
-      this.templateId = templateId;
-      this.templateName = templateName;
-      this.retrieveList();
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('space-list-by-template-open', this.open);
     },
-    async retrieveList(append) {
-      if (append) {
-        this.offset += this.pageSize;
-      } else {
-        this.spaces = null;
-        this.size = 0;
-      }
-      this.loading = true;
-      try {
-        const data = await this.$spaceService.getSpacesByFilter({
-          offset: this.offset,
-          limit: this.pageSize,
-          templateId: this.templateId,
-        });
+    beforeUnmount () {
+      this.$root.$off('space-list-by-template-open', this.open);
+    },
+    methods: {
+      open (templateId, templateName) {
+        this.templateId = templateId;
+        this.templateName = templateName;
+        this.retrieveList();
+        this.$refs.drawer.open();
+      },
+      async retrieveList (append) {
         if (append) {
-          this.spaces.push(...data.spaces);
+          this.offset += this.pageSize;
         } else {
-          this.spaces = data.spaces || [];
+          this.spaces = null;
+          this.size = 0;
         }
-        this.size = data.size;
-      } finally {
-        this.loading = false;
-      }
+        this.loading = true;
+        try {
+          const data = await this.$spaceService.getSpacesByFilter({
+            offset: this.offset,
+            limit: this.pageSize,
+            templateId: this.templateId,
+          });
+          if (append) {
+            this.spaces.push(...data.spaces);
+          } else {
+            this.spaces = data.spaces || [];
+          }
+          this.size = data.size;
+        } finally {
+          this.loading = false;
+        }
+      },
+      loadMore () {
+        this.retrieveList(true);
+      },
     },
-    loadMore() {
-      this.retrieveList(true);
-    },
-  },
-};
+  };
 </script>

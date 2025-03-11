@@ -21,44 +21,44 @@
 <template>
   <attachments-image-crop-drawer
     ref="drawer"
-    can-upload
-    use-format
     back-icon
+    can-upload
     embedded
+    use-format
     @update="$emit('update', $event)" />
 </template>
 <script>
-export default {
-  data: () => ({
-    loading: false,
-  }),
-  watch: {
-    loading() {
-      this.$emit('loading', this.loading);
+  export default {
+    data: () => ({
+      loading: false,
+    }),
+    watch: {
+      loading () {
+        this.$emit('loading', this.loading);
+      },
     },
-  },
-  created() {
-    this.$root.$on('image-settings-drawer', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('image-settings-drawer', this.open);
-  },
-  methods: {
-    open() {
-      this.loading = true;
-      this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
-        .then(data => {
-          const imageItem = data?.attachments?.[0];
-          if (imageItem) {
-            imageItem.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.$root.objectType}/${this.$root.name}/${imageItem.id}`;
-          }
-          this.$refs?.drawer?.open?.(imageItem);
-        })
-        .finally(() => this.loading = false);
+    created () {
+      this.$root.$on('image-settings-drawer', this.open);
     },
-    close() {
-      return this.$nextTick().then(() => this.$refs.drawer.close());
+    beforeUnmount () {
+      this.$root.$off('image-settings-drawer', this.open);
     },
-  },
-};
+    methods: {
+      open () {
+        this.loading = true;
+        this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
+          .then(data => {
+            const imageItem = data?.attachments?.[0];
+            if (imageItem) {
+              imageItem.src = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.$root.objectType}/${this.$root.name}/${imageItem.id}`;
+            }
+            this.$refs?.drawer?.open?.(imageItem);
+          })
+          .finally(() => this.loading = false);
+      },
+      close () {
+        return this.$nextTick().then(() => this.$refs.drawer.close());
+      },
+    },
+  };
 </script>

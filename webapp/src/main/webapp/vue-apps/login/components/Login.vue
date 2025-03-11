@@ -20,25 +20,25 @@
 -->
 <template>
   <portal-login-template
-    :params="params"
     branding-image
-    center>
+    center
+    :params="params">
     <portal-login-main :params="params" />
   </portal-login-template>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  created() {
-    document.title = this.$t('UILoginForm.label.login');
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-};
+    created () {
+      document.title = this.$t('UILoginForm.label.login');
+    },
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+  };
 </script>

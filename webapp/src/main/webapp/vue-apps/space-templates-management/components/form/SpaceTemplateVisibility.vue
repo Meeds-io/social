@@ -26,11 +26,11 @@
     <v-radio-group
       v-model="visibility"
       class="mt-2 ms-n1"
-      mandatory
-      inset>
+      inset
+      mandatory>
       <v-radio
-        value="PRIVATE"
-        class="mb-6">
+        class="mb-6"
+        value="PRIVATE">
         <template #label>
           <div class="d-flex flex-column">
             <div class="text-body">
@@ -43,8 +43,8 @@
         </template>
       </v-radio>
       <v-radio
-        value="HIDDEN"
-        class="mt-0 mb-8">
+        class="mt-0 mb-8"
+        value="HIDDEN">
         <template #label>
           <div class="d-flex flex-column">
             <div class="text-body">
@@ -60,23 +60,23 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    visibility: null,
-  }),
-  watch: {
-    visibility() {
-      this.$emit('input', this.visibility);
+    data: () => ({
+      visibility: null,
+    }),
+    watch: {
+      visibility () {
+        this.$emit('input', this.visibility);
+      },
     },
-  },
-  created() {
-    this.visibility = this.value;
-  },
-};
+    created () {
+      this.visibility = this.value;
+    },
+  };
 </script>

@@ -15,7 +15,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export function getObservedObjects(offset, limit) {
+export function getObservedObjects (offset, limit) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/observers?offset=${offset || 0}&limit=${limit|| 10}`, {
     method: 'GET',
     credentials: 'include',
@@ -28,7 +28,7 @@ export function getObservedObjects(offset, limit) {
   });
 }
 
-export function isObserved(objectType, objectId) {
+export function isObserved (objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/observers/${objectType}/${objectId}`, {
     method: 'GET',
     credentials: 'include',
@@ -41,7 +41,7 @@ export function isObserved(objectType, objectId) {
   });
 }
 
-export function createObserver(objectType, objectId) {
+export function createObserver (objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/observers/${objectType}/${objectId}`, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -55,7 +55,7 @@ export function createObserver(objectType, objectId) {
   });
 }
 
-export function deleteObserver(objectType, objectId) {
+export function deleteObserver (objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/observers/${objectType}/${objectId}`, {
     method: 'DELETE',
     credentials: 'include',

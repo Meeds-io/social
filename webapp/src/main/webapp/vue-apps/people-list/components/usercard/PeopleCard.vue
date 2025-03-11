@@ -2,86 +2,86 @@
   <v-flex>
     <people-user-card
       v-if="!compact"
-      :user="user"
+      :profile-action-extensions="profileActionExtensions"
       :space-id="spaceId"
-      :user-navigation-extensions="userNavigationExtensions"
       :space-members-extensions="spaceMembersExtensions"
-      :profile-action-extensions="profileActionExtensions" />
+      :user="user"
+      :user-navigation-extensions="userNavigationExtensions" />
     <people-user-compact-card
       v-else
+      :is-updating-status="sendingAction || sendingSecondAction"
       :mobile-display="mobileDisplay"
-      :user="user"
-      :space-id="spaceId"
-      :user-navigation-extensions="userNavigationExtensions"
       :profile-action-extensions="profileActionExtensions"
+      :space-id="spaceId"
       :space-members-extensions="spaceMembersExtensions"
       :url="url"
+      :user="user"
       :user-avatar-url="userAvatarUrl"
-      :is-updating-status="sendingAction || sendingSecondAction" />
+      :user-navigation-extensions="userNavigationExtensions" />
   </v-flex>
 </template>
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: () => ({}),
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: () => ({}),
+      },
+      spaceId: {
+        type: String,
+        default: null,
+      },
+      userNavigationExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      spaceMembersExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      profileActionExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      compactDisplay: {
+        type: Boolean,
+        default: false,
+      },
+      mobileDisplay: {
+        type: Boolean,
+        default: false,
+      },
     },
-    spaceId: {
-      type: String,
-      default: null,
+    data: () => ({
+      sendingAction: false,
+      sendingSecondAction: false,
+    }),
+    computed: {
+      compact () {
+        return this.mobileDisplay || this.compactDisplay;
+      },
+      userAvatarUrl () {
+        let userAvatarUrl;
+        if (this.user?.enabled) {
+          userAvatarUrl = this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
+        } else {
+          userAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+        }
+        if (!userAvatarUrl.includes('?')) {
+          userAvatarUrl += '?';
+        } else {
+          userAvatarUrl += '&';
+        }
+        userAvatarUrl += 'size=65x65';
+        return userAvatarUrl;
+      },
+      url () {
+        if (this.user?.username) {
+          return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user.username}`;
+        } else {
+          return '#';
+        }
+      },
     },
-    userNavigationExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    spaceMembersExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    profileActionExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    compactDisplay: {
-      type: Boolean,
-      default: false,
-    },
-    mobileDisplay: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    sendingAction: false,
-    sendingSecondAction: false,
-  }),
-  computed: {
-    compact() {
-      return this.mobileDisplay || this.compactDisplay;
-    },
-    userAvatarUrl() {
-      let userAvatarUrl;
-      if (this.user?.enabled) {
-        userAvatarUrl = this.user.avatar || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar`;
-      } else {
-        userAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-      }
-      if (!userAvatarUrl.includes('?')) {
-        userAvatarUrl += '?';
-      } else {
-        userAvatarUrl += '&';
-      }
-      userAvatarUrl += 'size=65x65';
-      return userAvatarUrl;
-    },
-    url() {
-      if (this.user?.username) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user.username}`;
-      } else {
-        return '#';
-      }
-    }
-  }
-};
+  };
 </script>

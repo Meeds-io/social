@@ -20,23 +20,25 @@
 -->
 <template>
   <v-card
-    elevation="2"
+    id="identity-popover"
     class="pa-2 card-border-radius"
+    elevation="2"
     max-width="250"
     min-width="250"
-    id="identity-popover"
     @mouseenter="$root.$emit('popover-hovered')"
     @mouseleave="$root.$emit('popover-not-hovered')">
     <v-list-item class="px-0">
       <v-list-item-content class="py-0">
         <v-list-item-title>
           <exo-user-avatar
-            :identity="identity"
-            :size="45"
-            :popover="false"
             bold-title
-            link-style>
-            <template v-if="primaryProperty" slot="subTitle">
+            :identity="identity"
+            link-style
+            :popover="false"
+            :size="45">
+            <template
+              v-if="primaryProperty"
+              #subTitle>
               <span class="caption text-bold">
                 {{ primaryProperty }}
               </span>
@@ -45,7 +47,9 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <div v-if="!isCurrentUser" class="d-flex justify-end">
+    <div
+      v-if="!isCurrentUser"
+      class="d-flex justify-end">
       <div class="me-auto">
         <v-btn
           v-for="extension in filteredUserNavigationExtensions"
@@ -54,110 +58,109 @@
           @click.prevent="extension.click(identity)">
           <v-icon
             class="primary--text"
-            :title="extension.title || $t(extension.titleKey)"
-            size="14">
+            size="14"
+            :title="extension.title || $t(extension.titleKey)">
             {{ extension.class }}
           </v-icon>
         </v-btn>
       </div>
       <extension-registry-components
-        :params="params"
         class="d-flex"
-        name="UserPopover"
-        type="user-popover-action"
-        parent-element="div"
         element="div"
-        element-class="mx-auto ma-lg-0" />
+        element-class="mx-auto ma-lg-0"
+        name="UserPopover"
+        :params="params"
+        parent-element="div"
+        type="user-popover-action" />
       <div
         v-for="extension in enabledExtensionComponents"
         :key="extension.key"
-        :class="`${extension.appClass} ${extension.typeClass}`"
-        :ref="extension.key">
-      </div>
+        :ref="extension.key"
+        :class="`${extension.appClass} ${extension.typeClass}`"></div>
     </div>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    identity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      identity: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data() {
-    return {
-      externalExtensions: [],
-      userExtensions: [],
-    };
-  },
-  computed: {
-    filteredUserNavigationExtensions() {
-      return this.userExtensions.filter(extension => extension.enabled(this.identity));
-    },
-    params() {
+    data () {
       return {
-        identityType: 'USER_TIPTIP',
-        identityId: this.identity?.username,
-        identityEnabled: this.identity?.enabled,
-        identityDeleted: this.identity?.deleted,
+        externalExtensions: [],
+        userExtensions: [],
       };
     },
-    enabledExtensionComponents() {
-      return this.externalExtensions.filter(extension => extension.enabled);
+    computed: {
+      filteredUserNavigationExtensions () {
+        return this.userExtensions.filter(extension => extension.enabled(this.identity));
+      },
+      params () {
+        return {
+          identityType: 'USER_TIPTIP',
+          identityId: this.identity?.username,
+          identityEnabled: this.identity?.enabled,
+          identityDeleted: this.identity?.deleted,
+        };
+      },
+      enabledExtensionComponents () {
+        return this.externalExtensions.filter(extension => extension.enabled);
+      },
+      username () {
+        return this.identity?.username;
+      },
+      primaryProperty () {
+        return this.identity?.primaryProperty;
+      },
+      isCurrentUser () {
+        return eXo.env.portal.userName === this.username;
+      },
     },
-    username() {
-      return this.identity?.username;
+    watch: {
+      username: {
+        immediate: true,
+        handler (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            this.refreshExtensions();
+          }
+        },
+      },
     },
-    primaryProperty() {
-      return this.identity?.primaryProperty;
+    created () {
+      this.refreshUserExtensions();
+      document.addEventListener('user-extension-updated', this.refreshUserExtensions);
     },
-    isCurrentUser() {
-      return eXo.env.portal.userName === this.username;
-    },
-  },
-  watch: {
-    username: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.refreshExtensions();
+    methods: {
+      refreshUserExtensions () {
+        this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+        this.userExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+      },
+      refreshExtensions () {
+        this.externalExtensions = [];
+        this.$nextTick(() => {
+          this.externalExtensions = extensionRegistry.loadExtensions('user-profile-popover', 'action') || [];
+          this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
+        });
+        // workaround for menu v-select absolute content that must be displayed inside the menu
+        $('.profile-popover-menu').css('height', 'auto');
+      },
+      initExtensionAction (extension) {
+        if (extension.enabled) {
+          let container = this.$refs[extension.key];
+          if (container?.length) {
+            if (container[0]?.childNodes?.length) {
+              while (container[0].firstChild) {
+                container[0].firstChild.remove();
+              }
+            }
+            container = container[0];
+            extension.init(container, this.username);
+          }
         }
       },
     },
-  },
-  created() {
-    this.refreshUserExtensions();
-    document.addEventListener('user-extension-updated', this.refreshUserExtensions);
-  },
-  methods: {
-    refreshUserExtensions() {
-      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
-      this.userExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
-    },
-    refreshExtensions() {
-      this.externalExtensions = [];
-      this.$nextTick(() => {
-        this.externalExtensions = extensionRegistry.loadExtensions('user-profile-popover', 'action') || [];
-        this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
-      });
-      // workaround for menu v-select absolute content that must be displayed inside the menu
-      $('.profile-popover-menu').css('height', 'auto');
-    },
-    initExtensionAction(extension) {
-      if (extension.enabled) {
-        let container = this.$refs[extension.key];
-        if (container?.length) {
-          if (container[0]?.childNodes?.length) {
-            while (container[0].firstChild) {
-              container[0].firstChild.remove();
-            }
-          }
-          container = container[0];
-          extension.init(container, this.username);
-        }
-      }
-    },
-  }
-};
+  };
 </script>

@@ -18,120 +18,160 @@
 -->
 <template>
   <exo-drawer
+    id="cropperDrawer"
     ref="drawer"
     v-model="drawer"
-    :go-back-button="backIcon"
     :allow-expand="!noExpandIcon"
-    id="cropperDrawer"
-    right
     disable-pull-to-refresh
+    :go-back-button="backIcon"
+    right
     @closed="resetCropper">
     <template #title>
       {{ $t(title) }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <v-card
         ref="imageCropperCanvasParent"
         v-resize="onCanvasResize"
-        max-width="100%"
         class="pa-4 content-box-sizing overflow-hidden"
-        flat>
+        flat
+        max-width="100%">
         <div class="overflow-hidden position-relative">
-          <div v-if="isImageGif" class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
+          <div
+            v-if="isImageGif"
+            class="d-flex position-absolute full-width full-height mask-color z-index-one rounded">
             <div class="d-flex flex-column align-center flex ma-auto">
-              <v-icon size="52" class="white--text mb-4">fa-ban</v-icon>
-              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.option') }}</div>
-              <div class="white--text text-wrap">{{ $t('imageCropDrawer.gitImage.label.gif') }}</div>
+              <v-icon
+                class="white--text mb-4"
+                size="52">
+                fa-ban
+              </v-icon>
+              <div class="white--text text-wrap">
+                {{ $t('imageCropDrawer.gitImage.label.option') }}
+              </div>
+              <div class="white--text text-wrap">
+                {{ $t('imageCropDrawer.gitImage.label.gif') }}
+              </div>
             </div>
           </div>
           <div :class="isImageGif && 'filter-blur-3' || ''">
             <v-card
+              class="border-color mx-auto primary position-relative overflow-hidden"
+              :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
+              flat
               :height="height"
-              :width="width"
               :max-height="height"
               :max-width="maxWidth"
-              :class="circle && 'cropper-circle' || rounded && 'cropper-rounded'"
-              class="border-color mx-auto primary position-relative overflow-hidden"
-              flat>
+              :width="width">
               <img
                 v-if="imageData && !isImageGif"
                 ref="imageCrop"
-                :src="imageData"
-                :width="format === 'custom' && 'auto' || `${width}px`"
+                alt="Picture to crop"
                 :height="format === 'custom' && 'auto' || `${height}px`"
-                alt="Picture to crop">
+                :src="imageData"
+                :width="format === 'custom' && 'auto' || `${width}px`">
             </v-card>
             <div class="d-flex mt-4">
-              <div :title="$t('imageCropDrawer.uploadImage')" class="d-flex align-center flex-grow-0">
+              <div
+                class="d-flex align-center flex-grow-0"
+                :title="$t('imageCropDrawer.uploadImage')">
                 <v-file-input
                   v-if="displayUploadIcon"
-                  :title="$t('imageCropDrawer.uploadImage')"
                   id="imageFileInput"
                   ref="imageFileInput"
                   accept="image/*"
-                  prepend-icon="fas fa-camera z-index-two rounded-circle primary-border-color white py-1 ms-3"
                   class="file-selector pa-0 ma-0"
-                  rounded
                   clearable
                   dense
+                  prepend-icon="fas fa-camera z-index-two rounded-circle primary-border-color white py-1 ms-3"
+                  rounded
+                  :title="$t('imageCropDrawer.uploadImage')"
                   @change="uploadFile" />
                 <v-btn
-                  :title="$t('imageCropDrawer.resetCropper')"
                   id="cancelChanges"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.resetCropper')"
                   @click="resetCropperData()">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-ban</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-ban
+                  </v-icon>
                 </v-btn>
               </div>
               <div class="d-flex flex-grow-1 d-flex align-center justify-end">
                 <v-btn
-                  :title="$t('imageCropDrawer.moveRight')"
                   id="resetCropper"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.moveRight')"
                   @click="move(-10, 0)">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-right</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-arrow-right
+                  </v-icon>
                 </v-btn>
                 <v-btn
-                  :title="$t('imageCropDrawer.moveLeft')"
                   id="moveImageToLeft"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.moveLeft')"
                   @click="move(10, 0)">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-left</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-arrow-left
+                  </v-icon>
                 </v-btn>
                 <v-btn
-                  :title="$t('imageCropDrawer.moveUp')"
                   id="moveImageToUp"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.moveUp')"
                   @click="move(0, -10)">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-up</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-arrow-up
+                  </v-icon>
                 </v-btn>
                 <v-btn
-                  :title="$t('imageCropDrawer.moveDown')"
                   id="moveImageToBottom"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.moveDown')"
                   @click="move(0, 10)">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-arrow-down</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-arrow-down
+                  </v-icon>
                 </v-btn>
                 <v-btn
-                  :title="$t('imageCropDrawer.rotateRight')"
                   id="rotateImageToRight"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.rotateRight')"
                   @click="rotateRight">
-                  <v-icon size="18" class="fa-flip-horizontal">fas fa-undo</v-icon>
+                  <v-icon
+                    class="fa-flip-horizontal"
+                    size="18">
+                    fas fa-undo
+                  </v-icon>
                 </v-btn>
                 <v-btn
-                  :title="$t('imageCropDrawer.rotateLeft')"
                   id="rotateImageToLeft"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.rotateLeft')"
                   @click="rotateLeft">
-                  <v-icon size="18">fas fa-undo</v-icon>
+                  <v-icon size="18">
+                    fas fa-undo
+                  </v-icon>
                 </v-btn>
               </div>
             </div>
@@ -141,63 +181,75 @@
               </div>
               <div class="flex-grow-1 d-flex">
                 <v-btn
-                  :title="$t('imageCropDrawer.zoomOut')"
                   id="zoomImageOut"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.zoomOut')"
                   @click="zoom -= stepZoom">
-                  <v-icon size="18">fas fa-minus</v-icon>
+                  <v-icon size="18">
+                    fas fa-minus
+                  </v-icon>
                 </v-btn>
                 <v-slider
                   v-model="zoom"
-                  :step="stepZoom"
-                  :min="minZoom"
+                  class="mx-n1"
                   :max="maxZoom"
-                  class="mx-n1" />
+                  :min="minZoom"
+                  :step="stepZoom" />
                 <v-btn
-                  :title="$t('imageCropDrawer.zoomIn')"
                   id="zoomImageIn"
                   icon
                   outlined
+                  :title="$t('imageCropDrawer.zoomIn')"
                   @click="zoom += stepZoom">
-                  <v-icon size="18">fas fa-search-plus</v-icon>
+                  <v-icon size="18">
+                    fas fa-search-plus
+                  </v-icon>
                 </v-btn>
               </div>
             </div>
           </div>
         </div>
-        <div v-if="useFormat" class="d-flex flex-column mt-4">
+        <div
+          v-if="useFormat"
+          class="d-flex flex-column mt-4">
           <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.format') }}
           </div>
           <v-card
             class="flex-grow-1 d-flex flex-wrap justify-space-between mt-2 mx-n2 align-self-center"
-            width="1000"
+            flat
             max-width="100%"
-            flat>
+            width="1000">
             <v-card
               v-for="item in imageDisplayFormats"
               :key="item.value"
-              :outlined="format !== item.value"
-              :class="format === item.value && 'primary-border-color'"
-              min-width="150"
-              width="calc(50% - 16px)"
-              max-width="200"
               class="flex-grow-1 flex-shrink-1 border-box-sizing mx-2 mb-5"
+              :class="format === item.value && 'primary-border-color'"
               flat
+              max-width="200"
+              min-width="150"
+              :outlined="format !== item.value"
+              width="calc(50% - 16px)"
               @click="selectFormat(item.value)">
-              <v-responsive :aspect-ratio="160 / 80" class="fill-height">
+              <v-responsive
+                :aspect-ratio="160 / 80"
+                class="fill-height">
                 <div class="d-flex flex-column align-center justify-center fill-height">
                   <div class="d-flex flex-column flex-grow-1 align-center justify-center ms-n3">
-                    <div class="mx-auto mt-auto ps-2 text-subtitle">{{ item.widthLabel }}</div>
+                    <div class="mx-auto mt-auto ps-2 text-subtitle">
+                      {{ item.widthLabel }}
+                    </div>
                     <div class="d-flex mb-auto">
-                      <div class="my-auto me-2 text-subtitle">{{ item.heightLabel }}</div>
+                      <div class="my-auto me-2 text-subtitle">
+                        {{ item.heightLabel }}
+                      </div>
                       <v-card
-                        :width="item.width"
+                        color="grey lighten-2"
+                        flat
                         :height="item.height"
                         max-width="100%"
-                        color="grey lighten-2"
-                        flat />
+                        :width="item.width" />
                     </div>
                   </div>
                   <div>{{ item.text }}</div>
@@ -206,17 +258,19 @@
             </v-card>
           </v-card>
         </div>
-        <div v-if="alt" class="d-flex flex-column mt-4">
+        <div
+          v-if="alt"
+          class="d-flex flex-column mt-4">
           <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
           </div>
           <div class="flex-grow-1 d-flex">
             <extended-textarea
               v-model="alternativeText"
+              class="pt-0"
+              extra-class="width-auto"
               :max-length="altTextMaxLength"
               :placeholder="$t('imageCropDrawer.altText.placeholder')"
-              extra-class="width-auto"
-              class="pt-0"
               @input="$emit('alt-text',alternativeText)" />
           </div>
         </div>
@@ -232,10 +286,10 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="!imageData"
-          :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
+          :disabled="!imageData"
+          :loading="sendingImage"
           @click="apply">
           {{ $t('imageCropDrawer.apply') }}
         </v-btn>
@@ -244,426 +298,426 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Object,
+        default: null,
+      },
+      src: {
+        type: Object,
+        default: null,
+      },
+      maxImageWidth: {
+        type: Number,
+        default: () => 1280,
+      },
+      altTextMaxLength: {
+        type: Number,
+        default: () => 1000,
+      },
+      useFormat: {
+        type: Boolean,
+        default: false,
+      },
+      customFormat: {
+        type: Boolean,
+        default: false,
+      },
+      backIcon: {
+        type: Boolean,
+        default: false,
+      },
+      noExpandIcon: {
+        type: Boolean,
+        default: false,
+      },
+      drawerTitle: {
+        type: String,
+        default: null,
+      },
+      maxFileSize: {
+        type: Number,
+        default: () => 102400,
+      },
+      circle: {
+        type: Boolean,
+        default: false,
+      },
+      canUpload: {
+        type: Boolean,
+        default: true,
+      },
+      alt: {
+        type: Boolean,
+        default: false,
+      },
+      defaultFormat: {
+        type: String,
+        default: () => 'landscape',
+      },
+      rounded: {
+        type: Boolean,
+        default: false,
+      },
+      cropOptions: {
+        type: Object,
+        default: () => ({
+          aspectRatio: 16 / 9,
+        }),
+      },
     },
-    src: {
-      type: Object,
-      default: null,
+    data: () => ({
+      drawer: false,
+      title: null,
+      format: null,
+      zoom: 1,
+      stepZoom: 0.1,
+      minZoom: 1,
+      maxZoom: 2,
+      maxWidth: 850,
+      width: 388,
+      cropper: null,
+      cropperReady: false,
+      imageData: null,
+      resetInput: false,
+      sendingImage: false,
+      alternativeText: null,
+      mimetype: null,
+      checkFormat: false,
+      specificFormatSelected: false,
+      imageAspectRatio: 0,
+    }),
+    computed: {
+      aspectRatio () {
+        return this.formaCropOptions?.aspectRatio || 1;
+      },
+      maxImageHeight () {
+        return this.maxImageWidth && this.aspectRatio * this.maxImageWidth;
+      },
+      height () {
+        return parseInt((this.width + 32) * 9 / 16) - 32;
+      },
+      displayUploadIcon () {
+        return !this.resetInput && this.canUpload;
+      },
+      isImageGif () {
+        return this.mimetype && this.mimetype === 'image/gif';
+      },
+      imageDisplayFormats () {
+        return [{
+          value: 'custom',
+          text: this.$t('imageCropDrawer.custom'),
+          width: 50,
+          height: 20,
+          widthLabel: 'X',
+          heightLabel: 'Y',
+        },{
+          value: 'landscape',
+          text: this.$t('imageCropDrawer.landscape'),
+          width: 80,
+          widthLabel: '8',
+          height: 10,
+          heightLabel: '1',
+        },{
+          value: 'portrait',
+          text: this.$t('imageCropDrawer.portrait'),
+          width: 30,
+          widthLabel: '3',
+          height: 40,
+          heightLabel: '4',
+        },{
+          value: 'square',
+          text: this.$t('imageCropDrawer.square'),
+          width: 35,
+          widthLabel: '1',
+          height: 35,
+          heightLabel: '1',
+        }];
+      },
+      selectedFormat () {
+        return this.useFormat && this.imageDisplayFormats.find(f => f.value === this.format);
+      },
+      formatCropOptions () {
+        return this.selectedFormat
+          && this.selectedFormat !== 'custom'
+          && {
+            ...this.cropOptions,
+            aspectRatio: this.selectedFormat.width / this.selectedFormat.height,
+          }
+          || this.cropOptions;
+      },
     },
-    maxImageWidth: {
-      type: Number,
-      default: () => 1280,
-    },
-    altTextMaxLength: {
-      type: Number,
-      default: () => 1000,
-    },
-    useFormat: {
-      type: Boolean,
-      default: false,
-    },
-    customFormat: {
-      type: Boolean,
-      default: false,
-    },
-    backIcon: {
-      type: Boolean,
-      default: false,
-    },
-    noExpandIcon: {
-      type: Boolean,
-      default: false,
-    },
-    drawerTitle: {
-      type: String,
-      default: null,
-    },
-    maxFileSize: {
-      type: Number,
-      default: () => 102400,
-    },
-    circle: {
-      type: Boolean,
-      default: false,
-    },
-    canUpload: {
-      type: Boolean,
-      default: true,
-    },
-    alt: {
-      type: Boolean,
-      default: false,
-    },
-    defaultFormat: {
-      type: String,
-      default: () => 'landscape',
-    },
-    rounded: {
-      type: Boolean,
-      default: false,
-    },
-    cropOptions: {
-      type: Object,
-      default: () => ({
-        aspectRatio: 16 / 9,
-      }),
-    },
-  },
-  data: () => ({
-    drawer: false,
-    title: null,
-    format: null,
-    zoom: 1,
-    stepZoom: 0.1,
-    minZoom: 1,
-    maxZoom: 2,
-    maxWidth: 850,
-    width: 388,
-    cropper: null,
-    cropperReady: false,
-    imageData: null,
-    resetInput: false,
-    sendingImage: false,
-    alternativeText: null,
-    mimetype: null,
-    checkFormat: false,
-    specificFormatSelected: false,
-    imageAspectRatio: 0,
-  }),
-  computed: {
-    aspectRatio() {
-      return this.formaCropOptions?.aspectRatio || 1;
-    },
-    maxImageHeight() {
-      return this.maxImageWidth && this.aspectRatio * this.maxImageWidth;
-    },
-    height() {
-      return parseInt((this.width + 32) * 9 / 16) - 32;
-    },
-    displayUploadIcon() {
-      return !this.resetInput && this.canUpload;
-    },
-    isImageGif() {
-      return this.mimetype && this.mimetype === 'image/gif';
-    },
-    imageDisplayFormats() {
-      return [{
-        value: 'custom',
-        text: this.$t('imageCropDrawer.custom'),
-        width: 50,
-        height: 20,
-        widthLabel: 'X',
-        heightLabel: 'Y',
-      },{
-        value: 'landscape',
-        text: this.$t('imageCropDrawer.landscape'),
-        width: 80,
-        widthLabel: '8',
-        height: 10,
-        heightLabel: '1',
-      },{
-        value: 'portrait',
-        text: this.$t('imageCropDrawer.portrait'),
-        width: 30,
-        widthLabel: '3',
-        height: 40,
-        heightLabel: '4',
-      },{
-        value: 'square',
-        text: this.$t('imageCropDrawer.square'),
-        width: 35,
-        widthLabel: '1',
-        height: 35,
-        heightLabel: '1',
-      }];
-    },
-    selectedFormat() {
-      return this.useFormat && this.imageDisplayFormats.find(f => f.value === this.format);
-    },
-    formatCropOptions() {
-      return this.selectedFormat
-      && this.selectedFormat !== 'custom'
-      && {
-        ...this.cropOptions,
-        aspectRatio: this.selectedFormat.width / this.selectedFormat.height,
-      }
-      || this.cropOptions;
-    },
-  },
-  watch: {
-    imageData() {
-      if (this.drawer) {
-        this.resetCropper();
-        this.init();
-      }
-    },
-    sendingImage(newVal, oldVal) {
-      if (this.sendingImage) {
-        this.$refs?.drawer?.startLoading();
-      } else {
-        this.$refs?.drawer?.endLoading();
-      }
-      if (this.useFormat && oldVal && !newVal) {
-        this.checkFormat = true;
-      }
-    },
-    zoom(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.zoomOut(newVal - oldVal);
-      }
-    },
-    width(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$nextTick().then(() => this.init(true));
-      }
-    },
-    format() {
-      this.$emit('format', this.format);
-    },
-    formatCropOptions() {
-      this.resetCropper();
-      this.init();
-    },
-    cropperReady() {
-      if (this.checkFormat && this.cropperReady) {
-        this.checkFormat = false;
-        this.imageAspectRatio = this.cropper?.getImageData?.()?.aspectRatio;
-      }
-    },
-  },
-  methods: {
-    open(imageItem) {
-      this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
-      this.imageData = imageItem?.src || this.src || null;
-      this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
-      this.alternativeText = imageItem?.altText || null;
-      this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
-      this.specificFormatSelected = !!imageItem?.format;
-      this.$nextTick().then(() => {
-        this.$refs.drawer.open();
-        window.setTimeout(() => {
+    watch: {
+      imageData () {
+        if (this.drawer) {
           this.resetCropper();
           this.init();
-        }, 50);
-      });
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    onCanvasResize() {
-      window.setTimeout(() => {
-        this.computeWidthSize();
-      }, 200); // Wait for animation to finish to compute real width
-    },
-    init(avoidChangingWidth) {
-      if (this.imageData && this.drawer) {
-        if (!avoidChangingWidth) {
-          this.computeWidthSize();
         }
-        this.cropperReady = false;
-        this.$nextTick()
-          .then(() => {
-            if (this.cropper) {
-              if (this.format === 'custom') {
-                this.cropper.minCropBoxWidth = null;
-                this.cropper.minCropBoxHeight = null;
-              } else {
-                this.cropper.minCropBoxWidth = this.width;
-                this.cropper.minCropBoxHeight = this.height;
-              }
-              this.cropper.aspectRatio = this.formatCropOptions?.aspectRatio || null;
-              if (this.cropper.onResize) {
-                this.cropper.onResize();
-              }
-              this.cropperReady = true;
-            } else {
-              const cropperOptions = {
-                autoCropArea: 1,
-                minCropBoxWidth: this.width,
-                minCropBoxHeight: this.height,
-                ...this.formatCropOptions,
-                ready: () => {
-                  this.cropperReady = true;
-                },
-              };
-              if (this.format === 'custom') {
-                cropperOptions.minCropBoxWidth = null;
-                cropperOptions.minCropBoxHeight = null;
-                cropperOptions.aspectRatio = null;
-              }
-              this.zoom = 1;
-              this.cropper = new Cropper(this.$refs.imageCrop, cropperOptions);
-            }
-          });
-      } else {
+      },
+      sendingImage (newVal, oldVal) {
+        if (this.sendingImage) {
+          this.$refs?.drawer?.startLoading();
+        } else {
+          this.$refs?.drawer?.endLoading();
+        }
+        if (this.useFormat && oldVal && !newVal) {
+          this.checkFormat = true;
+        }
+      },
+      zoom (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.zoomOut(newVal - oldVal);
+        }
+      },
+      width (newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.$nextTick().then(() => this.init(true));
+        }
+      },
+      format () {
+        this.$emit('format', this.format);
+      },
+      formatCropOptions () {
         this.resetCropper();
-      }
-    },
-    resetCropper() {
-      this.cropperReady = false;
-      if (this.cropper) {
-        this.cropper.destroy();
-        this.cropper = null;
-      }
-      this.zoom = 1;
-      this.resetInput = true;
-      this.$nextTick().then(() => this.resetInput = false);
-    },
-    computeWidthSize() {
-      if (this.$refs.imageCropperCanvasParent) {
-        this.width = Math.min(this.$refs.imageCropperCanvasParent.$el.clientWidth, this.maxWidth) - 32;
-      }
-    },
-    rotateRight() {
-      if (this.cropperReady) {
-        this.cropper.rotate(45);
-      }
-    },
-    rotateLeft() {
-      if (this.cropperReady) {
-        this.cropper.rotate(-45);
-      }
-    },
-    move(x, y) {
-      if (this.cropperReady) {
-        this.cropper.move(x, y);
-      }
-    },
-    zoomOut(value) {
-      if (this.cropperReady) {
-        this.cropper.zoom(value);
-      }
-    },
-    resetCropperData() {
-      this.cropper?.reset?.();
-    },
-    apply() {
-      if (this.isImageGif) {
-        this.close();
-      } else {
-        this.uploadCroppedImage()
-          .then(() => this.close());
-      }
-    },
-    uploadCroppedImage() {
-      this.$root.$emit('close-alert-message');
-      this.sendingImage = true;
-      const self = this;
-      return new Promise((resolve, reject) => {
-        this.getCroppedCanvas()
-          .toBlob((blob) => {
-            if (blob.size > this.maxFileSize) {
-              if (this.maxFileSize < 1024) {
-                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.bytes.label', {
-                  0: blob.size,
-                  1: this.maxFileSize,
-                }), 'error');
-              } else if (this.maxFileSize < (1024 * 1024)) {
-                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.kilobytes.label', {
-                  0: Number.parseFloat(blob.size / 1024).toFixed(2).replace('.00', ''),
-                  1: parseInt(this.maxFileSize / 1024),
-                }), 'error');
-              } else {
-                this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
-                  0: Number.parseFloat(blob.size / 1024 / 1024).toFixed(2).replace('.00', ''),
-                  1: parseInt(this.maxFileSize / 1024 / 1024),
-                }), 'error');
-              }
-              this.sendingImage = false;
-              return;
-            }
-            this.$uploadService.upload(blob)
-              .then(uploadId => {
-                if (uploadId) {
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    self.$emit('data', e.target.result);
-                    self.$forceUpdate();
-                  };
-                  reader.readAsDataURL(blob);
-                  this.$emit('input', uploadId);
-                  resolve(uploadId);
-                } else {
-                  this.$root.$emit('alert-message', this.$t('imageCropDrawer.uploadingError'), 'error');
-                  reject(this.$t('imageCropDrawer.uploadingError'));
-                }
-              })
-              .catch(error => {
-                this.$root.$emit('alert-message', this.$t(String(error)), 'error');
-                reject(error);
-              })
-              .finally(() => this.sendingImage = false);
-          }, null, 1);
-      });
-    },
-    getCroppedCanvas() {
-      if (this.circle) {
-        const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
-          maxWidth: this.maxImageWidth * 2,
-          maxHeight: this.maxImageHeight * 2,
-          imageSmoothingQuality: 'high'
-        });
-        const width = croppedCanvas.width;
-        const height = croppedCanvas.height;
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext('2d');
-        context.imageSmoothingEnabled = true;
-        context.imageSmoothingQuality = 'high';
-        context.drawImage(croppedCanvas, 0, 0, width, height);
-        context.globalCompositeOperation = 'destination-in';
-        context.beginPath();
-        context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
-        context.fill();
-        return canvas;
-      } else {
-        return this.cropper.getCroppedCanvas(this.maxImageWidth && {
-          maxWidth: this.maxImageWidth,
-          maxHeight: this.maxImageHeight,
-          imageSmoothingQuality: 'high'
-        });
-      }
-    },
-    uploadFile(file) {
-      this.$root.$emit('close-alert-message');
-      if (file?.size) {
-        if (file.type && file.type.indexOf('image/') !== 0) {
-          this.$root.$emit('alert-message', this.$t('imageCropDrawer.mustImage.label'), 'error');
-          return;
+        this.init();
+      },
+      cropperReady () {
+        if (this.checkFormat && this.cropperReady) {
+          this.checkFormat = false;
+          this.imageAspectRatio = this.cropper?.getImageData?.()?.aspectRatio;
         }
-        const self = this;
-        const reader = new FileReader();
+      },
+    },
+    methods: {
+      open (imageItem) {
+        this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
+        this.imageData = imageItem?.src || this.src || null;
+        this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
+        this.alternativeText = imageItem?.altText || null;
+        this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
+        this.specificFormatSelected = !!imageItem?.format;
+        this.$nextTick().then(() => {
+          this.$refs.drawer.open();
+          window.setTimeout(() => {
+            this.resetCropper();
+            this.init();
+          }, 50);
+        });
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      onCanvasResize () {
+        window.setTimeout(() => {
+          this.computeWidthSize();
+        }, 200); // Wait for animation to finish to compute real width
+      },
+      init (avoidChangingWidth) {
+        if (this.imageData && this.drawer) {
+          if (!avoidChangingWidth) {
+            this.computeWidthSize();
+          }
+          this.cropperReady = false;
+          this.$nextTick()
+            .then(() => {
+              if (this.cropper) {
+                if (this.format === 'custom') {
+                  this.cropper.minCropBoxWidth = null;
+                  this.cropper.minCropBoxHeight = null;
+                } else {
+                  this.cropper.minCropBoxWidth = this.width;
+                  this.cropper.minCropBoxHeight = this.height;
+                }
+                this.cropper.aspectRatio = this.formatCropOptions?.aspectRatio || null;
+                if (this.cropper.onResize) {
+                  this.cropper.onResize();
+                }
+                this.cropperReady = true;
+              } else {
+                const cropperOptions = {
+                  autoCropArea: 1,
+                  minCropBoxWidth: this.width,
+                  minCropBoxHeight: this.height,
+                  ...this.formatCropOptions,
+                  ready: () => {
+                    this.cropperReady = true;
+                  },
+                };
+                if (this.format === 'custom') {
+                  cropperOptions.minCropBoxWidth = null;
+                  cropperOptions.minCropBoxHeight = null;
+                  cropperOptions.aspectRatio = null;
+                }
+                this.zoom = 1;
+                this.cropper = new Cropper(this.$refs.imageCrop, cropperOptions);
+              }
+            });
+        } else {
+          this.resetCropper();
+        }
+      },
+      resetCropper () {
+        this.cropperReady = false;
+        if (this.cropper) {
+          this.cropper.destroy();
+          this.cropper = null;
+        }
+        this.zoom = 1;
+        this.resetInput = true;
+        this.$nextTick().then(() => this.resetInput = false);
+      },
+      computeWidthSize () {
+        if (this.$refs.imageCropperCanvasParent) {
+          this.width = Math.min(this.$refs.imageCropperCanvasParent.$el.clientWidth, this.maxWidth) - 32;
+        }
+      },
+      rotateRight () {
+        if (this.cropperReady) {
+          this.cropper.rotate(45);
+        }
+      },
+      rotateLeft () {
+        if (this.cropperReady) {
+          this.cropper.rotate(-45);
+        }
+      },
+      move (x, y) {
+        if (this.cropperReady) {
+          this.cropper.move(x, y);
+        }
+      },
+      zoomOut (value) {
+        if (this.cropperReady) {
+          this.cropper.zoom(value);
+        }
+      },
+      resetCropperData () {
+        this.cropper?.reset?.();
+      },
+      apply () {
+        if (this.isImageGif) {
+          this.close();
+        } else {
+          this.uploadCroppedImage()
+            .then(() => this.close());
+        }
+      },
+      uploadCroppedImage () {
+        this.$root.$emit('close-alert-message');
         this.sendingImage = true;
-        reader.onload = e => {
-          self.imageData = e.target.result;
-          this.sendingImage = false;
-          self.$forceUpdate();
-        };
-        reader.readAsDataURL(file);
-      }
-    },
-    selectFormat(format) {
-      this.specificFormatSelected = true;
-      this.format = format;
-    },
-    getBase64Mimetype(dataUrl) {
-      let mimetype = null;
-      if (typeof dataUrl !== 'string') {
+        const self = this;
+        return new Promise((resolve, reject) => {
+          this.getCroppedCanvas()
+            .toBlob(blob => {
+              if (blob.size > this.maxFileSize) {
+                if (this.maxFileSize < 1024) {
+                  this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.bytes.label', {
+                    0: blob.size,
+                    1: this.maxFileSize,
+                  }), 'error');
+                } else if (this.maxFileSize < (1024 * 1024)) {
+                  this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.kilobytes.label', {
+                    0: Number.parseFloat(blob.size / 1024).toFixed(2).replace('.00', ''),
+                    1: parseInt(this.maxFileSize / 1024),
+                  }), 'error');
+                } else {
+                  this.$root.$emit('alert-message', this.$t('imageCropDrawer.tooBigFile.megabytes.label', {
+                    0: Number.parseFloat(blob.size / 1024 / 1024).toFixed(2).replace('.00', ''),
+                    1: parseInt(this.maxFileSize / 1024 / 1024),
+                  }), 'error');
+                }
+                this.sendingImage = false;
+                return;
+              }
+              this.$uploadService.upload(blob)
+                .then(uploadId => {
+                  if (uploadId) {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                      self.$emit('data', e.target.result);
+                      self.$forceUpdate();
+                    };
+                    reader.readAsDataURL(blob);
+                    this.$emit('input', uploadId);
+                    resolve(uploadId);
+                  } else {
+                    this.$root.$emit('alert-message', this.$t('imageCropDrawer.uploadingError'), 'error');
+                    reject(this.$t('imageCropDrawer.uploadingError'));
+                  }
+                })
+                .catch(error => {
+                  this.$root.$emit('alert-message', this.$t(String(error)), 'error');
+                  reject(error);
+                })
+                .finally(() => this.sendingImage = false);
+            }, null, 1);
+        });
+      },
+      getCroppedCanvas () {
+        if (this.circle) {
+          const croppedCanvas = this.cropper.getCroppedCanvas(this.maxImageWidth && {
+            maxWidth: this.maxImageWidth * 2,
+            maxHeight: this.maxImageHeight * 2,
+            imageSmoothingQuality: 'high',
+          });
+          const width = croppedCanvas.width;
+          const height = croppedCanvas.height;
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const context = canvas.getContext('2d');
+          context.imageSmoothingEnabled = true;
+          context.imageSmoothingQuality = 'high';
+          context.drawImage(croppedCanvas, 0, 0, width, height);
+          context.globalCompositeOperation = 'destination-in';
+          context.beginPath();
+          context.arc(width / 2, height / 2, Math.min(width, height) / 2, 0, 2 * Math.PI, true);
+          context.fill();
+          return canvas;
+        } else {
+          return this.cropper.getCroppedCanvas(this.maxImageWidth && {
+            maxWidth: this.maxImageWidth,
+            maxHeight: this.maxImageHeight,
+            imageSmoothingQuality: 'high',
+          });
+        }
+      },
+      uploadFile (file) {
+        this.$root.$emit('close-alert-message');
+        if (file?.size) {
+          if (file.type && file.type.indexOf('image/') !== 0) {
+            this.$root.$emit('alert-message', this.$t('imageCropDrawer.mustImage.label'), 'error');
+            return;
+          }
+          const self = this;
+          const reader = new FileReader();
+          this.sendingImage = true;
+          reader.onload = e => {
+            self.imageData = e.target.result;
+            this.sendingImage = false;
+            self.$forceUpdate();
+          };
+          reader.readAsDataURL(file);
+        }
+      },
+      selectFormat (format) {
+        this.specificFormatSelected = true;
+        this.format = format;
+      },
+      getBase64Mimetype (dataUrl) {
+        let mimetype = null;
+        if (typeof dataUrl !== 'string') {
+          return mimetype;
+        }
+        const dataMimetype = dataUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+        if (dataMimetype && dataMimetype.length) {
+          mimetype = dataMimetype[1];
+        }
         return mimetype;
-      }
-      const dataMimetype = dataUrl.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
-      if (dataMimetype && dataMimetype.length) {
-        mimetype = dataMimetype[1];
-      }
-      return mimetype;
-    }
-  },
-};
+      },
+    },
+  };
 </script>

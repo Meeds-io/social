@@ -24,64 +24,68 @@
       class="spaceAccessInfo application-body py-12 text-center"
       flat>
       <v-card-text>
-        <v-icon color="primary" class="fa-7x">{{ spaceNotAccessible && 'fa-door-closed' || 'fa-door-open' }}</v-icon>
+        <v-icon
+          class="fa-7x"
+          color="primary">
+          {{ spaceNotAccessible && 'fa-door-closed' || 'fa-door-open' }}
+        </v-icon>
       </v-card-text>
       <v-card-text
         v-if="firstLabel"
-        class="text-title"
-        v-sanitized-html="firstLabel" />
+        v-sanitized-html="firstLabel"
+        class="text-title" />
       <v-card-text
         v-if="secondLabel"
-        class="text-body"
-        v-sanitized-html="secondLabel" />
+        v-sanitized-html="secondLabel"
+        class="text-body" />
       <v-card-actions class="justify-center py-5">
         <template v-if="spaceAccessTypeLabel === 'INVITED_SPACE'">
           <v-btn
+            class="btn spaceAcceptInvitationButton"
+            color="primary"
             :disabled="sendingRefuse"
             :loading="sendingAction"
-            color="primary"
-            class="btn spaceAcceptInvitationButton"
             @click="acceptToJoin">
             {{ $t('UISpaceAccess.action.Accept') }}
           </v-btn>
           <div class="mx-4"></div>
           <v-btn
+            class="btn spaceRefuseInvitationButton"
             :disabled="sendingAction"
             :loading="sendingRefuse"
-            class="btn spaceRefuseInvitationButton"
             @click="refuseToJoin">
             {{ $t('UISpaceAccess.action.Refuse') }}
           </v-btn>
         </template>
         <v-btn
           v-else-if="spaceAccessTypeLabel === 'JOIN_SPACE'"
-          :loading="sendingAction"
-          color="primary"
           class="btn spaceJoinButton"
+          color="primary"
+          :loading="sendingAction"
           @click="join">
           {{ $t('UISpaceAccess.action.Join') }}
         </v-btn>
         <v-btn
           v-else-if="spaceAccessTypeLabel === 'REQUESTED_JOIN_SPACE'"
-          :loading="sendingAction"
           class="btn spaceCancelRequestButton"
+          :loading="sendingAction"
           @click="cancelRequest">
           {{ $t('UISpaceMember.label.CancelRequest') }}
         </v-btn>
         <v-btn
           v-else-if="spaceAccessTypeLabel === 'REQUEST_JOIN_SPACE'"
-          :loading="sendingAction"
-          color="primary"
           class="btn spaceRequestJoinButton"
+          color="primary"
+          :loading="sendingAction"
           @click="requestJoin">
           {{ $t('UISpaceAccess.action.RequestToJoin') }}
         </v-btn>
         <v-btn
           v-else-if="spaceAccessTypeLabel === 'CLOSED_SPACE' || spaceAccessTypeLabel === 'SPACE_NOT_FOUND'"
-          :href="spacesLink"
-          :loading="sendingAction"
+          class="btn spaceFindSpacesLink"
           color="primary"
-          class="btn spaceFindSpacesLink">
+          :href="spacesLink"
+          :loading="sendingAction">
           {{ $t('UISpaceAccess.FindSpaces') }}
         </v-btn>
       </v-card-actions>
@@ -89,115 +93,115 @@
   </v-app>
 </template>
 <script>
-export default {
-  props: {
-    parameters: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      parameters: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    sendingAction: false,
-    sendingRefuse: false,
-  }),
-  computed: {
-    spacesLink() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
+    data: () => ({
+      sendingAction: false,
+      sendingRefuse: false,
+    }),
+    computed: {
+      spacesLink () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
+      },
+      spaceLink () {
+        return this.parameters?.originalUri;
+      },
+      spaceNotAccessible () {
+        return this.spaceAccessTypeLabel === 'CLOSED_SPACE' || this.spaceAccessTypeLabel === 'SPACE_NOT_FOUND';
+      },
+      spaceAccessTypeLabel () {
+        return this.parameters?.spaceAccessTypeLabel;
+      },
+      spaceId () {
+        return this.parameters?.spaceId;
+      },
+      spacePrettyName () {
+        return this.parameters?.spacePrettyName;
+      },
+      spaceDisplayName () {
+        return this.parameters?.spaceDisplayName;
+      },
+      firstLabel () {
+        switch (this.spaceAccessTypeLabel) {
+          case 'INVITED_SPACE':
+          case 'JOIN_SPACE':
+          case 'REQUESTED_JOIN_SPACE':
+          case 'REQUEST_JOIN_SPACE':
+          case 'CLOSED_SPACE':
+            return this.$t('UISpaceAccess.restrictedArea');
+          case 'SPACE_NOT_FOUND':
+            return this.$t('UISpace.space-not-found');
+        }
+        return null;
+      },
+      secondLabel () {
+        switch (this.spaceAccessTypeLabel) {
+          case 'INVITED_SPACE':
+            return this.$t('UISpaceAccess.invited-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
+          case 'JOIN_SPACE':
+            return this.$t('UISpaceAccess.memberRestrict').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
+          case 'REQUESTED_JOIN_SPACE':
+            return this.$t('UISpaceAcess.requested-join-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
+          case 'REQUEST_JOIN_SPACE':
+            return this.$t('UISpaceAccess.memberRestrict').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
+          case 'CLOSED_SPACE':
+            return this.$t('UISpaceAccess.closedSpace').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
+          case 'SPACE_NOT_FOUND':
+            return this.$t('UISpace.exploreSpacesCanJoin');
+        }
+        return null;
+      },
     },
-    spaceLink() {
-      return this.parameters?.originalUri;
+    mounted () {
+      this.$root.$applicationLoaded();
     },
-    spaceNotAccessible() {
-      return this.spaceAccessTypeLabel === 'CLOSED_SPACE' || this.spaceAccessTypeLabel === 'SPACE_NOT_FOUND';
+    methods: {
+      gotToSpace () {
+        window.location.href = `${window.location.origin}${this.spaceLink}`;
+      },
+      gotToSpaces () {
+        window.location.href = `${window.location.origin}${this.spacesLink}`;
+      },
+      handleError () {
+        this.$root.$emit('alert-message', this.$t('UISpaceAccess.error'), 'error');
+        this.sendingAction = false;
+        this.sendingRefuse = false;
+      },
+      acceptToJoin () {
+        this.sendingAction = true;
+        this.$spaceService.accept(this.spaceId)
+          .then(() => this.gotToSpace())
+          .catch(() => this.handleError());
+      },
+      refuseToJoin () {
+        this.sendingRefuse = true;
+        this.$spaceService.deny(this.spaceId)
+          .then(() => this.gotToSpaces())
+          .catch(() => this.handleError());
+      },
+      join () {
+        this.sendingAction = true;
+        this.$spaceService.join(this.spaceId)
+          .then(() => this.gotToSpace())
+          .catch(() => this.handleError());
+      },
+      requestJoin () {
+        this.sendingAction = true;
+        this.$spaceService.requestJoin(this.spaceId)
+          .then(() => this.gotToSpace())
+          .catch(() => this.handleError());
+      },
+      cancelRequest () {
+        this.sendingAction = true;
+        this.$spaceService.cancel(this.spaceId)
+          .then(() => this.gotToSpace())
+          .catch(() => this.handleError());
+      },
     },
-    spaceAccessTypeLabel() {
-      return this.parameters?.spaceAccessTypeLabel;
-    },
-    spaceId() {
-      return this.parameters?.spaceId;
-    },
-    spacePrettyName() {
-      return this.parameters?.spacePrettyName;
-    },
-    spaceDisplayName() {
-      return this.parameters?.spaceDisplayName;
-    },
-    firstLabel() {
-      switch (this.spaceAccessTypeLabel) {
-      case 'INVITED_SPACE':
-      case 'JOIN_SPACE':
-      case 'REQUESTED_JOIN_SPACE':
-      case 'REQUEST_JOIN_SPACE':
-      case 'CLOSED_SPACE':
-        return this.$t('UISpaceAccess.restrictedArea');
-      case 'SPACE_NOT_FOUND':
-        return this.$t('UISpace.space-not-found');
-      }
-      return null;
-    },
-    secondLabel() {
-      switch (this.spaceAccessTypeLabel) {
-      case 'INVITED_SPACE':
-        return this.$t('UISpaceAccess.invited-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
-      case 'JOIN_SPACE':
-        return this.$t('UISpaceAccess.memberRestrict').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
-      case 'REQUESTED_JOIN_SPACE':
-        return this.$t('UISpaceAcess.requested-join-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
-      case 'REQUEST_JOIN_SPACE':
-        return this.$t('UISpaceAccess.memberRestrict').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
-      case 'CLOSED_SPACE':
-        return this.$t('UISpaceAccess.closedSpace').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
-      case 'SPACE_NOT_FOUND':
-        return this.$t('UISpace.exploreSpacesCanJoin');
-      }
-      return null;
-    },
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  methods: {
-    gotToSpace() {
-      window.location.href = `${window.location.origin}${this.spaceLink}`;
-    },
-    gotToSpaces() {
-      window.location.href = `${window.location.origin}${this.spacesLink}`;
-    },
-    handleError() {
-      this.$root.$emit('alert-message', this.$t('UISpaceAccess.error'), 'error');
-      this.sendingAction = false;
-      this.sendingRefuse = false;
-    },
-    acceptToJoin() {
-      this.sendingAction = true;
-      this.$spaceService.accept(this.spaceId)
-        .then(() => this.gotToSpace())
-        .catch(() => this.handleError());
-    },
-    refuseToJoin() {
-      this.sendingRefuse = true;
-      this.$spaceService.deny(this.spaceId)
-        .then(() => this.gotToSpaces())
-        .catch(() => this.handleError());
-    },
-    join() {
-      this.sendingAction = true;
-      this.$spaceService.join(this.spaceId)
-        .then(() => this.gotToSpace())
-        .catch(() => this.handleError());
-    },
-    requestJoin() {
-      this.sendingAction = true;
-      this.$spaceService.requestJoin(this.spaceId)
-        .then(() => this.gotToSpace())
-        .catch(() => this.handleError());
-    },
-    cancelRequest() {
-      this.sendingAction = true;
-      this.$spaceService.cancel(this.spaceId)
-        .then(() => this.gotToSpace())
-        .catch(() => this.handleError());
-    },
-  },
-};
+  };
 </script>

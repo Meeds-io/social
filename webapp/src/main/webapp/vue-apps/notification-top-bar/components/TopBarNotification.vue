@@ -23,17 +23,21 @@
     <v-flex>
       <v-layout>
         <v-btn
-          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
-          :loading="loading"
           icon
+          :loading="loading"
+          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
           @click="openDrawer">
           <v-badge
-            :value="badge > 0"
+            color="var(--allPagesBadgePrimaryColor, #d32a2a)"
             :content="badge"
             flat
-            color="var(--allPagesBadgePrimaryColor, #d32a2a)"
-            overlap>
-            <v-icon class="icon-default-color" size="20">fa-bell</v-icon>
+            overlap
+            :value="badge > 0">
+            <v-icon
+              class="icon-default-color"
+              size="20">
+              fa-bell
+            </v-icon>
           </v-badge>
         </v-btn>
       </v-layout>
@@ -41,55 +45,55 @@
     <top-bar-notification-drawer
       v-if="open"
       ref="drawer"
-      :badge.sync="badge"
+      v-model:badge="badge"
       @closed="open = false" />
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    badge: 0,
-    open: false,
-    loading: false,
-  }),
-  watch: {
-    open() {
-      if (this.open) {
-        this.$nextTick().then(() => this.$refs.drawer.open());
-      }
+  export default {
+    data: () => ({
+      badge: 0,
+      open: false,
+      loading: false,
+    }),
+    watch: {
+      open () {
+        if (this.open) {
+          this.$nextTick().then(() => this.$refs.drawer.open());
+        }
+      },
     },
-  },
-  created() {
-    document.addEventListener('cometdNotifEvent', this.updateBadgeByEvent);
-    this.$root.$on('notification-badge-updated', this.updateBadge);
-    this.badge = this.$root.badge;
-  },
-  beforeDestroy() {
-    document.removeEventListener('cometdNotifEvent', this.updateBadgeByEvent);
-    this.$root.$off('notification-badge-updated', this.updateBadge);
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  methods: {
-    openDrawer() {
-      this.$root.initialized = false;
-      this.loading = true;
-      this.$root.lastLoadedNotificationIndex = 0;
-      window.require(['SHARED/notificationExtensions'], () => {
-        Promise.resolve(this.$utils.includeExtensions('NotificationExtension'))
-          .then(() => {
-            this.open = true;
-            this.loading = false;
-          });
-      });
+    created () {
+      document.addEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+      this.$root.$on('notification-badge-updated', this.updateBadge);
+      this.badge = this.$root.badge;
     },
-    updateBadgeByEvent(event) {
-      this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
+    beforeUnmount () {
+      document.removeEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+      this.$root.$off('notification-badge-updated', this.updateBadge);
     },
-    updateBadge(badge) {
-      this.badge = badge;
+    mounted () {
+      this.$root.$applicationLoaded();
     },
-  },
-};
+    methods: {
+      openDrawer () {
+        this.$root.initialized = false;
+        this.loading = true;
+        this.$root.lastLoadedNotificationIndex = 0;
+        window.require(['SHARED/notificationExtensions'], () => {
+          Promise.resolve(this.$utils.includeExtensions('NotificationExtension'))
+            .then(() => {
+              this.open = true;
+              this.loading = false;
+            });
+        });
+      },
+      updateBadgeByEvent (event) {
+        this.updateBadge(event?.detail?.data?.numberOnBadge || 0);
+      },
+      updateBadge (badge) {
+        this.badge = badge;
+      },
+    },
+  };
 </script>

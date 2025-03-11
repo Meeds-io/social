@@ -15,7 +15,7 @@ const lang = eXo.env.portal.language;
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 //getting locale ressources
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
       // init Vue app when locale ressources are ready

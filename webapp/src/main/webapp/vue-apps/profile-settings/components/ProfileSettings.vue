@@ -27,15 +27,15 @@
         <v-list
           v-if="mainPageSelected">
           <profile-settings-option
-            :option-label="$t('profileSettings.label.userCard.settings')"
-            :description="$t('profileSettings.label.userCard.settings.info')"
             :action-icon="'fas fa-edit'"
+            :description="$t('profileSettings.label.userCard.settings.info')"
             :icon-size="22"
+            :option-label="$t('profileSettings.label.userCard.settings')"
             @action="openUserCardSettings" />
           <profile-settings-option
-            :option-label="$t('profileSettings.label.profile.attributes.settings')"
-            :description="$t('profileSettings.label.profile.attributes.settings.info')"
             :action-icon="'fa-caret-right'"
+            :description="$t('profileSettings.label.profile.attributes.settings.info')"
+            :option-label="$t('profileSettings.label.profile.attributes.settings')"
             @action="selectedOption = '#attributesettings'" />
         </v-list>
         <profile-attribute-settings
@@ -48,26 +48,26 @@
     </v-main>
     <confirm-dialog
       ref="dialog"
-      :title="dialogTitle"
+      :cancel-label="dialogCancelLabel"
       :message="dialogMessage"
       :ok-label="dialogOkLabel"
-      :cancel-label="dialogCancelLabel"
-      @ok="onDialogOk"
-      @closed="confirmDialogClosed" />
+      :title="dialogTitle"
+      @closed="confirmDialogClosed"
+      @ok="onDialogOk" />
     <user-card-settings-drawer
       ref="userCardSettings"
-      :user="user"
-      :settings="userCardFilteredFieldSettings"
       :is-saving-settings="isSavingCardSettings"
       :saved-settings="savedCardSettings"
+      :settings="userCardFilteredFieldSettings"
+      :user="user"
       @closed="setMainPageSelected"
       @save-settings="saveUserCardSettings" />
     <profile-setting-form-drawer
       ref="settingFormDrawer"
-      :settings="settings"
-      :languages="languagesData"
-      :un-hiddenable-properties="unHiddenableProperties"
       :excluded-analytics-index-properties="excludedAnalyticsIndexProperties"
+      :languages="languagesData"
+      :settings="settings"
+      :un-hiddenable-properties="unHiddenableProperties"
       @open-dropdown-list="openDropdownListDrawer" />
     <dropdown-list-values-drawer
       ref="dropdownListDrawer" />
@@ -75,254 +75,254 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      user: null,
-      selectedOption: window.location.hash,
-      settings: [],
-      unHiddenableProperties: [],
-      excludedAnalyticsIndexProperties: [],
-      fieldsToRetrieve: 'settings',
-      excludedSettingsProp: [],
-      userCardSettingsContextKey: 'GLOBAL',
-      userCardSettingScopeKey: 'GLOBAL',
-      userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
-      userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
-      userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
-      isSavingCardSettings: false,
-      savedCardSettings: null,
-      settingOptionObjectType: 'propertySettingOption',
-      settingOptionFieldName: 'optionValue',
-      dialogTitle: null,
-      dialogMessage: null,
-      dialogOkLabel: null,
-      dialogCancelLabel: null,
-      dialogCallback: null
-    };
-  },
-  props: {
-    languages: {
-      type: Array,
-      default: null
-    }
-  },
-  watch: {
-    selectedOption() {
-      if (this.selectedOption) {
-        window.location.hash = this.selectedOption;
-        this.openUserCardSettingsDrawer();
-      } else {
-        this.setCleanUri();
-      }
-    }
-  },
-  created() {
-    this.getCurrentUser();
-    this.getSettings();
-    this.getSavedUserCardSettings();
-    this.$root.$on('update-setting', this.editSetting);
-    this.$root.$on('create-setting', this.createSetting);
-    this.$root.$on('update-labels', this.updateLabels);
-    this.$root.$on('create-labels', this.createLabels);
-    this.$root.$on('delete-labels', this.deleteLabels);
-    this.$root.$on('move-up-setting', this.moveUpSetting);
-    this.$root.$on('move-down-setting', this.moveDownSetting);
-    this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
-    this.$root.$on('open-confirm-dialog', this.openConfirmDialog);
-    window.addEventListener('popstate', this.updateSelected);
-    setTimeout(() => {
-      this.openUserCardSettingsDrawer();
-    }, 500);
-  },
-  computed: {
-    languagesData() {
-      return [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
+  export default {
+    props: {
+      languages: {
+        type: Array,
+        default: null,
+      },
     },
-    attributeSettingsSelected() {
-      return this.selectedOption === '#attributesettings';
+    data () {
+      return {
+        user: null,
+        selectedOption: window.location.hash,
+        settings: [],
+        unHiddenableProperties: [],
+        excludedAnalyticsIndexProperties: [],
+        fieldsToRetrieve: 'settings',
+        excludedSettingsProp: [],
+        userCardSettingsContextKey: 'GLOBAL',
+        userCardSettingScopeKey: 'GLOBAL',
+        userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+        userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+        userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
+        isSavingCardSettings: false,
+        savedCardSettings: null,
+        settingOptionObjectType: 'propertySettingOption',
+        settingOptionFieldName: 'optionValue',
+        dialogTitle: null,
+        dialogMessage: null,
+        dialogOkLabel: null,
+        dialogCancelLabel: null,
+        dialogCallback: null,
+      };
     },
-    userCardSettingsSelected() {
-      return this.selectedOption === '#cardsettings';
-    },
-    mainPageSelected() {
-      return !this.selectedOption || this.userCardSettingsSelected;
-    },
-    userCardFilteredFieldSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
-                                                                  && !setting?.children?.length
-                                                                  && !this.unHiddenableProperties?.includes(setting.propertyName))
-        .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
-        });
-    }
-  },
-  methods: {
-    getCurrentUser() {
-      return this.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve).then(user => {
-        this.user = user?.profile;
-      });
-    },
-    setMainPageSelected() {
-      this.selectedOption = null;
-    },
-    updateSelected() {
-      this.selectedOption =  window.location.hash;
-    },
-    openUserCardSettings() {
-      this.selectedOption = '#cardsettings';
-      this.openUserCardSettingsDrawer();
-    },
-    openUserCardSettingsDrawer() {
-      if (this.userCardSettingsSelected) {
-        this.$refs.userCardSettings.open();
-      }
-    },
-    getSettings() {
-      return this.$profileSettingsService.getSettings()
-        .then(settings => {
-          this.settings = settings?.settings || [];
-          this.unHiddenableProperties = settings?.unHiddenableProperties;
-          this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
-          this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
-        });
-    },
-    editSetting(setting, refresh) {
-      this.$profileSettingsService.updateSetting(setting).then(() => {
-        if (refresh) {
-          this.getSettings();
-        }
-        this.$root.$emit('setting-updated', setting);
-        this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
-      }).catch(e => {
-        console.error(e);
-        this.$root.$emit('alert-message', this.$t(e.message), 'error');
-      });
-    },
-    createSetting(setting) {
-      this.$profileSettingsService.addSetting(setting).then(storedSetting => {
-        const promises = [];
-        if (setting?.labels?.length) {
-          setting.labels.forEach(label => {
-            label.objectId = storedSetting.id;
+    computed: {
+      languagesData () {
+        return [...this.languages].sort((a, b) => a.value.localeCompare(b.value));
+      },
+      attributeSettingsSelected () {
+        return this.selectedOption === '#attributesettings';
+      },
+      userCardSettingsSelected () {
+        return this.selectedOption === '#cardsettings';
+      },
+      mainPageSelected () {
+        return !this.selectedOption || this.userCardSettingsSelected;
+      },
+      userCardFilteredFieldSettings () {
+        return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
+          && !setting?.children?.length
+          && !this.unHiddenableProperties?.includes(setting.propertyName))
+          .map(setting => {
+            return { label: this.getResolvedName(setting), value: setting.propertyName };
           });
-          promises.push(this.$profileLabelService.addLabels(setting.labels));
+      },
+    },
+    watch: {
+      selectedOption () {
+        if (this.selectedOption) {
+          window.location.hash = this.selectedOption;
+          this.openUserCardSettingsDrawer();
+        } else {
+          this.setCleanUri();
         }
-        return Promise.all(promises);
-      })
-        .then(() => {
-          this.$root.$emit('close-settings-form-drawer');
-          this.getSettings();
-          this.$root.$emit(
-            'alert-message',
-            this.$t('profileSettings.create.success.message'),
-            'success'
-          );
-        })
-        .catch(error => {
-          console.error(error);
-          this.$root.$emit(
-            'alert-message',
-            this.$t(error.message || 'profileSettings.create.error.message'),
-            'error'
-          );
+      },
+    },
+    created () {
+      this.getCurrentUser();
+      this.getSettings();
+      this.getSavedUserCardSettings();
+      this.$root.$on('update-setting', this.editSetting);
+      this.$root.$on('create-setting', this.createSetting);
+      this.$root.$on('update-labels', this.updateLabels);
+      this.$root.$on('create-labels', this.createLabels);
+      this.$root.$on('delete-labels', this.deleteLabels);
+      this.$root.$on('move-up-setting', this.moveUpSetting);
+      this.$root.$on('move-down-setting', this.moveDownSetting);
+      this.$root.$on('cancel-edit-add', this.displayNoChangeWarning);
+      this.$root.$on('open-confirm-dialog', this.openConfirmDialog);
+      window.addEventListener('popstate', this.updateSelected);
+      setTimeout(() => {
+        this.openUserCardSettingsDrawer();
+      }, 500);
+    },
+    methods: {
+      getCurrentUser () {
+        return this.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve).then(user => {
+          this.user = user?.profile;
         });
-    },
-    updateLabels(labels) {
-      this.$profileLabelService.updateLabels(labels);
-    },
-    createLabels(labels) {
-      this.$profileLabelService.addLabels(labels);
-    },
-    deleteLabels(labels) {
-      this.$profileLabelService.deleteLabels(labels);
-    },
-    moveUpSetting(setting) {
-      this.moveSetting(setting, 'up');
-    },
-    moveDownSetting(setting) {
-      this.moveSetting(setting, 'down');
-    },
-    displayNoChangeWarning() {
-      this.$root.$emit('alert-message', this.$t('profileSettings.nochange.warning.message'), 'warning');
-    },
-    moveSetting(setting, direction) {
-      this.settings.sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
-      const index = this.settings.findIndex(object => {
-        return object.id === setting.id;
-      });
-      if (index > 0 && direction === 'up'){
-        const order = this.settings[index].order;
-        this.settings[index].order=this.settings[index-1].order;
-        this.settings[index-1].order = order;
-        this.editSetting(this.settings[index],false);
-        this.editSetting(this.settings[index-1],true);
-      }
-      if (index < this.settings.length && direction === 'down'){
-        const order = this.settings[index].order;
-        this.settings[index].order=this.settings[index+1].order;
-        this.settings[index+1].order = order;
-        this.editSetting(this.settings[index],false);
-        this.editSetting(this.settings[index+1],true);
-      }
-    },
-    setCleanUri() {
-      const uri = window.location.toString();
-      const cleanUri = uri.substring(0, uri.indexOf('#'));
-      window.history.replaceState({}, document.title, cleanUri);
-    },
-    getResolvedName(property) {
-      const lang = eXo?.env.portal.language || 'en';
-      const resolvedLabel = !property.labels ? null : property.labels.find(v => v.language === lang);
-      if (resolvedLabel) {
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$te(`profileSettings.property.name.${property.propertyName}`)
+      },
+      setMainPageSelected () {
+        this.selectedOption = null;
+      },
+      updateSelected () {
+        this.selectedOption =  window.location.hash;
+      },
+      openUserCardSettings () {
+        this.selectedOption = '#cardsettings';
+        this.openUserCardSettingsDrawer();
+      },
+      openUserCardSettingsDrawer () {
+        if (this.userCardSettingsSelected) {
+          this.$refs.userCardSettings.open();
+        }
+      },
+      getSettings () {
+        return this.$profileSettingsService.getSettings()
+          .then(settings => {
+            this.settings = settings?.settings || [];
+            this.unHiddenableProperties = settings?.unHiddenableProperties;
+            this.excludedSettingsProp = settings?.excludedQuickSearchProperties;
+            this.excludedAnalyticsIndexProperties = settings?.excludedAnalyticsIndexProperties;
+          });
+      },
+      editSetting (setting, refresh) {
+        this.$profileSettingsService.updateSetting(setting).then(() => {
+          if (refresh) {
+            this.getSettings();
+          }
+          this.$root.$emit('setting-updated', setting);
+          this.$root.$emit('alert-message', this.$t('profileSettings.update.success.message'), 'success');
+        }).catch(e => {
+          console.error(e);
+          this.$root.$emit('alert-message', this.$t(e.message), 'error');
+        });
+      },
+      createSetting (setting) {
+        this.$profileSettingsService.addSetting(setting).then(storedSetting => {
+          const promises = [];
+          if (setting?.labels?.length) {
+            setting.labels.forEach(label => {
+              label.objectId = storedSetting.id;
+            });
+            promises.push(this.$profileLabelService.addLabels(setting.labels));
+          }
+          return Promise.all(promises);
+        })
+          .then(() => {
+            this.$root.$emit('close-settings-form-drawer');
+            this.getSettings();
+            this.$root.$emit(
+              'alert-message',
+              this.$t('profileSettings.create.success.message'),
+              'success'
+            );
+          })
+          .catch(error => {
+            console.error(error);
+            this.$root.$emit(
+              'alert-message',
+              this.$t(error.message || 'profileSettings.create.error.message'),
+              'error'
+            );
+          });
+      },
+      updateLabels (labels) {
+        this.$profileLabelService.updateLabels(labels);
+      },
+      createLabels (labels) {
+        this.$profileLabelService.addLabels(labels);
+      },
+      deleteLabels (labels) {
+        this.$profileLabelService.deleteLabels(labels);
+      },
+      moveUpSetting (setting) {
+        this.moveSetting(setting, 'up');
+      },
+      moveDownSetting (setting) {
+        this.moveSetting(setting, 'down');
+      },
+      displayNoChangeWarning () {
+        this.$root.$emit('alert-message', this.$t('profileSettings.nochange.warning.message'), 'warning');
+      },
+      moveSetting (setting, direction) {
+        this.settings.sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+        const index = this.settings.findIndex(object => {
+          return object.id === setting.id;
+        });
+        if (index > 0 && direction === 'up'){
+          const order = this.settings[index].order;
+          this.settings[index].order=this.settings[index-1].order;
+          this.settings[index-1].order = order;
+          this.editSetting(this.settings[index],false);
+          this.editSetting(this.settings[index-1],true);
+        }
+        if (index < this.settings.length && direction === 'down'){
+          const order = this.settings[index].order;
+          this.settings[index].order=this.settings[index+1].order;
+          this.settings[index+1].order = order;
+          this.editSetting(this.settings[index],false);
+          this.editSetting(this.settings[index+1],true);
+        }
+      },
+      setCleanUri () {
+        const uri = window.location.toString();
+        const cleanUri = uri.substring(0, uri.indexOf('#'));
+        window.history.replaceState({}, document.title, cleanUri);
+      },
+      getResolvedName (property) {
+        const lang = eXo?.env.portal.language || 'en';
+        const resolvedLabel = !property.labels ? null : property.labels.find(v => v.language === lang);
+        if (resolvedLabel) {
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$te(`profileSettings.property.name.${property.propertyName}`)
           && this.$t(`profileSettings.property.name.${property.propertyName}`)
           || property.propertyName;
-    },
-    saveCardSetting(settingKey, settingValue) {
-      return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
-        this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
-    },
-    getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
-    },
-    saveUserCardSettings(firstField, secondField, thirdField) {
-      this.isSavingCardSettings = true;
-      return this.saveCardSetting(this.userCardFirstFieldSettingKey, firstField).then(() => {
-        return this.saveCardSetting(this.userCardSecondFieldSettingKey, secondField).then(() => {
-          return this.saveCardSetting(this.userCardThirdFieldSettingKey, thirdField).then(() => {
-            this.savedCardSettings = {
-              firstField: firstField,
-              secondField: secondField,
-              thirdField: thirdField
-            };
-            this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.success'), 'success');
-            this.$refs.userCardSettings.close();
-          }).catch(() => {
-            this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.error'), 'error');
-          }).finally(() => this.isSavingCardSettings = false);
+      },
+      saveCardSetting (settingKey, settingValue) {
+        return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
+                                                    this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
+      },
+      getSavedUserCardSettings () {
+        return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
+      },
+      saveUserCardSettings (firstField, secondField, thirdField) {
+        this.isSavingCardSettings = true;
+        return this.saveCardSetting(this.userCardFirstFieldSettingKey, firstField).then(() => {
+          return this.saveCardSetting(this.userCardSecondFieldSettingKey, secondField).then(() => {
+            return this.saveCardSetting(this.userCardThirdFieldSettingKey, thirdField).then(() => {
+              this.savedCardSettings = {
+                firstField,
+                secondField,
+                thirdField,
+              };
+              this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.success'), 'success');
+              this.$refs.userCardSettings.close();
+            }).catch(() => {
+              this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.error'), 'error');
+            }).finally(() => this.isSavingCardSettings = false);
+          });
         });
-      });
+      },
+      openDropdownListDrawer (setting) {
+        this.$refs.dropdownListDrawer.open(setting);
+      },
+      confirmDialogClosed () {
+        this.dialogCallback = null;
+      },
+      openConfirmDialog (setting) {
+        this.dialogTitle = setting.title;
+        this.dialogMessage = setting.message;
+        this.dialogOkLabel = setting.okLabel;
+        this.dialogCancelLabel = setting.cancelLabel;
+        this.dialogCallback = setting.callback;
+        this.$refs.dialog.open();
+      },
+      onDialogOk () {
+        this.dialogCallback?.();
+      },
     },
-    openDropdownListDrawer(setting) {
-      this.$refs.dropdownListDrawer.open(setting);
-    },
-    confirmDialogClosed() {
-      this.dialogCallback = null;
-    },
-    openConfirmDialog(setting) {
-      this.dialogTitle = setting.title;
-      this.dialogMessage = setting.message;
-      this.dialogOkLabel = setting.okLabel;
-      this.dialogCancelLabel = setting.cancelLabel;
-      this.dialogCallback = setting.callback;
-      this.$refs.dialog.open();
-    },
-    onDialogOk() {
-      this.dialogCallback?.();
-    }
-  }
-};
+  };
 </script>

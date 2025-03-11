@@ -35,45 +35,49 @@
     <v-list-item-title class="align-center d-flex">
       <v-card
         class="d-flex align-center justify-center transparent"
+        flat
         height="25"
-        width="25"
-        flat>
-        <v-icon :class="extension.iconColor" size="20">
+        width="25">
+        <v-icon
+          :class="extension.iconColor"
+          size="20">
           {{ extension.class || extension.icon }}
         </v-icon>
       </v-card>
-      <span :class="extension.textColor" class="ms-3">
+      <span
+        class="ms-3"
+        :class="extension.textColor">
         {{ extension.title || $t(extension.titleKey) }}
       </span>
     </v-list-item-title>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    extension: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      extension: {
+        type: Object,
+        default: null,
+      },
+      user: {
+        type: Object,
+        default: null,
+      },
+      spaceId: {
+        type: Object,
+        default: null,
+      },
     },
-    user: {
-      type: Object,
-      default: null,
+    mounted () {
+      this.initExtension();
     },
-    spaceId: {
-      type: Object,
-      default: null,
+    methods: {
+      initExtension () {
+        if (this.$refs.container?.$el) {
+          this.$refs.container.$el.innerHTML = '';
+          this.extension.init(this.$refs.container?.$el, this.user.username);
+        }
+      },
     },
-  },
-  mounted() {
-    this.initExtension();
-  },
-  methods: {
-    initExtension() {
-      if (this.$refs.container?.$el) {
-        this.$refs.container.$el.innerHTML = '';
-        this.extension.init(this.$refs.container?.$el, this.user.username);
-      }
-    }
-  }
-};
+  };
 </script>

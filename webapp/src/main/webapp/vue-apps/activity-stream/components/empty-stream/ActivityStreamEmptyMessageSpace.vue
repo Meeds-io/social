@@ -21,20 +21,20 @@
 -->
 <template>
   <activity-stream-empty-message
-    :title="title"
-    :subtitle="subtitle" />
+    :subtitle="subtitle"
+    :title="title" />
 </template>
 <script>
-export default {
-  computed: {
-    title() {
-      return this.$t('UIActivity.label.Welcome_Space', {
-        'space name': `<strong>${eXo.env.portal.spaceDisplayName}</strong>`,
-      });
+  export default {
+    computed: {
+      title () {
+        return this.$t('UIActivity.label.Welcome_Space', {
+          'space name': `<strong>${eXo.env.portal.spaceDisplayName}</strong>`,
+        });
+      },
+      subtitle () {
+        return this.$t('UIActivity.label.Welcome_Space_subtitle');
+      },
     },
-    subtitle() {
-      return this.$t('UIActivity.label.Welcome_Space_subtitle');
-    },
-  },
-};
+  };
 </script>

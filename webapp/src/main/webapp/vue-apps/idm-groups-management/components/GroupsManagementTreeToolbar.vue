@@ -1,5 +1,7 @@
 <template>
-  <v-flex id="groupsManagementToolbar" class="d-flex flex-row">
+  <v-flex
+    id="groupsManagementToolbar"
+    class="d-flex flex-row">
     <v-flex class="mx-3 d-flex flex-grow-0 groupsManagementToolbarButton">
       <v-btn
         class="btn btn-primary my-auto addNewGroupButton"
@@ -13,13 +15,13 @@
     <v-flex class="mx-3 d-flex flex-column flex-grow-1 groupsManagementToolbarFilter">
       <v-text-field
         v-model="keyword"
+        class="inputMembershipTypeFilter pa-0 my-auto"
         :placeholder="$t('GroupsManagement.filterByGroup')"
-        prepend-inner-icon="fa-filter"
-        class="inputMembershipTypeFilter pa-0 my-auto" />
+        prepend-inner-icon="fa-filter" />
       <v-progress-linear
         v-if="searching"
-        color="primary"
         class="groupSearchingProgressBar"
+        color="primary"
         indeterminate
         size="32" />
     </v-flex>
@@ -27,18 +29,18 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    keyword: null,
-    searching: false,
-  }),
-  watch: {
-    keyword() {
-      this.$root.$emit('searchGroup', this.keyword);
+  export default {
+    data: () => ({
+      keyword: null,
+      searching: false,
+    }),
+    watch: {
+      keyword () {
+        this.$root.$emit('searchGroup', this.keyword);
+      },
     },
-  },
-  created() {
-    this.$root.$on('searchingGroup', searching => this.searching = searching);
-  },
-};
+    created () {
+      this.$root.$on('searchingGroup', searching => this.searching = searching);
+    },
+  };
 </script>

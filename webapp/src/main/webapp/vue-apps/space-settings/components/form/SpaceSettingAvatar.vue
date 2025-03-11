@@ -27,26 +27,28 @@
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
-            ref="avatarInput"
             id="spaceAvatarEditButton"
+            ref="avatarInput"
             icon
             outlined
             @click="$refs.imageCropDrawer.open()">
-            <v-icon size="18">fa-camera</v-icon>
+            <v-icon size="18">
+              fa-camera
+            </v-icon>
           </v-btn>
         </div>
       </div>
     </div>
     <v-img
+      id="spaceAvatarImg"
+      class="d-flex border-radius"
+      :class="!avatarUrl && 'primary'"
+      contain
+      eager
+      height="45"
       :lazy-src="imageData || avatarUrl || ''"
       :src="imageData || avatarUrl || ''"
-      :class="!avatarUrl && 'primary'"
-      id="spaceAvatarImg"
-      height="45"
-      width="45"
-      class="d-flex border-radius"
-      contain
-      eager>
+      width="45">
       <v-card
         class="full-width full-height"
         flat
@@ -55,43 +57,43 @@
     <image-crop-drawer
       ref="imageCropDrawer"
       :crop-options="cropOptions"
-      :max-file-size="maxUploadSizeInBytes"
-      :src="imageData || `${avatarUrl}&size=0`"
-      max-image-width="1280"
       drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
+      :max-file-size="maxUploadSizeInBytes"
+      max-image-width="1280"
+      :src="imageData || `${avatarUrl}&size=0`"
       @data="imageData = $event"
       @input="$emit('input', $event)" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    maxUploadSize: {
-      type: Number,
-      default: () => 2,
+  export default {
+    props: {
+      maxUploadSize: {
+        type: Number,
+        default: () => 2,
+      },
     },
-  },
-  data: () => ({
-    imageData: null,
-    cropOptions: {
-      aspectRatio: 1,
-      viewMode: 1,
+    data: () => ({
+      imageData: null,
+      cropOptions: {
+        aspectRatio: 1,
+        viewMode: 1,
+      },
+    }),
+    computed: {
+      avatarUrl () {
+        return this.$root.space?.avatarUrl;
+      },
+      maxUploadSizeInBytes () {
+        return this.maxUploadSize * 1024 * 1024;
+      },
+      height () {
+        if (this.$root.isMobile) {
+          return 125;
+        } else {
+          return 175;
+        }
+      },
     },
-  }),
-  computed: {
-    avatarUrl() {
-      return this.$root.space?.avatarUrl;
-    },
-    maxUploadSizeInBytes() {
-      return this.maxUploadSize * 1024 * 1024;
-    },
-    height() {
-      if (this.$root.isMobile) {
-        return 125;
-      } else {
-        return 175;
-      }
-    },
-  },
-};
+  };
 </script>

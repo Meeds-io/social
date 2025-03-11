@@ -30,7 +30,7 @@ if (extensionRegistry) {
   }
 }
 
-export function init(isExternalFeatureEnabled) {
+export function init (isExternalFeatureEnabled) {
   const appId = 'spacesAdministration';
   const lang = eXo?.env?.portal?.language || 'en';
   exoi18n.loadLanguageAsync(lang, [
@@ -52,7 +52,7 @@ export function init(isExternalFeatureEnabled) {
         administratorsPermission: '/platform/administrators',
         collator: new Intl.Collator(eXo.env.portal.language, {
           numeric: true,
-          sensitivity: 'base'
+          sensitivity: 'base',
         }),
         allSpacesSelected: false,
         selectedSpaces: [],
@@ -74,40 +74,40 @@ export function init(isExternalFeatureEnabled) {
         spaces: [],
       },
       computed: {
-        isMobile() {
+        isMobile () {
           return this.$vuetify.breakpoint.mobile;
         },
-        canShowMore() {
+        canShowMore () {
           return this.spaces?.length && this.spacesSize > this.spaces.length;
         },
-        loading() {
+        loading () {
           return this.loadingDisplay || this.loadingSpaces;
         },
-        isFilteredByTemplate() {
+        isFilteredByTemplate () {
           return this.selectedTemplateId && Number(this.selectedTemplateId);
         },
-        isFilteredByRegistration() {
+        isFilteredByRegistration () {
           return this.selectedRegistration && this.selectedRegistration !== '';
         },
-        isFilteredByVisibility() {
+        isFilteredByVisibility () {
           return this.selectedVisibility && this.selectedVisibility !== '';
         },
       },
       watch: {
-        keyword() {
+        keyword () {
           if (this.initialized && !this.isBulkProcessing) {
             this.searchSpaces(true, true);
           }
         },
-        selectedSpaces() {
+        selectedSpaces () {
           if (!this.isBulkProcessing) {
             this.allSpacesSelected = false;
           }
         },
-        isBulkProcessing() {
+        isBulkProcessing () {
           if (this.isBulkProcessing) {
             window.addEventListener('beforeunload', this.displayConfirmReload);
-            document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+            document.dispatchEvent(new CustomEvent('alert-message', { detail: {
               alertComponent: 'spaces-administration-processing-alert',
               alertComponentParams: {
                 options: this.$root,
@@ -119,14 +119,14 @@ export function init(isExternalFeatureEnabled) {
                 this.isBulkProcessing = false;
                 document.dispatchEvent(new CustomEvent('close-alert-message'));
               },
-            }}));
+            } }));
           } else {
             window.removeEventListener('beforeunload', this.displayConfirmReload);
             document.dispatchEvent(new CustomEvent('close-alert-message'));
           }
         },
       },
-      created() {
+      created () {
         document.addEventListener('extension-spaces-administration-bulk-action-updated', this.refreshExtensions);
         document.addEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.addEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
@@ -135,7 +135,7 @@ export function init(isExternalFeatureEnabled) {
         this.refreshSpaceTemplates();
         this.refreshExtensions();
       },
-      beforeDestroy() {
+      beforeDestroy () {
         document.removeEventListener('extension-spaces-administration-bulk-action-updated', this.refreshExtensions);
         document.removeEventListener('extension-spaces-administration-menu-action-updated', this.refreshExtensions);
         document.removeEventListener('extension-spaces-administration-main-updated', this.refreshExtensions);
@@ -143,27 +143,27 @@ export function init(isExternalFeatureEnabled) {
         this.$off('spaces-administration-list-refresh', this.refreshSpaces);
       },
       methods: {
-        displayLoading() {
+        displayLoading () {
           this.loadingDisplay = true;
         },
-        hideLoading() {
+        hideLoading () {
           this.loadingDisplay = false;
         },
-        async refreshSpaceTemplates() {
+        async refreshSpaceTemplates () {
           const spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
           spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
           this.spaceTemplates = spaceTemplates;
         },
-        refreshExtensions() {
+        refreshExtensions () {
           this.bulkExtensions = extensionRegistry.loadExtensions('spaces-administration', 'bulk-action') || [];
           this.itemMenuExtensions = extensionRegistry.loadExtensions('spaces-administration', 'menu-action') || [];
           this.mainExtensions = extensionRegistry.loadExtensions('spaces-administration', 'main') || [];
           this.tableColumnExtensions = extensionRegistry.loadExtensions('spaces-administration', 'table-column') || [];
         },
-        refreshSpaces(clean) {
+        refreshSpaces (clean) {
           this.searchSpaces(true, clean);
         },
-        async searchSpaces(refresh, clean) {
+        async searchSpaces (refresh, clean) {
           if (this.loadingSpaces) {
             return;
           }
@@ -180,8 +180,8 @@ export function init(isExternalFeatureEnabled) {
             if (customSort
                 && !this.keyword?.length) {
               this.spaces = await customSort({
-                offset: offset,
-                limit: limit,
+                offset,
+                limit,
                 expand: this.expand,
                 templateId: (this.selectedTemplateId && Number(this.selectedTemplateId)) ? this.selectedTemplateId : null,
                 sortDesc: this.sortDesc,
@@ -199,8 +199,8 @@ export function init(isExternalFeatureEnabled) {
                 templateId: this.selectedTemplateId && Number(this.selectedTemplateId),
                 filter: 'all',
                 expand: this.expand,
-                offset: offset,
-                limit: limit,
+                offset,
+                limit,
                 sortBy: 'title',
                 sortDirection: this.sortDesc ? 'desc' : 'asc',
               });
@@ -218,11 +218,11 @@ export function init(isExternalFeatureEnabled) {
             this.initialized = true;
           }
         },
-        async loadNextPage() {
+        async loadNextPage () {
           this.offset += this.pageSize;
           await this.searchSpaces();
         },
-        async applyOperationInBulk(callback, params, onFinish, onCancel) {
+        async applyOperationInBulk (callback, params, onFinish, onCancel) {
           this.processedSpaces = 0;
           this.isBulkProcessing = true;
           this.$emit('spaces-administration-bulk-operation-status', null, 'disabled');
@@ -231,11 +231,11 @@ export function init(isExternalFeatureEnabled) {
               let index = 0;
               do {
                 while (index < this.spaces.length && this.isBulkProcessing) {
-                  // eslint-disable-next-line no-await-in-loop
+                   
                   await this.applyOperationOnSpace(this.spaces[index++], params, callback);
                 }
                 if (index >= this.spaces.length && this.isBulkProcessing) {
-                  // eslint-disable-next-line no-await-in-loop
+                   
                   await this.loadNextPage();
                   this.selectedSpaces = this.spaces;
                 }
@@ -250,7 +250,7 @@ export function init(isExternalFeatureEnabled) {
                 // instead of selection order
                 const space = this.spaces[i];
                 if (this.selectedSpaces.find(s => s.id === space.id)) {
-                  // eslint-disable-next-line no-await-in-loop
+                   
                   await this.applyOperationOnSpace(space, params, callback);
                 }
               }
@@ -270,20 +270,20 @@ export function init(isExternalFeatureEnabled) {
             }
           }
         },
-        async applyOperationOnSpace(space, params, callback) {
+        async applyOperationOnSpace (space, params, callback) {
           this.$emit('spaces-administration-bulk-operation-status', space.id, 'processing');
           try {
             await callback(space, params);
             this.$emit('spaces-administration-bulk-operation-status', space.id, 'done');
           } catch (e) {
-            // eslint-disable-next-line no-console
+             
             console.error('Error processing space ', space.id, '. Error: ', e);
             this.$emit('spaces-administration-bulk-operation-status', space.id, 'error');
           } finally {
             this.processedSpaces++;
           }
         },
-        displayConfirmReload(event) {
+        displayConfirmReload (event) {
           event.preventDefault();
           event.returnValue = true;
         },

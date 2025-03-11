@@ -21,8 +21,8 @@
           <user-setting-notification-channel
             v-for="channel in notificationSettings.channels"
             :key="channel"
-            :channel="channel"
             :active="notificationSettings.channelStatus[channel]"
+            :channel="channel"
             :settings="notificationSettings" />
         </template>
 
@@ -34,10 +34,12 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              small
               icon
+              small
               @click="openDetail">
-              <v-icon size="24" class="icon-default-color">
+              <v-icon
+                class="icon-default-color"
+                size="24">
                 {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
               </v-icon>
             </v-btn>
@@ -55,12 +57,16 @@
             <v-tooltip bottom>
               <template #activator="{on, bind}">
                 <v-btn
-                  v-on="on"
                   v-bind="bind"
-                  small
                   icon
+                  small
+                  v-on="on"
                   @click="$refs.muteSpacesDrawer.open()">
-                  <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  <v-icon
+                    class="icon-default-color"
+                    size="18">
+                    fa-edit
+                  </v-icon>
                 </v-btn>
               </template>
               <span>{{ $t('UserSettings.subtitle.muteSpacesNotifications') }}</span>
@@ -76,69 +82,69 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    id: `Notifications${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
-    notificationSettings: null,
-    displayDetails: false,
-    displayed: true,
-  }),
-  watch: {
-    displayed() {
-      if (this.displayed) {
-        this.$nextTick().then(() => this.$root.$emit('application-cache'));
-      }
-      this.$root.$updateApplicationVisibility(this.displayed);
+  export default {
+    data: () => ({
+      id: `Notifications${parseInt(Math.random() * 10000)
+        .toString()
+        .toString()}`,
+      notificationSettings: null,
+      displayDetails: false,
+      displayed: true,
+    }),
+    watch: {
+      displayed () {
+        if (this.displayed) {
+          this.$nextTick().then(() => this.$root.$emit('application-cache'));
+        }
+        this.$root.$updateApplicationVisibility(this.displayed);
+      },
     },
-  },
-  created() {
-    document.addEventListener('hideSettingsApps', (event) => {
-      if (event && event.detail && this.id !== event.detail) {
-        this.displayed = false;
-      }
-    });
-    document.addEventListener('showNotificationSettings', () => this.openDetail());
-    document.addEventListener('showSettingsApps', () => this.displayed = true);
-    this.$root.$on('refresh', this.refresh);
-    this.refresh()
-      .finally(() => {
-        if (this.$root.autoOpen) {
-          this.openDetail();
+    created () {
+      document.addEventListener('hideSettingsApps', event => {
+        if (event && event.detail && this.id !== event.detail) {
+          this.displayed = false;
         }
       });
-  },
-  mounted() {
-    this.$root.$updateApplicationVisibility(this.displayed);
-  },
-  methods: {
-    refresh() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
-        method: 'GET',
-        credentials: 'include',
-      })
-        .then(resp => resp && resp.ok && resp.json())
-        .then(settings => {
-          if (this.displayed && !settings?.channels?.length) {
-            this.displayed = false;
-          }
-          this.notificationSettings = settings;
-          return this.$nextTick();
-        })
+      document.addEventListener('showNotificationSettings', () => this.openDetail());
+      document.addEventListener('showSettingsApps', () => this.displayed = true);
+      this.$root.$on('refresh', this.refresh);
+      this.refresh()
         .finally(() => {
-          this.$nextTick().then(() => this.$root.$applicationLoaded());
+          if (this.$root.autoOpen) {
+            this.openDetail();
+          }
         });
     },
-    openDetail() {
-      document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
-      this.displayDetails = true;
+    mounted () {
+      this.$root.$updateApplicationVisibility(this.displayed);
     },
-    closeDetail() {
-      document.dispatchEvent(new CustomEvent('showSettingsApps'));
-      this.displayDetails = false;
+    methods: {
+      refresh () {
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}`, {
+          method: 'GET',
+          credentials: 'include',
+        })
+          .then(resp => resp && resp.ok && resp.json())
+          .then(settings => {
+            if (this.displayed && !settings?.channels?.length) {
+              this.displayed = false;
+            }
+            this.notificationSettings = settings;
+            return this.$nextTick();
+          })
+          .finally(() => {
+            this.$nextTick().then(() => this.$root.$applicationLoaded());
+          });
+      },
+      openDetail () {
+        document.dispatchEvent(new CustomEvent('hideSettingsApps', { detail: this.id }));
+        this.displayDetails = true;
+      },
+      closeDetail () {
+        document.dispatchEvent(new CustomEvent('showSettingsApps'));
+        this.displayDetails = false;
+      },
     },
-  },
-};
+  };
 </script>
 

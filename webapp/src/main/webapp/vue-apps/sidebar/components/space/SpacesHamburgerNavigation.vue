@@ -20,19 +20,27 @@
 -->
 <template>
   <div class="recentDrawer d-flex flex-column full-height full-width overflow-hidden">
-    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
+    <v-flex
+      v-if="initialized || hasSpaces"
+      class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-card
-        min-height="58"
         class="d-flex align-center full-width transparent"
-        flat>
-        <v-list-item class="text-truncate full-width" dense>
+        flat
+        min-height="58">
+        <v-list-item
+          class="text-truncate full-width"
+          dense>
           <v-list-item-icon
             v-if="!$root.displaySequentially"
             class="backToMenu ms-0 me-2 icon-default-color justify-center"
             @click="$emit('close')">
-            <v-icon size="20">{{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}</v-icon>
+            <v-icon size="20">
+              {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
+            </v-icon>
           </v-list-item-icon>
-          <v-list-item-content v-if="!showFilter" class="overflow-hidden">
+          <v-list-item-content
+            v-if="!showFilter"
+            class="overflow-hidden">
             <v-list-item-title class="text-truncate text-start font-weight-bold">
               {{ title }}
             </v-list-item-title>
@@ -40,29 +48,33 @@
           <v-list-item-content v-if="showFilter">
             <v-text-field
               v-model="keyword"
-              :placeholder="$t('menu.spaces.recentSpaces')"
-              :loading="loading"
+              autofocus
               class="recentSpacesFilter border-bottom-color pt-0 mt-0"
-              single-line
               hide-details
+              :loading="loading"
+              :placeholder="$t('menu.spaces.recentSpaces')"
               required
-              autofocus />
+              single-line />
           </v-list-item-content>
           <v-list-item-action class="d-flex flex-row ms-auto my-auto">
             <v-btn
               v-show="!showFilter && canCreateSpace"
-              :title="$t('menu.spaces.addNewSpaceTooltip')"
               icon
+              :title="$t('menu.spaces.addNewSpaceTooltip')"
               @click="addNewSpace">
-              <v-icon size="20">fa-plus</v-icon>
+              <v-icon size="20">
+                fa-plus
+              </v-icon>
             </v-btn>
             <v-btn
               v-if="selectedFilterIndex !== 2"
-              :title="$t('menu.spaces.filterBySpaceTooltip')"
               class="ms-2"
               icon
+              :title="$t('menu.spaces.filterBySpaceTooltip')"
               @click="showFilter = !showFilter">
-              <v-icon size="20">{{ showFilter && 'fa-times' || 'fa-filter' }}</v-icon>
+              <v-icon size="20">
+                {{ showFilter && 'fa-times' || 'fa-filter' }}
+              </v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -74,26 +86,28 @@
         class="position-absolute ful-width"
         indeterminate />
     </div>
-    <v-flex v-if="initialized || hasSpaces" class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
+    <v-flex
+      v-if="initialized || hasSpaces"
+      class="filterSpaces d-flex align-center flex-grow-0 flex-shrink-0">
       <v-tabs
         v-model="selectedFilterIndex"
         background-color="transparent"
-        slider-size="4"
-        fixed-tabs>
+        fixed-tabs
+        slider-size="4">
         <v-tab
-          value="recent"
-          class="text-header">
+          class="text-header"
+          value="recent">
           {{ $t('menu.spaces.recent') }}
         </v-tab>
         <v-tab
-          value="favorite"
-          class="text-header">
+          class="text-header"
+          value="favorite">
           {{ $t('menu.spaces.favorite') }}
         </v-tab>
         <v-tab
           v-if="!$root.openedSpaceTemplateId && !$root.openedSpaceCategoryId"
-          value="unread"
-          class="text-header">
+          class="text-header"
+          value="unread">
           {{ $t('menu.spaces.unread') }}
         </v-tab>
       </v-tabs>
@@ -101,28 +115,28 @@
     </v-flex>
     <spaces-navigation-empty
       v-if="!hasSpaces && !loading"
-      :keyword="keyword"
+      class="pa-5 flex-grow-0 flex-shrink-0"
       :filter-type="filterType"
-      class="pa-5 flex-grow-0 flex-shrink-0" />
+      :keyword="keyword" />
     <spaces-navigation-content
-      :limit="itemsToShow"
-      :page-size="itemsToShow"
-      :keyword="keyword"
-      :opened-space="openedSpace"
+      class="recentSpacesWrapper overflow-x-hidden overflow-y-auto specific-scrollbar"
       :filter-type="filterType"
+      :keyword="keyword"
+      :limit="itemsToShow"
+      :opened-space="openedSpace"
+      :page-size="itemsToShow"
       show-more-button
       third-level
-      class="recentSpacesWrapper overflow-x-hidden overflow-y-auto specific-scrollbar"
-      @open-space-panel="$emit('open-space-panel',$event)"
       @loading="loading = $event"
+      @open-space-panel="$emit('open-space-panel',$event)"
       @spaces-count="hasSpaces = $event" />
     <template v-if="$root.openedSpacesUrl">
       <v-spacer />
       <v-divider />
       <div class="d-flex align-center justify-end my-2 mx-4">
         <v-btn
-          :href="$root.openedSpacesUrl"
           color="primary"
+          :href="$root.openedSpacesUrl"
           outlined>
           {{ $t('spacesList.label.viewAllSpaces') }}
         </v-btn>
@@ -131,97 +145,97 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    openedSpace: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    itemsToShow: 15,
-    showFilter: false,
-    selectedFilterIndex: 0,
-    loading: false,
-    initialized: false,
-    hasSpaces: false,
-    keyword: '',
-  }),
-  computed: {
-    filterType() {
-      if (this.selectedFilterIndex === 0) {
-        return 'lastVisited';
-      } else if (this.selectedFilterIndex === 1) {
-        return 'favorite';
-      } else {
-        return 'unread';
-      }
-    },
-    title() {
-      if (this.$root.openedSpaceTemplateId) {
-        return this.$root.openedSpaceTemplateName;
-      } else if (this.$root.openedSpaceCategoryId) {
-        return this.$root.openedSpaceCategoryName;
-      } else {
-        return this.$t('menu.spaces.yourSpaces');
-      }
-    },
-    canCreateSpace() {
-      return (!this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.length)
-        || (this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.find(t => Number(t.id) === Number(this.$root.openedSpaceTemplateId)));
-    },
-  },
-  watch: {
-    loading() {
-      if (!this.loading) {
-        this.initialized = true;
-      }
-    },
-  },
-  created() {
-    this.init();
-  },
-  beforeDestroy() {
-    this.$root.openedSpaceTemplateId = null;
-    this.$root.openedSpaceCategoryId = null;
-    this.$root.openedItem = null;
-    this.$root.openedSpaces = false;
-    this.$root.spacesSortBy = null;
-  },
-  methods: {
-    async init() {
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-      }
-    },
-    closeMenu() {
-      this.$emit('close-menu');
-    },
-    closeFilter() {
-      this.keyword = '';
-      this.showFilter = false;
-    },
-    getSpacesPage(item) {
-      if (this.itemsToShow <= this.spacesList.length) {
-        const l = this.spacesList.length - this.itemsToShow;
-        if ( l > item ) {
-          this.itemsToShow+=item;
+    data: () => ({
+      itemsToShow: 15,
+      showFilter: false,
+      selectedFilterIndex: 0,
+      loading: false,
+      initialized: false,
+      hasSpaces: false,
+      keyword: '',
+    }),
+    computed: {
+      filterType () {
+        if (this.selectedFilterIndex === 0) {
+          return 'lastVisited';
+        } else if (this.selectedFilterIndex === 1) {
+          return 'favorite';
         } else {
-          this.itemsToShow+=l;
-          this.showButton = false;
+          return 'unread';
         }
-      }
+      },
+      title () {
+        if (this.$root.openedSpaceTemplateId) {
+          return this.$root.openedSpaceTemplateName;
+        } else if (this.$root.openedSpaceCategoryId) {
+          return this.$root.openedSpaceCategoryName;
+        } else {
+          return this.$t('menu.spaces.yourSpaces');
+        }
+      },
+      canCreateSpace () {
+        return (!this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.length)
+          || (this.$root.openedSpaceTemplateId && this.$root.spaceTemplates?.find(t => Number(t.id) === Number(this.$root.openedSpaceTemplateId)));
+      },
     },
-    leftNavigationActionEvent(clickedItem) {
-      document.dispatchEvent(new CustomEvent('space-left-navigation-action', {detail: clickedItem} ));
+    watch: {
+      loading () {
+        if (!this.loading) {
+          this.initialized = true;
+        }
+      },
     },
-    openFilter() {
-      this.showFilter = true;
-      this.leftNavigationActionEvent('filterBySpaces');
+    created () {
+      this.init();
     },
-    addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId, this.$root.isExternalFeatureEnabled));
+    beforeUnmount () {
+      this.$root.openedSpaceTemplateId = null;
+      this.$root.openedSpaceCategoryId = null;
+      this.$root.openedItem = null;
+      this.$root.openedSpaces = false;
+      this.$root.spacesSortBy = null;
     },
-  }
-};
+    methods: {
+      async init () {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+      },
+      closeMenu () {
+        this.$emit('close-menu');
+      },
+      closeFilter () {
+        this.keyword = '';
+        this.showFilter = false;
+      },
+      getSpacesPage (item) {
+        if (this.itemsToShow <= this.spacesList.length) {
+          const l = this.spacesList.length - this.itemsToShow;
+          if ( l > item ) {
+            this.itemsToShow+=item;
+          } else {
+            this.itemsToShow+=l;
+            this.showButton = false;
+          }
+        }
+      },
+      leftNavigationActionEvent (clickedItem) {
+        document.dispatchEvent(new CustomEvent('space-left-navigation-action', { detail: clickedItem } ));
+      },
+      openFilter () {
+        this.showFilter = true;
+        this.leftNavigationActionEvent('filterBySpaces');
+      },
+      addNewSpace () {
+        window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId, this.$root.isExternalFeatureEnabled));
+      },
+    },
+  };
 </script>

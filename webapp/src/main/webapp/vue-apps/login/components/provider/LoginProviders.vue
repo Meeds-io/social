@@ -25,91 +25,91 @@
     <template v-if="providers.length">
       <v-card
         class="d-flex mx-auto mt-5"
-        :width="mainProvidersWidth"
-        flat>
+        flat
+        :width="mainProvidersWidth">
         <component
+          :is="provider.vueComponentName || 'portal-login-provider-link'"
           v-for="(provider, index) in mainProviders"
           :key="provider.key"
-          :provider="provider"
-          :rememberme="rememberme"
-          :params="params"
-          :is="provider.vueComponentName || 'portal-login-provider-link'"
-          :display-text="providers.length === 1"
+          class="mx-auto"
           :class="index === 0 ? 'flex-grow-0' : 'flex-grow-1 text-end'"
-          class="mx-auto" />
+          :display-text="providers.length === 1"
+          :params="params"
+          :provider="provider"
+          :rememberme="rememberme" />
         <portal-login-providers-menu
           v-if="displayMoreMenu"
-          :providers="menuProviders"
-          :params="params"
-          :rememberme="rememberme"
           key="providerMenu"
-          class="flex-grow-1 text-end mx-auto" />
+          class="flex-grow-1 text-end mx-auto"
+          :params="params"
+          :providers="menuProviders"
+          :rememberme="rememberme" />
       </v-card>
       <portal-login-separator class="mt-5" />
     </template>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
+      rememberme: {
+        type: Boolean,
+        default: false,
+      },
     },
-    rememberme: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      providers: [],
+      extensionName: 'LoginProvider',
+      extensionType: 'login-provider',
+    }),
+    computed: {
+      oAuthEnabled () {
+        return this.params?.oAuthEnabled;
+      },
+      oAuthProviderTypes () {
+        return this.params?.oAuthProviderTypes || [];
+      },
+      oAuthProviders () {
+        return this.oAuthEnabled && this.params?.oAuthProviderTypes?.map(key => ({
+          key,
+          url: this.params[`oAuthInitURL-${key}`],
+          rank: 0,
+        })) || [];
+      },
+      mainProviders () {
+        return this.providers.length > 4 ? this.providers.slice(0, 3) : this.providers;
+      },
+      menuProviders () {
+        return this.providers.length > 4 ? this.providers.slice(3) : [];
+      },
+      displayMoreMenu () {
+        return this.menuProviders.length > 0;
+      },
+      mainProvidersWidth () {
+        return this.mainProviders.length === 2 && this.mainProviders.length * 82 || '';
+      },
     },
-  },
-  data: () => ({
-    providers: [],
-    extensionName: 'LoginProvider',
-    extensionType: 'login-provider',
-  }),
-  computed: {
-    oAuthEnabled() {
-      return this.params?.oAuthEnabled;
+    created () {
+      this.refreshProviders();
+      document.addEventListener(`extension-${this.extensionName}-${this.extensionType}-updated`, this.refreshProviders);
     },
-    oAuthProviderTypes() {
-      return this.params?.oAuthProviderTypes || [];
+    methods: {
+      refreshProviders () {
+        const providers = this.oAuthProviders.slice();
+        const providerExtensions = extensionRegistry.loadExtensions(this.extensionName, this.extensionType);
+        if (providerExtensions?.length) {
+          providerExtensions.forEach(extension => {
+            if (extension.isEnabled && extension.isEnabled(this.params)) {
+              providers.push(extension);
+            }
+          });
+        }
+        this.providers = providers.sort((p1, p2) => (p2.rank || 0) - (p1.rank || 0));
+      },
     },
-    oAuthProviders() {
-      return this.oAuthEnabled && this.params?.oAuthProviderTypes?.map(key => ({
-        key,
-        url: this.params[`oAuthInitURL-${key}`],
-        rank: 0,
-      })) || [];
-    },
-    mainProviders() {
-      return this.providers.length > 4 ? this.providers.slice(0, 3) : this.providers;
-    },
-    menuProviders() {
-      return this.providers.length > 4 ? this.providers.slice(3) : [];
-    },
-    displayMoreMenu() {
-      return this.menuProviders.length > 0;
-    },
-    mainProvidersWidth() {
-      return this.mainProviders.length === 2 && this.mainProviders.length * 82 || '';
-    },
-  },
-  created() {
-    this.refreshProviders();
-    document.addEventListener(`extension-${this.extensionName}-${this.extensionType}-updated`, this.refreshProviders);
-  },
-  methods: {
-    refreshProviders() {
-      const providers = this.oAuthProviders.slice();
-      const providerExtensions = extensionRegistry.loadExtensions(this.extensionName, this.extensionType);
-      if (providerExtensions?.length) {
-        providerExtensions.forEach(extension => {
-          if (extension.isEnabled && extension.isEnabled(this.params)) {
-            providers.push(extension);
-          }
-        });
-      }
-      this.providers = providers.sort((p1, p2) => (p2.rank || 0) - (p1.rank || 0));
-    },
-  },
-};
+  };
 </script>

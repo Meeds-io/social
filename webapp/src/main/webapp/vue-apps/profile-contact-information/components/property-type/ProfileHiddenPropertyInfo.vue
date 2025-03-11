@@ -35,25 +35,25 @@
 </template>
 
 <script>
-export default {
-  props: {
-    property: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: null,
+      },
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      isMobile: {
+        type: Boolean,
+        default: false,
+      },
     },
-    hover: {
-      type: Boolean,
-      default: false
+    computed: {
+      isHidden () {
+        return this.property?.hidden;
+      },
     },
-    isMobile: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    isHidden() {
-      return this.property?.hidden;
-    },
-  }
-};
+  };
 </script>

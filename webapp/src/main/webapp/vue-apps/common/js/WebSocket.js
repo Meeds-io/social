@@ -1,6 +1,6 @@
 const subscribedChannels = {};
 
-export function initCometd(channelName, forceSubscription) {
+export function initCometd (channelName, forceSubscription) {
   const loc = window.location;
   const cometdContext = eXo.env.portal.cometdContext;
   const cometdToken = eXo.env.portal.cometdToken;
@@ -12,13 +12,13 @@ export function initCometd(channelName, forceSubscription) {
 
   if (forceSubscription || !subscribedChannels[channelName]) {
     subscribedChannels[channelName] = true;
-    cCometd.subscribe(channelName, null, (event) => {
+    cCometd.subscribe(channelName, null, event => {
       const data = event.data && JSON.parse(event.data);
       if (!data) {
         return;
       }
       const wsMessage = JSON.parse(event.data);
-      document.dispatchEvent(new CustomEvent(wsMessage.wsEventName, {detail: wsMessage}));
+      document.dispatchEvent(new CustomEvent(wsMessage.wsEventName, { detail: wsMessage }));
     });
   }
 }

@@ -22,63 +22,71 @@
 <template>
   <v-card
     class="no-border-radius"
-    min-height="57"
-    flat>
+    flat
+    min-height="57">
     <v-list-item
-      :href="defaultUserPath"
-      :target="defaultUserPathTarget"
       :aria-label="$t('menu.userHomeLink')"
-      class="fill-height">
+      class="fill-height"
+      :href="defaultUserPath"
+      :target="defaultUserPathTarget">
       <v-list-item-avatar
+        class="my-auto mx-0"
         height="36"
         max-width="100"
         min-width="auto"
-        width="auto"
-        class="my-auto mx-0"
-        tile>
+        tile
+        width="auto">
         <img
-          :src="companyLogo"
           :alt="$t('menu.companyNameTooltip',{0: companyName})"
+          class="object-fit-contain"
           height="36"
-          width="auto"
-          class="object-fit-contain">
+          :src="companyLogo"
+          width="auto">
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title
           v-if="$root.expand"
           class="font-weight-bold menu-text-color text-truncate ms-4">
           <v-card
-            :title="$t('menu.companyNameTooltip',{0: companyName})"
             class="text-truncate transparent"
+            flat
             min-width="50"
-            flat>
+            :title="$t('menu.companyNameTooltip',{0: companyName})">
             {{ companyName }}
           </v-card>
         </v-list-item-title>
       </v-list-item-content>
-      <v-list-item-action v-if="$root.hoverDeferred && $root.stickyAllowed" class="d-flex flex-row ms-auto my-auto">
-        <v-tooltip v-if="!$root.hidden && $root.allowHidden" bottom>
+      <v-list-item-action
+        v-if="$root.hoverDeferred && $root.stickyAllowed"
+        class="d-flex flex-row ms-auto my-auto">
+        <v-tooltip
+          v-if="!$root.hidden && $root.allowHidden"
+          bottom>
           <template #activator="{on, attrs}">
             <div
-              v-on="on"
-              v-bind="attrs">
+              v-bind="attrs"
+              v-on="on">
               <v-btn
                 :aria-label="$t('menu.collapse')"
                 icon
                 @click.stop.prevent="changeMenuStickiness('HIDDEN')"
                 @mousedown.stop.prevent
                 @mouseup.stop.prevent>
-                <v-icon size="20">{{ arrowIconLeft }}</v-icon>
+                <v-icon size="20">
+                  {{ arrowIconLeft }}
+                </v-icon>
               </v-btn>
             </div>
           </template>
           <span>{{ $t('menu.collapse') }}</span>
         </v-tooltip>
-        <v-tooltip v-if="!$root.icon && $root.allowIcon" bottom>
+        <v-tooltip
+          v-if="!$root.icon && $root.allowIcon"
+          bottom>
           <template #activator="{on, attrs}">
             <div
-              v-on="on"
-              v-bind="attrs">
+              v-bind="attrs"
+              v-on="on">
               <v-btn
                 :aria-label="$t('menu.reduce')"
                 icon
@@ -87,27 +95,31 @@
                 @mouseup.stop.prevent>
                 <img
                   :alt="$t('menu.reduce')"
-                  src="/social/images/sidebar.svg"
                   class="icon-default-color"
                   height="20px"
+                  src="/social/images/sidebar.svg"
                   width="20px">
               </v-btn>
             </div>
           </template>
           <span>{{ $t('menu.reduce') }}</span>
         </v-tooltip>
-        <v-tooltip v-if="!$root.sticky && $root.allowSticky" bottom>
+        <v-tooltip
+          v-if="!$root.sticky && $root.allowSticky"
+          bottom>
           <template #activator="{on, attrs}">
             <div
-              v-on="on"
-              v-bind="attrs">
+              v-bind="attrs"
+              v-on="on">
               <v-btn
                 :aria-label="$t('menu.expand')"
                 icon
                 @click.stop.prevent="changeMenuStickiness('STICKY')"
                 @mousedown.stop.prevent
                 @mouseup.stop.prevent>
-                <v-icon size="20">{{ arrowIconRight }}</v-icon>
+                <v-icon size="20">
+                  {{ arrowIconRight }}
+                </v-icon>
               </v-btn>
             </div>
           </template>
@@ -118,43 +130,43 @@
   </v-card>
 </template>
 <script>
-export default {
-  data: () => ({
-    companyName: eXo.env.portal.companyName,
-    companyLogo: eXo.env.portal.companyLogo,
-    userName: eXo.env.portal.userName,
-  }),
-  computed: {
-    arrowIconClass() {
-      return this.$root.sticky && this.arrowIconLeft || this.arrowIconRight;
+  export default {
+    data: () => ({
+      companyName: eXo.env.portal.companyName,
+      companyLogo: eXo.env.portal.companyLogo,
+      userName: eXo.env.portal.userName,
+    }),
+    computed: {
+      arrowIconClass () {
+        return this.$root.sticky && this.arrowIconLeft || this.arrowIconRight;
+      },
+      arrowIconLeft () {
+        return this.$vuetify.rtl && 'fa-angle-double-right' || 'fa-angle-double-left';
+      },
+      arrowIconRight () {
+        return this.$vuetify.rtl && 'fa-angle-double-left' || 'fa-angle-double-right';
+      },
+      defaultUserExternalPath () {
+        return this.$root.defaultUserPath && this.$utils.toLinkUrl(this.$root.defaultUserPath, {
+          urls: true,
+          email: true,
+          phone: true,
+        });
+      },
+      defaultUserPath () {
+        return this.defaultUserExternalPath || this.$root.defaultUserPath;
+      },
+      defaultUserPathTarget () {
+        return this.defaultUserPath?.startsWith?.(window.location.origin)
+          || this.defaultUserPath?.startsWith?.('/')
+          || this.defaultUserPath?.startsWith?.('./') ? '_self' : '_blank';
+      },
     },
-    arrowIconLeft() {
-      return this.$vuetify.rtl && 'fa-angle-double-right' || 'fa-angle-double-left';
+    methods: {
+      changeMenuStickiness (mode) {
+        this.$navigationSettingService.updateSidebarUserMode(mode);
+        this.$root.mode = mode;
+      },
     },
-    arrowIconRight() {
-      return this.$vuetify.rtl && 'fa-angle-double-left' || 'fa-angle-double-right';
-    },
-    defaultUserExternalPath() {
-      return this.$root.defaultUserPath && this.$utils.toLinkUrl(this.$root.defaultUserPath, {
-        urls: true,
-        email: true,
-        phone: true,
-      });
-    },
-    defaultUserPath() {
-      return this.defaultUserExternalPath || this.$root.defaultUserPath;
-    },
-    defaultUserPathTarget() {
-      return this.defaultUserPath?.startsWith?.(window.location.origin)
-        || this.defaultUserPath?.startsWith?.('/')
-        || this.defaultUserPath?.startsWith?.('./') ? '_self' : '_blank';
-    },
-  },
-  methods: {
-    changeMenuStickiness(mode) {
-      this.$navigationSettingService.updateSidebarUserMode(mode);
-      this.$root.mode = mode;
-    },
-  }
-};
+  };
 </script>

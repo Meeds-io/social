@@ -22,13 +22,13 @@
   <div>
     <div class="ms-n2 mb-5 d-inline-flex">
       <v-btn
-        :title="$t('profileSettings.label.profile')"
-        size="24"
         icon
+        size="24"
+        :title="$t('profileSettings.label.profile')"
         @click="close">
         <v-icon
-          size="19"
-          class="icon-default-color">
+          class="icon-default-color"
+          size="19">
           {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
         </v-icon>
       </v-btn>
@@ -42,48 +42,48 @@
 </template>
 
 <script>
-export default {
-  props: {
-    languages: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      languages: {
+        type: Array,
+        default: null,
+      },
+      settings: {
+        type: Array,
+        default: null,
+      },
+      unHiddenableProperties: {
+        type: Array,
+        default: null,
+      },
     },
-    settings: {
-      type: Array,
-      default: null,
+    data: () => ({
+      filter: 'Active',
+      languagesData: null,
+    }),
+    computed: {
+      filteredSettings (){
+        if (this.filter === 'Active') {
+          return this.settings.filter(function (setting) {
+            return setting.active;
+          });
+        } else if (this.filter === 'Inactive') {
+          return this.settings.filter(function (setting) {
+            return !setting.active;
+          });
+        } return this.settings;
+      },
     },
-    unHiddenableProperties: {
-      type: Array,
-      default: null,
+    created () {
+      this.$root.$on('settings-set-filter', this.setFilter);
     },
-  },
-  data: () => ({
-    filter: 'Active',
-    languagesData: null
-  }),
-  created() {
-    this.$root.$on('settings-set-filter', this.setFilter);
-  },
-  computed: {
-    filteredSettings(){
-      if (this.filter === 'Active') {
-        return this.settings.filter(function (setting) {
-          return setting.active;
-        });
-      } else if (this.filter === 'Inactive') {
-        return this.settings.filter(function (setting) {
-          return !setting.active;
-        });
-      } return this.settings;
-    }
-  },
-  methods: {
-    setFilter(filter) {
-      this.filter = filter;
+    methods: {
+      setFilter (filter) {
+        this.filter = filter;
+      },
+      close () {
+        this.$emit('back-to-main-page');
+      },
     },
-    close() {
-      this.$emit('back-to-main-page');
-    }
-  }
-};
+  };
 </script>

@@ -24,7 +24,7 @@ const lang = window.eXo?.env?.portal?.language || 'en';
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 const appId = 'topBarPublishSite';
 
-export function init(publicMode, publicSiteId) {
+export function init (publicMode, publicSiteId) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
@@ -34,7 +34,7 @@ export function init(publicMode, publicSiteId) {
       },
       template: `<top-bar-publish-site id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
-      i18n
+      i18n,
     }, `#${appId}`, 'Top Bar Publish Site');
   });
 }

@@ -31,39 +31,39 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    spaceTemplate: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceTemplate: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  methods: {
-    async duplicate() {
-      const nameTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'name');
-      const descriptionTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'description');
-      const translationConfiguration = await this.$translationService.getTranslationConfiguration();
+    methods: {
+      async duplicate () {
+        const nameTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'name');
+        const descriptionTranslations = await this.$translationService.getTranslations('spaceTemplate', this.spaceTemplate.id, 'description');
+        const translationConfiguration = await this.$translationService.getTranslationConfiguration();
 
-      const bannerBlob = !this.spaceTemplate.bannerFileId ? null : await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate.id}/${this.spaceTemplate.bannerFileId}`, {
-        credentials: 'include',
-        method: 'GET',
-      }).then(resp => resp?.ok && resp.blob());
-      const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
-      const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
+        const bannerBlob = !this.spaceTemplate.bannerFileId ? null : await fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate.id}/${this.spaceTemplate.bannerFileId}`, {
+          credentials: 'include',
+          method: 'GET',
+        }).then(resp => resp?.ok && resp.blob());
+        const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
+        const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
 
-      this.$root.$emit('space-templates-name-open', {
-        ...this.spaceTemplate,
-        id: null,
-        bannerFileId: null,
-        system: false,
-      }, nameTranslations?.[translationConfiguration?.defaultLanguage],
-      nameTranslations,
-      descriptionTranslations?.[translationConfiguration?.defaultLanguage],
-      descriptionTranslations,
-      true,
-      bannerUploadId,
-      bannerData);
+        this.$root.$emit('space-templates-name-open', {
+                           ...this.spaceTemplate,
+                           id: null,
+                           bannerFileId: null,
+                           system: false,
+                         }, nameTranslations?.[translationConfiguration?.defaultLanguage],
+                         nameTranslations,
+                         descriptionTranslations?.[translationConfiguration?.defaultLanguage],
+                         descriptionTranslations,
+                         true,
+                         bannerUploadId,
+                         bannerData);
+      },
     },
-  },
-};
+  };
 </script>

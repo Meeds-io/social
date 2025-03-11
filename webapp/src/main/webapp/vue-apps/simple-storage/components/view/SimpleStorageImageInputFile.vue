@@ -23,125 +23,125 @@
     ref="fileInput"
     accept=".png,.jpg,.jpeg,.webp,.gif,.bmp"
     class="d-none position-absolute"
-    multiple
     hide-input
+    multiple
     @change="handleFileChange" />
 </template>
 
 <script>
 
-export default {
-  data() {
-    return {
-      allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'],
-      maxImageSize: 20971520, // 20MB
-      uploadQueue: [],
-      isUploading: false,
-      objectType: 'public',
-      objectId: 'images'
-    };
-  },
-  created() {
-    this.$root.$on('handle-upload-images', this.handleFileChange);
-    window.addEventListener('beforeunload', this.preventExitIfUploading);
-  },
-  beforeDestroy() {
-    window.removeEventListener('beforeunload', this.preventExitIfUploading);
-  },
-  methods: {
-    openFileExplorer() {
-      this.$refs.fileInput.$el.querySelector('input').click();
-    },
-    handleFileChange(files) {
-      if (files.length) {
-        const newImages = Array.from(files).map(file => {
-          const fileExtension = file.name.split('.').pop().toLowerCase();
-          if (!file.type.startsWith('image/') || !this.allowedExtensions.includes(fileExtension)) {
-            this.$root.$emit('alert-message', this.$t('simpleStorage.invalid.format.error.message'), 'error');
-            return;
-          }
-          if (file.size > this.maxImageSize) {
-            this.$root.$emit('alert-message', this.$t('simpleStorage.size.upload.error.message'), 'error');
-            return;
-          }
-          return {
-            file,
-            thumbnail: null,
-            name: file.name,
-            size: file.size,
-            creationDate: new Date().getTime(),
-            progress: 0,
-            error: null,
-            uploadId: this.generateUploadId()
-          };
-        });
-        newImages.forEach(image => {
-          const reader = new FileReader();
-          reader.onloadend = () => { image.thumbnail = reader.result; };
-          reader.readAsDataURL(image.file);
-        });
-        this.$emit('update-images', newImages);
-        this.uploadQueue.push(...newImages);
-        this.processUploadQueue();
-        this.$refs.fileInput.$el.querySelector('input').value = '';
-      }
-    },
-    generateUploadId() {
-      return crypto.randomUUID();
-    },
-    async processUploadQueue() {
-      this.isUploading = true;
-      const processNext = async () => {
-        if (!this.uploadQueue.length) {
-          return;
-        }
-        const image = this.uploadQueue.shift();
-        this.uploadFileToServer(image);
-        await processNext();
+  export default {
+    data () {
+      return {
+        allowedExtensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'bmp'],
+        maxImageSize: 20971520, // 20MB
+        uploadQueue: [],
+        isUploading: false,
+        objectType: 'public',
+        objectId: 'images',
       };
-      await processNext();
     },
-    uploadFileToServer(image) {
-      this.$uploadService.upload(image.file, image.uploadId).catch((error) => {
-        image.error = error;
-        this.$root.$emit('alert-message', this.$t('simpleStorage.upload.image.error.message'), 'error');
-        console.error('Upload failed:', error);
-      });
-      this.trackUploadProgress(image);
+    created () {
+      this.$root.$on('handle-upload-images', this.handleFileChange);
+      window.addEventListener('beforeunload', this.preventExitIfUploading);
     },
-    trackUploadProgress(image) {
-      const interval = setInterval(() => {
-        this.$uploadService.getUploadProgress(image.uploadId).then((percent) => {
-          image.progress = Number(percent);
-          if (image.progress >= 100) {
-            clearInterval(interval);
-            this.isUploading = this.uploadQueue.length;
-            this.saveImageAttachment(image.uploadId);
+    beforeUnmount () {
+      window.removeEventListener('beforeunload', this.preventExitIfUploading);
+    },
+    methods: {
+      openFileExplorer () {
+        this.$refs.fileInput.$el.querySelector('input').click();
+      },
+      handleFileChange (files) {
+        if (files.length) {
+          const newImages = Array.from(files).map(file => {
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+            if (!file.type.startsWith('image/') || !this.allowedExtensions.includes(fileExtension)) {
+              this.$root.$emit('alert-message', this.$t('simpleStorage.invalid.format.error.message'), 'error');
+              return;
+            }
+            if (file.size > this.maxImageSize) {
+              this.$root.$emit('alert-message', this.$t('simpleStorage.size.upload.error.message'), 'error');
+              return;
+            }
+            return {
+              file,
+              thumbnail: null,
+              name: file.name,
+              size: file.size,
+              creationDate: new Date().getTime(),
+              progress: 0,
+              error: null,
+              uploadId: this.generateUploadId(),
+            };
+          });
+          newImages.forEach(image => {
+            const reader = new FileReader();
+            reader.onloadend = () => { image.thumbnail = reader.result; };
+            reader.readAsDataURL(image.file);
+          });
+          this.$emit('update-images', newImages);
+          this.uploadQueue.push(...newImages);
+          this.processUploadQueue();
+          this.$refs.fileInput.$el.querySelector('input').value = '';
+        }
+      },
+      generateUploadId () {
+        return crypto.randomUUID();
+      },
+      async processUploadQueue () {
+        this.isUploading = true;
+        const processNext = async () => {
+          if (!this.uploadQueue.length) {
+            return;
           }
-        }).catch(() => {
-          clearInterval(interval);
+          const image = this.uploadQueue.shift();
+          this.uploadFileToServer(image);
+          await processNext();
+        };
+        await processNext();
+      },
+      uploadFileToServer (image) {
+        this.$uploadService.upload(image.file, image.uploadId).catch(error => {
+          image.error = error;
+          this.$root.$emit('alert-message', this.$t('simpleStorage.upload.image.error.message'), 'error');
+          console.error('Upload failed:', error);
         });
-      }, 200);
+        this.trackUploadProgress(image);
+      },
+      trackUploadProgress (image) {
+        const interval = setInterval(() => {
+          this.$uploadService.getUploadProgress(image.uploadId).then(percent => {
+            image.progress = Number(percent);
+            if (image.progress >= 100) {
+              clearInterval(interval);
+              this.isUploading = this.uploadQueue.length;
+              this.saveImageAttachment(image.uploadId);
+            }
+          }).catch(() => {
+            clearInterval(interval);
+          });
+        }, 200);
+      },
+      async saveImageAttachment (uploadId) {
+        await this.$fileAttachmentService.createAttachment({
+          fileAttachmentObject: { uploadId },
+          objectType: this.objectType,
+          objectId: this.objectId,
+        }).then(image => {
+          this.$root.$emit('image-attachment-saved', image, uploadId);
+          this.$root.$emit('alert-message', this.$t('simpleStorage.save.image.success.message'), 'success');
+        }).catch(() => {
+          this.$uploadService.deleteUpload(uploadId);
+          this.$root.$emit('alert-message',  this.$t('simpleStorage.save.image.error.message'), 'error');
+        });
+      },
+      preventExitIfUploading (event) {
+        if (this.isUploading) {
+          event.preventDefault();
+          event.returnValue = '';
+        }
+      },
     },
-    async saveImageAttachment(uploadId) {
-      await this.$fileAttachmentService.createAttachment({
-        fileAttachmentObject: { uploadId },
-        objectType: this.objectType,
-        objectId: this.objectId
-      }).then(image => {
-        this.$root.$emit('image-attachment-saved', image, uploadId);
-        this.$root.$emit('alert-message', this.$t('simpleStorage.save.image.success.message'), 'success');
-      }).catch(() => {
-        this.$uploadService.deleteUpload(uploadId);
-        this.$root.$emit('alert-message',  this.$t('simpleStorage.save.image.error.message'), 'error');
-      });
-    },
-    preventExitIfUploading(event) {
-      if (this.isUploading) {
-        event.preventDefault();
-        event.returnValue = '';
-      }
-    }
-  }
-};
+  };
 </script>

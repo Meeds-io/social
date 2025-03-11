@@ -1,6 +1,8 @@
 <template>
   <v-app>
-    <v-card class="application-body" flat>
+    <v-card
+      class="application-body"
+      flat>
       <users-management-toolbar />
       <users-management-list />
     </v-card>

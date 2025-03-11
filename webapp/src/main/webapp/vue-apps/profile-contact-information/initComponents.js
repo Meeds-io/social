@@ -23,7 +23,7 @@ const components = {
   'profile-hidden-property-info': ProfileHiddenPropertyInfo,
   'profile-contact-user-type-property': ProfileContactUserTypeProperty,
   'profile-user-type-property-values': ProfileUserTypePropertyValues,
-  'profile-dropdown-property': ProfileDropdownProperty
+  'profile-dropdown-property': ProfileDropdownProperty,
 };
 
 for (const key in components) {

@@ -21,9 +21,9 @@
 <template>
   <v-chip
     class="ma-1 transition-2s"
+    :class="isSelected && 'suggestion-selected'"
     color="primary"
     :outlined="!isSelected"
-    :class="isSelected && 'suggestion-selected'"
     @click="selectSuggestion">
     <span
       :class="!isSelected && 'primary--text'">
@@ -33,21 +33,21 @@
 </template>
 
 <script>
-export default {
-  props: {
-    suggestion: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      suggestion: {
+        type: Object,
+        default: null,
+      },
+      isSelected: {
+        type: Boolean,
+        default: false,
+      },
     },
-    isSelected: {
-      type: Boolean,
-      default: false
-    }
-  },
-  methods: {
-    selectSuggestion() {
-      this.$emit('select-suggestion', this.suggestion);
-    }
-  }
-};
+    methods: {
+      selectSuggestion () {
+        this.$emit('select-suggestion', this.suggestion);
+      },
+    },
+  };
 </script>

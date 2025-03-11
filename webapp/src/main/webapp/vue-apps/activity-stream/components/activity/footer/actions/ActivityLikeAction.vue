@@ -5,23 +5,25 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`LikeLink${activityId}`"
-          :loading="changingLike"
-          :class="likeTextColorClass"
           class="pa-0 mt-0"
-          text
+          :class="likeTextColorClass"
           link
+          :loading="changingLike"
           small
+          text
           v-bind="attrs"
           v-on="on"
           @click="changeLike">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
-              :class="likeColorClass"
               class="baseline-vertical-align"
+              :class="likeColorClass"
               :size="isMobile && '20' || '16'">
               fa-thumbs-up
             </v-icon>
-            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
+            <span
+              v-if="!isMobile"
+              class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
               {{ $t('UIActivity.msg.LikeActivity') }}
             </span>
           </div>
@@ -35,76 +37,76 @@
 </template>
 
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      isMobile: {
+        type: Boolean,
+        default: () => false,
+      },
     },
-    isMobile: {
-      type: Boolean,
-      default: () => false
+    data: () => ({
+      changingLike: false,
+      hasLiked: false,
+    }),
+    computed: {
+      activityId () {
+        return this.activity && this.activity.id;
+      },
+      likeColorClass () {
+        return this.hasLiked && 'primary--text' || 'disabled--text';
+      },
+      likeTextColorClass () {
+        return this.hasLiked && 'primary--text' || '';
+      },
+      likeButtonTitle () {
+        return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
+      },
     },
-  },
-  data: () => ({
-    changingLike: false,
-    hasLiked: false,
-  }),
-  computed: {
-    activityId() {
-      return this.activity && this.activity.id;
+    created () {
+      this.computeLikes();
     },
-    likeColorClass() {
-      return this.hasLiked && 'primary--text' || 'disabled--text';
+    methods: {
+      changeLike () {
+        if (this.changingLike) {
+          return;
+        }
+        if (this.hasLiked) {
+          return this.unlikeActivity();
+        } else {
+          return this.likeActivity();
+        }
+      },
+      likeActivity () {
+        this.changingLike = true;
+        return this.$activityService.likeActivity(this.activityId)
+          .then(data => {
+            this.activity.hasLiked = 'true';
+            this.computeLikes(data);
+            document.dispatchEvent(new CustomEvent('activity-liked' , { detail: this.activityId }));
+          })
+          .finally(() => this.changingLike = false);
+      },
+      unlikeActivity () {
+        this.changingLike = true;
+        return this.$activityService.unlikeActivity(this.activityId)
+          .then(data => {
+            this.activity.hasLiked = 'false';
+            this.computeLikes(data);
+            document.dispatchEvent(new CustomEvent('activity-liked' , { detail: this.activityId }));
+          })
+          .finally(() => this.changingLike = false);
+      },
+      computeLikes (data) {
+        if (data) {
+          this.$set(this.activity, 'likes', data && data.likes || []);
+          this.$set(this.activity, 'likesCount', data && data.size || 0);
+        }
+        this.hasLiked = this.activity && this.activity.hasLiked === 'true';
+      },
     },
-    likeTextColorClass() {
-      return this.hasLiked && 'primary--text' || '';
-    },
-    likeButtonTitle() {
-      return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
-    },
-  },
-  created() {
-    this.computeLikes();
-  },
-  methods: {
-    changeLike() {
-      if (this.changingLike) {
-        return;
-      }
-      if (this.hasLiked) {
-        return this.unlikeActivity();
-      } else {
-        return this.likeActivity();
-      }
-    },
-    likeActivity() {
-      this.changingLike = true;
-      return this.$activityService.likeActivity(this.activityId)
-        .then(data => {
-          this.activity.hasLiked = 'true';
-          this.computeLikes(data);
-          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.activityId}));
-        })
-        .finally(() => this.changingLike = false);
-    },
-    unlikeActivity() {
-      this.changingLike = true;
-      return this.$activityService.unlikeActivity(this.activityId)
-        .then(data => {
-          this.activity.hasLiked = 'false';
-          this.computeLikes(data);
-          document.dispatchEvent(new CustomEvent('activity-liked' , {detail: this.activityId}));
-        })
-        .finally(() => this.changingLike = false);
-    },
-    computeLikes(data) {
-      if (data) {
-        this.$set(this.activity, 'likes', data && data.likes || []);
-        this.$set(this.activity, 'likesCount', data && data.size || 0);
-      }
-      this.hasLiked = this.activity && this.activity.hasLiked === 'true';
-    },
-  },
-};
+  };
 </script>

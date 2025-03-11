@@ -22,76 +22,82 @@
 <template>
   <v-list-item class="pa-0">
     <v-list-item-avatar
-      :class="isSpace && 'spaceAvatar' || 'userAvatar'"
-      class="me-2">
+      class="me-2"
+      :class="isSpace && 'spaceAvatar' || 'userAvatar'">
       <v-avatar :size="40">
         <img
-          :src="avatar"
+          alt=""
           class="object-fit-cover ma-auto"
           loading="lazy"
-          alt="">
+          :src="avatar">
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title :title="fullName" class="text-body text-truncate">
+      <v-list-item-title
+        class="text-body text-truncate"
+        :title="fullName">
         {{ fullName }}
       </v-list-item-title>
       <v-list-item-subtitle
         v-if="subtitle"
-        :title="subtitle"
-        class="text-truncate">
+        class="text-truncate"
+        :title="subtitle">
         {{ subtitle }}
       </v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action class="ms-2">
       <v-btn
-        :title="$t('SpaceSettings.roles.delete')"
-        small
         icon
+        small
+        :title="$t('SpaceSettings.roles.delete')"
         @click="$emit('remove')">
-        <v-icon size="18" color="error">fa-trash</v-icon>
+        <v-icon
+          color="error"
+          size="18">
+          fa-trash
+        </v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
+      emailSubtitle: {
+        type: Boolean,
+        default: false,
+      },
     },
-    emailSubtitle: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      format: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+    }),
+    computed: {
+      avatar () {
+        return this.user.avatar || this.user.profile?.avatarUrl;
+      },
+      fullName () {
+        return this.user.fullname || this.user.profile?.fullName;
+      },
+      position () {
+        return this.user.position || this.user.profile?.position;
+      },
+      email () {
+        return this.user.email || this.user.profile?.email;
+      },
+      subtitle () {
+        return this.emailSubtitle ? this.email : this.position;
+      },
+      isSpace () {
+        return this.user.providerId === 'space';
+      },
     },
-  },
-  data: () => ({
-    format: {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    },
-  }),
-  computed: {
-    avatar() {
-      return this.user.avatar || this.user.profile?.avatarUrl;
-    },
-    fullName() {
-      return this.user.fullname || this.user.profile?.fullName;
-    },
-    position() {
-      return this.user.position || this.user.profile?.position;
-    },
-    email() {
-      return this.user.email || this.user.profile?.email;
-    },
-    subtitle() {
-      return this.emailSubtitle ? this.email : this.position;
-    },
-    isSpace() {
-      return this.user.providerId === 'space';
-    },
-  }
-};
+  };
 </script>

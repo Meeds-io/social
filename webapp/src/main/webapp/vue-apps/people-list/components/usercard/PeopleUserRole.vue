@@ -19,12 +19,12 @@
  -->
 <template>
   <v-btn
-    :ripple="false"
-    :title="title"
     class="userRole"
-    width="24"
     height="24"
     icon
+    :ripple="false"
+    :title="title"
+    width="24"
     @click.stop.prevent>
     <v-icon
       class="primary--text"
@@ -35,16 +35,16 @@
 </template>
 
 <script>
-export default {
-  props: {
-    title: {
-      type: String,
-      default: null
+  export default {
+    props: {
+      title: {
+        type: String,
+        default: null,
+      },
+      icon: {
+        type: String,
+        default: null,
+      },
     },
-    icon: {
-      type: String,
-      default: null
-    }
-  }
-};
+  };
 </script>

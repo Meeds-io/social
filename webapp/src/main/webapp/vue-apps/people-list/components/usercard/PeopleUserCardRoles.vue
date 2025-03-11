@@ -22,43 +22,43 @@
   <div>
     <people-user-role
       v-if="isManager"
-      :title="$t('peopleList.label.spaceManager')"
-      :icon="'fas fa-user-cog'" />
+      :icon="'fas fa-user-cog'"
+      :title="$t('peopleList.label.spaceManager')" />
     <people-user-role
       v-if="isRedactor"
-      :title="$t('peopleList.label.spaceRedactor')"
-      :icon="'fas fa-user-edit'" />
+      :icon="'fas fa-user-edit'"
+      :title="$t('peopleList.label.spaceRedactor')" />
     <people-user-role
       v-if="isPublisher"
-      :title="$t('peopleList.label.spacePublisher')"
-      :icon="'fas fa-paper-plane'" />
+      :icon="'fas fa-paper-plane'"
+      :title="$t('peopleList.label.spacePublisher')" />
     <people-user-role
       v-if="isGroupBound"
-      :title="$t('peopleList.label.groupBound')"
-      :icon="'fas fa-users'" />
+      :icon="'fas fa-users'"
+      :title="$t('peopleList.label.groupBound')" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    isManager() {
-      return this.user?.isManager;
+    computed: {
+      isManager () {
+        return this.user?.isManager;
+      },
+      isRedactor () {
+        return this.user?.isSpaceRedactor;
+      },
+      isPublisher () {
+        return this.user?.isSpacePublisher;
+      },
+      isGroupBound () {
+        return this.user?.isGroupBound;
+      },
     },
-    isRedactor() {
-      return this.user?.isSpaceRedactor;
-    },
-    isPublisher() {
-      return this.user?.isSpacePublisher;
-    },
-    isGroupBound() {
-      return this.user?.isGroupBound;
-    }
-  },
-};
+  };
 </script>

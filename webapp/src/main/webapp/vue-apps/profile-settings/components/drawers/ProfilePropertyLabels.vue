@@ -19,15 +19,19 @@
 -->
 <template>
   <div>
-    <div v-for="propertylabel in propertylabels" :key="propertylabel.id">
+    <div
+      v-for="propertylabel in propertylabels"
+      :key="propertylabel.id">
       <property-label
-        :propertylabel="propertylabel"
         :languages="filtredLanguages"
+        :propertylabel="propertylabel"
         @delete-label="deleteLabel" />
     </div>
     <div class="d-flex pt-2">
       <v-spacer />
-      <div @click="addNewLabel" class="addLabelBtn primary--text">
+      <div
+        class="addLabelBtn primary--text"
+        @click="addNewLabel">
         <v-icon color="primary">
           mdi-plus
         </v-icon>
@@ -37,43 +41,43 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    propertylabels: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      propertylabels: {
+        type: Object,
+        default: null,
+      },
+      languages: {
+        type: Object,
+        default: null,
+      },
+      labelsObjectType: {
+        type: String,
+        default: '',
+      },
+      id: {
+        type: Number,
+        default: 0,
+      },
     },
-    languages: {
-      type: Object,
-      default: null
-    },
-    labelsObjectType: {
-      type: String,
-      default: ''
-    },
-    id: {
-      type: Number,
-      default: 0
-    },
-  },
 
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    computed: {
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+      },
+      filtredLanguages (){
+        const result = this.propertylabels.map(a => a.language);
+        return this.languages.filter(lang => !result.includes(lang.value));
+      },
     },
-    filtredLanguages(){
-      const result = this.propertylabels.map(a => a.language);
-      return this.languages.filter(lang => !result.includes(lang.value));
-    },
-  },
 
-  methods: {
-    addNewLabel() {
-      this.propertylabels.push( {language: eXo.env.portal.language, label: '', objectId: this.id, objectType: this.labelsObjectType});
+    methods: {
+      addNewLabel () {
+        this.propertylabels.push( { language: eXo.env.portal.language, label: '', objectId: this.id, objectType: this.labelsObjectType });
+      },
+      deleteLabel (propertylabel) {
+        this.propertylabels.splice(this.propertylabels.findIndex(v => v.language === propertylabel.language), 1);
+      },
     },
-    deleteLabel(propertylabel) {
-      this.propertylabels.splice(this.propertylabels.findIndex(v => v.language === propertylabel.language), 1);
-    },
-  }
-};
+  };
 </script>

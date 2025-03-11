@@ -21,9 +21,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   </v-app>
 </template>
 <script>
-export default {
-  mounted() {
-    this.$root.$emit('open-favorite-drawer');
-  },
-};
+  export default {
+    mounted () {
+      this.$root.$emit('open-favorite-drawer');
+    },
+  };
 </script>

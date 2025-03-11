@@ -28,13 +28,13 @@
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.backToLogin')"
-            href="/portal/login"
+            class="mx-auto login-button text-none"
             color="primary"
-            width="222"
+            elevation="0"
+            href="/portal/login"
             max-width="100%"
             tabindex="0"
-            class="mx-auto login-button text-none"
-            elevation="0">
+            width="222">
             {{ $t('forgotpassword.go') }}
           </v-btn>
         </v-row>
@@ -43,17 +43,17 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    formUrl() {
-      return window.location.pathname;
+    computed: {
+      formUrl () {
+        return window.location.pathname;
+      },
     },
-  },
-};
+  };
 </script>

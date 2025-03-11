@@ -20,32 +20,34 @@
 
 -->
 <template>
-  <v-list v-if="memberships?.length" dense>
+  <v-list
+    v-if="memberships?.length"
+    dense>
     <spaces-role-list-item
       v-for="m in memberships"
       :key="m.id"
-      :membership="m"
       :approve-button="approveButton"
       :display-date="displayDate"
+      :membership="m"
       @approve="$emit('approve', m)"
       @remove="$emit('remove', m)" />
   </v-list>
 </template>
 <script>
-export default {
-  props: {
-    memberships: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      memberships: {
+        type: Array,
+        default: null,
+      },
+      approveButton: {
+        type: Boolean,
+        default: false,
+      },
+      displayDate: {
+        type: Boolean,
+        default: false,
+      },
     },
-    approveButton: {
-      type: Boolean,
-      default: false,
-    },
-    displayDate: {
-      type: Boolean,
-      default: false,
-    },
-  },
-};
+  };
 </script>

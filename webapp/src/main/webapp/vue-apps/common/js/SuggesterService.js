@@ -1,6 +1,6 @@
-import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
+import { getIdentityById, getIdentityByProviderIdAndRemoteId } from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers (filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
     searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager , searchOptions?.filterType )
@@ -13,7 +13,7 @@ export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptio
   }
 }
 
-export function search(filter) {
+export function search (filter) {
   if (filter.includeSpaces || filter.includeUsers) {
     searchSpacesOrUsers(filter.term, filter.items, filter.typeOfRelations, filter.searchOptions, filter.includeUsers, filter.includeSpaces, filter.onlyRedactor, filter.noRedactorSpace, filter.onlyManager, filter.loadingCallback, filter.successCallback);
   }
@@ -28,17 +28,17 @@ export function search(filter) {
 * excludeRedactionalSpace : space spaces that have no member promoted as redactor
 * onlyManager : search spaces where the user is a manager
 */
-function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager,filterType) {
+function searchSpaces (filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager,filterType) {
   const formData = new FormData();
   formData.append('filterType', filterType || 'member');
   formData.append('limit', '20');
   formData.append('q', filter);
   const params = new URLSearchParams(formData).toString();
 
-  return fetch(`/portal/rest/v1/social/spaces?${params}`, {credentials: 'include'})
+  return fetch(`/portal/rest/v1/social/spaces?${params}`, { credentials: 'include' })
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
-      data.spaces.forEach((item) => {
+      data.spaces.forEach(item => {
         if ((excludeRedactionalSpace && !item.redactorsCount ) || ((!onlyRedactor || item.isRedactor || item.isPublisher || item.canEdit || !item.redactorsCount) && (!onlyManager || item.canEdit))) {
           items.push({
             id: `space:${item.prettyName}`,
@@ -59,7 +59,7 @@ function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, only
     });
 }
 
-function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, errorCallback) {
+function searchGroups (filter, groupMember, groupType, items, allGroupsForAdmin, errorCallback) {
   const formData = new FormData();
   formData.append('q', filter);
   formData.append('groupMember', groupMember);
@@ -73,7 +73,7 @@ function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, 
     .then(resp => resp && resp.ok && resp.json())
     .catch(errorCallback)
     .then(data => {
-      data.entities.forEach((item) => {
+      data.entities.forEach(item => {
         items.push({
           id: `group:${item.groupName}`,
           remoteId: item.groupName,
@@ -92,7 +92,7 @@ function searchGroups(filter, groupMember, groupType, items, allGroupsForAdmin, 
 }
 
 
-function searchUsers(filter, items, typeOfRelation, searchOptions) {
+function searchUsers (filter, items, typeOfRelation, searchOptions) {
   const options = {
     nameToSearch: filter,
     typeOfRelation: typeOfRelation || 'mention_activity_stream',
@@ -115,13 +115,13 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
 
   }
 
-  return fetch(url, {credentials: 'include'})
+  return fetch(url, { credentials: 'include' })
     .then(resp => resp && resp.ok && resp.json())
     .then(data => {
       if (data) {
         data = data.options || data;
         if (data && data.length) {
-          data.forEach((item) => {
+          data.forEach(item => {
             let username = item.value || item.id;
             if (item.id && item.id.indexOf('@') === 0){
               username = item.id.substring(1);
@@ -142,7 +142,7 @@ function searchUsers(filter, items, typeOfRelation, searchOptions) {
     });
 }
 
-export function convertIdentityToSuggesterItem(identity) {
+export function convertIdentityToSuggesterItem (identity) {
   if (!identity) {
     return null;
   }
@@ -150,7 +150,7 @@ export function convertIdentityToSuggesterItem(identity) {
   const suggesterIdentity = {
     id: `${identity.providerId}:${identity.remoteId}`,
     providerId: identity.providerId,
-    remoteId: identity.remoteId
+    remoteId: identity.remoteId,
   };
 
   const profile = identity.profile || identity.space;
@@ -163,7 +163,7 @@ export function convertIdentityToSuggesterItem(identity) {
   return suggesterIdentity;
 }
 
-export function convertSuggesterItemToIdentity(suggesterIdentity) {
+export function convertSuggesterItemToIdentity (suggesterIdentity) {
   if (!convertSuggesterItemToIdentity) {
     return null;
   }
@@ -184,7 +184,7 @@ export function convertSuggesterItemToIdentity(suggesterIdentity) {
   return identity;
 }
 
-export function getSuggesterItemByIdentityId(identityId) {
+export function getSuggesterItemByIdentityId (identityId) {
   if (!identityId) {
     return Promise.resolve(null);
   }
@@ -193,7 +193,7 @@ export function getSuggesterItemByIdentityId(identityId) {
     .then(convertIdentityToSuggesterItem);
 }
 
-export function getSuggesterItemToIdentity(suggesterIdentity) {
+export function getSuggesterItemToIdentity (suggesterIdentity) {
   if (!suggesterIdentity || !suggesterIdentity.providerId || !suggesterIdentity.remoteId) {
     return Promise.resolve(null);
   }

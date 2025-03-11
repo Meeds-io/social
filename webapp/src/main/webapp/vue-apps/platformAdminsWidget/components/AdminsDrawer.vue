@@ -25,38 +25,42 @@
       id="AdminsDrawer"
       ref="drawer"
       v-model="drawer"
-      :loading="loading"
       allow-expand
+      :loading="loading"
       no-x-scroll
       right
       @expand-updated="expanded = $event">
       <template #title>
         {{ $t('social.admins.drawer.title') }}
       </template>
-      <template v-if="drawer" #content>
-        <div class="text-body pa-5"> {{ $t('social.admins.drawer.description') }} </div>
+      <template
+        v-if="drawer"
+        #content>
+        <div class="text-body pa-5">
+          {{ $t('social.admins.drawer.description') }}
+        </div>
         <application-toolbar
           id="adminsToolbar"
+          compact
+          no-text-truncate
           :right-text-filter="{
             minCharacters: 3,
             placeholder: $t('social.admins.drawer.filter.label'),
             tooltip: $t('social.admins.drawer.filter.label')
           }"
-          compact
-          no-text-truncate
           @filter-text-input-end-typing="keyword = $event"
           @loading="loading = $event">
           <template #left>
             <div class="d-flex">
               <v-btn
                 id="AddAdminButton"
-                :title="$t('social.admins.button.add')"
                 color="primary"
                 elevation="0"
+                :title="$t('social.admins.button.add')"
                 @click="$root.$emit('admins-add-drawer-open')">
                 <v-icon
-                  color="white"
                   class="me-2"
+                  color="white"
                   size="14">
                   fa-plus
                 </v-icon>
@@ -73,11 +77,13 @@
             :membership="admin" />
         </v-list>
       </template>
-      <template v-if="hasMore" #footer>
+      <template
+        v-if="hasMore"
+        #footer>
         <v-btn
-          :loading="loading"
           block
           class="btn pa-0"
+          :loading="loading"
           @click="loadNextPage">
           {{ $t('social.admins.drawer.loadMore') }}
         </v-btn>
@@ -87,68 +93,68 @@
   </div>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    expanded: false,
-    totalSize: 0,
-    admins: [],
-    page: 1,
-    itemsPerPage: 20,
-    hasMore: false,
-    keyword: null
-  }),
-  computed: {
-    filteredAdmins() {
-      if (!this.keyword) {
-        return this.admins;
-      } else {
-        return this.admins.slice().filter(admin => {
-          return admin.fullName?.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0;
-        });
-      }
-    },
-  },
-  created() {
-    this.searchAdmins();
-    this.$root.$on('admins-drawer-open', this.open);
-    this.$root.$on('platform-settings-admins-refresh', this.searchAdmins);
-  },
-  beforeDestroy() {
-    this.$root.$off('admins-drawer-open', this.open);
-    this.$root.$off('platform-settings-admins-refresh', this.searchAdmins);
-  },
-  methods: {
-    open() {
-      this.$refs.drawer.open();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    searchAdmins() {
-      const offset = (this.page - 1) * this.itemsPerPage;
-      this.loading = true;
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?groupId=/platform/administrators&offset=${offset}&limit=${this.itemsPerPage}&returnSize=true`, {
-        method: 'GET',
-        credentials: 'include',
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+  export default {
+    data: () => ({
+      drawer: false,
+      expanded: false,
+      totalSize: 0,
+      admins: [],
+      page: 1,
+      itemsPerPage: 20,
+      hasMore: false,
+      keyword: null,
+    }),
+    computed: {
+      filteredAdmins () {
+        if (!this.keyword) {
+          return this.admins;
         } else {
-          return resp.json();
+          return this.admins.slice().filter(admin => {
+            return admin.fullName?.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0;
+          });
         }
-      }).then(data => {
-        this.admins = data && data.entities || [];
-        this.totalSize = data && data.size || 0;
-        this.$root.$emit('platform-settings-admins-updated', this.totalSize, this.admins);
-        this.hasMore = this.totalSize > this.admins.length;
-      })
-        .finally(() => this.loading = false);
+      },
     },
-    loadNextPage() {
-      this.page++;
+    created () {
       this.searchAdmins();
+      this.$root.$on('admins-drawer-open', this.open);
+      this.$root.$on('platform-settings-admins-refresh', this.searchAdmins);
     },
-  }
-};
+    beforeUnmount () {
+      this.$root.$off('admins-drawer-open', this.open);
+      this.$root.$off('platform-settings-admins-refresh', this.searchAdmins);
+    },
+    methods: {
+      open () {
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      searchAdmins () {
+        const offset = (this.page - 1) * this.itemsPerPage;
+        this.loading = true;
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?groupId=/platform/administrators&offset=${offset}&limit=${this.itemsPerPage}&returnSize=true`, {
+          method: 'GET',
+          credentials: 'include',
+        }).then(resp => {
+          if (!resp || !resp.ok) {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          } else {
+            return resp.json();
+          }
+        }).then(data => {
+          this.admins = data && data.entities || [];
+          this.totalSize = data && data.size || 0;
+          this.$root.$emit('platform-settings-admins-updated', this.totalSize, this.admins);
+          this.hasMore = this.totalSize > this.admins.length;
+        })
+          .finally(() => this.loading = false);
+      },
+      loadNextPage () {
+        this.page++;
+        this.searchAdmins();
+      },
+    },
+  };
 </script>

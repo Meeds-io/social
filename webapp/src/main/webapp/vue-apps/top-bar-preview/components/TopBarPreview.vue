@@ -25,12 +25,14 @@
       <template #activator="{on, bind}">
         <v-btn
           id="topBarPreviewButton"
-          v-on="on"
           v-bind="bind"
           class="ms-5"
           icon
+          v-on="on"
           @click="previewMode = !previewMode">
-          <v-icon size="20">{{ previewMode && 'fa-eye-slash' || 'fa-eye' }}</v-icon>
+          <v-icon size="20">
+            {{ previewMode && 'fa-eye-slash' || 'fa-eye' }}
+          </v-icon>
         </v-btn>
       </template>
       <span>{{ previewMode && $t('publicAccess.editModeTooltip') || $t('publicAccess.previewModeTooltip') }}</span>
@@ -39,21 +41,21 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    previewMode: false,
-  }),
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  watch: {
-    previewMode() {
-      if (this.previewMode) {
-        document.dispatchEvent(new CustomEvent('cms-preview-mode'));
-      } else {
-        document.dispatchEvent(new CustomEvent('cms-edit-mode'));
-      }
+  export default {
+    data: () => ({
+      previewMode: false,
+    }),
+    watch: {
+      previewMode () {
+        if (this.previewMode) {
+          document.dispatchEvent(new CustomEvent('cms-preview-mode'));
+        } else {
+          document.dispatchEvent(new CustomEvent('cms-edit-mode'));
+        }
+      },
     },
-  },
-};
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+  };
 </script>

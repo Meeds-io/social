@@ -39,7 +39,7 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'HamburgerNavigationMenu';
 
-export function init(
+export function init (
   mode,
   defaultUserPath,
   unreadPerSpace,
@@ -80,56 +80,56 @@ export function init(
           hoverDeferred: false,
         },
         computed: {
-          autoSwitchToIcon() {
+          autoSwitchToIcon () {
             return this.mode === 'STICKY'
               && this.allowIcon
               && (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md)
               && (this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg);
           },
-          stickyAllowed() {
+          stickyAllowed () {
             return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md;
           },
-          displaySequentially() {
+          displaySequentially () {
             return this.stickyAllowed;
           },
-          hidden() {
+          hidden () {
             return !this.stickyAllowed || this.mode === 'HIDDEN';
           },
-          sticky() {
+          sticky () {
             return !this.hidden && (this.mode === 'STICKY' && !this.autoSwitchToIcon);
           },
-          icon() {
+          icon () {
             return !this.hidden && (this.mode === 'ICON' || this.autoSwitchToIcon);
           },
-          allowedModes() {
+          allowedModes () {
             return this.settings?.allowedModes || [];
           },
-          allowSticky() {
+          allowSticky () {
             return this.allowedModes.includes('STICKY');
           },
-          allowIcon() {
+          allowIcon () {
             return this.allowedModes.includes('ICON');
           },
-          allowHidden() {
+          allowHidden () {
             return this.allowedModes.includes('HIDDEN');
           },
-          expand() {
+          expand () {
             return !this.icon || this.hoverDeferred || !this.allowClosing;
           },
-          iconExpand() {
+          iconExpand () {
             return this.icon && this.expand;
           },
-          iconCollapse() {
+          iconCollapse () {
             return this.icon && !this.expand;
           },
-          hover() {
+          hover () {
             return this.hoverMenu
               || this.hoverButton
               || this.hoverFirstLevel
               || this.hoverSecondLevel
               || this.hoverThirdLevel;
           },
-          hoverSidebar() {
+          hoverSidebar () {
             return this.hoverMenu
               || this.hoverFirstLevel
               || this.hoverSecondLevel
@@ -137,14 +137,14 @@ export function init(
           },
         },
         watch: {
-          expand() {
+          expand () {
             if (this.icon) {
               window.setTimeout(() => {
                 if (this.expand && !this.openedOverlay) {
-                  document.dispatchEvent(new CustomEvent('drawerOpened', {detail: true}));
+                  document.dispatchEvent(new CustomEvent('drawerOpened', { detail: true }));
                   this.openedOverlay = true;
                 } else if (!this.expand && this.openedOverlay) {
-                  document.dispatchEvent(new CustomEvent('drawerClosed', {detail: true}));
+                  document.dispatchEvent(new CustomEvent('drawerClosed', { detail: true }));
                   this.openedOverlay = false;
                 }
               }, 200);
@@ -152,7 +152,7 @@ export function init(
           },
           hover: {
             immediate: true,
-            handler() {
+            handler () {
               if (this.hover) {
                 this.hoverDeferred = true;
               } else {
@@ -166,7 +166,7 @@ export function init(
           },
           icon: {
             immediate: true,
-            handler() {
+            handler () {
               this.updateParentStyle();
               if (this.hover) {
                 this.openedOverlay = true;
@@ -177,25 +177,25 @@ export function init(
               }
             },
           },
-          sticky() {
+          sticky () {
             if (this.sticky) {
               window.setTimeout(() => {
                 document.dispatchEvent(new CustomEvent('drawerClosed'));
               }, 300);
             }
           },
-          hidden() {
+          hidden () {
             if (!this.hidden) {
               if (eXo.openedDrawers?.find?.(d => d?.$el?.classList?.contains('HamburgerMenuFirstLevelParent'))) {
                 eXo.openedDrawers = eXo.openedDrawers.filter(d => !d?.$el?.classList?.contains('HamburgerMenuFirstLevelParent'));
               }
             }
           },
-          mode() {
-            document.dispatchEvent(new CustomEvent('sidebar-mode-changed', {detail: this.mode}));
+          mode () {
+            document.dispatchEvent(new CustomEvent('sidebar-mode-changed', { detail: this.mode }));
           },
         },
-        created() {
+        created () {
           this.$root.$on('dialog-opened', () => this.$root.allowClosing = false);
           this.$root.$on('dialog-closed', () => window.setTimeout(() => {
             this.$root.allowClosing = true;
@@ -206,18 +206,18 @@ export function init(
           document.addEventListener('homeLinkUpdated', this.updateUserHome);
           this.init();
         },
-        mounted() {
+        mounted () {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         methods: {
-          async init() {
+          async init () {
             try {
               this.settings = await this.$navigationSettingService.getSidebarConfiguration();
             } finally {
               this.$root.$applicationLoaded();
             }
           },
-          updateParentStyle() {
+          updateParentStyle () {
             if (document.querySelector('#UISiteBody')?.style) {
               if (this.icon) {
                 document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
@@ -228,7 +228,7 @@ export function init(
               window.setTimeout(() => this.updateParentStyle(), 50);
             }
           },
-          updateUserHome() {
+          updateUserHome () {
             this.defaultUserPath = eXo.env.portal.homeLink;
             if (document.querySelector('#UserHomePortalLinkLogo')) {
               document.querySelector('#UserHomePortalLinkLogo').href = this.defaultUserPath;

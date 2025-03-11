@@ -13,7 +13,7 @@ import * as favoriteService from './js/FavoriteService.js';
 import * as observerService from './js/ObserverService.js';
 import * as tagService from './js/TagService.js';
 import * as socialWebSocket from './js/WebSocket.js';
-import {spacesConstants} from './js/spacesConstants.js';
+import { spacesConstants } from './js/spacesConstants.js';
 import * as utils from './js/Utils.js';
 import * as brandingService from './js/brandingService.js';
 import * as navigationService from '../common/js/NavigationService.js';
@@ -22,7 +22,7 @@ import * as profileLabelService from '../common/js/ProfileLabelService.js';
 import * as siteService from './js/SiteService.js';
 import * as navigationUtils from './js/NavigationUtils.js';
 import * as spaceTemplateService from './js/SpaceTemplateService.js';
-import * as registrationService from './js/RegistrationService';
+import * as registrationService from './js/RegistrationService.js';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -142,7 +142,7 @@ if (!window.drawersOverlayInitialized) {
     .then(i18n => init(i18n));
 }
 
-export function init(i18n) {
+export function init (i18n) {
   const parentElement = document.querySelector('#drawers-overlay');
   if (!document.querySelector('#drawers-overlay')) {
     initSnackbar(i18n);
@@ -161,7 +161,7 @@ export function init(i18n) {
   }
 }
 
-export function initSnackbar(i18n) {
+export function initSnackbar (i18n) {
   let parentNotificationsElement = document.querySelector('#vuetify-apps') || document.querySelector('#body-end-container');
   let alertNotificationsElement = parentNotificationsElement?.querySelector('#alert-notifications');
   if (!alertNotificationsElement) {

@@ -47,7 +47,7 @@ Vue.directive('identity-popover', (el, binding) => {
   });
 });
 
-export function showPopover(el, identity, isUser) {
+export function showPopover (el, identity, isUser) {
   const rect = el.getBoundingClientRect();
   document.dispatchEvent(new CustomEvent('popover-identity-display', {
     detail: Object.assign({
@@ -56,7 +56,7 @@ export function showPopover(el, identity, isUser) {
       top: rect.top > 150 + rect.height ? true : false,
       identityType: isUser ? 'User' : 'Space',
       element: el,
-    }, identity || {})
+    }, identity || {}),
   }));
 }
 

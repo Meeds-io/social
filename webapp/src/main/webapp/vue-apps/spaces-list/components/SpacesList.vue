@@ -24,11 +24,11 @@
     <v-hover v-model="$root.hover">
       <v-main class="application-body">
         <spaces-toolbar
+          :can-create-space="canCreateSpace"
+          compact-display
           :filter="filter"
           :filter-message="$t('spacesList.label.spacesSize', {0: spacesSize})"
           :filters-count="filtersCount"
-          :can-create-space="canCreateSpace"
-          compact-display
           @keyword-changed="keyword = $event"
           @loading="loadingSpaces = loadingSpaces || $event" />
         <spaces-categories-toolbar
@@ -36,13 +36,13 @@
           v-show="spacesExists" />
         <spaces-card-list
           ref="spacesList"
-          :keyword="keyword"
+          class="px-3"
           :filter="filter"
+          :keyword="keyword"
           :loading-spaces="loadingSpaces"
           :spaces-size="spacesSize"
-          class="px-3"
-          @loading-spaces="loadingSpaces = $event"
-          @loaded="spacesLoaded" />
+          @loaded="spacesLoaded"
+          @loading-spaces="loadingSpaces = $event" />
       </v-main>
     </v-hover>
     <spaces-list-settings-drawer
@@ -53,50 +53,50 @@
   </v-app>    
 </template>
 <script>
-export default {
-  props: {
-    canCreateSpace: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      canCreateSpace: {
+        type: Boolean,
+        default: false,
+      },
+      filter: {
+        type: String,
+        default: null,
+      },
     },
-    filter: {
-      type: String,
-      default: null,
+    data: () => ({
+      keyword: null,
+      spacesSize: 0,
+      loadingSpaces: false,
+      initialized: false,
+      spacesExists: false,
+    }),
+    computed: {
+      filtersCount () {
+        return this.filter !== 'all' ? 1 : 0;
+      },
+      selectedCategoryId () {
+        return this.$root.selectedCategoryId;
+      },
     },
-  },
-  data: () => ({
-    keyword: null,
-    spacesSize: 0,
-    loadingSpaces: false,
-    initialized: false,
-    spacesExists: false,
-  }),
-  computed: {
-    filtersCount() {
-      return this.filter !== 'all' ? 1 : 0;
+    watch: {
+      selectedCategoryId () {
+        this.loadingSpaces = true;
+      },
+      spacesSize () {
+        if (!this.spacesExists && this.spacesSize) {
+          this.spacesExists = true;
+        }
+      },
     },
-    selectedCategoryId() {
-      return this.$root.selectedCategoryId;
+    methods: {
+      spacesLoaded (spacesSize) {
+        this.spacesSize = spacesSize;
+        if (!this.initialized) {
+          this.$root.$applicationLoaded();
+          this.initialized = true;
+        }
+      },
     },
-  },
-  watch: {
-    selectedCategoryId() {
-      this.loadingSpaces = true;
-    },
-    spacesSize() {
-      if (!this.spacesExists && this.spacesSize) {
-        this.spacesExists = true;
-      }
-    },
-  },
-  methods: {
-    spacesLoaded(spacesSize) {
-      this.spacesSize = spacesSize;
-      if (!this.initialized) {
-        this.$root.$applicationLoaded();
-        this.initialized = true;
-      }
-    }
-  },
-};
+  };
 </script>

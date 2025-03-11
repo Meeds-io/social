@@ -20,27 +20,39 @@
   <div v-if="translationConfiguration">
     <v-btn
       v-if="button"
-      :title="iconTitle"
       :aria-label="$t('translationButton.ariaLabel')"
       icon
+      :title="iconTitle"
       @click="openDrawer">
-      <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+      <v-icon
+        :color="iconColor"
+        size="20">
+        fas fa-language
+      </v-icon>
     </v-btn>
     <div
       v-else
       class="translation-text-field">
-      <div v-if="$slots.default || $slots.title" class="d-flex align-center text-start">
-        <div v-if="$slots.title" class="flex-grow-1">
+      <div
+        v-if="$slots.default || $slots.title"
+        class="d-flex align-center text-start">
+        <div
+          v-if="$slots.title"
+          class="flex-grow-1">
           <slot name="title"></slot>
         </div>
         <div class="d-flex align-center position-relative me-n1 py-4">
           <v-btn
-            :title="iconTitle"
-            :class="$vuetify.rtl && 'l-0' || 'r-0'"
             class="absolute-vertical-center"
+            :class="$vuetify.rtl && 'l-0' || 'r-0'"
             icon
+            :title="iconTitle"
             @click="openDrawer">
-            <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+            <v-icon
+              :color="iconColor"
+              size="20">
+              fas fa-language
+            </v-icon>
           </v-btn>
         </div>
       </div>
@@ -48,53 +60,63 @@
       <v-text-field
         v-else-if="isI18N"
         :id="id"
-        :name="id"
-        :placeholder="placeholder"
-        :rules="rules || []"
-        :value="$t(defaultLanguageValue)"
         :autofocus="autofocus"
-        :hide-details="noRulesValidation"
         class="border-box-sizing width-auto pt-0"
-        type="text"
+        dense
+        :hide-details="noRulesValidation"
+        :name="id"
         outlined
+        :placeholder="placeholder"
         readonly
-        dense>
-        <template v-if="!$slots.title" #append>
+        :rules="rules || []"
+        type="text"
+        :value="$t(defaultLanguageValue)">
+        <template
+          v-if="!$slots.title"
+          #append>
           <div class="mt-n2">
             <v-btn
-              :title="iconTitle"
               class="my-auto pt-2px"
               icon
+              :title="iconTitle"
               @click="isI18N = false">
-              <v-icon :color="iconColor">far fa-times-circle</v-icon>
+              <v-icon :color="iconColor">
+                far fa-times-circle
+              </v-icon>
             </v-btn>
           </div>
         </template>
       </v-text-field>
       <v-text-field
         v-else
-        v-model="defaultLanguageValue"
         :id="id"
-        :name="id"
-        :placeholder="placeholder"
-        :required="required || null"
+        v-model="defaultLanguageValue"
         :aria-required="required"
         :autofocus="autofocus"
-        :maxlength="maxlength"
-        :rules="rules || []"
-        :hide-details="noRulesValidation"
         class="border-box-sizing width-auto pt-0"
-        type="text"
+        dense
+        :hide-details="noRulesValidation"
+        :maxlength="maxlength"
+        :name="id"
         outlined
-        dense>
+        :placeholder="placeholder"
+        :required="required || null"
+        :rules="rules || []"
+        type="text">
         <template #append>
-          <div v-if="!$slots.title" class="mt-n2">
+          <div
+            v-if="!$slots.title"
+            class="mt-n2">
             <v-btn
-              :title="iconTitle"
               class="my-auto pt-2px"
               icon
+              :title="iconTitle"
               @click="openDrawer">
-              <v-icon size="20" :color="iconColor">fas fa-language</v-icon>
+              <v-icon
+                :color="iconColor"
+                size="20">
+                fas fa-language
+              </v-icon>
             </v-btn>
           </div>
         </template>
@@ -104,218 +126,218 @@
       v-if="initialized"
       ref="translationDrawer"
       v-model="valuesPerLanguage"
-      :object-type="objectType"
-      :object-id="objectId"
-      :field-name="fieldName"
-      :drawer-title="drawerTitle"
-      :default-language="defaultLocale"
-      :supported-languages="supportedLocales"
       :back-icon="backIcon"
+      :default-language="defaultLocale"
+      :drawer-title="drawerTitle"
+      :field-name="fieldName"
       :max-length="maxlength"
+      :no-expand-icon="noExpandIcon"
+      :object-id="objectId"
+      :object-type="objectType"
       :rich-editor="richEditor"
       :rich-editor-oembed="richEditorOembed"
-      :no-expand-icon="noExpandIcon"
       :rules="rules || []"
+      :supported-languages="supportedLocales"
       @input="emitUpdateValues" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    id: {
-      type: String,
-      default: null,
-    },
-    value: {
-      type: Object,
-      default: null,
-    },
-    placeholder: {
-      type: String,
-      default: null,
-    },
-    drawerTitle: {
-      type: String,
-      default: null,
-    },
-    defaultLanguage: {
-      type: String,
-      default: null,
-    },
-    supportedLanguages: {
-      type: Array,
-      default: null,
-    },
-    objectType: {
-      type: String,
-      default: null,
-    },
-    objectId: {
-      type: String,
-      default: null,
-    },
-    fieldValue: {
-      type: String,
-      default: null,
-    },
-    fieldName: {
-      type: String,
-      default: null,
-    },
-    backIcon: {
-      type: Boolean,
-      default: false,
-    },
-    autofocus: {
-      type: Boolean,
-      default: false,
-    },
-    required: {
-      type: Boolean,
-      default: false,
-    },
-    richEditor: {
-      type: Boolean,
-      default: false,
-    },
-    richEditorOembed: {
-      type: Boolean,
-      default: false,
-    },
-    maxlength: {
-      type: Number,
-      default: () => 255,
-    },
-    rules: {
-      type: Array,
-      default: null,
-    },
-    noExpandIcon: {
-      type: Boolean,
-      default: false,
-    },
-    verifyI18n: {
-      type: Boolean,
-      default: false,
-    },
-    button: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data: () => ({
-    initialized: false,
-    defaultLanguageValue: null,
-    valuesPerLanguage: {},
-    translationConfiguration: null,
-    isI18N: false,
-  }),
-  computed: {
-    noRulesValidation() {
-      return !this.defaultLanguageValue || !this.rules?.length;
-    },
-    defaultLocale() {
-      return this.defaultLanguage || this.translationConfiguration?.defaultLanguage;
-    },
-    supportedLocales() {
-      const supportedLocales = this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
-      if (supportedLocales) {
-        const locales = {};
-        Object.keys(supportedLocales).forEach(l => {
-          locales[l.replace('_', '-')] = supportedLocales[l];
-        });
-        return locales;
-      }
-      return null;
-    },
-    translationsCount() {
-      return this.valuesPerLanguage && Object.keys(this.valuesPerLanguage).length || 0;
-    },
-    iconColor() {
-      return this.translationsCount > 1 ? 'primary' : '';
-    },
-    iconTitle() {
-      return this.translationsCount > 1 ? this.$t('translationDrawer.existingTranslationsTooltip', {0: this.translationsCount - 1}) : this.$t('translationDrawer.noTranslationsTooltip');
-    },
-    serverSideFetch() {
-      return this.objectType && this.objectId && this.fieldName;
-    },
-  },
-  watch: {
-    value: {
-      immediate: true,
-      handler: function() {
-        this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
-        const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale.replace('_', '-')] || '';
-        this.defaultLanguageValue = defaultLanguageValue;
+  export default {
+    props: {
+      id: {
+        type: String,
+        default: null,
+      },
+      value: {
+        type: Object,
+        default: null,
+      },
+      placeholder: {
+        type: String,
+        default: null,
+      },
+      drawerTitle: {
+        type: String,
+        default: null,
+      },
+      defaultLanguage: {
+        type: String,
+        default: null,
+      },
+      supportedLanguages: {
+        type: Array,
+        default: null,
+      },
+      objectType: {
+        type: String,
+        default: null,
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
+      fieldValue: {
+        type: String,
+        default: null,
+      },
+      fieldName: {
+        type: String,
+        default: null,
+      },
+      backIcon: {
+        type: Boolean,
+        default: false,
+      },
+      autofocus: {
+        type: Boolean,
+        default: false,
+      },
+      required: {
+        type: Boolean,
+        default: false,
+      },
+      richEditor: {
+        type: Boolean,
+        default: false,
+      },
+      richEditorOembed: {
+        type: Boolean,
+        default: false,
+      },
+      maxlength: {
+        type: Number,
+        default: () => 255,
+      },
+      rules: {
+        type: Array,
+        default: null,
+      },
+      noExpandIcon: {
+        type: Boolean,
+        default: false,
+      },
+      verifyI18n: {
+        type: Boolean,
+        default: false,
+      },
+      button: {
+        type: Boolean,
+        default: false,
       },
     },
-    isI18N(newVal, oldVal) {
-      if (oldVal && !newVal) {
-        this.defaultLanguageValue = null;
-      }
-    },
-    defaultLanguageValue() {
-      if (this.defaultLocale && (!this.defaultLanguageValue || this.defaultLanguageValue !== this.valuesPerLanguage[this.defaultLocale])) {
-        this.updateTranslationMap();
-      }
-    },
-  },
-  created() {
-    this.$translationService.getTranslationConfiguration()
-      .then(configuration => this.translationConfiguration = configuration)
-      .then(() => this.serverSideFetch && this.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
-      .then(translations => {
-        if (this.serverSideFetch && translations && Object.keys(translations).length) {
-          this.setValuesPerLanguage(translations);
-        } else {
-          this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
+    data: () => ({
+      initialized: false,
+      defaultLanguageValue: null,
+      valuesPerLanguage: {},
+      translationConfiguration: null,
+      isI18N: false,
+    }),
+    computed: {
+      noRulesValidation () {
+        return !this.defaultLanguageValue || !this.rules?.length;
+      },
+      defaultLocale () {
+        return this.defaultLanguage || this.translationConfiguration?.defaultLanguage;
+      },
+      supportedLocales () {
+        const supportedLocales = this.supportedLanguages || this.translationConfiguration?.supportedLanguages;
+        if (supportedLocales) {
+          const locales = {};
+          Object.keys(supportedLocales).forEach(l => {
+            locales[l.replace('_', '-')] = supportedLocales[l];
+          });
+          return locales;
         }
-      })
-      .then(() => this.init())
-      .then(() => this.$nextTick())
-      .finally(() => {
-        this.initialized = true;
-        this.$emit('initialized');
-      });
-  },
-  methods: {
-    init() {
-      if (this.valuesPerLanguage[this.defaultLocale]) {
+        return null;
+      },
+      translationsCount () {
+        return this.valuesPerLanguage && Object.keys(this.valuesPerLanguage).length || 0;
+      },
+      iconColor () {
+        return this.translationsCount > 1 ? 'primary' : '';
+      },
+      iconTitle () {
+        return this.translationsCount > 1 ? this.$t('translationDrawer.existingTranslationsTooltip', { 0: this.translationsCount - 1 }) : this.$t('translationDrawer.noTranslationsTooltip');
+      },
+      serverSideFetch () {
+        return this.objectType && this.objectId && this.fieldName;
+      },
+    },
+    watch: {
+      value: {
+        immediate: true,
+        handler () {
+          this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
+          const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale.replace('_', '-')] || '';
+          this.defaultLanguageValue = defaultLanguageValue;
+        },
+      },
+      isI18N (newVal, oldVal) {
+        if (oldVal && !newVal) {
+          this.defaultLanguageValue = null;
+        }
+      },
+      defaultLanguageValue () {
+        if (this.defaultLocale && (!this.defaultLanguageValue || this.defaultLanguageValue !== this.valuesPerLanguage[this.defaultLocale])) {
+          this.updateTranslationMap();
+        }
+      },
+    },
+    created () {
+      this.$translationService.getTranslationConfiguration()
+        .then(configuration => this.translationConfiguration = configuration)
+        .then(() => this.serverSideFetch && this.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
+        .then(translations => {
+          if (this.serverSideFetch && translations && Object.keys(translations).length) {
+            this.setValuesPerLanguage(translations);
+          } else {
+            this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
+          }
+        })
+        .then(() => this.init())
+        .then(() => this.$nextTick())
+        .finally(() => {
+          this.initialized = true;
+          this.$emit('initialized');
+        });
+    },
+    methods: {
+      init () {
+        if (this.valuesPerLanguage[this.defaultLocale]) {
+          this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLocale];
+        } else {
+          this.defaultLanguageValue = this.fieldValue || this.valuesPerLanguage[this.defaultLocale] || '';
+        }
+        this.isI18N = this.verifyI18n && this.defaultLanguageValue && this.$te(this.defaultLanguageValue) || false;
+        this.updateTranslationMap();
+      },
+      updateTranslationMap () {
+        this.valuesPerLanguage[this.defaultLocale] = this.defaultLanguageValue || '';
+        this.$emit('input', this.valuesPerLanguage);
+        this.$emit('update:field-value', this.defaultLanguageValue);
+      },
+      emitUpdateValues () {
         this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLocale];
-      } else {
-        this.defaultLanguageValue = this.fieldValue || this.valuesPerLanguage[this.defaultLocale] || '';
-      }
-      this.isI18N = this.verifyI18n && this.defaultLanguageValue && this.$te(this.defaultLanguageValue) || false;
-      this.updateTranslationMap();
+        this.$emit('input', this.valuesPerLanguage);
+        this.$emit('update:field-value', this.defaultLanguageValue);
+      },
+      openDrawer () {
+        this.$refs.translationDrawer.open();
+      },
+      // To keep, used by parent to update value in case of need
+      setValue (value) {
+        this.defaultLanguageValue = value;
+      },
+      setValuesPerLanguage (defaults) {
+        let valuesPerLanguage = defaults && JSON.parse(JSON.stringify(defaults)) || {};
+        if (valuesPerLanguage) {
+          const values = {};
+          Object.keys(valuesPerLanguage)
+            .forEach(l => values[l.replace('_', '-')] = valuesPerLanguage[l]);
+          valuesPerLanguage = values;
+        }
+        this.valuesPerLanguage = valuesPerLanguage;
+      },
     },
-    updateTranslationMap() {
-      this.valuesPerLanguage[this.defaultLocale] = this.defaultLanguageValue || '';
-      this.$emit('input', this.valuesPerLanguage);
-      this.$emit('update:field-value', this.defaultLanguageValue);
-    },
-    emitUpdateValues() {
-      this.defaultLanguageValue = this.valuesPerLanguage[this.defaultLocale];
-      this.$emit('input', this.valuesPerLanguage);
-      this.$emit('update:field-value', this.defaultLanguageValue);
-    },
-    openDrawer() {
-      this.$refs.translationDrawer.open();
-    },
-    // To keep, used by parent to update value in case of need
-    setValue(value) {
-      this.defaultLanguageValue = value;
-    },
-    setValuesPerLanguage(defaults) {
-      let valuesPerLanguage = defaults && JSON.parse(JSON.stringify(defaults)) || {};
-      if (valuesPerLanguage) {
-        const values = {};
-        Object.keys(valuesPerLanguage)
-          .forEach(l => values[l.replace('_', '-')] = valuesPerLanguage[l]);
-        valuesPerLanguage = values;
-      }
-      this.valuesPerLanguage = valuesPerLanguage;
-    },
-  },
-};
+  };
 </script>

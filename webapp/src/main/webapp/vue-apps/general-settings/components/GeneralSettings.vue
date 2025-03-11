@@ -28,15 +28,17 @@
           <v-expand-transition>
             <v-list-item
               v-if="$root.selectedTab"
-              dense
-              class="px-0 py-1 mb-4">
+              class="px-0 py-1 mb-4"
+              dense>
               <v-list-item-action class="my-auto me-0 ms-n2">
                 <v-btn
-                  :title="$t('generalSettings.access.backToMain')"
-                  size="24"
                   icon
+                  size="24"
+                  :title="$t('generalSettings.access.backToMain')"
                   @click="close">
-                  <v-icon size="18" class="icon-default-color">
+                  <v-icon
+                    class="icon-default-color"
+                    size="18">
                     {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
                   </v-icon>
                 </v-btn>
@@ -44,9 +46,9 @@
               <v-list-item-content>
                 <v-list-item-title class="d-flex">
                   <v-card
-                    :title="$t('generalSettings.access.backToMain')"
                     class="flex-grow-0 py-1"
                     flat
+                    :title="$t('generalSettings.access.backToMain')"
                     @click="close()">
                     <div class="text-title">
                       <template v-if="$root.selectedTab === 'branding'">
@@ -69,24 +71,26 @@
               v-if="$root.selectedTab === 'branding'"
               ref="brandingSettings"
               :branding="branding"
-              @saved="init"
               @changed="changed = $event"
-              @close="close" />
+              @close="close"
+              @saved="init" />
             <portal-general-settings-branding-login
               v-else-if="$root.selectedTab === 'login'"
               ref="loginSettings"
               :branding="branding"
-              @saved="init"
               @changed="changed = $event"
-              @close="close" />
+              @close="close"
+              @saved="init" />
             <portal-general-settings-navigation-settings
               v-else-if="$root.selectedTab === 'navigation'"
               ref="navigationSettings"
-              @saved="init"
               @changed="changed = $event"
-              @close="close" />
+              @close="close"
+              @saved="init" />
             <div v-else>
-              <v-list-item class="px-0" two-line>
+              <v-list-item
+                class="px-0"
+                two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
                     {{ $t('generalSettings.displayCharacteristics') }}
@@ -99,11 +103,17 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'branding'">
-                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                    <v-icon
+                      class="icon-default-color"
+                      size="18">
+                      fa-caret-right
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
+              <v-list-item
+                class="px-0"
+                two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
                     {{ $t('generalSettings.navigationCharacteristics') }}
@@ -116,11 +126,17 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'navigation'">
-                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                    <v-icon
+                      class="icon-default-color"
+                      size="18">
+                      fa-caret-right
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
+              <v-list-item
+                class="px-0"
+                two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
                     {{ $t('generalSettings.loginCharacteristics') }}
@@ -133,16 +149,22 @@
                   <v-btn
                     icon
                     @click="$root.selectedTab = 'login'">
-                    <v-icon size="18" class="icon-default-color">fa-caret-right</v-icon>
+                    <v-icon
+                      class="icon-default-color"
+                      size="18">
+                      fa-caret-right
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
               <extension-registry-components
+                element="div"
                 name="PortalGeneralSettings"
-                type="portal-general-settings-components"
                 parent-element="div"
-                element="div" />
-              <v-list-item class="px-0" two-line>
+                type="portal-general-settings-components" />
+              <v-list-item
+                class="px-0"
+                two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
                     {{ $t('generalSettings.manageDefaultLanguage') }}
@@ -155,11 +177,17 @@
                   <v-btn
                     icon
                     @click="$root.$emit('default-language-edit')">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon
+                      class="icon-default-color"
+                      size="18">
+                      fa-edit
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
-              <v-list-item class="px-0" two-line>
+              <v-list-item
+                class="px-0"
+                two-line>
                 <v-list-item-content>
                   <v-list-item-title class="text-title">
                     {{ $t('generalSettings.managePublicSite') }}
@@ -172,7 +200,11 @@
                   <v-btn
                     icon
                     @click="$root.$emit('public-site-edit')">
-                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon
+                      class="icon-default-color"
+                      size="18">
+                      fa-edit
+                    </v-icon>
                   </v-btn>
                 </v-list-item-action>
               </v-list-item>
@@ -182,11 +214,11 @@
       </v-card>
       <confirm-dialog
         ref="closeConfirmDialog"
-        :title="$t('generalSettings.closeTabConfirmTitle')"
+        :cancel-label="$t('generalSettings.no')"
         :message="$t('generalSettings.closeTabConfirmMessage')"
         :ok-label="$t('generalSettings.yes')"
-        :cancel-label="$t('generalSettings.no')"
         persistent
+        :title="$t('generalSettings.closeTabConfirmTitle')"
         @ok="closeEffectively" />
       <portal-general-settings-public-site-drawer />
       <portal-general-settings-default-language-drawer
@@ -196,76 +228,76 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    branding: null,
-    registrationSettings: null,
-    errorMessage: null,
-    intialized: false,
-    changed: false,
-    defaultBrandingThemeStyle: null,
-  }),
-  watch: {
-    branding() {
-      this.$root.branding = this.branding;
+  export default {
+    data: () => ({
+      branding: null,
+      registrationSettings: null,
+      errorMessage: null,
+      intialized: false,
+      changed: false,
+      defaultBrandingThemeStyle: null,
+    }),
+    watch: {
+      branding () {
+        this.$root.branding = this.branding;
+      },
+      defaultBrandingThemeStyle () {
+        this.$root.defaultBrandingThemeStyle = this.defaultBrandingThemeStyle;
+      },
+      errorMessage () {
+        if (this.errorMessage) {
+          this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
+        } else {
+          this.$root.$emit('close-alert-message');
+        }
+      },
     },
-    defaultBrandingThemeStyle() {
-      this.$root.defaultBrandingThemeStyle = this.defaultBrandingThemeStyle;
-    },
-    errorMessage() {
-      if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
-      } else {
-        this.$root.$emit('close-alert-message');
+    created () {
+      if (window.location.hash === '#display') {
+        this.$root.selectedTab = 'branding';
+      } else if (window.location.hash === '#navigation') {
+        this.$root.selectedTab = 'navigation';
+      } else if (window.location.hash === '#logincustomization') {
+        this.$root.selectedTab = 'login';
       }
     },
-  },
-  created() {
-    if (window.location.hash === '#display') {
-      this.$root.selectedTab = 'branding';
-    } else if (window.location.hash === '#navigation') {
-      this.$root.selectedTab = 'navigation';
-    } else if (window.location.hash === '#logincustomization') {
-      this.$root.selectedTab = 'login';
-    }
-  },
-  mounted() {
-    this.init()
-      .then(() => this.$nextTick())
-      .finally(() => {
-        this.$root.$applicationLoaded();
-        this.intialized = true;
-      });
-  },
-  methods: {
-    init() {
-      this.$root.loading = true;
-      return this.initBranding()
-        .then(this.initThemeStyle)
-        .finally(() => this.$root.loading = false);
+    mounted () {
+      this.init()
+        .then(() => this.$nextTick())
+        .finally(() => {
+          this.$root.$applicationLoaded();
+          this.intialized = true;
+        });
     },
-    initBranding() {
-      return this.$brandingService.getBrandingInformation()
-        .then(data => this.branding = data);
+    methods: {
+      init () {
+        this.$root.loading = true;
+        return this.initBranding()
+          .then(this.initThemeStyle)
+          .finally(() => this.$root.loading = false);
+      },
+      initBranding () {
+        return this.$brandingService.getBrandingInformation()
+          .then(data => this.branding = data);
+      },
+      initThemeStyle () {
+        return this.$brandingService.getDefaultBrandingThemeStyle()
+          .then(data => this.defaultBrandingThemeStyle = data);
+      },
+      close () {
+        if (this.changed) {
+          this.$refs.closeConfirmDialog.open();
+        } else {
+          this.closeEffectively();
+        }
+      },
+      closeEffectively () {
+        this.confirmClose = false;
+        this.$nextTick().then(() => {
+          this.$root.selectedTab = null;
+          this.changed = false;
+        });
+      },
     },
-    initThemeStyle() {
-      return this.$brandingService.getDefaultBrandingThemeStyle()
-        .then(data => this.defaultBrandingThemeStyle = data);
-    },
-    close() {
-      if (this.changed) {
-        this.$refs.closeConfirmDialog.open();
-      } else {
-        this.closeEffectively();
-      }
-    },
-    closeEffectively() {
-      this.confirmClose = false;
-      this.$nextTick().then(() => {
-        this.$root.selectedTab = null;
-        this.changed = false;
-      });
-    },
-  },
-};
+  };
 </script>

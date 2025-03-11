@@ -21,65 +21,71 @@
 <template>
   <application-toolbar
     id="spacesListToolbar"
+    class="px-1"
+    :compact="compactDisplay || $root.isMobile"
+    :filters-count="filtersCount"
+    no-text-truncate
+    :right-filter-button="displayRightFilter && {
+      text: $t('spaceList.advanced.filter.button.title'),
+      displayText: !$root.isMobile,
+    }"
     :right-text-filter="{
       minCharacters: 3,
       placeholder: $t('spacesList.label.filterSpaces'),
       tooltip: $t('spacesList.label.filterSpaces')
     }"
-    :right-filter-button="displayRightFilter && {
-      text: $t('spaceList.advanced.filter.button.title'),
-      displayText: !$root.isMobile,
-    }"
-    :compact="compactDisplay || $root.isMobile"
-    :filters-count="filtersCount"
-    class="px-1"
-    no-text-truncate
-    @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @filter-button-click="$root.$emit('spaces-list-filter-open', filter)"
     @filter-expand="filterExpand = $event"
+    @filter-text-input-end-typing="$emit('keyword-changed', $event)"
     @loading="$emit('loading', $event)">
     <template #left>
-      <div v-if="$root.title" class="text-header">
+      <div
+        v-if="$root.title"
+        class="text-header">
         {{ $root.title }}
       </div>
       <div
         v-else
-        :class="!canCreateSpace && 'ms-n3'"
-        class="d-flex align-center">
+        class="d-flex align-center"
+        :class="!canCreateSpace && 'ms-n3'">
         <v-btn
           v-if="canCreateSpace"
           id="addNewSpaceButton"
-          :small="$root.isMobile"
           color="primary"
           elevation="0"
+          :small="$root.isMobile"
           @click="$root.$emit('addNewSpace')">
-          <v-icon size="18" dark>fa-plus</v-icon>
+          <v-icon
+            dark
+            size="18">
+            fa-plus
+          </v-icon>
           <span class="ms-2 hidden-xs-only">
             {{ $t('spacesList.button.add') }}
           </span>
         </v-btn>
         <space-pending-button
           v-if="$root.requestsCount"
+          badge-color="error-color-background"
           :count="$root.requestsCount"
           filter="requests"
-          label-key="spacesList.label.pendingRequests"
           icon="fa-user-clock"
-          badge-color="error-color-background" />
+          label-key="spacesList.label.pendingRequests" />
         <space-pending-button
           v-if="$root.invitationsCount"
+          badge-color="warning-color-background"
           :count="$root.invitationsCount"
           filter="invited"
-          label-key="spacesList.label.invitationsSent"
           icon="fa-history"
-          badge-color="warning-color-background" />
+          label-key="spacesList.label.invitationsSent" />
         <space-pending-button
           v-if="$root.pendingCount"
+          badge-color="info-color-background"
           :count="$root.pendingCount"
           filter="pending"
-          label-key="spacesList.label.usersRequests"
           icon="fa-spinner"
           icon-class="fa-rotate-270"
-          badge-color="info-color-background" />
+          label-key="spacesList.label.usersRequests" />
         <div
           v-if="filterMessage"
           class="text-subtitle showingSpaceText d-none d-sm-flex ms-3">
@@ -87,101 +93,105 @@
         </div>
       </div>
     </template>
-    <template v-if="$root.canEdit && !filterExpand" #right>
+    <template
+      v-if="$root.canEdit && !filterExpand"
+      #right>
       <div class="ms-auto">
         <spaces-public-access-warning />
         <v-btn
           v-if="$root.hover"
           id="spacesListSettingsButton"
-          small
           icon
+          small
           @click="$root.$emit('spaces-list-settings-open')">
-          <v-icon size="20">fa-cog</v-icon>
+          <v-icon size="20">
+            fa-cog
+          </v-icon>
         </v-btn>
       </div>
     </template>
   </application-toolbar>
 </template>
 <script>
-export default {
-  props: {
-    filter: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      filter: {
+        type: String,
+        default: null,
+      },
+      filtersCount: {
+        type: Number,
+        default: () => 0,
+      },
+      compactDisplay: {
+        type: Boolean,
+        default: false,
+      },
+      filterMessage: {
+        type: String,
+        default: null,
+      },
+      canCreateSpace: {
+        type: Boolean,
+        default: false,
+      },
     },
-    filtersCount: {
-      type: Number,
-      default: () => 0,
+    data: () => ({
+      loading: 0,
+      filterExpand: false,
+    }),
+    computed: {
+      displayRightFilter () {
+        return this.$root.sortBy !== 'lastVisited' && !this.$root.anonymous;
+      },
     },
-    compactDisplay: {
-      type: Boolean,
-      default: false
+    created () {
+      if (!this.$root.anonymous) {
+        this.$root.$on('spaces-list-refresh', this.refresh);
+        this.$root.$on('space-list-pending-updated', this.refresh);
+      }
     },
-    filterMessage: {
-      type: String,
-      default: null
+    mounted () {
+      if (!this.$root.anonymous) {
+        this.refresh();
+      }
     },
-    canCreateSpace: {
-      type: Boolean,
-      default: false,
+    beforeUnmount () {
+      if (!this.$root.anonymous) {
+        this.$root.$off('spaces-list-refresh', this.refresh);
+        this.$root.$off('space-list-pending-updated', this.refresh);
+      }
     },
-  },
-  data: () => ({
-    loading: 0,
-    filterExpand: false,
-  }),
-  computed: {
-    displayRightFilter() {
-      return this.$root.sortBy !== 'lastVisited' && !this.$root.anonymous;
+    methods: {
+      refresh () {
+        this.getSpacesInvitation();
+        this.getSpacesPending();
+        this.getSpacesRequest();
+      },
+      getSpacesInvitation () {
+        this.loading++;
+        this.$spaceService.getSpacesByFilter({
+          filter: 'invited',
+        })
+          .then(data => this.$root.invitationsCount = data && data.size || 0)
+          .finally(() => this.loading--);
+      },
+      getSpacesPending () {
+        this.loading++;
+        this.$spaceService.getSpacesByFilter({
+          filter: 'pending',
+        })
+          .then(data => this.$root.pendingCount = data?.size || 0)
+          .finally(() => this.loading--);
+      },
+      getSpacesRequest () {
+        this.loading++;
+        this.$spaceService.getSpacesByFilter({
+          filter: 'requests',
+        })
+          .then(data => this.$root.requestsCount = data?.size || 0)
+          .finally(() => this.loading--);
+      },
     },
-  },
-  created() {
-    if (!this.$root.anonymous) {
-      this.$root.$on('spaces-list-refresh', this.refresh);
-      this.$root.$on('space-list-pending-updated', this.refresh);
-    }
-  },
-  mounted() {
-    if (!this.$root.anonymous) {
-      this.refresh();
-    }
-  },
-  beforeDestroy() {
-    if (!this.$root.anonymous) {
-      this.$root.$off('spaces-list-refresh', this.refresh);
-      this.$root.$off('space-list-pending-updated', this.refresh);
-    }
-  },
-  methods: {
-    refresh() {
-      this.getSpacesInvitation();
-      this.getSpacesPending();
-      this.getSpacesRequest();
-    },
-    getSpacesInvitation() {
-      this.loading++;
-      this.$spaceService.getSpacesByFilter({
-        filter: 'invited',
-      })
-        .then(data => this.$root.invitationsCount = data && data.size || 0)
-        .finally(() => this.loading--);
-    },
-    getSpacesPending() {
-      this.loading++;
-      this.$spaceService.getSpacesByFilter({
-        filter: 'pending',
-      })
-        .then(data => this.$root.pendingCount = data?.size || 0)
-        .finally(() => this.loading--);
-    },
-    getSpacesRequest() {
-      this.loading++;
-      this.$spaceService.getSpacesByFilter({
-        filter: 'requests',
-      })
-        .then(data => this.$root.requestsCount = data?.size || 0)
-        .finally(() => this.loading--);
-    },
-  },
-};
+  };
 </script>

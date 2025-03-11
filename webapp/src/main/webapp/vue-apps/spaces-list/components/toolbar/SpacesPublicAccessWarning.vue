@@ -19,14 +19,16 @@
 
 -->
 <template>
-  <v-tooltip v-if="displayWarning" top>
+  <v-tooltip
+    v-if="displayWarning"
+    top>
     <template #activator="{attrs, on}">
       <v-btn
-        v-on="on"
         v-bind="attrs"
         class="me-2"
-        small
         icon
+        small
+        v-on="on"
         @click="openSettingsDrawer">
         <v-icon
           color="warning"
@@ -44,25 +46,25 @@
   </v-tooltip>
 </template>
 <script>
-export default {
-  computed: {
-    hubAccessOpen() {
-      return this.$root.registrationType === 'OPEN';
+  export default {
+    computed: {
+      hubAccessOpen () {
+        return this.$root.registrationType === 'OPEN';
+      },
+      isAdministrator () {
+        return this.$root.isAdministrator;
+      },
+      displayWarning () {
+        return this.$root.isPublicPage
+          && this.$root.canEdit
+          && !this.hubAccessOpen
+          && !this.$root.settingName;
+      },
     },
-    isAdministrator() {
-      return this.$root.isAdministrator;
+    methods: {
+      openSettingsDrawer () {
+        this.$root.$emit('spaces-list-settings-open');
+      },
     },
-    displayWarning() {
-      return this.$root.isPublicPage
-        && this.$root.canEdit
-        && !this.hubAccessOpen
-        && !this.$root.settingName;
-    },
-  },
-  methods: {
-    openSettingsDrawer() {
-      this.$root.$emit('spaces-list-settings-open');
-    },
-  },
-};
+  };
 </script>

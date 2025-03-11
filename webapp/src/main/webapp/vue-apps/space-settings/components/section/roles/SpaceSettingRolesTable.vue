@@ -21,15 +21,15 @@
 -->
 <template>
   <v-data-table
-    :loading="!!loading"
-    :headers="headers"
-    :items="items"
-    :headers-length="headers.length"
     class="table-layout-auto"
-    hide-default-footer
-    hide-default-header
     disable-pagination
     fixed-header
+    :headers="headers"
+    :headers-length="headers.length"
+    hide-default-footer
+    hide-default-header
+    :items="items"
+    :loading="!!loading"
     must-sort>
     <template #header>
       <thead class="v-data-table-header">
@@ -55,171 +55,171 @@
         </tr>
       </thead>
     </template>
-    <template slot="item" slot-scope="props">
+    <template #item="props">
       <space-setting-roles-table-item
         :key="props.item.role"
-        :name="props.item.name"
         :description="props.item.description"
+        :name="props.item.name"
         :role="props.item.role"
-        :users="props.item.users"
-        :size="props.item.size" />
+        :size="props.item.size"
+        :users="props.item.users" />
     </template>
   </v-data-table>
 </template>
 <script>
-export default {
-  data: () => ({
-    loading: 0,
-    isContentCreationRestricted: false,
-    members: null,
-    managers: null,
-    publishers: null,
-    redactors: null,
-    expand: 'users,settings',
-  }),
-  computed: {
-    items() {
-      const items = [{
-        name: this.$t('SpaceSettings.roles.manager'),
-        description: this.$t('SpaceSettings.roles.manager.description'),
-        users: this.managers?.spacesMemberships?.map?.(m => m.user),
-        size: this.managers?.size,
-        role: 'manager',
-      },{
-        name: this.$t('SpaceSettings.roles.publisher'),
-        description: this.$t('SpaceSettings.roles.publisher.description'),
-        users: this.publishers?.spacesMemberships?.map?.(m => m.user),
-        size: this.publishers?.size,
-        role: 'publisher',
-      },{
-        name: this.$t('SpaceSettings.roles.member'),
-        description: this.$t('SpaceSettings.roles.member.description'),
-        users: this.members?.spacesMemberships?.map?.(m => m.user),
-        size: this.members?.size,
-        role: 'member',
-      }];
-      if (this.isContentCreationRestricted) {
-        items.splice(2, 0, {
-          name: this.$t('SpaceSettings.roles.redactor'),
-          description: this.$t('SpaceSettings.roles.redactor.description'),
-          users: this.redactors?.spacesMemberships?.map?.(m => m.user),
-          size: this.redactors?.size,
-          role: 'redactor',
-        });
-      }
-      return items;
-    },
-    headers() {
-      const headers = [{
-        text: this.$t('SpaceSettings.roles.table.role'),
-        sortable: false,
-        value: 'name',
-        class: 'actionHeader ps-0',
-        width: '150'
-      }, {
-        text: this.$t('SpaceSettings.roles.table.users'),
-        value: 'size',
-        sortable: false,
-        align: 'center',
-        class: 'actionHeader',
-        width: '135'
-      }];
-      if (!this.$root.isMobile) {
-        headers.splice(1, 0, {
-          text: this.$t('SpaceSettings.roles.table.description'),
-          value: 'description',
+  export default {
+    data: () => ({
+      loading: 0,
+      isContentCreationRestricted: false,
+      members: null,
+      managers: null,
+      publishers: null,
+      redactors: null,
+      expand: 'users,settings',
+    }),
+    computed: {
+      items () {
+        const items = [{
+          name: this.$t('SpaceSettings.roles.manager'),
+          description: this.$t('SpaceSettings.roles.manager.description'),
+          users: this.managers?.spacesMemberships?.map?.(m => m.user),
+          size: this.managers?.size,
+          role: 'manager',
+        },{
+          name: this.$t('SpaceSettings.roles.publisher'),
+          description: this.$t('SpaceSettings.roles.publisher.description'),
+          users: this.publishers?.spacesMemberships?.map?.(m => m.user),
+          size: this.publishers?.size,
+          role: 'publisher',
+        },{
+          name: this.$t('SpaceSettings.roles.member'),
+          description: this.$t('SpaceSettings.roles.member.description'),
+          users: this.members?.spacesMemberships?.map?.(m => m.user),
+          size: this.members?.size,
+          role: 'member',
+        }];
+        if (this.isContentCreationRestricted) {
+          items.splice(2, 0, {
+            name: this.$t('SpaceSettings.roles.redactor'),
+            description: this.$t('SpaceSettings.roles.redactor.description'),
+            users: this.redactors?.spacesMemberships?.map?.(m => m.user),
+            size: this.redactors?.size,
+            role: 'redactor',
+          });
+        }
+        return items;
+      },
+      headers () {
+        const headers = [{
+          text: this.$t('SpaceSettings.roles.table.role'),
+          sortable: false,
+          value: 'name',
+          class: 'actionHeader ps-0',
+          width: '150',
+        }, {
+          text: this.$t('SpaceSettings.roles.table.users'),
+          value: 'size',
           sortable: false,
           align: 'center',
           class: 'actionHeader',
-          width: 'auto'
+          width: '135',
+        }];
+        if (!this.$root.isMobile) {
+          headers.splice(1, 0, {
+            text: this.$t('SpaceSettings.roles.table.description'),
+            value: 'description',
+            sortable: false,
+            align: 'center',
+            class: 'actionHeader',
+            width: 'auto',
+          });
+        }
+        return headers;
+      },
+    },
+    created () {
+      this.$root.$on('space-settings-refresh-managers', this.refreshManagers);
+      this.$root.$on('space-settings-refresh-publishers', this.refreshPublishers);
+      this.$root.$on('space-settings-refresh-redactors', this.refreshRedactors);
+      this.$root.$on('space-settings-refresh-members', this.refreshMembers);
+
+      this.$root.$on('space-settings-managers-updated', this.refreshManagers);
+      this.$root.$on('space-settings-publishers-updated', this.refreshPublishers);
+      this.$root.$on('space-settings-redactors-updated', this.refreshRedactors);
+      this.$root.$on('space-settings-members-updated', this.refreshMembers);
+
+      this.init();
+    },
+    beforeUnmount () {
+      this.$root.$off('space-settings-refresh-managers', this.refreshManagers);
+      this.$root.$off('space-settings-refresh-publishers', this.refreshPublishers);
+      this.$root.$off('space-settings-refresh-redactors', this.refreshRedactors);
+      this.$root.$off('space-settings-refresh-members', this.refreshMembers);
+
+      this.$root.$off('space-settings-managers-updated', this.refreshManagers);
+      this.$root.$off('space-settings-publishers-updated', this.refreshPublishers);
+      this.$root.$off('space-settings-redactors-updated', this.refreshRedactors);
+      this.$root.$off('space-settings-members-updated', this.refreshMembers);
+    },
+    methods: {
+      init () {
+        this.space = this.$root.space;
+        this.refreshManagers();
+        this.refreshPublishers();
+        this.refreshRedactors();
+        this.refreshMembers();
+      },
+      async refreshManagers () {
+        this.loading++;
+        try {
+          // query, offset, limit, expand, role, spaceId
+          // null, 0, 3, this.expand, 'manager', this.space.id
+          this.managers = await this.getSpaceMemberships('manager');
+          this.$emit('managers-loaded', this.managers);
+        } finally {
+          this.loading--;
+        }
+      },
+      async refreshPublishers () {
+        this.loading++;
+        try {
+          this.publishers = await this.getSpaceMemberships('publisher');
+          this.$emit('publishers-loaded', this.publishers);
+        } finally {
+          this.loading--;
+        }
+      },
+      async refreshRedactors () {
+        this.loading++;
+        try {
+          this.redactors = await this.getSpaceMemberships('redactor');
+          this.$emit('redactors-loaded', this.redactors);
+
+          this.isContentCreationRestricted = !!this.redactors?.size;
+          this.$emit('restriction-loaded', this.isContentCreationRestricted);
+        } finally {
+          this.loading--;
+        }
+      },
+      async refreshMembers () {
+        this.loading++;
+        try {
+          this.members = await this.getSpaceMemberships('member');
+          this.$emit('members-loaded', this.members);
+        } finally {
+          this.loading--;
+        }
+      },
+      getSpaceMemberships (role) {
+        return this.$spaceService.getSpaceMemberships({
+          offset: 0,
+          limit: 3,
+          status: role,
+          expand: this.expand,
+          space: this.space.id,
+          returnSize: true,
         });
-      }
-      return headers;
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-settings-refresh-managers', this.refreshManagers);
-    this.$root.$on('space-settings-refresh-publishers', this.refreshPublishers);
-    this.$root.$on('space-settings-refresh-redactors', this.refreshRedactors);
-    this.$root.$on('space-settings-refresh-members', this.refreshMembers);
-
-    this.$root.$on('space-settings-managers-updated', this.refreshManagers);
-    this.$root.$on('space-settings-publishers-updated', this.refreshPublishers);
-    this.$root.$on('space-settings-redactors-updated', this.refreshRedactors);
-    this.$root.$on('space-settings-members-updated', this.refreshMembers);
-
-    this.init();
-  },
-  beforeDestroy() {
-    this.$root.$off('space-settings-refresh-managers', this.refreshManagers);
-    this.$root.$off('space-settings-refresh-publishers', this.refreshPublishers);
-    this.$root.$off('space-settings-refresh-redactors', this.refreshRedactors);
-    this.$root.$off('space-settings-refresh-members', this.refreshMembers);
-
-    this.$root.$off('space-settings-managers-updated', this.refreshManagers);
-    this.$root.$off('space-settings-publishers-updated', this.refreshPublishers);
-    this.$root.$off('space-settings-redactors-updated', this.refreshRedactors);
-    this.$root.$off('space-settings-members-updated', this.refreshMembers);
-  },
-  methods: {
-    init() {
-      this.space = this.$root.space;
-      this.refreshManagers();
-      this.refreshPublishers();
-      this.refreshRedactors();
-      this.refreshMembers();
-    },
-    async refreshManagers() {
-      this.loading++;
-      try {
-        // query, offset, limit, expand, role, spaceId
-        // null, 0, 3, this.expand, 'manager', this.space.id
-        this.managers = await this.getSpaceMemberships('manager');
-        this.$emit('managers-loaded', this.managers);
-      } finally {
-        this.loading--;
-      }
-    },
-    async refreshPublishers() {
-      this.loading++;
-      try {
-        this.publishers = await this.getSpaceMemberships('publisher');
-        this.$emit('publishers-loaded', this.publishers);
-      } finally {
-        this.loading--;
-      }
-    },
-    async refreshRedactors() {
-      this.loading++;
-      try {
-        this.redactors = await this.getSpaceMemberships('redactor');
-        this.$emit('redactors-loaded', this.redactors);
-
-        this.isContentCreationRestricted = !!this.redactors?.size;
-        this.$emit('restriction-loaded', this.isContentCreationRestricted);
-      } finally {
-        this.loading--;
-      }
-    },
-    async refreshMembers() {
-      this.loading++;
-      try {
-        this.members = await this.getSpaceMemberships('member');
-        this.$emit('members-loaded', this.members);
-      } finally {
-        this.loading--;
-      }
-    },
-    getSpaceMemberships(role) {
-      return this.$spaceService.getSpaceMemberships({
-        offset: 0,
-        limit: 3,
-        status: role,
-        expand: this.expand,
-        space: this.space.id,
-        returnSize: true,
-      });
-    },
-  },
-};
+  };
 </script>

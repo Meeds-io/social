@@ -17,48 +17,48 @@
       {{ commentNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
     <extension-registry-components
-      :params="extensionParams"
-      name="ActivityReactionsCount"
-      type="activity-reaction-count"
-      parent-element="div"
+      class=" d-flex flex-column"
       element="div"
-      class=" d-flex flex-column" />
+      name="ActivityReactionsCount"
+      :params="extensionParams"
+      parent-element="div"
+      type="activity-reaction-count" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      likersNumber: {
+        type: Number,
+        default: 0,
+      },
+      commentNumber: {
+        type: Number,
+        default: 0,
+      },
     },
-    likersNumber: {
-      type: Number,
-      default: 0
+    computed: {
+      extensionParams () {
+        return {
+          activity: this.activity,
+        };
+      },
     },
-    commentNumber: {
-      type: Number,
-      default: 0
-    }
-  },
-  computed: {
-    extensionParams() {
-      return {
-        activity: this.activity,
-      };
+    methods: {
+      open () {
+        this.$emit('openDrawer');
+      },
+      openComments () {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', { detail: {
+          activity: this.activity,
+          offset: 0,
+          limit: (this.commentNumber || 10) * 2, // To display all
+        } }));
+      },
     },
-  },
-  methods: {
-    open() {
-      this.$emit('openDrawer');
-    },
-    openComments() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        offset: 0,
-        limit: (this.commentNumber || 10) * 2, // To display all
-      }}));
-    },
-  }
-};
+  };
 </script>

@@ -24,8 +24,8 @@
     id="addAdminDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="saving"
     go-back-button="true"
+    :loading="saving"
     right>
     <template #title>
       {{ $t('social.admins.drawer.adminsToAdd') }}
@@ -35,52 +35,54 @@
         id="userNameInput"
         ref="userNameInput"
         v-model="selectedUsers"
+        v-model:search-input="searchTerm"
+        append-icon=""
+        cache-items
+        chips
+        class="identitySuggester mx-4 border-color-grey"
+        content-class="identitySuggesterContent"
+        dense
         :disabled="saving"
-        :loading="loadingSuggestions > 0"
+        flat
+        height="100"
+        hide-selected
+        item-text="fullName"
+        item-value="userName"
         :items="users"
-        :search-input.sync="searchTerm"
+        :loading="loadingSuggestions > 0"
+        max-width="100%"
+        menu-props="closeOnClick, maxHeight = 100"
+        multiple
+        name="membershipUser"
+        persistent-hint
         :placeholder="$t('social.admins.drawer.addAdmin.placeholder')"
         :required="!selectedUsers.length"
         :return-object="false"
-        name="membershipUser"
-        height="100"
-        append-icon=""
-        menu-props="closeOnClick, maxHeight = 100"
-        class="identitySuggester mx-4 border-color-grey"
-        content-class="identitySuggesterContent"
         width="100%"
-        max-width="100%"
-        item-text="fullName"
-        item-value="userName"
-        persistent-hint
-        hide-selected
-        chips
-        cache-items
-        dense
-        flat
-        multiple
         @change="clearSearch"
         @update:search-input="searchTerm = $event">
-        <template slot="no-data">
+        <template #no-data>
           <v-list-item class="pa-0">
             <v-list-item-title class="px-2">
               {{ $t('social.admins.drawer.searchUser') }}
             </v-list-item-title>
           </v-list-item>
         </template>
-        <template slot="selection" slot-scope="{item, selected}">
+        <template #selection="{item, selected}">
           <v-chip
-            :input-value="selected"
             class="identitySuggesterItem"
             close
+            :input-value="selected"
             @click:close="removeMemberShip(item)">
             <span class="text-truncate">
               {{ item.fullName }}
             </span>
           </v-chip>
         </template>
-        <template slot="item" slot-scope="{ item }">
-          <v-list-item-title class="text-truncate identitySuggestionMenuItemText" v-text="item.fullName" />
+        <template #item="{ item }">
+          <v-list-item-title class="text-truncate identitySuggestionMenuItemText">
+            {{ item.fullName }}
+          </v-list-item-title>
         </template>
       </v-autocomplete>
     </template>
@@ -88,15 +90,15 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
+          :disabled="saving"
           @click="cancel">
           {{ $t('social.admins.button.cancel') }}
         </v-btn>
         <v-btn
-          :loading="saving"
-          :disabled="saveButtonDisabled"
           class="btn btn-primary"
+          :disabled="saveButtonDisabled"
+          :loading="saving"
           @click.prevent.stop="saveMembership">
           {{ $t('social.admins.button.add') }}
         </v-btn>
@@ -105,122 +107,122 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    saving: false,
-    goBackButton: false,
-    selectedUsers: [],
-    memberships: [],
-    searchTerm: null,
-    previousSearchTerm: null,
-    loadingSuggestions: 0,
-    users: [],
-    admins: [],
-    adminExists: false
-  }),
-  computed: {
-    saveButtonDisabled() {
-      return this.saving || !this.memberships.length || this.adminExists;
+  export default {
+    data: () => ({
+      drawer: false,
+      saving: false,
+      goBackButton: false,
+      selectedUsers: [],
+      memberships: [],
+      searchTerm: null,
+      previousSearchTerm: null,
+      loadingSuggestions: 0,
+      users: [],
+      admins: [],
+      adminExists: false,
+    }),
+    computed: {
+      saveButtonDisabled () {
+        return this.saving || !this.memberships.length || this.adminExists;
+      },
     },
-  },
-  watch: {
-    selectedUsers() {
-      this.adminExists = false;
-      this.selectedUsers.forEach(user => {
-        if (!this.memberships.some(membership => membership.userName === user)) {
-          if (this.admins.some(admin => admin.userName === user)) {
-            this.adminExists = true;
-            this.$root.$emit('alert-message', this.$t('social.admins.drawer.addAdmin.adminExists'), 'error');
-          } else {
-            this.memberships.push({
-              groupId: '/platform/administrators',
-              membershipType: '*',
-              userName: user
-            });
+    watch: {
+      selectedUsers () {
+        this.adminExists = false;
+        this.selectedUsers.forEach(user => {
+          if (!this.memberships.some(membership => membership.userName === user)) {
+            if (this.admins.some(admin => admin.userName === user)) {
+              this.adminExists = true;
+              this.$root.$emit('alert-message', this.$t('social.admins.drawer.addAdmin.adminExists'), 'error');
+            } else {
+              this.memberships.push({
+                groupId: '/platform/administrators',
+                membershipType: '*',
+                userName: user,
+              });
+            }
           }
-        }
-      });
-    },
-    searchTerm(value) {
-      if (value?.length) {
-        this.$refs.userNameInput.isFocused = true;
-        window.setTimeout(() => {
-          if (this.previousSearchTerm === this.searchTerm) {
-            this.users = [];
-
-            this.loadingSuggestions++;
-            this.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
-              .then(data => {
-                this.users = data && data.entities || [];
-              })
-              .finally(() => this.loadingSuggestions--);
-          }
-          this.previousSearchTerm = this.searchTerm;
-        }, 400);
-      } else {
-        this.users = [];
-      }
-    },
-  },
-  created() {
-    this.$root.$on('admins-add-drawer-open', this.open);
-    this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
-  },
-  beforeDestroy() {
-    this.$root.$off('admins-add-drawer-open', this.open);
-    this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
-  },
-  methods: {
-    open() {
-      this.$refs.drawer.open();
-    },
-    cancel() {
-      this.$refs.drawer.close();
-    },
-    clearSearch() {
-      this.searchTerm = null;
-    },
-    removeMemberShip(user) {
-      this.memberships.splice(this.memberships.findIndex(membership => membership.userName === user.userName), 1);
-      this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
-    },
-    saveMembership(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      this.saving = true;
-
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=''`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(this.memberships),
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          if (resp.status === 400) {
-            return resp.text().then(error => {
-              this.fieldError = error;
-              throw new Error(error);
-            });
-          } else {
-            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
-          }
-        }
-      }).then(() => this.$root.$emit('platform-settings-admins-refresh'))
-        .then(() => this.$refs.drawer.close())
-        .finally(() => {
-          this.selectedUsers = [];
-          this.memberships = [];
-          this.saving = false;
         });
+      },
+      searchTerm (value) {
+        if (value?.length) {
+          this.$refs.userNameInput.isFocused = true;
+          window.setTimeout(() => {
+            if (this.previousSearchTerm === this.searchTerm) {
+              this.users = [];
+
+              this.loadingSuggestions++;
+              this.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
+                .then(data => {
+                  this.users = data && data.entities || [];
+                })
+                .finally(() => this.loadingSuggestions--);
+            }
+            this.previousSearchTerm = this.searchTerm;
+          }, 400);
+        } else {
+          this.users = [];
+        }
+      },
     },
-    searchAdmins(adminsCount, admins) {
-      this.admins = admins;
-    }
-  },
-};
+    created () {
+      this.$root.$on('admins-add-drawer-open', this.open);
+      this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
+    },
+    beforeUnmount () {
+      this.$root.$off('admins-add-drawer-open', this.open);
+      this.$root.$on('platform-settings-admins-updated', this.searchAdmins);
+    },
+    methods: {
+      open () {
+        this.$refs.drawer.open();
+      },
+      cancel () {
+        this.$refs.drawer.close();
+      },
+      clearSearch () {
+        this.searchTerm = null;
+      },
+      removeMemberShip (user) {
+        this.memberships.splice(this.memberships.findIndex(membership => membership.userName === user.userName), 1);
+        this.selectedUsers.splice(this.selectedUsers.findIndex(userName => userName === user.userName), 1);
+      },
+      saveMembership (event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        this.saving = true;
+
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships/bulk?membershipId=''`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(this.memberships),
+        }).then(resp => {
+          if (!resp || !resp.ok) {
+            if (resp.status === 400) {
+              return resp.text().then(error => {
+                this.fieldError = error;
+                throw new Error(error);
+              });
+            } else {
+              throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+            }
+          }
+        }).then(() => this.$root.$emit('platform-settings-admins-refresh'))
+          .then(() => this.$refs.drawer.close())
+          .finally(() => {
+            this.selectedUsers = [];
+            this.memberships = [];
+            this.saving = false;
+          });
+      },
+      searchAdmins (adminsCount, admins) {
+        this.admins = admins;
+      },
+    },
+  };
 </script>

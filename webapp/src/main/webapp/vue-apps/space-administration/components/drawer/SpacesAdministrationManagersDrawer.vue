@@ -24,8 +24,8 @@
     id="SpaceManagersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
     allow-expand
+    :loading="loading"
     no-x-scroll
     right>
     <template #title>
@@ -33,39 +33,41 @@
         0: spaceName,
       }) }}
     </template>
-    <template v-if="drawer && managers" #content>
+    <template
+      v-if="drawer && managers"
+      #content>
       <div class="pa-4">
         <user-avatar
           v-for="m in managers"
           :key="m.username"
-          :identity="m"
-          class="mb-4" />
+          class="mb-4"
+          :identity="m" />
       </div>
     </template>
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    managers: null,
-    spaceName: null,
-  }),
-  created() {
-    this.$root.$on('space-administration-managers-drawer-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-administration-managers-drawer-open', this.open);
-  },
-  methods: {
-    open(managers, spaceName) {
-      this.managers = managers || [];
-      this.spaceName = spaceName;
-      this.$refs.drawer.open();
+  export default {
+    data: () => ({
+      drawer: false,
+      managers: null,
+      spaceName: null,
+    }),
+    created () {
+      this.$root.$on('space-administration-managers-drawer-open', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    beforeUnmount () {
+      this.$root.$off('space-administration-managers-drawer-open', this.open);
     },
-  },
-};
+    methods: {
+      open (managers, spaceName) {
+        this.managers = managers || [];
+        this.spaceName = spaceName;
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+    },
+  };
 </script>

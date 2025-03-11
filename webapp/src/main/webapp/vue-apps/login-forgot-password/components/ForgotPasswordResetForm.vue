@@ -26,18 +26,18 @@
 
     <form
       :action="formUrl"
-      name="resetPasswordForm"
-      method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
+      class="d-flex ma-0 flex-column"
+      method="post"
+      name="resetPasswordForm">
       <input
-        type="hidden"
         name="action"
+        type="hidden"
         value="resetPassword">
       <input
         v-if="initialUri"
-        type="hidden"
         name="initialURI"
+        type="hidden"
         :value="initialUri">
 
       <div class="pa-0">
@@ -45,74 +45,76 @@
           <v-text-field
             id="username"
             v-model="username"
-            :title="$t('portal.login.Username')"
-            :placeholder="$t('portal.login.Username')"
-            name="username"
-            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-            class="login-username border-box-sizing pt-0"
             aria-required="true"
-            type="text"
-            required="required"
-            readonly
+            class="login-username border-box-sizing pt-0"
+            dense
+            name="username"
             outlined
-            dense />
+            :placeholder="$t('portal.login.Username')"
+            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+            readonly
+            required="required"
+            :title="$t('portal.login.Username')"
+            type="text" />
           <v-text-field
             id="password"
             v-model="password"
-            :title="$t('forgotPassword.NewPassword')"
-            :placeholder="$t('forgotPassword.NewPassword')"
-            :type="passwordType"
             :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-            class="login-password border-box-sizing"
-            name="password"
             autocomplete="new-password"
             autofocus="autofocus"
-            tabindex="0"
-            required="required"
-            outlined
+            class="login-password border-box-sizing"
             dense
+            name="password"
+            outlined
+            :placeholder="$t('forgotPassword.NewPassword')"
+            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+            required="required"
+            tabindex="0"
+            :title="$t('forgotPassword.NewPassword')"
+            :type="passwordType"
             @click:append="toggleShow" />
           <v-text-field
             id="password2"
             v-model="confirmPassword"
-            :title="$t('forgotPassword.ConfirmNewPassword')"
-            :placeholder="$t('forgotPassword.ConfirmNewPassword')"
-            :type="passwordConfirmType"
             :append-icon="showConfirmPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-            class="login-password border-box-sizing"
-            name="password2"
             autocomplete="new-password"
-            required="required"
-            outlined
+            class="login-password border-box-sizing"
             dense
+            name="password2"
+            outlined
+            :placeholder="$t('forgotPassword.ConfirmNewPassword')"
+            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+            required="required"
+            :title="$t('forgotPassword.ConfirmNewPassword')"
+            :type="passwordConfirmType"
             @click:append="toggleConfirmShow" />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.send')"
-            :disabled="!username"
-            type="submit"
-            width="222"
-            max-width="100%"
-            color="primary"
             class="mx-auto login-button btn-primary text-none"
-            elevation="0">
+            color="primary"
+            :disabled="!username"
+            elevation="0"
+            max-width="100%"
+            type="submit"
+            width="222">
             {{ $t('forgotpassword.send') }}
           </v-btn>
         </v-row>
         <v-row class="mx-0 mt-4 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.backToLogin')"
-            href="/portal/login"
-            width="222"
-            max-width="100%"
             class="mx-auto login-button text-none"
             elevation="0"
-            outlined>
+            href="/portal/login"
+            max-width="100%"
+            outlined
+            width="222">
             <span>
-              <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
+              <v-icon
+                class="position-absolute mt-n2"
+                size="16">fas fa-arrow-left</v-icon>
             </span>
             <span class="mx-auto">
               {{ $t('forgotpassword.backToLogin') }}
@@ -124,46 +126,46 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    showPassword: false,
-    showConfirmPassword: false,
-  }),
-  computed: {
-    initialUri() {
-      return this.params?.initialUri;
+    data: () => ({
+      username: '',
+      password: '',
+      confirmPassword: '',
+      showPassword: false,
+      showConfirmPassword: false,
+    }),
+    computed: {
+      initialUri () {
+        return this.params?.initialUri;
+      },
+      formUrl () {
+        return this.params?.formUrl;
+      },
+      passwordType () {
+        return this.showPassword ? 'text' :'password';
+      },
+      passwordConfirmType () {
+        return this.showConfirmPassword ? 'text' :'password';
+      },
     },
-    formUrl() {
-      return this.params?.formUrl;
+    mounted () {
+      this.username = this.params?.username;
+      this.password = this.params?.password;
+      this.confirmPassword = this.params?.password2;
     },
-    passwordType() {
-      return this.showPassword ? 'text' :'password';
+    methods: {
+      toggleShow () {
+        this.showPassword = !this.showPassword;
+      },
+      toggleConfirmShow () {
+        this.showConfirmPassword = !this.showConfirmPassword;
+      },
     },
-    passwordConfirmType() {
-      return this.showConfirmPassword ? 'text' :'password';
-    },
-  },
-  mounted() {
-    this.username = this.params?.username;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
-  },
-  methods: {
-    toggleShow() {
-      this.showPassword = !this.showPassword;
-    },
-    toggleConfirmShow() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
-  },
-};
+  };
 </script>

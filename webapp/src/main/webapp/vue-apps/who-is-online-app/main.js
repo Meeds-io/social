@@ -20,11 +20,11 @@ const appId = 'OnlinePortlet';
 const appName = 'Who is Online';
 
 // getting locale ressources
-export function init() {
-  document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
-    appName: appName,
+export function init () {
+  document.dispatchEvent(new CustomEvent('vue-app-loading-start', { detail: {
+    appName,
     time: Date.now(),
-  }}));
+  } }));
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
       const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);

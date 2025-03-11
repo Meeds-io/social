@@ -16,50 +16,50 @@
 -->
 <template>
   <v-card
-    :href="link"
-    :width="$root.isMobile && 250 || 115"
-    :min-height="$root.isMobile && 'auto' || 125"
-    max-width="100%"
     class="d-flex flex-row flex-sm-column align-center mb-3 mb-sm-0 mx-sm-3 py-3"
-    outlined
     hover
+    :href="link"
+    max-width="100%"
+    :min-height="$root.isMobile && 'auto' || 125"
+    outlined
+    :width="$root.isMobile && 250 || 115"
     v-on="!link && {
       click: () => $emit('apply'),
     }">
     <v-img
-      :src="`/social/images/emptyCol${iconIndex}.webp`"
-      :height="iconSize"
-      :width="iconSize"
       class="flex-grow-0 mx-sm-auto px-3 px-sm-0"
       contain
-      eager />
+      eager
+      :height="iconSize"
+      :src="`/social/images/emptyCol${iconIndex}.webp`"
+      :width="iconSize" />
     <v-card
-      max-width="150"
       class="pe-3 ps-0 px-sm-1 pt-sm-3 text-start text-sm-center flex-grow-1"
-      flat>
+      flat
+      max-width="150">
       {{ infoMessage }}
     </v-card>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    iconSize: {
-      type: Number,
-      default: () => 60,
+  export default {
+    props: {
+      iconSize: {
+        type: Number,
+        default: () => 60,
+      },
+      iconIndex: {
+        type: Number,
+        default: () => 0,
+      },
+      infoMessage: {
+        type: String,
+        default: null,
+      },
+      link: {
+        type: String,
+        default: null,
+      },
     },
-    iconIndex: {
-      type: Number,
-      default: () => 0,
-    },
-    infoMessage: {
-      type: String,
-      default: null
-    },
-    link: {
-      type: String,
-      default: null
-    },
-  },
-};
+  };
 </script>

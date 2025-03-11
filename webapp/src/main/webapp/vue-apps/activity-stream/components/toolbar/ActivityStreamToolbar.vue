@@ -20,20 +20,20 @@
       v-if="displayToolbar"
       id="activityComposer"
       class="activityComposer activityComposerApp pa-0 application-background-color application-border application-border-radius mb-5"
-      height="auto"
+      dense
       flat
-      dense>
+      height="auto">
       <div class="d-flex flex-column full-width">
         <div 
-          :class="activityStreamToolbarStyle"
-          class="d-flex full-width">
+          class="d-flex full-width"
+          :class="activityStreamToolbarStyle">
           <exo-user-avatar
             v-if="displayUserAvatar"
-            :identity="user"
-            :size="userAvatarSize"
+            avatar
             class="me-3"
             extra-class="d-flex align-center"
-            avatar />
+            :identity="user"
+            :size="userAvatarSize" />
           <v-btn
             v-if="userCanPost"
             class="text-light-color openLink d-inline flex-shrink-1 px-0 my-auto"
@@ -41,19 +41,23 @@
             @click="openComposerDrawer(true)">
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
-          <span v-else class="my-auto text-subtitle-color">
+          <span
+            v-else
+            class="my-auto text-subtitle-color">
             {{ $t('activity.toolbar.title') }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
-            <v-tooltip v-if="markAllReadEnabled" bottom>
+            <v-tooltip
+              v-if="markAllReadEnabled"
+              bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
                   id="toolbarMarkAllReadButton"
-                  :loading="resetting"
                   class="me-sm-0 me-n2"
                   height="36px"
-                  width="36px"
                   icon
+                  :loading="resetting"
+                  width="36px"
                   v-bind="attrs"
                   v-on="on"
                   @click="markAllAsRead">
@@ -69,10 +73,10 @@
             </v-tooltip>
             <extension-registry-components
               v-if="!spaceId"
-              :params="extensionParams"
+              class="hidden-xs-only"
               name="ActivityToolbarAction"
-              type="activity-toolbar-action"
-              class="hidden-xs-only" />
+              :params="extensionParams"
+              type="activity-toolbar-action" />
             <v-tooltip bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
@@ -80,8 +84,8 @@
                   id="toolbarFilterButton"
                   class="me-sm-0 me-n2"
                   height="36px"
-                  width="36px"
                   icon
+                  width="36px"
                   v-bind="attrs"
                   v-on="on"
                   @click="openStreamFilterDrawer">
@@ -98,13 +102,15 @@
             </v-tooltip>
           </div>
         </div>
-        <div v-if="spaceId && userCanPost" class="hidden-xs-only">
+        <div
+          v-if="spaceId && userCanPost"
+          class="hidden-xs-only">
           <v-divider />
           <extension-registry-components
-            :params="extensionParams"
+            class="my-auto d-flex align-center flex-wrap"
             name="ActivityToolbarAction"
-            type="activity-toolbar-action"
-            class="my-auto d-flex align-center flex-wrap" />
+            :params="extensionParams"
+            type="activity-toolbar-action" />
         </div>
       </div>
     </v-toolbar>
@@ -114,150 +120,150 @@
 </template>
 
 <script>
-export default {
-  props: {
-    activityBody: {
-      type: String,
-      default: ''
+  export default {
+    props: {
+      activityBody: {
+        type: String,
+        default: '',
+      },
+      activityId: {
+        type: String,
+        default: '',
+      },
+      activityParams: {
+        type: Object,
+        default: null,
+      },
+      standalone: {
+        type: Boolean,
+        default: false,
+      },
+      canPost: {
+        type: Boolean,
+        default: false,
+      },
+      canFilter: {
+        type: Boolean,
+        default: false,
+      },
+      hasActivities: {
+        type: Boolean,
+        default: false,
+      },
     },
-    activityId: {
-      type: String,
-      default: ''
-    },
-    activityParams: {
-      type: Object,
-      default: null
-    },
-    standalone: {
-      type: Boolean,
-      default: false
-    },
-    canPost: {
-      type: Boolean,
-      default: false
-    },
-    canFilter: {
-      type: Boolean,
-      default: false
-    },
-    hasActivities: {
-      type: Boolean,
-      default: false
-    },
-  },
-  data() {
-    return {
-      user: null,
-      MESSAGE_MAX_LENGTH: 1300,
-      spaceId: eXo.env.portal.spaceId,
-      streamFilter: null,
-      resetting: false,
-    };
-  },
-  computed: {
-    composerButtonLabel() {
-      if (eXo.env.portal.spaceDisplayName){
-        return this.$t('activity.composer.link.space', {0: eXo.env.portal.spaceDisplayName});
-      } else {
-        return this.$t('activity.composer.link');
-      }
-    },
-    userCanPost() {
-      return !this.standalone && this.canPost;
-    },
-    activityStreamToolbarStyle() {
-      return this.userCanPost && 'py-2' || 'py-1';
-    },
-    streamFilterEnabled() {
-      return this.canFilter;
-    },
-    markAllReadEnabled() {
-      return this.streamFilterEnabled && this.streamFilter === 'unread_spaces_stream' && this.hasActivities;
-    },
-    displayToolbar() {
-      return this.userCanPost || this.streamFilterEnabled;
-    },
-    extensionParams() {
+    data () {
       return {
-        activityId: this.activityId,
-        spaceId: this.spaceId,
-        files: [],
-        templateParams: this.activityParams,
-        message: this.activityBody,
-        maxMessageLength: this.MESSAGE_MAX_LENGTH,
-        activityType: [],
+        user: null,
+        MESSAGE_MAX_LENGTH: 1300,
+        spaceId: eXo.env.portal.spaceId,
+        streamFilter: null,
+        resetting: false,
       };
     },
-    filterIconColor() {
-      return this.streamFilter !== 'all_stream' && 'primary';
-    },
-    displayUserAvatar() {
-      return this.user && this.userCanPost;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
-    },
-    userAvatarSize() {
-      return this.isMobile ? '42px' : '45px';
-    }
-  },
-  created() {
-    this.streamFilter = this.$activityUtils.getStreamFilter();
-    document.addEventListener('activity-stream-type-filter-applied', event => {
-      this.streamFilter = event && event.detail;
-    });
-    this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
-    this.retrieveUserInformation();
-  },
-  methods: {
-    retrieveUserInformation() {
-      this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
-      if (!this.user) {
-        return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
-          .then(data => this.user = data?.profile);
-      }
-    },
-    openComposerDrawer() {
-      this.$nextTick().then(() => {
-        document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+    computed: {
+      composerButtonLabel () {
+        if (eXo.env.portal.spaceDisplayName){
+          return this.$t('activity.composer.link.space', { 0: eXo.env.portal.spaceDisplayName });
+        } else {
+          return this.$t('activity.composer.link');
+        }
+      },
+      userCanPost () {
+        return !this.standalone && this.canPost;
+      },
+      activityStreamToolbarStyle () {
+        return this.userCanPost && 'py-2' || 'py-1';
+      },
+      streamFilterEnabled () {
+        return this.canFilter;
+      },
+      markAllReadEnabled () {
+        return this.streamFilterEnabled && this.streamFilter === 'unread_spaces_stream' && this.hasActivities;
+      },
+      displayToolbar () {
+        return this.userCanPost || this.streamFilterEnabled;
+      },
+      extensionParams () {
+        return {
           activityId: this.activityId,
-          activityBody: this.activityBody,
-          activityParams: this.activityParams,
+          spaceId: this.spaceId,
           files: [],
+          templateParams: this.activityParams,
+          message: this.activityBody,
+          maxMessageLength: this.MESSAGE_MAX_LENGTH,
           activityType: [],
-          spaceId: this.spaceId
-        }}));
+        };
+      },
+      filterIconColor () {
+        return this.streamFilter !== 'all_stream' && 'primary';
+      },
+      displayUserAvatar () {
+        return this.user && this.userCanPost;
+      },
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+      },
+      userAvatarSize () {
+        return this.isMobile ? '42px' : '45px';
+      },
+    },
+    created () {
+      this.streamFilter = this.$activityUtils.getStreamFilter();
+      document.addEventListener('activity-stream-type-filter-applied', event => {
+        this.streamFilter = event && event.detail;
       });
+      this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
+      this.retrieveUserInformation();
     },
-    markAllAsRead() {
-      this.resetting = true;
-      this.$spaceService.markAllAsRead(this.spaceId);
-      window.setTimeout(() => {
-        this.$root.$emit('activity-stream-reset-filter', false);
-        this.notifyAsRead();
-        this.resetting = false;
-      }, 500);
-    },
-    notifyAsRead(allowReset) {
-      if (allowReset) {
+    methods: {
+      retrieveUserInformation () {
+        this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
+        if (!this.user) {
+          return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+            .then(data => this.user = data?.profile);
+        }
+      },
+      openComposerDrawer () {
+        this.$nextTick().then(() => {
+          document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', { detail: {
+            activityId: this.activityId,
+            activityBody: this.activityBody,
+            activityParams: this.activityParams,
+            files: [],
+            activityType: [],
+            spaceId: this.spaceId,
+          } }));
+        });
+      },
+      markAllAsRead () {
+        this.resetting = true;
+        this.$spaceService.markAllAsRead(this.spaceId);
         window.setTimeout(() => {
-          document.dispatchEvent(new CustomEvent('alert-message-html-confeti', {detail: {
-            alertMessage: this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'),
-            alertType: 'success',
-            alertLinkText: this.$t('activity.filter.button.resetFilter'),
-            alertLinkCallback: () => this.$root.$emit('activity-stream-reset-filter', false),
-          }}));
+          this.$root.$emit('activity-stream-reset-filter', false);
+          this.notifyAsRead();
+          this.resetting = false;
         }, 500);
-      } else {
-        window.setTimeout(() => {
-          this.$root.$emit('activity-stream-reset-filter', true);
-          this.$root.$emit('alert-message-html-confeti', this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'), 'success');
-        }, 500);
-      }
+      },
+      notifyAsRead (allowReset) {
+        if (allowReset) {
+          window.setTimeout(() => {
+            document.dispatchEvent(new CustomEvent('alert-message-html-confeti', { detail: {
+              alertMessage: this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'),
+              alertType: 'success',
+              alertLinkText: this.$t('activity.filter.button.resetFilter'),
+              alertLinkCallback: () => this.$root.$emit('activity-stream-reset-filter', false),
+            } }));
+          }, 500);
+        } else {
+          window.setTimeout(() => {
+            this.$root.$emit('activity-stream-reset-filter', true);
+            this.$root.$emit('alert-message-html-confeti', this.$t('activity.filter.empty_unread_spaces_stream.switchMessage'), 'success');
+          }, 500);
+        }
+      },
+      openStreamFilterDrawer () {
+        this.$refs.filterStreamDrawer.open();
+      },
     },
-    openStreamFilterDrawer() {
-      this.$refs.filterStreamDrawer.open();
-    },
-  },
-};
+  };
 </script>

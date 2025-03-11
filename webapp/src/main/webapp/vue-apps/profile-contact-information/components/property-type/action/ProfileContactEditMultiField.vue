@@ -11,10 +11,10 @@
           v-if="property.multiValued"
           :property="property" />
         <v-btn
-          color="primary"
           class="px-0"
-          outlined
+          color="primary"
           link
+          outlined
           text
           @click="addNewItem">
           + {{ $t('profileContactInformation.addNew') }}
@@ -31,15 +31,15 @@
           :parent-property="property"
           :property="childProperty"
           :property-label="getResolvedName(childProperty)"
-          @remove="remove(index)"
-          @property-updated="propertyUpdated" />
+          @property-updated="propertyUpdated"
+          @remove="remove(index)" />
         <profile-contact-edit-multi-field-select
           v-else
-          :property="childProperty"
+          :multi-valued="property.multiValued"
           :parent-propery="property"
           :properties="property.children"
-          :multi-valued="property.multiValued"
-          @propertyUpdated="propertyUpdated"
+          :property="childProperty"
+          @property-updated="propertyUpdated"
           @remove="remove(index)" />
       </div>
     </v-flex>
@@ -47,43 +47,43 @@
 </template>
 
 <script>
-export default {
-  props: {
-    property: {
-      type: Object,
-      default: () => null,
-    }
-  },
-  methods: {
-    showChild(property, parent) {
-      return property.isNew
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: () => null,
+      },
+    },
+    methods: {
+      showChild (property, parent) {
+        return property.isNew
           || (property.value && property.visible && property.active)
           || (parent.multiValued && property.value && parent.active && parent.visible);
+      },
+      remove (i) {
+        if (this.property.children[i].isNew) {
+          this.property.children.splice(i, 1);
+        } else {
+          this.property.children[i].value = null;
+        }
+        this.$emit('propertyUpdated',this.property);
+      },
+      addNewItem () {
+        const item = { isNew: true, editable: true };
+        this.property.children.push(item);
+        this.$forceUpdate();
+      },
+      propertyUpdated () {
+        this.$emit('propertyUpdated',this.property);
+      },
+      getResolvedName (item){
+        const lang = eXo && eXo.env.portal.language || 'en';
+        const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
+        if (resolvedLabel){
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
+      },
     },
-    remove(i) {
-      if (this.property.children[i].isNew) {
-        this.property.children.splice(i, 1);
-      } else {
-        this.property.children[i].value = null;
-      }
-      this.$emit('propertyUpdated',this.property);
-    },
-    addNewItem() {
-      const item = {isNew: true, editable: true};
-      this.property.children.push(item);
-      this.$forceUpdate();
-    },
-    propertyUpdated() {
-      this.$emit('propertyUpdated',this.property);
-    },
-    getResolvedName(item){
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileContactInformation.${item.propertyName}`)!==`profileContactInformation.${item.propertyName}`?this.$t(`profileContactInformation.${item.propertyName}`):item.propertyName;
-    }
-  },
-};
+  };
 </script>

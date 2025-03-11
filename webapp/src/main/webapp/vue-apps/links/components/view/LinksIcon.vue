@@ -21,46 +21,46 @@
 <template>
   <component
     :is="list && 'v-list-item-avatar' || 'v-avatar'"
+    class="d-flex justify-center align-center"
     :height="iconSize"
     :min-width="iconSize"
-    :width="iconSize + 8"
-    class="d-flex justify-center align-center"
-    tile>
+    tile
+    :width="iconSize + 8">
     <v-img
       v-if="iconUrl"
-      :src="iconUrl"
-      :max-height="iconSize"
-      :height="iconSize"
-      :max-width="iconSize"
       contain
-      eager />
+      eager
+      :height="iconSize"
+      :max-height="iconSize"
+      :max-width="iconSize"
+      :src="iconUrl" />
     <v-icon
       v-else
-      :size="iconSize"
-      class="icon-default-color">
+      class="icon-default-color"
+      :size="iconSize">
       {{ icon || 'fa-globe' }}
     </v-icon>
   </component>
 </template>
 <script>
-export default {
-  props: {
-    iconSize: {
-      type: Number,
-      default: () => 34,
+  export default {
+    props: {
+      iconSize: {
+        type: Number,
+        default: () => 34,
+      },
+      iconUrl: {
+        type: String,
+        default: null,
+      },
+      icon: {
+        type: String,
+        default: null,
+      },
+      list: {
+        type: Boolean,
+        default: false,
+      },
     },
-    iconUrl: {
-      type: String,
-      default: null,
-    },
-    icon: {
-      type: String,
-      default: null,
-    },
-    list: {
-      type: Boolean,
-      default: false,
-    },
-  },
-};
+  };
 </script>

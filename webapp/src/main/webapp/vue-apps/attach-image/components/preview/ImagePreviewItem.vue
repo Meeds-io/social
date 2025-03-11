@@ -18,36 +18,36 @@
 -->
 <template>
   <v-img
-    :lazy-src="thumbnailUrl"
-    :src="thumbnailUrl"
     :aspect-ratio="2"
+    contain
     :height="!isMobile && '80vh' || '75vh'"
-    contain />
+    :lazy-src="thumbnailUrl"
+    :src="thumbnailUrl" />
 </template>
 <script>
-export default {
-  props: {
-    attachment: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      attachment: {
+        type: Object,
+        default: null,
+      },
+      objectType: {
+        type: String,
+        default: null,
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
     },
-    objectType: {
-      type: String,
-      default: null,
+    computed: {
+      thumbnailUrl () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}`;
+      },
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+      },
     },
-    objectId: {
-      type: String,
-      default: null,
-    },
-  },
-  computed: {
-    thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}`;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    }
-  },
-};
+  };
 </script>
 

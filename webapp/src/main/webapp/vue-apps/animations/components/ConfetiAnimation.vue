@@ -19,12 +19,12 @@
 -->
 <template>
   <v-card
-    color="transparent"
-    min-width="400px"
-    width="100%"
-    height="250px"
     class="confeti-animation-parent d-flex align-end justify-center pb-2"
-    flat>
+    color="transparent"
+    flat
+    height="250px"
+    min-width="400px"
+    width="100%">
     <div class="confeti-animation">
       <div
         v-for="index in 400"
@@ -34,14 +34,14 @@
   </v-card>
 </template>
 <script>
-export default {
-  data: () => ({
-    show: false,
-  }),
-  mounted() {
-    window.setTimeout(() => this.show = true, 10);
-  },
-};
+  export default {
+    data: () => ({
+      show: false,
+    }),
+    mounted () {
+      window.setTimeout(() => this.show = true, 10);
+    },
+  };
 </script>
 <style lang="scss">
   $length: 400;

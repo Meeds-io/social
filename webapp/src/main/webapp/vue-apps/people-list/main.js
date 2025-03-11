@@ -25,15 +25,15 @@ const appId = 'peopleListApplication';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(filter) {
+export function init (filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       computed: {
-        isMobile() {
+        isMobile () {
           return this.$vuetify.breakpoint.mobile;
         },
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,

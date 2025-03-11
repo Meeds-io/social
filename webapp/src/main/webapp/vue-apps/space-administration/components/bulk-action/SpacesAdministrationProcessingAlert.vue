@@ -22,9 +22,9 @@
 <template>
   <div class="d-flex justify-center">
     <v-progress-circular
-      :value="progress"
+      class="me-4 my-auto"
       color="primary"
-      class="me-4 my-auto" />
+      :value="progress" />
     <div class="d-flex flex-column me-2">
       <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation1') }}</span>
       <span>{{ $t('social.spaces.administration.manageSpaces.processingSpacesBulkOperation2') }}</span>
@@ -38,23 +38,23 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    options: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      options: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    processedSpaces() {
-      return this.options.processedSpaces;
+    computed: {
+      processedSpaces () {
+        return this.options.processedSpaces;
+      },
+      selectedSpacesCount () {
+        return this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length;
+      },
+      progress () {
+        return parseInt(this.processedSpaces / this.selectedSpacesCount * 100);
+      },
     },
-    selectedSpacesCount() {
-      return this.options.allSpacesSelected ? this.options.spacesSize : this.options.selectedSpaces.length;
-    },
-    progress() {
-      return parseInt(this.processedSpaces / this.selectedSpacesCount * 100);
-    },
-  },
-};
+  };
 </script>

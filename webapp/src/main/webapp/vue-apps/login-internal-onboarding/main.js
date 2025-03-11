@@ -34,19 +34,19 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 //should expose the locale ressources as REST API 
 const urls = [
   `/social/i18n/locale.portlet.Login?lang=${lang}`,
-  `/social/i18n/locale.portal.login?lang=${lang}`
+  `/social/i18n/locale.portal.login?lang=${lang}`,
 ];
 
-export function init(params) {
+export function init (params) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
-        params: params,
+        params,
       },
       template: `<portal-internal-onboarding id="${appId}" :params="params" />`,
       vuetify: Vue.prototype.vuetifyOptions,
-      i18n
+      i18n,
     }, `#${appId}`, 'Internal Onboarding');
   });
 }

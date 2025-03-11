@@ -23,17 +23,17 @@
   <div>
     <exo-identity-suggester
       v-model="selectedUser"
+      autofocus
+      class="mb-4 mt-n3"
+      include-spaces
+      include-users
+      :items="users"
       :labels="suggesterLabels"
+      name="inviteMembers"
       :search-options="{
         filterType: 'accessible',
       }"
-      :items="users"
-      name="inviteMembers"
-      type-of-relations="user_to_invite"
-      class="mb-4 mt-n3"
-      include-users
-      include-spaces
-      autofocus />
+      type-of-relations="user_to_invite" />
     <v-list
       v-if="invitedMembers?.length"
       class="mx-4 mt-0 rounded">
@@ -46,42 +46,42 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    users: [],
-    selectedUser: null,
-    invitedMembers: [],
-  }),
-  computed: {
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
-        noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
-      };
+    data: () => ({
+      users: [],
+      selectedUser: null,
+      invitedMembers: [],
+    }),
+    computed: {
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
+          noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
+        };
+      },
     },
-  },
-  watch: {
-    selectedUser() {
-      if (this.selectedUser?.providerId) {
-        if (this.selectedUser
+    watch: {
+      selectedUser () {
+        if (this.selectedUser?.providerId) {
+          if (this.selectedUser
             && !this.invitedMembers.find(u => u.id === this.selectedUser.id)) {
-          this.invitedMembers.unshift(this.selectedUser);
+            this.invitedMembers.unshift(this.selectedUser);
+          }
+          this.$nextTick().then(() => this.selectedUser = null);
         }
-        this.$nextTick().then(() => this.selectedUser = null);
-      }
+      },
+      invitedMembers () {
+        this.$emit('input', this.invitedMembers);
+      },
     },
-    invitedMembers() {
-      this.$emit('input', this.invitedMembers);
+    created () {
+      this.invitedMembers = this.value?.slice?.() || [];
     },
-  },
-  created() {
-    this.invitedMembers = this.value?.slice?.() || [];
-  },
-};
+  };
 </script>

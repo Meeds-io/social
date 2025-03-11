@@ -17,27 +17,33 @@
 
 <template>
   <a
+    class="d-flex px-0"
     :href="uri"
-    :target="target"
     :rel="rel"
     :ripple="false"
-    class="d-flex px-0"
-    @mouseover="showAction = true"
-    @mouseleave="showAction = false">
-    <v-list-item-icon size="20" class="d-flex align-center justify-center my-auto ms-0 me-3">
-      <v-icon size="20" class="icon-default-color">
+    :target="target"
+    @mouseleave="showAction = false"
+    @mouseover="showAction = true">
+    <v-list-item-icon
+      class="d-flex align-center justify-center my-auto ms-0 me-3"
+      size="20">
+      <v-icon
+        class="icon-default-color"
+        size="20">
         {{ icon }}
       </v-icon>
     </v-list-item-icon>
     <v-list-item-title class="menu-text-color">
       <div class="d-flex align-center justify-space-between my-auto">
-        <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
+        <span
+          class="text-truncate"
+          :style="navigationLabelStyle">{{ navigationLabel }}</span>
         <v-chip
           v-if="unreadBadge && enableUnread"
           color="error-color-background"
-          min-width="22"
+          dark
           height="22"
-          dark>
+          min-width="22">
           {{ unreadBadge }}
         </v-chip>
       </div>
@@ -46,10 +52,10 @@
       v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
       class="ms-auto my-auto flex-shrink-0">
       <v-btn
-        :title="$t('menu.spaces.makeAsHomePage')"
         height="36"
-        min-width="36"
         icon
+        min-width="36"
+        :title="$t('menu.spaces.makeAsHomePage')"
         @click="selectHome($event)">
         <v-icon
           :class="isHomeLink && 'primary--text' || 'icon-default-color'"
@@ -62,78 +68,78 @@
 </template>
 
 <script>
-export default {
-  props: {
-    navigation: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      navigation: {
+        type: Object,
+        default: null,
+      },
+      enableChangeHome: {
+        type: Boolean,
+        default: false,
+      },
+      enableUnread: {
+        type: Boolean,
+        default: false,
+      },
     },
-    enableChangeHome: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      homeLink: eXo.env.portal.homeLink,
+      showAction: false,
+    }),
+    computed: {
+      baseSiteUri () {
+        if (this.navigation.siteKey.type === 'GROUP') {
+          return `${eXo.env.portal.context}/g/${this.navigation.siteKey.name.replace?.(/\//g, ':')}/`;
+        } else {
+          return `${eXo.env.portal.context}/${this.navigation.siteKey.name}/`;
+        }
+      },
+      uri () {
+        return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+      },
+      target () {
+        return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+      },
+      rel () {
+        return this.$navigationUtils.getNavigationNodeRel(this.navigation);
+      },
+      icon () {
+        return this.navigation?.icon || 'fa-folder';
+      },
+      isNodeGroup () {
+        return !this.navigation.pageKey;
+      },
+      isHomeLink () {
+        return this.uri === this.homeLink;
+      },
+      unreadBadge () {
+        return this.$root.openedSpaceId && this.$root?.unreadPerSpace?.[this.$root.openedSpaceId];
+      },
+      navigationLabel () {
+        return this.navigation?.label;
+      },
+      navigationLabelStyle () {
+        return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px' };
+      },
     },
-    enableUnread: {
-      type: Boolean,
-      default: false,
+    created () {
+      document.addEventListener('homeLinkUpdated', this.updateHome);
     },
-  },
-  data: () => ({
-    homeLink: eXo.env.portal.homeLink,
-    showAction: false,
-  }),
-  computed: {
-    baseSiteUri() {
-      if (this.navigation.siteKey.type === 'GROUP') {
-        return `${eXo.env.portal.context}/g/${this.navigation.siteKey.name.replace?.(/\//g, ':')}/`;
-      } else {
-        return `${eXo.env.portal.context}/${this.navigation.siteKey.name}/`;
-      }
+    beforeUnmount () {
+      document.removeEventListener('homeLinkUpdated', this.updateHome);
     },
-    uri() {
-      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+    methods: {
+      selectHome (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if (this.homeLink !== this.uri) {
+          this.$root.$emit('update-home-link', this.navigation);
+        }
+      },
+      updateHome () {
+        this.homeLink = eXo.env.portal.homeLink;
+      },
     },
-    target() {
-      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
-    },
-    rel() {
-      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
-    },
-    icon() {
-      return this.navigation?.icon || 'fa-folder';
-    },
-    isNodeGroup() {
-      return !this.navigation.pageKey;
-    },
-    isHomeLink() {
-      return this.uri === this.homeLink;
-    },
-    unreadBadge() {
-      return this.$root.openedSpaceId && this.$root?.unreadPerSpace?.[this.$root.openedSpaceId];
-    },
-    navigationLabel() {
-      return this.navigation?.label;
-    },
-    navigationLabelStyle() {
-      return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
-    },
-  },
-  created() {
-    document.addEventListener('homeLinkUpdated', this.updateHome);
-  },
-  beforeDestroy() {
-    document.removeEventListener('homeLinkUpdated', this.updateHome);
-  },
-  methods: {
-    selectHome(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (this.homeLink !== this.uri) {
-        this.$root.$emit('update-home-link', this.navigation);
-      }
-    },
-    updateHome() {
-      this.homeLink = eXo.env.portal.homeLink;
-    },
-  },
-};
+  };
 </script>

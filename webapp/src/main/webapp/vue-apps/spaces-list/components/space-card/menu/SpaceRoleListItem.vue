@@ -22,88 +22,98 @@
 <template>
   <v-list-item class="text-truncate px-0 py-1">
     <exo-space-avatar
-      :space="space"
-      :size="36"
+      avatar
       extra-class="text-truncate"
-      avatar />
+      :size="36"
+      :space="space" />
     <exo-user-avatar
-      :identity="user"
-      :size="30"
+      avatar
       extra-class="text-truncate ms-n6 mt-6"
-      avatar />
+      :identity="user"
+      :size="30" />
     <v-list-item-content class="py-0 accountTitleLabel text-truncate">
       <v-list-item-title class="font-weight-bold mt-2">
         <exo-space-avatar
-          :space="space"
           extra-class="text-truncate"
-          fullname />
+          fullname
+          :space="space" />
       </v-list-item-title>
       <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
         <exo-user-avatar
-          :identity="user"
           extra-class="text-truncate ms-2 me-1"
-          fullname />
+          fullname
+          :identity="user" />
       </v-list-item-subtitle>
     </v-list-item-content>
-    <v-list-item-action v-if="approveButton" class="mx-0">
+    <v-list-item-action
+      v-if="approveButton"
+      class="mx-0">
       <v-btn
-        :title="$t('SpaceSettings.roles.acceptRequest')"
-        small
         icon
+        small
+        :title="$t('SpaceSettings.roles.acceptRequest')"
         @click="$emit('approve')">
-        <v-icon size="18" color="success">fa-check</v-icon>
+        <v-icon
+          color="success"
+          size="18">
+          fa-check
+        </v-icon>
       </v-btn>
     </v-list-item-action>
     <v-list-item-action class="ms-2">
       <v-btn
-        :title="approveButton && $t('SpaceSettings.roles.rejectRequest') || $t('SpaceSettings.roles.delete')"
-        small
         icon
+        small
+        :title="approveButton && $t('SpaceSettings.roles.rejectRequest') || $t('SpaceSettings.roles.delete')"
         @click="$emit('remove')">
-        <v-icon size="18" color="error">{{ approveButton && 'fa-times' || 'fa-trash' }}</v-icon>
+        <v-icon
+          color="error"
+          size="18">
+          {{ approveButton && 'fa-times' || 'fa-trash' }}
+        </v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    membership: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      membership: {
+        type: Object,
+        default: null,
+      },
+      approveButton: {
+        type: Boolean,
+        default: false,
+      },
+      displayDate: {
+        type: Boolean,
+        default: false,
+      },
     },
-    approveButton: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      format: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+    }),
+    computed: {
+      user () {
+        return this.membership.user;
+      },
+      space () {
+        return this.membership.space;
+      },
+      avatar () {
+        return this.user.avatar || this.user.profile?.avatarUrl;
+      },
+      fullName () {
+        return this.user.fullname || this.user.profile?.fullName;
+      },
+      position () {
+        return this.user.position || this.user.profile?.position;
+      },
     },
-    displayDate: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    format: {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    },
-  }),
-  computed: {
-    user() {
-      return this.membership.user;
-    },
-    space() {
-      return this.membership.space;
-    },
-    avatar() {
-      return this.user.avatar || this.user.profile?.avatarUrl;
-    },
-    fullName() {
-      return this.user.fullname || this.user.profile?.fullName;
-    },
-    position() {
-      return this.user.position || this.user.profile?.position;
-    },
-  }
-};
+  };
 </script>

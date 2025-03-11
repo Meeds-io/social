@@ -20,18 +20,18 @@
 -->
 <template>
   <v-list-item
-    :title="description || name"
+    class="px-0"
+    :dense="!largeIcon"
+    flat
     :href="url"
     :target="target"
-    :dense="!largeIcon"
-    class="px-0"
-    flat>
+    :title="description || name">
     <links-icon
       v-if="showIcon"
+      class="me-2"
+      :icon="icon"
       :icon-size="iconSize"
       :icon-url="iconUrl"
-      :icon="icon"
-      class="me-2"
       list />
     <v-list-item-content v-if="showName || showDescription">
       <v-list-item-title
@@ -42,68 +42,68 @@
       </v-list-item-title>
       <v-list-item-subtitle
         v-if="showDescription && description"
-        :class="largeIcon && 'text-truncate-2' || 'text-truncate'"
-        class="text-start text-wrap">
+        class="text-start text-wrap"
+        :class="largeIcon && 'text-truncate-2' || 'text-truncate'">
         {{ description }}
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    link: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      link: {
+        type: Object,
+        default: null,
+      },
+      showName: {
+        type: Boolean,
+        default: false,
+      },
+      showDescription: {
+        type: Boolean,
+        default: false,
+      },
+      showIcon: {
+        type: Boolean,
+        default: false,
+      },
+      largeIcon: {
+        type: Boolean,
+        default: false,
+      },
+      iconSize: {
+        type: Number,
+        default: () => 0,
+      },
     },
-    showName: {
-      type: Boolean,
-      default: false,
+    computed: {
+      name () {
+        return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
+      },
+      description () {
+        return this.$t(this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage]);
+      },
+      url () {
+        return this.$utils.toLinkUrl(this.link?.url, {
+          urls: true,
+          email: true,
+          phone: true,
+        });
+      },
+      target () {
+        return this.link?.sameTab && '_self' || '_blank';
+      },
+      iconUrl () {
+        if (this.link?.iconSrc) {
+          return this.$utils.convertImageDataAsSrc(this.link.iconSrc);
+        } else {
+          return this.link?.iconUrl;
+        }
+      },
+      icon () {
+        return this.link?.icon;
+      },
     },
-    showDescription: {
-      type: Boolean,
-      default: false,
-    },
-    showIcon: {
-      type: Boolean,
-      default: false,
-    },
-    largeIcon: {
-      type: Boolean,
-      default: false,
-    },
-    iconSize: {
-      type: Number,
-      default: () => 0,
-    },
-  },
-  computed: {
-    name() {
-      return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
-    },
-    description() {
-      return this.$t(this.link?.description?.[this.$root.language] || this.link?.description?.[this.$root.defaultLanguage]);
-    },
-    url() {
-      return this.$utils.toLinkUrl(this.link?.url, {
-        urls: true,
-        email: true,
-        phone: true,
-      });
-    },
-    target() {
-      return this.link?.sameTab && '_self' || '_blank';
-    },
-    iconUrl() {
-      if (this.link?.iconSrc) {
-        return this.$utils.convertImageDataAsSrc(this.link.iconSrc);
-      } else {
-        return this.link?.iconUrl;
-      }
-    },
-    icon() {
-      return this.link?.icon;
-    },
-  },
-};
+  };
 </script>

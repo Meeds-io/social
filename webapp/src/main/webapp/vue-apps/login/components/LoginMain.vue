@@ -20,16 +20,18 @@
 -->
 <template>
   <v-card
-    width="350px"
-    max-width="100%"
     class="mx-auto"
-    flat>
-    <div v-if="registerEnabled" class="center my-3">
+    flat
+    max-width="100%"
+    width="350px">
+    <div
+      v-if="registerEnabled"
+      class="center my-3">
       {{ $t('UILoginForm.label.registerNewAccount') }}
       <a
-        :title="$t('UILoginForm.button.registerNewAccount')"
+        class="text-decoration-underline"
         href="/portal/register"
-        class="text-decoration-underline">
+        :title="$t('UILoginForm.button.registerNewAccount')">
         {{ $t('UILoginForm.button.registerNewAccount') }}
       </a>
     </div>
@@ -44,68 +46,70 @@
 
     <form
       ref="form"
-      name="form"
       action="/portal/login"
-      method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
+      method="post"
+      name="form"
       @submit="validateForm()">
       <input
         v-if="initialUri"
-        type="hidden"
         name="initialURI"
+        type="hidden"
         :value="initialUri">
       <div class="pa-0">
         <v-row class="ma-0 pa-0">
           <v-text-field
             id="username"
             v-model="username"
-            :title="$t('portal.login.Username')"
-            :placeholder="$t('portal.login.Username')"
-            :readonly="disabled"
-            :autofocus="!disabled && 'autofocus'"
-            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-            class="login-username border-box-sizing"
-            name="username"
             aria-required="true"
-            type="text"
-            tabindex="0"
-            required="required"
+            :autofocus="!disabled && 'autofocus'"
+            class="login-username border-box-sizing"
+            dense
+            name="username"
             outlined
-            dense />
+            :placeholder="$t('portal.login.Username')"
+            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+            :readonly="disabled"
+            required="required"
+            tabindex="0"
+            :title="$t('portal.login.Username')"
+            type="text" />
         </v-row>
         <v-row class="ma-0 pa-0">
           <v-text-field
             id="password"
             v-model="password"
-            :title="$t('portal.login.Password')"
-            :placeholder="$t('portal.login.Password')"
-            :type="passwordType"
             :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-            :readonly="disabled"
-            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
             class="login-password border-box-sizing"
-            name="password"
-            required="required"
-            outlined
             dense
+            name="password"
+            outlined
+            :placeholder="$t('portal.login.Password')"
+            prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+            :readonly="disabled"
+            required="required"
+            :title="$t('portal.login.Password')"
+            :type="passwordType"
             @click:append="toggleShow" />
         </v-row>
-        <v-row class="d-flex flex-column flex-sm-row ma-0 py-0 px-3 px-sm-0" flat>
+        <v-row
+          class="d-flex flex-column flex-sm-row ma-0 py-0 px-3 px-sm-0"
+          flat>
           <v-checkbox
-            v-model="rememberme"
             id="rememberme"
+            v-model="rememberme"
+            class="mx-0 my-3 my-sm-0"
+            dense
             :label="$t('portal.login.RememberOnComputer')"
-            :value="rememberme"
             name="rememberme"
             on-icon="fas fa-check-square"
-            class="mx-0 my-3 my-sm-0"
-            dense />
+            :value="rememberme" />
           <v-spacer />
           <a
+            class="text-decoration-underline d-flex"
             :href="forgotPasswordPath"
-            :title="$t('portal.login.forgotPassword')"
-            class="text-decoration-underline d-flex">
+            :title="$t('portal.login.forgotPassword')">
             <span class="v-label theme--light pb-2px my-auto">
               {{ $t('portal.login.forgotPassword') }}
             </span>
@@ -115,13 +119,13 @@
           <v-btn
             id="loginButton"
             :aria-label="$t('portal.login.Signin')"
-            :type="disabled && 'button' || 'submit'"
-            :loading="loading"
-            width="222"
-            max-width="100%"
-            color="primary"
             class="mx-auto login-button text-none"
-            elevation="0">
+            color="primary"
+            elevation="0"
+            :loading="loading"
+            max-width="100%"
+            :type="disabled && 'button' || 'submit'"
+            width="222">
             {{ $t('portal.login.Signin') }}
           </v-btn>
         </v-row>
@@ -134,72 +138,72 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    rememberme: true,
-    loading: false,
-    username: '',
-    showPassword: false
-  }),
-  computed: {
-    passwordType(){
-      return this.showPassword ? 'text' :'password';
+    data: () => ({
+      rememberme: true,
+      loading: false,
+      username: '',
+      showPassword: false,
+    }),
+    computed: {
+      passwordType (){
+        return this.showPassword ? 'text' :'password';
+      },
+      disabled () {
+        return this.params?.disabled;
+      },
+      initialUri () {
+        return this.params?.initialUri;
+      },
+      forgotPasswordPath () {
+        return this.params?.forgotPasswordPath;
+      },
+      registerEnabled () {
+        return this.params?.registerEnabled;
+      },
+      errorCode () {
+        return this.params?.errorCode;
+      },
+      errorMessage () {
+        return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
+          && this.$t(`UILoginForm.label.${this.errorCode}`)
+          || this.errorCode;
+      },
+      extensionParams () {
+        return {
+          params: this.params,
+          rememberme: this.rememberme,
+        };
+      },
     },
-    disabled() {
-      return this.params?.disabled;
-    },
-    initialUri() {
-      return this.params?.initialUri;
-    },
-    forgotPasswordPath() {
-      return this.params?.forgotPasswordPath;
-    },
-    registerEnabled() {
-      return this.params?.registerEnabled;
-    },
-    errorCode() {
-      return this.params?.errorCode;
-    },
-    errorMessage() {
-      return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
-        && this.$t(`UILoginForm.label.${this.errorCode}`)
-        || this.errorCode;
-    },
-    extensionParams() {
-      return {
-        params: this.params,
-        rememberme: this.rememberme,
-      };
-    },
-  },
-  mounted() {
-    if (!this.disabled) {
-      this.setupUserName();
-    }
-  },
-  methods: {
-    setupUserName(){
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('username')) {
-        this.username = urlParams.get('username');
-      } else if (urlParams.has('email')) {
-        this.username = urlParams.get('email');
+    mounted () {
+      if (!this.disabled) {
+        this.setupUserName();
       }
     },
-    toggleShow() {
-      this.showPassword = !this.showPassword;
+    methods: {
+      setupUserName (){
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('username')) {
+          this.username = urlParams.get('username');
+        } else if (urlParams.has('email')) {
+          this.username = urlParams.get('email');
+        }
+      },
+      toggleShow () {
+        this.showPassword = !this.showPassword;
+      },
+      validateForm () {
+        this.loading = this.$refs.form.reportValidity();
+        window.setTimeout(() => this.loading = false, 10000);
+        return !this.disabled;
+      },
     },
-    validateForm() {
-      this.loading = this.$refs.form.reportValidity();
-      window.setTimeout(() => this.loading = false, 10000);
-      return !this.disabled;
-    },
-  },
-};
+  };
 </script>

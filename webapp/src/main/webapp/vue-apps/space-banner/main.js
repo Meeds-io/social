@@ -19,7 +19,7 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-export function init(bannerUrl, maxUploadSize, isAdmin) {
+export function init (bannerUrl, maxUploadSize, isAdmin) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
@@ -28,9 +28,9 @@ export function init(bannerUrl, maxUploadSize, isAdmin) {
 
     Vue.createApp({
       data: {
-        bannerUrl: bannerUrl,
+        bannerUrl,
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-banner v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :banner-url="bannerUrl" :max-upload-size="${maxUploadSize}" :admin="${isAdmin}" @banner-changed="bannerUrl = $event" />`,

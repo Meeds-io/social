@@ -4,10 +4,10 @@ const HTML_ENTITIES = {
   amp: '&',
   quot: '"',
   lt: '<',
-  gt: '>'
+  gt: '>',
 };
 
-export function htmlToText(htmlContent) {
+export function htmlToText (htmlContent) {
   if (!htmlContent) {
     return '';
   }
@@ -17,15 +17,15 @@ export function htmlToText(htmlContent) {
   return content.replace(/[\r|\n|\t]/g, ' ').replace(/ +(?= )/g,' ').trim();
 }
 
-export function replaceHtmlEntites(htmlContent) {
+export function replaceHtmlEntites (htmlContent) {
   return htmlContent.replace(new RegExp(`&(${Object.keys(HTML_ENTITIES).join('|')});`, 'g'), (_match, entity) => HTML_ENTITIES[entity]);
 }
 
-export function trim(text) {
+export function trim (text) {
   return text && text.trim().replace(/(<p>(&nbsp;)*(\\n\\r\\t)*<\/p>)*(<div>(&nbsp;)*( \\n\\r\\t)*<\/div>)*(\\r)*(\\n)*(\\t)*/g, '') || '';
 }
 
-export function includeExtensions(suffix) {
+export function includeExtensions (suffix) {
   if (!window.requirejs.loadedExtension) {
     window.requirejs.loadedExtension = {};
   }
@@ -47,7 +47,7 @@ export function includeExtensions(suffix) {
   }
 }
 
-export function blobToBase64(blob) {
+export function blobToBase64 (blob) {
   return new Promise(resolve => {
     const reader = new FileReader();
     reader.onload = e => resolve(e.target.result);
@@ -55,7 +55,7 @@ export function blobToBase64(blob) {
   });
 }
 
-export function convertImageDataAsSrc(imageData) {
+export function convertImageDataAsSrc (imageData) {
   if (Array.isArray(imageData)) {
     let binary = '';
     const bytes = new Uint8Array(imageData);
@@ -66,7 +66,7 @@ export function convertImageDataAsSrc(imageData) {
   }
 }
 
-export async function importSkin(skinType, skinName) {
+export async function importSkin (skinType, skinName) {
   const id = skinType === 'portal' ? skinName : `${skinType}_${skinName}`;
   if (!document.querySelector(`link#${id}`)) {
     await new Promise((resolve, reject) => {
@@ -82,7 +82,7 @@ export async function importSkin(skinType, skinName) {
   }
 }
 
-export function toLinkUrl(url, options) {
+export function toLinkUrl (url, options) {
   if (url?.indexOf?.('./') === 0) {
     url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
   }

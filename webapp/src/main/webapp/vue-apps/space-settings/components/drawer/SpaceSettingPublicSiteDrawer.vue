@@ -24,13 +24,15 @@
     id="SpaceSettingsPublicSiteDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
     allow-expand
+    :loading="loading"
     right>
     <template #title>
       {{ $t('SpaceSettings.publicSite.drawer') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="d-flex flex-column ma-4">
         <div class="mb-4">
           {{ $t('SpaceSettings.publicSite.drawer.summary') }}
@@ -42,12 +44,12 @@
           <v-radio-group
             v-model="publicSiteVisibility"
             class="mt-2 ms-n1"
-            mandatory
             inset
+            mandatory
             @change="saveSpacePublicSite">
             <v-radio
-              value="manager"
-              class="mt-0 mb-2">
+              class="mt-0 mb-2"
+              value="manager">
               <template #label>
                 <div class="text-body">
                   {{ $t('SpaceSettings.publicSite.drawer.accessChoiceAdmins') }}
@@ -55,21 +57,25 @@
               </template>
             </v-radio>
             <v-radio
-              value="member"
-              class="mt-0 mb-2">
+              class="mt-0 mb-2"
+              value="member">
               <template #label>
                 <div class="text-body">
                   {{ $t('SpaceSettings.publicSite.drawer.accessChoiceMembers') }}
                 </div>
               </template>
             </v-radio>
-            <v-tooltip :disabled="!isHiddenSpace" bottom>
+            <v-tooltip
+              bottom
+              :disabled="!isHiddenSpace">
               <template #activator="{on, attrs}">
-                <div v-on="on" v-bind="attrs">
+                <div
+                  v-bind="attrs"
+                  v-on="on">
                   <v-radio
+                    class="mt-0 mb-2"
                     :disabled="isHiddenSpace"
-                    value="internal"
-                    class="mt-0 mb-2">
+                    value="internal">
                     <template #label>
                       <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersNoGuests') }}
@@ -77,9 +83,9 @@
                     </template>
                   </v-radio>
                   <v-radio
+                    class="mt-0 mb-2"
                     :disabled="isHiddenSpace"
-                    value="authenticated"
-                    class="mt-0 mb-2">
+                    value="authenticated">
                     <template #label>
                       <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceUsersWithGuests') }}
@@ -87,9 +93,9 @@
                     </template>
                   </v-radio>
                   <v-radio
+                    class="mt-0 mb-2"
                     :disabled="isHiddenSpace"
-                    value="everyone"
-                    class="mt-0 mb-2">
+                    value="everyone">
                     <template #label>
                       <div :class="isHiddenSpace && 'text--disabled' || 'text-body'">
                         {{ $t('SpaceSettings.publicSite.drawer.accessChoiceAnonymous') }}
@@ -104,7 +110,9 @@
           <div class="text-header my-1">
             {{ $t('SpaceSettings.publicSite.editPublicSite') }}
           </div>
-          <v-list-item class="px-0" dense>
+          <v-list-item
+            class="px-0"
+            dense>
             <v-list-item-content>
               <v-list-item-title class="text-body">
                 {{ $t('SpaceSettings.publicSite.drawer.editContent') }}
@@ -113,27 +121,35 @@
             <v-list-item-action class="my-auto ms-2">
               <v-btn
                 :href="publicSiteLink"
-                target="_blank"
-                icon>
-                <v-icon size="18">fa-edit</v-icon>
+                icon
+                target="_blank">
+                <v-icon size="18">
+                  fa-edit
+                </v-icon>
               </v-btn>
             </v-list-item-action>
           </v-list-item>
-          <v-list-item class="px-0" dense>
+          <v-list-item
+            class="px-0"
+            dense>
             <v-list-item-content>
               <v-list-item-title class="text-body">
                 {{ $t('SpaceSettings.publicSite.drawer.copyLink') }}
               </v-list-item-title>
             </v-list-item-content>
             <v-list-item-action class="my-auto ms-2">
-              <v-tooltip :disabled="$root.isMobile" bottom>
+              <v-tooltip
+                bottom
+                :disabled="$root.isMobile">
                 <template #activator="{on, bind}">
                   <v-btn
-                    v-on="on"
                     v-bind="bind"
                     icon
+                    v-on="on"
                     @click="copyPublicSiteLink">
-                    <v-icon size="18">fa-clone</v-icon>
+                    <v-icon size="18">
+                      fa-clone
+                    </v-icon>
                   </v-btn>
                 </template>
                 <span>{{ $t('SpaceSettings.publicSite.drawer.copyLink.tooltip') }}</span>
@@ -141,11 +157,13 @@
             </v-list-item-action>
           </v-list-item>
         </template>
-        <div v-else class="my-8 d-flex align-center justify-center">
+        <div
+          v-else
+          class="my-8 d-flex align-center justify-center">
           <v-btn
-            :loading="loading"
             color="primary"
             elevation="0"
+            :loading="loading"
             @click="saveSpacePublicSite">
             {{ $t('SpaceSettings.publicSite.create') }}
           </v-btn>
@@ -155,68 +173,68 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    loading: false,
-    publicSiteVisibility: null,
-    publicSiteId: null,
-    publicSite: null,
-  }),
-  computed: {
-    publicSiteLink() {
-      return this.publicSite && `${eXo.env.portal.context}/${this.publicSite.name}`;
+  export default {
+    data: () => ({
+      drawer: false,
+      loading: false,
+      publicSiteVisibility: null,
+      publicSiteId: null,
+      publicSite: null,
+    }),
+    computed: {
+      publicSiteLink () {
+        return this.publicSite && `${eXo.env.portal.context}/${this.publicSite.name}`;
+      },
+      isHiddenSpace () {
+        return this.$root.space?.visibility?.toLowerCase?.() === 'hidden';
+      },
     },
-    isHiddenSpace() {
-      return this.$root.space?.visibility?.toLowerCase?.() === 'hidden';
+    watch: {
+      publicSiteId () {
+        this.retrievePublicSite();
+      },
     },
-  },
-  watch: {
-    publicSiteId() {
-      this.retrievePublicSite();
+    methods: {
+      open () {
+        this.publicSiteVisibility = this.$root.space?.publicSiteVisibility || 'manager';
+        this.publicSiteId = this.$root.space?.publicSiteId || null;
+        this.$nextTick().then(() => this.$refs.drawer.open());
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      async retrievePublicSite () {
+        if (this.publicSiteId) {
+          this.publicSite = await this.$siteService.getSiteById(this.publicSiteId);
+        }
+      },
+      async saveSpacePublicSite () {
+        if (!this.drawer) {
+          return;
+        }
+        this.loading = true;
+        try {
+          const space = await this.$spaceService.updateSpace({
+            id: this.$root.spaceId,
+            publicSiteVisibility: this.publicSiteVisibility,
+          });
+          this.publicSiteId = space?.publicSiteId;
+          this.$root.$emit('space-settings-updated', space);
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.creation.success'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.creation.error'), 'error');
+        } finally {
+          this.loading = false;
+        }
+      },
+      copyPublicSiteLink () {
+        try {
+          navigator.clipboard.writeText(`${window.location.origin}${this.publicSiteLink}`);
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.success'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
+        }
+      },
     },
-  },
-  methods: {
-    open() {
-      this.publicSiteVisibility = this.$root.space?.publicSiteVisibility || 'manager';
-      this.publicSiteId = this.$root.space?.publicSiteId || null;
-      this.$nextTick().then(() => this.$refs.drawer.open());
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    async retrievePublicSite() {
-      if (this.publicSiteId) {
-        this.publicSite = await this.$siteService.getSiteById(this.publicSiteId);
-      }
-    },
-    async saveSpacePublicSite() {
-      if (!this.drawer) {
-        return;
-      }
-      this.loading = true;
-      try {
-        const space = await this.$spaceService.updateSpace({
-          id: this.$root.spaceId,
-          publicSiteVisibility: this.publicSiteVisibility,
-        });
-        this.publicSiteId = space?.publicSiteId;
-        this.$root.$emit('space-settings-updated', space);
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.creation.success'), 'success');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.creation.error'), 'error');
-      } finally {
-        this.loading = false;
-      }
-    },
-    copyPublicSiteLink() {
-      try {
-        navigator.clipboard.writeText(`${window.location.origin}${this.publicSiteLink}`);
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.success'), 'success');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
-      }
-    },
-  },
-};
+  };
 </script>

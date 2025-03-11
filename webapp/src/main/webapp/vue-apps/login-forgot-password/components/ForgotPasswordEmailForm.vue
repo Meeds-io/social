@@ -29,18 +29,18 @@
 
     <form
       :action="formUrl"
-      name="resetPasswordForm"
-      method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
+      class="d-flex ma-0 flex-column"
+      method="post"
+      name="resetPasswordForm">
       <input
-        type="hidden"
         name="action"
+        type="hidden"
         value="send">
       <input
         v-if="initialUri"
-        type="hidden"
         name="initialURI"
+        type="hidden"
         :value="initialUri">
 
       <div class="pa-0">
@@ -48,43 +48,45 @@
           <v-text-field
             id="username"
             v-model="username"
-            :title="$t('portal.login.Username')"
-            :placeholder="$t('portal.login.Username')"
-            name="username"
-            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-            class="login-username border-box-sizing pt-0"
-            autofocus="autofocus"
             aria-required="true"
-            type="text"
-            tabindex="0"
-            required="required"
+            autofocus="autofocus"
+            class="login-username border-box-sizing pt-0"
+            dense
+            name="username"
             outlined
-            dense />
+            :placeholder="$t('portal.login.Username')"
+            prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+            required="required"
+            tabindex="0"
+            :title="$t('portal.login.Username')"
+            type="text" />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.send')"
-            :disabled="!username"
-            type="submit"
-            width="222"
-            max-width="100%"
-            color="primary"
             class="mx-auto login-button btn-primary text-none"
-            elevation="0">
+            color="primary"
+            :disabled="!username"
+            elevation="0"
+            max-width="100%"
+            type="submit"
+            width="222">
             {{ $t('forgotpassword.send') }}
           </v-btn>
         </v-row>
         <v-row class="mx-0 mt-4 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.back')"
-            href="/portal/login"
-            width="222"
-            max-width="100%"
             class="mx-auto login-button text-none"
             elevation="0"
-            outlined>
+            href="/portal/login"
+            max-width="100%"
+            outlined
+            width="222">
             <span>
-              <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
+              <v-icon
+                class="position-absolute mt-n2"
+                size="16">fas fa-arrow-left</v-icon>
             </span>
             <span class="mx-auto">
               {{ $t('forgotpassword.backToLogin') }}
@@ -96,26 +98,26 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    username: '',
-  }),
-  computed: {
-    initialUri() {
-      return this.params?.initialUri;
+    data: () => ({
+      username: '',
+    }),
+    computed: {
+      initialUri () {
+        return this.params?.initialUri;
+      },
+      formUrl () {
+        return window.location.pathname;
+      },
     },
-    formUrl() {
-      return window.location.pathname;
+    mounted () {
+      this.username = this.params?.username;
     },
-  },
-  mounted() {
-    this.username = this.params?.username;
-  },
-};
+  };
 </script>

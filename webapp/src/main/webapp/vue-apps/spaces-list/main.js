@@ -24,7 +24,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export function init(
+export function init (
   appId,
   filter,
   canCreateSpace,
@@ -97,49 +97,49 @@ export function init(
         selectedCategoryId: null,
         selectedCategoryIds: null,
         spaceTemplates: null,
-        collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+        collator: new Intl.Collator(eXo.env.portal.language, { numeric: true, sensitivity: 'base' }),
         id: Math.random() + Math.random(),
         anonymous: !eXo?.env?.portal?.userName?.length,
         displayNotPubliclyVisible: eXo.env.portal.portalName === 'public' && canEdit,
       },
       computed: {
-        isMobile() {
+        isMobile () {
           return this.$vuetify.breakpoint.mobile;
         },
-        categoryIds() {
+        categoryIds () {
           return this.settings.filterType === 'category' ? (this.settingsSubcategories || this.settings.categoryIds) : null;
         },
-        templateIds() {
+        templateIds () {
           return this.settings.filterType === 'template' ? this.settings.templateIds : null;
         },
-        categoryDepth() {
+        categoryDepth () {
           return this.settings.categoryDepth || 4;
         },
-        hideQuickActions() {
+        hideQuickActions () {
           return this.settings.hideQuickActions;
         },
-        title() {
+        title () {
           return this.hideQuickActions && (this.settings.nameTranslations?.[eXo.env.portal.language] || this.settings.nameTranslations?.[eXo.env.portal.defaultLanguage]);
         },
-        sortBy() {
+        sortBy () {
           return this.settings.sortBy;
         },
-        allowFilteringPerCategory() {
+        allowFilteringPerCategory () {
           return this.settings.allowFilteringPerCategory;
         },
       },
       watch: {
-        invitationsCount() {
+        invitationsCount () {
           if (!this.invitationsCount) {
             this.filter = 'all';
           }
         },
-        pendingCount() {
+        pendingCount () {
           if (!this.pendingCount) {
             this.filter = 'all';
           }
         },
-        async selectedCategoryId() {
+        async selectedCategoryId () {
           if (this.selectedCategoryId) {
             this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], this.settingName);
           } else {
@@ -147,22 +147,22 @@ export function init(
           }
         },
       },
-      created() {
+      created () {
         this.$root.$on('spaces-list-filter-update', this.updateFilter);
         this.$root.$on('spaces-list-settings-updated', this.handleSettingsUpdate);
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      beforeDestroy() {
+      beforeDestroy () {
         this.$root.$off('spaces-list-filter-update', this.updateFilter);
         this.$root.$off('spaces-list-settings-updated', this.handleSettingsUpdate);
       },
       methods: {
-        updateFilter(filter) {
+        updateFilter (filter) {
           this.filter = filter;
         },
-        async handleSettingsUpdate() {
+        async handleSettingsUpdate () {
           this.settingsSubcategories = await getSubcategoryIds(this.settings.categoryIds, this.settingName);
           this.$root.$emit('spaces-list-refresh');
         },
@@ -174,7 +174,7 @@ export function init(
   });
 }
 
-async function getSubcategoryIds(categoryIds, token) {
+async function getSubcategoryIds (categoryIds, token) {
   if (!categoryIds?.length) {
     return [];
   }

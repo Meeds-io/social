@@ -21,13 +21,19 @@
 <template>
   <v-app class="full-height">
     <div class="d-flex flex-row full-height">
-      <top-bar-logo-company-name v-if="$root.displayCompany" class="ms-4" />
-      <div v-if="$root.displayCompany && $root.displaySite" class="ms-4 d-flex align-center">
+      <top-bar-logo-company-name
+        v-if="$root.displayCompany"
+        class="ms-4" />
+      <div
+        v-if="$root.displayCompany && $root.displaySite"
+        class="ms-4 d-flex align-center">
         <v-icon size="16">
           {{ $vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right' }}
         </v-icon>
       </div>
-      <top-bar-logo-site-name v-if="$root.displaySite" class="ms-4" />
+      <top-bar-logo-site-name
+        v-if="$root.displaySite"
+        class="ms-4" />
     </div>
   </v-app>
 </template>

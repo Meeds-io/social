@@ -21,34 +21,38 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBulkProcessing"
     color="primary"
+    :disabled="$root.isBulkProcessing"
     elevation="0"
     outlined
     @click="$root.$emit('space-administration-permissions-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, updatePermissions)">
-    <v-icon size="16" class="me-2">fa-shield-alt</v-icon>
+    <v-icon
+      class="me-2"
+      size="16">
+      fa-shield-alt
+    </v-icon>
     {{ $t('social.spaces.administration.manageSpaces.editPermissions') }}
   </v-btn>
 </template>
 <script>
-export default {
-  methods: {
-    updatePermissions(params) {
-      // Workaround for context change, compute success message on processing start
-      this.$root.applyOperationInBulk(
-        async space => {
-          const permissions = {};
-          permissions.layoutPermissions = params.layoutPermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
-          permissions.publicSitePermissions = params.publicSitePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
-          permissions.deletePermissions = params.deletePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
-          await this.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
-        },
-        null,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesPermissionsUpdatedSuccessfully'), 'success');
-          this.$root.$emit('spaces-administration-list-refresh');
-        });
+  export default {
+    methods: {
+      updatePermissions (params) {
+        // Workaround for context change, compute success message on processing start
+        this.$root.applyOperationInBulk(
+          async space => {
+            const permissions = {};
+            permissions.layoutPermissions = params.layoutPermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+            permissions.publicSitePermissions = params.publicSitePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+            permissions.deletePermissions = params.deletePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
+            await this.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
+          },
+          null,
+          () => {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesPermissionsUpdatedSuccessfully'), 'success');
+            this.$root.$emit('spaces-administration-list-refresh');
+          });
+      },
     },
-  },
-};
+  };
 </script>

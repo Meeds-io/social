@@ -17,31 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function saveGroupsSpaceBindings(spaceId, groupNames) {
+export function saveGroupsSpaceBindings (spaceId, groupNames) {
   return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/saveGroupsSpaceBindings/${spaceId}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'POST',
-    body: JSON.stringify(groupNames)
+    body: JSON.stringify(groupNames),
   });
 }
 
-export function getGroupSpaceBindings(spaceId) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/${spaceId}`, {credentials: 'include'}).then(resp => resp.json());
+export function getGroupSpaceBindings (spaceId) {
+  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/${spaceId}`, { credentials: 'include' }).then(resp => resp.json());
 }
 
-export function removeBinding(bindingId) {
+export function removeBinding (bindingId) {
   return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/removeGroupSpaceBinding/${bindingId}`, {
     credentials: 'include',
-    method: 'delete'});
+    method: 'delete' });
 }
 
-export function getBindingReportOperations(spaceId) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations?spaceId=${spaceId || ''}`, {credentials: 'include'}).then(resp => resp.json());
+export function getBindingReportOperations (spaceId) {
+  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations?spaceId=${spaceId || ''}`, { credentials: 'include' }).then(resp => resp.json());
 }
 
-export function getReport(spaceId, action, groupId, groupBindingId) {
+export function getReport (spaceId, action, groupId, groupBindingId) {
   window.open(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, '_blank');
 }

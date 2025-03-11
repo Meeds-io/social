@@ -21,8 +21,8 @@
 <template>
   <div class="option-item mt-2">
     <v-list-item
-      dense
-      class="pa-0">
+      class="pa-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           {{ $t(`generalSettings.${option?.name}.option.label`) }}
@@ -33,10 +33,14 @@
           <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
               icon
+              v-on="on"
               @click="emitOptionResetEvent">
-              <v-icon size="18" class="icon-default-color">fa-undo</v-icon>
+              <v-icon
+                class="icon-default-color"
+                size="18">
+                fa-undo
+              </v-icon>
             </v-btn>
           </template>
           {{ $t('generalSettings.restore.button.tooltip') }}
@@ -45,10 +49,14 @@
           <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
               icon
+              v-on="on"
               @click="emitOptionEvent">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              <v-icon
+                class="icon-default-color"
+                size="18">
+                fa-edit
+              </v-icon>
             </v-btn>
           </template>
           {{ $t('generalSettings.edit.button.tooltip') }}
@@ -58,20 +66,20 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    option: {
-      type: Object,
-      required: true,
+  export default {
+    props: {
+      option: {
+        type: Object,
+        required: true,
+      },
     },
-  },
-  methods: {
-    emitOptionEvent() {
-      this.$root.$emit(this.option?.event);
+    methods: {
+      emitOptionEvent () {
+        this.$root.$emit(this.option?.event);
+      },
+      emitOptionResetEvent () {
+        this.$root.$emit(this.option?.resetEvent);
+      },
     },
-    emitOptionResetEvent() {
-      this.$root.$emit(this.option?.resetEvent);
-    }
-  }
-};
+  };
 </script>

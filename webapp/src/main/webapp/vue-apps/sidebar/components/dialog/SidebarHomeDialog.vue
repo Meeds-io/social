@@ -22,66 +22,66 @@
 <template>
   <exo-confirm-dialog
     ref="confirmDialog"
-    :title="$t('menu.confirmation.title.changeHome')"
+    :cancel-label="$t('menu.confirmation.cancel')"
     :message="confirmMessage"
     :ok-label="$t('menu.confirmation.ok')"
-    :cancel-label="$t('menu.confirmation.cancel')"
+    :title="$t('menu.confirmation.title.changeHome')"
+    @closed="$root.$emit('dialog-closed')"
     @ok="changeHome"
-    @opened="$root.$emit('dialog-opened')"
-    @closed="$root.$emit('dialog-closed')" />
+    @opened="$root.$emit('dialog-opened')" />
 </template>
 <script>
-export default {
-  data: () => ({
-    selectedSpace: null,
-    selectedPage: null,
-  }),
-  computed: {
-    name() {
-      return this.selectedSpace?.displayName || this.selectedPage?.name;
-    },
-    url() {
-      return this.selectedPage?.url || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
-    },
-    confirmMessage() {
-      return this.$t('menu.confirmation.message.changeHome', {
-        0: `<b>${this.name}</b>`,
-      });
-    },
-  },
-  created() {
-    this.$root.$on('change-home-link-space', this.selectSpaceHome);
-    this.$root.$on('update-home-link-page', this.selectPageHome);
-  },
-  beforeDestroy() {
-    this.$root.$off('change-home-link-space', this.selectSpaceHome);
-    this.$root.$off('update-home-link-page', this.selectPageHome);
-  },
-  methods: {
-    changeHome() {
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
-        .then(() => {
-          eXo.env.portal.homeLink = this.url;
-          document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.url}));
+  export default {
+    data: () => ({
+      selectedSpace: null,
+      selectedPage: null,
+    }),
+    computed: {
+      name () {
+        return this.selectedSpace?.displayName || this.selectedPage?.name;
+      },
+      url () {
+        return this.selectedPage?.url || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
+      },
+      confirmMessage () {
+        return this.$t('menu.confirmation.message.changeHome', {
+          0: `<b>${this.name}</b>`,
         });
+      },
     },
-    selectSpaceHome(space) {
-      this.selectedSpace = space;
-      this.selectedPage = null;
-      this.openDialog();
+    created () {
+      this.$root.$on('change-home-link-space', this.selectSpaceHome);
+      this.$root.$on('update-home-link-page', this.selectPageHome);
     },
-    selectPageHome(page) {
-      this.selectedPage = page;
-      this.selectedSpace = null;
-      this.openDialog();
+    beforeUnmount () {
+      this.$root.$off('change-home-link-space', this.selectSpaceHome);
+      this.$root.$off('update-home-link-page', this.selectPageHome);
     },
-    async openDialog() {
-      await this.$nextTick();
-      if (this.$root.defaultUserPath === this.url) {
-        return;
-      }
-      this.$refs?.confirmDialog?.open?.();
+    methods: {
+      changeHome () {
+        this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
+          .then(() => {
+            eXo.env.portal.homeLink = this.url;
+            document.dispatchEvent(new CustomEvent('homeLinkUpdated', { detail: this.url }));
+          });
+      },
+      selectSpaceHome (space) {
+        this.selectedSpace = space;
+        this.selectedPage = null;
+        this.openDialog();
+      },
+      selectPageHome (page) {
+        this.selectedPage = page;
+        this.selectedSpace = null;
+        this.openDialog();
+      },
+      async openDialog () {
+        await this.$nextTick();
+        if (this.$root.defaultUserPath === this.url) {
+          return;
+        }
+        this.$refs?.confirmDialog?.open?.();
+      },
     },
-  },
-};
+  };
 </script>

@@ -18,29 +18,31 @@
 -->
 <template>
   <v-card
-    :class="{ 'border-color': !hover }"
-    :loading="loading"
-    :width="previewWidth"
-    :elevation="hover ? 4 : 0"
     class="attachment-card-item overflow-hidden d-flex flex-column border-box-sizing mx-2"
+    :class="{ 'border-color': !hover }"
+    :elevation="hover ? 4 : 0"
     height="210px"
+    :loading="loading"
     max-height="210px"
     max-width="250px"
+    :width="previewWidth"
+    @blur="hover = false"
     @click="$emit('preview-attachment')"
     @focus="hover = true"
-    @blur="hover = false"
     @mouseenter="hover = true"
     @mouseleave="hover = false">
     <v-card-text class="attachment-card-item-thumbnail d-flex flex-grow-1 pa-0">
       <img
-        :src="thumbnailUrl"
         :alt="attachmentAlt"
-        class="ma-auto full-width">
+        class="ma-auto full-width"
+        :src="thumbnailUrl">
     </v-card-text>
-    <div v-if="isGifImage" class="position-absolute white border-radius r-3 mt-2">
+    <div
+      v-if="isGifImage"
+      class="position-absolute white border-radius r-3 mt-2">
       <v-chip
-        outlined
         label
+        outlined
         small>
         GIF
       </v-chip>
@@ -52,7 +54,9 @@
         elevation="0"
         style="height: 100%;">
         <v-card-text class="pb-0 d-flex flex-row">
-          <v-icon color="error">fa-exclamation-circle</v-icon>
+          <v-icon color="error">
+            fa-exclamation-circle
+          </v-icon>
           <p class="my-auto ms-2 font-weight-bold">
             {{ $t('attachments.errorAccessingFile') }}
           </p>
@@ -62,8 +66,8 @@
         </v-card-text>
         <v-card-actions class="pt-0">
           <v-btn
-            text
             color="primary"
+            text
             @click="closeErrorBox">
             {{ $t('attachments.close') }}
           </v-btn>
@@ -74,74 +78,74 @@
 </template>
 
 <script>
-export default {
-  props: {
-    attachment: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      attachment: {
+        type: Object,
+        default: null,
+      },
+      objectType: {
+        type: String,
+        default: null,
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
+      previewHeight: {
+        type: Number,
+        default: () => 50,
+      },
+      previewWidth: {
+        type: Number,
+        default: () => 50,
+      },
     },
-    objectType: {
-      type: String,
-      default: null,
+    data: () => ({
+      loading: false,
+      invalid: false,
+      hover: false,
+      defaultSize: false,
+    }),
+    computed: {
+      thumbnailUrl () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.attachmentPreveiwHeight}x${this.attachmentPreveiwWidth}`;
+      },
+      attachmentAlt () {
+        return this.attachment?.alt || 'attached image';
+      },
+      isGifImage () {
+        return this.attachment?.mimetype === 'image/gif';
+      },
+      isSmallImage () {
+        return this.attachment?.size < 1000000;
+      },
+      attachmentPreveiwHeight () {
+        return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
+      },
+      attachmentPreveiwWidth () {
+        return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
+      },
     },
-    objectId: {
-      type: String,
-      default: null,
+    watch: {
+      hover () {
+        if (this.hover && this.isGifImage) {
+          this.defaultSize = true;
+        } else {
+          this.defaultSize = false;
+        }
+      },
     },
-    previewHeight: {
-      type: Number,
-      default: () => 50,
+    methods: {
+      closeErrorBox (event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        window.setTimeout(() => {
+          this.invalid = false;
+        }, 50);
+      },
     },
-    previewWidth: {
-      type: Number,
-      default: () => 50,
-    },
-  },
-  computed: {
-    thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.attachmentPreveiwHeight}x${this.attachmentPreveiwWidth}`;
-    },
-    attachmentAlt() {
-      return this.attachment?.alt || 'attached image';
-    },
-    isGifImage() {
-      return this.attachment?.mimetype === 'image/gif';
-    },
-    isSmallImage() {
-      return this.attachment?.size < 1000000;
-    },
-    attachmentPreveiwHeight() {
-      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
-    },
-    attachmentPreveiwWidth() {
-      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
-    },
-  },
-  watch: {
-    hover() {
-      if (this.hover && this.isGifImage) {
-        this.defaultSize = true;
-      } else {
-        this.defaultSize = false;
-      }
-    }
-  },
-  data: () => ({
-    loading: false,
-    invalid: false,
-    hover: false,
-    defaultSize: false,
-  }),
-  methods: {
-    closeErrorBox(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      window.setTimeout(() => {
-        this.invalid = false;
-      }, 50);
-    },
-  },
-};
+  };
 </script>

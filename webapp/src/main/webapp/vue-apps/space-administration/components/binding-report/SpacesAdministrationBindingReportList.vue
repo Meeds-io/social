@@ -26,11 +26,11 @@
     class="d-flex flex-column"
     flat>
     <v-data-table
+      disable-sort
       :headers="headers"
-      :items="operations"
       :hide-default-header="$root.isMobile"
-      disable-sort>
-      <template slot="item" slot-scope="props">
+      :items="operations">
+      <template #item="props">
         <spaces-administration-binding-report-item
           :key="props.item.id"
           :operation="props.item" />
@@ -39,107 +39,107 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    operations: {
-      type: Array,
-      default: () => [],
+  export default {
+    props: {
+      operations: {
+        type: Array,
+        default: () => [],
+      },
     },
-  },
-  computed: {
-    headers() {
-      return this.$root.isMobile && [
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
-          value: 'group.name',
-          align: 'left',
-          sortable: false,
-          class: 'pe-0',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.added.users'),
-          value: 'addedUsers',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.removed.users'),
-          value: 'removedUsers',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.File'),
-          value: 'id',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '60px'
-        }
-      ] || [
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
-          value: 'group.name',
-          align: 'left',
-          sortable: false,
-          class: 'pe-0',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.start.date'),
-          value: 'startDate',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.end.date'),
-          value: 'endDate',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.operation.type'),
-          value: 'operationType',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '120px',
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.added.users'),
-          value: 'addedUsers',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.removed.users'),
-          value: 'removedUsers',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.binding.reports.table.title.File'),
-          value: 'id',
-          align: 'center',
-          sortable: false,
-          class: 'px-1',
-          width: '60px'
-        },
-      ];
+    computed: {
+      headers () {
+        return this.$root.isMobile && [
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
+            value: 'group.name',
+            align: 'left',
+            sortable: false,
+            class: 'pe-0',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.added.users'),
+            value: 'addedUsers',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.removed.users'),
+            value: 'removedUsers',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.File'),
+            value: 'id',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '60px',
+          },
+        ] || [
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.group'),
+            value: 'group.name',
+            align: 'left',
+            sortable: false,
+            class: 'pe-0',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.start.date'),
+            value: 'startDate',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.end.date'),
+            value: 'endDate',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.operation.type'),
+            value: 'operationType',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.added.users'),
+            value: 'addedUsers',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.removed.users'),
+            value: 'removedUsers',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.binding.reports.table.title.File'),
+            value: 'id',
+            align: 'center',
+            sortable: false,
+            class: 'px-1',
+            width: '60px',
+          },
+        ];
+      },
     },
-  },
-};
+  };
 </script>

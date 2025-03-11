@@ -24,21 +24,25 @@
     <v-fade-transition hide-on-leave>
       <div
         v-if="hover"
+        class="position-absolute z-index-two t-0 ma-2"
         :class="{
           'r-0': !$vuetify.rtl,
           'l-0': $vuetify.rtl,
-        }"
-        class="position-absolute z-index-two t-0 ma-2">
-        <v-tooltip v-if="$root.hasImages" bottom>
+        }">
+        <v-tooltip
+          v-if="$root.hasImages"
+          bottom>
           <template #activator="{on, bind}">
             <v-btn
-              v-on="on"
               v-bind="bind"
               class="me-2 white elevation-1"
-              small
               icon
+              small
+              v-on="on"
               @click="$emit('remove')">
-              <v-icon size="18">fa-trash</v-icon>
+              <v-icon size="18">
+                fa-trash
+              </v-icon>
             </v-btn>
           </template>
           <span>{{ $t('image.label.removeImage') }}</span>
@@ -46,14 +50,16 @@
         <v-tooltip bottom>
           <template #activator="{on, bind}">
             <v-btn
-              v-on="on"
               v-bind="bind"
-              :loading="loading"
               class="white elevation-1"
-              small
               icon
+              :loading="loading"
+              small
+              v-on="on"
               @click="$emit('edit')">
-              <v-icon size="18">fa-camera</v-icon>
+              <v-icon size="18">
+                fa-camera
+              </v-icon>
             </v-btn>
           </template>
           <span>{{ $t('image.label.editSettings') }}</span>
@@ -63,16 +69,16 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    hover: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
+      },
     },
-    loading: {
-      type: Boolean,
-      default: false,
-    },
-  },
-};
+  };
 </script>

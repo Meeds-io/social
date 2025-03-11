@@ -32,7 +32,7 @@ if (extensionRegistry) {
 const lang = eXo.env.portal.language;
 const url = `/social/i18n/locale.portlet.Links?lang=${lang}`;
 
-export function init(appId, name, canEdit) {
+export function init (appId, name, canEdit) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       Vue.createApp({
@@ -45,24 +45,24 @@ export function init(appId, name, canEdit) {
           initialized: false,
         },
         computed: {
-          links() {
+          links () {
             return this.settings?.links || null;
           },
-          hasLinks() {
+          hasLinks () {
             return this.links?.length;
           },
-          isMobile() {
+          isMobile () {
             return this.$vuetify?.breakpoint?.smAndDown;
           },
         },
-        created() {
+        created () {
           this.init().finally(() => this.initialized = true);
         },
         methods: {
-          init() {
+          init () {
             return this.retrieveSettings();
           },
-          retrieveSettings() {
+          retrieveSettings () {
             return this.$linkService.getSettings(this.name, this.language)
               .then(settings => {
                 if (!settings.vAlign) {
@@ -75,7 +75,7 @@ export function init(appId, name, canEdit) {
                 this.computeDefaultTranslations();
               });
           },
-          computeDefaultTranslations() {
+          computeDefaultTranslations () {
             return this.settings.links.forEach(link => {
               if (!link.name?.[this.defaultLanguage]) {
                 link.name[this.defaultLanguage] = link.name['en'] || '';
@@ -84,7 +84,7 @@ export function init(appId, name, canEdit) {
                 link.description[this.defaultLanguage] = link.description['en'] || '';
               }
             });
-          }
+          },
         },
         template: `<links-app id="${appId}"></links-app>`,
         vuetify: Vue.prototype.vuetifyOptions,

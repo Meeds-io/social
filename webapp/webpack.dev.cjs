@@ -1,6 +1,6 @@
 const path = require('path');
 const { merge } = require('webpack-merge');
-const webpackCommonConfig = require('./webpack.common.js');
+const webpackCommonConfig = require('./webpack.common');
 
 // the display name of the war
 const app = 'social';

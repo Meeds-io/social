@@ -21,27 +21,27 @@
 <template>
   <div class="brandingLogo">
     <v-img
-      :src="brandingLogo"
-      width="9em"
-      max-width="150px"
-      max-height="6em"
-      role="presentation"
       contain
-      eager />
+      eager
+      max-height="6em"
+      max-width="150px"
+      role="presentation"
+      :src="brandingLogo"
+      width="9em" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    brandingLogo() {
-      return this.params?.brandingLogo;
+    computed: {
+      brandingLogo () {
+        return this.params?.brandingLogo;
+      },
     },
-  },
-};
+  };
 </script>

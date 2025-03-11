@@ -33,15 +33,15 @@ Vue.use(Vuetify);
 const appId = 'verticalMenu';
 
 
-export function init() {
+export function init () {
   Vue.createApp({
     template: `<vertical-menu-app id="${appId}"/>`,
     vuetify: Vue.prototype.vuetifyOptions,
     computed: {
-      isMobile() {
+      isMobile () {
         return this.$vuetify.breakpoint.smAndDown;
       },
     },
-    i18n: exoi18n.i18n},
+    i18n: exoi18n.i18n },
   `#${appId}`, 'Vertical menu application');
 }

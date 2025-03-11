@@ -1,5 +1,5 @@
 
-export function getUser(username, expand) {
+export function getUser (username, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
@@ -12,7 +12,7 @@ export function getUser(username, expand) {
   });
 }
 
-export function isSuperUser() {
+export function isSuperUser () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSuperUser`, {
     method: 'GET',
     credentials: 'include',
@@ -25,7 +25,7 @@ export function isSuperUser() {
   });
 }
 
-export function isDelegatedAdministrator() {
+export function isDelegatedAdministrator () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isDelegatedAdministrator`, {
     method: 'GET',
     credentials: 'include',
@@ -38,7 +38,7 @@ export function isDelegatedAdministrator() {
   });
 }
 
-export function isSynchronizedUserAllowedToChangePassword() {
+export function isSynchronizedUserAllowedToChangePassword () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/isSynchronizedUserAllowedToChangePassword`, {
     method: 'GET',
     credentials: 'include',
@@ -51,7 +51,7 @@ export function isSynchronizedUserAllowedToChangePassword() {
   });
 }
 
-export function getUserByEmail(email) {
+export function getUserByEmail (email) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/email/${email}`, {
     method: 'GET',
     credentials: 'include',
@@ -64,11 +64,11 @@ export function getUserByEmail(email) {
   });
 }
 
-export function getUsers(query, offset, limit, expand, signal, excludeCurrentUser) {
+export function getUsers (query, offset, limit, expand, signal, excludeCurrentUser) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true&excludeCurrentUser=${excludeCurrentUser || false}`, {
     method: 'GET',
     credentials: 'include',
-    signal: signal
+    signal,
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -78,7 +78,7 @@ export function getUsers(query, offset, limit, expand, signal, excludeCurrentUse
   });
 }
 
-export function getUsersByAdvancedFilter(settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal, wildCardSearch) {
+export function getUsersByAdvancedFilter (settings, offset, limit, expand, filterType, name, excludeCurrentUser, signal, wildCardSearch) {
   const formData = new FormData();
   formData.append('offset', offset);
   formData.append('limit', limit);
@@ -101,7 +101,7 @@ export function getUsersByAdvancedFilter(settings, offset, limit, expand, filter
       'Content-Type': 'application/json',
     },
     credentials: 'include',
-    signal: signal,
+    signal,
     body: JSON.stringify(settings),
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -112,7 +112,7 @@ export function getUsersByAdvancedFilter(settings, offset, limit, expand, filter
   });
 }
 
-export function getUsersByStatus(query, offset, limit, status) {
+export function getUsersByStatus (query, offset, limit, status) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&status=${status || 'ENABLED'}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
@@ -125,11 +125,11 @@ export function getUsersByStatus(query, offset, limit, status) {
   });
 }
 
-export function getConnections(query, offset, limit, expand, signal) {
+export function getConnections (query, offset, limit, expand, signal) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${eXo.env.portal.userName}/connections?q=${query || ''}&offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
-    signal: signal
+    signal,
   }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Response code indicates a server error', resp);
@@ -139,7 +139,7 @@ export function getConnections(query, offset, limit, expand, signal) {
   });
 }
 
-export function getInvitations(offset, limit, expand) {
+export function getInvitations (offset, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/connections/invitations?offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
@@ -152,7 +152,7 @@ export function getInvitations(offset, limit, expand) {
   });
 }
 
-export function getPending(offset, limit, expand) {
+export function getPending (offset, limit, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/connections/pending?offset=${offset || 0}&limit=${limit|| 0}&expand=${expand || ''}&returnSize=true`, {
     method: 'GET',
     credentials: 'include',
@@ -165,16 +165,16 @@ export function getPending(offset, limit, expand) {
   });
 }
 
-export function getUserSuggestions() {
+export function getUserSuggestions () {
   const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   if (cachedSuggestions) {
     return Promise.resolve(JSON.parse(cachedSuggestions));
   }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/homepage/intranet/people/contacts/suggestions`,{
-    credentials: 'include'
+    credentials: 'include',
   }).then(resp => {
     if (!resp || !resp.ok) {
-      return resp.text().then((text) => {
+      return resp.text().then(text => {
         throw new Error(text);
       });
     } else {
@@ -192,7 +192,7 @@ export function getUserSuggestions() {
   });
 }
 
-export function connect(userId) {
+export function connect (userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
@@ -217,7 +217,7 @@ export function connect(userId) {
   });
 }
 
-export function confirm(userId) {
+export function confirm (userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
@@ -242,7 +242,7 @@ export function confirm(userId) {
   });
 }
 
-export function ignore(receiver) {
+export function ignore (receiver) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
@@ -255,13 +255,13 @@ export function ignore(receiver) {
     },
     credentials: 'include',
     body: JSON.stringify({
-      'sender': sender ,
-      'receiver': receiver,
-      'status': 'IGNORED'
+      sender ,
+      receiver,
+      'status': 'IGNORED',
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
-      return resp.text().then((text) => {
+      return resp.text().then(text => {
         throw new Error(text);
       });
     } else {
@@ -270,7 +270,7 @@ export function ignore(receiver) {
   });
 }
 
-export function deleteRelationship(userId) {
+export function deleteRelationship (userId) {
   if (sessionStorage) {
     sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
   }
@@ -291,7 +291,7 @@ export function deleteRelationship(userId) {
   });
 }
 
-export function updateProfileField(username, name, value) {
+export function updateProfileField (username, name, value) {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('value', value);
@@ -315,7 +315,7 @@ export function updateProfileField(username, name, value) {
   });
 }
 
-export function updateProfileFields(username, obj, fields) {
+export function updateProfileFields (username, obj, fields) {
   const objectToSend = {};
   for (const i in fields) {
     objectToSend[fields[i]] = obj[fields[i]];
@@ -340,14 +340,14 @@ export function updateProfileFields(username, obj, fields) {
   });
 }
 
-export function changePassword(username, currentPassword, newPassword) {
+export function changePassword (username, currentPassword, newPassword) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${username}/changePassword`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: `currentPassword=${currentPassword}&newPassword=${newPassword}`
+    body: `currentPassword=${currentPassword}&newPassword=${newPassword}`,
   }).then(resp => {
     if (!resp || !resp.ok) {
       return resp.text();
@@ -359,7 +359,7 @@ export function changePassword(username, currentPassword, newPassword) {
   });
 }
 
-export function importUsers(uploadId) {
+export function importUsers (uploadId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
     method: 'POST',
     credentials: 'include',
@@ -378,7 +378,7 @@ export function importUsers(uploadId) {
   });
 }
 
-export function checkImportUsersProgress(uploadId) {
+export function checkImportUsersProgress (uploadId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
     method: 'POST',
     credentials: 'include',
@@ -400,7 +400,7 @@ export function checkImportUsersProgress(uploadId) {
   });
 }
 
-export function cleanImportUsers(uploadId) {
+export function cleanImportUsers (uploadId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/csv`, {
     method: 'POST',
     credentials: 'include',
@@ -422,15 +422,15 @@ export function cleanImportUsers(uploadId) {
   });
 }
 
-export function multiSelectAction(action, selectedUsers) {
+export function multiSelectAction (action, selectedUsers) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/bulk/${action}`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     credentials: 'include',
     method: 'PATCH',
     body: JSON.stringify(selectedUsers),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Error when updating users');
     } else {
@@ -439,11 +439,11 @@ export function multiSelectAction(action, selectedUsers) {
   });
 }
 
-export function getUserCardSettings() {
+export function getUserCardSettings () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/userCardSettings`, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Error while getting user card settings');
     } else {

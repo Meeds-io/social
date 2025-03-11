@@ -32,7 +32,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'link',
-  isEnabled: (params) => {
+  isEnabled: params => {
     const activityTypeExtension = params && params.activityTypeExtension;
     const activity = params && params.activity;
     const isComment = !!params?.activity?.activityId;
@@ -46,7 +46,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'shared-activity',
-  isEnabled: (params) => params.activity && params.activity.originalActivity,
+  isEnabled: params => params.activity && params.activity.originalActivity,
   vueComponent: Vue.options.components['activity-share'],
   rank: 1000,
 });
@@ -106,7 +106,7 @@ const defaultActivityOptions = {
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'embedded-html',
-  isEnabled: (params) => {
+  isEnabled: params => {
     const activityTypeExtension = params && params.activityTypeExtension;
     const activity = params && params.activity;
     const isActivityDetail = params && params.isActivityDetail;
@@ -157,10 +157,10 @@ extensionRegistry.registerExtension('activity', 'action', {
     }
     return activity.canPin && !activity.pinned;
   },
-  click: (activity) => {
+  click: activity => {
     return Vue.prototype.$activityService.pinActivity(activity.id)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-pinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-pinned', { detail: activity }));
       });
   },
 });
@@ -176,10 +176,10 @@ extensionRegistry.registerExtension('activity', 'action', {
     }
     return activity.canPin && activity.pinned;
   },
-  click: (activity) => {
+  click: activity => {
     return Vue.prototype.$activityService.unpinActivity(activity.id)
       .then(() => {
-        document.dispatchEvent(new CustomEvent('activity-unpinned', {detail: activity}));
+        document.dispatchEvent(new CustomEvent('activity-unpinned', { detail: activity }));
       });
   },
 });
@@ -194,7 +194,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: (activity, activityTypeExtension) => {
     const bodyToEdit = activityTypeExtension.getBodyToEdit && activityTypeExtension.getBodyToEdit(activity) || activityTypeExtension.getBody(activity);
-    document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+    document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', { detail: {
       activityId: activity.id,
       spaceId: activity?.activityStream?.space?.id || '',
       composerAction: 'update',
@@ -202,8 +202,8 @@ extensionRegistry.registerExtension('activity', 'action', {
       activityBody: bodyToEdit,
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
-      activityType: activity.type
-    }}));
+      activityType: activity.type,
+    } }));
   },
 });
 
@@ -228,9 +228,9 @@ extensionRegistry.registerExtension('activity', 'action', {
     return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
       .then(() => {
         if (activityTypeExtension.hideOnDelete && isActivityDetail) {
-          document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id }));
         } else {
-          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-deleted', { detail: activity.id }));
         }
       })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
@@ -255,9 +255,9 @@ extensionRegistry.registerExtension('activity', 'action', {
     return Vue.prototype.$activityService.deleteActivity(activity.id, true)
       .then(() => {
         if (isActivityDetail) {
-          document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id }));
         } else {
-          document.dispatchEvent(new CustomEvent('activity-deleted', {detail: activity.id}));
+          document.dispatchEvent(new CustomEvent('activity-deleted', { detail: activity.id }));
         }
       })
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
@@ -275,7 +275,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   click: activity => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.unhideActivity(activity.id)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})))
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
@@ -286,7 +286,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   labelKey: 'UIActivity.label.CopyLink',
   icon: 'fa-copy',
   isEnabled: activity => activity && activity.id,
-  click: (activity) => {
+  click: activity => {
     const activityLink = `${window.location.origin}${activityBaseLink}?id=${activity.id}`;
     if (!$('#copyToClipboard').length) {
       $('body').append(`<input id="copyToClipboard" type="text" value="${activityLink}" style="position:absolute;left: -9999px;">`);
@@ -307,7 +307,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   isEnabled: activity => !activity?.metadatas?.observers?.length || false,
   click: activity => {
     return Vue.prototype.$observerService.createObserver('activity', activity.id)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })));
   },
 });
 
@@ -319,7 +319,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   isEnabled: activity => activity?.metadatas?.observers?.length || false,
   click: activity => {
     return Vue.prototype.$observerService.deleteObserver('activity', activity.id)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', {detail: activity.id})));
+      .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })));
   },
 });
 
@@ -342,12 +342,12 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
     return Vue.prototype.$activityService.deleteActivity(comment?.id)
-      .then(() => document.dispatchEvent(new CustomEvent('activity-comment-deleted', {detail: {
+      .then(() => document.dispatchEvent(new CustomEvent('activity-comment-deleted', { detail: {
         activityId: activity?.id,
         spaceId: activity?.activityStream?.space?.id,
         commentId: comment?.id,
         parentCommentId: comment?.parentCommentId,
-      }})))
+      } })))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
 });
@@ -369,11 +369,11 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   },
   click: (activity, comment, commentTypeExtension) => {
     const bodyToEdit = commentTypeExtension.getBodyToEdit && commentTypeExtension.getBodyToEdit(comment) || commentTypeExtension.getBody(comment);
-    document.dispatchEvent(new CustomEvent('activity-comment-edit', {detail: {
+    document.dispatchEvent(new CustomEvent('activity-comment-edit', { detail: {
       activity,
       comment,
       activityBody: bodyToEdit,
-    }}));
+    } }));
   },
 });
 
@@ -385,7 +385,7 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'comment',
-  isEnabled: (params) => params.activity
+  isEnabled: params => params.activity
         && (!params.activityTypeExtension
         || !params.activityTypeExtension.canComment
         || params.activityTypeExtension.canComment(params.activity)),
@@ -401,7 +401,7 @@ extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', 
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'share',
-  isEnabled: (params) => params.activity
+  isEnabled: params => params.activity
         && !params.activity.originalActivity
         && params.activityTypeExtension?.canShare
         && params.activityTypeExtension.canShare(params.activity),
@@ -435,7 +435,7 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'attachedItem',
-  isEnabled: (params) => {
+  isEnabled: params => {
     const activity = params?.activity;
     return !activity.activityId && activity?.metadatas?.attachments?.length;
   },
@@ -445,7 +445,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
 
 extensionRegistry.registerComponent('CommentContent', 'comment-content-extensions', {
   id: 'attachedItem',
-  isEnabled: (params) => {
+  isEnabled: params => {
     const activity = params?.activity;
     return activity.activityId && activity?.metadatas?.attachments?.length;
   },

@@ -29,15 +29,17 @@
     <template #title>
       {{ $t('spacesList.categories.drawer.select.title') }}
     </template>
-    <template v-if="drawer && categories" #content>
+    <template
+      v-if="drawer && categories"
+      #content>
       <div class="d-flex flex-column ma-5">
         <div
           v-for="category in categories"
           :key="category.id">
           <spaces-category-chip
             :category="category"
-            max-width="100%"
             class="mb-4"
+            max-width="100%"
             @select="select(category)" />
         </div>
       </div>
@@ -45,29 +47,29 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    categories: null,
-  }),
-  created() {
-    this.$root.$on('spaces-list-category-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-category-open', this.open);
-  },
-  methods: {
-    open(categories) {
-      this.categories = categories;
-      this.$refs.drawer.open();
+  export default {
+    data: () => ({
+      drawer: false,
+      categories: null,
+    }),
+    created () {
+      this.$root.$on('spaces-list-category-open', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    beforeUnmount () {
+      this.$root.$off('spaces-list-category-open', this.open);
     },
-    select(category) {
-      this.$root.$emit('spaces-list-select-category', category);
-      this.close();
+    methods: {
+      open (categories) {
+        this.categories = categories;
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      select (category) {
+        this.$root.$emit('spaces-list-select-category', category);
+        this.close();
+      },
     },
-  },
-};
+  };
 </script>

@@ -1,7 +1,11 @@
 <template>
   <v-flex>
-    <v-alert v-if="displayAlert" :type="alertType">
-      <users-management-import-csv-error-message v-if="error" :error="error" />
+    <v-alert
+      v-if="displayAlert"
+      :type="alertType">
+      <users-management-import-csv-error-message
+        v-if="error"
+        :error="error" />
       <template v-else-if="uploading">
         {{ $t('UsersManagement.uploadingCSVFile') }}
       </template>
@@ -27,15 +31,18 @@
     <exo-drawer
       ref="errorDrawer"
       right>
-      <template slot="title">{{ $t('UsersManagement.importCSVErrors') }}</template>
-      <template slot="content">
+      <template #title>
+        {{ $t('UsersManagement.importCSVErrors') }}
+      </template>
+      <template #content>
         <v-data-table
-          :headers="errorHeaders"
-          :items="errorMessages"
-          :items-per-page="20"
           :footer-props="{ itemsPerPageOptions }"
-          hide-default-header>
-          <template slot="item.message" slot-scope="{ item }">
+          :headers="errorHeaders"
+          hide-default-header
+          :items="errorMessages"
+          :items-per-page="20">
+          <template
+            #item.message="{ item }">
             <users-management-import-csv-error-message
               :error="item.message"
               :user-name="item.userName" />
@@ -46,18 +53,22 @@
     <exo-drawer
       ref="warnDrawer"
       right>
-      <template slot="title">{{ $t('UsersManagement.importCSVWarnings') }}</template>
-      <template slot="content">
+      <template #title>
+        {{ $t('UsersManagement.importCSVWarnings') }}
+      </template>
+      <template #content>
         <v-data-table
-          :headers="errorHeaders"
-          :items="warnMessages"
-          :items-per-page="20"
           :footer-props="{ itemsPerPageOptions }"
-          hide-default-header>
-          <template slot="item.userName" slot-scope="{ item }">
+          :headers="errorHeaders"
+          hide-default-header
+          :items="warnMessages"
+          :items-per-page="20">
+          <template
+            #item.userName="{ item }">
             {{ item.userName === 'ALL' ? $t('UsersManagement.error.importCSV.all') : item.userName }}
           </template>
-          <template slot="item.message" slot-scope="{ item }">
+          <template
+            #item.message="{ item }">
             <users-management-import-csv-error-message
               :error="item.message"
               :user-name="item.userName" />
@@ -69,100 +80,100 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    uploadId: null,
-    progress: null,
-    error: null,
-    errorHeaders: [{value: 'userName'},{value: 'message'}],
-    itemsPerPageOptions: [20, 50, 100],
-  }),
-  computed: {
-    warnsCount() {
-      return this.warnMessages.length;
+  export default {
+    data: () => ({
+      uploadId: null,
+      progress: null,
+      error: null,
+      errorHeaders: [{ value: 'userName' },{ value: 'message' }],
+      itemsPerPageOptions: [20, 50, 100],
+    }),
+    computed: {
+      warnsCount () {
+        return this.warnMessages.length;
+      },
+      warnMessages () {
+        if (!this.progress || !this.progress.warnMessages) {
+          return [];
+        }
+        return Object.keys(this.progress.warnMessages)
+          .flatMap(userName => 
+            this.progress.warnMessages[userName]
+              .map(message => ({ userName, message }))
+          );
+      },
+      errorsCount () {
+        return this.errorMessages.length;
+      },
+      errorMessages () {
+        if (!this.progress || !this.progress.errorMessages) {
+          return [];
+        }
+        return Object.keys(this.progress.errorMessages)
+          .map(userName => ({
+            userName,
+            message: this.progress.errorMessages[userName],
+          }));
+      },
+      uploading () {
+        return !this.finished && !this.progress && this.uploadId;
+      },
+      imported () {
+        return this.progress && this.progress.processedCount >= this.progress.count;
+      },
+      finished () {
+        return this.error || this.imported;
+      },
+      alertType () {
+        return this.error ? 'error' : this.finished ? 'success' : 'info';
+      },
+      displayAlert () {
+        return this.uploading || this.progress || this.finished;
+      },
     },
-    warnMessages() {
-      if (!this.progress || !this.progress.warnMessages) {
-        return [];
-      }
-      return Object.keys(this.progress.warnMessages)
-        .flatMap(userName => 
-          this.progress.warnMessages[userName]
-            .map(message => ({userName: userName, message: message}))
-        );
+    watch: {
+      uploadId () {
+        this.progress = null;
+        this.error = null;
+      },
+      finished (newValue, oldValue) {
+        if (this.finished && this.uploadId) {
+          this.$userService.cleanImportUsers(this.uploadId)
+            .then(result => {
+              this.progress = result;
+            });
+        }
+        // If finished Broacast event
+        if (newValue && newValue !== oldValue) {
+          this.$root.$emit('importCSVFinished', this.uploadId, this.progress);
+        }
+      },
     },
-    errorsCount() {
-      return this.errorMessages.length;
+    created () {
+      this.$root.$on('importCSVStarted', uploadId => this.uploadId = uploadId);
+      this.$root.$on('importCSVProgress', this.watchProgress);
+      this.$root.$on('importCSVError', error => this.error = error);
     },
-    errorMessages() {
-      if (!this.progress || !this.progress.errorMessages) {
-        return [];
-      }
-      return Object.keys(this.progress.errorMessages)
-        .map(userName => ({
-          userName: userName,
-          message: this.progress.errorMessages[userName]
-        }));
+    methods: {
+      watchProgress () {
+        if (this.uploadId && !this.finished) {
+          return this.$userService.checkImportUsersProgress(this.uploadId)
+            .then(result => {
+              window.setTimeout(() => this.progress = result,200);
+            })
+            .then(() => this.$nextTick())
+            .catch(error => {
+              if (String(error).indexOf('SyntaxError') < 0) {
+                this.error = error;
+              }
+            })
+            .finally(() => {
+              if (!this.finished) {
+                window.setTimeout(this.watchProgress, 500);
+              }
+            });
+        }
+      },
     },
-    uploading() {
-      return !this.finished && !this.progress && this.uploadId;
-    },
-    imported() {
-      return this.progress && this.progress.processedCount >= this.progress.count;
-    },
-    finished() {
-      return this.error || this.imported;
-    },
-    alertType() {
-      return this.error ? 'error' : this.finished ? 'success' : 'info';
-    },
-    displayAlert() {
-      return this.uploading || this.progress || this.finished;
-    },
-  },
-  watch: {
-    uploadId() {
-      this.progress = null;
-      this.error = null;
-    },
-    finished(newValue, oldValue) {
-      if (this.finished && this.uploadId) {
-        this.$userService.cleanImportUsers(this.uploadId)
-          .then(result => {
-            this.progress = result;
-          });
-      }
-      // If finished Broacast event
-      if (newValue && newValue !== oldValue) {
-        this.$root.$emit('importCSVFinished', this.uploadId, this.progress);
-      }
-    },
-  },
-  created() {
-    this.$root.$on('importCSVStarted', uploadId => this.uploadId = uploadId);
-    this.$root.$on('importCSVProgress', this.watchProgress);
-    this.$root.$on('importCSVError', (error) => this.error = error);
-  },
-  methods: {
-    watchProgress() {
-      if (this.uploadId && !this.finished) {
-        return this.$userService.checkImportUsersProgress(this.uploadId)
-          .then(result => {
-            window.setTimeout(() => this.progress = result,200);
-          })
-          .then(() => this.$nextTick())
-          .catch(error => {
-            if (String(error).indexOf('SyntaxError') < 0) {
-              this.error = error;
-            }
-          })
-          .finally(() => {
-            if (!this.finished) {
-              window.setTimeout(this.watchProgress, 500);
-            }
-          });
-      }
-    },
-  },
-};
+  };
 </script>

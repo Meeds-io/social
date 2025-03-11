@@ -25,88 +25,88 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
+      spaceAdminMembershipType: {
+        type: String,
+        default: () => 'spaceAdmin',
+      },
     },
-    spaceAdminMembershipType: {
-      type: String,
-      default: () => 'spaceAdmin',
-    },
-  },
-  data: () => ({
-    isUsersPermissions: false,
-    isExternalsPermissions: false,
-    isSpaceAdminPermissions: false,
-    isCustomPermissions: false,
-    specificGroupEntries: null,
-  }),
-  computed: {
-    permissionLabels() {
-      const permissionLabels = [];
-      permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepAdministrators'));
-      if (this.isUsersPermissions) {
-        permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepUsers'));
-      }
-      if (this.isExternalsPermissions) {
-        permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepExternals'));
-      }
-      if (this.isSpaceAdminPermissions) {
-        permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepSpaceAdmins'));
-      }
-      if (this.specificGroupEntries?.length) {
-        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.name)?.filter?.(g => g) || [];
-        permissionLabels.push(...specificGroupEntries);
-      }
-      return permissionLabels.join(', ');
-    },
-  },
-  created() {
-    this.refreshSelection();
-  },
-  methods: {
-    refreshSelection() {
-      const permissions = this.value?.slice?.() || [];
-
-      this.isUsersPermissions = permissions.find(p => p === this.$root.usersPermission) ? true : false;
-      this.isExternalsPermissions = permissions.find(p => p === this.$root.externalsPermission) ? true : false;
-      this.isSpaceAdminPermissions = permissions.find(p => p === this.spaceAdminMembershipType) && true || false;
-      this.specificGroupEntries = [];
-
-      const specificGroupEntries = permissions?.filter?.(p =>
-        p !== this.$root.administratorsPermission
-        && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
-        && p !== this.$root.usersPermission
-        && p !== this.$root.externalsPermission
-        && p !== this.spaceAdminMembershipType
-      ) || null;
-      this.isCustomPermissions = !!specificGroupEntries?.length;
-      if (specificGroupEntries?.length) {
-        specificGroupEntries.forEach(this.retrieveObject);
-      }
-    },
-    async retrieveObject(groupId) {
-      groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
-      if (groupId.indexOf('/spaces/') === 0) {
-        const space = await this.$spaceService.getSpaceByGroupId(groupId);
-        if (space) {
-          this.specificGroupEntries.push({
-            groupId: space.groupId,
-            name: space.displayName,
-          });
+    data: () => ({
+      isUsersPermissions: false,
+      isExternalsPermissions: false,
+      isSpaceAdminPermissions: false,
+      isCustomPermissions: false,
+      specificGroupEntries: null,
+    }),
+    computed: {
+      permissionLabels () {
+        const permissionLabels = [];
+        permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepAdministrators'));
+        if (this.isUsersPermissions) {
+          permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepUsers'));
         }
-      } else if (groupId?.length) {
-        const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
-        if (group) {
-          this.specificGroupEntries.push({
-            groupId: groupId,
-            name: group.profile?.fullname,
-          });
+        if (this.isExternalsPermissions) {
+          permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepExternals'));
         }
-      }
+        if (this.isSpaceAdminPermissions) {
+          permissionLabels.push(this.$t('social.spaces.administration.manageSpaces.permissionsStepSpaceAdmins'));
+        }
+        if (this.specificGroupEntries?.length) {
+          const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.name)?.filter?.(g => g) || [];
+          permissionLabels.push(...specificGroupEntries);
+        }
+        return permissionLabels.join(', ');
+      },
     },
-  },
-};
+    created () {
+      this.refreshSelection();
+    },
+    methods: {
+      refreshSelection () {
+        const permissions = this.value?.slice?.() || [];
+
+        this.isUsersPermissions = permissions.find(p => p === this.$root.usersPermission) ? true : false;
+        this.isExternalsPermissions = permissions.find(p => p === this.$root.externalsPermission) ? true : false;
+        this.isSpaceAdminPermissions = permissions.find(p => p === this.spaceAdminMembershipType) && true || false;
+        this.specificGroupEntries = [];
+
+        const specificGroupEntries = permissions?.filter?.(p =>
+          p !== this.$root.administratorsPermission
+          && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
+          && p !== this.$root.usersPermission
+          && p !== this.$root.externalsPermission
+          && p !== this.spaceAdminMembershipType
+        ) || null;
+        this.isCustomPermissions = !!specificGroupEntries?.length;
+        if (specificGroupEntries?.length) {
+          specificGroupEntries.forEach(this.retrieveObject);
+        }
+      },
+      async retrieveObject (groupId) {
+        groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
+        if (groupId.indexOf('/spaces/') === 0) {
+          const space = await this.$spaceService.getSpaceByGroupId(groupId);
+          if (space) {
+            this.specificGroupEntries.push({
+              groupId: space.groupId,
+              name: space.displayName,
+            });
+          }
+        } else if (groupId?.length) {
+          const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          if (group) {
+            this.specificGroupEntries.push({
+              groupId,
+              name: group.profile?.fullname,
+            });
+          }
+        }
+      },
+    },
+  };
 </script>

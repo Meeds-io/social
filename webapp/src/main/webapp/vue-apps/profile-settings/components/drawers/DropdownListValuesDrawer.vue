@@ -24,11 +24,11 @@
     ref="dropdownListDrawer"
     :right="!$vuetify.rtl"
     @closed="$emit('closed')">
-    <template slot="title">
+    <template #title>
       <div class="d-flex my-auto text-header font-weight-bold text-color">
         <v-btn
-          icon
           :aria-label="$t('profileSettings.dropdownList.close.ariaLabel')"
+          icon
           @click="close">
           <v-icon size="20">
             fas fa-arrow-left
@@ -39,7 +39,7 @@
         </span>
       </div>
     </template>
-    <template slot="content">
+    <template #content>
       <div class="py-5 px-4">
         <div>
           <v-btn
@@ -47,8 +47,8 @@
             class="btn btn-primary"
             @click="enableWriteValue = true">
             <v-icon
-              size="14"
-              class="me-2">
+              class="me-2"
+              size="14">
               fas fa-plus
             </v-icon>
             {{ $t('profileSettings.dropdownList.addValue.label') }}
@@ -56,11 +56,11 @@
           <div v-if="enableWriteValue">
             <v-text-field
               v-model="propertyValue"
-              :placeholder="$t('profileSettings.dropdownList.input.placeholder')"
-              class="pt-0"
               autofocus
-              outlined
+              class="pt-0"
               dense
+              outlined
+              :placeholder="$t('profileSettings.dropdownList.input.placeholder')"
               @keydown.enter="addPropertyValue" />
             <div class="d-flex">
               <p class="caption mb-0 text-sub-title">
@@ -72,14 +72,14 @@
                   <template #activator="{ on, attrs }">
                     <v-btn
                       v-bind="attrs"
-                      v-on="on"
-                      :disabled="!propertyValue?.length"
                       :aria-label="$t('profileSettings.dropdownList.value.validate.label')"
-                      width="28"
-                      min-width="28"
-                      height="28"
                       class="success-color"
+                      :disabled="!propertyValue?.length"
+                      height="28"
                       icon
+                      min-width="28"
+                      width="28"
+                      v-on="on"
                       @click="addPropertyValue">
                       <v-icon size="20">
                         fas fa-check
@@ -93,14 +93,14 @@
                   <template #activator="{ on, attrs }">
                     <v-btn
                       v-bind="attrs"
-                      v-on="on"
-                      :disabled="!enableWriteValue"
                       :aria-label="$t('profileSettings.dropdownList.value.cancel.label')"
-                      width="28"
-                      min-width="28"
-                      height="28"
                       class="error-color"
+                      :disabled="!enableWriteValue"
+                      height="28"
                       icon
+                      min-width="28"
+                      width="28"
+                      v-on="on"
                       @click="resetValues">
                       <v-icon size="20">
                         fas fa-times
@@ -114,18 +114,18 @@
           </div>
         </div>
         <v-container
-          :class="!enableWriteValue && 'mt-6' || 'mt-1'"
           class="pt-0"
+          :class="!enableWriteValue && 'mt-6' || 'mt-1'"
           no-gutters>
           <v-row class="text-sub-title border-bottom-color">
             <v-col
-              cols="8"
-              class="font-weight-bold py-4 px-0">
+              class="font-weight-bold py-4 px-0"
+              cols="8">
               {{ $t('profileSettings.dropdownList.name.label') }}
             </v-col>
             <v-col
-              cols="4"
-              class="text-end font-weight-bold py-4 px-0">
+              class="text-end font-weight-bold py-4 px-0"
+              cols="4">
               {{ $t('profileSettings.dropdownList.actions.label') }}
             </v-col>
           </v-row>
@@ -162,93 +162,93 @@
 
 <script>
 
-export default {
-  data() {
-    return {
-      propertyOptions: [],
-      currentPropertyOptions: [],
-      propertyValue: null,
-      enableWriteValue: false,
-      setting: null,
-    };
-  },
-  watch: {
-    propertyOptions() {
-      this.$root.$emit('property-setting-options-updated', this.propertyOptions);
-    }
-  },
-  computed: {
-    sortedOptions() {
-      return [...this.propertyOptions].sort((a, b) => a.value.localeCompare(b.value, {numeric: true}));
+  export default {
+    data () {
+      return {
+        propertyOptions: [],
+        currentPropertyOptions: [],
+        propertyValue: null,
+        enableWriteValue: false,
+        setting: null,
+      };
     },
-  },
-  created() {
-    this.$root.$on('cancel-edit-add', this.resetTranslations);
-  },
-  methods: {
-    deleteOption(option) {
-      this.propertyOptions.splice(this.getOptionIndex(option), 1);
+    computed: {
+      sortedOptions () {
+        return [...this.propertyOptions].sort((a, b) => a.value.localeCompare(b.value, { numeric: true }));
+      },
     },
-    openConfirmDialogOnDelete(option) {
-      this.$root.$emit('open-confirm-dialog', {
-        title: this.$t('profileSettings.dialog.deleteOption.title'),
-        message: this.$t('profileSettings.dialog.deleteOption.message', {0: `<strong>${option.value}</strong>`}),
-        okLabel: this.$t('profileSettings.dialog.deleteOption.ok'),
-        cancelLabel: this.$t('profileSettings.dialog.deleteOption.cancel'),
-        callback: () => this.deleteOption(option)
-      });
+    watch: {
+      propertyOptions () {
+        this.$root.$emit('property-setting-options-updated', this.propertyOptions);
+      },
     },
-    getOptionIndex(option) {
-      return this.propertyOptions.findIndex(item =>
-        (option.id ? item.id === option.id : item.uuid === option.uuid));
+    created () {
+      this.$root.$on('cancel-edit-add', this.resetTranslations);
     },
-    translationUpdated(option, translations) {
-      const index = this.getOptionIndex(option);
-      this.propertyOptions[index].translations = translations;
-      this.checkTranslationUpdated(index);
-    },
-    initCurrentTranslations(option, translations) {
-      const index = this.propertyOptions.findIndex(item => item.id === option.id);
-      this.currentPropertyOptions[index].translations = translations;
-    },
-    checkTranslationUpdated() {
-      this.$root.$emit('setting-translation-updated',
-        JSON.stringify(this.currentPropertyOptions) !== JSON.stringify(this.propertyOptions));
-    },
-    addPropertyValue() {
-      if (!this.propertyValue) {
-        return;
-      }
-      const values = this.propertyValue.split(',').map(value => value.trim()).filter(Boolean);
-      values.forEach(value => {
-        this.propertyOptions.push({
-          value,
-          propertySettingId: this.setting?.id || null,
-          uuid: crypto.randomUUID()
+    methods: {
+      deleteOption (option) {
+        this.propertyOptions.splice(this.getOptionIndex(option), 1);
+      },
+      openConfirmDialogOnDelete (option) {
+        this.$root.$emit('open-confirm-dialog', {
+          title: this.$t('profileSettings.dialog.deleteOption.title'),
+          message: this.$t('profileSettings.dialog.deleteOption.message', { 0: `<strong>${option.value}</strong>` }),
+          okLabel: this.$t('profileSettings.dialog.deleteOption.ok'),
+          cancelLabel: this.$t('profileSettings.dialog.deleteOption.cancel'),
+          callback: () => this.deleteOption(option),
         });
-      });
-      this.setting.propertyOptions = this.propertyOptions;
-      this.resetValues();
+      },
+      getOptionIndex (option) {
+        return this.propertyOptions.findIndex(item =>
+          (option.id ? item.id === option.id : item.uuid === option.uuid));
+      },
+      translationUpdated (option, translations) {
+        const index = this.getOptionIndex(option);
+        this.propertyOptions[index].translations = translations;
+        this.checkTranslationUpdated(index);
+      },
+      initCurrentTranslations (option, translations) {
+        const index = this.propertyOptions.findIndex(item => item.id === option.id);
+        this.currentPropertyOptions[index].translations = translations;
+      },
+      checkTranslationUpdated () {
+        this.$root.$emit('setting-translation-updated',
+                         JSON.stringify(this.currentPropertyOptions) !== JSON.stringify(this.propertyOptions));
+      },
+      addPropertyValue () {
+        if (!this.propertyValue) {
+          return;
+        }
+        const values = this.propertyValue.split(',').map(value => value.trim()).filter(Boolean);
+        values.forEach(value => {
+          this.propertyOptions.push({
+            value,
+            propertySettingId: this.setting?.id || null,
+            uuid: crypto.randomUUID(),
+          });
+        });
+        this.setting.propertyOptions = this.propertyOptions;
+        this.resetValues();
+      },
+      open (setting) {
+        this.setting = setting;
+        this.propertyOptions = setting.propertyOptions || [];
+        if (!this.currentPropertyOptions?.length) {
+          this.currentPropertyOptions = structuredClone(this.propertyOptions);
+        }
+        this.resetValues();
+        this.$refs.dropdownListDrawer.open();
+      },
+      resetValues () {
+        this.propertyValue = '';
+        this.enableWriteValue = false;
+      },
+      close () {
+        this.$refs.dropdownListDrawer.close();
+      },
+      resetTranslations () {
+        this.propertyOptions = structuredClone(this.currentPropertyOptions);
+      },
     },
-    open(setting) {
-      this.setting = setting;
-      this.propertyOptions = setting.propertyOptions || [];
-      if (!this.currentPropertyOptions?.length) {
-        this.currentPropertyOptions = structuredClone(this.propertyOptions);
-      }
-      this.resetValues();
-      this.$refs.dropdownListDrawer.open();
-    },
-    resetValues() {
-      this.propertyValue = '';
-      this.enableWriteValue = false;
-    },
-    close() {
-      this.$refs.dropdownListDrawer.close();
-    },
-    resetTranslations() {
-      this.propertyOptions = structuredClone(this.currentPropertyOptions);
-    }
-  }
-};
+  };
 </script>

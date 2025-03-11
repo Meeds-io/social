@@ -20,53 +20,55 @@
 
 -->
 <template>
-  <div class="text-no-wrap">{{ formattedValue }}{{ kSuffix || '' }}</div>
+  <div class="text-no-wrap">
+    {{ formattedValue }}{{ kSuffix || '' }}
+  </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Number,
-      default: () => 0,
+  export default {
+    props: {
+      value: {
+        type: Number,
+        default: () => 0,
+      },
+      defaultValue: {
+        type: String,
+        default: () => '0',
+      },
+      lang: {
+        type: String,
+        default: () => eXo.env.portal.language,
+      },
+      minDigits: {
+        type: Number,
+        default: () => 0,
+      },
+      maxDigits: {
+        type: Number,
+        default: () => 0,
+      },
+      useKSuffix: {
+        type: Boolean,
+        default: false,
+      },
+      format: {
+        type: Object,
+        default: () => ({
+          style: 'decimal',
+        }),
+      },
     },
-    defaultValue: {
-      type: String,
-      default: () => '0',
+    computed: {
+      kSuffix () {
+        return this.useKSuffix && this.value && Number(this.value) > 999 ? 'k' : null;
+      },
+      formattedValue () {
+        return this.value && new Intl.NumberFormat(this.lang, {
+          ...this.format,
+          minimumFractionDigits: this.minDigits,
+          maximumFractionDigits: this.maxDigits,
+        }).format(this.kSuffix ? parseInt(Number(this.value) / 1000) : this.value) || this.defaultValue;
+      },
     },
-    lang: {
-      type: String,
-      default: () => eXo.env.portal.language,
-    },
-    minDigits: {
-      type: Number,
-      default: () => 0,
-    },
-    maxDigits: {
-      type: Number,
-      default: () => 0,
-    },
-    useKSuffix: {
-      type: Boolean,
-      default: false,
-    },
-    format: {
-      type: Object,
-      default: () => ({
-        style: 'decimal',
-      }),
-    },
-  },
-  computed: {
-    kSuffix() {
-      return this.useKSuffix && this.value && Number(this.value) > 999 ? 'k' : null;
-    },
-    formattedValue() {
-      return this.value && new Intl.NumberFormat(this.lang, {
-        ...this.format,
-        minimumFractionDigits: this.minDigits,
-        maximumFractionDigits: this.maxDigits,
-      }).format(this.kSuffix ? parseInt(Number(this.value) / 1000) : this.value) || this.defaultValue;
-    },
-  },
-};
+  };
 </script>

@@ -22,11 +22,11 @@
   <v-hover
     v-slot="{ hover }">
     <v-card
-      :class="hover && 'elevation-2'"
       class="mx-auto d-flex flex-column border-box-sizing chartCompactUserCard"
-      width="268"
+      :class="hover && 'elevation-2'"
       height="85"
       outlined
+      width="268"
       @click="$emit('click')">
       <div>
         <v-list-item class="px-2">
@@ -34,8 +34,8 @@
             class="me-2 mb-auto"
             size="35">
             <v-img
-              :src="`${avatarUrl}&size=35x35`"
-              :lazy-src="avatarUrl" />
+              :lazy-src="avatarUrl"
+              :src="`${avatarUrl}&size=35x35`" />
           </v-list-item-avatar>
           <v-list-item-content class="pb-0 pt-1">
             <v-list-item-title
@@ -73,36 +73,36 @@
 </template>
 
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: null
-    }
-  },
-  computed: {
-    enabled() {
-      return this.user?.enabled;
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
     },
-    primaryProperty() {
-      return this.user?.primaryProperty;
-    },
-    bannerUrl() {
-      return this.user?.banner;
-    },
-    avatarUrl() {
-      return this.user?.avatar;
-    },
-    fullName() {
-      return this.user?.fullname;
-    },
-    managedUsersCount() {
-      return !this.user?.managedUsersCount && '0' || this.user?.managedUsersCount < 99
+    computed: {
+      enabled () {
+        return this.user?.enabled;
+      },
+      primaryProperty () {
+        return this.user?.primaryProperty;
+      },
+      bannerUrl () {
+        return this.user?.banner;
+      },
+      avatarUrl () {
+        return this.user?.avatar;
+      },
+      fullName () {
+        return this.user?.fullname;
+      },
+      managedUsersCount () {
+        return !this.user?.managedUsersCount && '0' || this.user?.managedUsersCount < 99
           && this.user?.managedUsersCount || '+99';
+      },
+      externalUser () {
+        return this.user?.external === 'true';
+      },
     },
-    externalUser() {
-      return this.user?.external === 'true';
-    },
-  }
-};
+  };
 </script>

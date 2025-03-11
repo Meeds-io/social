@@ -28,7 +28,9 @@
     <template #title>
       {{ $t('spaceList.advanced.filter.drawer.title') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="d-flex flex-column">
         <div class="text-header mx-4 mt-4">
           {{ $t('spaceList.advanced.filter.spaceType.label') }}
@@ -36,13 +38,13 @@
         <v-radio-group
           v-model="filter"
           class="mt-2 ms-3"
-          mandatory
-          inset>
+          inset
+          mandatory>
           <v-radio
             v-for="spaceFilter in spaceFilters"
             :key="spaceFilter.value"
-            :value="spaceFilter.value"
-            class="mt-0">
+            class="mt-0"
+            :value="spaceFilter.value">
             <template #label>
               <div class="text-body">
                 {{ spaceFilter.text }}
@@ -70,59 +72,59 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    filter: null,
-  }),
-  computed: {
-    spaceFilters() {
-      const spaceFilters = [{
-        text: this.$t('spacesList.filter.all'),
-        value: 'all',
-      },{
-        text: this.$t('spacesList.filter.userSpaces'),
-        value: 'member',
-      },{
-        text: this.$t('spacesList.filter.managingSpaces'),
-        value: 'manager',
-      },{
-        text: this.$t('spacesList.filter.favoriteSpaces'),
-        value: 'favorite',
-      }];
-      if (this.$root.invitationsCount) {
-        spaceFilters.push({
-          text: this.$t('spacesList.filter.invitedSpaces'),
-          value: 'invited',
-        });
-      }
-      if (this.$root.pendingCount) {
-        spaceFilters.push({
-          text: this.$t('spacesList.filter.pendingSpaces'),
-          value: 'pending',
-        });
-      }
-      return spaceFilters;
+  export default {
+    data: () => ({
+      drawer: false,
+      filter: null,
+    }),
+    computed: {
+      spaceFilters () {
+        const spaceFilters = [{
+          text: this.$t('spacesList.filter.all'),
+          value: 'all',
+        },{
+          text: this.$t('spacesList.filter.userSpaces'),
+          value: 'member',
+        },{
+          text: this.$t('spacesList.filter.managingSpaces'),
+          value: 'manager',
+        },{
+          text: this.$t('spacesList.filter.favoriteSpaces'),
+          value: 'favorite',
+        }];
+        if (this.$root.invitationsCount) {
+          spaceFilters.push({
+            text: this.$t('spacesList.filter.invitedSpaces'),
+            value: 'invited',
+          });
+        }
+        if (this.$root.pendingCount) {
+          spaceFilters.push({
+            text: this.$t('spacesList.filter.pendingSpaces'),
+            value: 'pending',
+          });
+        }
+        return spaceFilters;
+      },
     },
-  },
-  created() {
-    this.$root.$on('spaces-list-filter-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-filter-open', this.open);
-  },
-  methods: {
-    open(filter) {
-      this.filter = filter;
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('spaces-list-filter-open', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    beforeUnmount () {
+      this.$root.$off('spaces-list-filter-open', this.open);
     },
-    apply() {
-      this.$root.$emit('spaces-list-filter-update', this.filter);
-      this.close();
+    methods: {
+      open (filter) {
+        this.filter = filter;
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      apply () {
+        this.$root.$emit('spaces-list-filter-update', this.filter);
+        this.close();
+      },
     },
-  },
-};
+  };
 </script>

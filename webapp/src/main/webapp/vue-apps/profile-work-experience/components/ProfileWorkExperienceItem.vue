@@ -1,32 +1,37 @@
 <template>
   <v-timeline-item
-    color="secondary"
-    class="workExperienceTimeLineItem">
+    class="workExperienceTimeLineItem"
+    color="secondary">
     <v-row class="ma-0">
       <v-col
+        class="px-0"
         cols="12"
-        sm="3"
-        class="px-0">
+        sm="3">
         <div class="text-color font-weight-bold">
           {{ experience.position }}
         </div>
         <div>
           {{ experience.company }}
         </div>
-        <div v-if="displayedFromDate" class="workExperienceTimeLineItemTime text-subtitle">
+        <div
+          v-if="displayedFromDate"
+          class="workExperienceTimeLineItemTime text-subtitle">
           {{ displayedFromDate }}
         </div>
-        <div v-if="displayedToDate" class="workExperienceTimeLineItemTime text-subtitle">
+        <div
+          v-if="displayedToDate"
+          class="workExperienceTimeLineItemTime text-subtitle">
           {{ displayedToDate }}
         </div>
       </v-col>
       <v-col class="px-0 px-sm-3">
-        <v-card flat tile>
+        <v-card
+          flat
+          tile>
           <v-card-text class="pa-0">
             <div
               v-autolinker="experience.description"
-              class="text-color mb-4">
-            </div>
+              class="text-color mb-4"></div>
             <template v-if="experience.skills">
               <div class="text-color font-weight-bold">
                 {{ $t('profileWorkExperiences.appliedSkills') }} :
@@ -43,49 +48,49 @@
 </template>
 
 <script>
-export default {
-  props: {
-    experience: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      experience: {
+        type: Object,
+        default: () => null,
+      },
     },
-  },
-  data: () => ({
-    dateFormat: {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    },
-  }),
-  computed: {
-    displayedFromDate() {
-      if (!this.experience.startDate) {
-        return null;
-      }
-      if (this.experience.isCurrent) {
-        const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
-        const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
-        return this.$t('profileWorkExperiences.since', {
-          0: startDate,
+    data: () => ({
+      dateFormat: {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      },
+    }),
+    computed: {
+      displayedFromDate () {
+        if (!this.experience.startDate) {
+          return null;
+        }
+        if (this.experience.isCurrent) {
+          const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+          const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
+          return this.$t('profileWorkExperiences.since', {
+            0: startDate,
+          });
+        } else {
+          const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+          const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
+          return this.$t('profileWorkExperiences.from', {
+            0: startDate,
+          });
+        }
+      },
+      displayedToDate () {
+        if (!this.experience.endDate || this.experience.isCurrent) {
+          return null;
+        }
+        const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
+        const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
+        return this.$t('profileWorkExperiences.to', {
+          0: endDate,
         });
-      } else {
-        const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
-        const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
-        return this.$t('profileWorkExperiences.from', {
-          0: startDate,
-        });
-      }
+      },
     },
-    displayedToDate() {
-      if (!this.experience.endDate || this.experience.isCurrent) {
-        return null;
-      }
-      const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
-      const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
-      return this.$t('profileWorkExperiences.to', {
-        0: endDate,
-      });
-    },
-  },
-};
+  };
 </script>

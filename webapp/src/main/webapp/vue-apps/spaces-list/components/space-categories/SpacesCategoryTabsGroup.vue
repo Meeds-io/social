@@ -21,7 +21,9 @@
 
 -->
 <template>
-  <div v-if="categoriesSize" class="my-4 mx-5 position-relative">
+  <div
+    v-if="categoriesSize"
+    class="my-4 mx-5 position-relative">
     <v-tabs
       v-model="selectedIndex"
       class="position-relative z-index-one"
@@ -43,49 +45,49 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    selectedCategory: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      selectedCategory: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    selectedIndex: 0,
-  }),
-  computed: {
-    categories() {
-      return this.selectedCategory?.categories || [];
+    data: () => ({
+      selectedIndex: 0,
+    }),
+    computed: {
+      categories () {
+        return this.selectedCategory?.categories || [];
+      },
+      categoriesSize () {
+        return this.categories?.length || 0;
+      },
+      selectedCategoryId () {
+        return this.$root.selectedCategoryId;
+      },
     },
-    categoriesSize() {
-      return this.categories?.length || 0;
+    watch: {
+      selectedCategoryId () {
+        this.updateSelectedIndex();
+      },
+      categories () {
+        this.updateSelectedIndex();
+      },
     },
-    selectedCategoryId() {
-      return this.$root.selectedCategoryId;
-    },
-  },
-  watch: {
-    selectedCategoryId() {
+    mounted () {
       this.updateSelectedIndex();
     },
-    categories() {
-      this.updateSelectedIndex();
+    methods: {
+      async updateSelectedIndex () {
+        const index = this.categories.findIndex(cat => cat.id === this.selectedCategoryId || cat?.categories?.find(subCat => subCat.id === this.selectedCategoryId)) + 1;
+        if (index > 0) {
+          this.selectedIndex = 0;
+          await this.$nextTick();
+          this.selectedIndex = index;
+        } else {
+          this.selectedIndex = 0;
+        }
+      },
     },
-  },
-  mounted() {
-    this.updateSelectedIndex();
-  },
-  methods: {
-    async updateSelectedIndex() {
-      const index = this.categories.findIndex(cat => cat.id === this.selectedCategoryId || cat?.categories?.find(subCat => subCat.id === this.selectedCategoryId)) + 1;
-      if (index > 0) {
-        this.selectedIndex = 0;
-        await this.$nextTick();
-        this.selectedIndex = index;
-      } else {
-        this.selectedIndex = 0;
-      }
-    },
-  },
-};
+  };
 </script>

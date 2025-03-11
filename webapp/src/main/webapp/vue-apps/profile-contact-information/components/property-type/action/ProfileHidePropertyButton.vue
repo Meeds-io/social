@@ -24,28 +24,28 @@
     <template #activator="{ on, attrs }">
       <div
         v-bind="attrs"
-        v-on="on"
-        class="d-inline-block">
+        class="d-inline-block"
+        v-on="on">
         <v-btn
           v-if="!isHidden"
+          :aria-label="$t('profileContactInformation.hide.property.label')"
           :disabled="!isHiddenable"
           icon
-          :aria-label="$t('profileContactInformation.hide.property.label')"
           @click="hideProperty">
           <v-icon
-            size="18"
-            class="icon-default-color">
+            class="icon-default-color"
+            size="18">
             fas fa-eye
           </v-icon>
         </v-btn>
         <v-btn
           v-else
-          icon
           :aria-label="$t('profileContactInformation.show.property.label')"
+          icon
           @click="showProperty">
           <v-icon
-            size="18"
-            class="icon-default-color">
+            class="icon-default-color"
+            size="18">
             fas fa-eye-slash
           </v-icon>
         </v-btn>
@@ -67,31 +67,31 @@
 </template>
 
 <script>
-export default {
-  props: {
-    property: {
-      type: Object,
-      default: null
-    }
-  },
-  computed: {
-    isHiddenable() {
-      return this.property?.hiddenable;
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: null,
+      },
     },
-    isHidden() {
-      return this.property?.hidden;
+    computed: {
+      isHiddenable () {
+        return this.property?.hiddenable;
+      },
+      isHidden () {
+        return this.property?.hidden;
+      },
+      isNew () {
+        return this.property?.isNew;
+      },
     },
-    isNew() {
-      return this.property?.isNew;
-    }
-  },
-  methods: {
-    hideProperty() {
-      this.$root.$emit('hide-profile-property', this.property);
+    methods: {
+      hideProperty () {
+        this.$root.$emit('hide-profile-property', this.property);
+      },
+      showProperty () {
+        this.$root.$emit('show-profile-property', this.property);
+      },
     },
-    showProperty() {
-      this.$root.$emit('show-profile-property', this.property);
-    }
-  }
-};
+  };
 </script>

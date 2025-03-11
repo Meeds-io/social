@@ -20,24 +20,26 @@
 -->
 <template>
   <v-card
-    elevation="2"
+    id="identity-popover"
     class="pa-2 space-popover card-border-radius"
+    elevation="2"
     max-width="250"
     min-width="250"
-    id="identity-popover"
     @mouseenter="$root.$emit('popover-hovered')"
     @mouseleave="$root.$emit('popover-not-hovered')">
     <v-list-item class="px-2">
       <v-list-item-content class="py-0">
         <v-list-item-title>
           <exo-space-avatar
-            :space="space"
-            :size="45"
             bold-title
             link-style
+            :size="45"
+            :space="space"
             subtitle-new-line>
-            <template slot="subTitle">
-              <span v-if="spaceMembersCount" class="caption text-bold">
+            <template #subTitle>
+              <span
+                v-if="spaceMembersCount"
+                class="caption text-bold">
                 {{ spaceMembersCount }} {{ $t('UIActivity.label.Members') }}
               </span>
             </template>
@@ -51,119 +53,118 @@
     </v-list-item>
     <div class="d-flex justify-end">
       <space-mute-notification-button
-        :space-id="spaceId"
         :muted="isSpaceMuted"
-        origin="spacePopoverAction" />
+        origin="spacePopoverAction"
+        :space-id="spaceId" />
       <space-favorite-action
         v-if="isSpaceMember"
         :key="space.id"
         :is-favorite="space.isFavorite"
         :space-id="space.id" />
       <extension-registry-components
-        :params="params"
         class="d-flex"
-        name="SpacePopover"
-        type="space-popover-action"
-        parent-element="div"
         element="div"
-        element-class="mx-auto ma-lg-0" />
+        element-class="mx-auto ma-lg-0"
+        name="SpacePopover"
+        :params="params"
+        parent-element="div"
+        type="space-popover-action" />
       <div
         v-for="extension in enabledExtensionComponents"
         :key="extension.key"
-        :class="`${extension.appClass} ${extension.typeClass}`"
-        :ref="extension.key">
-      </div>
+        :ref="extension.key"
+        :class="`${extension.appClass} ${extension.typeClass}`"></div>
     </div>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    retrievedSpace: null,
-    externalExtensions: [],
-  }),
-  computed: {
-    enabledExtensionComponents() {
-      return this.externalExtensions.filter(extension => extension.enabled);
+    data: () => ({
+      retrievedSpace: null,
+      externalExtensions: [],
+    }),
+    computed: {
+      enabledExtensionComponents () {
+        return this.externalExtensions.filter(extension => extension.enabled);
+      },
+      spaceId () {
+        return this.space?.id;
+      },
+      spacePrettyName () {
+        return this.space?.prettyName;
+      },
+      spaceMembersCount () {
+        return this.space?.membersCount || this.retrievedSpace?.membersCount;
+      },
+      spaceDescription () {
+        return this.space?.description || this.retrievedSpace?.description;
+      },
+      isSpaceMember () {
+        return this.space?.isMember || this.retrievedSpace?.isMember;
+      },
+      isSpaceMuted () {
+        return this.space?.isMuted === 'true' || this.retrievedSpace?.isMuted === 'true';
+      },
+      canRedactOnSpace () {
+        return this.retrievedSpace ? this.retrievedSpace?.canRedactOnSpace : this.space?.canRedactOnSpace;
+      },
+      params () {
+        return {
+          identityType: 'space',
+          identityId: this.spaceId,
+          spacePrettyName: this.spacePrettyName,
+          canRedactOnSpace: this.canRedactOnSpace,
+        };
+      },
     },
-    spaceId() {
-      return this.space?.id;
+    watch: {
+      spaceId: {
+        immediate: true,
+        handler (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            this.refreshExtensions();
+          }
+        },
+      },
     },
-    spacePrettyName() {
-      return this.space?.prettyName;
+    created () {
+      this.init();
     },
-    spaceMembersCount() {
-      return this.space?.membersCount || this.retrievedSpace?.membersCount;
-    },
-    spaceDescription() {
-      return this.space?.description || this.retrievedSpace?.description;
-    },
-    isSpaceMember() {
-      return this.space?.isMember || this.retrievedSpace?.isMember;
-    },
-    isSpaceMuted() {
-      return this.space?.isMuted === 'true' || this.retrievedSpace?.isMuted === 'true';
-    },
-    canRedactOnSpace() {
-      return this.retrievedSpace ? this.retrievedSpace?.canRedactOnSpace : this.space?.canRedactOnSpace;
-    },
-    params() {
-      return {
-        identityType: 'space',
-        identityId: this.spaceId,
-        spacePrettyName: this.spacePrettyName,
-        canRedactOnSpace: this.canRedactOnSpace,
-      };
-    },
-  },
-  watch: {
-    spaceId: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          this.refreshExtensions();
+    methods: {
+      async init () {
+        if (this.spaceId && !Object.hasOwn(this.space, 'membersCount')) {
+          this.retrievedSpace = await this.$spaceService.getSpaceById(this.spaceId, 'favorite');
+        }
+      },
+      refreshExtensions () {
+        this.externalExtensions = [];
+        this.$nextTick(() => {
+          this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
+          this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
+        });
+        // workaround for menu v-select absolute content that must be displayed inside the menu
+        $('.profile-popover-menu').css('height', 'auto');
+      },
+      initExtensionAction (extension) {
+        if (extension.enabled) {
+          let container = this.$refs[extension.key];
+          if (container && container.length > 0) {
+            container = container[0];
+            extension.init(container, this.space.prettyName);
+          } else {
+           
+            console.error(
+              `Error initialization of the ${extension.key} action component: empty container`
+            );
+          }
         }
       },
     },
-  },
-  created() {
-    this.init();
-  },
-  methods: {
-    async init() {
-      if (this.spaceId && !Object.hasOwn(this.space, 'membersCount')) {
-        this.retrievedSpace = await this.$spaceService.getSpaceById(this.spaceId, 'favorite');
-      }
-    },
-    refreshExtensions() {
-      this.externalExtensions = [];
-      this.$nextTick(() => {
-        this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
-        this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
-      });
-      // workaround for menu v-select absolute content that must be displayed inside the menu
-      $('.profile-popover-menu').css('height', 'auto');
-    },
-    initExtensionAction(extension) {
-      if (extension.enabled) {
-        let container = this.$refs[extension.key];
-        if (container && container.length > 0) {
-          container = container[0];
-          extension.init(container, this.space.prettyName);
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(
-            `Error initialization of the ${extension.key} action component: empty container`
-          );
-        }
-      }
-    },
-  }
-};
+  };
 </script>

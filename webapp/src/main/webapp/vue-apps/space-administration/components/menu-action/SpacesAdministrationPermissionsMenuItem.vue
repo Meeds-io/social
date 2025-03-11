@@ -25,9 +25,11 @@
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      min-width="20"
-      flat>
-      <v-icon size="16">fa-shield-alt</v-icon>
+      flat
+      min-width="20">
+      <v-icon size="16">
+        fa-shield-alt
+      </v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
       {{ $t('social.spaces.administration.manageSpaces.permissions') }}
@@ -35,12 +37,12 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

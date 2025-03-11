@@ -2,10 +2,10 @@ export const avatarExcceedsLimitError = 'AVATAR_EXCEEDS_LIMIT';
 export const bannerExcceedsLimitError = 'BANNER_EXCEEDS_LIMIT';
 export const MAX_RANDOM_NUMBER = 100000;
 
-export function getUploadProgress(uploadId) {
+export function getUploadProgress (uploadId) {
   return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=progress`, {
     method: 'GET',
-    credentials: 'include'
+    credentials: 'include',
   }).then(resp => {
     return resp && resp.ok && resp.text();
   }).then(data => {
@@ -22,21 +22,21 @@ export function getUploadProgress(uploadId) {
   });
 }
 
-export function deleteUpload(uploadId) {
+export function deleteUpload (uploadId) {
   return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=delete`, {
     method: 'POST',
-    credentials: 'include'
+    credentials: 'include',
   });
 }
 
-export function abortUpload(uploadId) {
+export function abortUpload (uploadId) {
   return fetch(`${eXo.env.portal.context}/upload?uploadId=${uploadId}&action=abort`, {
     method: 'POST',
-    credentials: 'include'
+    credentials: 'include',
   });
 }
 
-export function upload(file, uploadId, signal) {
+export function upload (file, uploadId, signal) {
   if (!uploadId) {
     uploadId = generateRandomId();
   }
@@ -56,7 +56,7 @@ export function upload(file, uploadId, signal) {
   return fetch(uploadUrl, headers).then(resp => resp && resp.ok && uploadId);
 }
 
-export function generateRandomId() {
+export function generateRandomId () {
   const random = Math.round(Math.random() * MAX_RANDOM_NUMBER);
   const now = Date.now();
   return `${random}-${now}`;

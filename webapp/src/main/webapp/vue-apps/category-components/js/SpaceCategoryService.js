@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export async function updateCategories(spaceId, oldCategories, newCategories, dropExisting) {
+export async function updateCategories (spaceId, oldCategories, newCategories, dropExisting) {
   let result = true;
   if (newCategories.length) {
     const linkIds = newCategories.filter(id => oldCategories.indexOf(id) < 0);
@@ -26,7 +26,7 @@ export async function updateCategories(spaceId, oldCategories, newCategories, dr
       for (let i = 0; i < linkIds.length; i++) {
         const id = linkIds[i];
         // Sequentially update links
-        // eslint-disable-next-line no-await-in-loop
+         
         const linkResult = await Vue.prototype.$categoryLinkService.link(id, {
           type: 'space',
           id: spaceId,
@@ -42,7 +42,7 @@ export async function updateCategories(spaceId, oldCategories, newCategories, dr
       for (let i = 0; i < unlinkIds.length; i++) {
         const id = unlinkIds[i];
         // Sequentially update links
-        // eslint-disable-next-line no-await-in-loop
+         
         const unlinkResult = await Vue.prototype.$categoryLinkService.unlink(id, {
           type: 'space',
           id: spaceId,

@@ -25,30 +25,30 @@
     dense>
     <v-list-item
       v-if="hasPage || hasChildren && childrenHasPage"
-      :href="navigationNodeUri"
-      :target="navigationNodeTarget"
-      :rel="navigationNodeRel"
-      :link="!!hasPage"
       class="pt-0 pb-0 transparent"
+      :href="navigationNodeUri"
+      :link="!!hasPage"
+      :rel="navigationNodeRel"
+      :target="navigationNodeTarget"
       @click="checkLink">
       <v-menu
         v-model="showMenu"
-        rounded
+        absolute
         :content-class="isTopBarElement && 'layout-top-bar' || ''"
+        eager
+        :left="$vuetify.rtl"
+        offset-x
+        :open-on-hover="isOpenedOnHover"
         :position-x="positionX"
         :position-y="positionY"
-        transition="slide-x-reverse-transition"
-        :left="$vuetify.rtl"
-        :open-on-hover="isOpenedOnHover"
-        absolute
-        eager
-        offset-x>
+        rounded
+        transition="slide-x-reverse-transition">
         <template #activator="{ attrs, on }">
           <v-list-item-title
-            v-on="on"
             v-bind="attrs"
             class="pt-5 pb-5"
             :class="hasPage && ' ' || ' not-clickable '"
+            v-on="on"
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true">
             <span class="text-body">{{ navigation.label }}</span>
@@ -58,8 +58,8 @@
             class="ms-0 me-n2 ma-auto full-height"
             @mouseover="showMenu = true">
             <v-btn
-              v-on="on"
               icon
+              v-on="on"
               @click.stop.prevent="showMenu = !showMenu">
               <v-icon
                 size="18">
@@ -70,139 +70,139 @@
         </template>
         <navigation-menu-sub-item
           v-for="children in navigation.children"
-          class="transparent"
           :key="children.id"
+          :base-site-uri="baseSiteUri"
+          class="transparent"
           :navigation="children"
           :parent-navigation-uri="parentNavigationUri"
-          :base-site-uri="baseSiteUri"
           :selected-path="selectedPath"
-          @update-navigation-state="updateNavigationState"
-          @select="$emit('select')" />
+          @select="$emit('select')"
+          @update-navigation-state="updateNavigationState" />
       </v-menu>
     </v-list-item>
   </v-list>
 </template>
 
 <script>
-export default {
-  props: {
-    navigation: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      navigation: {
+        type: Object,
+        default: null,
+      },
+      baseSiteUri: {
+        type: String,
+        default: null,
+      },
+      parentNavigationUri: {
+        type: String,
+        default: null,
+      },
+      selectedPath: {
+        type: String,
+        default: null,
+      },
     },
-    baseSiteUri: {
-      type: String,
-      default: null
+    data () {
+      return {
+        isOpenedOnHover: true,
+        showMenu: false,
+        positionX: 0,
+        positionY: 0,
+      };
     },
-    parentNavigationUri: {
-      type: String,
-      default: null
+    computed: {
+      hasChildren () {
+        return this.navigation?.children?.length;
+      },
+      hasPage () {
+        return !!this.navigation?.pageKey;
+      },
+      childrenHasPage () {
+        return this.checkChildrenHasPage(this.navigation);
+      },
+      navigationNodeUri () {
+        return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+      },
+      navigationNodeTarget () {
+        return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+      },
+      navigationNodeRel () {
+        return this.$navigationUtils.getNavigationNodeRel(this.navigation);
+      },
+      isSelected () {
+        return this.navigationNodeUri === this.selectedPath;
+      },
+      isTopBarElement () {
+        return this.$root.isTopBarElement;
+      },
     },
-    selectedPath: {
-      type: String,
-      default: null
+    watch: {
+      isSelected: {
+        immediate: true,
+        handler () {
+          if (this.isSelected) {
+            this.$emit('select');
+          }
+        },
+      },
+      showMenu () {
+        this.isOpenedOnHover = !this.showMenu;
+        this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
+        this.positionY = this.$el.getBoundingClientRect().top;
+        this.$root.$emit('close-sibling-drop-menus-children', this);
+      },
+      hasPage () {
+        return !!this.navigation?.pageKey;
+      },
     },
-  },
-  data() {
-    return {
-      isOpenedOnHover: true,
-      showMenu: false,
-      positionX: 0,
-      positionY: 0,
-    };
-  },
-  computed: {
-    hasChildren() {
-      return this.navigation?.children?.length;
+    created () {
+      window.addEventListener('resize', this.updateSize);
+      this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
     },
-    hasPage() {
-      return !!this.navigation?.pageKey;
-    },
-    childrenHasPage() {
-      return this.checkChildrenHasPage(this.navigation);
-    },
-    navigationNodeUri() {
-      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
-    },
-    navigationNodeTarget() {
-      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
-    },
-    navigationNodeRel() {
-      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
-    },
-    isSelected() {
-      return this.navigationNodeUri === this.selectedPath;
-    },
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
-  },
-  watch: {
-    isSelected: {
-      immediate: true,
-      handler() {
-        if (this.isSelected) {
-          this.$emit('select');
-        }
-      }
-    },
-    showMenu() {
-      this.isOpenedOnHover = !this.showMenu;
-      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right);
-      this.positionY = this.$el.getBoundingClientRect().top;
-      this.$root.$emit('close-sibling-drop-menus-children', this);
-    },
-    hasPage() {
-      return !!this.navigation?.pageKey;
-    },
-  },
-  created() {
-    window.addEventListener('resize', this.updateSize);
-    this.$root.$on('close-sibling-drop-menus-children', this.handleCloseSiblingMenus);
-  },
-  methods: {
-    checkLink(e) {
-      if (!this.navigationNodeUri) {
-        e.stopPropagation();
-        e.preventDefault();
-      } else {
-        this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
-      }
-      if (this.navigationNodeUri?.includes?.('#')) {
-        if (this.navigationNodeTarget === '_blank') {
-          window.open(this.navigationNodeUri);
+    methods: {
+      checkLink (e) {
+        if (!this.navigationNodeUri) {
+          e.stopPropagation();
+          e.preventDefault();
         } else {
-          window.location.href = this.navigationNodeUri;
+          this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
         }
-      }
-    },
-    updateNavigationState(value) {
-      this.$emit('update-navigation-state', value);
-    },
-    checkChildrenHasPage(navigation) {
-      let childrenHasPage = false;
-      navigation.children.forEach(child => {
-        if (childrenHasPage === true) {
-          return;
+        if (this.navigationNodeUri?.includes?.('#')) {
+          if (this.navigationNodeTarget === '_blank') {
+            window.open(this.navigationNodeUri);
+          } else {
+            window.location.href = this.navigationNodeUri;
+          }
         }
-        if (child.pageKey) {
-          childrenHasPage = true;
-        } else if (child.children.length > 0) {
-          childrenHasPage = this.checkChildrenHasPage(child);
-        } else {
-          childrenHasPage = false;
+      },
+      updateNavigationState (value) {
+        this.$emit('update-navigation-state', value);
+      },
+      checkChildrenHasPage (navigation) {
+        let childrenHasPage = false;
+        navigation.children.forEach(child => {
+          if (childrenHasPage === true) {
+            return;
+          }
+          if (child.pageKey) {
+            childrenHasPage = true;
+          } else if (child.children.length > 0) {
+            childrenHasPage = this.checkChildrenHasPage(child);
+          } else {
+            childrenHasPage = false;
+          }
+        });
+        return childrenHasPage;
+      },
+      handleCloseSiblingMenus (emitter) {
+        if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
+          this.showMenu = false;
         }
-      });
-      return childrenHasPage;
+      },
+      updateSize () {
+        this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
+      },
     },
-    handleCloseSiblingMenus(emitter) {
-      if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
-        this.showMenu = false;
-      }
-    },
-    updateSize() {
-      this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
-    }
-  }
-};
+  };
 </script>

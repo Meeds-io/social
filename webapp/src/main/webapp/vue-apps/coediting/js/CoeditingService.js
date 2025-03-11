@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getLockHolders(objectType, objectId) {
+export function getLockHolders (objectType, objectId) {
   return fetch(`/social/rest/coediting/${objectType}/${objectId}/locks`, {
     method: 'GET',
     credentials: 'include',
@@ -30,7 +30,7 @@ export function getLockHolders(objectType, objectId) {
   });
 }
 
-export function getRevision(objectType, objectId) {
+export function getRevision (objectType, objectId) {
   return fetch(`/social/rest/coediting/${objectType}/${objectId}`, {
     method: 'GET',
     credentials: 'include',
@@ -43,7 +43,7 @@ export function getRevision(objectType, objectId) {
   });
 }
 
-export function setLock(objectType, objectId, revision) {
+export function setLock (objectType, objectId, revision) {
   return fetch(`/social/rest/coediting/${objectType}/${objectId}`, {
     method: 'POST',
     headers: {
@@ -58,7 +58,7 @@ export function setLock(objectType, objectId, revision) {
   });
 }
 
-export function removeRevision(objectType, objectId) {
+export function removeRevision (objectType, objectId) {
   return fetch(`/social/rest/coediting/${objectType}/${objectId}`, {
     method: 'DELETE',
     credentials: 'include',

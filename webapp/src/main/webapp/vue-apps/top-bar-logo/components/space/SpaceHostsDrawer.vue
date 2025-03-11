@@ -19,32 +19,38 @@
 
 -->
 <template>
-  <exo-drawer ref="managersDrawer" right>
-    <template slot="title">
+  <exo-drawer
+    ref="managersDrawer"
+    right>
+    <template #title>
       {{ $t('spacesList.title.managers') }}
     </template>
-    <template v-if="displaySpaceHosts" slot="content">
-      <v-layout column class="ma-3">
+    <template
+      v-if="displaySpaceHosts"
+      #content>
+      <v-layout
+        class="ma-3"
+        column>
         <exo-user-avatar
           v-for="host in displaySpaceHosts"
           :key="host.id"
-          :profile-id="host.userName"
           :extra-class="'my-2'"
-          popover />
+          popover
+          :profile-id="host.userName" />
       </v-layout>
     </template>
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    displaySpaceHosts: null,
-  }),
-  mounted() {
-    this.$root.$on('displaySpaceHosts', displaySpaceHosts => {
-      this.displaySpaceHosts = displaySpaceHosts;
-      this.$refs.managersDrawer.open();
-    });
-  }
-};
+  export default {
+    data: () => ({
+      displaySpaceHosts: null,
+    }),
+    mounted () {
+      this.$root.$on('displaySpaceHosts', displaySpaceHosts => {
+        this.displaySpaceHosts = displaySpaceHosts;
+        this.$refs.managersDrawer.open();
+      });
+    },
+  };
 </script>

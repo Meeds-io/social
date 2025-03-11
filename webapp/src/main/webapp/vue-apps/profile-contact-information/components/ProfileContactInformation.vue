@@ -22,8 +22,8 @@
   <v-app
     :class="owner && 'profileContactInformation' || 'profileContactInformationOther'">
     <widget-wrapper
-      :title="title"
-      extra-class="application-body">
+      extra-class="application-body"
+      :title="title">
       <template #action>
         <v-btn
           v-if="owner"
@@ -32,37 +32,39 @@
           outlined
           small
           @click="editContactInformation">
-          <v-icon size="18">fas fa-edit</v-icon>
+          <v-icon size="18">
+            fas fa-edit
+          </v-icon>
         </v-btn>
       </template>
       <v-list
-        :flat="isMobile"
-        class="list-no-selection">
+        class="list-no-selection"
+        :flat="isMobile">
         <v-list-item-group>
           <template
             v-for="property in filteredProperties">
             <v-list-item
               v-if="canShowProperty(property)"
+              :key="property.id"
               class="text-color not-clickable"
               :class="property.hidden && 'opacity-5'"
-              :key="property.id"
               :ripple="false">
               <v-hover v-slot="{ hover }">
                 <profile-multi-valued-property
                   v-if="property.children?.length"
                   :hover="hover"
-                  :owner="owner"
                   :is-admin="isAdmin"
-                  :property="property"
                   :is-mobile="isMobile"
+                  :owner="owner"
+                  :property="property"
                   :searchable="isSearchable(property)"
                   @quick-search="quickSearch" />
                 <profile-single-valued-property
                   v-else
                   :hover="hover"
+                  :is-mobile="isMobile"
                   :property="property"
                   :property-label="getResolvedName(property)"
-                  :is-mobile="isMobile"
                   :searchable="isSearchable(property)"
                   @quick-search="quickSearch" />
               </v-hover>
@@ -86,119 +88,119 @@
 
 <script>
 
-export default {
-  props: {
-    uploadLimit: {
-      type: Number,
-      default: () => 0,
+  export default {
+    props: {
+      uploadLimit: {
+        type: Number,
+        default: () => 0,
+      },
     },
-  },
-  data: () => ({
-    lang: eXo?.env.portal.language,
-    owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
-    properties: [],
-    user: null,
-    excludedSearchProps: [],
-    settings: [],
-    userCardSettings: null
-  }),
-  computed: {
-    isMobile() {
-      return this.$vuetify?.breakpoint?.smAndDown;
+    data: () => ({
+      lang: eXo?.env.portal.language,
+      owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+      properties: [],
+      user: null,
+      excludedSearchProps: [],
+      settings: [],
+      userCardSettings: null,
+    }),
+    computed: {
+      isMobile () {
+        return this.$vuetify?.breakpoint?.smAndDown;
+      },
+      isAdmin () {
+        return this.user?.isAdmin;
+      },
+      filteredProperties () {
+        return this.properties.filter(property => property.visible && !this.excludedDropdown(property, property)
+          && (property.value || (property.children?.some(e => e.value && !this.excludedDropdown(e, property)))));
+      },
+      title () {
+        return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
+      },
+      quickSearchSettingProperties () {
+        return this.settings.filter(settingProperty => this.isSearchable(settingProperty)).map(settingProperty => settingProperty.propertyName);
+      },
     },
-    isAdmin() {
-      return this.user?.isAdmin;
-    },
-    filteredProperties() {
-      return this.properties.filter(property => property.visible && !this.excludedDropdown(property, property)
-               && (property.value || (property.children?.some(e => e.value && !this.excludedDropdown(e, property)))));
-    },
-    title() {
-      return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
-    },
-    quickSearchSettingProperties() {
-      return this.settings.filter(settingProperty => this.isSearchable(settingProperty)).map(settingProperty => settingProperty.propertyName);
-    }
-  },
-  beforeCreate() {
-    return this.$profileSettingsService.getSettings()
-      .then(settings => {
-        this.settings = settings?.settings || [];
-        this.excludedSearchProps = settings?.excludedQuickSearchProperties;
-      });
-  },
-  created() {
-    this.getSavedUserCardSettings();
-    this.refreshProperties();
-    this.getProfileSettings();
-  },
-  mounted() {
-    document.addEventListener('userPropertiesModified', () => {
-      this.refreshProperties(true);
-    });
-
-    if (this.properties) {
-      this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-    }
-  },
-  methods: {
-    getProfileSettings() {
+    beforeCreate () {
       return this.$profileSettingsService.getSettings()
         .then(settings => {
           this.settings = settings?.settings || [];
+          this.excludedSearchProps = settings?.excludedQuickSearchProperties;
         });
     },
-    getSavedUserCardSettings() {
-      return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+    created () {
+      this.getSavedUserCardSettings();
+      this.refreshProperties();
+      this.getProfileSettings();
     },
-    canShowProperty(property) {
-      return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
-    },
-    isPropertyHidden(property) {
-      return property.hidden || (property?.children?.length
-                             && property.children.filter(child => child.value)
-                               .every(child => child.hidden));
-    },
-    isSearchable(property) {
-      return property.propertyType !=='user' && !this.excludedSearchProps?.includes(property.propertyName)
-                         && !new RegExp(`^(${this.excludedSearchProps?.join('.|')}.)`)?.exec(property.propertyName) ;
-    },
-    quickSearch(property, childProperty) {
-      if (this.excludedSearchProps.includes(property.propertyName)) {
-        return;
+    mounted () {
+      document.addEventListener('userPropertiesModified', () => {
+        this.refreshProperties(true);
+      });
+
+      if (this.properties) {
+        this.$nextTick().then(() => this.$root.$emit('application-loaded'));
       }
-      const searchKey = {};
-      searchKey[property.propertyName] = childProperty?.value || property.value;
-      this.$root.$emit('open-quick-search-users-drawer', searchKey, searchKey[property.propertyName]);
     },
-    refreshProperties(broadcast) {
-      return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
-        .then(userdataEntity => {
-          this.user = userdataEntity;
-          this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === true)).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
-          this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-          if (broadcast){
-            document.dispatchEvent(new CustomEvent('userModified', {detail: this.user}));
-          }
-        })
-        .finally(() => this.$root.$applicationLoaded());
-    },
-    editContactInformation() {
-      this.$root.$emit('open-profile-contact-information-drawer', this.properties);
-    },
-    getResolvedName(property) {
-      return property.labels?.find(label => label.language === this.lang)?.label
+    methods: {
+      getProfileSettings () {
+        return this.$profileSettingsService.getSettings()
+          .then(settings => {
+            this.settings = settings?.settings || [];
+          });
+      },
+      getSavedUserCardSettings () {
+        return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+      },
+      canShowProperty (property) {
+        return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
+      },
+      isPropertyHidden (property) {
+        return property.hidden || (property?.children?.length
+          && property.children.filter(child => child.value)
+            .every(child => child.hidden));
+      },
+      isSearchable (property) {
+        return property.propertyType !=='user' && !this.excludedSearchProps?.includes(property.propertyName)
+          && !new RegExp(`^(${this.excludedSearchProps?.join('.|')}.)`)?.exec(property.propertyName) ;
+      },
+      quickSearch (property, childProperty) {
+        if (this.excludedSearchProps.includes(property.propertyName)) {
+          return;
+        }
+        const searchKey = {};
+        searchKey[property.propertyName] = childProperty?.value || property.value;
+        this.$root.$emit('open-quick-search-users-drawer', searchKey, searchKey[property.propertyName]);
+      },
+      refreshProperties (broadcast) {
+        return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
+          .then(userdataEntity => {
+            this.user = userdataEntity;
+            this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === true)).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));
+            this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+            if (broadcast){
+              document.dispatchEvent(new CustomEvent('userModified', { detail: this.user }));
+            }
+          })
+          .finally(() => this.$root.$applicationLoaded());
+      },
+      editContactInformation () {
+        this.$root.$emit('open-profile-contact-information-drawer', this.properties);
+      },
+      getResolvedName (property) {
+        return property.labels?.find(label => label.language === this.lang)?.label
           || (this.$te?.(`profileContactInformation.${property.propertyName}`)
             ? this.$t(`profileContactInformation.${property.propertyName}`)
             : property.propertyName);
+      },
+      getPropertyOption (property, parent) {
+        return parent.dropdownList
+          ? parent.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
+      },
+      excludedDropdown (property, parent) {
+        return !property.children?.length && parent.dropdownList && !this.getPropertyOption(property, parent);
+      },
     },
-    getPropertyOption(property, parent) {
-      return parent.dropdownList
-        ? parent.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
-    },
-    excludedDropdown(property, parent) {
-      return !property.children?.length && parent.dropdownList && !this.getPropertyOption(property, parent);
-    },
-  },
-};
+  };
 </script>

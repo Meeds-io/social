@@ -44,13 +44,13 @@ const urls = [
 
 const appId = 'NotificationAdministration';
 
-export function init(settings) {
+export function init (settings) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
       data: {
-        settings: settings,
+        settings,
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<notification-administration id="${appId}" :languages="settings && settings.languages" />`,

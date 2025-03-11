@@ -24,47 +24,47 @@
     ref="profileSettingFormDrawer"
     right
     @closed="cancel">
-    <template slot="title">
+    <template #title>
       {{ title }}
     </template>
-    <template slot="content">
+    <template #content>
       <v-form
         ref="settingForm"
         v-model="valid"
-        lazy-validation
-        class="form-horizontal pt-0 pb-4">
+        class="form-horizontal pt-0 pb-4"
+        lazy-validation>
         <div class="py-4">
           <label
-            for="settingNameInput"
-            class="mx-4">
+            class="mx-4"
+            for="settingNameInput">
             {{ $t('profileSettings.label.name') }}
             <v-text-field
               ref="settingNameInput"
               v-model="setting.propertyName"
-              :disabled="saving || !newSetting"
               :autofocus="drawer"
-              name="settingNameInput"
               class="pt-3"
-              :placeholder="$t('profileSettings.placeholder.name')"
-              maxlength="2000"
-              outlined
               dense
+              :disabled="saving || !newSetting"
+              maxlength="2000"
+              name="settingNameInput"
+              outlined
+              :placeholder="$t('profileSettings.placeholder.name')"
               :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
           </label>
           <label
-            for="labelsInput"
-            class="mx-4 mt-2">
+            class="mx-4 mt-2"
+            for="labelsInput">
             {{ $t('profileSettings.label.labels') }}
             <profile-property-labels
-              :propertylabels="labels"
-              :languages="languages"
-              :labels-object-type="labelsObjectType"
               :id="setting.id"
-              name="labelsInput" />
+              :labels-object-type="labelsObjectType"
+              :languages="languages"
+              name="labelsInput"
+              :propertylabels="labels" />
           </label>
           <label
-            for="propertyType"
-            class="mx-4">
+            class="mx-4"
+            for="propertyType">
             {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
               bottom
@@ -76,16 +76,16 @@
                   <v-select
                     ref="propertyType"
                     v-model="setting.propertyType"
-                    :items="propertyTypes"
-                    :disabled="!newSetting || isDropdownList"
-                    :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
-                    :rules="[v => !!v || $t('profileSettings.message.field.required')]"
-                    name="propertyType"
                     class="pt-3"
+                    dense
+                    :disabled="!newSetting || isDropdownList"
                     item-text="label"
                     item-value="value"
-                    dense
+                    :items="propertyTypes"
+                    name="propertyType"
                     outlined
+                    :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
+                    :rules="[v => !!v || $t('profileSettings.message.field.required')]"
                     @blur="$refs.propertyType.blur();" />
                 </div>
               </template>
@@ -98,7 +98,9 @@
             </v-tooltip>
           </label>
           <v-list-item class="mt-4">
-            <v-list-item-content transition="fade-transition" class="d-flex activeLabel py-0">
+            <v-list-item-content
+              class="d-flex activeLabel py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.active') }}
@@ -108,14 +110,16 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.active"
-                :disabled="saving"
-                :ripple="false"
+                class="activeSwitcher my-auto"
                 color="primary"
-                class="activeSwitcher my-auto" />
+                :disabled="saving"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex visibleLabel py-0">
+            <v-list-item-content
+              class="d-flex visibleLabel py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.visible') }}
@@ -125,16 +129,16 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.visible"
-                :disabled="saving"
-                :ripple="false"
+                class="visibleSwitcher my-auto"
                 color="primary"
-                class="visibleSwitcher my-auto" />
+                :disabled="saving"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
             <v-list-item-content
-              transition="fade-transition"
-              class="d-flex activeLabel py-0">
+              class="d-flex activeLabel py-0"
+              transition="fade-transition">
               <v-list-item-title
                 class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
@@ -165,13 +169,13 @@
                     v-on="on">
                     <v-switch
                       v-model="setting.hiddenable"
-                      :disabled="saving || unHiddenableSetting"
                       :alt="setting.hiddenable && $t('profileSettings.show.property.alt')
                         || $t('profileSettings.hide.property.alt')"
-                      :ripple="false"
-                      color="primary"
                       :aria-labelledBy="$t('profileSettings.label.hiddenable')"
-                      class="activeSwitcher my-auto" />
+                      class="activeSwitcher my-auto"
+                      color="primary"
+                      :disabled="saving || unHiddenableSetting"
+                      :ripple="false" />
                   </div>
                 </template>
                 <span v-if="setting?.children?.length">
@@ -184,7 +188,9 @@
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex editableLabel py-0">
+            <v-list-item-content
+              class="d-flex editableLabel py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex editableLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.editable') }}
@@ -194,14 +200,16 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.editable"
-                :disabled="saving"
-                :ripple="false"
+                class="editableSwitcher my-auto"
                 color="primary"
-                class="editableSwitcher my-auto" />
+                :disabled="saving"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex requiredField py-0">
+            <v-list-item-content
+              class="d-flex requiredField py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex requiredLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.required') }}
@@ -211,10 +219,10 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.required"
-                :disabled="saving"
-                :ripple="false"
+                class="requiredSwitcher my-auto"
                 color="primary"
-                class="requiredSwitcher my-auto" />
+                :disabled="saving"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-tooltip
@@ -226,9 +234,9 @@
                 v-on="on">
                 <v-list-item>
                   <v-list-item-content
+                    class="d-flex visibleLabel py-0"
                     :class="{'text--disabled': isUserType}"
-                    transition="fade-transition"
-                    class="d-flex visibleLabel py-0">
+                    transition="fade-transition">
                     <v-list-item-title class="d-flex visibleLabel flex-grow-1 text-no-wrap pb-2">
                       <div>
                         {{ $t('profileSettings.label.dropdownList') }}
@@ -237,8 +245,8 @@
                     <v-list-item-subtitle
                       class="mt-n3">
                       <span
-                        :class="{'text--disabled': isUserType}"
-                        class="caption">
+                        class="caption"
+                        :class="{'text--disabled': isUserType}">
                         {{ $t('profileSettings.dropdownList.info') }}
                       </span>
                     </v-list-item-subtitle>
@@ -252,17 +260,17 @@
                         icon
                         @click="openDropdownListDrawer">
                         <v-icon
-                          size="20"
-                          class="icon-default-color">
+                          class="icon-default-color"
+                          size="20">
                           fas fa-edit
                         </v-icon>
                       </v-btn>
                       <v-switch
                         v-model="setting.dropdownList"
+                        class="align-center my-auto"
+                        color="primary"
                         :disabled="saving || isUserType"
                         :ripple="false"
-                        color="primary"
-                        class="align-center my-auto"
                         @change="openDropdownListDrawerOnSwitch" />
                     </div>
                   </v-list-item-action>
@@ -274,27 +282,33 @@
             </span>
           </v-tooltip>
           <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex multiValuedField py-0">
+            <v-list-item-content
+              class="d-flex multiValuedField py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex multiValuedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.multiValued') }}
                 </div>
               </v-list-item-title>
-              <v-list-item-subtitle v-if="setting.default" class="mt-n3">
+              <v-list-item-subtitle
+                v-if="setting.default"
+                class="mt-n3">
                 <span class="caption"> {{ $t('profileSettings.label.attribute.canNotEdit') }} </span>
               </v-list-item-subtitle>
             </v-list-item-content>
             <v-list-item-action>
               <v-switch
                 v-model="setting.multiValued"
-                :disabled="saving || setting.default"
-                :ripple="false"
+                class="requiredSwitcher my-auto"
                 color="primary"
-                class="requiredSwitcher my-auto" />
+                :disabled="saving || setting.default"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
-            <v-list-item-content transition="fade-transition" class="d-flex groupSynchronizedField py-0">
+            <v-list-item-content
+              class="d-flex groupSynchronizedField py-0"
+              transition="fade-transition">
               <v-list-item-title class="d-flex groupSynchronizedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
                   {{ $t('profileSettings.label.groupSynchronized') }}
@@ -304,16 +318,16 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.groupSynchronized"
-                :disabled="saving || !setting.groupSynchronizationEnabled"
-                :ripple="false"
+                class="groupSynchronizedSwitcher my-auto"
                 color="primary"
-                class="groupSynchronizedSwitcher my-auto" />
+                :disabled="saving || !setting.groupSynchronizationEnabled"
+                :ripple="false" />
             </v-list-item-action>
           </v-list-item>
           <v-list-item>
             <v-list-item-content
-              transition="fade-transition"
-              class="d-flex activeLabel py-0">
+              class="d-flex activeLabel py-0"
+              transition="fade-transition">
               <v-list-item-title
                 class="d-flex activedLabel flex-grow-1 text-no-wrap pb-2">
                 <div>
@@ -338,13 +352,13 @@
                     v-on="on">
                     <v-switch
                       v-model="setting.indexInAnalytics"
-                      :disabled="saving || excludedAnalyticsIndexSetting"
                       :alt="$t('profileSettings.label.index.in.analytics')
                         || $t('profileSettings.hide.property.alt')"
-                      :ripple="false"
-                      color="primary"
                       :aria-labelledBy="$t('profileSettings.label.index.in.analytics')"
-                      class="activeSwitcher my-auto" />
+                      class="activeSwitcher my-auto"
+                      color="primary"
+                      :disabled="saving || excludedAnalyticsIndexSetting"
+                      :ripple="false" />
                   </div>
                 </template>
                 {{ $t('profileSettings.label.excluded.index.in.analytics.info') }}
@@ -354,19 +368,19 @@
         </div>
       </v-form>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
+          :disabled="saving"
           @click="cancel">
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
+          class="btn btn-primary"
           :disabled="isSaveButtonDisabled || saving || !valid"
           :loading="saving"
-          class="btn btn-primary"
           @click="saveSetting">
           {{ $t('profileSettings.button.save') }}
         </v-btn>
@@ -377,255 +391,255 @@
 
 <script>
 
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null
-    },
-    unHiddenableProperties: {
-      type: Array,
-      default: () => []
-    },
-    excludedAnalyticsIndexProperties: {
-      type: Array,
-      default: () => []
-    },
-    languages: {
-      type: Object,
-      default: null
-    },
-  },
-  data: () => ({
-    valid: false,
-    fieldError: false,
-    drawer: false,
-    newSetting: false,
-    saving: false,
-    confirmNewPassword: null,
-    setting: {},
-    labels: [],
-    changes: false,
-    labelsObjectType: 'profileProperty',
-    initialSetting: {},
-    initialLabels: [],
-    areLabelsChanged: false,
-    translationsUpdated: false
-  }),
-  computed: {
-    propertyTypes () {
-      return !this.isDropdownList && [
-        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'},
-        {label: this?.$t('profileSettings.label.user.propertyType'), value: 'user'}
-      ] || [
-        {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
-    },
-    unHiddenableSetting() {
-      return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
-    },
-    excludedAnalyticsIndexSetting() {
-      return this.excludedAnalyticsIndexProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
-    },
-    title() {
-      if (this.newSetting) {
-        return this.$t('profileSettings.drawer.title.addSetting');
-      } else {
-        return this.$t('profileSettings.drawer.title.editSetting');
-      }
-    },
-    isSaveButtonDisabled() {
-      if (!this.newSetting) {
-        return !this.areLabelsChanged && !this.translationsUpdated && this.areSettingsEqual(this.initialSetting, this.setting) ;
-      }
-      return false;
-    },
-    isDropdownList() {
-      return this.setting?.dropdownList;
-    },
-    isUserType() {
-      return this.setting.propertyType === 'user';
-    }
-  },
-  watch: {
-    saving() {
-      if (this.saving) {
-        this.$refs.profileSettingFormDrawer.startLoading();
-      } else {
-        this.$refs.profileSettingFormDrawer.endLoading();
-      }
-    },
-    drawer() {
-      if (this.drawer) {
-        this.translationsUpdated = false;
-        this.$refs.profileSettingFormDrawer.open();
-      } else {
-        this.$refs.profileSettingFormDrawer.close();
-      }
-    },
-    labels: {
-      immediate: true,
-      deep: true,
-      handler(newItems) {
-        const areEqualsLabels = this.initialLabels.length === newItems.length && this.initialLabels.every((item, index) => {
-          return item.id === newItems[index].id && item.label === newItems[index].label && item.language === newItems[index].language;
-        });
-        this.areLabelsChanged = !areEqualsLabels;
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
+      unHiddenableProperties: {
+        type: Array,
+        default: () => [],
+      },
+      excludedAnalyticsIndexProperties: {
+        type: Array,
+        default: () => [],
+      },
+      languages: {
+        type: Object,
+        default: null,
       },
     },
-    'setting.dropdownList': function () {
-      if (this.isDropdownList) {
-        this.setting.propertyType = this.propertyTypes[0];
-      }
-    }
-  },
-  created() {
-    this.$root.$on('open-settings-create-drawer', this.addNewSetting);
-    this.$root.$on('open-settings-edit-drawer', this.editSetting);
-    this.$root.$on('close-settings-form-drawer', this.cancel);
-    this.$root.$on('setting-translation-updated', this.settingTranslationUpdated);
-    this.$root.$on('setting-updated', this.handleSettingUpdated);
-  },
-  methods: {
-    getResolvedName(item){
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
-    },
-    addNewSetting() {
-      this.setting = {visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true};
-      this.labels = [{language: 'en', label: '', objectType: this.labelsObjectType}];
-      this.newSetting = true;
-      this.changes= false;
-      this.drawer = true;
-    },
-    editSetting(setting) {
-      this.initialSetting = structuredClone(setting);
-      this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
-      this.setting = { ...setting};
-      this.newSetting = false;
-      this.labels = JSON.parse(JSON.stringify(this.setting.labels));
-      this.changes= false;
-      this.drawer = true;     
-    },
-    handleSettingUpdated(setting) {
-      this.initialSetting = structuredClone(setting);
-      this.areLabelsChanged = false;
-    },
-    saveSetting(event) {
-      this.changes=true;
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-
-      this.fieldError = false;
-
-      if (!this.$refs.settingForm.validate() // Vuetify rules
-          || !this.$refs.settingForm.$el.reportValidity()) { // Standard HTML rules
-        return;
-      }
-      this.setting.propertyType = this.setting.propertyType?.value ?? this.setting.propertyType;
-      this.saving = true;
-      if (this.newSetting) {
-        this.setting.labels = this.labels;
-        this.$root.$emit('create-setting', this.setting);
-      } else {
-        this.mergeLabels();
-        this.$root.$emit('update-setting', this.setting,true);
-      }
-      this.saving = false;
-      this.translationsUpdated = false;
-    },
-    mergeLabels() {
-      const labelstoCreate = [];
-      const labelstoUpdate = [];
-      const labelstoDelete = [];
-      if (this.labels.length ===0 && !this.setting.labels.length ===0) {
-        this.$root.$emit('delete-labels', this.setting.labels);
-      } else if (!this.labels.length ===0 && this.setting.labels.length ===0) {
-        this.$root.$emit('create-labels', this.labels);
-      } else {
-        this.setting.labels.forEach(label => {
-          const foundProfileLabel = this.containsLabel(this.labels, label);
-          if (foundProfileLabel){
-            if (foundProfileLabel.label!==label.label || foundProfileLabel.language!==label.language) {
-              labelstoUpdate.push(foundProfileLabel);
-            }
-          } else {
-            labelstoDelete.push(label);
-          }
-        });
-        this.labels.forEach(label => {
-          if (!label.id) {
-            labelstoCreate.push(label);
-          }
-        });
-        if (labelstoCreate.length>0){
-          this.$root.$emit('create-labels', labelstoCreate);
+    data: () => ({
+      valid: false,
+      fieldError: false,
+      drawer: false,
+      newSetting: false,
+      saving: false,
+      confirmNewPassword: null,
+      setting: {},
+      labels: [],
+      changes: false,
+      labelsObjectType: 'profileProperty',
+      initialSetting: {},
+      initialLabels: [],
+      areLabelsChanged: false,
+      translationsUpdated: false,
+    }),
+    computed: {
+      propertyTypes () {
+        return !this.isDropdownList && [
+          { label: this?.$t('profileSettings.label.text.propertyType'), value: 'text' },
+          { label: this?.$t('profileSettings.label.user.propertyType'), value: 'user' },
+        ] || [
+          { label: this?.$t('profileSettings.label.text.propertyType'), value: 'text' }];
+      },
+      unHiddenableSetting () {
+        return this.unHiddenableProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+      },
+      excludedAnalyticsIndexSetting () {
+        return this.excludedAnalyticsIndexProperties.includes(this.setting?.propertyName) || this.setting?.children?.length;
+      },
+      title () {
+        if (this.newSetting) {
+          return this.$t('profileSettings.drawer.title.addSetting');
+        } else {
+          return this.$t('profileSettings.drawer.title.editSetting');
         }
-        if (labelstoUpdate.length>0){
-          this.$root.$emit('update-labels', labelstoUpdate);
+      },
+      isSaveButtonDisabled () {
+        if (!this.newSetting) {
+          return !this.areLabelsChanged && !this.translationsUpdated && this.areSettingsEqual(this.initialSetting, this.setting) ;
         }
-        if (labelstoDelete.length>0){
-          this.$root.$emit('delete-labels', labelstoDelete);
+        return false;
+      },
+      isDropdownList () {
+        return this.setting?.dropdownList;
+      },
+      isUserType () {
+        return this.setting.propertyType === 'user';
+      },
+    },
+    watch: {
+      saving () {
+        if (this.saving) {
+          this.$refs.profileSettingFormDrawer.startLoading();
+        } else {
+          this.$refs.profileSettingFormDrawer.endLoading();
         }
-        this.setting.labels=this.labels;
-      }   
+      },
+      drawer () {
+        if (this.drawer) {
+          this.translationsUpdated = false;
+          this.$refs.profileSettingFormDrawer.open();
+        } else {
+          this.$refs.profileSettingFormDrawer.close();
+        }
+      },
+      labels: {
+        immediate: true,
+        deep: true,
+        handler (newItems) {
+          const areEqualsLabels = this.initialLabels.length === newItems.length && this.initialLabels.every((item, index) => {
+            return item.id === newItems[index].id && item.label === newItems[index].label && item.language === newItems[index].language;
+          });
+          this.areLabelsChanged = !areEqualsLabels;
+        },
+      },
+      'setting.dropdownList' () {
+        if (this.isDropdownList) {
+          this.setting.propertyType = this.propertyTypes[0];
+        }
+      },
     },
-    containsLabel(labelsList, label){
-      return labelsList.find((profileLabel) => profileLabel.id === label.id);  
+    created () {
+      this.$root.$on('open-settings-create-drawer', this.addNewSetting);
+      this.$root.$on('open-settings-edit-drawer', this.editSetting);
+      this.$root.$on('close-settings-form-drawer', this.cancel);
+      this.$root.$on('setting-translation-updated', this.settingTranslationUpdated);
+      this.$root.$on('setting-updated', this.handleSettingUpdated);
     },
-    cancel() {
-      this.drawer = false;
-      if (!this.changes){
-        this.$root.$emit('cancel-edit-add');
+    methods: {
+      getResolvedName (item){
+        const lang = eXo && eXo.env.portal.language || 'en';
+        const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
+        if (resolvedLabel){
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
+      },
+      addNewSetting () {
+        this.setting = { visible: true, editable: true, groupSynchronized: false, active: true, groupSynchronizationEnabled: true };
+        this.labels = [{ language: 'en', label: '', objectType: this.labelsObjectType }];
+        this.newSetting = true;
         this.changes= false;
-      }
-      this.$refs.settingForm?.resetValidation();
-    },
-    arePropertyOptionsEqual(options1, options2) {
-      if (!options1 || !options2) {
-        return false;
-      }
-      if (options1?.length !== options2?.length) {
-        return false;
-      }
-      for (let i = 0; i < options1.length; i++) {
-        if (options1[i].value !== options2[i].value) {
+        this.drawer = true;
+      },
+      editSetting (setting) {
+        this.initialSetting = structuredClone(setting);
+        this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
+        this.setting = { ...setting };
+        this.newSetting = false;
+        this.labels = JSON.parse(JSON.stringify(this.setting.labels));
+        this.changes= false;
+        this.drawer = true;     
+      },
+      handleSettingUpdated (setting) {
+        this.initialSetting = structuredClone(setting);
+        this.areLabelsChanged = false;
+      },
+      saveSetting (event) {
+        this.changes=true;
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        this.fieldError = false;
+
+        if (!this.$refs.settingForm.validate() // Vuetify rules
+          || !this.$refs.settingForm.$el.reportValidity()) { // Standard HTML rules
+          return;
+        }
+        this.setting.propertyType = this.setting.propertyType?.value ?? this.setting.propertyType;
+        this.saving = true;
+        if (this.newSetting) {
+          this.setting.labels = this.labels;
+          this.$root.$emit('create-setting', this.setting);
+        } else {
+          this.mergeLabels();
+          this.$root.$emit('update-setting', this.setting,true);
+        }
+        this.saving = false;
+        this.translationsUpdated = false;
+      },
+      mergeLabels () {
+        const labelstoCreate = [];
+        const labelstoUpdate = [];
+        const labelstoDelete = [];
+        if (this.labels.length ===0 && !this.setting.labels.length ===0) {
+          this.$root.$emit('delete-labels', this.setting.labels);
+        } else if (!this.labels.length ===0 && this.setting.labels.length ===0) {
+          this.$root.$emit('create-labels', this.labels);
+        } else {
+          this.setting.labels.forEach(label => {
+            const foundProfileLabel = this.containsLabel(this.labels, label);
+            if (foundProfileLabel){
+              if (foundProfileLabel.label!==label.label || foundProfileLabel.language!==label.language) {
+                labelstoUpdate.push(foundProfileLabel);
+              }
+            } else {
+              labelstoDelete.push(label);
+            }
+          });
+          this.labels.forEach(label => {
+            if (!label.id) {
+              labelstoCreate.push(label);
+            }
+          });
+          if (labelstoCreate.length>0){
+            this.$root.$emit('create-labels', labelstoCreate);
+          }
+          if (labelstoUpdate.length>0){
+            this.$root.$emit('update-labels', labelstoUpdate);
+          }
+          if (labelstoDelete.length>0){
+            this.$root.$emit('delete-labels', labelstoDelete);
+          }
+          this.setting.labels=this.labels;
+        }   
+      },
+      containsLabel (labelsList, label){
+        return labelsList.find(profileLabel => profileLabel.id === label.id);  
+      },
+      cancel () {
+        this.drawer = false;
+        if (!this.changes){
+          this.$root.$emit('cancel-edit-add');
+          this.changes= false;
+        }
+        this.$refs.settingForm?.resetValidation();
+      },
+      arePropertyOptionsEqual (options1, options2) {
+        if (!options1 || !options2) {
           return false;
         }
-      }
-      return true;
-    },
-    areSettingsEqual(initialSetting, setting) {
-      const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
-        'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
-      ];
-      for (const field of fields) {
-        if (field === 'propertyOptions') {
-          if (!this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field])) {
+        if (options1?.length !== options2?.length) {
+          return false;
+        }
+        for (let i = 0; i < options1.length; i++) {
+          if (options1[i].value !== options2[i].value) {
             return false;
           }
-        } else if (initialSetting[field] !== setting[field]) {
-          return false;
         }
-      }
-      return true;
+        return true;
+      },
+      areSettingsEqual (initialSetting, setting) {
+        const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
+                        'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics',
+        ];
+        for (const field of fields) {
+          if (field === 'propertyOptions') {
+            if (!this.arePropertyOptionsEqual(initialSetting?.[field], setting?.[field])) {
+              return false;
+            }
+          } else if (initialSetting[field] !== setting[field]) {
+            return false;
+          }
+        }
+        return true;
+      },
+      openDropdownListDrawer () {
+        this.$emit('open-dropdown-list', this.setting);
+      },
+      openDropdownListDrawerOnSwitch () {
+        if (this.isDropdownList) {
+          this.openDropdownListDrawer();
+        }
+      },
+      settingTranslationUpdated (translationsUpdated) {
+        this.translationsUpdated = translationsUpdated;
+      },
     },
-    openDropdownListDrawer() {
-      this.$emit('open-dropdown-list', this.setting);
-    },
-    openDropdownListDrawerOnSwitch() {
-      if (this.isDropdownList) {
-        this.openDropdownListDrawer();
-      }
-    },
-    settingTranslationUpdated(translationsUpdated) {
-      this.translationsUpdated = translationsUpdated;
-    }
-  },
-};
+  };
 </script>

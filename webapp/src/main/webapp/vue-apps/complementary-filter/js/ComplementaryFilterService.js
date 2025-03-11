@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-export function getComplementaryFilterSuggestions(objectIds, attributes, indexAlias, minDocCount) {
+export function getComplementaryFilterSuggestions (objectIds, attributes, indexAlias, minDocCount) {
   const formData = new FormData();
   attributes.forEach(attribute => formData.append('attributes', attribute));
   if (minDocCount) {

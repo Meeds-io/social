@@ -1,12 +1,14 @@
 <template>
-  <v-card class="application-body" flat>
+  <v-card
+    class="application-body"
+    flat>
     <v-toolbar
       class="border-box-sizing"
       flat>
       <v-btn
         class="mx-1"
-        icon
         height="36"
+        icon
         width="36"
         @click="$emit('back')">
         <v-icon size="20">
@@ -25,9 +27,9 @@
       <!-- Added for accessibility -->
       <input
         id="username"
-        name="username"
         autocomplete="username"
-        class="hidden">
+        class="hidden"
+        name="username">
 
       <v-card flat>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left pt-0 px-0 text-header">
@@ -37,10 +39,10 @@
           <input
             ref="currentPassword"
             v-model="currentPassword"
-            type="password"
             autocomplete="current-password"
             class="ignore-vuetify-classes flex-grow-1"
-            required>
+            required
+            type="password">
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left px-0 text-header">
           {{ $t('UserSettings.label.newPassword') }}*
@@ -49,10 +51,10 @@
           <input
             ref="newPassword"
             v-model="newPassword"
-            type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            required>
+            required
+            type="password">
         </v-card-text>
         <v-card-text class="d-flex flex-grow-1 text-no-wrap text-left px-0 text-header">
           {{ $t('UserSettings.label.confirmNewPassword') }}*
@@ -61,24 +63,24 @@
           <input
             ref="confirmNewPassword"
             v-model="confirmNewPassword"
-            type="password"
             autocomplete="new-password"
             class="ignore-vuetify-classes flex-grow-1"
-            required>
+            required
+            type="password">
         </v-card-text>
 
         <v-card-actions class="my-6 pa-0">
           <v-spacer />
           <v-btn
-            :disabled="saving"
             class="btn me-2"
+            :disabled="saving"
             @click="$emit('back')">
             {{ $t('UserSettings.button.cancel') }}
           </v-btn>
           <v-btn
-            :loading="saving"
-            :disabled="saving"
             class="btn btn-primary"
+            :disabled="saving"
+            :loading="saving"
             @click="savePassword">
             {{ $t('UserSettings.button.confirm') }}
           </v-btn>
@@ -89,80 +91,80 @@
 </template>
 
 <script>
-const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
-const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
-const PASSWORD_UNKNOWN_ERROR_CODE = 'PASSWORD_UNKNOWN_ERROR_CODE';
-const UNCHANGED_NEW_PASSWORD_ERROR_CODE = 'UNCHANGED_NEW_PASSWORD';
+  const USER_NOT_FOUND_ERROR_CODE = 'USER_NOT_FOUND';
+  const WRONG_USER_PASSWORD_ERROR_CODE = 'WRONG_USER_PASSWORD';
+  const PASSWORD_UNKNOWN_ERROR_CODE = 'PASSWORD_UNKNOWN_ERROR_CODE';
+  const UNCHANGED_NEW_PASSWORD_ERROR_CODE = 'UNCHANGED_NEW_PASSWORD';
 
-export default {
-  data: () => ({
-    username: eXo.env.portal.userName,
-    currentPassword: null,
-    newPassword: null,
-    confirmNewPassword: null,
-    saving: false,
-    displayed: true,
-  }),
-  watch: {
-    confirmNewPassword() {
-      this.resetCustomValidity();
+  export default {
+    data: () => ({
+      username: eXo.env.portal.userName,
+      currentPassword: null,
+      newPassword: null,
+      confirmNewPassword: null,
+      saving: false,
+      displayed: true,
+    }),
+    watch: {
+      confirmNewPassword () {
+        this.resetCustomValidity();
+      },
     },
-  },
-  created() {
-    document.addEventListener('hideSettingsApps', (id) => {
-      if (this.id !== id) {
-        this.displayed = false;
-      }
-    });
-    document.addEventListener('showSettingsApps', () => {
-      this.displayed = true;
-    });
-  },
-  methods: {
-    resetCustomValidity() {
-      this.$refs.confirmNewPassword.setCustomValidity('');
+    created () {
+      document.addEventListener('hideSettingsApps', id => {
+        if (this.id !== id) {
+          this.displayed = false;
+        }
+      });
+      document.addEventListener('showSettingsApps', () => {
+        this.displayed = true;
+      });
     },
-    savePassword() {
-      this.resetCustomValidity();
+    methods: {
+      resetCustomValidity () {
+        this.$refs.confirmNewPassword.setCustomValidity('');
+      },
+      savePassword () {
+        this.resetCustomValidity();
 
-      if (!this.$refs.form.$el.reportValidity()) {
-        return;
-      }
-
-      if (this.confirmNewPassword !== this.newPassword) {
-        this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.newPasswordsDoesNotMatch'));
         if (!this.$refs.form.$el.reportValidity()) {
           return;
         }
-      }
 
-      if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
-        this.saving = true;
-        this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
-          .then(() => {
-            this.$root.$emit('alert-message', this.$t('UserSettings.label.changePasswordSuccess'), 'success');
-            this.$refs.form.$el.reset();
-          })
-          .catch(e => {
-            let error = String(e);
+        if (this.confirmNewPassword !== this.newPassword) {
+          this.$refs.confirmNewPassword.setCustomValidity(this.$t('UserSettings.label.newPasswordsDoesNotMatch'));
+          if (!this.$refs.form.$el.reportValidity()) {
+            return;
+          }
+        }
 
-            if (error.indexOf(WRONG_USER_PASSWORD_ERROR_CODE) > -1) {
-              error = this.$t('UserSettings.label.wrongCurrentPassword');
-            } else if (error.indexOf(USER_NOT_FOUND_ERROR_CODE) > -1) {
-              error = this.$t('UserSettings.label.accountNotExist');
-            } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
-              error = this.$t('UserSettings.label.changePasswordFail');
-            } else if (error.indexOf(UNCHANGED_NEW_PASSWORD_ERROR_CODE) > -1) {
-              error = this.$t('UserSettings.label.changePasswordIdentical');
-            }
-            this.$root.$emit('alert-message', error, 'error');
-          })
-          .finally(() => {
-            this.saving = false;
-          });
-      }
+        if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
+          this.saving = true;
+          this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
+            .then(() => {
+              this.$root.$emit('alert-message', this.$t('UserSettings.label.changePasswordSuccess'), 'success');
+              this.$refs.form.$el.reset();
+            })
+            .catch(e => {
+              let error = String(e);
+
+              if (error.indexOf(WRONG_USER_PASSWORD_ERROR_CODE) > -1) {
+                error = this.$t('UserSettings.label.wrongCurrentPassword');
+              } else if (error.indexOf(USER_NOT_FOUND_ERROR_CODE) > -1) {
+                error = this.$t('UserSettings.label.accountNotExist');
+              } else if (error.indexOf(PASSWORD_UNKNOWN_ERROR_CODE) > -1) {
+                error = this.$t('UserSettings.label.changePasswordFail');
+              } else if (error.indexOf(UNCHANGED_NEW_PASSWORD_ERROR_CODE) > -1) {
+                error = this.$t('UserSettings.label.changePasswordIdentical');
+              }
+              this.$root.$emit('alert-message', error, 'error');
+            })
+            .finally(() => {
+              this.saving = false;
+            });
+        }
+      },
     },
-  },
-};
+  };
 </script>
 

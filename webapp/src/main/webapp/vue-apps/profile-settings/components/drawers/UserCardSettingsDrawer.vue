@@ -24,12 +24,12 @@
     allow-expand
     right
     @closed="$emit('closed')">
-    <template slot="title">
+    <template #title>
       <span class="text-color ma-auto">
         {{ $t('profileSettings.userCard.settings.label') }}
       </span>
     </template>
-    <template slot="content">
+    <template #content>
       <div class="pa-5">
         <p>
           {{ $t('profileSettings.userCard.settings.customize.info') }}<br>
@@ -38,28 +38,28 @@
           <span>- {{ $t('profileSettings.organizationalCharts.label') }}</span>
         </p>
         <people-user-card
-          width="268"
-          height="50"
           class="mb-2"
-          :user="user"
-          :user-navigation-extensions="userExtensions"
-          :profile-action-extensions="profileActionExtensions"
+          height="50"
           :preferences="{
             firstField: firstField,
             secondField: secondField,
             thirdField: thirdField
-          }" />
+          }"
+          :profile-action-extensions="profileActionExtensions"
+          :user="user"
+          :user-navigation-extensions="userExtensions"
+          width="268" />
         <label for="firstField">
           {{ $t('profileSettings.userCard.settings.firstField.label') }}
           <v-select
             ref="firstField"
             v-model="firstField"
-            :items="settings"
-            item-text="label"
-            item-value="value"
-            name="firstField"
             class="pt-1"
             dense
+            item-text="label"
+            item-value="value"
+            :items="settings"
+            name="firstField"
             outlined
             @blur="$refs.firstField.blur();" />
         </label>
@@ -68,12 +68,12 @@
           <v-select
             ref="secondField"
             v-model="secondField"
-            :items="settings"
-            item-text="label"
-            item-value="value"
-            name="secondField"
             class="pt-1"
             dense
+            item-text="label"
+            item-value="value"
+            :items="settings"
+            name="secondField"
             outlined
             @blur="$refs.secondField.blur();" />
         </label>
@@ -82,18 +82,18 @@
           <v-select
             ref="thirdField"
             v-model="thirdField"
-            :items="settings"
-            item-text="label"
-            item-value="value"
-            name="thirdField"
             class="pt-1"
             dense
+            item-text="label"
+            item-value="value"
+            :items="settings"
+            name="thirdField"
             outlined
             @blur="$refs.thirdField.blur();" />
         </label>
       </div>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="ma-auto d-flex width-full">
         <div class="ms-auto">
           <v-btn
@@ -102,9 +102,9 @@
             {{ $t('profileSettings.button.cancel') }}
           </v-btn>
           <v-btn
-            :loading="isSavingSettings"
-            :disabled="!settingsUpdated"
             class="btn btn-primary"
+            :disabled="!settingsUpdated"
+            :loading="isSavingSettings"
             @click="saveSettings">
             {{ $t('profileSettings.button.save') }}
           </v-btn>
@@ -115,75 +115,75 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      profileActionExtensions: [],
-      userExtensions: [],
-      preferences: {},
-      firstField: 'position',
-      secondField: 'team',
-      thirdField: 'city',
-    };
-  },
-  props: {
-    user: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
+      settings: {
+        type: Array,
+        default: null,
+      },
+      isSavingSettings: {
+        type: Boolean,
+        default: false,
+      },
+      savedSettings: {
+        type: Object,
+        default: null,
+      },
     },
-    settings: {
-      type: Array,
-      default: null
+    data () {
+      return {
+        profileActionExtensions: [],
+        userExtensions: [],
+        preferences: {},
+        firstField: 'position',
+        secondField: 'team',
+        thirdField: 'city',
+      };
     },
-    isSavingSettings: {
-      type: Boolean,
-      default: false
+    computed: {
+      settingsUpdated () {
+        return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
+          || this.thirdField !== this.savedSettings?.thirdField;
+      },
     },
-    savedSettings: {
-      type: Object,
-      default: null
+    watch: {
+      savedSettings () {
+        this.bindSavedSettings();
+      },
     },
-  },
-  computed: {
-    settingsUpdated() {
-      return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
-                                                                || this.thirdField !== this.savedSettings?.thirdField;
-    }
-  },
-  watch: {
-    savedSettings() {
-      this.bindSavedSettings();
-    }
-  },
-  created() {
-    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
-    document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
-    this.refreshExtensions();
-    this.refreshUserExtensions();
-  },
-  methods: {
-    bindSavedSettings() {
-      this.firstField = this.savedSettings?.firstField || this.firstField;
-      this.secondField = this.savedSettings?.secondField || this.secondField;
-      this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+    created () {
+      document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+      document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
+      this.refreshExtensions();
+      this.refreshUserExtensions();
     },
-    refreshUserExtensions() {
-      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+    methods: {
+      bindSavedSettings () {
+        this.firstField = this.savedSettings?.firstField || this.firstField;
+        this.secondField = this.savedSettings?.secondField || this.secondField;
+        this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+      },
+      refreshUserExtensions () {
+        this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+      },
+      refreshExtensions () {
+        this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+        this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+      },
+      open () {
+        this.bindSavedSettings();
+        this.$refs.userCardSettingsDrawer.open();
+      },
+      close () {
+        this.$refs.userCardSettingsDrawer.close();
+      },
+      saveSettings () {
+        this.$emit('save-settings', this.firstField, this.secondField, this.thirdField);
+      },
     },
-    refreshExtensions() {
-      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-      this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
-    },
-    open() {
-      this.bindSavedSettings();
-      this.$refs.userCardSettingsDrawer.open();
-    },
-    close() {
-      this.$refs.userCardSettingsDrawer.close();
-    },
-    saveSettings() {
-      this.$emit('save-settings', this.firstField, this.secondField, this.thirdField);
-    }
-  }
-};
+  };
 </script>

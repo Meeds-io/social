@@ -52,25 +52,25 @@ const urls = [
   `/social/i18n/locale.social.Webui?lang=${lang}`,
 ];
 
-export function init(maxFileSize) {
+export function init (maxFileSize) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
           maxFileSize,
-          activityBaseLink: activityBaseLink,
+          activityBaseLink,
           selectedActivityId: null,
           selectedCommentId: null,
           canPost: null,
           replyToComment: false,
-          displayCommentActionTypes: []
+          displayCommentActionTypes: [],
         },
         computed: {
-          isMobile() {
+          isMobile () {
             return this.$vuetify?.breakpoint?.mobile;
           },
         },
-        created() {
+        created () {
           this.replyToComment = window.location.hash.includes('#comment-reply');
         },
         template: `<activity-stream id="${appId}" />`,

@@ -3,16 +3,18 @@
     id="profileHeaderText"
     class="d-flex"
     color="transparent"
-    min-height="70"
     flat
+    min-height="70"
     tile>
     <div class="d-flex flex-column my-auto">
-      <div id="profileHeaderUserFullname" class="text-title text-break text-wrap">
+      <div
+        id="profileHeaderUserFullname"
+        class="text-title text-break text-wrap">
         {{ userFullname }}
       </div>
       <div
-        id="profileHeaderUserPrimaryProperty"
         v-if="primaryProperty"
+        id="profileHeaderUserPrimaryProperty"
         class="subtitle text-subtitle text-break text-wrap">
         {{ primaryProperty || '' }}
       </div>
@@ -21,36 +23,36 @@
 </template>
 
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: () => null,
+      },
     },
-  },
-  computed: {
-    userFullname() {
-      return this.user?.fullname && `${this.user.fullname}${this.external}${this.disabled}`;
+    computed: {
+      userFullname () {
+        return this.user?.fullname && `${this.user.fullname}${this.external}${this.disabled}`;
+      },
+      primaryProperty () {
+        return this.user?.primaryProperty;
+      },
+      external () {
+        if (this.user && this.user.external === 'true') {
+          const external = this.$t('profileHeader.label.external') ;
+          return ` (${external}) `;
+        } else {
+          return '';
+        }
+      },
+      disabled () {
+        if (this.user && !this.user.enabled) {
+          const disabled = this.$t('profileHeader.label.disabled') ;
+          return ` (${disabled}) `;
+        } else {
+          return '';
+        }
+      },
     },
-    primaryProperty() {
-      return this.user?.primaryProperty;
-    },
-    external() {
-      if (this.user && this.user.external === 'true') {
-        const external = this.$t('profileHeader.label.external') ;
-        return ` (${external}) `;
-      } else {
-        return '';
-      }
-    },
-    disabled() {
-      if (this.user && !this.user.enabled) {
-        const disabled = this.$t('profileHeader.label.disabled') ;
-        return ` (${disabled}) `;
-      } else {
-        return '';
-      }
-    },
-  }
-};
+  };
 </script>

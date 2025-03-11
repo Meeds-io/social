@@ -25,13 +25,15 @@
       <template #activator="{on, bind}">
         <v-btn
           id="topBarPublishSiteButton"
-          v-on="on"
           v-bind="bind"
-          :loading="loading"
           class="ms-5"
           icon
+          :loading="loading"
+          v-on="on"
           @click="switchSiteMode">
-          <v-icon size="20">{{ publicMode && 'fa-globe' || 'fa-user-lock' }}</v-icon>
+          <v-icon size="20">
+            {{ publicMode && 'fa-globe' || 'fa-user-lock' }}
+          </v-icon>
         </v-btn>
       </template>
       <span>{{ publicMode && $t('publicAccess.siteIsVisibleTooltip') || $t('publicAccess.siteIsNotVisibleTooltip') }}</span>
@@ -39,72 +41,72 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    previewMode: false,
-    publicMode: false,
-    loading: false,
-  }),
-  computed: {
-    canView() {
-      return !this.previewMode;
+  export default {
+    data: () => ({
+      previewMode: false,
+      publicMode: false,
+      loading: false,
+    }),
+    computed: {
+      canView () {
+        return !this.previewMode;
+      },
     },
-  },
-  watch: {
-    previewMode() {
-      const parentContainer = this.$el.closest('.UIContainer');
-      if (parentContainer) {
-        if (this.previewMode) {
-          parentContainer.classList.add('hidden');
-        } else {
-          parentContainer.classList.remove('hidden');
-        }
-      }
-    },
-  },
-  created() {
-    this.publicMode = this.$root.publicMode;
-    document.addEventListener('cms-preview-mode', this.switchToPreview);
-    document.addEventListener('cms-edit-mode', this.switchToEdit);
-  },
-  beforeDestroy() {
-    document.removeEventListener('cms-preview-mode', this.switchToPreview);
-    document.removeEventListener('cms-edit-mode', this.switchToEdit);
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  methods: {
-    switchToPreview() {
-      this.previewMode = true;
-    },
-    switchToEdit() {
-      this.previewMode = false;
-    },
-    switchSiteMode() {
-      this.loading = true;
-      const formData = new FormData();
-      formData.append('name', 'accessPermissions');
-      formData.append('value', this.publicMode && '*:/platform/administrators,publisher:/platform/web-contributors' || 'Everyone');
-      const params = new URLSearchParams(formData).toString();
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        method: 'PATCH',
-        credentials: 'include',
-        body: params,
-      })
-        .then(resp => {
-          if (resp?.ok) {
-            this.publicMode = !this.publicMode;
-            this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdatedSuccessfully'), 'success');
+    watch: {
+      previewMode () {
+        const parentContainer = this.$el.closest('.UIContainer');
+        if (parentContainer) {
+          if (this.previewMode) {
+            parentContainer.classList.add('hidden');
           } else {
-            this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdateError'), 'error');
+            parentContainer.classList.remove('hidden');
           }
-        })
-        .finally(() => this.loading = false);
+        }
+      },
     },
-  },
-};
+    created () {
+      this.publicMode = this.$root.publicMode;
+      document.addEventListener('cms-preview-mode', this.switchToPreview);
+      document.addEventListener('cms-edit-mode', this.switchToEdit);
+    },
+    beforeUnmount () {
+      document.removeEventListener('cms-preview-mode', this.switchToPreview);
+      document.removeEventListener('cms-edit-mode', this.switchToEdit);
+    },
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+    methods: {
+      switchToPreview () {
+        this.previewMode = true;
+      },
+      switchToEdit () {
+        this.previewMode = false;
+      },
+      switchSiteMode () {
+        this.loading = true;
+        const formData = new FormData();
+        formData.append('name', 'accessPermissions');
+        formData.append('value', this.publicMode && '*:/platform/administrators,publisher:/platform/web-contributors' || 'Everyone');
+        const params = new URLSearchParams(formData).toString();
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          method: 'PATCH',
+          credentials: 'include',
+          body: params,
+        })
+          .then(resp => {
+            if (resp?.ok) {
+              this.publicMode = !this.publicMode;
+              this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdatedSuccessfully'), 'success');
+            } else {
+              this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdateError'), 'error');
+            }
+          })
+          .finally(() => this.loading = false);
+      },
+    },
+  };
 </script>

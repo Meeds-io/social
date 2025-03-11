@@ -25,40 +25,46 @@
     <div class="me-2 ms-auto my-auto mt-sm-2 mb-sm-0">
       <v-btn
         v-show="!defaultBanner && hover"
-        :title="$t('UIPopupBannerUploader.title.deleteBanner')"
         id="spaceBannerDeleteButton"
         class="changeBannerButton mask-color border-color"
-        outlined
-        icon
         dark
+        icon
+        outlined
+        :title="$t('UIPopupBannerUploader.title.deleteBanner')"
         @click="$emit('remove')">
-        <v-icon size="18" color="error">mdi-delete</v-icon>
+        <v-icon
+          color="error"
+          size="18">
+          mdi-delete
+        </v-icon>
       </v-btn>
       <v-btn
         v-show="hover"
-        ref="bannerInput"
         id="spaceBannerEditButton"
+        ref="bannerInput"
         class="changeBannerButton mask-color border-color"
+        dark
         icon
         outlined
-        dark
         @click="$emit('edit')">
-        <v-icon size="18">fas fa-file-image</v-icon>
+        <v-icon size="18">
+          fas fa-file-image
+        </v-icon>
       </v-btn>
     </div>
   </div>
 </template>
 <script>
-export default {
-  props: {
-    hover: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      defaultBanner: {
+        type: Boolean,
+        default: false,
+      },
     },
-    defaultBanner: {
-      type: Boolean,
-      default: false,
-    },
-  },
-};
+  };
 </script>

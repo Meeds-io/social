@@ -19,16 +19,16 @@
     <v-flex class="d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto py-10 text-center">
         <v-icon
-          size="70"
-          color="tertiary"
           class="mx-auto mt-8 fa"
-          :class="emptyStreamIcon" />
+          :class="emptyStreamIcon"
+          color="tertiary"
+          size="70" />
         <span class="my-7">{{ emptyStreamLabel }}</span>
         <div v-if="streamFilter !== 'all_stream'">
           <v-btn
+            border
             class="primary"
             outlined
-            border
             @click="$root.$emit('activity-stream-reset-filter', false)">
             {{ $t('activity.filter.button.resetFilter') }}
           </v-btn>
@@ -38,35 +38,35 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    streamFilter: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      streamFilter: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  computed: {
-    emptyStreamLabel() {
-      return this.$t(`activity.filter.empty_${this.streamFilter}.msg`);
+    computed: {
+      emptyStreamLabel () {
+        return this.$t(`activity.filter.empty_${this.streamFilter}.msg`);
+      },
+      emptyStreamIcon () { 
+        switch (this.streamFilter) {
+          case 'favorite_spaces_stream':
+            return 'fa-star-half-alt';
+          case 'unread_spaces_stream':
+            return 'fa-envelope-open';
+          case 'manage_spaces_stream':
+            return 'fa-user-cog';
+          case 'pin_stream':
+            return 'fa-thumbtack';
+          case 'user_stream':
+            return 'fa-feather-alt';
+          case 'user_favorite_stream':
+            return 'fa-star-half-alt';
+          default:
+            return '';
+        }
+      },
     },
-    emptyStreamIcon() { 
-      switch (this.streamFilter) {
-      case 'favorite_spaces_stream':
-        return 'fa-star-half-alt';
-      case 'unread_spaces_stream':
-        return 'fa-envelope-open';
-      case 'manage_spaces_stream':
-        return 'fa-user-cog';
-      case 'pin_stream':
-        return 'fa-thumbtack';
-      case 'user_stream':
-        return 'fa-feather-alt';
-      case 'user_favorite_stream':
-        return 'fa-star-half-alt';
-      default:
-        return '';
-      }
-    },
-  }
-};
+  };
 </script>

@@ -38,7 +38,7 @@ const urls = [
   `/social/i18n/locale.portlet.GeneralSettings?lang=${lang}`,
 ];
 
-export function init(publicSiteVisible, publicSiteId) {
+export function init (publicSiteVisible, publicSiteId) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n =>
       Vue.createApp({
@@ -48,22 +48,22 @@ export function init(publicSiteVisible, publicSiteId) {
           loading: false,
           publicSiteVisible,
           publicSiteId,
-          defaultBrandingThemeStyle: null
+          defaultBrandingThemeStyle: null,
         },
         computed: {
-          isMobile() {
+          isMobile () {
             return this.$vuetify.breakpoint.mobile;
           },
         },
         watch: {
-          loading() {
+          loading () {
             if (this.loading) {
               document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
             } else {
               document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
             }
           },
-          selectedTab() {
+          selectedTab () {
             if (this.selectedTab === 'branding') {
               if (window.location.hash !== '#display') {
                 window.location.hash = '#display';
@@ -83,7 +83,7 @@ export function init(publicSiteVisible, publicSiteId) {
         },
         template: `<portal-general-settings id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,
-        i18n
+        i18n,
       }, `#${appId}`, 'General Settings')
     ).finally(() => Vue.prototype.$utils.includeExtensions('generalSettings'));
 }

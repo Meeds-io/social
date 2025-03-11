@@ -38,7 +38,7 @@ const urls = [
 ];
 
 //getting locale ressources
-export function init(badge) {
+export function init (badge) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(() => {
       // init Vue app when locale ressources are ready
@@ -53,13 +53,13 @@ export function init(badge) {
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n: exoi18n.i18n,
-        created() {
+        created () {
           document.addEventListener('extension-WebNotification-notification-content-extension-updated', this.refreshNotificationExtensions);
           this.refreshNotificationExtensions();
           window.setInterval(() => this.now = Date.now(), 60000);
         },
         methods: {
-          refreshNotificationExtensions() {
+          refreshNotificationExtensions () {
             const notificationExtensions = {};
             const extensions = extensionRegistry.loadExtensions('WebNotification', 'notification-content-extension');
             extensions.forEach(extension => {
@@ -69,7 +69,7 @@ export function init(badge) {
             });
             this.notificationExtensions = {
               ...this.notificationExtensions,
-              ...notificationExtensions
+              ...notificationExtensions,
             };
             document.dispatchEvent(new CustomEvent('notification-extensions-refresh'));
           },

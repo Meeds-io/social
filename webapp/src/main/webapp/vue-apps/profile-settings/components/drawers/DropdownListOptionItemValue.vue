@@ -21,94 +21,94 @@
 <template>
   <v-row class="border-bottom-color">
     <v-col
-      cols="8"
-      class="d-flex py-1 px-0">
+      class="d-flex py-1 px-0"
+      cols="8">
       <span class="my-auto">
         {{ displayedValue }}
       </span>
     </v-col>
     <v-col
-      cols="4"
-      class="text-end py-1 px-0">
+      class="text-end py-1 px-0"
+      cols="4">
       <div class="d-flex ms-auto width-fit-content">
         <translation-text-field
           :ref="`option${option?.id || option.uuid}`"
-          :object-id="option.id"
-          :object-type="objectType"
-          :save="option?.id"
-          :field-name="fieldName"
-          :field-value="displayedValue"
-          :drawer-title="$t('profileSettings.dropdownList.translation.title')"
-          no-expand-icon
           back-icon
           button
+          :drawer-title="$t('profileSettings.dropdownList.translation.title')"
+          :field-name="fieldName"
+          :field-value="displayedValue"
+          no-expand-icon
+          :object-id="option.id"
+          :object-type="objectType"
           required
-          @update:field-value="updateFieldValue"
-          @input="translationUpdated" />
+          :save="option?.id"
+          @input="translationUpdated"
+          @update:field-value="updateFieldValue" />
         <property-option-action-menu
-          @edit="editOption"
-          @delete="deleteOption" />
+          @delete="deleteOption"
+          @edit="editOption" />
       </div>
     </v-col>
   </v-row>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      userLocale: eXo.env.portal.language,
-      objectType: 'propertySettingOption',
-      fieldName: 'optionValue',
-      defaultLangValue: null,
-      optionObject: null
-    };
-  },
-  props: {
-    option: {
-      type: Object,
-      default: null
-    }
-  },
-  computed: {
-    displayedValue() {
-      return this.optionObject?.translations?.[this.userLocale] || this.defaultLangValue
-                                                                || this.optionObject.value;
-    }
-  },
-  created() {
-    this.getSavedTranslations();
-    this.cloneOptionObject();
-  },
-  watch: {
-    option() {
+  export default {
+    props: {
+      option: {
+        type: Object,
+        default: null,
+      },
+    },
+    data () {
+      return {
+        userLocale: eXo.env.portal.language,
+        objectType: 'propertySettingOption',
+        fieldName: 'optionValue',
+        defaultLangValue: null,
+        optionObject: null,
+      };
+    },
+    computed: {
+      displayedValue () {
+        return this.optionObject?.translations?.[this.userLocale] || this.defaultLangValue
+          || this.optionObject.value;
+      },
+    },
+    watch: {
+      option () {
+        this.cloneOptionObject();
+      },
+    },
+    created () {
+      this.getSavedTranslations();
       this.cloneOptionObject();
-    }
-  },
-  methods: {
-    cloneOptionObject() {
-      this.optionObject = structuredClone(this.option);
     },
-    getSavedTranslations() {
-      if (this.option?.id) {
-        this.$translationService.getTranslations(this.objectType, this.option.id, this.fieldName).then(translations => {
-          this.$emit('data-translations', this.option, translations);
-        });
-      }
+    methods: {
+      cloneOptionObject () {
+        this.optionObject = structuredClone(this.option);
+      },
+      getSavedTranslations () {
+        if (this.option?.id) {
+          this.$translationService.getTranslations(this.objectType, this.option.id, this.fieldName).then(translations => {
+            this.$emit('data-translations', this.option, translations);
+          });
+        }
+      },
+      translationUpdated (translations) {
+        this.optionObject = { ...this.optionObject, translations };
+        this.$emit('translation-updated', this.option, translations);
+      },
+      updateFieldValue (value) {
+        this.defaultLangValue = value;
+      },
+      editOption () {
+        this.$refs?.[`option${this.option.id || this.option.uuid}`]?.openDrawer();
+      },
+      deleteOption () {
+        this.$emit('delete-option', this.option);
+      },
     },
-    translationUpdated(translations) {
-      this.optionObject = {...this.optionObject, translations};
-      this.$emit('translation-updated', this.option, translations);
-    },
-    updateFieldValue(value) {
-      this.defaultLangValue = value;
-    },
-    editOption() {
-      this.$refs?.[`option${this.option.id || this.option.uuid}`]?.openDrawer();
-    },
-    deleteOption() {
-      this.$emit('delete-option', this.option);
-    }
-  }
-};
+  };
 </script>

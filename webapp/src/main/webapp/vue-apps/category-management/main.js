@@ -34,7 +34,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.CategoryManagement?lang=${lang}`;
 const appId = 'CategoryManagement';
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       data: {
@@ -54,13 +54,13 @@ export function init() {
         pageSize: 10,
       },
       computed: {
-        isMobile() {
+        isMobile () {
           return this.$vuetify.breakpoint.mobile;
         },
-        chevronIcon() {
+        chevronIcon () {
           return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
         },
-        categories() {
+        categories () {
           const categories = [];
           if (this.categoryTree) {
             this.addSubcategories(this.categoryTree, categories);
@@ -69,7 +69,7 @@ export function init() {
         },
       },
       watch: {
-        categories() {
+        categories () {
           this.categories?.forEach?.(cat => {
             if (!cat.categories) {
               cat.categories = [];
@@ -77,18 +77,18 @@ export function init() {
           });
         },
       },
-      created() {
+      created () {
         document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
         this.refreshMenuExtensions();
       },
-      beforeDestroy() {
+      beforeDestroy () {
         document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
       },
       methods: {
-        refreshMenuExtensions() {
+        refreshMenuExtensions () {
           this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
         },
-        async loadChildren(item) {
+        async loadChildren (item) {
           if (item?.loadMore) {
             return;
           }
@@ -99,7 +99,7 @@ export function init() {
             return await this.refreshTree(item, 1);
           }
         },
-        async refreshTree(item, depth, offset, limit) {
+        async refreshTree (item, depth, offset, limit) {
           if (item?.loadMore) {
             return;
           }
@@ -120,7 +120,7 @@ export function init() {
             return item;
           }
         },
-        async searchCategories(query) {
+        async searchCategories (query) {
           this.foundCategories = await this.$categoryService.findCategories({
             query,
             ownerId: this.categoryOwnerId,
@@ -129,10 +129,10 @@ export function init() {
           });
           await Promise.all(this.foundCategories.map(cat => this.loadAncestors(cat)));
         },
-        resetSearch() {
+        resetSearch () {
           this.foundCategories = null;
         },
-        async loadAncestors(category) {
+        async loadAncestors (category) {
           let limit = 0;
           while (!this.getCategory(category.id)) {
             limit += this.pageSize;
@@ -141,7 +141,7 @@ export function init() {
             const ancestorId = category.ancestorIds[index];
             let lastLoadedParent = this.getCategory(ancestorId);
             // Can't be parallelized so disable Sonar and ESLint recommandations
-            // eslint-disable-next-line no-await-in-loop
+             
             await this.refreshTree(lastLoadedParent, length - index, 0, limit); // NOSONAR
             lastLoadedParent = this.getCategory(ancestorId);
             if (lastLoadedParent.id === category.parentId
@@ -150,7 +150,7 @@ export function init() {
             }
           }
         },
-        async loadMore(id) {
+        async loadMore (id) {
           const category = this.getCategory(id);
           const loadMoreButtonItem = category.categories.find(i => i.loadMore);
           loadMoreButtonItem.loading = true;
@@ -161,13 +161,13 @@ export function init() {
             window.setTimeout(() => loadMoreButtonItem.loading = false, 50);
           }
         },
-        getCategory(id) {
+        getCategory (id) {
           if (id === this.categoryTree?.id) {
             return this.categoryTree;
           }
           return this.categories.find(cat => cat.id === id);
         },
-        addSubcategories(item, result, depth, itemIndex) {
+        addSubcategories (item, result, depth, itemIndex) {
           if (!item) {
             return;
           }

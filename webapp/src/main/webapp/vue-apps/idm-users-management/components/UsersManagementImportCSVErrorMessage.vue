@@ -1,5 +1,7 @@
 <template>
-  <v-flex v-if="error" class="d-flex flex-wrap">
+  <v-flex
+    v-if="error"
+    class="d-flex flex-wrap">
     <template v-if="errorMessage === 'UPLOAD_ID:MANDATORY'">
       {{ $t('UsersManagement.error.importCSV.uploadIdMandatory') }}
     </template>
@@ -73,57 +75,57 @@
 </template>
 
 <script>
-export default {
-  props: {
-    error: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      error: {
+        type: String,
+        default: null,
+      },
+      userName: {
+        type: String,
+        default: null,
+      },
     },
-    userName: {
-      type: String,
-      default: null,
+    computed: {
+      errorMessage () {
+        return this.error && String(this.error).replace('Error: ', '');
+      },
+      validationErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('USER_VALIDATION_ERROR:') > -1 && this.errorMessage.split(':')[1];
+      },
+      createUserErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_ERROR') > -1 && this.$t('UsersManagement.error.importCSV.errorCreatingUser');
+      },
+      groupNotExistsErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('GROUP_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.groupNotExists', { 0: this.errorMessage.split(':')[1] });
+      },
+      membershipNotExistsErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('MEMBERSHIP_TYPE_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.membershipNotExists', { 0: this.errorMessage.split(':')[1] });
+      },
+      membershipImportErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('IMPORT_MEMBERSHIP_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createMembershipError');
+      },
+      createUserProfileErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_PROFILE_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createSocialProfileError');
+      },
+      unauthorizedFieldErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('PROFILE_PROPERTY_DOES_NOT_EXIST:') > -1 && `${this.$t('UsersManagement.error.importCSV.profilePropertyDoesNotExist')} : ${this.errorMessage.split(':')[1]}`;
+      },
+      parentPropertyShouldNotHaveValuesErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:') > -1 && `${this.$t('UsersManagement.error.importCSV.parentPropertyShouldNotHaveValues')} : ${this.errorMessage.split(':')[1]}`;
+      },
+      propertyHasMoreThanOneParentErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MORE_THAN_ONE_PARENT:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasMoreThanOneParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+      },
+      propertyHasAMissingParentPropertyErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MISSING_PARENT_PROPERTY:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasAMissingParentPropertyErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+      },
+      customMultivaluedFieldErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('CUSTOM_FIELD_MULTIVALUED:') > -1 && `${this.$t('UsersManagement.error.importCSV.customMultivaluedFieldErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+      },
+      customParentErrorMessage () {
+        return this.errorMessage && this.errorMessage.indexOf('CUSTOM_PARENT_FIELD:') > -1 && `${this.$t('UsersManagement.error.importCSV.customParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
+      },
     },
-  },
-  computed: {
-    errorMessage() {
-      return this.error && String(this.error).replace('Error: ', '');
-    },
-    validationErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('USER_VALIDATION_ERROR:') > -1 && this.errorMessage.split(':')[1];
-    },
-    createUserErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_ERROR') > -1 && this.$t('UsersManagement.error.importCSV.errorCreatingUser');
-    },
-    groupNotExistsErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('GROUP_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.groupNotExists', {0: this.errorMessage.split(':')[1]});
-    },
-    membershipNotExistsErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('MEMBERSHIP_TYPE_NOT_EXISTS:') > -1 && this.$t('UsersManagement.error.importCSV.membershipNotExists', {0: this.errorMessage.split(':')[1]});
-    },
-    membershipImportErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('IMPORT_MEMBERSHIP_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createMembershipError');
-    },
-    createUserProfileErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('CREATE_USER_PROFILE_ERROR:') > -1 && this.$t('UsersManagement.error.importCSV.createSocialProfileError');
-    },
-    unauthorizedFieldErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('PROFILE_PROPERTY_DOES_NOT_EXIST:') > -1 && `${this.$t('UsersManagement.error.importCSV.profilePropertyDoesNotExist')} : ${this.errorMessage.split(':')[1]}`;
-    },
-    parentPropertyShouldNotHaveValuesErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:') > -1 && `${this.$t('UsersManagement.error.importCSV.parentPropertyShouldNotHaveValues')} : ${this.errorMessage.split(':')[1]}`;
-    },
-    propertyHasMoreThanOneParentErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MORE_THAN_ONE_PARENT:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasMoreThanOneParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
-    },
-    propertyHasAMissingParentPropertyErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('PROPERTY_HAS_MISSING_PARENT_PROPERTY:') > -1 && `${this.$t('UsersManagement.error.importCSV.propertyHasAMissingParentPropertyErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
-    },
-    customMultivaluedFieldErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('CUSTOM_FIELD_MULTIVALUED:') > -1 && `${this.$t('UsersManagement.error.importCSV.customMultivaluedFieldErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
-    },
-    customParentErrorMessage() {
-      return this.errorMessage && this.errorMessage.indexOf('CUSTOM_PARENT_FIELD:') > -1 && `${this.$t('UsersManagement.error.importCSV.customParentErrorMessage')} : ${this.errorMessage.split(':')[1]}`;
-    }
-  },
-};
+  };
 </script>

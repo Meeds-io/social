@@ -1,19 +1,23 @@
 <template>
   <space-logo-banner v-if="$root.displaySite && $root.spaceId" />
-  <div v-else-if="$root.displaySite" class="d-inline-flex">
+  <div
+    v-else-if="$root.displaySite"
+    class="d-inline-flex">
     <a
       v-if="$root.displaySiteLogo"
       :href="$root.siteHomePath"
       :title="tooltip">
-      <v-tooltip :disabled="$root.displaySiteTitle" bottom>
+      <v-tooltip
+        bottom
+        :disabled="$root.displaySiteTitle">
         <template #activator="{on, attrs}">
           <v-list-item-avatar
-            v-on="on"
             v-bind="attrs"
             id="UserHomePortalLink"
-            size="36"
             class="ma-0"
-            tile>
+            size="36"
+            tile
+            v-on="on">
             <v-icon size="28">{{ $root.siteIcon || 'fa-folder' }}</v-icon>
           </v-list-item-avatar>
         </template>
@@ -22,10 +26,10 @@
     </a>
     <a
       v-if="$root.displaySiteTitle"
-      :href="$root.siteHomePath"
+      class="align-self-center brandingContainer"
       :class="$root.displaySiteLogo && 'ms-4'"
-      :title="tooltip"
-      class="align-self-center brandingContainer">
+      :href="$root.siteHomePath"
+      :title="tooltip">
       <div class="siteTitle text-body menu-text-color font-weight-bold text-truncate">
         {{ $root.siteTitle }}
       </div>
@@ -33,15 +37,15 @@
   </div>
 </template>
 <script>
-export default {
-  computed: {
-    tooltip() {
-      return this.$root.isSitePage && this.$t('menu.pageNameTooltip', {
-        0: this.$root.siteTitle,
-      }) || this.$t('menu.siteNameTooltip', {
-        0: this.$root.siteTitle,
-      });
+  export default {
+    computed: {
+      tooltip () {
+        return this.$root.isSitePage && this.$t('menu.pageNameTooltip', {
+          0: this.$root.siteTitle,
+        }) || this.$t('menu.siteNameTooltip', {
+          0: this.$root.siteTitle,
+        });
+      },
     },
-  },
-};
+  };
 </script>

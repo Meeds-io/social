@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function getSpacePermission(spaceId) {
+export function getSpacePermission (spaceId) {
   return fetch(`/social/rest/space/administration/${spaceId}/permissions`, {
     method: 'GET',
     credentials: 'include',
@@ -30,12 +30,12 @@ export function getSpacePermission(spaceId) {
   });
 }
 
-export function updateSpacePermissions(spaceId, permissions) {
+export function updateSpacePermissions (spaceId, permissions) {
   return fetch(`/social/rest/space/administration/${spaceId}/permissions`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(permissions),
   }).then(resp => {
@@ -45,12 +45,12 @@ export function updateSpacePermissions(spaceId, permissions) {
   });
 }
 
-export function applySpaceTemplate(spaceId, templatePatch) {
+export function applySpaceTemplate (spaceId, templatePatch) {
   return fetch(`/social/rest/space/administration/${spaceId}/template`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(templatePatch),
   }).then(resp => {

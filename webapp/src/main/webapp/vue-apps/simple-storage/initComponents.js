@@ -27,7 +27,7 @@ const components = {
   'simple-storage-app': SimpleStorageApp,
   'simple-storage-toolbar': SimpleStorageToolbar,
   'simple-storage-image-list': SimpleStorageImageList,
-  'simple-storage-image-input-file': SimpleStorageImageInputFile
+  'simple-storage-image-input-file': SimpleStorageImageInputFile,
 };
 
 for (const key in components) {

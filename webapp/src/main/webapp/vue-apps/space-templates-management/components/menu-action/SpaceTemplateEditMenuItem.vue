@@ -32,12 +32,12 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    spaceTemplate: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceTemplate: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

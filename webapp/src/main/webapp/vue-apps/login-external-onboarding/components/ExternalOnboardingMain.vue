@@ -20,10 +20,10 @@
 -->
 <template>
   <v-card
-    width="600px"
-    max-width="100%"
     class="mx-auto px-4"
-    flat>
+    flat
+    max-width="100%"
+    width="600px">
     <portal-external-onboarding-already-authenticated
       v-if="authenticated"
       :params="params" />
@@ -36,20 +36,20 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    action() {
-      return this.params?.action;
+    computed: {
+      action () {
+        return this.params?.action;
+      },
+      authenticated () {
+        return this.params?.authenticated;
+      },
     },
-    authenticated() {
-      return this.params?.authenticated;
-    },
-  },
-};
+  };
 </script>

@@ -20,25 +20,29 @@
 -->
 <template>
   <exo-drawer
+    id="defaultLanguageDrawer"
     ref="drawer"
     v-model="drawer"
-    id="defaultLanguageDrawer"
     allow-expand
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('generalSettings.manageDefaultLanguage.drawer.title') }}
     </template>
-    <template v-if="drawer" slot="content">
-      <v-radio-group v-model="language" class="px-4">
+    <template
+      v-if="drawer"
+      #content>
+      <v-radio-group
+        v-model="language"
+        class="px-4">
         <v-radio
           v-for="lang in languages"
           :key="lang.value"
+          class="text-capitalize"
           :label="lang.text"
-          :value="lang.value"
-          class="text-capitalize" />
+          :value="lang.value" />
       </v-radio-group>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -57,49 +61,49 @@
 </template>
 
 <script>
-export default {
-  props: {
-    branding: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      branding: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    language: null,
-  }),
-  computed: {
-    languages() {
-      return this.branding?.supportedLanguages && Object.keys(this.branding?.supportedLanguages).map(l => ({
-        value: l.replace('_', '-'),
-        text: this.branding.supportedLanguages[l],
-      })) || [];
+    data: () => ({
+      drawer: false,
+      language: null,
+    }),
+    computed: {
+      languages () {
+        return this.branding?.supportedLanguages && Object.keys(this.branding?.supportedLanguages).map(l => ({
+          value: l.replace('_', '-'),
+          text: this.branding.supportedLanguages[l],
+        })) || [];
+      },
     },
-  },
-  created() {
-    this.$root.$on('default-language-edit', this.open);
-  },
-  methods: {
-    open() {
-      this.language = this.branding?.defaultLanguage;
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('default-language-edit', this.open);
     },
-    saveLanguage() {
-      const lang = this.language.replace('-', '_');
-      this.loading = true;
-      this.$languageSettingService.saveDefaultLanguage(lang)
-        .then(() => {
-          this.$emit('refresh');
-          this.$root.$emit('alert-message', this.$t('generalSettings.defaultLanguageSettingSaved'), 'success');
-          this.close();
-        })
-        .catch(() => this.$root.$emit('alert-message', this.$t('generalSettings.defaultLanguageSettingError'), 'error'))
-        .finally(() => this.loading = false);
+    methods: {
+      open () {
+        this.language = this.branding?.defaultLanguage;
+        this.$refs.drawer.open();
+      },
+      saveLanguage () {
+        const lang = this.language.replace('-', '_');
+        this.loading = true;
+        this.$languageSettingService.saveDefaultLanguage(lang)
+          .then(() => {
+            this.$emit('refresh');
+            this.$root.$emit('alert-message', this.$t('generalSettings.defaultLanguageSettingSaved'), 'success');
+            this.close();
+          })
+          .catch(() => this.$root.$emit('alert-message', this.$t('generalSettings.defaultLanguageSettingError'), 'error'))
+          .finally(() => this.loading = false);
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
     },
-    close() {
-      this.$refs.drawer.close();
-    },
-  },
-};
+  };
 </script>
 

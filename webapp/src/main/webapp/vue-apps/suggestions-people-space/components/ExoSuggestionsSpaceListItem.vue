@@ -1,18 +1,20 @@
 <template>
   <v-list-item class="suggestions-list-item pa-0">
     <v-list-item-avatar
-      :size="avatarSize"
-      class="spaceAvatar">
+      class="spaceAvatar"
+      :size="avatarSize">
       <v-img
+        eager
         :lazy-src="avatarUrl || ''"
         :src="avatarUrl || ''"
-        transition="none"
-        eager />
+        transition="none" />
     </v-list-item-avatar>
     <v-list-item-content class="pb-3">
       <v-list-item-title
         class="suggestions-list-item-title">
-        <a :href="url" class="text-color">
+        <a
+          class="text-color"
+          :href="url">
           {{ space.displayName }}
         </a>
       </v-list-item-title>
@@ -23,19 +25,19 @@
     <v-list-item-action class="suggestions-list-item-actions">
       <v-btn-toggle class="transparent">
         <a
-          text
-          icon
-          small
-          min-width="auto"
           class="px-0 suggestions-btn-action connexion-accept-btn"
+          icon
+          min-width="auto"
+          small
+          text
           @click="joinSpace(space)">
           <i class="uiIconPlusLight"></i>
         </a>
         <a
-          text
-          small
-          min-width="auto"
           class="px-0 suggestions-btn-action connexion-refuse-btn"
+          min-width="auto"
+          small
+          text
           @click="ignoredSuggestionSpace(space)">
           <i class="uiIconCloseCircled"></i>
         </a>
@@ -45,47 +47,47 @@
 </template>
 
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: () => null,
+      },
+      avatarSize: {
+        type: Number,
+        default: () => 37,
+      },
+      spacesSuggestionsList: {
+        type: Array,
+        default: () => [],
+      },
     },
-    avatarSize: {
-      type: Number,
-      default: () => 37,
-    },
-    spacesSuggestionsList: {
-      type: Array,
-      default: () => []
-    }
-  },
-  computed: {
-    avatarUrl() {
-      return this.space && this.space.spaceAvatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.spaceUrl}/avatar`;
-    },
-    url() {
-      if (!this.space?.spaceId) {
-        return '#';
-      }
-      return `${eXo.env.portal.context}/s/${this.space.spaceId}`;
-    },
-  },
-  methods: {
-    joinSpace(item) {
-      this.$spaceService.requestJoin(item.spaceId).then(
-        () => {
-          this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+    computed: {
+      avatarUrl () {
+        return this.space && this.space.spaceAvatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.spaceUrl}/avatar`;
+      },
+      url () {
+        if (!this.space?.spaceId) {
+          return '#';
         }
-      );
+        return `${eXo.env.portal.context}/s/${this.space.spaceId}`;
+      },
     },
-    ignoredSuggestionSpace(item) {
-      this.$spaceService.ignoreSuggestion(item).then(
-        () => {
-          this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
-        }
-      );
+    methods: {
+      joinSpace (item) {
+        this.$spaceService.requestJoin(item.spaceId).then(
+          () => {
+            this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+          }
+        );
+      },
+      ignoredSuggestionSpace (item) {
+        this.$spaceService.ignoreSuggestion(item).then(
+          () => {
+            this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
+          }
+        );
+      },
     },
-  },
-};
+  };
 </script>

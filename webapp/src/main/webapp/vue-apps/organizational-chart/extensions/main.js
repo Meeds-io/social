@@ -1,9 +1,9 @@
-import {registerExtension} from './extensions.js';
+import { registerExtension } from './extensions.js';
 
 const lang = eXo?.env?.portal?.language || 'en';
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-export function init() {
+export function init () {
   if (!eXo?.env?.portal?.userIdentityId
     || !eXo.env.portal.isOrganizationalChartEnabled) {
     return;

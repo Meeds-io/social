@@ -1,12 +1,12 @@
-export function registerExtension(title) {
+export function registerExtension (title) {
   const chartNavigation = {
     id: 'user-chart',
-    title: title,
+    title,
     icon: 'fas fa-sitemap',
     class: 'fas fa-sitemap',
     order: 10,
-    enabled: (user) => eXo.env.portal.isExternal === false && user.enabled && user?.external !==  'true',
-    click: (profile) => {
+    enabled: user => eXo.env.portal.isExternal === false && user.enabled && user?.external !==  'true',
+    click: profile => {
       const isCurrentUser = profile.id === eXo.env.portal.userIdentityId;
       const chartPage = isCurrentUser && 'dashboard/myteam' || 'organizationalchart';
       const siteName = isCurrentUser && eXo.env.portal.myCraftSiteName || eXo.env.portal.metaPortalName;
@@ -18,5 +18,5 @@ export function registerExtension(title) {
   if (extensionRegistry) {
     extensionRegistry.registerExtension('user-extension', 'navigation', chartNavigation);
   }
-  document.dispatchEvent(new CustomEvent('user-extension-updated', { detail: chartNavigation}));
+  document.dispatchEvent(new CustomEvent('user-extension-updated', { detail: chartNavigation }));
 }

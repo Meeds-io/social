@@ -23,57 +23,59 @@
 <template>
   <v-menu
     v-if="category.categories?.length"
+    :key="`${category.id}_menu`"
     ref="menu"
     v-model="menu"
-    :key="`${category.id}_menu`"
+    bottom
     close-delay="500"
-    open-on-hover
     close-on-click
     offset-y
-    bottom>
+    open-on-hover>
     <template #activator="{on, attrs}">
       <v-tab
         v-bind="attrs"
-        v-on="$listeners?.click && {
+        :value="category.id"
+        v-on="$attrs?.click && {
           ...on,
-          click: () => $listeners.click(category),
-        } || on"
-        :value="category.id">
+          click: () => $attrs.click(category),
+        } || on">
         <v-card
-          :title="category.name"
-          :max-width="maxWidth"
-          color="transparent"
           class="text-truncate"
-          flat>
+          color="transparent"
+          flat
+          :max-width="maxWidth"
+          :title="category.name">
           {{ category.name }}
         </v-card>
         <v-icon
           class="ms-2"
-          size="16"
           right
+          size="16"
           @click.stop.prevent="menu = true">
           fa-chevron-down
         </v-icon>
       </v-tab>
     </template>
-    <v-list class="pa-0" dense>
+    <v-list
+      class="pa-0"
+      dense>
       <v-list-item
         v-for="subItem in category.categories"
-        v-on="$listeners?.click && {
-          click: () => {
-            $listeners.click(subItem);
-            closeMenu();
-          },
-        }"
         :key="subItem.id"
         :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
-        dense>
+        dense
+        v-on="$attrs?.click && {
+          click: () => {
+            $attrs.click(subItem);
+            closeMenu();
+          },
+        }">
         <v-card
-          :title="subItem.name"
-          :max-width="maxWidth"
-          color="transparent"
           class="text-truncate"
-          flat>
+          color="transparent"
+          flat
+          :max-width="maxWidth"
+          :title="subItem.name">
           {{ subItem.name }}
         </v-card>
       </v-list-item>
@@ -81,53 +83,53 @@
   </v-menu>
   <v-tab
     v-else
-    v-on="$listeners?.click && {
-      click: () => $listeners.click(category),
-    }"
     :key="category.id"
-    :value="category.id">
+    :value="category.id"
+    v-on="$attrs?.click && {
+      click: () => $attrs.click(category),
+    }">
     <v-card
-      :title="category.name"
-      :max-width="maxWidth"
-      color="transparent"
       class="text-truncate"
-      flat>
+      color="transparent"
+      flat
+      :max-width="maxWidth"
+      :title="category.name">
       {{ category.name }}
     </v-card>
   </v-tab>
 </template>
 <script>
-export default {
-  props: {
-    selectedCategory: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      selectedCategory: {
+        type: Object,
+        default: null,
+      },
+      category: {
+        type: Object,
+        default: null,
+      },
+      maxWidth: {
+        type: Number,
+        default: () => 150,
+      },
     },
-    category: {
-      type: Object,
-      default: null,
+    data: () => ({
+      menu: false,
+    }),
+    created () {
+      document.addEventListener('click', this.closeMenuImmediatly);
     },
-    maxWidth: {
-      type: Number,
-      default: () => 150,
+    beforeUnmount () {
+      document.removeEventListener('click', this.closeMenuImmediatly);
     },
-  },
-  data: () => ({
-    menu: false,
-  }),
-  created() {
-    document.addEventListener('click', this.closeMenuImmediatly);
-  },
-  beforeDestroy() {
-    document.removeEventListener('click', this.closeMenuImmediatly);
-  },
-  methods: {
-    closeMenuImmediatly() {
-      this.menu = false;
+    methods: {
+      closeMenuImmediatly () {
+        this.menu = false;
+      },
+      closeMenu () {
+        window.setTimeout(() => this.menu = false, 50);
+      },
     },
-    closeMenu() {
-      window.setTimeout(() => this.menu = false, 50);
-    },
-  },
-};
+  };
 </script>

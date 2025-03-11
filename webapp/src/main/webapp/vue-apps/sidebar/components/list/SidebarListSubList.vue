@@ -31,55 +31,55 @@
   </v-list-item-group>
 </template>
 <script>
-export default {
-  props: {
-    item: {
-      type: Object,
-      default: null,
-    },
-  },
-  data: () => ({
-    selectedValue: null,
-  }),
-  computed: {
-    menuItems() {
-      return this.item?.items;
-    },
-    activeMenu() {
-      if (this.menuItems?.length) {
-        if (eXo.env.portal.spaceGroup) {
-          const selectedSpaceMenu = this.menuItems.find(item =>
-            item?.properties?.groupId?.length
-            && window.location.pathname.includes(item.properties.groupId.replaceAll('/', ':')));
-          return selectedSpaceMenu?.url;
-        } else {
-          const selectedSiteMenu = this.menuItems.find(item => item.url && window.location.pathname.includes(item.url));
-          return selectedSiteMenu?.url;
-        }
-      } else {
-        return null;
-      }
-    },
-  },
-  watch: {
-    selectedValue() {
-      this.resetSelectedValue();
-    },
-    activeMenu: {
-      immediate: true,
-      handler() {
-        this.resetSelectedValue();
+  export default {
+    props: {
+      item: {
+        type: Object,
+        default: null,
       },
     },
-  },
-  methods: {
-    async resetSelectedValue() {
-      if (this.selectedValue !== this.activeMenu) {
-        this.selectedValue = null;
-        await this.$nextTick();
-        this.selectedValue = this.activeMenu;
-      }
+    data: () => ({
+      selectedValue: null,
+    }),
+    computed: {
+      menuItems () {
+        return this.item?.items;
+      },
+      activeMenu () {
+        if (this.menuItems?.length) {
+          if (eXo.env.portal.spaceGroup) {
+            const selectedSpaceMenu = this.menuItems.find(item =>
+              item?.properties?.groupId?.length
+              && window.location.pathname.includes(item.properties.groupId.replaceAll('/', ':')));
+            return selectedSpaceMenu?.url;
+          } else {
+            const selectedSiteMenu = this.menuItems.find(item => item.url && window.location.pathname.includes(item.url));
+            return selectedSiteMenu?.url;
+          }
+        } else {
+          return null;
+        }
+      },
     },
-  },
-};
+    watch: {
+      selectedValue () {
+        this.resetSelectedValue();
+      },
+      activeMenu: {
+        immediate: true,
+        handler () {
+          this.resetSelectedValue();
+        },
+      },
+    },
+    methods: {
+      async resetSelectedValue () {
+        if (this.selectedValue !== this.activeMenu) {
+          this.selectedValue = null;
+          await this.$nextTick();
+          this.selectedValue = this.activeMenu;
+        }
+      },
+    },
+  };
 </script>

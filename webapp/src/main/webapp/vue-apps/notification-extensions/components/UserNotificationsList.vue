@@ -31,12 +31,12 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    notifications: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      notifications: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

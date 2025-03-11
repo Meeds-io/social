@@ -24,8 +24,8 @@
     id="spaceInvitationDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="saving"
     :go-back-button="goBackButton"
+    :loading="saving"
     right>
     <template #title>
       {{ $t('peopleList.title.usersToInvite') }}
@@ -34,18 +34,18 @@
       <exo-identity-suggester
         v-if="!resetInput"
         v-model="selectedUser"
-        :labels="suggesterLabels"
+        class="ma-4"
         :disabled="saving"
+        include-spaces
+        include-users
+        :items="users"
+        :labels="suggesterLabels"
+        name="inviteMembers"
         :search-options="{
           spaceURL: spacePrettyName,
           filterType: 'accessible',
         }"
-        :items="users"
-        name="inviteMembers"
-        type-of-relations="user_to_invite"
-        class="ma-4"
-        include-users
-        include-spaces />
+        type-of-relations="user_to_invite" />
       <v-list
         v-if="invitedMembers?.length"
         class="mx-4 mt-0 rounded">
@@ -60,15 +60,15 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
+          :disabled="saving"
           @click="cancel">
           {{ $t('peopleList.label.cancel') }}
         </v-btn>
         <v-btn
-          :loading="saving"
-          :disabled="saveButtonDisabled"
           class="btn btn-primary"
+          :disabled="saveButtonDisabled"
+          :loading="saving"
           @click.prevent.stop="inviteUsers">
           {{ $t('peopleList.button.inviteUsers') }}
         </v-btn>
@@ -77,77 +77,77 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    users: [],
-    drawer: false,
-    saving: false,
-    resetInput: false,
-    goBackButton: false,
-    spacePrettyName: eXo.env.portal.spaceName,
-    selectedUser: null,
-    invitedMembers: [],
-  }),
-  computed: {
-    saveButtonDisabled() {
-      return this.saving
-        || !this.invitedMembers
-        || !this.invitedMembers.length;
+  export default {
+    data: () => ({
+      users: [],
+      drawer: false,
+      saving: false,
+      resetInput: false,
+      goBackButton: false,
+      spacePrettyName: eXo.env.portal.spaceName,
+      selectedUser: null,
+      invitedMembers: [],
+    }),
+    computed: {
+      saveButtonDisabled () {
+        return this.saving
+          || !this.invitedMembers
+          || !this.invitedMembers.length;
+      },
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
+          noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
+        };
+      },
     },
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
-        noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
-      };
-    },
-  },
-  watch: {
-    selectedUser() {
-      if (this.selectedUser?.providerId) {
-        if (this.selectedUser && !this.invitedMembers.find(u => u.id === this.selectedUser.id)) {
-          this.invitedMembers.unshift(this.selectedUser);
+    watch: {
+      selectedUser () {
+        if (this.selectedUser?.providerId) {
+          if (this.selectedUser && !this.invitedMembers.find(u => u.id === this.selectedUser.id)) {
+            this.invitedMembers.unshift(this.selectedUser);
+          }
+          this.$nextTick().then(() => this.selectedUser = null);
         }
-        this.$nextTick().then(() => this.selectedUser = null);
-      }
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-settings-invite-member', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-settings-invite-member', this.open);
-  },
-  methods: {
-    open(goBackButton) {
-      this.saving = false;
-      this.goBackButton = goBackButton;
-      this.spacePrettyName = eXo.env.portal.spaceName;
-      this.selectedUser = null;
-      this.invitedMembers = [];
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('space-settings-invite-member', this.open);
     },
-    inviteUsers() {
-      this.saving = true;
-      this.$spaceService.updateSpace({
-        id: this.$root.spaceId,
-        invitedMembers: this.invitedMembers,
-      })
-        .then(() => {
-          this.$root.$emit('alert-message', this.$t('peopleList.label.successfulInvitation'), 'success');
-          this.$root.$emit('space-settings-pending-updated');
-          this.$refs.drawer.close();
+    beforeUnmount () {
+      this.$root.$off('space-settings-invite-member', this.open);
+    },
+    methods: {
+      open (goBackButton) {
+        this.saving = false;
+        this.goBackButton = goBackButton;
+        this.spacePrettyName = eXo.env.portal.spaceName;
+        this.selectedUser = null;
+        this.invitedMembers = [];
+        this.$refs.drawer.open();
+      },
+      inviteUsers () {
+        this.saving = true;
+        this.$spaceService.updateSpace({
+          id: this.$root.spaceId,
+          invitedMembers: this.invitedMembers,
         })
-        .catch(() => this.$root.$emit('alert-message', this.$t('peopleList.error.errorWhensaving'), 'error'))
-        .finally(() => this.saving = false);
+          .then(() => {
+            this.$root.$emit('alert-message', this.$t('peopleList.label.successfulInvitation'), 'success');
+            this.$root.$emit('space-settings-pending-updated');
+            this.$refs.drawer.close();
+          })
+          .catch(() => this.$root.$emit('alert-message', this.$t('peopleList.error.errorWhensaving'), 'error'))
+          .finally(() => this.saving = false);
+      },
+      cancel () {
+        this.$refs.drawer.close();
+      },
+      resetSuggester () {
+        this.resetInput = true;
+        this.selectedUser = null;
+        this.$nextTick().then(() => this.resetInput = false);
+      },
     },
-    cancel() {
-      this.$refs.drawer.close();
-    },
-    resetSuggester() {
-      this.resetInput = true;
-      this.selectedUser = null;
-      this.$nextTick().then(() => this.resetInput = false);
-    },
-  },
-};
+  };
 </script>

@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-list-item class="px-0" two-line>
+  <v-list-item
+    class="px-0"
+    two-line>
     <v-list-item-content>
       <v-list-item-title class="text-title">
         {{ optionLabel }}
@@ -32,8 +34,8 @@
         icon
         @click="$emit('action')">
         <v-icon
-          :size="iconSize"
-          class="icon-default-color">
+          class="icon-default-color"
+          :size="iconSize">
           {{ actionIcon }}
         </v-icon>
       </v-btn>
@@ -42,24 +44,24 @@
 </template>
 
 <script>
-export default {
-  props: {
-    optionLabel: {
-      type: String,
-      default: null
+  export default {
+    props: {
+      optionLabel: {
+        type: String,
+        default: null,
+      },
+      description: {
+        type: String,
+        default: null,
+      },
+      actionIcon: {
+        type: String,
+        default: null,
+      },
+      iconSize: {
+        type: Number,
+        default: 18,
+      },
     },
-    description: {
-      type: String,
-      default: null
-    },
-    actionIcon: {
-      type: String,
-      default: null
-    },
-    iconSize: {
-      type: Number,
-      default: 18
-    }
-  }
-};
+  };
 </script>

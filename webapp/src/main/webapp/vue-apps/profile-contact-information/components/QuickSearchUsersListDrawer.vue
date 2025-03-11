@@ -25,33 +25,33 @@
     allow-expand
     right
     @expand-updated="expanded = $event">
-    <template slot="title">
+    <template #title>
       <span class="text-color ma-auto">
         {{ $t('profileContactInformation.quick.search.label', {0: propertyValue}) }}
       </span>
     </template>
-    <template slot="content">
+    <template #content>
       <people-toolbar
-        filter="all"
-        :hide-filter="true"
-        :hide-right-filter-button="true"
-        :filter-message="filterMessage"
-        filter-message-class="position-absolute filter-message ps-1"
         class="transparent"
         compact-display
+        filter="all"
+        :filter-message="filterMessage"
+        filter-message-class="position-absolute filter-message ps-1"
+        :hide-filter="true"
+        :hide-right-filter-button="true"
         @keyword-changed="keyword = $event" />
       <complementary-filter
-        class="mt-n1 z-index-two position-relative"
-        :object-ids="objectIds"
         :attributes="listProperties"
-        :show-message="false"
+        class="mt-n1 z-index-two position-relative"
         index-alias="profile_alias"
         :loading-call-back="loadingCallBack"
+        :object-ids="objectIds"
         :parent-expanded="expanded"
+        :show-message="false"
         @build-suggestions-terminated="buildSuggestionsTerminated"
         @filter-changed="selectedSuggestionsUpdated"
-        @filter-suggestion-unselected="unselectSuggestion"
-        @filter-drawer-closed="filterDrawerClosed" />
+        @filter-drawer-closed="filterDrawerClosed"
+        @filter-suggestion-unselected="unselectSuggestion" />
       <div
         v-if="!isSearching && !listUsers.length"
         class="mt-auto mb-auto pt-5 align-center">
@@ -73,25 +73,25 @@
           v-if="expanded"
           class="pa-2 quickSearchResultExpanded">
           <v-container
-            fluid
-            class="pa-3">
+            class="pa-3"
+            fluid>
             <v-row>
               <v-col
                 v-for="user in listUsers"
-                :key="user.id"
                 :id="`peopleCardItem${user.id}`"
+                :key="user.id"
+                class="pa-2"
                 cols="12"
-                sm="6"
-                md="4"
                 lg="3"
-                xl="3"
-                class="pa-2">
+                md="4"
+                sm="6"
+                xl="3">
                 <people-card
-                  :user="user"
-                  :user-navigation-extensions="userExtensions"
+                  :mobile-display="$root.isMobile"
                   :profile-action-extensions="profileActionExtensions"
+                  :user="user"
                   :user-card-settings="userCardSettings"
-                  :mobile-display="$root.isMobile" />
+                  :user-navigation-extensions="userExtensions" />
               </v-col>
             </v-row>
           </v-container>
@@ -101,25 +101,25 @@
           class="pt-2 mt-n1 quickSearchResultExpanded quickSearchResultCollapsed">
           <people-card
             v-for="user in listUsers"
-            :key="user.id"
             :id="`peopleCardItem${user.id}`"
-            :user="user"
-            :user-navigation-extensions="userExtensions"
-            :profile-action-extensions="profileActionExtensions"
+            :key="user.id"
+            compact-display
             :mobile-display="$root.isMobile"
-            compact-display />
+            :profile-action-extensions="profileActionExtensions"
+            :user="user"
+            :user-navigation-extensions="userExtensions" />
         </div>
       </div>
     </template>
     <template
       v-if="hasMore"
-      slot="footer">
+      #footer>
       <div class="ma-auto d-flex width-full">
         <v-btn
-          :loading="isLoading"
           class="btn btn-primary width-full"
-          text
+          :loading="isLoading"
           outlined
+          text
           @click="search(true)">
           {{ $t('Search.button.loadMore') }}
         </v-btn>
@@ -129,146 +129,146 @@
 </template>
 
 <script>
-export default {
+  export default {
+    props: {
+      properties: {
+        type: Array,
+        default: () => [],
+      },
+      userCardSettings: {
+        type: Object,
+        default: null,
+      },
+    },
 
-  data() {
-    return {
-      users: [],
-      pageSize: 9,
-      limit: 0,
-      offset: 0,
-      fieldsToRetrieve: 'all,relationshipStatus,settings',
-      hasMore: false,
-      profileActionExtensions: [],
-      userExtensions: [],
-      profileSetting: null,
-      expanded: false,
-      propertyValue: null,
-      isSearching: false,
-      keyword: null,
-      hasCombinations: false,
-      selectedSuggestions: [],
-      isLoading: false
-    };
-  },
-  props: {
-    properties: {
-      type: Array,
-      default: () => []
+    data () {
+      return {
+        users: [],
+        pageSize: 9,
+        limit: 0,
+        offset: 0,
+        fieldsToRetrieve: 'all,relationshipStatus,settings',
+        hasMore: false,
+        profileActionExtensions: [],
+        userExtensions: [],
+        profileSetting: null,
+        expanded: false,
+        propertyValue: null,
+        isSearching: false,
+        keyword: null,
+        hasCombinations: false,
+        selectedSuggestions: [],
+        isLoading: false,
+      };
     },
-    userCardSettings: {
-      type: Object,
-      default: null
-    }
-  },
-  computed: {
-    listUsers() {
-      return this.users;
-    },
-    objectIds() {
-      return this.listUsers.map(user => user.id);
-    },
-    listProperties() {
-      return this.profileSetting && this.properties?.filter(property => property !== Object.keys(this.profileSetting)[0])
+    computed: {
+      listUsers () {
+        return this.users;
+      },
+      objectIds () {
+        return this.listUsers.map(user => user.id);
+      },
+      listProperties () {
+        return this.profileSetting && this.properties?.filter(property => property !== Object.keys(this.profileSetting)[0])
           || this.properties;
+      },
+      filterMessage () {
+        return this.hasCombinations && this.$t('complementaryFilter.suggestions.message') || ' ';
+      },
     },
-    filterMessage() {
-      return this.hasCombinations && this.$t('complementaryFilter.suggestions.message') || ' ';
-    }
-  },
-  watch: {
-    isSearching() {
-      this.loadingCallBack(this.isSearching);
+    watch: {
+      isSearching () {
+        this.loadingCallBack(this.isSearching);
+      },
+      keyword () {
+        this.users = [];
+        this.search();
+      },
     },
-    keyword() {
-      this.users = [];
-      this.search();
+    created () {
+      this.refreshExtensions();
+      this.refreshUserExtensions();
+      document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+      document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
+      this.$root.$on('open-quick-search-users-drawer', this.open);
     },
-  },
-  created() {
-    this.refreshExtensions();
-    this.refreshUserExtensions();
-    document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
-    document.addEventListener('extension-user-extension-navigation-updated', this.refreshUserExtensions);
-    this.$root.$on('open-quick-search-users-drawer', this.open);
-  },
-  methods: {
-    refreshUserExtensions() {
-      this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
-    },
-    resetFilter() {
-      this.$root.$emit('filter-reset-selections');
-      this.$root.$emit('reset-filter');
-    },
-    loadingCallBack(isLoading) {
-      if (isLoading) {
-        this.$refs.quickSearchUsersListDrawer.startLoading();
-      } else {
-        this.$refs.quickSearchUsersListDrawer.endLoading();
-      }
-    },
-    refreshExtensions() {
-      this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-      this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
-    },
-    selectedSuggestionsUpdated(suggestions) {
-      if (!suggestions.length && !this.listUsers.length) {
-        this.$root.$emit('update-filter-suggestions');
-        return;
-      }
-      this.isSearching = true;
-      this.selectedSuggestions = suggestions;
-      this.users = [];
-      this.search();
-    },
-    unselectSuggestion(suggestion) {
-      delete this.profileSetting[suggestion.key];
-    },
-    buildSuggestionsTerminated(suggestions) {
-      this.hasCombinations = suggestions?.length;
-    },
-    filterDrawerClosed(close) {
-      if (close) {
-        this.close();
-      }
-    },
-    close() {
-      this.$refs.quickSearchUsersListDrawer.close();
-    },
-    open(profileSetting, propertyValue) {
-      this.resetFilter();
-      this.profileSetting = profileSetting;
-      this.propertyValue = propertyValue;
-      this.hasCombinations = false;
-      this.selectedSuggestions = [];
-      this.users = [];
-      this.search(true);
-      this.$refs.quickSearchUsersListDrawer.open();
-    },
-    search(loadMore) {
-      if (this.selectedSuggestions?.length) {
-        this.selectedSuggestions.forEach(suggestion => {
-          this.profileSetting[suggestion.key] = suggestion.value;
+    methods: {
+      refreshUserExtensions () {
+        this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
+      },
+      resetFilter () {
+        this.$root.$emit('filter-reset-selections');
+        this.$root.$emit('reset-filter');
+      },
+      loadingCallBack (isLoading) {
+        if (isLoading) {
+          this.$refs.quickSearchUsersListDrawer.startLoading();
+        } else {
+          this.$refs.quickSearchUsersListDrawer.endLoading();
+        }
+      },
+      refreshExtensions () {
+        this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+        this.profileActionExtensions.sort((elementOne, elementTwo) => (elementOne.order || 100) - (elementTwo.order || 100));
+      },
+      selectedSuggestionsUpdated (suggestions) {
+        if (!suggestions.length && !this.listUsers.length) {
+          this.$root.$emit('update-filter-suggestions');
+          return;
+        }
+        this.isSearching = true;
+        this.selectedSuggestions = suggestions;
+        this.users = [];
+        this.search();
+      },
+      unselectSuggestion (suggestion) {
+        delete this.profileSetting[suggestion.key];
+      },
+      buildSuggestionsTerminated (suggestions) {
+        this.hasCombinations = suggestions?.length;
+      },
+      filterDrawerClosed (close) {
+        if (close) {
+          this.close();
+        }
+      },
+      close () {
+        this.$refs.quickSearchUsersListDrawer.close();
+      },
+      open (profileSetting, propertyValue) {
+        this.resetFilter();
+        this.profileSetting = profileSetting;
+        this.propertyValue = propertyValue;
+        this.hasCombinations = false;
+        this.selectedSuggestions = [];
+        this.users = [];
+        this.search(true);
+        this.$refs.quickSearchUsersListDrawer.open();
+      },
+      search (loadMore) {
+        if (this.selectedSuggestions?.length) {
+          this.selectedSuggestions.forEach(suggestion => {
+            this.profileSetting[suggestion.key] = suggestion.value;
+          });
+        }
+        this.isSearching = true;
+        this.isLoading = loadMore;
+        if (this.abortController) {
+          this.abortController.abort();
+        }
+        this.abortController = new AbortController();
+        this.offset = this.users.length || 0;
+        this.limit = this.limit || this.pageSize;
+        this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.keyword, false, this.abortController.signal, 'false').then(data => {
+          this.users.push(...data.users);
+          this.hasMore = data.users?.length > this.limit;
+        }).finally(() => {
+          this.abortController = null;
+          this.isSearching = false;
+          this.isLoading = false;
+          this.$root.$emit('update-filter-suggestions');
         });
-      }
-      this.isSearching = true;
-      this.isLoading = loadMore;
-      if (this.abortController) {
-        this.abortController.abort();
-      }
-      this.abortController = new AbortController();
-      this.offset = this.users.length || 0;
-      this.limit = this.limit || this.pageSize;
-      this.$userService.getUsersByAdvancedFilter(this.profileSetting, this.offset, this.limit + 1, this.fieldsToRetrieve,'all', this.keyword, false, this.abortController.signal, 'false').then(data => {
-        this.users.push(...data.users);
-        this.hasMore = data.users?.length > this.limit;
-      }).finally(() => {
-        this.abortController = null;
-        this.isSearching = false;
-        this.isLoading = false;
-        this.$root.$emit('update-filter-suggestions');
-      });
-    }
-  }
-};
+      },
+    },
+  };
 </script>

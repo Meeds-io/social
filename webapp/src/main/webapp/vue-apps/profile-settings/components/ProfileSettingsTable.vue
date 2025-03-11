@@ -20,29 +20,37 @@
 <template>
   <v-data-table
     ref="dataTable"
+    v-model:sort-by="sortByValue"
+    class="settings-table data-table-light-border py-6 transparent"
+    disable-filtering
+    disable-pagination
     :headers="headers"
+    hide-default-footer
     :items="settings"
     :items-per-page="pageSize"
     :loading="loading"
-    :locale="lang"
-    :sort-by.sync="sortBy"
-    hide-default-footer
-    disable-pagination
-    disable-filtering
-    class="settings-table data-table-light-border py-6 transparent">
-    <template slot="item.propertyName" slot-scope="{ item }">
+    :locale="lang">
+    <template
+      #item.propertyName="{ item }">
       {{ getResolvedName(item) }}
     </template>
-    <template slot="item.actions" slot-scope="{ item }">
-      <profile-settings-actions-cell :setting="item" :settings="settings" />
+    <template
+      #item.actions="{ item }">
+      <profile-settings-actions-cell
+        :setting="item"
+        :settings="settings" />
     </template>
-    <template #no-data>{{ $t("profileSettings.noSettings") }}</template>
-    <template v-if="hasMore" slot="footer">
+    <template #no-data>
+      {{ $t("profileSettings.noSettings") }}
+    </template>
+    <template
+      v-if="hasMore"
+      #footer>
       <v-flex class="d-flex py-2 border-box-sizing mb-1">
         <v-btn
-          :loading="loading"
-          :disabled="loading"
           class="white mx-auto no-border primary--text no-box-shadow"
+          :disabled="loading"
+          :loading="loading"
           @click="$root.$emit('document-load-more')">
           {{ $t('profileSettings.loadMore') }}
         </v-btn>
@@ -52,66 +60,74 @@
 </template>
 
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
+      pageSize: {
+        type: Number,
+        default: 20,
+      },
+      offset: {
+        type: Number,
+        default: 20,
+      },
+      limit: {
+        type: Number,
+        default: 20,
+      },
+      loading: {
+        type: Boolean,
+        default: false,
+      },
+      hasMore: {
+        type: Boolean,
+        default: false,
+      },
+      sortBy: {
+        type: String,
+        default: 'order',
+      },
     },
-    pageSize: {
-      type: Number,
-      default: 20
+    data: () => ({
+      waitTimeUntilCloseMenu: 200,
+      lang: eXo.env.portal.language,
+    }),
+    computed: {
+      headers () {
+        return [{
+          text: this.$t && this.$t('profileSettings.propertyName'),
+          value: 'propertyName',
+          sortable: false,
+        }, {
+          text: this.$t && this.$t('profileSettings.actions'),
+          value: 'actions',
+          align: 'center',
+          width: '60px',
+          class: 'actions-column',
+          sortable: false,
+        }];
+      },
+      sortByValue: {
+        set(value) {
+          this.$emit('input', value);
+        },
+        get() {
+          return this.sortBy;
+        },
+      },
     },
-    offset: {
-      type: Number,
-      default: 20
+    methods: {
+      getResolvedName (item){
+        const lang = eXo && eXo.env.portal.language || 'en';
+        const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
+        if (resolvedLabel){
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
+      },
     },
-    limit: {
-      type: Number,
-      default: 20
-    },
-    loading: {
-      type: Boolean,
-      default: false
-    },
-    hasMore: {
-      type: Boolean,
-      default: false,
-    },
-    sortBy: {
-      type: String,
-      default: 'order',
-    }
-  },
-  data: () => ({
-    waitTimeUntilCloseMenu: 200,
-    lang: eXo.env.portal.language,
-  }),
-  computed: {
-    headers() {
-      return [{
-        text: this.$t && this.$t('profileSettings.propertyName'),
-        value: 'propertyName',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('profileSettings.actions'),
-        value: 'actions',
-        align: 'center',
-        width: '60px',
-        class: 'actions-column',
-        sortable: false,
-      }];
-    },
-  },
-  methods: {
-    getResolvedName(item){
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = !item.labels ? null : item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`)!==`profileSettings.property.name.${item.propertyName}`?this.$t(`profileSettings.property.name.${item.propertyName}`):item.propertyName;
-    }
-  }
-};
+  };
 </script>

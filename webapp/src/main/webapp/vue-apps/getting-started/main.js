@@ -1,15 +1,15 @@
-export function hideGettingStarted() {
+export function hideGettingStarted () {
   return fetch(`${Vue.prototype.$spacesConstants.PORTAL_CONTEXT}/${Vue.prototype.$spacesConstants.PORTAL_REST}/getting-started`, {
     method: 'DELETE',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp || !resp.ok) {
       throw new Error('Error deleting getting started');
     }
   });
 }
 
-export function init() {
+export function init () {
   const parentAppElement = document.querySelector('#GettingStartedPortlet');
   const parentAppElementBtn = document.querySelector('#GettingStartedPortlet .btClose');
   if (parentAppElement) {

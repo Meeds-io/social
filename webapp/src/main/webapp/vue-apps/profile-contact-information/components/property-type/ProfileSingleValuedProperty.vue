@@ -25,9 +25,9 @@
       class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
       {{ propertyLabel }}
       <profile-hidden-property-info
-        :property="property"
         :hover="hover"
-        :is-mobile="isMobile" />
+        :is-mobile="isMobile"
+        :property="property" />
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
@@ -38,12 +38,12 @@
           class="my-1"
           :class="property.hidden && 'opacity-5'">
           <exo-user-avatar
-            :profile-id="property.value"
-            :show-disabled-user="false"
-            :size="28"
+            align-top
             class="my-auto"
             popover-left-position
-            align-top />
+            :profile-id="property.value"
+            :show-disabled-user="false"
+            :size="28" />
         </div>
       </div>
       <v-btn
@@ -57,8 +57,8 @@
       </v-btn>
       <span
         v-else
-        class="font-weight-regular"
-        v-autolinker="property.value">
+        v-autolinker="property.value"
+        class="font-weight-regular">
         {{ propertyDisplayValue }}
       </span>
     </div>
@@ -67,47 +67,47 @@
 
 <script>
 
-export default {
-  props: {
-    property: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: () => null,
+      },
+      propertyLabel: {
+        type: String,
+        default: null,
+      },
+      searchable: {
+        type: Boolean,
+        default: false,
+      },
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      isMobile: {
+        type: Boolean,
+        default: false,
+      },
     },
-    propertyLabel: {
-      type: String,
-      default: null
+    computed: {
+      userProperty () {
+        return this.property.propertyType === 'user';
+      },
+      propertyOption () {
+        return this.property.dropdownList
+          ? this.property.propertyOptions?.find(option => `${option.id}` === `${this.property.value}`)
+          : null;
+      },
+      propertyDisplayValue () {
+        return this.propertyOption?.translatedValue ?? this.propertyOption?.value ?? this.property.value;
+      },
     },
-    searchable: {
-      type: Boolean,
-      default: false,
+    methods: {
+      quickSearch () {
+        const property = { ...this.property, value: this.property.dropDownList ?? this.propertyDisplayValue };
+        this.$emit('quick-search', property);
+      },
     },
-    hover: {
-      type: Boolean,
-      default: false,
-    },
-    isMobile: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    userProperty() {
-      return this.property.propertyType === 'user';
-    },
-    propertyOption() {
-      return this.property.dropdownList
-        ? this.property.propertyOptions?.find(option => `${option.id}` === `${this.property.value}`)
-        : null;
-    },
-    propertyDisplayValue() {
-      return this.propertyOption?.translatedValue ?? this.propertyOption?.value ?? this.property.value;
-    }
-  },
-  methods: {
-    quickSearch() {
-      const property = { ...this.property, value: this.property.dropDownList ?? this.propertyDisplayValue };
-      this.$emit('quick-search', property);
-    }
-  }
-};
+  };
 </script>

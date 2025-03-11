@@ -20,16 +20,22 @@
 
 -->
 <template>
-  <widget-wrapper v-if="$root.space" no-margin>
+  <widget-wrapper
+    v-if="$root.space"
+    no-margin>
     <template #title>
-      <v-list-item class="px-0" dense>
+      <v-list-item
+        class="px-0"
+        dense>
         <v-list-item-action class="my-auto me-3 ms-n2">
           <v-btn
-            :title="$t('generalSettings.access.backToMain')"
-            size="24"
             icon
+            size="24"
+            :title="$t('generalSettings.access.backToMain')"
             @click="$root.showMain">
-            <v-icon size="18" class="icon-default-color">
+            <v-icon
+              class="icon-default-color"
+              size="18">
               {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
             </v-icon>
           </v-btn>
@@ -37,9 +43,9 @@
         <v-list-item-content>
           <v-list-item-title>
             <v-card
-              :title="$t('SpaceSettings.backToMain')"
               class="flex-grow-0 text-title text-start py-1"
               flat
+              :title="$t('SpaceSettings.backToMain')"
               @click="$root.showMain">
               {{ $t('SpaceSettings.roles') }}
             </v-card>
@@ -51,17 +57,19 @@
       <v-switch
         id="SpaceSettingRestrictContent"
         v-model="isContentCreationRestricted"
-        :loading="saving"
         class="ma-0"
+        :loading="saving"
         @click="switchContentRestriction">
         <template #label>
-          <div class="text-body">{{ $t('SpaceSettings.roles.restrictContentCreation') }}</div>
+          <div class="text-body">
+            {{ $t('SpaceSettings.roles.restrictContentCreation') }}
+          </div>
         </template>
       </v-switch>
       <space-setting-roles-table
         class="mb-5"
-        @restriction-loaded="isContentCreationRestricted = $event"
-        @redactors-loaded="redactorsChoosing = false" />
+        @redactors-loaded="redactorsChoosing = false"
+        @restriction-loaded="isContentCreationRestricted = $event" />
       <space-setting-redactor-drawer
         ref="redactorsDrawer"
         @closed="$root.$emit('space-settings-refresh-redactors')" />
@@ -73,69 +81,69 @@
   </widget-wrapper>
 </template>
 <script>
-export default {
-  data: () => ({
-    space: null,
-    saving: false,
-    isContentCreationRestricted: false,
-    redactorsChoosing: true,
-  }),
-  created() {
-    this.init();
-  },
-  methods: {
-    init() {
-      this.space = this.$root.space;
+  export default {
+    data: () => ({
+      space: null,
+      saving: false,
+      isContentCreationRestricted: false,
+      redactorsChoosing: true,
+    }),
+    created () {
+      this.init();
     },
-    async switchContentRestriction() {
-      await this.$nextTick();
-      if (this.isContentCreationRestricted) {
-        this.redactorsChoosing = true;
-        const redactors = await this.getAllRedactors();
-        const publishers = await this.getAllPublishers();
-        this.$refs.redactorsDrawer.open(redactors, publishers);
-      } else {
-        this.saving = true;
-        try {
+    methods: {
+      init () {
+        this.space = this.$root.space;
+      },
+      async switchContentRestriction () {
+        await this.$nextTick();
+        if (this.isContentCreationRestricted) {
+          this.redactorsChoosing = true;
           const redactors = await this.getAllRedactors();
-          if (redactors?.length) {
-            for (const i in redactors) {
-              // eslint-disable-next-line no-await-in-loop
-              await this.$spaceService.removeRedactor(this.$root.space.id, redactors[i].username);
+          const publishers = await this.getAllPublishers();
+          this.$refs.redactorsDrawer.open(redactors, publishers);
+        } else {
+          this.saving = true;
+          try {
+            const redactors = await this.getAllRedactors();
+            if (redactors?.length) {
+              for (const i in redactors) {
+               
+                await this.$spaceService.removeRedactor(this.$root.space.id, redactors[i].username);
+              }
             }
+            this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsRemovedSuccessfully'), 'success');
+          } catch (e) {
+            this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
+          } finally {
+            this.$root.$emit('space-settings-redactors-updated', this.redactors);
+            this.saving = false;
           }
-          this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsRemovedSuccessfully'), 'success');
-        } catch (e) {
-          this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
-        } finally {
-          this.$root.$emit('space-settings-redactors-updated', this.redactors);
-          this.saving = false;
         }
-      }
+      },
+      getAllRedactors () {
+        return this.getUsers('redactor');
+      },
+      getAllPublishers () {
+        return this.getUsers('publisher');
+      },
+      async getUsers (role, limit, noRecursive) {
+        const data = await this.$spaceService.getSpaceMemberships({
+          offset: 0,
+          limit: limit || 100,
+          status: role,
+          expand: 'users',
+          space: this.space.id,
+          returnSize: false,
+        });
+        const users = data?.spacesMemberships?.map?.(m => m.user) || [];
+        const size = data?.size || 0;
+        if (!noRecursive && size > users.length) {
+          return this.getUsers(role, size, true);
+        } else {
+          return users;
+        }
+      },
     },
-    getAllRedactors() {
-      return this.getUsers('redactor');
-    },
-    getAllPublishers() {
-      return this.getUsers('publisher');
-    },
-    async getUsers(role, limit, noRecursive) {
-      const data = await this.$spaceService.getSpaceMemberships({
-        offset: 0,
-        limit: limit || 100,
-        status: role,
-        expand: 'users',
-        space: this.space.id,
-        returnSize: false,
-      });
-      const users = data?.spacesMemberships?.map?.(m => m.user) || [];
-      const size = data?.size || 0;
-      if (!noRecursive && size > users.length) {
-        return this.getUsers(role, size, true);
-      } else {
-        return users;
-      }
-    },
-  },
-};
+  };
 </script>

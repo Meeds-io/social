@@ -1,16 +1,16 @@
 <template>
   <user-notification-activity-base
-    :notification="notification"
+    icon="fa-stream"
     message-key="Notification.intranet.message.one.EditActivityPlugin"
-    icon="fa-stream" />
+    :notification="notification" />
 </template>
 <script>
-export default {
-  props: {
-    notification: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      notification: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

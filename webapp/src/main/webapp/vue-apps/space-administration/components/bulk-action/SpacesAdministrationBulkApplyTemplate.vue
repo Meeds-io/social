@@ -21,27 +21,31 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBulkProcessing"
     color="primary"
+    :disabled="$root.isBulkProcessing"
     elevation="0"
     outlined
     @click="$root.$emit('space-administration-apply-template-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, applyTemplate)">
-    <v-icon size="16" class="me-2">fa-sitemap</v-icon>
+    <v-icon
+      class="me-2"
+      size="16">
+      fa-sitemap
+    </v-icon>
     {{ $t('social.spaces.administration.manageSpaces.applyTemplate') }}
   </v-btn>
 </template>
 <script>
-export default {
-  methods: {
-    applyTemplate(params) {
-      this.$root.applyOperationInBulk(
-        (space, options) => this.$spaceAdministrationService.applySpaceTemplate(space.id, options),
-        params,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces'), 'success');
-          this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
-        });
+  export default {
+    methods: {
+      applyTemplate (params) {
+        this.$root.applyOperationInBulk(
+          (space, options) => this.$spaceAdministrationService.applySpaceTemplate(space.id, options),
+          params,
+          () => {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces'), 'success');
+            this.$root.$emit('spaces-administration-list-refresh', this.$root.isFilteredByTemplate);
+          });
+      },
     },
-  },
-};
+  };
 </script>

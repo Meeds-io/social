@@ -21,64 +21,76 @@
 <template>
   <v-menu
     v-model="menu"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
     content-class="application-menu z-index-modal"
-    offset-y>
+    :left="!$vuetify.rtl"
+    offset-y
+    :right="$vuetify.rtl">
     <template #activator="{attrs, on}">
       <v-btn
         v-bind="attrs"
-        v-on="on"
-        :title="$t('generalSettings.addSideBarItem')"
         class="btn btn-primary border-radius"
         elevation="0"
+        icon
         tile
-        icon>
-        <v-icon color="white" size="18">
+        :title="$t('generalSettings.addSideBarItem')"
+        v-on="on">
+        <v-icon
+          color="white"
+          size="18">
           fa-plus
         </v-icon>
       </v-btn>
     </template>
-    <v-list max-width="300" dense>
+    <v-list
+      dense
+      max-width="300">
       <v-list-item
-        link
         dense
+        link
         @click="$root.$emit('sidebar-item-add-site', settings)">
         <v-list-item-icon class="me-3">
-          <v-icon size="18">fa-sitemap</v-icon>
+          <v-icon size="18">
+            fa-sitemap
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content class="d-inline">
           <v-list-item-title>{{ $t('generalSettings.addSideBarItemSite') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        link
         dense
+        link
         @click="$root.$emit('sidebar-item-add-spaces', settings)">
         <v-list-item-icon class="me-3">
-          <v-icon size="18">fa-layer-group</v-icon>
+          <v-icon size="18">
+            fa-layer-group
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content class="d-inline">
           <v-list-item-title>{{ $t('generalSettings.addSideBarItemSpaces') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        link
         dense
+        link
         @click="$root.$emit('sidebar-item-add-link', settings)">
         <v-list-item-icon class="me-3">
-          <v-icon size="18">fa-link</v-icon>
+          <v-icon size="18">
+            fa-link
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content class="d-inline">
           <v-list-item-title>{{ $t('generalSettings.addSideBarItemLink') }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
       <v-list-item
-        link
         dense
+        link
         @click="$root.$emit('sidebar-item-add-separator', settings)">
         <v-list-item-icon class="me-3">
-          <v-icon size="18">fa-grip-lines</v-icon>
+          <v-icon size="18">
+            fa-grip-lines
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content class="d-inline">
           <v-list-item-title>{{ $t('generalSettings.addSideBarItemSeparator') }}</v-list-item-title>
@@ -88,36 +100,36 @@
   </v-menu>
 </template>
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    menu: false,
-  }),
-  watch: {
-    menu() {
-      // Workaround to fix closing menu when clicking outside
-      if (this.menu) {
-        document.addEventListener('mousedown', this.closeMenu);
-      } else {
-        document.removeEventListener('mousedown', this.closeMenu);
-      }
+    data: () => ({
+      menu: false,
+    }),
+    watch: {
+      menu () {
+        // Workaround to fix closing menu when clicking outside
+        if (this.menu) {
+          document.addEventListener('mousedown', this.closeMenu);
+        } else {
+          document.removeEventListener('mousedown', this.closeMenu);
+        }
+      },
     },
-  },
-  methods: {
-    closeMenu(event) {
-      if (event?.target) {
-        window.setTimeout(() => {
+    methods: {
+      closeMenu (event) {
+        if (event?.target) {
+          window.setTimeout(() => {
+            this.menu = false;
+          }, 200);
+        } else {
           this.menu = false;
-        }, 200);
-      } else {
-        this.menu = false;
-      }
+        }
+      },
     },
-  },
-};
+  };
 </script>

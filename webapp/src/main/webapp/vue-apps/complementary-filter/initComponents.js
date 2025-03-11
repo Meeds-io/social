@@ -28,7 +28,7 @@ import * as complementaryFilterService from './js/ComplementaryFilterService.js'
 const components = {
   'complementary-filter': ComplementaryFilter,
   'complementary-filter-item': ComplementaryFilterItem,
-  'complementary-filter-items-drawer': ComplementaryFilterItemsDrawer
+  'complementary-filter-items-drawer': ComplementaryFilterItemsDrawer,
 };
 
 for (const key in components) {

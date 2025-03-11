@@ -26,65 +26,65 @@
     <template #activator="{on, attrs}">
       <v-card
         v-bind="attrs"
-        v-on="on"
-        :class="$vuetify.rtl && 'l-0' || 'r-0'"
-        transition="scale-transition"
         class="unread-badge border-radius-circle error-color-background position-absolute z-index-two mt-n2 me-n2"
-        min-width="16"
-        min-height="16"
-        width="16"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        flat
         height="16"
-        flat />
+        min-height="16"
+        min-width="16"
+        transition="scale-transition"
+        width="16"
+        v-on="on" />
     </template>
     <span>{{ $t('spacesList.button.unreadActivities') }}</span>
   </v-tooltip>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
-    }
-  },
-  data: () => ({
-    unread: null,
-  }),
-  computed: {
-    spaceId() {
-      return this.space?.id;
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-    hasUnreadBadge() {
-      return this.unread === null ? !!this.$root.unreadPerSpace?.[this.spaceId] : !!this.unread;
+    data: () => ({
+      unread: null,
+    }),
+    computed: {
+      spaceId () {
+        return this.space?.id;
+      },
+      hasUnreadBadge () {
+        return this.unread === null ? !!this.$root.unreadPerSpace?.[this.spaceId] : !!this.unread;
+      },
     },
-  },
-  mounted() {
-    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  beforeDestroy() {
-    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  methods: {
-    handleUpdatesFromWebSocket(event) {
-      const data = event?.detail;
-      const wsEventName = data?.wsEventName || '';
-      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
-      if (spaceWebNotificationItem?.length) {
-        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
-      }
-      const spaceId = spaceWebNotificationItem?.spaceId;
-      if (wsEventName === 'notification.unread.item' && Number(spaceId) === Number(this.spaceId)) {
-        this.unread = true;
-      }  else if (wsEventName === 'notification.read.item' && Number(spaceId) === Number(this.spaceId)) {
-        this.unread = false;
-      }  else if (wsEventName === 'notification.read.allItems') {
-        this.unread = false;
-      }
-    }
-  }
-};
+    mounted () {
+      document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+    },
+    beforeUnmount () {
+      document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+    },
+    methods: {
+      handleUpdatesFromWebSocket (event) {
+        const data = event?.detail;
+        const wsEventName = data?.wsEventName || '';
+        let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+        if (spaceWebNotificationItem?.length) {
+          spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+        }
+        const spaceId = spaceWebNotificationItem?.spaceId;
+        if (wsEventName === 'notification.unread.item' && Number(spaceId) === Number(this.spaceId)) {
+          this.unread = true;
+        }  else if (wsEventName === 'notification.read.item' && Number(spaceId) === Number(this.spaceId)) {
+          this.unread = false;
+        }  else if (wsEventName === 'notification.read.allItems') {
+          this.unread = false;
+        }
+      },
+    },
+  };
 </script>

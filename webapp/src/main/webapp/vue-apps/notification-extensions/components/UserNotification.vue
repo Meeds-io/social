@@ -27,51 +27,53 @@
     v-else-if="notification.html"
     :id="notification.id"
     :content="notification.html" />
-  <div v-else>-</div>
+  <div v-else>
+    -
+  </div>
 </template>
 <script>
-export default {
-  props: {
-    notification: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      notification: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    refresh: 1,
-  }),
-  computed: {
-    extension() {
-      return this.refresh > 0
-        && Object.values(this.$root.notificationExtensions)
-          .sort((ext1, ext2) => (ext1.rank || 0) - (ext2.rank || 0))
-          .find(extension => extension.match && extension.match(this.notification) || extension.type === this.notification.plugin)
-        || null;
+    data: () => ({
+      refresh: 1,
+    }),
+    computed: {
+      extension () {
+        return this.refresh > 0
+          && Object.values(this.$root.notificationExtensions)
+            .sort((ext1, ext2) => (ext1.rank || 0) - (ext2.rank || 0))
+            .find(extension => extension.match && extension.match(this.notification) || extension.type === this.notification.plugin)
+          || null;
+      },
+      extensionComponent () {
+        return this.$root.notificationExtensions && this.extension?.vueComponent && {
+          componentName: 'notification-extension',
+          componentOptions: {
+            vueComponent: this.extension.vueComponent,
+          },
+        } || null;
+      },
+      componentParams () {
+        return {
+          notification: this.notification,
+        };
+      },
     },
-    extensionComponent() {
-      return this.$root.notificationExtensions && this.extension?.vueComponent && {
-        componentName: 'notification-extension',
-        componentOptions: {
-          vueComponent: this.extension.vueComponent,
-        },
-      } || null;
+    created () {
+      document.addEventListener('notification-extensions-refresh', this.forceRefreshExtension);
     },
-    componentParams() {
-      return {
-        notification: this.notification,
-      };
+    beforeUnmount () {
+      document.removeEventListener('notification-extensions-refresh', this.forceRefreshExtension);
     },
-  },
-  created() {
-    document.addEventListener('notification-extensions-refresh', this.forceRefreshExtension);
-  },
-  beforeDestroy() {
-    document.removeEventListener('notification-extensions-refresh', this.forceRefreshExtension);
-  },
-  methods: {
-    refreshExtension() {
-      this.refresh++;
+    methods: {
+      refreshExtension () {
+        this.refresh++;
+      },
     },
-  },
-};
+  };
 </script>

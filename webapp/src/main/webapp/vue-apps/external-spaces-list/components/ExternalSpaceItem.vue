@@ -1,18 +1,22 @@
 <template>
-  <v-list-item :href="url" class="pa-1 pb-1">
+  <v-list-item
+    class="pa-1 pb-1"
+    :href="url">
     <v-list-item-avatar
-      :href="url"
       class="my-0"
+      :href="url"
       tile>
-      <v-avatar :size="avatarSize" tile>
+      <v-avatar
+        :size="avatarSize"
+        tile>
         <v-img
-          :src="avatarUrl"
+          class="mx-auto spaceAvatar"
           :height="avatarSize"
-          :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto spaceAvatar"
-          role="presentation" />
+          role="presentation"
+          :src="avatarUrl"
+          :width="avatarSize" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
@@ -29,25 +33,25 @@
 </template>
 <script>
 
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: () => null,
+      },
+      avatarSize: {
+        type: Number,
+        default: () => 37,
+      },
     },
-    avatarSize: {
-      type: Number,
-      default: () => 37,
+    computed: {
+      avatarUrl () {
+        return this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.prettyName}/avatar`;
+      },
+      url () {
+        return this.space.id && `${eXo.env.portal.context}/s/${this.space.id}` || '#';
+      },
     },
-  },
-  computed: {
-    avatarUrl() {
-      return this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.prettyName}/avatar`;
-    },
-    url() {
-      return this.space.id && `${eXo.env.portal.context}/s/${this.space.id}` || '#';
-    },
-  },
 
-};
+  };
 </script>

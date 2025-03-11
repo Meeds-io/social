@@ -21,65 +21,69 @@
 <template>
   <v-btn
     v-if="!$root.sticky"
-    :title="$t('menu.spaces.openSidebarTooltip')"
     class="HamburgerNavigationMenuLink border-box-sizing rounded-0 layout-top-bar"
     height="54"
-    width="69"
     text
+    :title="$t('menu.spaces.openSidebarTooltip')"
+    width="69"
     @click="$emit('open-drawer', $event)">
-    <v-icon v-show="$root.hidden" size="20">fa-bars</v-icon>
+    <v-icon
+      v-show="$root.hidden"
+      size="20">
+      fa-bars
+    </v-icon>
     <div
       v-show="showBadge"
-      :class="$vuetify.rtl && 'l-0' || 'r-0'"
-      class="hamburger-unread-badge position-absolute">
+      class="hamburger-unread-badge position-absolute"
+      :class="$vuetify.rtl && 'l-0' || 'r-0'">
       <div class="hamburger-unread-badge error-color-background"></div>
     </div>
   </v-btn>
 </template>
 <script>
-export default {
-  computed: {
-    showBadge() {
-      return this.$root.unreadPerSpace
-        && this.$root.hidden
-        && Object.values(this.$root.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
+  export default {
+    computed: {
+      showBadge () {
+        return this.$root.unreadPerSpace
+          && this.$root.hidden
+          && Object.values(this.$root.unreadPerSpace).reduce((sum, v) => sum += v, 0) > 0;
+      },
     },
-  },
-  mounted() {
-    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  beforeDestroy() {
-    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  methods: {
-    handleUpdatesFromWebSocket(event) {
-      const data = event?.detail;
-      const wsEventName = data?.wsEventName || '';
-      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
-      if (spaceWebNotificationItem?.length) {
-        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
-      }
-      const spaceId = spaceWebNotificationItem?.spaceId;
-      if (wsEventName === 'notification.unread.item') {
-        if (spaceId && this.$root.unreadPerSpace[spaceId]) {
-          this.$root.unreadPerSpace[spaceId]++;
-        } else {
-          this.$set(this.$root.unreadPerSpace, spaceId, 1);
-        }
-      }  else if (wsEventName === 'notification.read.item') {
-        if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
-          this.$root.unreadPerSpace[spaceId]--;
-        }
-      } else if (wsEventName === 'notification.read.allItems') {
-        if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
-          this.$root.unreadPerSpace[spaceId] = 0;
-        }
-      }
+    mounted () {
+      document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
     },
-  }
-};
+    beforeUnmount () {
+      document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+    },
+    methods: {
+      handleUpdatesFromWebSocket (event) {
+        const data = event?.detail;
+        const wsEventName = data?.wsEventName || '';
+        let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
+        if (spaceWebNotificationItem?.length) {
+          spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+        }
+        const spaceId = spaceWebNotificationItem?.spaceId;
+        if (wsEventName === 'notification.unread.item') {
+          if (spaceId && this.$root.unreadPerSpace[spaceId]) {
+            this.$root.unreadPerSpace[spaceId]++;
+          } else {
+            this.$set(this.$root.unreadPerSpace, spaceId, 1);
+          }
+        }  else if (wsEventName === 'notification.read.item') {
+          if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
+            this.$root.unreadPerSpace[spaceId]--;
+          }
+        } else if (wsEventName === 'notification.read.allItems') {
+          if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
+            this.$root.unreadPerSpace[spaceId] = 0;
+          }
+        }
+      },
+    },
+  };
 </script>

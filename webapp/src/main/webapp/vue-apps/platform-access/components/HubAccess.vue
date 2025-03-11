@@ -20,7 +20,9 @@
 -->
 <template>
   <v-app class="py-2 px-6">
-    <v-list-item class="px-0 mb-2" three-line>
+    <v-list-item
+      class="px-0 mb-2"
+      three-line>
       <v-list-item-content class="py-0">
         <v-list-item-subtitle class="text-title pt-2">
           {{ $t('generalSettings.access.summary1') }}
@@ -38,9 +40,9 @@
       <v-list-item-action class="me-4">
         <v-radio-group v-model="accessType">
           <v-radio
-            value="OPEN"
-            on-icon="fa-lg far fa-dot-circle"
             off-icon="fa-lg far fa-circle"
+            on-icon="fa-lg far fa-dot-circle"
+            value="OPEN"
             @click="accessType = 'OPEN'" />
         </v-radio-group>
       </v-list-item-action>
@@ -60,8 +62,8 @@
       }">
       <v-list-item-action class="me-4">
         <v-tooltip
-          :disabled="accessType === 'OPEN'"
-          bottom>
+          bottom
+          :disabled="accessType === 'OPEN'">
           <template #activator="{ on, attrs }">
             <div
               v-bind="attrs"
@@ -80,7 +82,7 @@
           <help-label
             label="generalSettings.access.open.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
               </p>
@@ -106,9 +108,9 @@
       <v-list-item-action class="me-4">
         <v-radio-group v-model="accessType">
           <v-radio
-            value="RESTRICTED"
-            on-icon="fa-lg far fa-dot-circle"
             off-icon="fa-lg far fa-circle"
+            on-icon="fa-lg far fa-dot-circle"
+            value="RESTRICTED"
             @click="accessType = 'RESTRICTED'" />
         </v-radio-group>
       </v-list-item-action>
@@ -121,7 +123,7 @@
             label="generalSettings.access.restricted.subtitle"
             label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsRegisteredUser">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph1') }}
               </p>
@@ -146,8 +148,8 @@
       }">
       <v-list-item-action class="me-4">
         <v-tooltip
-          :disabled="accessType === 'RESTRICTED'"
-          bottom>
+          bottom
+          :disabled="accessType === 'RESTRICTED'">
           <template #activator="{ on, attrs }">
             <div
               v-bind="attrs"
@@ -166,7 +168,7 @@
           <help-label
             label="generalSettings.access.restricted.enableExternalUsers"
             tooltip="generalSettings.access.whatIsExternalUser">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
               </p>
@@ -184,7 +186,7 @@
             label="generalSettings.access.restricted.enableExternalUsers.subtitle"
             label-class="text-subtitle"
             tooltip="generalSettings.access.whatIsSpaceHost">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsSpaceHost.paragraph1') }}
               </p>
@@ -207,7 +209,9 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item class="px-0" dense>
+    <v-list-item
+      class="px-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           {{ $t('generalSettings.access.passwordAuthentication') }}
@@ -222,7 +226,9 @@
         </v-chip>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item class="px-0" dense>
+    <v-list-item
+      class="px-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           {{ $t('generalSettings.access.additionalAuthentication') }}
@@ -245,13 +251,15 @@
         </v-list-item-title>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item class="my-0 px-0" dense>
+    <v-list-item
+      class="my-0 px-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.spaces"
             tooltip="generalSettings.access.whatIsDefaultSpace">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph1') }}
               </p>
@@ -270,17 +278,23 @@
         <v-btn
           icon
           @click="$refs.defaultSpaceDrawer.open()">
-          <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
+          <v-icon
+            class="icon-default-color"
+            size="24">
+            fa-edit
+          </v-icon>
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item class="my-0 px-0" dense>
+    <v-list-item
+      class="my-0 px-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           <help-label
             label="generalSettings.access.startSettingPlatform.mandatorySpaces"
             tooltip="generalSettings.access.whatIsMandatorySpace">
-            <template slot="helpContent">
+            <template #helpContent>
               <p>
                 {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph1') }}
               </p>
@@ -298,11 +312,17 @@
         <v-btn
           :href="mandatorySpacesLink"
           icon>
-          <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
+          <v-icon
+            class="icon-default-color"
+            size="24">
+            fa-external-link-alt
+          </v-icon>
         </v-btn>
       </v-list-item-action>
     </v-list-item>
-    <v-list-item class="px-0 my-0" dense>
+    <v-list-item
+      class="px-0 my-0"
+      dense>
       <v-list-item-content>
         <v-list-item-title>
           {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
@@ -312,15 +332,19 @@
         <v-btn
           :href="createUsersLink"
           icon>
-          <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
+          <v-icon
+            class="icon-default-color"
+            size="24">
+            fa-external-link-alt
+          </v-icon>
         </v-btn>
       </v-list-item-action>
     </v-list-item>
     <div class="d-flex my-12 mx-4 justify-end">
       <v-btn
         :aria-label="$t('generalSettings.cancel')"
-        :disabled="loading"
         class="btn cancel-button me-4"
+        :disabled="loading"
         elevation="0"
         @click="$emit('close')">
         <span class="text-none">
@@ -329,11 +353,11 @@
       </v-btn>
       <v-btn
         :aria-label="$t('generalSettings.apply')"
-        :disabled="!validForm"
-        :loading="loading"
-        color="primary"
         class="btn btn-primary"
+        color="primary"
+        :disabled="!validForm"
         elevation="0"
+        :loading="loading"
         @click="save">
         <span class="text-none">
           {{ $t('generalSettings.apply') }}
@@ -346,104 +370,104 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    createUsersLink: '/portal/administration/home/organisation/users',
-    mandatorySpacesLink: '/portal/administration/home/organisation/spaces',
-    accessType: 'OPEN',
-    externalUserOpenRegistration: false,
-    externalUserRestrictedRegistration: false,
-    defaultSpaceIds: [],
-    initialized: false,
-    registrationSettings: null,
-  }),
-  computed: {
-    validForm() {
-      return this.changed;
-    },
-    defaultSelectedSpacesTitle() {
-      const spacesCount = this.defaultSpaceIds?.length || 0;
-      return spacesCount
-          && this.$t(spacesCount === 1 && 'generalSettings.access.defaultSelectedSpaceTitle' || 'generalSettings.access.defaultSelectedSpacesTitle', {0: `<strong>${this.defaultSpaceIds.length}</strong>`})
+  export default {
+    data: () => ({
+      createUsersLink: '/portal/administration/home/organisation/users',
+      mandatorySpacesLink: '/portal/administration/home/organisation/spaces',
+      accessType: 'OPEN',
+      externalUserOpenRegistration: false,
+      externalUserRestrictedRegistration: false,
+      defaultSpaceIds: [],
+      initialized: false,
+      registrationSettings: null,
+    }),
+    computed: {
+      validForm () {
+        return this.changed;
+      },
+      defaultSelectedSpacesTitle () {
+        const spacesCount = this.defaultSpaceIds?.length || 0;
+        return spacesCount
+          && this.$t(spacesCount === 1 && 'generalSettings.access.defaultSelectedSpaceTitle' || 'generalSettings.access.defaultSelectedSpacesTitle', { 0: `<strong>${this.defaultSpaceIds.length}</strong>` })
           || this.$t('generalSettings.access.noDefaultSpace');
+      },
+      changed () {
+        if (!this.registrationSettings) {
+          return false;
+        }
+        const oldSettings = JSON.parse(JSON.stringify(this.registrationSettings));
+        const newSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
+          externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
+          extraGroupIds: this.defaultSpaceIds,
+          type: this.accessType,
+        });
+        return JSON.stringify(newSettings) !== JSON.stringify(oldSettings);
+      },
     },
-    changed() {
-      if (!this.registrationSettings) {
-        return false;
-      }
-      const oldSettings = JSON.parse(JSON.stringify(this.registrationSettings));
-      const newSettings = Object.assign(JSON.parse(JSON.stringify(this.registrationSettings)), {
-        externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
-        extraGroupIds: this.defaultSpaceIds,
-        type: this.accessType,
-      });
-      return JSON.stringify(newSettings) !== JSON.stringify(oldSettings);
-    },
-  },
-  watch: {
-    errorMessage() {
-      if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t('generalSettings.savingError'), 'error');
-      } else {
-        this.$root.$emit('close-alert-message');
-      }
-    },
-    changed() {
-      this.$emit('changed', this.changed);
-    },
-    accessType(newVal, oldVal) {
-      if (this.initialized) {
-        if (newVal !== oldVal) {
-          if (this.accessType === 'OPEN') {
-            this.$root.$emit('alert-message-html', `
+    watch: {
+      errorMessage () {
+        if (this.errorMessage) {
+          this.$root.$emit('alert-message', this.$t('generalSettings.savingError'), 'error');
+        } else {
+          this.$root.$emit('close-alert-message');
+        }
+      },
+      changed () {
+        this.$emit('changed', this.changed);
+      },
+      accessType (newVal, oldVal) {
+        if (this.initialized) {
+          if (newVal !== oldVal) {
+            if (this.accessType === 'OPEN') {
+              this.$root.$emit('alert-message-html', `
                 <div>${this.$t('generalSettings.access.openChangeInformation1')}</div>
                 <div>${this.$t('generalSettings.access.openChangeInformation2')}</div>
             `, 'info');
-          } else if (this.accessType === 'RESTRICTED') {
-            this.$root.$emit('alert-message-html', `
+            } else if (this.accessType === 'RESTRICTED') {
+              this.$root.$emit('alert-message-html', `
                 <div>${this.$t('generalSettings.access.restrictedChangeInformation1')}</div>
                 <div>${this.$t('generalSettings.access.restrictedChangeInformation2')}</div>
             `, 'info');
+            }
           }
+          this.externalUserOpenRegistration = false;
+          this.externalUserRestrictedRegistration = false;
         }
-        this.externalUserOpenRegistration = false;
-        this.externalUserRestrictedRegistration = false;
-      }
+      },
     },
-  },
-  created() {
-    this.$registrationService.getRegistrationSettings()
-      .then(data => {
-        this.registrationSettings = data;
-        this.init();
-      });
+    created () {
+      this.$registrationService.getRegistrationSettings()
+        .then(data => {
+          this.registrationSettings = data;
+          this.init();
+        });
 
-  },
-  mounted() {
-    this.$nextTick().then(() => this.initialized = true);
-  },
-  beforeDestroy() {
-    this.$root.$emit('close-alert-message');
-  },
-  methods: {
-    init() {
-      this.accessType = this.registrationSettings?.type || 'OPEN';
-      this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
-      this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
-      this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
     },
-    save() {
-      this.$root.loading = true;
-      return this.$registrationService.saveRegistrationSettings({
-        type: this.accessType,
-        externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
-        extraGroupIds: this.defaultSpaceIds,
-      })
-        .then(() => this.$emit('saved'))
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
-        .catch(e => this.errorMessage = String(e))
-        .finally(() => this.$root.loading = false);
+    mounted () {
+      this.$nextTick().then(() => this.initialized = true);
     },
-  }
-};
+    beforeUnmount () {
+      this.$root.$emit('close-alert-message');
+    },
+    methods: {
+      init () {
+        this.accessType = this.registrationSettings?.type || 'OPEN';
+        this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
+        this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
+        this.defaultSpaceIds = this.registrationSettings?.extraGroupIds || [];
+      },
+      save () {
+        this.$root.loading = true;
+        return this.$registrationService.saveRegistrationSettings({
+          type: this.accessType,
+          externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
+          extraGroupIds: this.defaultSpaceIds,
+        })
+          .then(() => this.$emit('saved'))
+          .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
+          .catch(e => this.errorMessage = String(e))
+          .finally(() => this.$root.loading = false);
+      },
+    },
+  };
 </script>

@@ -37,10 +37,10 @@ const lang = eXo?.env?.portal?.language || 'en';
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<page-not-found id="${appId}" />`,

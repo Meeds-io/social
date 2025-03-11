@@ -20,77 +20,77 @@
 -->
 <template>
   <exo-drawer
-    v-model="drawer"
     ref="drawer"
+    v-model="drawer"
+    attached
     :drawer-width="width"
-    :style="drawerStyle"
+    :is-branding-layout="false"
+    left
+    no-external-overlay
     :permanent="permanent"
     :show-overlay="showOverlay"
-    :is-branding-layout="false"
-    no-external-overlay
-    attached
-    left>
+    :style="drawerStyle">
     <template #content>
       <slot></slot>
     </template>
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
+      drawerWidth: {
+        type: String,
+        default: null,
+      },
+      drawerStyle: {
+        type: String,
+        default: null,
+      },
     },
-    drawerWidth: {
-      type: String,
-      default: null,
+    data: () => ({
+      drawer: false,
+    }),
+    computed: {
+      width () {
+        return this.$root.expand ? this.drawerWidth : 70;
+      },
+      stickyAllowed () {
+        return this.$root.stickyAllowed;
+      },
+      showOverlay () {
+        return !this.$root.icon || this.$root.expand;
+      },
+      permanent () {
+        return this.$root.icon;
+      },
     },
-    drawerStyle: {
-      type: String,
-      default: null,
+    watch: {
+      stickyAllowed () {
+        if (!this.stickyAllowed && this.drawer) {
+          this.drawer = false;
+        } else if (this.$root.icon && !this.drawer) {
+          this.drawer = true;
+        }
+      },
+      drawer () {
+        if (!this.drawer && this.$root.icon) {
+          this.$nextTick().then(() => this.drawer = true);
+        } else if (this.value !== this.drawer) {
+          this.$emit('input', this.drawer);
+        }
+      },
+      value () {
+        if (this.value !== this.drawer) {
+          this.drawer = this.value;
+        }
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-  }),
-  computed: {
-    width() {
-      return this.$root.expand ? this.drawerWidth : 70;
+    mounted () {
+      this.drawer = this.value;
     },
-    stickyAllowed() {
-      return this.$root.stickyAllowed;
-    },
-    showOverlay() {
-      return !this.$root.icon || this.$root.expand;
-    },
-    permanent() {
-      return this.$root.icon;
-    },
-  },
-  watch: {
-    stickyAllowed() {
-      if (!this.stickyAllowed && this.drawer) {
-        this.drawer = false;
-      } else if (this.$root.icon && !this.drawer) {
-        this.drawer = true;
-      }
-    },
-    drawer() {
-      if (!this.drawer && this.$root.icon) {
-        this.$nextTick().then(() => this.drawer = true);
-      } else if (this.value !== this.drawer) {
-        this.$emit('input', this.drawer);
-      }
-    },
-    value() {
-      if (this.value !== this.drawer) {
-        this.drawer = this.value;
-      }
-    },
-  },
-  mounted() {
-    this.drawer = this.value;
-  },
-};
+  };
 </script>

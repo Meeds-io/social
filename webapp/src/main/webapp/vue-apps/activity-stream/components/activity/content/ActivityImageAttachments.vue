@@ -18,66 +18,66 @@
 -->
 <template>
   <attachments-image-items
+    :attachments="attachments"
     :object-id="metadataObjectId"
     :object-type="metadataObjectType"
-    :attachments="attachments"
-    :preview-width="350"
-    :preview-height="350" />
+    :preview-height="350"
+    :preview-width="350" />
 </template>
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      activityTypeExtension: {
+        type: Object,
+        default: null,
+      },
+      isActivityDetail: {
+        type: Boolean,
+        default: false,
+      },
     },
-    activityTypeExtension: {
-      type: Object,
-      default: null,
+    data: () => ({
+      body: null,
+    }),
+    computed: {
+      activityId () {
+        return this.activity?.id;
+      },
+      metadataObjectId () {
+        return this.activity?.templateParams?.metadataObjectId || this.activityId;
+      },
+      metadataObjectType () {
+        return this.activity?.templateParams?.metadataObjectType || 'activity';
+      },
+      attachments () {
+        return this.activity?.metadatas?.attachments?.map(metadata => ({
+          id: metadata.name,
+          name: metadata.properties.fileName,
+          size: metadata.properties.fileSize,
+          mimetype: metadata.properties.fileMimeType,
+          updated: metadata.properties.fileUpdateDate,
+          alt: metadata.properties.alt || '',
+        })) || [];
+      },
     },
-    isActivityDetail: {
-      type: Boolean,
-      default: false,
+    created () {
+      document.addEventListener('attachments-updated', this.updateActivity);
     },
-  },
-  data: () => ({
-    body: null,
-  }),
-  computed: {
-    activityId() {
-      return this.activity?.id;
+    beforeUnmount () {
+      window.setTimeout(() => {
+        document.removeEventListener('attachments-updated', this.updateActivity);
+      }, 200);
     },
-    metadataObjectId() {
-      return this.activity?.templateParams?.metadataObjectId || this.activityId;
+    methods: {
+      updateActivity (event) {
+        if (this.attachments && event?.detail?.objectType === this.metadataObjectType && this.metadataObjectId === event?.detail?.objectId) {
+          this.activity.metadatas.attachments = null;
+        }
+      },
     },
-    metadataObjectType() {
-      return this.activity?.templateParams?.metadataObjectType || 'activity';
-    },
-    attachments() {
-      return this.activity?.metadatas?.attachments?.map(metadata => ({
-        id: metadata.name,
-        name: metadata.properties.fileName,
-        size: metadata.properties.fileSize,
-        mimetype: metadata.properties.fileMimeType,
-        updated: metadata.properties.fileUpdateDate,
-        alt: metadata.properties.alt || '',
-      })) || [];
-    },
-  },
-  created() {
-    document.addEventListener('attachments-updated', this.updateActivity);
-  },
-  beforeDestroy() {
-    window.setTimeout(() => {
-      document.removeEventListener('attachments-updated', this.updateActivity);
-    }, 200);
-  },
-  methods: {
-    updateActivity(event) {
-      if (this.attachments && event?.detail?.objectType === this.metadataObjectType && this.metadataObjectId === event?.detail?.objectId) {
-        this.activity.metadatas.attachments = null;
-      }
-    },
-  },
-};
+  };
 </script>

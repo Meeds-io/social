@@ -34,7 +34,7 @@ if (extensionRegistry) {
 const appId = 'SpaceManagersApplication';
 const url = `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
-export async function init(spaceId, isManager, isMember, managers) {
+export async function init (spaceId, isManager, isMember, managers) {
   if (!isManager && !managers.length) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;

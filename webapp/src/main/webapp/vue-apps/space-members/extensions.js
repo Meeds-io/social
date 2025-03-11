@@ -34,10 +34,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.removeMember(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.memberRemoved',
-          }}));
+          } }));
         });
     },
   });
@@ -52,10 +52,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.removeManager(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.managerRemoved',
-          }}));
+          } }));
         });
     },
   });
@@ -70,10 +70,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.promoteManager(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.managerPromoted',
-          }}));
+          } }));
         });
     },
   });
@@ -87,10 +87,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.cancelInvitation(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.invitationCanceled',
-          }}));
+          } }));
         });
     },
   });
@@ -104,10 +104,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.acceptUserRequest(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.requestAccepted',
-          }}));
+          } }));
         });
     },
   });
@@ -121,10 +121,10 @@ document.addEventListener('space-member-management-actions-load', () => {
       Vue.prototype.$spaceService.refuseUserRequest(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
-          document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          document.dispatchEvent(new CustomEvent('alert-message', { detail: {
             alertType: 'success',
             alertMessageKey: 'peopleList.alert.requestRefused',
-          }}));
+          } }));
         });
     },
   });

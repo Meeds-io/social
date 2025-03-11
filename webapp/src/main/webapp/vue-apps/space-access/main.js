@@ -38,13 +38,13 @@ const url = `/social/i18n/locale.social.Webui?lang=${lang}`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(parameters) {
+export function init (parameters) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       data: {
-        parameters: parameters,
+        parameters,
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-access id="${appId}" :parameters="parameters" />`,

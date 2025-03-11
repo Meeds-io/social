@@ -23,95 +23,95 @@
 <template>
   <favorite-button
     :id="spaceId"
-    :space-id="spaceId"
-    :favorite="favorite"
     :absolute="absolute"
-    :top="top"
-    :right="right"
-    :entity-type="entityType"
     :display-label="displayLabel"
+    :entity-type="entityType"
     :extra-class="extraClass"
+    :favorite="favorite"
     :icon-size="iconSize"
+    :right="right"
     :small="false"
+    :space-id="spaceId"
+    :top="top"
     type="space"
     type-label="space"
-    @removed="removed"
-    @remove-error="removeError"
+    @add-error="addError"
     @added="added"
-    @add-error="addError" />
+    @remove-error="removeError"
+    @removed="removed" />
 </template>
 
 <script>
-export default {
-  props: {
-    spaceId: {
-      type: String,
-      default: '',
-    },
-    isFavorite: {
-      type: Boolean,
-      default: false,
-    },
-    entityType: {
-      type: String,
-      default: null,
-    },
-    absolute: {
-      type: Boolean,
-      default: false,
-    },
-    top: {
-      type: Number,
-      default: () => 0,
-    },
-    right: {
-      type: Number,
-      default: () => 0,
-    },
-    displayLabel: {
-      type: Boolean,
-      default: false,
-    },
-    extraClass: {
-      type: String,
-      default: () => '',
-    },
-    iconSize: {
-      type: Number,
-      default: () => 16,
-    },
-  },
-  data: () => ({
-    favorite: false
-  }),
-  watch: {
-    isFavorite: {
-      immediate: true,
-      handler() {
-        this.favorite = this.isFavorite === 'true';
+  export default {
+    props: {
+      spaceId: {
+        type: String,
+        default: '',
+      },
+      isFavorite: {
+        type: Boolean,
+        default: false,
+      },
+      entityType: {
+        type: String,
+        default: null,
+      },
+      absolute: {
+        type: Boolean,
+        default: false,
+      },
+      top: {
+        type: Number,
+        default: () => 0,
+      },
+      right: {
+        type: Number,
+        default: () => 0,
+      },
+      displayLabel: {
+        type: Boolean,
+        default: false,
+      },
+      extraClass: {
+        type: String,
+        default: () => '',
+      },
+      iconSize: {
+        type: Number,
+        default: () => 16,
       },
     },
-  },
-  methods: {
-    removed() {
-      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('spaceList.alert.label')}));
-      this.$emit('removed');
-      document.dispatchEvent(new CustomEvent('space-favorite-removed', {detail: this.spaceId}));
+    data: () => ({
+      favorite: false,
+    }),
+    watch: {
+      isFavorite: {
+        immediate: true,
+        handler () {
+          this.favorite = this.isFavorite === 'true';
+        },
+      },
     },
-    removeError() {
-      this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
+    methods: {
+      removed () {
+        this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', { 0: this.$t('spaceList.alert.label') }));
+        this.$emit('removed');
+        document.dispatchEvent(new CustomEvent('space-favorite-removed', { detail: this.spaceId }));
+      },
+      removeError () {
+        this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', { 0: this.$t('spaceList.alert.label') }), 'error');
+      },
+      added () {
+        this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', { 0: this.$t('spaceList.alert.label') }));
+        this.$emit('added');
+        document.dispatchEvent(new CustomEvent('space-favorite-added', { detail: this.spaceId }));
+      },
+      addError () {
+        this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', { 0: this.$t('spaceList.alert.label') }), 'error');
+      },
+      displayAlert (message, type) {
+        this.$root.$emit('alert-message', message, type || 'success');
+      },
     },
-    added() {
-      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyAddedAsFavorite', {0: this.$t('spaceList.alert.label')}));
-      this.$emit('added');
-      document.dispatchEvent(new CustomEvent('space-favorite-added', {detail: this.spaceId}));
-    },
-    addError() {
-      this.displayAlert(this.$t('Favorite.tooltip.ErrorAddingAsFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
-    },
-    displayAlert(message, type) {
-      this.$root.$emit('alert-message', message, type || 'success');
-    },
-  },
-};
+  };
 </script>

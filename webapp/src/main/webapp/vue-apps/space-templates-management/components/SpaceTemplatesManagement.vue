@@ -39,15 +39,15 @@
       name="space-templates"
       type="space-templates-drawers" />
     <component
+      :is="extension.componentName"
       v-for="extension in $root.mainExtensions"
-      :key="extension.id"
-      :is="extension.componentName" />
+      :key="extension.id" />
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    keyword: null,
-  }),
-};
+  export default {
+    data: () => ({
+      keyword: null,
+    }),
+  };
 </script>

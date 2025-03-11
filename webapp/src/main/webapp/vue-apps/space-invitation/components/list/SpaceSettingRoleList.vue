@@ -20,7 +20,9 @@
 
 -->
 <template>
-  <v-list v-if="displayList" dense>
+  <v-list
+    v-if="displayList"
+    dense>
     <template v-if="externalInvitations">
       <space-invite-email-list-item
         v-for="u in externalInvitations"
@@ -31,42 +33,42 @@
     <space-setting-role-list-item
       v-for="u in users"
       :key="u.id"
-      :user="u"
       :approve-button="approveButton"
       :display-date="displayDate"
       :role="role"
+      :user="u"
       @approve="$emit('approve', u)"
       @remove="$emit('remove', u)" />
   </v-list>
 </template>
 <script>
-export default {
-  props: {
-    users: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      users: {
+        type: Array,
+        default: null,
+      },
+      externalInvitations: {
+        type: Array,
+        default: null,
+      },
+      approveButton: {
+        type: Boolean,
+        default: false,
+      },
+      displayDate: {
+        type: Boolean,
+        default: false,
+      },
+      role: {
+        type: String,
+        default: null,
+      },
     },
-    externalInvitations: {
-      type: Array,
-      default: null,
+    computed: {
+      displayList () {
+        return this.users?.length || this.externalInvitations?.length;
+      },
     },
-    approveButton: {
-      type: Boolean,
-      default: false,
-    },
-    displayDate: {
-      type: Boolean,
-      default: false,
-    },
-    role: {
-      type: String,
-      default: null,
-    },
-  },
-  computed: {
-    displayList() {
-      return this.users?.length || this.externalInvitations?.length;
-    },
-  },
-};
+  };
 </script>

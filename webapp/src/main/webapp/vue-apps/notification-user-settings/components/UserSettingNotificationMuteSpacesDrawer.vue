@@ -22,8 +22,8 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
     class="userNotificationDrawer"
+    :loading="loading"
     right>
     <template #title>
       {{ $t('UserSettings.drawer.title.muteSpacesNotifications') }}
@@ -37,13 +37,13 @@
           v-if="showSuggester"
           ref="spacesSuggester"
           v-model="space"
-          :labels="spaceSuggesterLabels"
-          :include-users="false"
-          :ignore-items="ignoreItems"
-          :width="220"
-          name="spacesSuggester"
           class="user-suggester mt-n2"
-          include-spaces />
+          :ignore-items="ignoreItems"
+          include-spaces
+          :include-users="false"
+          :labels="spaceSuggesterLabels"
+          name="spacesSuggester"
+          :width="220" />
         <span class="text-header">
           {{ $t('UserSettings.drawer.label.mutedSpaces') }}
         </span>
@@ -52,22 +52,22 @@
           :key="space.id"
           v-slot="{ hover }">
           <v-list-item
-            :href="space.url"
             :key="space.id"
             class="pa-1 pb-1"
-            dense>
+            dense
+            :href="space.url">
             <v-list-item-avatar
-              :size="avatarSize"
               class="me-2"
+              :size="avatarSize"
               tile>
               <v-img
-                :src="space.avatarUrl"
+                class="mx-auto spaceAvatar"
                 :height="avatarSize"
-                :width="avatarSize"
                 :max-height="avatarSize"
                 :max-width="avatarSize"
-                class="mx-auto spaceAvatar"
-                role="presentation" />
+                role="presentation"
+                :src="space.avatarUrl"
+                :width="avatarSize" />
             </v-list-item-avatar>
             <v-list-item-content class="pa-0">
               <v-list-item-title>
@@ -81,15 +81,19 @@
             <v-list-item-action class="pa-0 my-auto">
               <v-tooltip
                 v-if="isMobile || hover"
-                :disabled="isMobile"
-                bottom>
+                bottom
+                :disabled="isMobile">
                 <template #activator="{on, bind}">
                   <v-btn
                     icon
-                    @click.stop.prevent="muteSpace(space, true)"
+                    v-bind="bind"
                     v-on="on"
-                    v-bind="bind">
-                    <v-icon class="icon-default-color" small>fa-bell-slash</v-icon>
+                    @click.stop.prevent="muteSpace(space, true)">
+                    <v-icon
+                      class="icon-default-color"
+                      small>
+                      fa-bell-slash
+                    </v-icon>
                   </v-btn>
                 </template>
                 <span>{{ $t('UserSettings.button.tooltip.unmute') }}</span>
@@ -103,103 +107,103 @@
 </template>
 
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    avatarSize: 36,
-    showSuggester: true,
-    space: null,
-    mutedSpaces: [],
-    loading: false,
-  }),
-  computed: {
-    spaceSuggesterLabels() {
-      return {
-        placeholder: this.$t('UserSettings.drawer.spaceSuggesterPlaceholder'),
-        noDataLabel: this.$t('UserSettings.drawer.spaceSuggesterNoData'),
-      };
+    data: () => ({
+      drawer: false,
+      avatarSize: 36,
+      showSuggester: true,
+      space: null,
+      mutedSpaces: [],
+      loading: false,
+    }),
+    computed: {
+      spaceSuggesterLabels () {
+        return {
+          placeholder: this.$t('UserSettings.drawer.spaceSuggesterPlaceholder'),
+          noDataLabel: this.$t('UserSettings.drawer.spaceSuggesterNoData'),
+        };
+      },
+      ignoreItems () {
+        return this.mutedSpaces.map(space => `space:${space.prettyName}`);
+      },
+      mutedSpaceIds () {
+        return this.settings?.mutedSpaces || [];
+      },
+      isMobile () {
+        return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
+      },
     },
-    ignoreItems() {
-      return this.mutedSpaces.map(space => `space:${space.prettyName}`);
+    watch: {
+      mutedSpaceIds () {
+        if (this.drawer) {
+          this.retrieveSpaces();
+        }
+      },
+      space () {
+        if (this.space) {
+          this.muteSpace(this.space);
+          this.space = null;
+          this.resetSuggester();
+        }
+      },
     },
-    mutedSpaceIds() {
-      return this.settings?.mutedSpaces || [];
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
-    },
-  },
-  watch: {
-    mutedSpaceIds() {
-      if (this.drawer) {
-        this.retrieveSpaces();
-      }
-    },
-    space() {
-      if (this.space) {
-        this.muteSpace(this.space);
+    methods: {
+      resetSuggester () {
+        this.showSuggester = false;
+        this.$nextTick().then(() => this.showSuggester = true);
+      },
+      reset () {
+        this.mutedSpaces = [];
         this.space = null;
-        this.resetSuggester();
-      }
+        this.loading = false;
+      },
+      open () {
+        this.reset();
+        this.$emit('refresh');
+        this.$refs.drawer.open();
+      },
+      retrieveSpaces () {
+        this.loading = true;
+        return Promise.all(this.mutedSpaceIds.map(id => this.$spaceService.getSpaceById(id)))
+          .then(spaces => {
+            const mutedSpaces = spaces || [];
+            mutedSpaces.forEach(space => {
+              space.url = `${eXo.env.portal.context}/s/${space.id}`;
+            });
+            this.mutedSpaces = mutedSpaces;
+          })
+          .finally(() => this.loading = false);
+      },
+      muteSpace (space, unmute) {
+        this.loading = true;
+        const spaceId = space.spaceId || space.id;
+        return this.$spaceService.muteSpace(spaceId, unmute)
+          .then(() => {
+            this.$emit('refresh');
+            if (unmute) {
+              document.dispatchEvent(new CustomEvent('space-unmuted', { detail: {
+                name: 'userSettingsAction',
+                spaceId,
+              } }));
+              this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
+            } else {
+              document.dispatchEvent(new CustomEvent('space-muted', { detail: {
+                name: 'userSettingsAction',
+                spaceId,
+              } }));
+              this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+            }
+          })
+          .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
+          .finally(() => this.loading = false);
+      },
     },
-  },
-  methods: {
-    resetSuggester() {
-      this.showSuggester = false;
-      this.$nextTick().then(() => this.showSuggester = true);
-    },
-    reset() {
-      this.mutedSpaces = [];
-      this.space = null;
-      this.loading = false;
-    },
-    open() {
-      this.reset();
-      this.$emit('refresh');
-      this.$refs.drawer.open();
-    },
-    retrieveSpaces() {
-      this.loading = true;
-      return Promise.all(this.mutedSpaceIds.map(id => this.$spaceService.getSpaceById(id)))
-        .then(spaces => {
-          const mutedSpaces = spaces || [];
-          mutedSpaces.forEach(space => {
-            space.url = `${eXo.env.portal.context}/s/${space.id}`;
-          });
-          this.mutedSpaces = mutedSpaces;
-        })
-        .finally(() => this.loading = false);
-    },
-    muteSpace(space, unmute) {
-      this.loading = true;
-      const spaceId = space.spaceId || space.id;
-      return this.$spaceService.muteSpace(spaceId, unmute)
-        .then(() => {
-          this.$emit('refresh');
-          if (unmute) {
-            document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
-              name: 'userSettingsAction',
-              spaceId,
-            }}));
-            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
-          } else {
-            document.dispatchEvent(new CustomEvent('space-muted', {detail: {
-              name: 'userSettingsAction',
-              spaceId,
-            }}));
-            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
-          }
-        })
-        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
-        .finally(() => this.loading = false);
-    },
-  },
-};
+  };
 </script>
 

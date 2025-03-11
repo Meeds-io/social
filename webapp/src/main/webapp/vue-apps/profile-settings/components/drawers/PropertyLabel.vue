@@ -18,13 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-row class="mx-0 mb-0 mt-2 max-width-fit" no-gutters>
-    <v-col cols="3" class="px-2">
+  <v-row
+    class="mx-0 mb-0 mt-2 max-width-fit"
+    no-gutters>
+    <v-col
+      class="px-2"
+      cols="3">
       <div class="flex-grow-1 text-truncate">
         <select
           v-model="propertylabel.language"
-          name="documentsFilter"
           class="max-width-fit ignore-vuetify-classes my-0"
+          name="documentsFilter"
           @change="changeSettingsFilter">
           <option
             v-for="item in langArray"
@@ -39,16 +43,22 @@
       <div class="d-flex max-width-fit mt-n3">
         <v-text-field
           v-model="propertylabel.label"
-          :placeholder="$t('profileSettings.placeholder.label')"
-          type="text"
           class="flex-grow-1 pa-3 ms-1"
+          dense
           maxlength="2000"
           outlined
-          dense
-          :rules="[v => !!v || $t('profileSettings.message.field.required')]" />
+          :placeholder="$t('profileSettings.placeholder.label')"
+          :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+          type="text" />
         <div class="flex-grow-0 mt-3">
-          <v-btn icon @click="deleteLabel">
-            <v-icon size="16" class="error-color">fas fa-trash-alt</v-icon>
+          <v-btn
+            icon
+            @click="deleteLabel">
+            <v-icon
+              class="error-color"
+              size="16">
+              fas fa-trash-alt
+            </v-icon>
           </v-btn>
         </div>
       </div>
@@ -56,35 +66,35 @@
   </v-row>
 </template>
 <script>
-export default {
+  export default {
 
-  props: {
-    propertylabel: {
-      type: Object,
-      default: null,
+    props: {
+      propertylabel: {
+        type: Object,
+        default: null,
+      },
+      languages: {
+        type: Object,
+        default: null,
+      },
     },
-    languages: {
-      type: Object,
-      default: null,
-    }
-  },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    computed: {
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+      },
+      langArray () {
+        const langArray = Object.assign([], this.languages);
+        if (this.propertylabel.language){
+          langArray.unshift({ value: this.propertylabel.language });
+        }
+        return langArray;
+      },
     },
-    langArray() {
-      const langArray = Object.assign([], this.languages);
-      if (this.propertylabel.language){
-        langArray.unshift({value: this.propertylabel.language});
-      }
-      return langArray;
-    }
-  },
 
-  methods: {
-    deleteLabel() {
-      this.$emit('delete-label', this.propertylabel);
+    methods: {
+      deleteLabel () {
+        this.$emit('delete-label', this.propertylabel);
+      },
     },
-  }
-};
+  };
 </script>

@@ -24,18 +24,20 @@
   <exo-drawer
     ref="spaceFormDrawer"
     v-model="drawer"
+    class="spaceFormDrawer"
     :go-back-button="goBackButton && spaceTemplate"
     right
-    class="spaceFormDrawer"
-    @opened="stepper = 1"
     @closed="stepper = 0"
-    @go-back="templateId = null">
-    <template slot="title">
+    @go-back="templateId = null"
+    @opened="stepper = 1">
+    <template #title>
       {{ spaceTemplate && $t('spacesList.label.addNewSpaceWithTemplate', {
         0: spaceTemplate.name,
       })|| $t('spacesList.label.addNewSpace') }}
     </template>
-    <template v-if="drawer" slot="content">
+    <template
+      v-if="drawer"
+      #content>
       <v-expand-transition>
         <div
           v-if="templates?.length && !spaceTemplate"
@@ -44,18 +46,22 @@
             v-for="item in sortedTemplates"
             :key="item.id"
             class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
-            height="136"
             flat
+            height="136"
             @click="open(item.id)">
             <v-hover v-slot="{hover}">
               <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
                 <div
                   class="mt-auto mb-2">
-                  <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
+                  <v-icon
+                    class="py-2"
+                    size="32">
+                    {{ item.icon }}
+                  </v-icon>
                 </div>
                 <div
-                  :title="item.name"
-                  class="mb-auto full-width">
+                  class="mb-auto full-width"
+                  :title="item.name">
                   {{ item.name }}
                 </div>
                 <v-expand-transition>
@@ -63,14 +69,14 @@
                     v-show="hover"
                     class="absolute-full-size text-start pa-2 ms-4 border-radius mask-color">
                     <div
-                      :title="item.name"
-                      class="text-truncate-2 font-weight-bold white--text full-width pb-1">
+                      class="text-truncate-2 font-weight-bold white--text full-width pb-1"
+                      :title="item.name">
                       {{ item.name }}
                     </div>
                     <div
                       v-sanitized-html="item.description || ''"
-                      :title="item.description"
-                      class="text-subtitle white--text full-width text-truncate-5"></div>
+                      class="text-subtitle white--text full-width text-truncate-5"
+                      :title="item.description"></div>
                   </div>
                 </v-expand-transition>
               </div>
@@ -80,22 +86,24 @@
         <v-stepper
           v-else-if="spaceTemplate"
           v-model="stepper"
+          class="ma-0 py-0"
           :class="{
             'pe-3' : isMobile,
             'mt-5' : singleStep,
           }"
-          class="ma-0 py-0"
-          vertical
-          flat>
+          flat
+          vertical>
           <template v-if="includeName">
             <v-stepper-step
               v-if="!singleStep"
-              :step="1"
               class="ma-4 pa-0"
-              editable>
+              editable
+              :step="1">
               {{ $t('spacesList.label.nameTitle') }}
             </v-stepper-step>
-            <v-stepper-content :step="1" class="pa-0 ma-0 no-border">
+            <v-stepper-content
+              class="pa-0 ma-0 no-border"
+              :step="1">
               <form
                 v-if="stepper === 1"
                 ref="form1"
@@ -108,23 +116,25 @@
                   ref="autoFocusInput1"
                   v-model="space.displayName"
                   :aria-label="$t('spacesList.label.namePlaceholder')"
-                  :placeholder="$t('spacesList.label.namePlaceholder')"
+                  autofocus
                   class="input-block-level ignore-vuetify-classes my-3"
-                  type="text"
                   name="name"
-                  autofocus>
+                  :placeholder="$t('spacesList.label.namePlaceholder')"
+                  type="text">
               </form>
             </v-stepper-content>
           </template>
           <template v-if="includeProperties">
             <v-stepper-step
               v-if="!singleStep"
-              :step="propertiesStep"
               class="ma-4 pa-0"
-              editable>
+              editable
+              :step="propertiesStep">
               {{ $t('spacesList.label.propertiesTitle') }}
             </v-stepper-step>
-            <v-stepper-content :step="propertiesStep" class="pa-0 ma-0 no-border">
+            <v-stepper-content
+              class="pa-0 ma-0 no-border"
+              :step="propertiesStep">
               <form
                 v-if="stepper === propertiesStep"
                 ref="form2"
@@ -136,60 +146,66 @@
                 <rich-editor
                   id="spaceDescriptionRichEditor"
                   v-model="space.description"
-                  :placeholder="$t('spacesList.label.descriptionPlaceholder')"
-                  :max-length="maxDescriptionLength"
-                  tag-enabled
-                  class="my-3"
+                  autofocus
                   ck-editor-type="spaceDescription"
+                  class="my-3"
                   disable-suggester
-                  autofocus />
+                  :max-length="maxDescriptionLength"
+                  :placeholder="$t('spacesList.label.descriptionPlaceholder')"
+                  tag-enabled />
                 <space-form-avatar
                   v-model="space.avatarId"
-                  :name="space.displayName"
-                  class="mt-4" />
+                  class="mt-4"
+                  :name="space.displayName" />
                 <space-form-banner
                   v-model="space.bannerId"
-                  :default-banner-url="bannerUrl"
-                  class="mt-4" />
+                  class="mt-4"
+                  :default-banner-url="bannerUrl" />
               </form>
             </v-stepper-content>
           </template>
           <template v-if="includeInvitation">
             <v-stepper-step
               v-if="!singleStep"
-              :step="invitationStep"
               class="ma-4 pa-0"
-              editable>
+              editable
+              :step="invitationStep">
               {{ $t('spacesList.label.inviteUsers') }}
             </v-stepper-step>
-            <v-stepper-content :step="invitationStep" class="pa-0 ma-0 no-border">
+            <v-stepper-content
+              class="pa-0 ma-0 no-border"
+              :step="invitationStep">
               <space-form-invitation
                 v-if="stepper === invitationStep"
-                @invited-members="space.invitedMembers = $event"
-                @invited-email="space.externalInvitedUsers = $event" />
+                @invited-email="space.externalInvitedUsers = $event"
+                @invited-members="space.invitedMembers = $event" />
             </v-stepper-content>
           </template>
           <template v-if="includeAccess">
             <v-stepper-step
               v-if="!singleStep"
-              :step="accessStep"
               class="ma-4 pa-0"
-              editable>
+              editable
+              :step="accessStep">
               {{ $t('spacesList.label.spaceAccessTitle') }}
             </v-stepper-step>
-            <v-stepper-content :step="accessStep" class="pa-0 ma-0 no-border">
+            <v-stepper-content
+              class="pa-0 ma-0 no-border"
+              :step="accessStep">
               <space-form-access
                 v-if="stepper === accessStep"
-                :visibility="space.visibility"
                 :subscription="space.subscription"
-                @visibility="space.visibility = $event"
-                @subscription="space.subscription = $event" />
+                :visibility="space.visibility"
+                @subscription="space.subscription = $event"
+                @visibility="space.visibility = $event" />
             </v-stepper-content>
           </template>
         </v-stepper>
       </v-expand-transition>
     </template>
-    <template v-if="spaceTemplate" slot="footer">
+    <template
+      v-if="spaceTemplate"
+      #footer>
       <div class="d-flex">
         <v-btn
           v-if="stepper > 1"
@@ -199,8 +215,8 @@
         </v-btn>
         <v-spacer />
         <v-btn
-          :disabled="savingSpace || spaceSaved"
           class="btn me-2"
+          :disabled="savingSpace || spaceSaved"
           @click="cancel">
           <template>
             {{ $t('spacesList.button.cancel') }}
@@ -214,11 +230,13 @@
         </v-btn>
         <v-btn
           v-else
-          :loading="savingSpace"
-          :disabled="saveButtonDisabled"
           class="btn btn-primary"
+          :disabled="saveButtonDisabled"
+          :loading="savingSpace"
           @click="saveSpace">
-          <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
+          <v-icon v-if="spaceSaved">
+            mdi-check-all
+          </v-icon>
           <template v-else-if="spaceToUpdate">
             {{ $t('spacesList.button.updateSpace') }}
           </template>
@@ -231,237 +249,237 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    savingSpace: false,
-    spaceSaved: false,
-    space: {},
-    stepper: 0,
-    templateId: null,
-    templates: [],
-    selectedSpacesWithExternals: [],
-    externalAlert: false,
-    goBackButton: false,
-    maxDescriptionLength: 2000,
-    defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
-  }),
-  computed: {
-    saveButtonDisabled() {
-      return this.savingSpace
-        || this.spaceSaved
-        || this.stepper < this.lastStep && !this.space.id
-        || (this.space.description?.length || 0) > this.maxDescriptionLength;
-    },
-    sortedTemplates() {
-      const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
-      spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
-      return this.keyword?.length && spaceTemplates.filter(t => {
-        const name = this.$te(t.name) ? this.$t(t.name) : t.name;
-        const description = this.$te(t.description) ? this.$t(t.description) : t.description;
-        return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
-          || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
-      }) || spaceTemplates;
-    },
-    spaceTemplate() {
-      return this.templates?.find?.(t => t.id === this.templateId);
-    },
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('spacesList.label.inviteMembers'),
-        noDataLabel: this.$t('spacesList.label.noDataLabel'),
-      };
-    },
-    invitedSpacesWithExternals() {
-      return this.$t && this.$t('spaceList.checkExternals.warning', {
-        0: `<strong>[${this.selectedSpacesWithExternals.join(',')}]</strong>`,
-      });
-    },
-    isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
-    },
-    spaceInvitedMembers() {
-      return this.space?.invitedMembers;
-    },
-    bannerUrl() {
-      return this.spaceTemplate?.bannerFileId && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate?.id}/${this.spaceTemplate?.bannerFileId}?size=0` || this.defaultBannerSrc;
-    },
-    includeName() {
-      return this.spaceTemplate?.spaceFields?.includes?.('name');
-    },
-    includeProperties() {
-      return this.spaceTemplate?.spaceFields?.includes?.('properties');
-    },
-    includeAccess() {
-      return this.spaceTemplate?.spaceFields?.includes?.('access');
-    },
-    includeInvitation() {
-      return this.spaceTemplate?.spaceFields?.includes?.('invitation');
-    },
-    propertiesStep() {
-      return (this.includeName ? 1 : 0) + 1;
-    },
-    invitationStep() {
-      return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + 1;
-    },
-    accessStep() {
-      return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + (this.includeInvitation ? 1 : 0) + 1;
-    },
-    lastStep() {
-      return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + (this.includeInvitation ? 1 : 0) + (this.includeAccess ? 1 : 0);
-    },
-    singleStep() {
-      return this.lastStep === 1;
-    },
-  },
-  watch: {
-    savingSpace() {
-      if (this.savingSpace) {
-        this.$refs.spaceFormDrawer.startLoading();
-      } else {
-        this.$refs.spaceFormDrawer.endLoading();
-      }
-    },
-    stepper() {
-      if (this.stepper) {
-        // Used to focus on space name field
-        this.$nextTick().then(() => {
-          let elementToFocusOn = this.$refs[`autoFocusInput${this.stepper}`];
-          if (elementToFocusOn) {
-            elementToFocusOn = elementToFocusOn.focus || !elementToFocusOn.$el ? elementToFocusOn : elementToFocusOn.$el || elementToFocusOn;
-          }
-          if (elementToFocusOn) {
-            window.setTimeout(() => {
-              elementToFocusOn.focus();
-            }, 200);
-          }
+  export default {
+    data: () => ({
+      drawer: false,
+      savingSpace: false,
+      spaceSaved: false,
+      space: {},
+      stepper: 0,
+      templateId: null,
+      templates: [],
+      selectedSpacesWithExternals: [],
+      externalAlert: false,
+      goBackButton: false,
+      maxDescriptionLength: 2000,
+      defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
+    }),
+    computed: {
+      saveButtonDisabled () {
+        return this.savingSpace
+          || this.spaceSaved
+          || this.stepper < this.lastStep && !this.space.id
+          || (this.space.description?.length || 0) > this.maxDescriptionLength;
+      },
+      sortedTemplates () {
+        const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
+        spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
+        return this.keyword?.length && spaceTemplates.filter(t => {
+          const name = this.$te(t.name) ? this.$t(t.name) : t.name;
+          const description = this.$te(t.description) ? this.$t(t.description) : t.description;
+          return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
+            || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
+        }) || spaceTemplates;
+      },
+      spaceTemplate () {
+        return this.templates?.find?.(t => t.id === this.templateId);
+      },
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('spacesList.label.inviteMembers'),
+          noDataLabel: this.$t('spacesList.label.noDataLabel'),
+        };
+      },
+      invitedSpacesWithExternals () {
+        return this.$t && this.$t('spaceList.checkExternals.warning', {
+          0: `<strong>[${this.selectedSpacesWithExternals.join(',')}]</strong>`,
         });
-      } else {
-        this.spaceSaved = false;
-        this.savingSpace = false;
-      }
+      },
+      isMobile () {
+        return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+      },
+      spaceInvitedMembers () {
+        return this.space?.invitedMembers;
+      },
+      bannerUrl () {
+        return this.spaceTemplate?.bannerFileId && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate?.id}/${this.spaceTemplate?.bannerFileId}?size=0` || this.defaultBannerSrc;
+      },
+      includeName () {
+        return this.spaceTemplate?.spaceFields?.includes?.('name');
+      },
+      includeProperties () {
+        return this.spaceTemplate?.spaceFields?.includes?.('properties');
+      },
+      includeAccess () {
+        return this.spaceTemplate?.spaceFields?.includes?.('access');
+      },
+      includeInvitation () {
+        return this.spaceTemplate?.spaceFields?.includes?.('invitation');
+      },
+      propertiesStep () {
+        return (this.includeName ? 1 : 0) + 1;
+      },
+      invitationStep () {
+        return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + 1;
+      },
+      accessStep () {
+        return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + (this.includeInvitation ? 1 : 0) + 1;
+      },
+      lastStep () {
+        return (this.includeName ? 1 : 0) + (this.includeProperties ? 1 : 0) + (this.includeInvitation ? 1 : 0) + (this.includeAccess ? 1 : 0);
+      },
+      singleStep () {
+        return this.lastStep === 1;
+      },
     },
-    spaceTemplate() {
-      if (!this.space?.id) {
-        this.setSpaceTemplateProperties();
-      }
-    },
-    externalAlert() {
-      if (this.externalAlert) {
-        this.$root.$emit('alert-message-html', this.invitedSpacesWithExternals, 'warning');
-      }
-    },
-    spaceInvitedMembers() {
-      if (this.spaceInvitedMembers) {
-        this.selectedSpacesWithExternals = [];
-        this.externalAlert = false;
-        this.spaceInvitedMembers.filter(item => item.providerId === 'space')
-          .forEach(space => {
-            this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
-              if (hasExternals && hasExternals === 'true') {
-                this.selectedSpacesWithExternals.push(space.displayName);
-                this.$nextTick().then(() => this.externalAlert = true);
-              }
-            });
+    watch: {
+      savingSpace () {
+        if (this.savingSpace) {
+          this.$refs.spaceFormDrawer.startLoading();
+        } else {
+          this.$refs.spaceFormDrawer.endLoading();
+        }
+      },
+      stepper () {
+        if (this.stepper) {
+          // Used to focus on space name field
+          this.$nextTick().then(() => {
+            let elementToFocusOn = this.$refs[`autoFocusInput${this.stepper}`];
+            if (elementToFocusOn) {
+              elementToFocusOn = elementToFocusOn.focus || !elementToFocusOn.$el ? elementToFocusOn : elementToFocusOn.$el || elementToFocusOn;
+            }
+            if (elementToFocusOn) {
+              window.setTimeout(() => {
+                elementToFocusOn.focus();
+              }, 200);
+            }
           });
-      }
-    }
-  },
-  created() {
-    window.spaceFormAdded = true;
-    const search = window.location.search && window.location.search.substring(1);
-    if (search) {
-      const parameters = JSON.parse(
-        `{"${decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"')}"}`
-      );
-      const createSpace = parameters['createSpace'];
-      if (createSpace && Boolean(createSpace)) {
-        this.$root.$once('application-loaded', () => {
-          this.$nextTick().then(this.open);
-        });
-      }
-    }
-
-    this.$root.$on('addNewSpace', this.openByRootEvent);
-    document.addEventListener('addNewSpace', this.openByEvent);
-    document.addEventListener('addNewSpaceWithAppId', this.openByAppId);
-  },
-  beforeDestroy() {
-    this.$root.$off('addNewSpace', this.openByRootEvent);
-    document.removeEventListener('addNewSpace', this.openByEvent);
-    document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
-  },
-  methods: {
-    openByAppId(e) {
-      if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
-        return;
-      }
-      this.open();
+        } else {
+          this.spaceSaved = false;
+          this.savingSpace = false;
+        }
+      },
+      spaceTemplate () {
+        if (!this.space?.id) {
+          this.setSpaceTemplateProperties();
+        }
+      },
+      externalAlert () {
+        if (this.externalAlert) {
+          this.$root.$emit('alert-message-html', this.invitedSpacesWithExternals, 'warning');
+        }
+      },
+      spaceInvitedMembers () {
+        if (this.spaceInvitedMembers) {
+          this.selectedSpacesWithExternals = [];
+          this.externalAlert = false;
+          this.spaceInvitedMembers.filter(item => item.providerId === 'space')
+            .forEach(space => {
+              this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
+                if (hasExternals && hasExternals === 'true') {
+                  this.selectedSpacesWithExternals.push(space.displayName);
+                  this.$nextTick().then(() => this.externalAlert = true);
+                }
+              });
+            });
+        }
+      },
     },
-    openByEvent(e) {
-      this.openByRootEvent(e?.detail);
-    },
-    openByRootEvent(templateId) {
-      this.goBackButton = !templateId;
-      this.open(templateId);
-    },
-    async open(templateId) {
-      this.templateId = templateId && Number(templateId);
-      this.space = {
-        templateId: templateId,
-        subscription: 'open',
-        visibility: 'private',
-      };
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-      }
-      this.templates = this.$root.spaceTemplates;
-      if (this.templates?.length === 1) {
-        this.templateId = this.templates[0].id;
-      }
-      this.setSpaceTemplateProperties();
-      this.$refs.spaceFormDrawer.open();
-    },
-    setSpaceTemplateProperties() {
-      if (this.spaceTemplate) {
-        this.$set(this.space, 'templateId', this.spaceTemplate.id);
-        this.$set(this.space, 'subscription', this.spaceTemplate.spaceDefaultRegistration?.toLowerCase?.());
-        this.$set(this.space, 'visibility', this.spaceTemplate.spaceDefaultVisibility?.toLowerCase?.());
-      }
-    },
-    previousStep() {
-      if (this.stepper > 1) {
-        this.stepper--;
-      }
-    },
-    nextStep(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
+    created () {
+      window.spaceFormAdded = true;
+      const search = window.location.search && window.location.search.substring(1);
+      if (search) {
+        const parameters = JSON.parse(
+          `{"${decodeURI(search)
+            .replace(/"/g, '\\"')
+            .replace(/&/g, '","')
+            .replace(/=/g, '":"')}"}`
+        );
+        const createSpace = parameters['createSpace'];
+        if (createSpace && Boolean(createSpace)) {
+          this.$root.$once('application-loaded', () => {
+            this.$nextTick().then(this.open);
+          });
+        }
       }
 
-      this.stepper++;
+      this.$root.$on('addNewSpace', this.openByRootEvent);
+      document.addEventListener('addNewSpace', this.openByEvent);
+      document.addEventListener('addNewSpaceWithAppId', this.openByAppId);
     },
-    cancel() {
-      this.$refs.spaceFormDrawer.close();
+    beforeUnmount () {
+      this.$root.$off('addNewSpace', this.openByRootEvent);
+      document.removeEventListener('addNewSpace', this.openByEvent);
+      document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
     },
-    saveSpace() {
-      if (this.spaceSaved || this.savingSpace) {
-        return;
-      }
-      this.savingSpace = true;
-      this.space.templateId = this.templateId;
-      return this.$spaceService.createSpace(this.space)
-        .then(space => {
-          this.spaceSaved = true;
-          window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
-        })
-        .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-        .finally(() => this.savingSpace = false);
+    methods: {
+      openByAppId (e) {
+        if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
+          return;
+        }
+        this.open();
+      },
+      openByEvent (e) {
+        this.openByRootEvent(e?.detail);
+      },
+      openByRootEvent (templateId) {
+        this.goBackButton = !templateId;
+        this.open(templateId);
+      },
+      async open (templateId) {
+        this.templateId = templateId && Number(templateId);
+        this.space = {
+          templateId,
+          subscription: 'open',
+          visibility: 'private',
+        };
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+        this.templates = this.$root.spaceTemplates;
+        if (this.templates?.length === 1) {
+          this.templateId = this.templates[0].id;
+        }
+        this.setSpaceTemplateProperties();
+        this.$refs.spaceFormDrawer.open();
+      },
+      setSpaceTemplateProperties () {
+        if (this.spaceTemplate) {
+          this.$set(this.space, 'templateId', this.spaceTemplate.id);
+          this.$set(this.space, 'subscription', this.spaceTemplate.spaceDefaultRegistration?.toLowerCase?.());
+          this.$set(this.space, 'visibility', this.spaceTemplate.spaceDefaultVisibility?.toLowerCase?.());
+        }
+      },
+      previousStep () {
+        if (this.stepper > 1) {
+          this.stepper--;
+        }
+      },
+      nextStep (event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        this.stepper++;
+      },
+      cancel () {
+        this.$refs.spaceFormDrawer.close();
+      },
+      saveSpace () {
+        if (this.spaceSaved || this.savingSpace) {
+          return;
+        }
+        this.savingSpace = true;
+        this.space.templateId = this.templateId;
+        return this.$spaceService.createSpace(this.space)
+          .then(space => {
+            this.spaceSaved = true;
+            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+          })
+          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .finally(() => this.savingSpace = false);
+      },
     },
-  },
-};
+  };
 </script>

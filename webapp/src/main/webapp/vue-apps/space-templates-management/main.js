@@ -34,7 +34,7 @@ const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.SpaceTemplatesManagement?lang=${lang}`;
 
 const appId = 'SpaceTemplatesManagement';
-export function init(isExternalFeatureEnabled) {
+export function init (isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n =>
       Vue.createApp({
@@ -43,7 +43,7 @@ export function init(isExternalFeatureEnabled) {
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
-          collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+          collator: new Intl.Collator(eXo.env.portal.language, { numeric: true, sensitivity: 'base' }),
           extensionApp: 'space-templates',
           menuItemExtensionType: 'space-templates-item-action',
           mainExtensionType: 'space-templates-main',
@@ -51,26 +51,26 @@ export function init(isExternalFeatureEnabled) {
           mainExtensions: [],
         },
         computed: {
-          isMobile() {
+          isMobile () {
             return this.$vuetify.breakpoint.mobile;
           },
         },
-        async created() {
+        async created () {
           document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
           document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
           this.refreshMainExtensions();
           this.refreshMenuExtensions();
         },
-        beforeDestroy() {
+        beforeDestroy () {
           document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           document.removeEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
         },
         methods: {
-          refreshMenuExtensions() {
+          refreshMenuExtensions () {
             this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
           },
-          refreshMainExtensions() {
+          refreshMainExtensions () {
             this.mainExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.mainExtensionType);
           },
         },

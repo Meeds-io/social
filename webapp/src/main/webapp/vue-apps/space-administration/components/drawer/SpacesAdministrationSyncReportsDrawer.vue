@@ -24,16 +24,20 @@
     id="SpaceManagersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
     expanded
+    :loading="loading"
     no-x-scroll
     right>
-    <template v-if="space" #title>
+    <template
+      v-if="space"
+      #title>
       {{ $t('social.spaces.administration.manageSpaces.bindingReportsOfSpace', {
         0: space.displayName
       }) }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="pa-4">
         <spaces-administration-binding-report-list
           :operations="operations" />
@@ -42,43 +46,43 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    loading: false,
-    space: null,
-    operations: null,
-  }),
-  computed: {
-    modified() {
-      return JSON.stringify(this.groups) !== JSON.stringify(this.originalGroups);
+  export default {
+    data: () => ({
+      drawer: false,
+      loading: false,
+      space: null,
+      operations: null,
+    }),
+    computed: {
+      modified () {
+        return JSON.stringify(this.groups) !== JSON.stringify(this.originalGroups);
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-administration-sync-reports-drawer-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-administration-sync-reports-drawer-open', this.open);
-  },
-  methods: {
-    async open(space) {
-      this.space = space;
-      this.$refs.drawer.open();
-      this.refresh();
-      await this.$nextTick();
+    created () {
+      this.$root.$on('space-administration-sync-reports-drawer-open', this.open);
     },
-    async refresh() {
-      this.loading = true;
-      try {
-        const data = await this.$spaceBindingService.getBindingReportOperations(this.space.id);
-        this.operations = data.groupSpaceBindingReportOperations;
-      } finally {
-        this.loading = false;
-      }
+    beforeUnmount () {
+      this.$root.$off('space-administration-sync-reports-drawer-open', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    methods: {
+      async open (space) {
+        this.space = space;
+        this.$refs.drawer.open();
+        this.refresh();
+        await this.$nextTick();
+      },
+      async refresh () {
+        this.loading = true;
+        try {
+          const data = await this.$spaceBindingService.getBindingReportOperations(this.space.id);
+          this.operations = data.groupSpaceBindingReportOperations;
+        } finally {
+          this.loading = false;
+        }
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
     },
-  },
-};
+  };
 </script>

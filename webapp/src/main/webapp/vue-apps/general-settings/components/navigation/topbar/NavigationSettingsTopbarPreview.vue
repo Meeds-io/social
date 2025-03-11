@@ -28,88 +28,98 @@
         v-if="displayCompanyLogo"
         class="flex-shrink-0"
         size="36"
-        width="auto"
-        tile>
+        tile
+        width="auto">
         <img
-          src="/portal/rest/v1/platform/branding/logo"
+          alt=""
           height="36px"
-          width="auto"
-          alt="">
+          src="/portal/rest/v1/platform/branding/logo"
+          width="auto">
       </v-avatar>
       <div
         v-if="displayCompanyName"
-        :class="mobilePreview && 'd-none' || 'd-flex'"
-        class="align-self-center ms-4">
+        class="align-self-center ms-4"
+        :class="mobilePreview && 'd-none' || 'd-flex'">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ $root.branding?.companyName }}
         </div>
       </div>
     </div>
-    <div v-if="displayCompanyLogo" class="mx-4">
+    <div
+      v-if="displayCompanyLogo"
+      class="mx-4">
       <v-icon>
         {{ $vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right' }}
       </v-icon>
     </div>
     <div class="d-flex">
       <div>
-        <v-icon size="33">{{ firstSidebarSiteIcon }}</v-icon>
+        <v-icon size="33">
+          {{ firstSidebarSiteIcon }}
+        </v-icon>
       </div>
-      <div v-if="displaySiteName" class="ps-2 ms-3 align-self-center d-none d-sm-flex">
+      <div
+        v-if="displaySiteName"
+        class="ps-2 ms-3 align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
           {{ firstSidebarSiteName }}
         </div>
       </div>
     </div>
     <v-spacer />
-    <div v-if="enabledApplications.length" class="d-flex">
+    <div
+      v-if="enabledApplications.length"
+      class="d-flex">
       <v-btn
         v-for="(app, index) in enabledApplications"
         :key="`${app.name}_${index}`"
-        :title="app.name"
+        class="ms-2"
         :class="{
           'hidden-xs-only': !app.mobile,
         }"
         icon
-        class="ms-2">
-        <v-icon size="22">{{ app.icon }}</v-icon>
+        :title="app.name">
+        <v-icon size="22">
+          {{ app.icon }}
+        </v-icon>
       </v-btn>
     </div>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
+      mobilePreview: {
+        type: Boolean,
+        default: false,
+      },
     },
-    mobilePreview: {
-      type: Boolean,
-      default: false,
+    computed: {
+      firstSidebarItem () {
+        return this.settings?.sidebar?.items?.[0];
+      },
+      firstSidebarSiteIcon () {
+        return this.firstSidebarItem?.properties?.siteIcon || this.firstSidebarItem?.icon;
+      },
+      firstSidebarSiteName () {
+        return this.firstSidebarItem?.properties?.siteDisplayName || this.firstSidebarItem?.name;
+      },
+      enabledApplications () {
+        return this.settings?.topbar?.applications?.filter?.(a => a.enabled && (!this.mobilePreview || a.mobile));
+      },
+      displayCompanyName () {
+        return this.settings?.topbar?.displayCompanyName;
+      },
+      displayCompanyLogo () {
+        return !this.mobilePreview || this.settings?.topbar?.displayMobileCompanyLogo;
+      },
+      displaySiteName () {
+        return !this.mobilePreview && this.settings?.topbar?.displaySiteName;
+      },
     },
-  },
-  computed: {
-    firstSidebarItem() {
-      return this.settings?.sidebar?.items?.[0];
-    },
-    firstSidebarSiteIcon() {
-      return this.firstSidebarItem?.properties?.siteIcon || this.firstSidebarItem?.icon;
-    },
-    firstSidebarSiteName() {
-      return this.firstSidebarItem?.properties?.siteDisplayName || this.firstSidebarItem?.name;
-    },
-    enabledApplications() {
-      return this.settings?.topbar?.applications?.filter?.(a => a.enabled && (!this.mobilePreview || a.mobile));
-    },
-    displayCompanyName() {
-      return this.settings?.topbar?.displayCompanyName;
-    },
-    displayCompanyLogo() {
-      return !this.mobilePreview || this.settings?.topbar?.displayMobileCompanyLogo;
-    },
-    displaySiteName() {
-      return !this.mobilePreview && this.settings?.topbar?.displaySiteName;
-    },
-  },
-};
+  };
 </script>

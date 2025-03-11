@@ -19,112 +19,112 @@
   <v-treeview
     v-if="navigationTree"
     id="siteNavigationTree"
-    :open.sync="openLevel"
-    :items="navigationTree"
+    v-model:open="openLevel"
+    activatable
     :active="active"
     active-class="v-list-item--active"
     class="treeView-item list-border-active my-2"
-    item-key="uri"
+    dense
     hoverable
-    activatable
+    item-key="uri"
+    :items="navigationTree"
     open-on-click
-    transition
-    dense>
+    transition>
     <template #label="{ item }">
       <site-navigation-item
-        :navigation="item"
         :enable-change-home="enableChangeHome"
-        :enable-unread="firstNavigationId === item.id" />
+        :enable-unread="firstNavigationId === item.id"
+        :navigation="item" />
     </template>
   </v-treeview>
 </template>
 
 <script>
-export default {
-  props: {
-    navigations: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      navigations: {
+        type: Array,
+        default: null,
+      },
+      siteName: {
+        type: String,
+        default: null,
+      },
+      enableChangeHome: {
+        type: Boolean,
+        default: false,
+      },
+      collapsed: {
+        type: Boolean,
+        default: false,
+      },
     },
-    siteName: {
-      type: String,
-      default: null,
-    },
-    enableChangeHome: {
-      type: Boolean,
-      default: false,
-    },
-    collapsed: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    selectedNodeUri: eXo.env.portal.selectedNodeUri,
-    currentSite: eXo.env.portal.siteKeyName,
-  }),
-  computed: {
-    openLevel() {
-      if (this.currentSite === this.siteName) {
-        const ids = [];
-        const splittedCurrentUri = this.selectedNodeUri.split('/');
-        for (let i = 1; i < splittedCurrentUri.length; i++) {
-          ids.push(splittedCurrentUri.slice(0, i).join('/'));
+    data: () => ({
+      selectedNodeUri: eXo.env.portal.selectedNodeUri,
+      currentSite: eXo.env.portal.siteKeyName,
+    }),
+    computed: {
+      openLevel () {
+        if (this.currentSite === this.siteName) {
+          const ids = [];
+          const splittedCurrentUri = this.selectedNodeUri.split('/');
+          for (let i = 1; i < splittedCurrentUri.length; i++) {
+            ids.push(splittedCurrentUri.slice(0, i).join('/'));
+          }
+          return ids;
+        } else if (this.collapsed) {
+          return [];
+        } else {
+          const ids = [];
+          if (this.navigations?.length) {
+            this.navigations.forEach(nav => {
+              ids.push(nav.name);
+              ids.push(...nav.children?.length && nav.children?.map(nav => nav.uri) || []);
+            });
+          }
+          const splittedCurrentUri = this.selectedNodeUri.split('/');
+          ids.push (...splittedCurrentUri);
+          return ids;
         }
-        return ids;
-      } else if (this.collapsed) {
-        return [];
-      } else {
-        const ids = [];
-        if (this.navigations?.length) {
-          this.navigations.forEach(nav => {
-            ids.push(nav.name);
-            ids.push(...nav.children?.length && nav.children?.map(nav => nav.uri) || []);
-          });
+      },
+      navigationTree () {
+        if (this.navigations?.length === 1) {
+          const navigations = JSON.parse(JSON.stringify(this.navigations));
+          const rootNavigation = navigations[0];
+          const rootNavigationChildren = navigations[0]?.children || [];
+          rootNavigation.children = [];
+          return this.filterNodes([rootNavigation, ...rootNavigationChildren]);
+        } else {
+          return this.navigations;
         }
-        const splittedCurrentUri = this.selectedNodeUri.split('/');
-        ids.push (...splittedCurrentUri);
-        return ids;
-      }
+      },
+      firstNavigationId () {
+        return this.navigations?.[0]?.id;
+      },
+      active () {
+        if (this.siteName !== this.currentSite) {
+          return [];
+        }
+        return [this.selectedNodeUri];
+      },
     },
-    navigationTree() {
-      if (this.navigations?.length === 1) {
-        const navigations = JSON.parse(JSON.stringify(this.navigations));
-        const rootNavigation = navigations[0];
-        const rootNavigationChildren = navigations[0]?.children || [];
-        rootNavigation.children = [];
-        return this.filterNodes([rootNavigation, ...rootNavigationChildren]);
-      } else {
-        return this.navigations;
-      }
-    },
-    firstNavigationId() {
-      return this.navigations?.[0]?.id;
-    },
-    active() {
-      if (this.siteName !== this.currentSite) {
-        return [];
-      }
-      return [this.selectedNodeUri];
-    },
-  },
-  methods: {
-    filterNodes(navigations) {
-      if (navigations?.length) {
-        return navigations.map(n => {
-          n.children = this.filterNodes(n.children);
-          if (n.children?.length
+    methods: {
+      filterNodes (navigations) {
+        if (navigations?.length) {
+          return navigations.map(n => {
+            n.children = this.filterNodes(n.children);
+            if (n.children?.length
               || n.pageLink
               || n.pageKey) {
-            return n;
-          } else {
-            return [];
-          }
-        }).filter(n => n.children?.length || n.pageLink || n.pageKey);
-      } else {
-        return [];
-      }
+              return n;
+            } else {
+              return [];
+            }
+          }).filter(n => n.children?.length || n.pageLink || n.pageKey);
+        } else {
+          return [];
+        }
+      },
     },
-  },
-};
+  };
 </script>

@@ -22,51 +22,55 @@
   <v-card
     id="login-providers-menu"
     flat>
-    <v-menu offset-x offset-y>
+    <v-menu
+      offset-x
+      offset-y>
       <template #activator="{on, attrs}">
         <v-btn
-          :title="$t('UILoginForm.label.moreProviders')"
           :aria-label="$t('UILoginForm.label.moreProviders')"
-          min-width="auto"
-          color="primary"
           class="pa-4"
+          color="primary"
           large
+          min-width="auto"
           outlined
+          :title="$t('UILoginForm.label.moreProviders')"
           v-bind="attrs"
           v-on="on">
-          <v-icon size="20">fas fa-ellipsis-h</v-icon>
+          <v-icon size="20">
+            fas fa-ellipsis-h
+          </v-icon>
         </v-btn>
       </template>
       <v-list dense>
         <component
+          :is="provider.vueComponentName || 'portal-login-provider-menu-link'"
           v-for="provider in providers"
           :key="provider.key"
-          :provider="provider"
-          :rememberme="rememberme"
-          :params="params"
-          :is="provider.vueComponentName || 'portal-login-provider-menu-link'"
           class="mx-auto"
           display-text
-          is-menu />
+          is-menu
+          :params="params"
+          :provider="provider"
+          :rememberme="rememberme" />
       </v-list>
     </v-menu>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
+      providers: {
+        type: Array,
+        default: null,
+      },
+      rememberme: {
+        type: Boolean,
+        default: false,
+      },
     },
-    providers: {
-      type: Array,
-      default: null,
-    },
-    rememberme: {
-      type: Boolean,
-      default: false,
-    },
-  },
-};
+  };
 </script>

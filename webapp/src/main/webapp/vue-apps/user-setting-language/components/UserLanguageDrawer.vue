@@ -1,23 +1,27 @@
 <template>
   <exo-drawer
     ref="userLanguageDrawer"
-    class="userLanguageDrawer"
     allow-expand
+    class="userLanguageDrawer"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('UserSettings.language') }}
     </template>
-    <template v-if="languages && languages.length" slot="content">
-      <v-radio-group v-model="value" class="px-4">
+    <template
+      v-if="languages && languages.length"
+      #content>
+      <v-radio-group
+        v-model="langValue"
+        class="px-4">
         <v-radio
           v-for="lang in languages"
           :key="lang.value"
+          class="text-capitalize"
           :label="lang.text"
-          :value="lang.value"
-          class="text-capitalize" />
+          :value="lang.value" />
       </v-radio-group>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -36,29 +40,39 @@
 </template>
 
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
+      languages: {
+        type: Array,
+        default: null,
+      },
     },
-    languages: {
-      type: Array,
-      default: null,
+    computed: {
+      langValue: {
+        set(value) {
+          this.$emit('input', value);
+        },
+        get() {
+          return this.value;
+        },
+      },
     },
-  },
-  methods: {
-    open() {
-      this.$refs.userLanguageDrawer.open();
+    methods: {
+      open () {
+        this.$refs.userLanguageDrawer.open();
+      },
+      saveLanguage () {
+        const lang = this.value.replace('_', '-');
+        window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.metaPortalName}/settings`);
+      },
+      cancel () {
+        this.$refs.userLanguageDrawer.close();
+      },
     },
-    saveLanguage() {
-      const lang = this.value.replace('_', '-');
-      window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.metaPortalName}/settings`);
-    },
-    cancel() {
-      this.$refs.userLanguageDrawer.close();
-    },
-  },
-};
+  };
 </script>
 

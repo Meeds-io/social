@@ -30,7 +30,7 @@ const components = {
   'organizational-chart': OrganizationalChart,
   'organizational-chart-header': OrganizationalChartHeader,
   'chart-user-compact-card': ChartUserCompactCard,
-  'organizational-chart-settings-drawer': OrganizationalChartSettingsDrawer
+  'organizational-chart-settings-drawer': OrganizationalChartSettingsDrawer,
 };
 
 for (const key in components) {

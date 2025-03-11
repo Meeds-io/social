@@ -31,7 +31,7 @@ if (extensionRegistry) {
 const lang = eXo.env.portal.language;
 const url = `/social/i18n/locale.portlet.Image?lang=${lang}`;
 
-export function init(appId, name, canEdit, files) {
+export function init (appId, name, canEdit, files) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       Vue.createApp({
@@ -53,7 +53,7 @@ export function init(appId, name, canEdit, files) {
             square: {
               width: 1280,
               height: 1280,
-            }
+            },
           },
           name,
           canEdit,
@@ -61,10 +61,10 @@ export function init(appId, name, canEdit, files) {
           offsetWidth: 0,
         },
         computed: {
-          hasImages() {
+          hasImages () {
             return this.files?.length;
           },
-          imageUrl() {
+          imageUrl () {
             if (this.hasImages) {
               const fileId = this.files?.[0]?.id;
               return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.name}/${fileId}`;
@@ -72,32 +72,32 @@ export function init(appId, name, canEdit, files) {
               return null;
             }
           },
-          imageFormatName() {
+          imageFormatName () {
             return this.files?.[0]?.format || 'landscape';
           },
-          imageAltText() {
+          imageAltText () {
             return this.files?.[0]?.altText || '';
           },
-          imageFormat() {
+          imageFormat () {
             return this.imageDisplayFormats[this.imageFormatName];
           },
-          imageWidth() {
+          imageWidth () {
             return this.imageFormat?.width;
           },
-          imageHeight() {
+          imageHeight () {
             return this.fixedHeight || this.imageFormat?.height;
           },
-          imageAspectRatio() {
+          imageAspectRatio () {
             return this.imageWidth && this.imageWidth / this.imageHeight || 0;
           },
-          formatAspectRatio() {
+          formatAspectRatio () {
             return this.imageFormat && (this.imageFormat.width / this.imageFormat.height);
           },
         },
         watch: {
           fixedHeight: {
             immediate: true,
-            handler(newVal, oldVal) {
+            handler (newVal, oldVal) {
               if (newVal && !oldVal) {
                 window.addEventListener('resize', this.updateWidth);
               } else if (oldVal && !newVal) {
@@ -108,7 +108,7 @@ export function init(appId, name, canEdit, files) {
           },
         },
         methods: {
-          updateWidth() {
+          updateWidth () {
             this.offsetWidth = this.$el?.offsetWidth;
           },
         },

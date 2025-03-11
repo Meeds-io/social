@@ -21,39 +21,43 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBulkProcessing"
     color="primary"
+    :disabled="$root.isBulkProcessing"
     elevation="0"
     outlined
     @click="$root.$emit('space-administration-edit-categories-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, saveCategories)">
-    <v-icon size="16" class="me-2">fa-th-large</v-icon>
+    <v-icon
+      class="me-2"
+      size="16">
+      fa-th-large
+    </v-icon>
     {{ $t('social.spaces.administration.manageSpaces.editCategories') }}
   </v-btn>
 </template>
 <script>
-export default {
-  methods: {
-    saveCategories(params) {
-      this.$root.applyOperationInBulk(
-        async (space) => {
-          const oldCategoryIds = space.categoryIds || [];
-          const newCategoryIds = params.categoryIds || [];
-          await this.$spaceCategoryService.updateCategories(
-            space.id,
-            oldCategoryIds.slice(),
-            newCategoryIds.slice(),
-            params.dropExisting);
-          const categoryIds = newCategoryIds.slice();
-          if (!params.dropExisting && oldCategoryIds.length) {
-            categoryIds.push(...oldCategoryIds.filter(id => categoryIds.indexOf(id) < 0));
-          }
-          space.categoryIds = categoryIds;
-        },
-        null,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.categoriesAppliedOnSpaces'), 'success');
-        });
+  export default {
+    methods: {
+      saveCategories (params) {
+        this.$root.applyOperationInBulk(
+          async space => {
+            const oldCategoryIds = space.categoryIds || [];
+            const newCategoryIds = params.categoryIds || [];
+            await this.$spaceCategoryService.updateCategories(
+              space.id,
+              oldCategoryIds.slice(),
+              newCategoryIds.slice(),
+              params.dropExisting);
+            const categoryIds = newCategoryIds.slice();
+            if (!params.dropExisting && oldCategoryIds.length) {
+              categoryIds.push(...oldCategoryIds.filter(id => categoryIds.indexOf(id) < 0));
+            }
+            space.categoryIds = categoryIds;
+          },
+          null,
+          () => {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.categoriesAppliedOnSpaces'), 'success');
+          });
+      },
     },
-  },
-};
+  };
 </script>

@@ -21,25 +21,25 @@
 <template>
   <v-row class="ma-0 position-relative">
     <v-col
+      class="pa-0"
       cols="12"
-      lg="12"
-      class="pa-0">
+      lg="12">
       <portal-general-settings-branding-site 
         :branding="branding"
         :custom-css="customStylesheet"
         @changed="$emit('changed')"
-        @saved="$emit('saved')"
-        @close="$emit('close')" />
+        @close="$emit('close')"
+        @saved="$emit('saved')" />
     </v-col>
   </v-row>
 </template>
 <script>
-export default {
-  props: {
-    branding: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      branding: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

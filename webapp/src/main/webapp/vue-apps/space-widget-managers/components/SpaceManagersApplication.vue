@@ -22,25 +22,27 @@
   <v-app>
     <v-hover v-model="hover">
       <widget-wrapper
-        :title="$t('social.space.description.managers')"
-        ref="spaceManagers"
         key="spaceManagers"
-        extra-class="application-body">
-        <template v-if="$root.isManager" #action>
+        ref="spaceManagers"
+        extra-class="application-body"
+        :title="$t('social.space.description.managers')">
+        <template
+          v-if="$root.isManager"
+          #action>
           <v-btn
             v-show="hover"
-            :title="$t('social.space.managers.editTooltip')"
-            :href="administrationUrl"
-            height="27"
-            width="27"
-            min-width="auto"
             class="pa-0"
+            height="27"
+            :href="administrationUrl"
             icon
+            min-width="auto"
+            small
             text
-            small>
+            :title="$t('social.space.managers.editTooltip')"
+            width="27">
             <v-icon
-              size="18"
-              color="primary">
+              color="primary"
+              size="18">
               fa-external-link-alt
             </v-icon>
           </v-btn>
@@ -50,13 +52,13 @@
             <exo-user-avatar
               v-for="(identity, i) in $root.managers"
               :key="i"
+              avatar-class="me-2"
+              bold-title
+              display-position
+              extra-class="mt-3"
               :identity="identity"
               :popover="!isAnonymous"
-              avatar-class="me-2"
-              extra-class="mt-3"
-              size="36"
-              display-position
-              bold-title />
+              size="36" />
           </div>
         </template>
       </widget-wrapper>
@@ -64,18 +66,18 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    hover: false,
-    isAnonymous: !eXo.env.portal.userName,
-  }),
-  computed: {
-    administrationUrl() {
-      return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#roles`;
+  export default {
+    data: () => ({
+      hover: false,
+      isAnonymous: !eXo.env.portal.userName,
+    }),
+    computed: {
+      administrationUrl () {
+        return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#roles`;
+      },
     },
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-};
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+  };
 </script>

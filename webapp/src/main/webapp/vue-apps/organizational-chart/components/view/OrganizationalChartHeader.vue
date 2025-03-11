@@ -37,8 +37,8 @@
   </div>
   <v-sheet
     v-else
-    height="28"
-    class="d-flex mb-2">
+    class="d-flex mb-2"
+    height="28">
     <p
       v-if="hasHeaderTitle"
       class="my-auto widget-text-header text-truncate">
@@ -50,10 +50,10 @@
         <v-btn
           v-if="hover || isMobile"
           class="ms-auto my-0 icon-default-color me-5"
-          :loading="isPrintingPdf"
-          :title="$t('organizationalChart.download.label')"
-          small
           icon
+          :loading="isPrintingPdf"
+          small
+          :title="$t('organizationalChart.download.label')"
           @click="downloadChart">
           <v-icon
             size="20">
@@ -65,8 +65,8 @@
         <v-btn
           v-if="hover || isMobile"
           class="ms-auto my-0 icon-default-color"
-          small
           icon
+          small
           @click="openChartSettingsDrawer">
           <v-icon
             size="20">
@@ -79,44 +79,44 @@
 </template>
 
 <script>
-export default {
-  props: {
-    hasSettings: {
-      type: Boolean,
-      default: false
+  export default {
+    props: {
+      hasSettings: {
+        type: Boolean,
+        default: false,
+      },
+      configuredTitle: {
+        type: String,
+        default: null,
+      },
+      isAdmin: {
+        type: Boolean,
+        default: false,
+      },
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      isMobile: {
+        type: Boolean,
+        default: false,
+      },
+      hasHeaderTitle: {
+        type: Boolean,
+        default: false,
+      },
+      isPrintingPdf: {
+        type: Boolean,
+        default: false,
+      },
     },
-    configuredTitle: {
-      type: String,
-      default: null
+    methods: {
+      openChartSettingsDrawer () {
+        this.$emit('open-chart-settings');
+      },
+      downloadChart () {
+        this.$emit('download-chart');
+      },
     },
-    isAdmin: {
-      type: Boolean,
-      default: false
-    },
-    hover: {
-      type: Boolean,
-      default: false
-    },
-    isMobile: {
-      type: Boolean,
-      default: false
-    },
-    hasHeaderTitle: {
-      type: Boolean,
-      default: false
-    },
-    isPrintingPdf: {
-      type: Boolean,
-      default: false
-    }
-  },
-  methods: {
-    openChartSettingsDrawer() {
-      this.$emit('open-chart-settings');
-    },
-    downloadChart() {
-      this.$emit('download-chart');
-    }
-  }
-};
+  };
 </script>

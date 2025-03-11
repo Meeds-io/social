@@ -12,7 +12,7 @@ const components = {
   'user-popover-content': UserPopoverContent,
   'space-popover-content': SpacePopoverContent,
   'space-mute-notification-button': SpaceMuteNotificationButton,
-  'users-list-drawer': UsersListDrawer
+  'users-list-drawer': UsersListDrawer,
 };
 components['space-favorite-action'] = SpaceFavoriteAction;
 

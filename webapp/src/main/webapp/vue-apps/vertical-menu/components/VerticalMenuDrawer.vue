@@ -18,29 +18,29 @@
   <exo-drawer
     id="verticalMenuDrawer"
     ref="verticalMenuDrawer"
-    :right="$vuetify.rtl"
+    allow-expand
     drawer-width="310"
     eager
-    allow-expand
+    :right="$vuetify.rtl"
     @closed="close">
-    <template slot="content">
+    <template #content>
       <vertical-menu-content />
     </template>
   </exo-drawer>
 </template>
 
 <script>
-export default {
-  created() {
-    this.$root.$on('open-vertical-menu-drawer', this.open);
-  },
-  methods: {
-    open() {
-      this.$refs.verticalMenuDrawer.open();
+  export default {
+    created () {
+      this.$root.$on('open-vertical-menu-drawer', this.open);
     },
-    close() {
-      this.$refs.verticalMenuDrawer.close();
+    methods: {
+      open () {
+        this.$refs.verticalMenuDrawer.open();
+      },
+      close () {
+        this.$refs.verticalMenuDrawer.close();
+      },
     },
-  }
-};
+  };
 </script>

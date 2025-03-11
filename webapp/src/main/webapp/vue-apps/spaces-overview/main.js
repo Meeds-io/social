@@ -18,7 +18,7 @@ const url = `/social/i18n/locale.portlet.social.SpacesOverview?lang=${lang}`;
 
 const appId = 'SpacesOverview';
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({

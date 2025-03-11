@@ -35,21 +35,21 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
     return Vue.prototype.$spaceService.muteSpace(space?.id, false)
       .then(() => {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
-        document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+        document.dispatchEvent(new CustomEvent('alert-message', { detail: {
           alertMessageKey: 'Notification.alert.successfullyMuted',
           type: 'success',
-        }}));
-        document.dispatchEvent(new CustomEvent('space-muted', {detail: {
+        } }));
+        document.dispatchEvent(new CustomEvent('space-muted', { detail: {
           name: 'spaceLeftNavigationAction',
           spaceId: space.id,
-        }}));
+        } }));
         Vue.prototype.$set(space, 'isMuted', 'true');
       })
       .catch(() => {
-        document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+        document.dispatchEvent(new CustomEvent('alert-message', { detail: {
           alertMessageKey: 'Notification.alert.errorChangingSpaceMutingStatus',
           type: 'error',
-        }}));
+        } }));
       });
   },
 });
@@ -63,21 +63,21 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
     return Vue.prototype.$spaceService.muteSpace(space?.id, true)
       .then(() => {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
-        document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+        document.dispatchEvent(new CustomEvent('alert-message', { detail: {
           alertMessageKey: 'Notification.alert.successfullyUnmuted',
-          type: 'success'
-        }}));
-        document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
+          type: 'success',
+        } }));
+        document.dispatchEvent(new CustomEvent('space-unmuted', { detail: {
           name: 'spaceLeftNavigationAction',
           spaceId: space.id,
-        }}));
+        } }));
         Vue.prototype.$set(space, 'isMuted', 'false');
       })
       .catch(() => {
-        document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+        document.dispatchEvent(new CustomEvent('alert-message', { detail: {
           alertMessageKey: 'Notification.alert.errorChangingSpaceMutingStatus',
           type: 'error',
-        }}));
+        } }));
       });
   },
 });

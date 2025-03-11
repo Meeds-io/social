@@ -22,12 +22,16 @@
   <v-tooltip bottom>
     <template #activator="{ on, attrs }">
       <v-btn
-        :loading="saving"
         icon
+        :loading="saving"
         v-bind="attrs"
         v-on="on"
         @click="muteSpace">
-        <v-icon size="16" class="icon-default-color">{{ spaceMuted && 'fa-bell-slash' || 'far fa-bell-slash' }}</v-icon>
+        <v-icon
+          class="icon-default-color"
+          size="16">
+          {{ spaceMuted && 'fa-bell-slash' || 'far fa-bell-slash' }}
+        </v-icon>
       </v-btn>
     </template>
     <span>{{ spaceMuted && $t('Notification.tooltip.unmuteSpaceNotification') || $t('Notification.tooltip.muteSpaceNotification') }}</span>
@@ -35,56 +39,56 @@
 </template>
 
 <script>
-export default {
-  props: {
-    spaceId: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      spaceId: {
+        type: String,
+        default: null,
+      },
+      origin: {
+        type: String,
+        default: null,
+      },
+      muted: {
+        type: Boolean,
+        default: false,
+      },
     },
-    origin: {
-      type: String,
-      default: null,
+    data () {
+      return {
+        saving: false,
+        muteValue: null,
+      };
     },
-    muted: {
-      type: Boolean,
-      default: false,
+    computed: {
+      spaceMuted () {
+        return (this.muteValue === null && typeof window.MUTED_SPACES?.[this.spaceId] === 'undefined') ? this.muted : window.MUTED_SPACES[this.spaceId] || this.muteValue || false;
+      },
     },
-  },
-  data() {
-    return {
-      saving: false,
-      muteValue: null,
-    };
-  },
-  computed: {
-    spaceMuted() {
-      return (this.muteValue === null && typeof window.MUTED_SPACES?.[this.spaceId] === 'undefined') ? this.muted : window.MUTED_SPACES[this.spaceId] || this.muteValue || false;
+    methods: {
+      muteSpace () {
+        this.saving = true;
+        return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
+          .then(() => {
+            document.dispatchEvent(new CustomEvent('refresh-notifications'));
+            if (this.spaceMuted) {
+              this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
+              document.dispatchEvent(new CustomEvent('space-unmuted', { detail: {
+                name: this.origin,
+                spaceId: this.spaceId,
+              } }));
+            } else {
+              this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
+              document.dispatchEvent(new CustomEvent('space-muted', { detail: {
+                name: this.origin,
+                spaceId: this.spaceId,
+              } }));
+            }
+          })
+          .then(() => this.muteValue = !this.spaceMuted)
+          .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
+          .finally(() => this.saving = false);
+      },
     },
-  },
-  methods: {
-    muteSpace() {
-      this.saving = true;
-      return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
-        .then(() => {
-          document.dispatchEvent(new CustomEvent('refresh-notifications'));
-          if (this.spaceMuted) {
-            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyUnmuted'), 'success');
-            document.dispatchEvent(new CustomEvent('space-unmuted', {detail: {
-              name: this.origin,
-              spaceId: this.spaceId,
-            }}));
-          } else {
-            this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');
-            document.dispatchEvent(new CustomEvent('space-muted', {detail: {
-              name: this.origin,
-              spaceId: this.spaceId,
-            }}));
-          }
-        })
-        .then(() => this.muteValue = !this.spaceMuted)
-        .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'))
-        .finally(() => this.saving = false);
-    },
-  }
-};
+  };
 </script>

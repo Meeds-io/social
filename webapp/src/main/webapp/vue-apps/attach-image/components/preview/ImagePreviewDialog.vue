@@ -19,56 +19,56 @@
 <template>
   <v-dialog
     v-model="dialog"
-    :persistent="false"
-    width="80vw"
-    overlay-opacity="0.9"
     content-class="overflow-y-initial"
-    max-width="80vw">
+    max-width="80vw"
+    overlay-opacity="0.9"
+    :persistent="false"
+    width="80vw">
     <template v-if="dialog">
       <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
         <v-btn
           id="preview-attachment-download"
-          :href="downloadURL"
-          :download="attachmentFilename"
+          class="white--text"
           :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-          :title="$t('attachment.imageDownload')"
+          :download="attachmentFilename"
+          :href="downloadURL"
           icon
-          class="white--text">
+          :title="$t('attachment.imageDownload')">
           <i class="fas fa-download"></i>
         </v-btn>
         <v-btn
           id="preview-attachment-close"
-          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-          :title="$t('attachment.closePreview')"
-          icon
           class="white--text ml-4"
+          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
+          icon
+          :title="$t('attachment.closePreview')"
           @click="close">
           <i class="fas fa-times"></i>
         </v-btn>
       </div>
       <v-card 
+        class="transparent"
         flat
-        :max-height="!isMobile && '80vh' || '75vh'"
-        class="transparent">
+        :max-height="!isMobile && '80vh' || '75vh'">
         <v-carousel
           :id="`previewCarousel-${objectType}`"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
-          :show-arrows-on-hover="!isMobile"
-          :show-arrows="attachments.length > 1"                         
-          :height="!isMobile && '80vh' || '75vh'"
-          hide-delimiters   
-          class="AttachmentCarouselPreview white border-radius">
+          class="AttachmentCarouselPreview white border-radius"
+          :height="!isMobile && '80vh' || '75vh'"                         
+          hide-delimiters
+          :show-arrows="attachments.length > 1"   
+          :show-arrows-on-hover="!isMobile">
           <v-carousel-item
             v-for="attachment in sortedAttachments"
             :key="attachment.id"
-            :value="attachment.id"
             reverse-transition="fade-transition"
-            transition="fade-transition">
+            transition="fade-transition"
+            :value="attachment.id">
             <attachments-image-preview-item
               :attachment="attachment"
-              :object-type="objectType"
-              :object-id="objectId" />
+              :object-id="objectId"
+              :object-type="objectType" />
           </v-carousel-item>
         </v-carousel>
       </v-card>
@@ -76,72 +76,72 @@
   </v-dialog>
 </template>
 <script>
-export default {
-  data: () => ({
-    dialog: false,
-    currentAttachmentId: 0, 
-    filename: '',
-    objectType: '',
-    attachments: null,
-  }),
-  computed: {
-    downloadURL() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+  export default {
+    data: () => ({
+      dialog: false,
+      currentAttachmentId: 0, 
+      filename: '',
+      objectType: '',
+      attachments: null,
+    }),
+    computed: {
+      downloadURL () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+      },
+      attachmentFilename () {
+        return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
+      }, 
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+      },
+      sortedAttachments () {
+        const sortedAttachments = this.attachments?.length && this.attachments.slice() || [];
+        sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+        return sortedAttachments;
+      },
     },
-    attachmentFilename() {
-      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
-    }, 
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    },
-    sortedAttachments() {
-      const sortedAttachments = this.attachments?.length && this.attachments.slice() || [];
-      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
-      return sortedAttachments;
-    },
-  },
-  watch: {
-    dialog() {
-      if (this.dialog) {
-        this.$emit('dialog-opened');
-        document.dispatchEvent(new CustomEvent('modalOpened'));
-      } else {
-        this.$emit('dialog-closed');
-        document.dispatchEvent(new CustomEvent('modalClosed'));
-      }
-    }
-  },
-  created() {
-    this.$root.$on('open-attachments-preview', this.open);
-    document.addEventListener('keydown', (event) => {
-      if (this.$refs.attachmentsCarousel) {
-        if (event.key === 'Escape') {
-          this.dialog = false;
-        } else if (event.key === 'ArrowLeft') {
-          this.$refs.attachmentsCarousel.prev();
-        } else if (event.key === 'ArrowRight') {
-          this.$refs.attachmentsCarousel.next();
+    watch: {
+      dialog () {
+        if (this.dialog) {
+          this.$emit('dialog-opened');
+          document.dispatchEvent(new CustomEvent('modalOpened'));
+        } else {
+          this.$emit('dialog-closed');
+          document.dispatchEvent(new CustomEvent('modalClosed'));
         }
-      }
-    });
-  },
-  methods: {
-    open(objectType, objectId, attachments, id) {
-      this.objectType = objectType;
-      this.objectId = objectId;
-      this.attachments = attachments;
-      this.currentAttachmentId = id;
-      this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
-      this.dialog = true;
+      },
     },
-    close() {
-      this.dialog = false;
-      this.objectType = null;
-      this.objectId = null;
-      this.attachments = null;
-      this.currentAttachmentId = null;
-      this.filename = null;
+    created () {
+      this.$root.$on('open-attachments-preview', this.open);
+      document.addEventListener('keydown', event => {
+        if (this.$refs.attachmentsCarousel) {
+          if (event.key === 'Escape') {
+            this.dialog = false;
+          } else if (event.key === 'ArrowLeft') {
+            this.$refs.attachmentsCarousel.prev();
+          } else if (event.key === 'ArrowRight') {
+            this.$refs.attachmentsCarousel.next();
+          }
+        }
+      });
     },
-  }
-};
+    methods: {
+      open (objectType, objectId, attachments, id) {
+        this.objectType = objectType;
+        this.objectId = objectId;
+        this.attachments = attachments;
+        this.currentAttachmentId = id;
+        this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
+        this.dialog = true;
+      },
+      close () {
+        this.dialog = false;
+        this.objectType = null;
+        this.objectId = null;
+        this.attachments = null;
+        this.currentAttachmentId = null;
+        this.filename = null;
+      },
+    },
+  };
 </script>

@@ -1,33 +1,38 @@
 {
   "name": "meeds-social",
   "version": "7.0.0",
-  "description": "Meeds Space poetlets",
+  "description": "Meeds Space portlets",
   "repository": {
     "type": "git",
-    "url": "https://github.com/exodev/social"
+    "url": "https://github.com/Meeds-io/social"
   },
   "scripts": {
-    "watch": "webpack --config webpack.dev.js --progress --color --watch",
-    "lint": "eslint --fix \"./src/main/webapp/vue-apps/**\"",
+    "watch": "webpack --config webpack.dev.cjs --progress --color --watch",
+    "lint": "eslint --quiet --fix \"./src/main/webapp/vue-apps/**\"",
     "eslint-check": "eslint \"./src/main/webapp/**\"",
-    "build": "webpack --config webpack.prod.js --mode production"
+    "build": "webpack --config webpack.prod.cjs --mode production"
   },
-  "author": "eXo",
+  "type": "module",
+  "author": "Meeds",
   "license": "LGPL",
   "devDependencies": {
-    "babel-loader": "^8.3.0",
-    "eslint": "^8.12.0",
-    "eslint-config-meedsio": "^1.0.5",
-    "eslint-plugin-vue": "^8.6.0",
-    "eslint-plugin-vuejs-accessibility": "^2.1.0",
-    "eslint-webpack-plugin": "^3.1.1",
-    "sass": "^1.77.8",
-    "sass-loader": "^16.0.0",
-    "vue": "^2.6.14",
-    "vue-loader": "^15.10.1",
-    "vue-template-compiler": "^2.6.14",
-    "webpack": "^5.94.0",
-    "webpack-cli": "^4.9.2",
-    "webpack-merge": "^5.8.0"
+    "@vue/compat": "^3.4.31",
+    "@vue/compiler-sfc": "^3.5.13",
+    "babel-loader": "^9.1.3",
+    "css-loader": "^7.1.2",
+    "eslint-config-vuetify": "^2.0.5",
+    "eslint-plugin-vue": "^9.26.0",
+    "eslint-plugin-vuejs-accessibility": "^2.3.1",
+    "eslint-plugin-vuetify": "^2.4.0",
+    "eslint-webpack-plugin": "^4.2.0",
+    "sass": "^1.85.1",
+    "sass-loader": "^14.2.1",
+    "vue": "^3.4.31",
+    "vue-loader": "^17.4.2",
+    "vue-style-loader": "^4.1.3",
+    "vuetify": "^3.6.10",
+    "webpack": "^5.92.1",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.10.0"
   }
 }

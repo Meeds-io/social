@@ -9,7 +9,9 @@
         </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action class="ma-auto">
-        <v-btn icon @click="$emit('edit')">
+        <v-btn
+          icon
+          @click="$emit('edit')">
           <v-icon>
             fa-edit
           </v-icon>
@@ -40,29 +42,29 @@
 </template>
 
 <script>
-export default {
-  props: {
-    plugin: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      plugin: {
+        type: Object,
+        default: null,
+      },
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-    settings: {
-      type: Object,
-      default: null,
+    computed: {
+      label () {
+        const pluginId = this.plugin.type;
+        return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
+      },
+      enabledNotifications () {
+        return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === this.plugin.type);
+      },
+      enabledNotificationLabels () {
+        return this.enabledNotifications && this.enabledNotifications.map(plugin => this.settings.channelLabels[plugin.channelId]);
+      },
     },
-  },
-  computed: {
-    label() {
-      const pluginId = this.plugin.type;
-      return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
-    },
-    enabledNotifications() {
-      return this.settings && this.settings.channelCheckBoxList && this.settings.channelCheckBoxList.filter(choice => choice.channelActive && choice.pluginId === this.plugin.type);
-    },
-    enabledNotificationLabels() {
-      return this.enabledNotifications && this.enabledNotifications.map(plugin => this.settings.channelLabels[plugin.channelId]);
-    },
-  },
-};
+  };
 </script>
 

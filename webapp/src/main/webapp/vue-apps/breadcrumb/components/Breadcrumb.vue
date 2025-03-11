@@ -7,27 +7,27 @@
       <div
         v-for="(breadcrumb, index) in breadcrumbToDisplay"
         :key="index"
-        :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''"
-        class="text-truncate text-body-1 d-flex">
+        class="text-truncate text-body-1 d-flex"
+        :class="breadcrumbToDisplay.length === 1 && 'single-path-element' || ''">
         <v-tooltip
           v-if="breadcrumb.label != ellipsis"
-          max-width="300"
-          bottom>
+          bottom
+          max-width="300">
           <template #activator="{ on, attrs }">
             <div
               class="text-truncate d-inline"
               v-bind="attrs"
               v-on="on">
               <v-card
-                :href="breadcrumb.uri"
-                :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'"
-                :disabled="!breadcrumb.uri"
-                :class="!breadcrumb.uri && 'text-subtitle-color'"
-                height="var(--appHeight, 52)"
-                min-width="45px"
-                max-width="250px"
                 class="pa-0 d-flex align-center"
-                flat>
+                :class="!breadcrumb.uri && 'text-subtitle-color'"
+                :disabled="!breadcrumb.uri"
+                flat
+                height="var(--appHeight, 52)"
+                :href="breadcrumb.uri"
+                max-width="250px"
+                min-width="45px"
+                :target="breadcrumb.target === 'SAME_TAB' && '_self' || '_blank'">
                 <span class="text-truncate text-none">
                   {{ breadcrumb.label }}
                 </span>
@@ -40,17 +40,17 @@
         </v-tooltip>
         <v-card
           v-else
-          disabled
-          min-width="45px"
-          height="var(--appHeight, 52)"
           class="pa-0 text-subtitle-color d-flex align-center justify-center flex-shrink-1"
-          flat>
+          disabled
+          flat
+          height="var(--appHeight, 52)"
+          min-width="45px">
           {{ breadcrumb.label }}
         </v-card>
         <v-icon
           v-if="index < breadcrumbToDisplay.length-1"
-          size="16"
-          class="px-2">
+          class="px-2"
+          size="16">
           fa-chevron-right
         </v-icon>
       </div>
@@ -58,57 +58,57 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    navigation: null,
-    userNodeBreadcrumbItemList: null,
-    scope: 'SINGLE',
-    visibility: ['displayed', 'temporal'],
-    siteType: 'PORTAL',
-    spaceType: 'GROUP',
-    ellipsis: '...',
-  }),
-  computed: {
-    breadcrumbToDisplay() {
-      if (!this.userNodeBreadcrumbItemList || (!this.isMobile && this.userNodeBreadcrumbItemList.length <= 4) || (this.isMobile && this.userNodeBreadcrumbItemList.length === 1)) {
-        return this.userNodeBreadcrumbItemList || [];
-      }
-      const length = this.userNodeBreadcrumbItemList.length;
-      let userNodeBreadcrumbItemListToDisplay = [];
-      if (!this.isMobile) {
-        userNodeBreadcrumbItemListToDisplay  = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
-        userNodeBreadcrumbItemListToDisplay[1] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[1], {
-          label: this.ellipsis,
-        });
-        return userNodeBreadcrumbItemListToDisplay;
-      } else if (!this.$root.noThreeDots) {
-        userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], this.userNodeBreadcrumbItemList[length - 1]];
-        userNodeBreadcrumbItemListToDisplay[0] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[0], {
-          label: this.ellipsis,
-        });
-        return userNodeBreadcrumbItemListToDisplay;
-      } else {
-        return this.userNodeBreadcrumbItemList.slice(length - 1);
-      }
+  export default {
+    data: () => ({
+      navigation: null,
+      userNodeBreadcrumbItemList: null,
+      scope: 'SINGLE',
+      visibility: ['displayed', 'temporal'],
+      siteType: 'PORTAL',
+      spaceType: 'GROUP',
+      ellipsis: '...',
+    }),
+    computed: {
+      breadcrumbToDisplay () {
+        if (!this.userNodeBreadcrumbItemList || (!this.isMobile && this.userNodeBreadcrumbItemList.length <= 4) || (this.isMobile && this.userNodeBreadcrumbItemList.length === 1)) {
+          return this.userNodeBreadcrumbItemList || [];
+        }
+        const length = this.userNodeBreadcrumbItemList.length;
+        let userNodeBreadcrumbItemListToDisplay = [];
+        if (!this.isMobile) {
+          userNodeBreadcrumbItemListToDisplay  = [this.userNodeBreadcrumbItemList[0], ... this.userNodeBreadcrumbItemList.slice(length - 3, length)];
+          userNodeBreadcrumbItemListToDisplay[1] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[1], {
+            label: this.ellipsis,
+          });
+          return userNodeBreadcrumbItemListToDisplay;
+        } else if (!this.$root.noThreeDots) {
+          userNodeBreadcrumbItemListToDisplay = [this.userNodeBreadcrumbItemList[0], this.userNodeBreadcrumbItemList[length - 1]];
+          userNodeBreadcrumbItemListToDisplay[0] = Object.assign({}, userNodeBreadcrumbItemListToDisplay[0], {
+            label: this.ellipsis,
+          });
+          return userNodeBreadcrumbItemListToDisplay;
+        } else {
+          return this.userNodeBreadcrumbItemList.slice(length - 1);
+        }
+      },
+      isMobile () {
+        return this.$vuetify.breakpoint.width < 980;
+      },
     },
-    isMobile() {
-      return this.$vuetify.breakpoint.width < 980;
+    created () {
+      this.getCurrentNavigations();
     },
-  },
-  created() {
-    this.getCurrentNavigations();
-  },
-  mounted() {
-    window.setTimeout(() => document.dispatchEvent(new CustomEvent('breadcrumb-app-mounted')), 50);
-  },
-  methods: {
-    getCurrentNavigations() {
-      this.$navigationService.getNavigations((!!eXo.env.portal.spaceId && `/spaces/${eXo.env.portal.spaceGroup}`) || eXo.env.portal.portalName, (!!eXo.env.portal.spaceId && this.spaceType) || this.siteType, this.scope, this.visibility, null,  eXo.env.portal.selectedNodeId, true)
-        .then(navigations => {
-          this.navigation = navigations &&  navigations[0] || {};
-          this.userNodeBreadcrumbItemList = navigations &&  navigations[0].userNodeBreadcrumbItemList || [];
-        });
+    mounted () {
+      window.setTimeout(() => document.dispatchEvent(new CustomEvent('breadcrumb-app-mounted')), 50);
     },
-  }
-};
+    methods: {
+      getCurrentNavigations () {
+        this.$navigationService.getNavigations((!!eXo.env.portal.spaceId && `/spaces/${eXo.env.portal.spaceGroup}`) || eXo.env.portal.portalName, (!!eXo.env.portal.spaceId && this.spaceType) || this.siteType, this.scope, this.visibility, null,  eXo.env.portal.selectedNodeId, true)
+          .then(navigations => {
+            this.navigation = navigations &&  navigations[0] || {};
+            this.userNodeBreadcrumbItemList = navigations &&  navigations[0].userNodeBreadcrumbItemList || [];
+          });
+      },
+    },
+  };
 </script>

@@ -20,26 +20,28 @@
 
 -->
 <template>
-  <v-app :class="componentId" class="topBarMenu">
+  <v-app
+    class="topBarMenu"
+    :class="componentId">
     <v-footer
       v-if="isMobile && mobileNavigations.length"
       class="pt-0 pr-0 pl-0 elevation-2"
-      inset
-      fixed>
+      fixed
+      inset>
       <v-tabs
+        v-model="tab"
+        background-color="transparent"
         class="navigation-mobile-menu"
         :class="isTopBarElement && 'layout-top-bar' || ''"
-        v-model="tab"
         color="none"
-        optional
-        background-color="transparent"
         height="57"
+        optional
         slider-size="4">
         <navigation-mobile-menu-item
           v-for="(navigation, index) in mobileNavigations"
           :key="navigation.id"
-          :navigation="navigation"
           :base-site-uri="getNavigationBaseUri(index)"
+          :navigation="navigation"
           @update-navigation-state="updateNavigationState" />
       </v-tabs>
     </v-footer>
@@ -47,174 +49,174 @@
       v-else
       v-model="tab"
       background-color="transparent"
-      color="none"
-      show-arrows
       center-active
-      optional
+      color="none"
       height="57"
+      optional
+      show-arrows
       slider-size="4">
       <navigation-menu-item
         v-for="(navigation, index) in navigations"
         :key="navigation.id"
-        :navigation="navigation"
         :base-site-uri="getNavigationBaseUri(index)"
+        :navigation="navigation"
         :selected-path="selectedPath"
         @update-navigation-state="updateNavigationState" />
     </v-tabs>
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    componentId: `top-bar-menu-${parseInt(Math.random() * 65536)}`,
-    initialized: false,
-    mounted: false,
-    navigations: [],
-    mobileNavigations: [],
-    scope: 'ALL',
-    globalScope: 'children',
-    visibility: ['displayed', 'temporal'],
-    siteType: eXo.env.portal.siteKeyType?.toUpperCase(),
-    siteName: eXo.env.portal.siteKeyType === 'portal'
-      || eXo.env.portal.siteKeyName === 'global'
-      ? eXo.env.portal.portalName
-      : eXo.env.portal.siteKeyName,
-    exclude: 'global',
-    tab: null,
-  }),
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    },
-    navigationsLength() {
-      return this.mobileNavigations?.length || 0;
-    },
-    loadingFinished() {
-      return this.initialized && this.mounted;
-    },
-    parentScrollableSelector() {
-      return document.querySelector('.site-scroll-parent .UIPageBody') ? '.site-scroll-parent' : '.site-scroll-parent .UIPage';
-    },
-    siteUri() {
-      return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
-    },
-    selectedPath() {
-      const pathname = window.location.pathname;
-      if (pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}/`.toLowerCase()
+  export default {
+    data: () => ({
+      componentId: `top-bar-menu-${parseInt(Math.random() * 65536)}`,
+      initialized: false,
+      mounted: false,
+      navigations: [],
+      mobileNavigations: [],
+      scope: 'ALL',
+      globalScope: 'children',
+      visibility: ['displayed', 'temporal'],
+      siteType: eXo.env.portal.siteKeyType?.toUpperCase(),
+      siteName: eXo.env.portal.siteKeyType === 'portal'
+        || eXo.env.portal.siteKeyName === 'global'
+        ? eXo.env.portal.portalName
+        : eXo.env.portal.siteKeyName,
+      exclude: 'global',
+      tab: null,
+    }),
+    computed: {
+      isMobile () {
+        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+      },
+      navigationsLength () {
+        return this.mobileNavigations?.length || 0;
+      },
+      loadingFinished () {
+        return this.initialized && this.mounted;
+      },
+      parentScrollableSelector () {
+        return document.querySelector('.site-scroll-parent .UIPageBody') ? '.site-scroll-parent' : '.site-scroll-parent .UIPage';
+      },
+      siteUri () {
+        return this.siteType === 'GROUP' ? `g/${this.siteName?.replaceAll('/', ':')}` : this.siteName;
+      },
+      selectedPath () {
+        const pathname = window.location.pathname;
+        if (pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}/`.toLowerCase()
           || pathname.toLowerCase() === `${eXo.env.portal.context}/${this.siteUri}`.toLowerCase()) {
-        return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
-      } else {
-        return pathname;
-      }
-    },
-    baseSiteUri() {
-      return `${eXo.env.portal.context}/${this.siteUri}/`;
-    },
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
-  },
-  watch: {
-    isMobile() {
-      if (this.isMobile) {
-        this.refreshMobileNavigations();
-      } else {
-        this.computeSiteBodyMargin();
-      }
-    },
-    navigationsLength() {
-      this.computeSiteBodyMargin();
-    },
-    loadingFinished() {
-      if (this.loadingFinished) {
-        this.$root.$applicationLoaded();
-        window.setTimeout(this.hideCachedMenu, 200);
-      }
-    },
-  },
-  created() {
-    document.addEventListener('space-settings-updated', this.init);
-    this.init();
-  },
-  beforeDestroy() {
-    document.removeEventListener('space-settings-updated', this.init);
-  },
-  mounted() {
-    this.mounted = true;
-  },
-  methods: {
-    init() {
-      return this.getNavigations()
-        .finally(() => this.initialized = true);
-    },
-    cacheMenuContent() {
-      sessionStorage.setItem(this.$root.cacheId, document.querySelector('#topBarMenu').innerHTML);
-    },
-    hideCachedMenu() {
-      this.refreshWindowSize();
-      const menuElements = document.querySelectorAll('.topBarMenu');
-      for (const menuElement of menuElements) {
-        if (!menuElement.classList.contains(this.componentId)) {
-          menuElement.remove();
+          return `${eXo.env.portal.context}/${this.siteUri}/${eXo.env.portal.selectedNodeUri}`;
+        } else {
+          return pathname;
         }
-      }
-      window.setTimeout(() => this.cacheMenuContent(), 2000);
+      },
+      baseSiteUri () {
+        return `${eXo.env.portal.context}/${this.siteUri}/`;
+      },
+      isTopBarElement () {
+        return this.$root.isTopBarElement;
+      },
     },
-    getNavigationBaseUri(index) {
-      const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
-      return index && `${navigationBaseUri}/` || navigationBaseUri;
+    watch: {
+      isMobile () {
+        if (this.isMobile) {
+          this.refreshMobileNavigations();
+        } else {
+          this.computeSiteBodyMargin();
+        }
+      },
+      navigationsLength () {
+        this.computeSiteBodyMargin();
+      },
+      loadingFinished () {
+        if (this.loadingFinished) {
+          this.$root.$applicationLoaded();
+          window.setTimeout(this.hideCachedMenu, 200);
+        }
+      },
     },
-    async getNavigations() {
-      if (this.$root.parentNodeId) {
-        const navigations = await this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, this.$root.parentNodeId, null, true);
-        this.navigations = navigations || [];
-        this.buildNavigations();
-      }
+    created () {
+      document.addEventListener('space-settings-updated', this.init);
+      this.init();
     },
-    updateNavigationState(value) {
-      this.tab = value;
+    beforeUnmount () {
+      document.removeEventListener('space-settings-updated', this.init);
     },
-    buildNavigations() {
-      if (this.navigations.length && this.navigations[0].children?.length) {
-        this.navigations.push(...this.navigations[0].children);
-        this.navigations[0].children = [];
-      } else {
-        this.navigations = [];
-      }
-      if (this.isMobile) {
-        this.refreshMobileNavigations();
-      }
+    mounted () {
+      this.mounted = true;
     },
-    refreshMobileNavigations() {
-      if (this.navigations.length > 3) {
-        this.mobileNavigations = [];
-        const children = this.navigations.slice(2, this.navigations.length);
-        this.mobileNavigations.push(...this.navigations.slice(0, 2));
-        this.mobileNavigations.push({
-          id: 0,
-          name: 'more',
-          label: this.$t('topBar.navigation.label.more'),
-          children: children
+    methods: {
+      init () {
+        return this.getNavigations()
+          .finally(() => this.initialized = true);
+      },
+      cacheMenuContent () {
+        sessionStorage.setItem(this.$root.cacheId, document.querySelector('#topBarMenu').innerHTML);
+      },
+      hideCachedMenu () {
+        this.refreshWindowSize();
+        const menuElements = document.querySelectorAll('.topBarMenu');
+        for (const menuElement of menuElements) {
+          if (!menuElement.classList.contains(this.componentId)) {
+            menuElement.remove();
+          }
+        }
+        window.setTimeout(() => this.cacheMenuContent(), 2000);
+      },
+      getNavigationBaseUri (index) {
+        const navigationBaseUri = `${this.baseSiteUri}${this.navigations[0].name}`;
+        return index && `${navigationBaseUri}/` || navigationBaseUri;
+      },
+      async getNavigations () {
+        if (this.$root.parentNodeId) {
+          const navigations = await this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, this.$root.parentNodeId, null, true);
+          this.navigations = navigations || [];
+          this.buildNavigations();
+        }
+      },
+      updateNavigationState (value) {
+        this.tab = value;
+      },
+      buildNavigations () {
+        if (this.navigations.length && this.navigations[0].children?.length) {
+          this.navigations.push(...this.navigations[0].children);
+          this.navigations[0].children = [];
+        } else {
+          this.navigations = [];
+        }
+        if (this.isMobile) {
+          this.refreshMobileNavigations();
+        }
+      },
+      refreshMobileNavigations () {
+        if (this.navigations.length > 3) {
+          this.mobileNavigations = [];
+          const children = this.navigations.slice(2, this.navigations.length);
+          this.mobileNavigations.push(...this.navigations.slice(0, 2));
+          this.mobileNavigations.push({
+            id: 0,
+            name: 'more',
+            label: this.$t('topBar.navigation.label.more'),
+            children,
+          });
+        } else {
+          this.mobileNavigations = this.navigations;
+        }
+        this.computeSiteBodyMargin();
+      },
+      computeSiteBodyMargin () {
+        if (this.isMobile && this.navigationsLength > 0) {
+          window.setTimeout(() => {
+            $(this.parentScrollableSelector).css('margin-bottom', '70px');
+          }, 200);
+        } else {
+          $(this.parentScrollableSelector).css('margin-bottom', '');
+        }
+      },
+      refreshWindowSize () {
+        this.$nextTick().then(() => {
+          window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
         });
-      } else {
-        this.mobileNavigations = this.navigations;
-      }
-      this.computeSiteBodyMargin();
+      },
     },
-    computeSiteBodyMargin() {
-      if (this.isMobile && this.navigationsLength > 0) {
-        window.setTimeout(() => {
-          $(this.parentScrollableSelector).css('margin-bottom', '70px');
-        }, 200);
-      } else {
-        $(this.parentScrollableSelector).css('margin-bottom', '');
-      }
-    },
-    refreshWindowSize() {
-      this.$nextTick().then(() => {
-        window.setTimeout(() => window.dispatchEvent(new Event('resize')), 200);
-      });
-    },
-  }
-};
+  };
 </script>

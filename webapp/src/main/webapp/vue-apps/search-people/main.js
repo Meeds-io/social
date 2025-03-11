@@ -10,6 +10,6 @@ if (extensionRegistry) {
   }
 }
 
-export function formatSearchResult(result) {
+export function formatSearchResult (result) {
   return result && result.users;
 }

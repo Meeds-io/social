@@ -1,4 +1,4 @@
-export function getIdentityById(identityId, expand) {
+export function getIdentityById (identityId, expand) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${identityId}?expand=${expand || ''}`, {
     method: 'GET',
     credentials: 'include',
@@ -11,7 +11,7 @@ export function getIdentityById(identityId, expand) {
   });
 }
 
-export function getIdentityByProviderIdAndRemoteId(providerId, remoteId) {
+export function getIdentityByProviderIdAndRemoteId (providerId, remoteId) {
   const url = remoteId.includes('/') ?
     `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/byParams?providerId=${providerId}&remoteId=${remoteId}`
     : `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/identities/${providerId}/${remoteId}`;
