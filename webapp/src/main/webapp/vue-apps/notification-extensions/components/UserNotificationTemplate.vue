@@ -292,8 +292,9 @@ export default {
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('Notification.alert.errorChangingSpaceMutingStatus'), 'error'));
     },
-    reset() {
+    async reset() {
       this.absolute = false;
+      await this.$nextTick();
       this.left = 0;
       this.movingLeft = false;
       this.startEvent = null;
@@ -301,13 +302,14 @@ export default {
       this.minWidth = 0;
       this.minHeight = 0;
     },
-    moveStart() {
+    async moveStart() {
       if (this.absolute) {
         return;
       }
-      this.reset();
+      await this.reset();
       this.minHeight = Math.max(this.minHeight, this.$refs?.content?.$el?.offsetHeight);
       this.minWidth = Math.max(this.minWidth, this.$refs?.content?.$el?.offsetWidth);
+      await this.$nextTick();
       window.setTimeout(() => this.absolute = true, 50);
     },
     moveEnd() {
