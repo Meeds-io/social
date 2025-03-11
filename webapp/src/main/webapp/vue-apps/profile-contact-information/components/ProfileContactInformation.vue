@@ -43,7 +43,7 @@
             v-for="property in filteredProperties">
             <v-list-item
               v-if="canShowProperty(property)"
-              class="text-color not-clickable"
+              class="text-color not-clickable px-0 px-sm-4"
               :class="property.hidden && 'opacity-5'"
               :key="property.id"
               :ripple="false">
