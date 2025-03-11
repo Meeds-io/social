@@ -32,7 +32,7 @@
       tile>
       <img
         :src="spaceAvatar"
-        :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
+        alt=""
         width="28"
         height="28">
     </v-list-item-avatar>
@@ -65,7 +65,7 @@
         tile>
         <img
           :src="spaceAvatar"
-          :alt="$t('space.avatar.img.alt',{0:space.prettyName})"
+          alt=""
           class="rounded"
           width="28"
           height="28">
