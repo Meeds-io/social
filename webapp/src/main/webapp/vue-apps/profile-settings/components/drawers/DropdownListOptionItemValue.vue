@@ -23,12 +23,28 @@
     <v-col
       cols="8"
       class="d-flex py-1 px-0">
-      <span class="my-auto">
-        {{ displayedValue }}
+      <v-tooltip bottom>
+        <template #activator="{ on, attrs }">
+          <span 
+          v-bind="attrs"
+          v-on="on"
+          class="my-auto text-truncate pe-2">
+          {{ displayedValue }}
+          </span>
+        </template>
+        <span class="tooltip-version py-12 text-break"> {{ displayedValue }} </span>
+      </v-tooltip>
+    </v-col>
+    <v-col 
+      cols="1"
+      class="d-flex py-1 px-0">
+      <span 
+      class="my-auto text-truncate">
+      {{ displayedId }}
       </span>
     </v-col>
     <v-col
-      cols="4"
+      cols="3"
       class="text-end py-1 px-0">
       <div class="d-flex ms-auto width-fit-content">
         <translation-text-field
@@ -74,7 +90,10 @@ export default {
     displayedValue() {
       return this.optionObject?.translations?.[this.userLocale] || this.defaultLangValue
                                                                 || this.optionObject.value;
-    }
+    },
+    displayedId() {
+      return this.optionObject.id;
+    },
   },
   created() {
     this.getSavedTranslations();
