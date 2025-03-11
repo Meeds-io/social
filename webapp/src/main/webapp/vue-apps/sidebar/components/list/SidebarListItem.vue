@@ -114,7 +114,7 @@
         tile>
         <img
           :src="item.avatar"
-          :alt="item.name"
+          alt=""
           class="border-radius"
           width="28"
           height="auto">
