@@ -39,7 +39,7 @@
       cols="1"
       class="d-flex py-1 px-0">
       <span 
-      class="my-auto text-truncate">
+      class="my-auto">
       {{ displayedId }}
       </span>
     </v-col>
