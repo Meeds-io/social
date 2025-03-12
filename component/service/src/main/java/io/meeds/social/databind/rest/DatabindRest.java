@@ -37,13 +37,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/databind")
-@Tag(name = "/social/rest/databind", description = "Export & Import Templates")
+@Tag(name = "/social/rest/databind", description = "Export & Import Objects")
 public class DatabindRest {
 
   @Autowired
@@ -51,17 +51,19 @@ public class DatabindRest {
 
   @GetMapping("serialize")
   @Secured("administrators")
-  @Operation(summary = "Export Template by object type and object id", method = "POST", description = "Export Template by object type and object id")
-  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "400", description = "Bad Request"),
-      @ApiResponse(responseCode = "404", description = "Not found"), })
+  @Operation(summary = "Export objects by object type and object id", method = "GET", description = "Export objects by object type and object id")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "403", description = "Forbidden"),
+          @ApiResponse(responseCode = "404", description = "Not found"),
+  })
   public ResponseEntity<InputStreamResource> serialize(HttpServletRequest request,
-                                                       @Parameter(description = "Template Object Type.")
+                                                       @Parameter(description = "Object Type.")
                                                        @RequestParam(name = "objectType")
                                                        String objectType,
-                                                       @Parameter(description = "Template Object Ids")
+                                                       @Parameter(description = "Object Ids")
                                                        @RequestParam(name = "objectId")
-                                                       List<String> objectIds) {
+                                                       List<String> objectIds) throws IOException {
     try {
       File zipFile = databindService.serialize(objectType, objectIds, request.getRemoteUser());
       InputStreamResource resource = new InputStreamResource(new FileInputStream(zipFile));
@@ -73,14 +75,12 @@ public class DatabindRest {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
-    } catch (FileNotFoundException e) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error reading generated file", e);
     }
   }
 
   @PostMapping("deserialize")
   @Secured("administrators")
-  @Operation(summary = "Import Multiple Template", method = "POST", description = "Imports multiple Template from a ZIP file")
+  @Operation(summary = "Import Multiple Objects", method = "POST", description = "Imports multiple objects from a ZIP file")
   public CompletableFuture<ResponseEntity<DatabindReport>> deserialize(HttpServletRequest request,
                                                                        @RequestBody DatabindRestEntity databindRestEntity) {
 
