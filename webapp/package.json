@@ -1,6 +1,9 @@
 {
   "name": "meeds-social",
   "version": "7.0.0",
+  "type": "module",
+  "author": "Meeds",
+  "license": "LGPL",
   "description": "Meeds Space portlets",
   "repository": {
     "type": "git",
@@ -12,9 +15,6 @@
     "eslint-check": "eslint \"./src/main/webapp/**\"",
     "build": "webpack --config webpack.prod.cjs --mode production"
   },
-  "type": "module",
-  "author": "Meeds",
-  "license": "LGPL",
   "devDependencies": {
     "@vue/compat": "^3.4.31",
     "@vue/compiler-sfc": "^3.5.13",
@@ -25,7 +25,6 @@
     "eslint-plugin-vuejs-accessibility": "^2.3.1",
     "eslint-plugin-vuetify": "^2.4.0",
     "eslint-webpack-plugin": "^4.2.0",
-    "sass": "^1.85.1",
     "sass-loader": "^14.2.1",
     "vue": "^3.4.31",
     "vue-loader": "^17.4.2",
