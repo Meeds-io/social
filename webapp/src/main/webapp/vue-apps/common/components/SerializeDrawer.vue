@@ -32,7 +32,8 @@
       <div class="d-flex justify-center pt-5">
         <v-btn
           class="btn btn-primary"
-          :href="exportLink">
+          :href="exportLink"
+          @click="$emit('export-start')">
           {{ $t('databind.export') }}
         </v-btn>
       </div>
@@ -59,6 +60,9 @@ export default {
       this.type = type;
       this.id = id;
       this.$refs.serializeDrawer.open();
+    },
+    close() {
+      this.$refs.serializeDrawer.close();
     },
     serialize() {
       const id = this.id && [this.id];
