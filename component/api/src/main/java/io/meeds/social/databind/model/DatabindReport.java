@@ -29,7 +29,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DatabindReport {
 
-    boolean success;
+  boolean      success;
 
-    List<String> processedInstances;
+  List<String> processedItems;
 }
