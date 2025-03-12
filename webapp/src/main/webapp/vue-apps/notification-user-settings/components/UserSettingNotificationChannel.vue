@@ -47,10 +47,10 @@
         return this.settings && this.settings.channelDescriptions && this.settings.channelDescriptions[this.channel];
       },
       activeValue: {
-        set(value) {
+        set (value) {
           this.$emit('input', value);
         },
-        get() {
+        get () {
           return this.active;
         },
       },

@@ -302,10 +302,10 @@
         return this.width && `width:${this.width}px;max-width:${this.width}px;min-width:${this.width}px;` || '';
       },
       identityValue: {
-        set(value) {
+        set (value) {
           this.$emit('input', value);
         },
-        get() {
+        get () {
           return this.value;
         },
       },

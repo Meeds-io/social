@@ -30,11 +30,11 @@
               size="28"
               tile>
               <img
-                :src="$root.spaceLogoPath"
+                alt=""
                 class="object-fit-contain"
                 height="28"
-                width="auto"
-                alt="">
+                :src="$root.spaceLogoPath"
+                width="auto">
             </v-list-item-avatar>
           </a>
           <a
@@ -59,9 +59,9 @@
               height="60"
               width="60">
               <v-img
-                :src="`${$root.spaceLogoPath}&size=60x60`"
+                alt=""
                 class="object-fit-cover"
-                alt="" />
+                :src="`${$root.spaceLogoPath}&size=60x60`" />
             </v-list-item-avatar>
             <v-list-item-content class="pb-0 pt-0">
               <v-tooltip bottom>

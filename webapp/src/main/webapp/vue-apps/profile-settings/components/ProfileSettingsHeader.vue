@@ -59,10 +59,10 @@
     }),
     computed: {
       filterValue: {
-        set(value) {
+        set (value) {
           this.$emit('input', value);
         },
-        get() {
+        get () {
           return this.filter;
         },
       },

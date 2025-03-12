@@ -71,10 +71,10 @@
         return this.isMobile && '400' || '200';
       },
       tagValue: {
-        set(value) {
+        set (value) {
           this.$emit('input', value);
         },
-        get() {
+        get () {
           return this.value;
         },
       },

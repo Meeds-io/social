@@ -11,27 +11,31 @@
   },
   "scripts": {
     "watch": "webpack --config webpack.dev.cjs --progress --color --watch",
-    "lint": "eslint --quiet --fix \"./src/main/webapp/vue-apps/**\"",
+    "lint": "eslint --fix \"./src/main/webapp/vue-apps/**\"",
     "eslint-check": "eslint \"./src/main/webapp/**\"",
     "build": "webpack --config webpack.prod.cjs --mode production"
   },
   "devDependencies": {
+    "@eslint/js": "^9.22.0",
     "@vue/compat": "^3.4.31",
     "@vue/compiler-sfc": "^3.5.13",
-    "babel-loader": "^9.1.3",
+    "babel-loader": "^10.0.0",
     "css-loader": "^7.1.2",
+    "eslint": "^9.22.0",
     "eslint-config-vuetify": "^2.0.5",
-    "eslint-plugin-vue": "^9.26.0",
+    "eslint-plugin-vue": "^9.33.0",
     "eslint-plugin-vuejs-accessibility": "^2.3.1",
     "eslint-plugin-vuetify": "^2.4.0",
-    "eslint-webpack-plugin": "^4.2.0",
+    "eslint-webpack-plugin": "^5.0.0",
+    "globals": "^16.0.0",
+    "sass": "^1.85.1",
     "sass-loader": "^14.2.1",
     "vue": "^3.4.31",
     "vue-loader": "^17.4.2",
     "vue-style-loader": "^4.1.3",
     "vuetify": "^3.6.10",
-    "webpack": "^5.92.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-merge": "^5.10.0"
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-merge": "^6.0.1"
   }
 }

@@ -1,4 +1,5 @@
-import { defineConfig } from "eslint/config";
+import globals from "globals";
+import pluginJs from "@eslint/js";
 import pluginVue from "eslint-plugin-vue";
 import vuetify from "eslint-config-vuetify";
 import pluginVueA11y from "eslint-plugin-vuejs-accessibility";
@@ -8,10 +9,13 @@ a11yConfig.forEach((x) => {
   delete x.languageOptions.globals;
 });
 
-export default defineConfig([
+export default [
+  pluginJs.configs.recommended,
   ...pluginVue.configs["flat/recommended"],
   ...vuetify,
   ...a11yConfig,
+  {files: ["**/*.{js,mjs,cjs,vue}"]},
+  {languageOptions: { globals: globals.browser }},
   {
     "rules": {
       "vue/multi-word-component-names": "off",
@@ -158,4 +162,4 @@ export default defineConfig([
       }
     }
   }
-]);
+];

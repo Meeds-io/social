@@ -14,10 +14,10 @@
         :size="size"
         tile>
         <img
-          :src="defaultAvatarUrl"
+          alt=""
           class="object-fit-cover ma-auto"
           loading="lazy"
-          alt="">
+          :src="defaultAvatarUrl">
       </v-avatar>
       <div
         v-if="fullname || !isMobile"
@@ -45,11 +45,11 @@
         :size="size"
         tile>
         <img
-          :src="avatarUrl"
-          :class="avatarClass"
+          alt=""
           class="object-fit-cover ma-auto"
+          :class="avatarClass"
           loading="lazy"
-          alt="">
+          :src="avatarUrl">
       </v-avatar>
     </a>
     <a
@@ -92,11 +92,11 @@
         :size="size"
         tile>
         <img
-          :src="avatarUrl"
-          :class="avatarClass"
+          alt=""
           class="object-fit-cover ma-auto"
+          :class="avatarClass"
           loading="lazy"
-          alt="">
+          :src="avatarUrl">
       </v-avatar>
       <div
         v-if="displayName || $slots.subTitle"

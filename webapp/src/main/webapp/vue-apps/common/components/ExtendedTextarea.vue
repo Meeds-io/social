@@ -46,10 +46,10 @@
         return this.$t('textarea.limitMessage').replace('{0}', this.maxLength);
       },
       textValue: {
-        set(value) {
+        set (value) {
           this.$emit('input', value);
         },
-        get() {
+        get () {
           return this.value;
         },
       },

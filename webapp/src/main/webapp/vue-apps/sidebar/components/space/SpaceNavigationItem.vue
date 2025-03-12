@@ -31,10 +31,10 @@
       size="28"
       tile>
       <img
-        :src="spaceAvatar"
-        width="28"
+        alt=""
         height="28"
-        alt="">
+        :src="spaceAvatar"
+        width="28">
     </v-list-item-avatar>
     <v-list-item-content>
       <v-list-item-title class="menu-text-color">
@@ -68,11 +68,11 @@
         size="28"
         tile>
         <img
-          :src="spaceAvatar"
+          alt=""
           class="rounded"
           height="28"
-          width="28"
-          alt="">
+          :src="spaceAvatar"
+          width="28">
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="menu-text-color">
