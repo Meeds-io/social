@@ -28,7 +28,7 @@ export function init () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<membership-types-management id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Membership Type Management');
   });

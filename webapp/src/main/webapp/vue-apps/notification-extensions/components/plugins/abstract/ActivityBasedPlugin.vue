@@ -224,14 +224,14 @@
         }
       },
       contentText () {
-        return this.content?.length && this.$utils.htmlToText(this.content) || '';
+        return this.content?.length && eXo.$utils.htmlToText(this.content) || '';
       },
       parentContentText () {
-        return this.parentContent?.length && this.$utils.htmlToText(this.parentContent) || '';
+        return this.parentContent?.length && eXo.$utils.htmlToText(this.parentContent) || '';
       },
     },
     created () {
-      this.$activityService.getActivityById(this.commentId || this.activityId, 'shared')
+      eXo.$activityService.getActivityById(this.commentId || this.activityId, 'shared')
         .then(activity => {
           this.activity = activity;
           return this.$nextTick();
@@ -245,7 +245,7 @@
         .then(() => {
           const parentId = this.reply && (this.activity?.parentCommentId || this.activity?.activityId);
           if (parentId) {
-            return this.$activityService.getActivityById(parentId, 'shared');
+            return eXo.$activityService.getActivityById(parentId, 'shared');
           } else {
             return this.$nextTick();
           }

@@ -27,7 +27,7 @@ export function init () {
     Vue.createApp({
       template: `<admins id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Platform Admins Widget');
   });
 }

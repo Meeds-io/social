@@ -56,7 +56,7 @@
     methods: {
       getExternalSpacesList () {
         this.loading = true;
-        return this.$spaceService.getSpacesByFilter({
+        return eXo.$spaceService.getSpacesByFilter({
           offset: this.offset,
           limit: this.limit,
           filter: 'member',

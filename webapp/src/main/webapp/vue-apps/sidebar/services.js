@@ -19,8 +19,8 @@
 
 import * as navigationSettingService from './js/NavigationSettingService.js';
 
-if (!Vue.prototype.$navigationSettingService) {
-  window.Object.defineProperty(Vue.prototype, '$navigationSettingService', {
+if (!eXo.$navigationSettingService) {
+  window.Object.defineProperty(eXo, '$navigationSettingService', {
     value: navigationSettingService,
   });
 }

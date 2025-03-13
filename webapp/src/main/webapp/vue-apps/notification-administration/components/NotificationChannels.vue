@@ -45,7 +45,7 @@
     methods: {
       saveChannelStatus (channelId, status) {
         this.saving = true;
-        return this.$notificationAdministration.saveChannelStatus(channelId, status)
+        return eXo.$notificationAdministration.saveChannelStatus(channelId, status)
           .then(() => this.$root.$emit('refresh'))
           .finally(() => this.saving = false);
       },

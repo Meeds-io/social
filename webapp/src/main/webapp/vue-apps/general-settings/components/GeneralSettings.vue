@@ -277,11 +277,11 @@
           .finally(() => this.$root.loading = false);
       },
       initBranding () {
-        return this.$brandingService.getBrandingInformation()
+        return eXo.$brandingService.getBrandingInformation()
           .then(data => this.branding = data);
       },
       initThemeStyle () {
-        return this.$brandingService.getDefaultBrandingThemeStyle()
+        return eXo.$brandingService.getDefaultBrandingThemeStyle()
           .then(data => this.defaultBrandingThemeStyle = data);
       },
       close () {

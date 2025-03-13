@@ -112,7 +112,7 @@
       },
     },
     created () {
-      this.$userService.isDelegatedAdministrator().then(
+      eXo.$userService.isDelegatedAdministrator().then(
         data => {
           this.isDelegatedAdministrator = data.result === 'true';
         });

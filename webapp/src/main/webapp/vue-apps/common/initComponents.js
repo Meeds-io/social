@@ -79,6 +79,15 @@ const components = {
   'public-widget-hidden-warning': PublicWidgetHiddenWarning,
 };
 
+eXo.vuetify = Vuetify.createVuetify({
+  ...eXo.env.portal.vuetifyPreset,
+  defaults: {
+    global: { },
+  },
+  components: Vuetify.components,
+  directives: Vuetify.directives,
+});
+
 for (const key in components) {
   Vue.component(key, components[key]);
 }
@@ -89,7 +98,6 @@ document.addEventListener('readystatechange', function (event){
   }
   if (event.target.readyState === 'interactive') {
     if (eXo.developing) {
-       
       console.warn('Document "interactive" loading started, load deferred applications');
     }
     eXo.env.portal.onLoadCalled = true;
@@ -103,7 +111,7 @@ document.addEventListener('readystatechange', function (event){
 }, false);
 
 
-Vue.prototype.$applicationLoaded = function () {
+eXo.$applicationLoaded = function () {
   this.$root.$emit('application-loaded');
   document.dispatchEvent(new CustomEvent('vue-app-loading-end', { detail: {
     appName: this.appName,
@@ -111,7 +119,7 @@ Vue.prototype.$applicationLoaded = function () {
   } }));
 };
 
-Vue.prototype.$updateApplicationVisibility = function (visible, element) {
+eXo.$updateApplicationVisibility = function (visible, element) {
   if (!element) {
     element = this?.$root?.$el;
   }
@@ -127,6 +135,37 @@ Vue.prototype.$updateApplicationVisibility = function (visible, element) {
   }
 };
 
+const createApp = Vue.createApp;
+const eventEmitterMixin = {
+  beforeCreate() {
+    const $eventListeners = {};
+    this.$on = function (k, v) {
+      if ($eventListeners[k]) {
+        $eventListeners[k].push(v);
+      } else {
+        $eventListeners[k] = [v];
+      }
+    };
+    this.$off = function (k, v) {
+      if ($eventListeners[k] && $eventListeners[k].includes(v)) {
+        $eventListeners[k].splice($eventListeners[k].indexOf(v), 1);
+      }
+    };
+    this.emit = function (k, ...args) {
+      if (k && !$eventListeners[k]) {
+        $eventListeners[k].forEach(v => v(...args));
+      }
+    };
+    this.$applicationLoaded = eXo.$applicationLoaded;
+    this.$updateApplicationVisibility = eXo.$updateApplicationVisibility;
+    this.$vuetify = eXo.vuetify;
+  },
+  unmounted() {
+    delete this.$on;
+    delete this.$off;
+    delete this.emit;
+  },
+};
 Vue.createApp = function (params, el, appName) {
   const element = typeof el === 'string' ?
     (document.querySelector(`body ${el}`) || document.querySelector(el))
@@ -137,46 +176,23 @@ Vue.createApp = function (params, el, appName) {
     } else if (typeof params.data === 'function') {
       params.data = params.data();
     }
-    params.data.appName = appName || element.id;
+    appName = appName || element.id;
+    params.data.appName = appName;
+    const data = { ...params.data };
+    params.data = () => data;
     document.dispatchEvent(new CustomEvent('vue-app-loading-start', { detail: {
-      appName: params.data.appName,
+      appName,
       time: Date.now(),
     } }));
-    const vueApp = new Vue(params);
-    vueApp.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip) => {
-      document.dispatchEvent(new CustomEvent('alert-message', { detail: {
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-      } }));
-    });
-    vueApp.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip) => {
-      document.dispatchEvent(new CustomEvent('alert-message-html', { detail: {
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-      } }));
-    });
-    vueApp.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip) => {
-      document.dispatchEvent(new CustomEvent('alert-message-html-confeti', { detail: {
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-      } }));
-    });
-    vueApp.$root.$on('close-alert-message', () => {
-      document.dispatchEvent(new CustomEvent('close-alert-message'));
-    });
-    vueApp.$mount(element);
+    params.components = window.VueCommonApp._context.components;
+    params.directives = window.VueCommonApp._context.directives;
+    params.mixins = [eventEmitterMixin];
+    const vueApp = createApp(params);
+    vueApp.use(eXo.vuetify);
+    vueApp.use(exoi18n.i18n);
+    vueApp.mount(el);
     return vueApp;
   } else {
-     
     console.warn(`Can't mount ${el} application because DOM element doesn't exist'`);
   }
 };
@@ -271,3 +287,13 @@ Vue.directive('draggable', {
     }
   },
 });
+
+function toKebabCase (componentName) {
+  if (toKebabCase.cache.has(componentName)) {
+    return toKebabCase.cache.get(componentName);
+  }
+  const kebab = componentName.replace(/[^a-z]/gi, '-').replace(/\B([A-Z])/g, '-$1').toLowerCase();
+  toKebabCase.cache.set(componentName, kebab);
+  return kebab;
+}
+toKebabCase.cache = new Map();

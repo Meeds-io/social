@@ -116,9 +116,9 @@
       },
       likeComment () {
         this.changingLike = true;
-        return this.$activityService.likeActivity(this.commentId)
+        return eXo.$activityService.likeActivity(this.commentId)
           .then(() => {
-            const liker = Object.assign({}, this.$currentUserIdentity, this.$currentUserIdentity.profile);
+            const liker = Object.assign({}, eXo.$currentUserIdentity, eXo.$currentUserIdentity.profile);
             this.comment.likes = [...this.likers, liker];
             this.comment.likesCount++;
             this.$root.$emit('activity-comment-liked', this.comment);
@@ -128,7 +128,7 @@
       },
       unlikeComment () {
         this.changingLike = true;
-        return this.$activityService.unlikeActivity(this.commentId)
+        return eXo.$activityService.unlikeActivity(this.commentId)
           .then(() => {
             this.comment.likes = this.likers.filter(likeIdentity => likeIdentity.id !== eXo.env.portal.userIdentityId);
             this.comment.likesCount--;

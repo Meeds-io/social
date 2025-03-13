@@ -176,7 +176,7 @@
       async retrieveObject (groupId) {
         groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
         if (groupId.indexOf('/spaces/') === 0) {
-          const space = await this.$spaceService.getSpaceByGroupId(groupId);
+          const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
           if (space) {
             this.specificGroupEntries.push({
               id: `space:${space.prettyName}`,
@@ -193,7 +193,7 @@
             });
           }
         } else {
-          const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
           if (group) {
             this.specificGroupEntries.push({
               id: `group:${group.remoteId}`,
@@ -220,9 +220,9 @@
           return 0;
         } else {try {
                   if (groupId?.startsWith('/spaces/')) {
-                    const space = await this.$spaceService.getSpaceByGroupId(groupId);
+                    const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
                     if (space) {
-                      const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
+                      const identity = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
                       if (identity) {
                         const identityId = Number(identity.id);
                         this.$root.identityIdPerGroup[groupId] = identityId;
@@ -230,7 +230,7 @@
                       }
                     }
                   } else if (groupId?.startsWith('/')) {
-                    const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+                    const identity = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
                     if (identity) {
                       const identityId = Number(identity.id);
                       this.$root.identityIdPerGroup[groupId] = identityId;
@@ -251,7 +251,7 @@
           return this.$root.everyonePermission;
         } else {
           try {
-            const identity = await this.$identityService.getIdentityById(identityId);
+            const identity = await eXo.$identityService.getIdentityById(identityId);
             if (identity.providerId === 'space') {
               const groupId = identity?.space?.groupId;
               this.$root.groupPerIdentityId[identityId] = groupId;

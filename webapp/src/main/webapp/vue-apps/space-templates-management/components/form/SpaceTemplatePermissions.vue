@@ -184,7 +184,7 @@
       async retrieveObject (groupId) {
         groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
         if (groupId.indexOf('/spaces/') === 0) {
-          const space = await this.$spaceService.getSpaceByGroupId(groupId);
+          const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
           if (space) {
             this.specificGroupEntries.push({
               id: `space:${space.prettyName}`,
@@ -201,7 +201,7 @@
             });
           }
         } else {
-          const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
           if (group) {
             this.specificGroupEntries.push({
               id: `group:${group.remoteId}`,

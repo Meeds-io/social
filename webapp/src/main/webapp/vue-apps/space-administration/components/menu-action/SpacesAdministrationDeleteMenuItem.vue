@@ -71,7 +71,7 @@
         this.$root.displayLoading();
         this.$emit('loading', true);
         try {
-          await this.$spaceService.removeSpace(this.space.id);
+          await eXo.$spaceService.removeSpace(this.space.id);
           this.$root.$emit('spaces-administration-list-refresh');
           this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletedSuccessfully'), 'success');
         } catch (e) {

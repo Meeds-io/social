@@ -200,11 +200,11 @@
         try {
           for (const i in this.addedRedactors) {
            
-            await this.$spaceService.promoteRedactor(this.$root.space.id, this.addedRedactors[i].username);
+            await eXo.$spaceService.promoteRedactor(this.$root.space.id, this.addedRedactors[i].username);
           }
           for (const i in this.removedRedactors) {
            
-            await this.$spaceService.removeRedactor(this.$root.space.id, this.removedRedactors[i].username);
+            await eXo.$spaceService.removeRedactor(this.$root.space.id, this.removedRedactors[i].username);
           }
           this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsUpdatedSuccessfully'), 'success');
           this.$refs.drawer.close();

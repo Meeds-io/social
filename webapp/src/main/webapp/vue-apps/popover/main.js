@@ -70,6 +70,6 @@ exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
   Vue.createApp({
     template: `<popover id="${appId}" />`,
     i18n,
-    vuetify: Vue.prototype.vuetifyOptions,
+    vuetify: eXo.vuetify,
   }, `#${appId}`, 'identity Popover');
-}).finally(() => Vue.prototype.$utils.includeExtensions('PopoverExtension'));
+}).finally(() => eXo.$utils.includeExtensions('PopoverExtension'));

@@ -152,7 +152,7 @@
               this.users = [];
 
               this.loadingSuggestions++;
-              this.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
+              eXo.$userService.getUsersByStatus(value, 0, 20, 'ENABLED')
                 .then(data => {
                   this.users = data && data.entities || [];
                 })

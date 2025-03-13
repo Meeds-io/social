@@ -94,7 +94,7 @@
     },
     methods: {
       getSpacesRequests () {
-        return this.$spaceService.getSpaceMemberships({
+        return eXo.$spaceService.getSpaceMemberships({
           user: eXo.env.portal.userName,
           status: 'invited',
           expand: 'spaces',
@@ -106,14 +106,14 @@
         this.saving = true;
         try {
           if (reply === 'approved') {
-            await this.$spaceService.accept(item.space.id);
+            await eXo.$spaceService.accept(item.space.id);
             this.$emit('invitationReplied', {
               id: item.id,
               displayName: item.space.displayName,
               avatarUrl: item.space.avatar,
             });
           } else if (reply === 'ignored') {
-            await this.$spaceService.deny(item.space.id);
+            await eXo.$spaceService.deny(item.space.id);
           }
           this.getSpacesRequests();
         } finally {

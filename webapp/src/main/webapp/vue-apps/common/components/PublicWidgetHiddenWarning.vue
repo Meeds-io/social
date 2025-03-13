@@ -58,7 +58,7 @@
     },
     methods: {
       initRegistration () {
-        return this.$registrationService.getRegistrationSettings()
+        return eXo.$registrationService.getRegistrationSettings()
           .then(registrationSettings => {
             this.registrationSettings = registrationSettings;
           });

@@ -20,14 +20,14 @@
 import * as spaceBindingService from './js/SpaceBindingService.js';
 import * as spaceAdministrationService from './js/SpaceAdministrationService.js';
 
-if (!Vue.prototype.$spaceBindingService) {
-  window.Object.defineProperty(Vue.prototype, '$spaceBindingService', {
+if (!eXo.$spaceBindingService) {
+  window.Object.defineProperty(eXo, '$spaceBindingService', {
     value: spaceBindingService,
   });
 }
 
-if (!Vue.prototype.$spaceAdministrationService) {
-  window.Object.defineProperty(Vue.prototype, '$spaceAdministrationService', {
+if (!eXo.$spaceAdministrationService) {
+  window.Object.defineProperty(eXo, '$spaceAdministrationService', {
     value: spaceAdministrationService,
   });
 }

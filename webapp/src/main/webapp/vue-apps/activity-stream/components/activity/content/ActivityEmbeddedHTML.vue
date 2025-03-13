@@ -62,7 +62,7 @@
         return this.activity && this.activity.templateParams && this.activity.templateParams.title;
       },
       titleText () {
-        return this.title && this.$utils.htmlToText(this.title) || '';
+        return this.title && eXo.$utils.htmlToText(this.title) || '';
       },
       previewWidth () {
         return Number(this.activity.templateParams && this.activity.templateParams.previewWidth || this.maxWidth);

@@ -161,7 +161,7 @@
           return;
         }
         this.savingSpace = true;
-        this.$spaceService.updateSpace({
+        eXo.$spaceService.updateSpace({
           id: this.$root.spaceId,
           displayName: this.displayName,
           description: this.description,

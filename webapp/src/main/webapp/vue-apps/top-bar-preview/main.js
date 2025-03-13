@@ -29,7 +29,7 @@ export function init () {
     // init Vue app when locale resources are ready
     Vue.createApp({
       template: `<top-bar-preview id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Top Bar Preview Button');
   });

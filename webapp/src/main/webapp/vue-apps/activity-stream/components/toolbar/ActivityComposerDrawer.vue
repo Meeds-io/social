@@ -224,7 +224,7 @@
         };
       },
       messageLength (){
-        return this.message && this.message.length && this.$utils.htmlToText(this.message).length || 0;
+        return this.message && this.message.length && eXo.$utils.htmlToText(this.message).length || 0;
       },
       ckEditorInstance () {
         return this.drawer && this.$refs.activityContent || null;
@@ -278,8 +278,8 @@
         // once, else, this can lead to performances issue when editing
         // An activity
         if (this.activityId && !this.activityBodyEdited) {
-          this.activityBodyEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(oldVal);
-          this.messageEdited = this.$utils.htmlToText(newVal) !== this.$utils.htmlToText(this.originalBody);
+          this.activityBodyEdited = eXo.$utils.htmlToText(newVal) !== eXo.$utils.htmlToText(oldVal);
+          this.messageEdited = eXo.$utils.htmlToText(newVal) !== eXo.$utils.htmlToText(this.originalBody);
         }
       },
       drawer () {
@@ -362,7 +362,7 @@
             activityType = null;
           }
           this.loading = true;
-          this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
+          eXo.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
             .then(this.postUpdateMessage)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
@@ -391,7 +391,7 @@
             if (!this.spaceId && !!eXo.env.portal.spaceId) {
               this.spaceId = eXo.env.portal.spaceId;
             }
-            this.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
+            eXo.$activityService.createActivity(message, activityType, this.files, this.spaceId, this.templateParams)
               .then(activity => {
                 this.activityId = activity.id;
                 this.templateParams = activity.templateParams;

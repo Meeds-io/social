@@ -131,7 +131,7 @@
         return this.space.description?.replace?.(/<p>/g, '<div>')?.replace?.(/<\/p>/g, '</div>')?.replace?.(/<ul>/g, '<ul class="ma-0 pa-0">') || '';
       },
       spaceDescriptionText () {
-        return this.$utils.htmlToText(this.spaceDescription);
+        return eXo.$utils.htmlToText(this.spaceDescription);
       },
       spaceMembersCount () {
         return this.$t('spaceList.spaceMembers', { 0: `<strong>${this.space.membersCount}</strong>` });

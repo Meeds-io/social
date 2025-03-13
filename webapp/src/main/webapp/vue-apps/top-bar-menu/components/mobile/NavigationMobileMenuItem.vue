@@ -93,13 +93,13 @@
         return !!this.navigation?.pageKey;
       },
       navigationNodeUri () {
-        return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
       },
       navigationNodeTarget () {
-        return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeTarget(this.navigation);
       },
       navigationNodeRel () {
-        return this.$navigationUtils.getNavigationNodeRel(this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeRel(this.navigation);
       },
     },
     created () {

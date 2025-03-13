@@ -40,7 +40,7 @@
         });
 
         new SearchResultItem({
-          vuetify: Vue.prototype.vuetifyOptions,
+          vuetify: eXo.vuetify,
           i18n: exoi18n.i18n,
         }).$mount(`#${this.id}`);
         this.$forceUpdate();

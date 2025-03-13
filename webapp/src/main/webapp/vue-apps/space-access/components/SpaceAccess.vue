@@ -174,31 +174,31 @@
       },
       acceptToJoin () {
         this.sendingAction = true;
-        this.$spaceService.accept(this.spaceId)
+        eXo.$spaceService.accept(this.spaceId)
           .then(() => this.gotToSpace())
           .catch(() => this.handleError());
       },
       refuseToJoin () {
         this.sendingRefuse = true;
-        this.$spaceService.deny(this.spaceId)
+        eXo.$spaceService.deny(this.spaceId)
           .then(() => this.gotToSpaces())
           .catch(() => this.handleError());
       },
       join () {
         this.sendingAction = true;
-        this.$spaceService.join(this.spaceId)
+        eXo.$spaceService.join(this.spaceId)
           .then(() => this.gotToSpace())
           .catch(() => this.handleError());
       },
       requestJoin () {
         this.sendingAction = true;
-        this.$spaceService.requestJoin(this.spaceId)
+        eXo.$spaceService.requestJoin(this.spaceId)
           .then(() => this.gotToSpace())
           .catch(() => this.handleError());
       },
       cancelRequest () {
         this.sendingAction = true;
-        this.$spaceService.cancel(this.spaceId)
+        eXo.$spaceService.cancel(this.spaceId)
           .then(() => this.gotToSpace())
           .catch(() => this.handleError());
       },

@@ -267,7 +267,7 @@
         if (!this.sites) {
           this.loading = true;
           try {
-            this.sites = await this.$siteService.getSites(
+            this.sites = await eXo.$siteService.getSites(
               'PORTAL',
               null,
               null,
@@ -343,7 +343,7 @@
           if (site && !site.navigationsRetrieved) {
             this.loading = true;
             try {
-              const siteWithNavigations = await this.$siteService.getSite(site.siteType, site.name, {
+              const siteWithNavigations = await eXo.$siteService.getSite(site.siteType, site.name, {
                 lang: eXo.env.portal.language,
                 expandNavigations: true,
                 excludeEmptyNavigationSites: true,

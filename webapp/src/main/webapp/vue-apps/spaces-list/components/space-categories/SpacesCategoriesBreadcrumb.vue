@@ -62,7 +62,7 @@
     },
     computed: {
       chevronIcon () {
-        return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+        return eXo.vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
       },
     },
   };

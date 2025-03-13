@@ -59,7 +59,7 @@
     },
     methods: {
       changeHome () {
-        this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
+        eXo.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
           .then(() => {
             eXo.env.portal.homeLink = this.url;
             document.dispatchEvent(new CustomEvent('homeLinkUpdated', { detail: this.url }));

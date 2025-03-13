@@ -65,7 +65,7 @@
       deleteFile (uploadId) {
         const fileIndex = this.filesArray.findIndex(f => f.uploadId === uploadId);
         this.filesArray.splice(fileIndex, 1);
-        this.$uploadService.deleteUpload(uploadId);
+        eXo.$uploadService.deleteUpload(uploadId);
       },
       triggerFileClickEvent () {
         document.getElementById('attachedImagesField').click();
@@ -117,7 +117,7 @@
       },
       uploadFileToServer (file, fileDetails) {
         try {
-          this.$uploadService.upload(file, fileDetails.uploadId)
+          eXo.$uploadService.upload(file, fileDetails.uploadId)
             .catch(error => this.handleUploadFileError(fileDetails, String(error)));
           this.controlUpload(fileDetails);
         } catch (e) {
@@ -126,7 +126,7 @@
       },
       controlUpload (fileDetails) {
         window.setTimeout(() => {
-          this.$uploadService.getUploadProgress(fileDetails.uploadId)
+          eXo.$uploadService.getUploadProgress(fileDetails.uploadId)
             .then(percent => {
               fileDetails.progress = Number(percent);
               if (!fileDetails.error && (!fileDetails.progress || fileDetails.progress < 100)) {

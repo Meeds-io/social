@@ -56,7 +56,7 @@
         return this.alert && this.alert.type;
       },
       isMobile () {
-        return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify && eXo.vuetify.display .value&& eXo.vuetify.display.name.value === 'xs';
       },
       maxWidth () {
         return this.isMobile && '100vw' || '50vw';

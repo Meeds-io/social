@@ -75,14 +75,14 @@
     },
     methods: {
       joinSpace (item) {
-        this.$spaceService.requestJoin(item.spaceId).then(
+        eXo.$spaceService.requestJoin(item.spaceId).then(
           () => {
             this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
           }
         );
       },
       ignoredSuggestionSpace (item) {
-        this.$spaceService.ignoreSuggestion(item).then(
+        eXo.$spaceService.ignoreSuggestion(item).then(
           () => {
             this.spacesSuggestionsList.splice(this.spacesSuggestionsList.indexOf(item),1);
           }

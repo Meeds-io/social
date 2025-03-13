@@ -176,7 +176,7 @@
         this.error = null;
         this.savingSpace = true;
         try {
-          const space = await this.$spaceService.updateSpace({
+          const space = await eXo.$spaceService.updateSpace({
             id: this.$root.spaceId,
             subscription: this.subscription,
             visibility: this.visibility,

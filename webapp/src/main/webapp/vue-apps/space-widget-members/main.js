@@ -42,7 +42,7 @@ const appId = 'SpaceMembersApplication';
 
 export function init (spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
   if (!isManager && !members.length) {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+    eXo.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
   exoi18n.loadLanguageAsync(lang, urls)
@@ -59,7 +59,7 @@ export function init (spaceId, isManager, isMember, isExternalFeatureEnabled, me
         },
         computed: {
           isMobile () {
-            return this.$vuetify.breakpoint.mobile;
+            return eXo.vuetify.display.mobile.value;
           },
         },
         created () {
@@ -90,18 +90,18 @@ export function init (spaceId, isManager, isMember, isExternalFeatureEnabled, me
           },
           async refreshSpace () {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now(), 'membersCount');
+              this.space = await eXo.$spaceService.getSpaceById(this.spaceId, Date.now(), 'membersCount');
             }
           },
           async refreshExternalInvitations () {
             if (this.isExternalFeatureEnabled && this.isManager) {
-              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+              this.externalInvitations = await eXo.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
         },
         template: `<space-members-application id="${appId}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Space Members');
     });
 }

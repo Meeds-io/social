@@ -317,16 +317,16 @@
           const titleKey = this.activityTypeExtension.windowTitlePrefixKey || 'activity.window.title';
           if (this.activityTypeExtension.getWindowTitle) {
             title = this.activityTypeExtension.getWindowTitle(this.activity) || '';
-            title = this.$t(titleKey, { 0: this.$utils.htmlToText(title) });
+            title = this.$t(titleKey, { 0: eXo.$utils.htmlToText(title) });
           } else if (this.activityTypeExtension.getTitle) {
             title = this.activityTypeExtension.getTitle(this.activity) || '';
             if (title && title.key) {
               title = this.$t(title.key, title.params || {});
             }
-            title = this.$t(titleKey, { 0: this.$utils.htmlToText(title) });
+            title = this.$t(titleKey, { 0: eXo.$utils.htmlToText(title) });
           } else {
             title = this.activity.title || '';
-            title = this.$t(titleKey, { 0: this.$utils.htmlToText(title) });
+            title = this.$t(titleKey, { 0: eXo.$utils.htmlToText(title) });
           }
           if (title) {
             if (title.length > 100) {

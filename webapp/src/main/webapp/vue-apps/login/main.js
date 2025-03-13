@@ -45,8 +45,8 @@ export function init (params) {
         params,
       },
       template: `<portal-login id="${appId}" :params="params" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Login');
-  }).finally(() => Vue.prototype.$utils.includeExtensions('LoginExtension'));
+  }).finally(() => eXo.$utils.includeExtensions('LoginExtension'));
 }

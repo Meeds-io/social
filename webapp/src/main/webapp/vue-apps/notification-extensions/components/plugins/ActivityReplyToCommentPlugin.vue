@@ -56,7 +56,7 @@
     methods: {
       loadIdentities () {
         if (this.posterUsernames?.length && this.posterUsernames?.length > 1) {
-          return Promise.all(this.posterUsernames.slice(0, 2).map(u => this.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
+          return Promise.all(this.posterUsernames.slice(0, 2).map(u => eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
             .then(identities => this.posterIdentities = identities.map(i => i?.profile).filter(p => !!p));
         } else {
           this.posterIdentities = this.notification.from && [this.notification.from] || [];

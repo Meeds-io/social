@@ -147,7 +147,7 @@
       },
     },
     created () {
-      this.streamFilter = this.$activityUtils.getStreamFilter();
+      this.streamFilter = eXo.$activityUtils.getStreamFilter();
       document.addEventListener('activity-favorite-removed', event => {
         const favoriteActivity = event?.detail;
         if (this.streamFilter === 'user_favorite_stream') {
@@ -272,7 +272,7 @@
       },
       loadActivity () {
         this.loading = true;
-        return this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        return eXo.$activityService.getActivityById(this.activityId, eXo.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(this.setDisplayedActivity)
           .catch(() => this.error = true)
           .finally(() => this.loading = false);
@@ -283,7 +283,7 @@
       },
       loadActivityIds () {
         this.loading = true;
-        return this.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+        return eXo.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, eXo.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
           .then(data => {
             this.$emit('can-post-loaded', data.canPost);
             const activityIds = data && (data.activityIds || data.activities) || [];
@@ -302,7 +302,7 @@
                 } else {
                   this.activities.push(activity);
                 }
-                return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+                return eXo.$activityService.getActivityById(activityId, eXo.$activityConstants.FULL_ACTIVITY_EXPAND)
                   .then(fullActivity => Object.assign(activity, fullActivity))
                   .finally(() => this.$set(activity, 'loading', false));
               }
@@ -326,7 +326,7 @@
       },
       updateActivityDisplayById (activityId) {
         this.loading = true;
-        return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
+        return eXo.$activityService.getActivityById(activityId, eXo.$activityConstants.ACTIVITY_EXPAND)
           .then(activity => this.updateActivityDisplay(activity))
           .finally (() => this.loading = false);
       },

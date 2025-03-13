@@ -61,7 +61,7 @@
       searchSpaces (filter) {
         this.spaces = [];
         this.loadingSpaces = true;
-        return this.$spaceService.getSpacesByFilter({
+        return eXo.$spaceService.getSpacesByFilter({
           offset: this.offset,
           limit: this.limit,
           filter: filter || this.filter,

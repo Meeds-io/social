@@ -34,7 +34,7 @@ export function init (languages) {
       },
       template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'User Setting Language');
   });
 }

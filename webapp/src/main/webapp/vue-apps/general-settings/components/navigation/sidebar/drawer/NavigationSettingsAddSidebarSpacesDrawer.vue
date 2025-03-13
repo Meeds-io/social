@@ -239,7 +239,7 @@
       },
       async spaceCategoryId () {
         if (this.spaceCategoryId) {
-          this.category = await this.$categoryService.getCategory(this.spaceCategoryId);
+          this.category = await eXo.$categoryService.getCategory(this.spaceCategoryId);
         } else {
           this.category = null;
         }
@@ -278,7 +278,7 @@
       },
       async refreshSpaceTemplates () {
         if (!this.spaceTemplates) {
-          this.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+          this.spaceTemplates = await eXo.$spaceTemplateService.getSpaceTemplates();
         }
       },
       reset (item) {
@@ -330,7 +330,7 @@
             displayOnlyWhenMember: this.displayOnlyWhenMember,
           };
         }
-        const data = await this.$spaceService.getSpacesByFilter({
+        const data = await eXo.$spaceService.getSpacesByFilter({
           templateId: this.option === 'SPACE_TEMPLATE' ? this.spaceTemplateId : null,
           categoryId: this.option === 'SPACE_CATEGORY' ? this.spaceCategoryId : null,
           offset: 0,

@@ -187,7 +187,7 @@
     methods: {
       acceptUserRequest () {
         this.sendingAction = true;
-        this.$spaceService.acceptUserRequest(this.space.id, this.user.username)
+        eXo.$spaceService.acceptUserRequest(this.space.id, this.user.username)
           .then(() => this.$emit('refresh', 'receivedRequests'))
           .catch(e => {
            
@@ -199,7 +199,7 @@
       },
       refuseUserRequest () {
         this.sendingAction = true;
-        this.$spaceService.refuseUserRequest(this.space.id, this.user.username)
+        eXo.$spaceService.refuseUserRequest(this.space.id, this.user.username)
           .then(() => this.$emit('refresh', 'receivedRequests'))
           .catch(e => {
            
@@ -211,7 +211,7 @@
       },
       acceptToJoin () {
         this.sendingAction = true;
-        this.$spaceService.accept(this.space.id)
+        eXo.$spaceService.accept(this.space.id)
           .then(() => this.$emit('refresh', 'invitations'))
           .catch(e => {
            
@@ -223,7 +223,7 @@
       },
       refuseToJoin () {
         this.sendingAction = true;
-        this.$spaceService.deny(this.space.id)
+        eXo.$spaceService.deny(this.space.id)
           .then(() => this.$emit('refresh', 'invitations'))
           .catch(e => {
            
@@ -235,7 +235,7 @@
       },
       cancelRequest () {
         this.sendingAction = true;
-        this.$spaceService.cancel(this.space.id)
+        eXo.$spaceService.cancel(this.space.id)
           .then(() => this.$emit('refresh', 'sentRequests'))
           .catch(e => {
            

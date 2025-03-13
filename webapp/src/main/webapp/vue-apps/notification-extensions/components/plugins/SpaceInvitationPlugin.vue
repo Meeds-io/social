@@ -92,13 +92,13 @@
     methods: {
       acceptToJoin () {
         this.accepting = true;
-        this.$spaceService.accept(this.spaceId)
+        eXo.$spaceService.accept(this.spaceId)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.accepting = false);
       },
       refuseToJoin () {
         this.refusing = true;
-        this.$spaceService.deny(this.spaceId)
+        eXo.$spaceService.deny(this.spaceId)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.refusing = false);
       },

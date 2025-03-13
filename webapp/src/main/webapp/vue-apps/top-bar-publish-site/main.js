@@ -33,7 +33,7 @@ export function init (publicMode, publicSiteId) {
         publicSiteId,
       },
       template: `<top-bar-publish-site id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Top Bar Publish Site');
   });

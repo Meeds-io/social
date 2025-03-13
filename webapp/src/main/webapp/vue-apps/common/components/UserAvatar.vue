@@ -422,7 +422,7 @@
         return `${this.avatar && `${this.extraClass} flex-shrink-0 mx-1` || this.extraClass || ''} ${this.marginLeft}`;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
       },
       isCurrentUser () {
         return eXo.env.portal.userName !== this.username;
@@ -472,7 +472,7 @@
     },
     created () {
       if (this.username && this.mustRetrieveIdentity) {
-        this.$userService.getUser(this.username)
+        eXo.$userService.getUser(this.username)
           .then(user => this.retrievedIdentity = user && JSON.parse(JSON.stringify(user)));
       }
     },

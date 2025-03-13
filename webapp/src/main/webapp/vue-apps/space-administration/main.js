@@ -75,7 +75,7 @@ export function init (isExternalFeatureEnabled) {
       },
       computed: {
         isMobile () {
-          return this.$vuetify.breakpoint.mobile;
+          return eXo.vuetify.display.mobile.value;
         },
         canShowMore () {
           return this.spaces?.length && this.spacesSize > this.spaces.length;
@@ -150,7 +150,7 @@ export function init (isExternalFeatureEnabled) {
           this.loadingDisplay = false;
         },
         async refreshSpaceTemplates () {
-          const spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
+          const spaceTemplates = await eXo.$spaceTemplateService.getSpaceTemplates(true);
           spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
           this.spaceTemplates = spaceTemplates;
         },
@@ -192,7 +192,7 @@ export function init (isExternalFeatureEnabled) {
               if (!offset && clean) {
                 this.spaces = [];
               }
-              const data = await this.$spaceService.getSpacesByFilter({
+              const data = await eXo.$spaceService.getSpacesByFilter({
                 query: this.keyword,
                 visibility: this.selectedVisibility?.length ? this.selectedVisibility : null,
                 registration: this.selectedRegistration?.length ? this.selectedRegistration : null,
@@ -290,7 +290,7 @@ export function init (isExternalFeatureEnabled) {
       },
       template: `<spaces-administration id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Spaces Administration'))
-    .finally(() => Vue.prototype.$utils.includeExtensions('ManageSpacesExtension'));
+    .finally(() => eXo.$utils.includeExtensions('ManageSpacesExtension'));
 }

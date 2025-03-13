@@ -97,7 +97,7 @@
         if (!itemType || itemType === 'invitations') {
           this.invitations = '-';
           this.loading++;
-          this.$spaceService.getSpacesByFilter({
+          eXo.$spaceService.getSpacesByFilter({
             filter: 'invited',
           })
             .then(data => this.invitations = data && data.size || 0)
@@ -106,7 +106,7 @@
         if (!itemType || itemType === 'sentRequests') {
           this.sentRequests = '-';
           this.loading++;
-          this.$spaceService.getSpacesByFilter({
+          eXo.$spaceService.getSpacesByFilter({
             filter: 'pending',
           })
             .then(data => this.sentRequests = data?.size || 0)
@@ -115,7 +115,7 @@
         if (!itemType || itemType === 'receivedRequests') {
           this.receivedRequests = '-';
           this.loading++;
-          this.$spaceService.getSpacesByFilter({
+          eXo.$spaceService.getSpacesByFilter({
             filter: 'requests',
           })
             .then(data => this.receivedRequests = data?.size || 0)
@@ -124,7 +124,7 @@
         if (!itemType || itemType === 'managing') {
           this.managing = '-';
           this.loading++;
-          this.$spaceService.getSpacesByFilter({
+          eXo.$spaceService.getSpacesByFilter({
             filter: 'manager',
           })
             .then(data => this.managing = data?.size || 0)

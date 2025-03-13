@@ -91,7 +91,7 @@
       saveLanguage () {
         const lang = this.language.replace('-', '_');
         this.loading = true;
-        this.$languageSettingService.saveDefaultLanguage(lang)
+        eXo.$languageSettingService.saveDefaultLanguage(lang)
           .then(() => {
             this.$emit('refresh');
             this.$root.$emit('alert-message', this.$t('generalSettings.defaultLanguageSettingSaved'), 'success');

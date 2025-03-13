@@ -46,7 +46,7 @@
     methods: {
       open () {
         this.loading = true;
-        this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
+        eXo.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
           .then(data => {
             const imageItem = data?.attachments?.[0];
             if (imageItem) {

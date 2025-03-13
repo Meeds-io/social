@@ -35,8 +35,8 @@ const appId = 'SpaceDescriptionApplication';
 const url = `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
 export async function init (spaceId, isManager, publicSiteName, spaceDescription) {
-  if (!isManager && (!spaceDescription.length || !Vue.prototype.$utils.htmlToText(spaceDescription).length)) {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+  if (!isManager && (!spaceDescription.length || !eXo.$utils.htmlToText(spaceDescription).length)) {
+    eXo.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
   const i18n = await exoi18n.loadLanguageAsync(lang, url);
@@ -48,7 +48,7 @@ export async function init (spaceId, isManager, publicSiteName, spaceDescription
       isManager,
     },
     template: `<space-description-application id="${appId}" />`,
-    vuetify: Vue.prototype.vuetifyOptions,
+    vuetify: eXo.vuetify,
     i18n,
   }, `#${appId}`, 'Space Description');
 }

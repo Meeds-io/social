@@ -198,7 +198,7 @@
         return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'md';
       },
       oldCustomStyle () {
         return this.branding?.customCss;
@@ -364,7 +364,7 @@
           customCss: this.customCss,
         });
         this.$root.loading = true;
-        return this.$brandingService.updateBrandingInformation(branding)
+        return eXo.$brandingService.updateBrandingInformation(branding)
           .then(() => this.$emit('saved'))
           .then(() => {
             this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
@@ -398,7 +398,7 @@
 
         // Determine the background image property
         if (this.topBarStylingProperties.topBarBackground?.data) {
-          let url = `url(${this.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
           if (this.topBarStylingProperties?.topBarBackgroundImage) {
             url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
           }
@@ -435,7 +435,7 @@
 
         // Determine the background image property
         if (this.sideBarStylingProperties.sideBarBackground?.data) {
-          let url = `url(${this.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
           if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
             url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
           }
@@ -480,7 +480,7 @@
 
         // Determine the background image property
         if (this.drawerStylingProperties.drawerBackground?.data) {
-          let url = `url(${this.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
           if (this.drawerStylingProperties?.drawerBackgroundImage) {
             url = `${url}, ${this.drawerStylingProperties.drawerBackgroundImage}`;
           }
@@ -635,7 +635,7 @@
         });
         let url = null;
         if (this.pageStylingProperties.pageBackground?.data) {
-          url = `url(${this.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
+          url = `url(${eXo.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
           if (this.pageStylingProperties?.pageBackgroundEffect) {
             url = `${url}, ${this.pageStylingProperties.pageBackgroundEffect}`;
           }

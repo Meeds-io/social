@@ -503,16 +503,16 @@
         this.saving = true;
         try {
           if (this.isNew) {
-            this.spaceTemplate = await this.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
+            this.spaceTemplate = await eXo.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
             await this.$nextTick();
           } else {
-            await this.$spaceTemplateService.updateSpaceTemplate(this.spaceTemplate);
+            await eXo.$spaceTemplateService.updateSpaceTemplate(this.spaceTemplate);
           }
           if (this.nameTranslations) {
-            await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'name', this.nameTranslations);
+            await eXo.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'name', this.nameTranslations);
           }
           if (this.descriptionTranslations) {
-            await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
+            await eXo.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
           }
           await this.$refs.bannerInput.save(this.spaceTemplate.id);
           this.spaceTemplate.name = this.name;

@@ -275,7 +275,7 @@
         }
         this.loading = true;
         try {
-          const data = await this.$spaceService.getSpaceMemberships({
+          const data = await eXo.$spaceService.getSpaceMemberships({
             space: this.$root.spaceId,
             offset: reset ? 0 : this.page * this.pageSize,
             limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
@@ -314,9 +314,9 @@
         this.loading = true;
         try {
           if (user.username) {
-            await this.$spaceService.cancelInvitation(this.$root.space.id, user.username);
+            await eXo.$spaceService.cancelInvitation(this.$root.space.id, user.username);
           } else if (user.invitationId) {
-            await this.$spaceService.declineExternalInvitation(this.$root.space.id, user.invitationId);
+            await eXo.$spaceService.declineExternalInvitation(this.$root.space.id, user.invitationId);
           } else {
             throw new Error('Unkown invitation type');
           }
@@ -331,7 +331,7 @@
       async acceptUserRequest (user) {
         this.loading = true;
         try {
-          await this.$spaceService.acceptUserRequest(this.$root.space.id, user.username);
+          await eXo.$spaceService.acceptUserRequest(this.$root.space.id, user.username);
           this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.userAddedAsSpaceMember'), 'success');
           this.$root.$emit('space-settings-members-updated');
         } catch (e) {
@@ -350,7 +350,7 @@
       async denyUserRequest (user) {
         this.loading = true;
         try {
-          await this.$spaceService.refuseUserRequest(this.$root.space.id, user.username);
+          await eXo.$spaceService.refuseUserRequest(this.$root.space.id, user.username);
           this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.userRequestDenied'), 'success');
           this.$root.$emit('space-settings-pending-updated');
         } catch (e) {

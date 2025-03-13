@@ -72,14 +72,14 @@
     },
     methods: {
       connectionRequest (item) {
-        this.$userService.connect(item.username).then(
+        eXo.$userService.connect(item.username).then(
           ()=> {
             this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(item),1);
           }
         );
       },
       ignoredConnectionUser (receiverItem) {
-        this.$userService.ignore(receiverItem.username).then(
+        eXo.$userService.ignore(receiverItem.username).then(
           () => {
             this.peopleSuggestionsList.splice(this.peopleSuggestionsList.indexOf(receiverItem),1);
           }

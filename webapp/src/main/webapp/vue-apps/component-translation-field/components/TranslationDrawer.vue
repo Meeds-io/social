@@ -250,7 +250,7 @@
         }
         if (this.serverSideFetch && this.save) {
           this.loading = true;
-          this.$translationService.saveTranslations(this.objectType, this.objectId, this.fieldName, this.translations)
+          eXo.$translationService.saveTranslations(this.objectType, this.objectId, this.fieldName, this.translations)
             .then(() => {
               this.$emit('input', this.translations);
               this.close();

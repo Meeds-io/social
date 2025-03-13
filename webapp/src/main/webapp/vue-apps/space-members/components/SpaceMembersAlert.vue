@@ -11,7 +11,7 @@
       const feedbackMessage = params.get('feedbackMessage');
       if (feedbackMessage === 'SpaceRequestAlreadyMember') {
         const userName = params.get('userName');
-        this.$identityService.getIdentityByProviderIdAndRemoteId('organization', userName)
+        eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', userName)
           .then(identity => {
             const userFullName = identity.profile.fullname;
             this.$root.$emit('alert-message-html', this.$t(`Notification.feedback.message.${feedbackMessage}`, {

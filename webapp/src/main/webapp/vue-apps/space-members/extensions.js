@@ -31,7 +31,7 @@ document.addEventListener('space-member-management-actions-load', () => {
         && !user.isGroupBound;
     },
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.removeMember(spaceId, user.username)
+      eXo.$spaceService.removeMember(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -49,7 +49,7 @@ document.addEventListener('space-member-management-actions-load', () => {
     order: 1,
     enabled: user => user.isManager,
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.removeManager(spaceId, user.username)
+      eXo.$spaceService.removeManager(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -67,7 +67,7 @@ document.addEventListener('space-member-management-actions-load', () => {
     order: 1,
     enabled: user => user.enabled && !user.deleted && !user.isManager,
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.promoteManager(spaceId, user.username)
+      eXo.$spaceService.promoteManager(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -84,7 +84,7 @@ document.addEventListener('space-member-management-actions-load', () => {
     order: 1,
     enabled: user => user.isInvited,
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.cancelInvitation(spaceId, user.username)
+      eXo.$spaceService.cancelInvitation(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -101,7 +101,7 @@ document.addEventListener('space-member-management-actions-load', () => {
     order: 1,
     enabled: user => user.isPending,
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.acceptUserRequest(spaceId, user.username)
+      eXo.$spaceService.acceptUserRequest(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -118,7 +118,7 @@ document.addEventListener('space-member-management-actions-load', () => {
     order: 1,
     enabled: user => user.isPending,
     click: (user, spaceId) => {
-      Vue.prototype.$spaceService.refuseUserRequest(spaceId, user.username)
+      eXo.$spaceService.refuseUserRequest(spaceId, user.username)
         .then(() => {
           document.dispatchEvent(new CustomEvent('people-list-refresh'));
           document.dispatchEvent(new CustomEvent('alert-message', { detail: {

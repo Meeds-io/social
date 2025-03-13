@@ -68,7 +68,7 @@
     methods: {
       muteSpace () {
         this.saving = true;
-        return this.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
+        return eXo.$spaceService.muteSpace(this.spaceId, this.spaceMuted)
           .then(() => {
             document.dispatchEvent(new CustomEvent('refresh-notifications'));
             if (this.spaceMuted) {

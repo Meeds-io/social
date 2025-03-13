@@ -382,7 +382,7 @@
         if (!this.categoryIds?.length) {
           this.selectedSpaceCategories = [];
         } else {
-          this.selectedSpaceCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)));
+          this.selectedSpaceCategories = await Promise.all(this.categoryIds.map(id => eXo.$categoryService.getCategory(id)));
         }
       },
     },
@@ -391,7 +391,7 @@
       document.addEventListener('spaces-list-settings-open', this.open);
       this.publicAccess = !!this.$root.settingName;
       if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true);
+        this.$root.spaceTemplates = await eXo.$spaceTemplateService.getSpaceTemplates(true);
       }
     },
     beforeUnmount () {

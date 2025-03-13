@@ -68,14 +68,14 @@
           return null;
         }
         if (this.experience.isCurrent) {
-          const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
-          const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
+          const startDateObject = eXo.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+          const startDate = eXo.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
           return this.$t('profileWorkExperiences.since', {
             0: startDate,
           });
         } else {
-          const startDateObject = this.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
-          const startDate = this.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
+          const startDateObject = eXo.$dateUtil.getDateObjectFromString(this.experience.startDate,true);
+          const startDate = eXo.$dateUtil.formatDateObjectToDisplay(startDateObject, this.dateFormat);
           return this.$t('profileWorkExperiences.from', {
             0: startDate,
           });
@@ -85,8 +85,8 @@
         if (!this.experience.endDate || this.experience.isCurrent) {
           return null;
         }
-        const endDateObject = this.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
-        const endDate = this.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
+        const endDateObject = eXo.$dateUtil.getDateObjectFromString(this.experience.endDate,true);
+        const endDate = eXo.$dateUtil.formatDateObjectToDisplay(endDateObject, this.dateFormat);
         return this.$t('profileWorkExperiences.to', {
           0: endDate,
         });

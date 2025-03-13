@@ -95,7 +95,7 @@
         return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
       },
       url () {
-        return this.$utils.toLinkUrl(this.link?.url, {
+        return eXo.$utils.toLinkUrl(this.link?.url, {
           urls: true,
           email: true,
           phone: true,
@@ -103,7 +103,7 @@
       },
       iconUrl () {
         if (this.link?.iconSrc) {
-          return this.$utils.convertImageDataAsSrc(this.link.iconSrc);
+          return eXo.$utils.convertImageDataAsSrc(this.link.iconSrc);
         } else {
           return this.link?.iconUrl;
         }

@@ -115,7 +115,7 @@
         }
         this.loading = true;
         try {
-          const data = await this.$spaceService.getSpacesByFilter({
+          const data = await eXo.$spaceService.getSpacesByFilter({
             offset: this.offset,
             limit: this.pageSize,
             templateId: this.templateId,

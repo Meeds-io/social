@@ -62,7 +62,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     }),
     created () {
       this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-      this.$spaceService.getSpaceById(this.id)
+      eXo.$spaceService.getSpaceById(this.id)
         .then(spaceData=> {
           this.space = spaceData;
           this.spaceName = spaceData?.displayName ? spaceData.displayName : this.$t('UITopBarFavoritesPortlet.label.space');

@@ -129,14 +129,14 @@
             }),
           ],
           description: [
-            v => !v?.length || this.$utils.htmlToText(v).length <= this.maxDescriptionLength || this.$t('spaceTemplate.descriptionExceedsMaxLength', {
+            v => !v?.length || eXo.$utils.htmlToText(v).length <= this.maxDescriptionLength || this.$t('spaceTemplate.descriptionExceedsMaxLength', {
               0: this.maxDescriptionLength,
             }),
           ],
         };
       },
       descriptionText () {
-        return this.description && this.$utils.htmlToText(this.description) || '';
+        return this.description && eXo.$utils.htmlToText(this.description) || '';
       },
       modified () {
         return this.characteristicsInformationModified

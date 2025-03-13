@@ -163,11 +163,11 @@
         try {
           let promiseFunction = null;
           if (this.role === 'manager') {
-            promiseFunction = this.$spaceService.promoteManager;
+            promiseFunction = eXo.$spaceService.promoteManager;
           } else if (this.role === 'redactor') {
-            promiseFunction = this.$spaceService.promoteRedactor;
+            promiseFunction = eXo.$spaceService.promoteRedactor;
           } else if (this.role === 'publisher') {
-            promiseFunction = this.$spaceService.promotePublisher;
+            promiseFunction = eXo.$spaceService.promotePublisher;
           } else {
             throw new Error(`Role ${this.role} isn't managed`);
           }
@@ -190,7 +190,7 @@
         do {
           limit *= 2;
          
-          data = await this.$spaceService.getSpaceMemberships({
+          data = await eXo.$spaceService.getSpaceMemberships({
             space: this.$root.space.id,
             status: this.role,
             expand: this.$root.space.canEdit && 'users,createdDate' || 'users',

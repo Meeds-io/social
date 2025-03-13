@@ -92,7 +92,7 @@
         }
       },
       isMobile () {
-        return this.$vuetify.breakpoint.width < 980;
+        return eXo.vuetify.display.width.value < 980;
       },
     },
     created () {
@@ -103,7 +103,7 @@
     },
     methods: {
       getCurrentNavigations () {
-        this.$navigationService.getNavigations((!!eXo.env.portal.spaceId && `/spaces/${eXo.env.portal.spaceGroup}`) || eXo.env.portal.portalName, (!!eXo.env.portal.spaceId && this.spaceType) || this.siteType, this.scope, this.visibility, null,  eXo.env.portal.selectedNodeId, true)
+        eXo.$navigationService.getNavigations((!!eXo.env.portal.spaceId && `/spaces/${eXo.env.portal.spaceGroup}`) || eXo.env.portal.portalName, (!!eXo.env.portal.spaceId && this.spaceType) || this.siteType, this.scope, this.visibility, null,  eXo.env.portal.selectedNodeId, true)
           .then(navigations => {
             this.navigation = navigations &&  navigations[0] || {};
             this.userNodeBreadcrumbItemList = navigations &&  navigations[0].userNodeBreadcrumbItemList || [];

@@ -85,7 +85,7 @@
         return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
       },
       profileName () {
-        return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.fullname;
+        return eXo.$currentUserIdentity && eXo.$currentUserIdentity.profile && eXo.$currentUserIdentity.profile.fullname;
       },
       profileUri () {
         return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`;

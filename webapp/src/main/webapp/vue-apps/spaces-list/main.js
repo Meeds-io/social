@@ -104,7 +104,7 @@ export function init (
       },
       computed: {
         isMobile () {
-          return this.$vuetify.breakpoint.mobile;
+          return eXo.vuetify.display.mobile.value;
         },
         categoryIds () {
           return this.settings.filterType === 'category' ? (this.settingsSubcategories || this.settings.categoryIds) : null;
@@ -169,7 +169,7 @@ export function init (
       },
       template: `<spaces-list id="${appId}" :filter="filter" :can-create-space="${canCreateSpace}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Spaces List');
   });
 }
@@ -178,7 +178,7 @@ async function getSubcategoryIds (categoryIds, token) {
   if (!categoryIds?.length) {
     return [];
   }
-  const subcategoyIds = await Promise.all(categoryIds.map(id => Vue.prototype.$categoryService.getSubcategoryIds(id, {
+  const subcategoyIds = await Promise.all(categoryIds.map(id => eXo.$categoryService.getSubcategoryIds(id, {
     offset: 0,
     limit: -1,
     depth: -1,

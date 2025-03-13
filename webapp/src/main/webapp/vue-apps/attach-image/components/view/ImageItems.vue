@@ -89,7 +89,7 @@
         }
       },
       retrieveAttachments () {
-        return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
+        return eXo.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
           .then(data => this.updatedAttachments = data?.attachments || []);
       },
       openPreview (attachmentId) {

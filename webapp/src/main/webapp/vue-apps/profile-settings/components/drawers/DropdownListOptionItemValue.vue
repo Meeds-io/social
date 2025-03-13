@@ -91,7 +91,7 @@
       },
       getSavedTranslations () {
         if (this.option?.id) {
-          this.$translationService.getTranslations(this.objectType, this.option.id, this.fieldName).then(translations => {
+          eXo.$translationService.getTranslations(this.objectType, this.option.id, this.fieldName).then(translations => {
             this.$emit('data-translations', this.option, translations);
           });
         }

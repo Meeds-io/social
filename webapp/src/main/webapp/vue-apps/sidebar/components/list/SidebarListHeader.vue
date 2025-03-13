@@ -141,13 +141,13 @@
         return this.$root.sticky && this.arrowIconLeft || this.arrowIconRight;
       },
       arrowIconLeft () {
-        return this.$vuetify.rtl && 'fa-angle-double-right' || 'fa-angle-double-left';
+        return eXo.vuetify.rtl && 'fa-angle-double-right' || 'fa-angle-double-left';
       },
       arrowIconRight () {
-        return this.$vuetify.rtl && 'fa-angle-double-left' || 'fa-angle-double-right';
+        return eXo.vuetify.rtl && 'fa-angle-double-left' || 'fa-angle-double-right';
       },
       defaultUserExternalPath () {
-        return this.$root.defaultUserPath && this.$utils.toLinkUrl(this.$root.defaultUserPath, {
+        return this.$root.defaultUserPath && eXo.$utils.toLinkUrl(this.$root.defaultUserPath, {
           urls: true,
           email: true,
           phone: true,
@@ -164,7 +164,7 @@
     },
     methods: {
       changeMenuStickiness (mode) {
-        this.$navigationSettingService.updateSidebarUserMode(mode);
+        eXo.$navigationSettingService.updateSidebarUserMode(mode);
         this.$root.mode = mode;
       },
     },

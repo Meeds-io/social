@@ -61,7 +61,7 @@
     },
     methods: {
       markAsRead () {
-        return this.$notificationService.markRead(this.id);
+        return eXo.$notificationService.markRead(this.id);
       },
       applyActions () {
         const self = this;
@@ -97,7 +97,7 @@
             if ($(this).closest('[data-details]').hasClass('unread')) {
               $(this).closest('[data-details]').removeClass('unread').addClass('read');
             }
-            Vue.prototype.$notificationService.markRead(dataId);
+            eXo.$notificationService.markRead(dataId);
           });
           const selfs = self;
           // ----------------- Mark as read
@@ -111,7 +111,7 @@
           $(selfs.$el).on('click', '.remove-item', function (evt) {
             evt.preventDefault();
             evt.stopPropagation();
-            Vue.prototype.$notificationService.hideNotification(dataId);
+            eXo.$notificationService.hideNotification(dataId);
             $(this).parents('li:first').slideUp(SLIDE_UP);
           });
 
@@ -131,7 +131,7 @@
                 $(document).trigger('exo-invitation-updated');
               }).then(resp => {
                 if (resp.body) {
-                  Vue.prototype.$notificationService.resetBadge();
+                  eXo.$notificationService.resetBadge();
                 }
               });
             }
@@ -153,7 +153,7 @@
                 $(document).trigger('exo-invitation-updated');
               });
             }
-            Vue.prototype.$notificationService.hideNotification(dataId);
+            eXo.$notificationService.hideNotification(dataId);
             $(this).parents('li:first').slideUp(SLIDE_UP_MORE);
           });
         });

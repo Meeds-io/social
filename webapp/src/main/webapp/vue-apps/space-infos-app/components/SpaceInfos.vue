@@ -78,7 +78,7 @@
     methods: {
       init (spaceId) {
         if (spaceId) {
-          return this.$spaceService.getSpaceById(spaceId, 'managers,redactors')
+          return eXo.$spaceService.getSpaceById(spaceId, 'managers,redactors')
             .then(space => {
               if (space) {
                 this.description = space.description || '';

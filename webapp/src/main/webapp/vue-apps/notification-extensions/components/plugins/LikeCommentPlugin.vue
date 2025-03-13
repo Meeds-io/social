@@ -52,7 +52,7 @@
     },
     created () {
       if (this.likerUsernames?.length && this.likerUsernames?.length > 1) {
-        Promise.all(this.likerUsernames.slice(0, 2).map(u => this.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
+        Promise.all(this.likerUsernames.slice(0, 2).map(u => eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
           .then(identities => this.likerIdentities = identities.map(i => i?.profile).filter(p => !!p))
           .finally(() => this.loading = false);
       } else {

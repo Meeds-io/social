@@ -99,7 +99,7 @@
       async refresh () {
         this.loading = true;
         try {
-          this.navigationSettings = await this.$navigationConfigurationService.getConfiguration();
+          this.navigationSettings = await eXo.$navigationConfigurationService.getConfiguration();
           this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
         } finally {
           this.loading = false;
@@ -108,7 +108,7 @@
       save () {
         this.loading = true;
         try {
-          this.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
+          eXo.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
         } finally {
           this.$root.$emit('alert-message', this.$t('generalSettings.navigationSettingsUpdatedSuccessfully'), 'success');
           this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));

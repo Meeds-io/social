@@ -194,7 +194,7 @@
         this.resetCustomValidity();
       
         if (error) {
-          if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
+          if (String(error).indexOf(eXo.$uploadService.avatarExcceedsLimitError) >= 0) {
             this.$root.$emit('alert-message', this.$t('profileHeader.label.avatarExcceededAllowedSize', { 0: this.uploadLimit }), 'error');
           } else if (this.fieldError && this.fieldError.indexOf('FIRSTNAME:') === 0) {
             const firstNameError = this.fieldError.replace('FIRSTNAME:', '');

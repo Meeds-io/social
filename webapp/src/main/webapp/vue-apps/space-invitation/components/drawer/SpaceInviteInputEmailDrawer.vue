@@ -163,7 +163,7 @@
       async inviteUsers () {
         this.saving = true;
         try {
-          await this.$spaceService.updateSpace({
+          await eXo.$spaceService.updateSpace({
             id: this.$root.spaceId,
             invitedMembers: this.invitedMembers,
             externalInvitedUsers: this.emails,
@@ -181,7 +181,7 @@
       cleanOldInvitations () {
         if (this.alreadSentInvitations?.length) {
           Promise.all(this.alreadSentInvitations.slice()
-            .map(i => this.$spaceService.declineExternalInvitation(this.$root.space.id, i.invitationId)))
+            .map(i => eXo.$spaceService.declineExternalInvitation(this.$root.space.id, i.invitationId)))
             .finally(() => this.$root.$emit('space-settings-pending-updated'));
         }
       },
@@ -214,9 +214,9 @@
           });
           return;
         }
-        const user = await this.$userService.getUserByEmail(email);
+        const user = await eXo.$userService.getUserByEmail(email);
         if (user?.id && user?.id !== 'null') {
-          const data = await this.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
+          const data = await eXo.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
           if (data.isMember === 'true') {
             this.emailInvitations.unshift({
               userEmail: email,

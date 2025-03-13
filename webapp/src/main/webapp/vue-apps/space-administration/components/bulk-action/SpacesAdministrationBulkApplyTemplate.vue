@@ -39,7 +39,7 @@
     methods: {
       applyTemplate (params) {
         this.$root.applyOperationInBulk(
-          (space, options) => this.$spaceAdministrationService.applySpaceTemplate(space.id, options),
+          (space, options) => eXo.$spaceAdministrationService.applySpaceTemplate(space.id, options),
           params,
           () => {
             this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spaceTemplateAppliedOnSpaces'), 'success');

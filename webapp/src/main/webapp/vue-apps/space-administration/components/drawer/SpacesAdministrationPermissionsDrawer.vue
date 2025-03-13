@@ -139,7 +139,7 @@
             this.space = obj;
             this.spaces = null;
             this.selectionCount = 0;
-            const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+            const permissions = await eXo.$spaceAdministrationService.getSpacePermission(this.space.id);
             this.originalLayoutPermissions = permissions.layoutPermissions;
             this.originalPublicSitePermissions = permissions.publicSitePermissions;
             this.originalDeletePermissions = permissions.deletePermissions;
@@ -175,7 +175,7 @@
               deletePermissions: this.deletePermissions,
             });
           } else {
-            await this.$spaceAdministrationService.updateSpacePermissions(this.space.id, {
+            await eXo.$spaceAdministrationService.updateSpacePermissions(this.space.id, {
               layoutPermissions: this.layoutPermissions,
               publicSitePermissions: this.publicSitePermissions,
               deletePermissions: this.deletePermissions,

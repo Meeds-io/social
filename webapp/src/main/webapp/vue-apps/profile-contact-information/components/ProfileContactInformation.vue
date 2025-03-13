@@ -106,7 +106,7 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify?.breakpoint?.smAndDown;
+        return eXo.vuetify?.breakpoint?.smAndDown;
       },
       isAdmin () {
         return this.user?.isAdmin;
@@ -123,7 +123,7 @@
       },
     },
     beforeCreate () {
-      return this.$profileSettingsService.getSettings()
+      return eXo.$profileSettingsService.getSettings()
         .then(settings => {
           this.settings = settings?.settings || [];
           this.excludedSearchProps = settings?.excludedQuickSearchProperties;
@@ -145,13 +145,13 @@
     },
     methods: {
       getProfileSettings () {
-        return this.$profileSettingsService.getSettings()
+        return eXo.$profileSettingsService.getSettings()
           .then(settings => {
             this.settings = settings?.settings || [];
           });
       },
       getSavedUserCardSettings () {
-        return this.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
+        return eXo.$userService.getUserCardSettings().then(userCardSettings => this.userCardSettings = userCardSettings);
       },
       canShowProperty (property) {
         return !this.isPropertyHidden(property) || this.isPropertyHidden(property) && (this.isAdmin || this.owner);
@@ -174,7 +174,7 @@
         this.$root.$emit('open-quick-search-users-drawer', searchKey, searchKey[property.propertyName]);
       },
       refreshProperties (broadcast) {
-        return this.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
+        return eXo.$userService.getUser(eXo.env.portal.profileOwner, 'settings')
           .then(userdataEntity => {
             this.user = userdataEntity;
             this.properties = userdataEntity?.properties.filter(item => item.active && !(item.propertyType === 'user' && eXo.env.portal.isExternal === true)).sort((s1, s2) => ((s1.order > s2.order) ? 1 : (s1.order < s2.order) ? -1 : 0));

@@ -284,9 +284,9 @@
       },
     },
     created () {
-      this.$translationService.getTranslationConfiguration()
+      eXo.$translationService.getTranslationConfiguration()
         .then(configuration => this.translationConfiguration = configuration)
-        .then(() => this.serverSideFetch && this.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
+        .then(() => this.serverSideFetch && eXo.$translationService.getTranslations(this.objectType, this.objectId, this.fieldName))
         .then(translations => {
           if (this.serverSideFetch && translations && Object.keys(translations).length) {
             this.setValuesPerLanguage(translations);

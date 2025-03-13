@@ -49,7 +49,7 @@
       digestMailNotificationEnabled: false,
     }),
     created () {
-      this.$featureService.isFeatureEnabled('digestMailNotification')
+      eXo.$featureService.isFeatureEnabled('digestMailNotification')
         .then(enabled => this.digestMailNotificationEnabled = enabled);
     },
     methods: {

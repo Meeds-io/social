@@ -195,13 +195,13 @@
         return this.editor && this.editor.status === 'ready';
       },
       charsCount () {
-        return this.inputVal && this.$utils.htmlToText(this.inputVal).length || 0;
+        return this.inputVal && eXo.$utils.htmlToText(this.inputVal).length || 0;
       },
       validLength () {
         return this.charsCount <= this.maxLength;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
       },
       ckEditorConfigUrl () {
         return `${eXo.env.portal.context}/${eXo.env.portal.rest}/richeditor/configuration?type=${this.ckEditorType || 'default'}&v=${eXo.env.client.assetsVersion}`;
@@ -562,7 +562,7 @@
         if (!content) {
           content = '';
         } else {
-          content = this.$utils.replaceHtmlEntites(content);
+          content = eXo.$utils.replaceHtmlEntites(content);
         }
         if (!content.includes('<oembed>') && cleanOembedParams && this.oembedParams) {
           this.clearOembedParams();
@@ -747,13 +747,13 @@
         this.containInvalidUsers = false;
         Promise
           .all(mentionedUsers.map(username => {
-            return this.$identityService.getIdentityByProviderIdAndRemoteId('organization', username)
+            return eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', username)
               .then(identity => {
                 if (!identity?.profile) {
                   return null;
                 }
                 if (spaceId) {
-                  return this.$spaceService.isSpaceMember(spaceId, username)
+                  return eXo.$spaceService.isSpaceMember(spaceId, username)
                     .then(data => {
                       if (data) {
                         const profile = identity.profile;
@@ -823,10 +823,10 @@
       },
       getSpaceId () {
         if (this.suggesterSpacePrettyName) {
-          return this.$spaceService.getSpaceByPrettyName(this.suggesterSpacePrettyName)
+          return eXo.$spaceService.getSpaceByPrettyName(this.suggesterSpacePrettyName)
             .then(space => this.spaceId = space.id);
         } else if (this.suggesterSpaceURL) {
-          return this.$spaceService.getSpaceByGroupSuffix(this.suggesterSpaceURL)
+          return eXo.$spaceService.getSpaceByGroupSuffix(this.suggesterSpaceURL)
             .then(space => this.spaceId = space.id);
         }
       },

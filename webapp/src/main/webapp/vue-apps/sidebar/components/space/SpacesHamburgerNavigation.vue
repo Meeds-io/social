@@ -205,7 +205,7 @@
     methods: {
       async init () {
         if (!this.$root.spaceTemplates) {
-          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+          this.$root.spaceTemplates = await eXo.$spaceTemplateService.getSpaceTemplates();
         }
       },
       closeMenu () {

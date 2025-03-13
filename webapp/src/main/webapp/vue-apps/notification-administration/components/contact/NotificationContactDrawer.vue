@@ -130,7 +130,7 @@
         this.invalidEmail = false;
         this.invalidName = false;
         this.$refs.drawer.startLoading();
-        return this.$notificationAdministration.saveSenderEmail(this.name, this.email)
+        return eXo.$notificationAdministration.saveSenderEmail(this.name, this.email)
           .then(() => {
             this.$root.$emit('refresh');
             this.$refs.drawer.close();

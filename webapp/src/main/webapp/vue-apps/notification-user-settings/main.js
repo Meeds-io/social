@@ -35,7 +35,7 @@ export function init (settings) {
       },
       template: `<user-setting-notifications id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'User Settings Notifications');
   });
 }

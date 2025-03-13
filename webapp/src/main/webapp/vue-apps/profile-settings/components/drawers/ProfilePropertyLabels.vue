@@ -63,7 +63,7 @@
 
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
       },
       filtredLanguages (){
         const result = this.propertylabels.map(a => a.language);

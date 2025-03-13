@@ -9,5 +9,5 @@ export function init () {
     return;
   }
   exoi18n.loadLanguageAsync(lang, url)
-    .then(i18n => registerExtension(i18n.t('organizationalChart.header.label')));
+    .then(i18n => registerExtension(i18n.global.t('organizationalChart.header.label')));
 }

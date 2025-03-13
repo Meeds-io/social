@@ -112,7 +112,7 @@
       },
       emptyDescription () {
         return !this.$root.spaceDescription
-          || !this.$utils.htmlToText(this.$root.spaceDescription).length;
+          || !eXo.$utils.htmlToText(this.$root.spaceDescription).length;
       },
     },
     mounted () {

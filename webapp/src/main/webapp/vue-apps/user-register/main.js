@@ -45,8 +45,8 @@ export function init (params) {
         params,
       },
       template: `<portal-register id="${appId}" :params="params" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Register');
-  }).finally(() => Vue.prototype.$utils.includeExtensions('RegisterExtension'));
+  }).finally(() => eXo.$utils.includeExtensions('RegisterExtension'));
 }

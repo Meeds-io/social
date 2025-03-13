@@ -261,7 +261,7 @@
       },
       removeSpace () {
         this.sendingAction = true;
-        this.$spaceService.removeSpace(this.space.id)
+        eXo.$spaceService.removeSpace(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -286,7 +286,7 @@
       },
       leave () {
         this.sendingAction = true;
-        this.$spaceService.leave(this.space.id)
+        eXo.$spaceService.leave(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -298,7 +298,7 @@
       },
       acceptToJoin () {
         this.sendingAction = true;
-        this.$spaceService.accept(this.space.id)
+        eXo.$spaceService.accept(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -310,7 +310,7 @@
       },
       refuseToJoin () {
         this.sendingAction = true;
-        this.$spaceService.deny(this.space.id)
+        eXo.$spaceService.deny(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -326,7 +326,7 @@
           return;
         }
         this.sendingAction = true;
-        this.$spaceService.join(this.space.id)
+        eXo.$spaceService.join(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -342,7 +342,7 @@
           return;
         }
         this.sendingAction = true;
-        this.$spaceService.requestJoin(this.space.id)
+        eXo.$spaceService.requestJoin(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            
@@ -354,7 +354,7 @@
       },
       cancelRequest () {
         this.sendingAction = true;
-        this.$spaceService.cancel(this.space.id)
+        eXo.$spaceService.cancel(this.space.id)
           .then(() => this.$root.$emit('spaces-list-refresh'))
           .catch(e => {
            

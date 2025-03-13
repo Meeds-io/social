@@ -246,13 +246,13 @@
         this.abortController = new AbortController();
         let searchUsersFunction;
         if (this.filter === 'connections') {
-          searchUsersFunction = this.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
+          searchUsersFunction = eXo.$userService.getConnections(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
         } else if (this.filter === 'member'
           || this.filter === 'manager'
           || this.filter === 'redactor'
           || this.filter === 'publisher'
           || this.filter === 'disabled') {
-          searchUsersFunction = this.$spaceService.getSpaceMemberships({
+          searchUsersFunction = eXo.$spaceService.getSpaceMemberships({
             query: this.keyword,
             offset: this.offset,
             limit: this.limitToFetch + 1,
@@ -270,11 +270,11 @@
           });
         } else if (profileSettings) {
           this.advancedFilterSettings = profileSettings;
-          searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
+          searchUsersFunction = eXo.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
         } else if (this.advancedFilterSettings) {
-          searchUsersFunction = this.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
+          searchUsersFunction = eXo.$userService.getUsersByAdvancedFilter(this.advancedFilterSettings, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve,this.filter, this.keyword, false, this.abortController.signal);
         } else {
-          searchUsersFunction = this.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
+          searchUsersFunction = eXo.$userService.getUsers(this.keyword, this.offset, this.limitToFetch + 1, this.fieldsToRetrieve, this.abortController.signal);
         }
         return searchUsersFunction.then(data => {
           const users = data && data.users || [];

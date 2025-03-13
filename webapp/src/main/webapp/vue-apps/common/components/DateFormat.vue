@@ -28,7 +28,7 @@
     computed: {
       displayedDate () {
         const value = this.value && Number.isInteger(Number(this.value)) ? Number(this.value) : this.value;
-        return value && this.$dateUtil.formatDateObjectToDisplay(new Date(value), this.format, this.lang) || '';
+        return value && eXo.$dateUtil.formatDateObjectToDisplay(new Date(value), this.format, this.lang) || '';
       },
     },
   };

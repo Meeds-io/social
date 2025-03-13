@@ -81,7 +81,7 @@
     },
     computed: {
       mobile () {
-        return this.$vuetify.breakpoint.mobile;
+        return eXo.vuetify.display.mobile.value;
       },
     },
   };

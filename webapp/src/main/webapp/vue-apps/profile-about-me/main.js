@@ -34,7 +34,7 @@ export function init (aboutMe) {
       },
       template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile About Me');
   });
 }

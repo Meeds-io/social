@@ -35,12 +35,12 @@
       <v-btn
         id="topBarLoginButton"
         class="primary me-1"
-        :class="$vuetify.breakpoint.mobile && 'rounded'"
+        :class="$vuetify.display.mobile.value && 'rounded'"
         :href="authenticated && '#' || loginUrl"
-        :icon="$vuetify.breakpoint.mobile"
+        :icon="$vuetify.display.mobile.value"
         outlined>
         <span
-          v-if="!$vuetify.breakpoint.mobile"
+          v-if="!$vuetify.display.mobile.value"
           class="text-none">{{ $t('publicAccess.login') }}</span>
         <v-icon
           v-else
@@ -224,7 +224,7 @@
       async acceptToJoin () {
         this.loading = true;
         try {
-          await this.$spaceService.accept(this.spaceId);
+          await eXo.$spaceService.accept(this.spaceId);
           this.$root.isMember = true;
         } finally {
           this.loading = false;
@@ -233,7 +233,7 @@
       async refuseToJoin () {
         this.loading = true;
         try {
-          await this.$spaceService.deny(this.spaceId);
+          await eXo.$spaceService.deny(this.spaceId);
           this.$root.isInvitedUser = false;
         } finally {
           this.loading = false;
@@ -242,7 +242,7 @@
       async join () {
         this.loading = true;
         try {
-          await this.$spaceService.join(this.spaceId);
+          await eXo.$spaceService.join(this.spaceId);
           this.$root.isMember = true;
         } finally {
           this.loading = false;
@@ -251,7 +251,7 @@
       async requestJoin () {
         this.loading = true;
         try {
-          await this.$spaceService.requestJoin(this.spaceId);
+          await eXo.$spaceService.requestJoin(this.spaceId);
           this.$root.isPendingUser = true;
         } finally {
           this.loading = false;
@@ -260,7 +260,7 @@
       async cancelRequest () {
         this.loading = true;
         try {
-          await this.$spaceService.cancel(this.spaceId);
+          await eXo.$spaceService.cancel(this.spaceId);
           this.$root.isPendingUser = false;
         } finally {
           this.loading = false;

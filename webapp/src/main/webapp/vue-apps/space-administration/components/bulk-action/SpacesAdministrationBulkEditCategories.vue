@@ -42,7 +42,7 @@
           async space => {
             const oldCategoryIds = space.categoryIds || [];
             const newCategoryIds = params.categoryIds || [];
-            await this.$spaceCategoryService.updateCategories(
+            await eXo.$spaceCategoryService.updateCategories(
               space.id,
               oldCategoryIds.slice(),
               newCategoryIds.slice(),

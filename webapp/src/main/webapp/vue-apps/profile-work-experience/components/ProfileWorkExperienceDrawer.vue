@@ -139,7 +139,7 @@
 
         this.$refs.profileWorkExperiencesDrawer.startLoading();
         this.saving = true;
-        this.$userService.updateProfileFields(eXo.env.portal.userName, {
+        eXo.$userService.updateProfileFields(eXo.env.portal.userName, {
           experiences,
         }, [
           'experiences',
@@ -162,7 +162,7 @@
         }
       },
       refresh () {
-        return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
+        return eXo.$userService.getUser(eXo.env.portal.profileOwner, 'all')
           .then(user => {
             this.user = user;
             this.$emit('refresh', user && user.experiences || []);

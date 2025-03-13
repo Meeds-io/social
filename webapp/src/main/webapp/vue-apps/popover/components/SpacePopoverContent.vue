@@ -139,7 +139,7 @@
     methods: {
       async init () {
         if (this.spaceId && !Object.hasOwn(this.space, 'membersCount')) {
-          this.retrievedSpace = await this.$spaceService.getSpaceById(this.spaceId, 'favorite');
+          this.retrievedSpace = await eXo.$spaceService.getSpaceById(this.spaceId, 'favorite');
         }
       },
       refreshExtensions () {

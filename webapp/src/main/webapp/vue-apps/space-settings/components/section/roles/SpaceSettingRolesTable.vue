@@ -211,7 +211,7 @@
         }
       },
       getSpaceMemberships (role) {
-        return this.$spaceService.getSpaceMemberships({
+        return eXo.$spaceService.getSpaceMemberships({
           offset: 0,
           limit: 3,
           status: role,

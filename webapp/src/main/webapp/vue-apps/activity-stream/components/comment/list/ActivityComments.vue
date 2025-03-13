@@ -172,7 +172,7 @@
         if (comment.templateParams) {
           this.$root.$emit('activity-comment-created', comment);
         } else { // Comment not completely loaded
-          this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)
+          eXo.$activityService.getActivityById(comment.id, eXo.$activityConstants.FULL_COMMENT_EXPAND)
             .then(activity => this.$root.$emit('activity-comment-created', activity));
         }
       },
@@ -212,7 +212,7 @@
         if (comment.templateParams) {
           this.$root.$emit('activity-comment-updated', comment);
         } else { // Comment not completely loaded
-          this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)
+          eXo.$activityService.getActivityById(comment.id, eXo.$activityConstants.FULL_COMMENT_EXPAND)
             .then(activity => this.$root.$emit('activity-comment-updated', activity));
         }
       },

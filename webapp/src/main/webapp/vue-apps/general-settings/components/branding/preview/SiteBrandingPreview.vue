@@ -82,7 +82,7 @@
     },
     methods: {
       init () {
-        return this.$siteService.getSites('PORTAL', null, 'global', true, true, false, true, true, true, true, true, true, ['displayed', 'temporal'])
+        return eXo.$siteService.getSites('PORTAL', null, 'global', true, true, false, true, true, true, true, true, true, ['displayed', 'temporal'])
           .then(data => this.sites = data || [])
           .then(this.computeWidth)
           .finally(() => this.initialized = true);

@@ -59,7 +59,7 @@
 <% } else { %>
   <div id="OnlinePortlet">
     <script type="text/javascript">
-      require(['SHARED/vue'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet')));
+      require(['SHARED/vue'], () => eXo.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet')));
     </script>
   </div>
 <% } %>

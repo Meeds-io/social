@@ -212,10 +212,10 @@
         return this.notification?.created && new Date(this.notification?.created);
       },
       relativeDateLabelKey () {
-        return this.lastUpdateTime && this.$root.now && this.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime, true) || '';
+        return this.lastUpdateTime && this.$root.now && eXo.$dateUtil.getRelativeTimeLabelKey(this.lastUpdateTime, true) || '';
       },
       relativeDateLabelValue () {
-        return this.lastUpdateTime && this.$root.now && this.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
+        return this.lastUpdateTime && this.$root.now && eXo.$dateUtil.getRelativeTimeValue(this.lastUpdateTime) || 1;
       },
       relativeDateLabel () {
         return this.lastUpdateTime && this.$root.now && this.$t(this.relativeDateLabelKey, { 0: this.relativeDateLabelValue }) || '';
@@ -241,7 +241,7 @@
     methods: {
       hideNotification () {
         this.hidden = true;
-        this.$notificationService.hideNotification(this.notificationId)
+        eXo.$notificationService.hideNotification(this.notificationId)
           .then(() => {
             this.$root.$emit('hide-notification', this.notificationId);
             document.dispatchEvent(new CustomEvent('refresh-notifications'));
@@ -262,7 +262,7 @@
             resolve();
           }
         })
-          .then(() => this.$notificationService.markRead(this.notificationId))
+          .then(() => eXo.$notificationService.markRead(this.notificationId))
           .then(() => {
             if (!avoidRefresh) {
               document.dispatchEvent(new CustomEvent('refresh-notifications'));
@@ -287,7 +287,7 @@
       },
       muteSpace () {
         this.markedAsReadMuted = true;
-        return this.$spaceService.muteSpace(this.spaceId)
+        return eXo.$spaceService.muteSpace(this.spaceId)
           .then(() => {
             document.dispatchEvent(new CustomEvent('refresh-notifications'));
             this.$root.$emit('alert-message', this.$t('Notification.alert.successfullyMuted'), 'success');

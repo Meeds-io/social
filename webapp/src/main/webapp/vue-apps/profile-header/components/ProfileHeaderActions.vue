@@ -171,7 +171,7 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify?.breakpoint?.mobile;
+        return eXo.vuetify?.breakpoint?.mobile;
       },
       enabledProfileHeaderActionComponents () {
         return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
@@ -232,7 +232,7 @@
       },
       connect () {
         this.sendingAction = true;
-        this.$userService.connect(this.user.username)
+        eXo.$userService.connect(this.user.username)
           .then(() => this.$emit('refresh'))
           .catch(e => {
            
@@ -244,7 +244,7 @@
       },
       acceptToConnect () {
         this.sendingAction = true;
-        this.$userService.confirm(this.user.username)
+        eXo.$userService.confirm(this.user.username)
           .then(() => this.$emit('refresh'))
           .catch(e => {
            
@@ -256,7 +256,7 @@
       },
       refuseToConnect () {
         this.sendingSecondAction = true;
-        this.$userService.deleteRelationship(this.user.username)
+        eXo.$userService.deleteRelationship(this.user.username)
           .then(() => this.$emit('refresh'))
           .catch(e => {
            
@@ -268,7 +268,7 @@
       },
       cancelRequest () {
         this.sendingAction = true;
-        this.$userService.deleteRelationship(this.user.username)
+        eXo.$userService.deleteRelationship(this.user.username)
           .then(() => this.$emit('refresh'))
           .catch(e => {
            
@@ -280,7 +280,7 @@
       },
       disconnect () {
         this.sendingAction = true;
-        this.$userService.deleteRelationship(this.user.username)
+        eXo.$userService.deleteRelationship(this.user.username)
           .then(() => this.$emit('refresh'))
           .catch(e => {
            

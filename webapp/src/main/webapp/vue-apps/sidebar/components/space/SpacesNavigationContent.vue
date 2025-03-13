@@ -210,12 +210,12 @@
             }
             if (spaceIds?.length) {
               this.loadedSpaces = await Promise
-                .all(spaceIds.map(spaceId => this.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
+                .all(spaceIds.map(spaceId => eXo.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
             } else {
               this.loadedSpaces = [];
             }
           } else {
-            const data = await this.$spaceService.getSpacesByFilter({
+            const data = await eXo.$spaceService.getSpacesByFilter({
               query: this.filterType === 'lastVisited' ? this.keyword : '',
               categoryId: this.$root.openedItem?.properties?.spaceCategoryIds && JSON.parse(this.$root.openedItem?.properties?.spaceCategoryIds) || null,
               templateId: this.$root.openedSpaceTemplateId || 0,

@@ -56,7 +56,7 @@
       },
       deleteSpaces () {
         this.$root.applyOperationInBulk(
-          space => this.$spaceService.removeSpace(space.id),
+          space => eXo.$spaceService.removeSpace(space.id),
           null,
           () => {
             this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {

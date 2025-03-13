@@ -91,7 +91,7 @@
         this.loading = true;
         this.offset = this.images.length || 0;
         this.limit = this.limit || this.pageSize;
-        return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId, this.offset, this.limit + 1).then(data => {
+        return eXo.$fileAttachmentService.getAttachments(this.objectType, this.objectId, this.offset, this.limit + 1).then(data => {
           const newImages = data?.attachments?.map(this.mapImageAttachment) || [];
           this.hasMore = newImages.length > this.limit;
           if (this.hasMore) {
@@ -120,7 +120,7 @@
         });
       },
       deleteImageAttachment (fileId) {
-        return this.$fileAttachmentService.deleteAttachment(this.objectType, this.objectId, fileId).then(() => {
+        return eXo.$fileAttachmentService.deleteAttachment(this.objectType, this.objectId, fileId).then(() => {
           this.$root.$emit('alert-message', this.$t('simpleStorage.delete.success.message'), 'success');
           this.images.splice(this.images.findIndex(file => file.id === fileId), 1);
         }).catch(() => {

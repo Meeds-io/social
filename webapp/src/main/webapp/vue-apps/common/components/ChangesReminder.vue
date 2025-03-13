@@ -103,7 +103,7 @@
     },
     methods: {
       open () {
-        this.$settingService.getSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name)
+        eXo.$settingService.getSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name)
           .then(data => this.dialog = !data?.value)
           .catch(() => this.dialog = true);
       },
@@ -112,7 +112,7 @@
       },
       doNotRemindMe () {
         this.loading = true;
-        this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name, true)
+        eXo.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'APPLICATION', 'changesReminder', this.reminder.name, true)
           .then(() => this.dialog = false)
           .finally(() => this.loading = false);
       },

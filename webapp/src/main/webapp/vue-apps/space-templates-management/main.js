@@ -52,13 +52,13 @@ export function init (isExternalFeatureEnabled) {
         },
         computed: {
           isMobile () {
-            return this.$vuetify.breakpoint.mobile;
+            return eXo.vuetify.display.mobile.value;
           },
         },
         async created () {
           document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
           document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
-          this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
+          this.spacesCountByTemplates = await eXo.$spaceService.getSpacesCountByTemplates();
           this.refreshMainExtensions();
           this.refreshMenuExtensions();
         },
@@ -75,9 +75,9 @@ export function init (isExternalFeatureEnabled) {
           },
         },
         template: `<space-templates-management id="${appId}"/>`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n,
       }, `#${appId}`, 'Space Templates')
     )
-    .finally(() => Vue.prototype.$utils.includeExtensions('SpaceTemplateManagementExtension'));
+    .finally(() => eXo.$utils.includeExtensions('SpaceTemplateManagementExtension'));
 }

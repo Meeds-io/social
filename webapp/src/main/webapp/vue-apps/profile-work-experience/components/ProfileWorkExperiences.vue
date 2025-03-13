@@ -98,7 +98,7 @@
     },
     methods: {
       refresh () {
-        return this.$userService.getUser(eXo.env.portal.profileOwner, 'all')
+        return eXo.$userService.getUser(eXo.env.portal.profileOwner, 'all')
           .then(user => this.setExperiences(user && user.experiences))
           .catch(e => console.error('Error while retrieving user details', e))
           .finally(() => {

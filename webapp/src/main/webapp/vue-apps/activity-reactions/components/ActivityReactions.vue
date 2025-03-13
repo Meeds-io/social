@@ -104,7 +104,7 @@
         return this.showAvatarAnimation;
       },
       isDesktop () {
-        return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+        return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.lg;
       },
     },
     methods: {

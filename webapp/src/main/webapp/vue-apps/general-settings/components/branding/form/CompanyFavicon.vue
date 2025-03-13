@@ -89,7 +89,7 @@
       },
       faviconPreviewSrc () {
         if (this.faviconSrc) {
-          return this.$utils.convertImageDataAsSrc(this.faviconSrc);
+          return eXo.$utils.convertImageDataAsSrc(this.faviconSrc);
         } else {
           return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/favicon?v=${Math.random()}`;
         }
@@ -127,7 +127,7 @@
           }
           this.sendingImage = true;
           const self = this;
-          return this.$uploadService.upload(file)
+          return eXo.$uploadService.upload(file)
             .then(uploadId => {
               if (uploadId) {
                 const reader = new FileReader();

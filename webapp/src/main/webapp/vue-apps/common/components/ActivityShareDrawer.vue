@@ -131,7 +131,7 @@
       shareActivity () {
         const spacePrettyNames = this.spaces.map(space => space.remoteId);
         this.sharing = true;
-        this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
+        eXo.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
           .then(() => {
             const spaces = this.spaces.map(space => ({
               prettyName: space.remoteId,

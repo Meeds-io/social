@@ -177,11 +177,11 @@
         const hours = parseInt(time / 60);
         date.setHours(hours);
         date.setMinutes(minutes);
-        return this.$dateUtil.formatDateObjectToDisplay(date, this.timeFormat, 'fr');
+        return eXo.$dateUtil.formatDateObjectToDisplay(date, this.timeFormat, 'fr');
       },
       getTimeLabel (hour, minute) {
         const date = new Date(2003, 11, 20, hour, minute);
-        return this.$dateUtil.formatDateObjectToDisplay(date, this.timeFormat, this.lang);
+        return eXo.$dateUtil.formatDateObjectToDisplay(date, this.timeFormat, this.lang);
       },
     },
   };

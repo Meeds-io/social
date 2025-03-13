@@ -30,8 +30,6 @@ if (extensionRegistry) {
   }
 }
 
-Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
-
 const lang = eXo && eXo.env && eXo.env.portal && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portal.HamburgerMenu?lang=${lang}`;
 
@@ -83,11 +81,11 @@ export function init (
           autoSwitchToIcon () {
             return this.mode === 'STICKY'
               && this.allowIcon
-              && (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md)
-              && (this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg);
+              && (eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.md)
+              && (eXo.vuetify.display.width.value < eXo.vuetify.display.thresholds.value.lg);
           },
           stickyAllowed () {
-            return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md;
+            return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.md;
           },
           displaySequentially () {
             return this.stickyAllowed;
@@ -212,7 +210,7 @@ export function init (
         methods: {
           async init () {
             try {
-              this.settings = await this.$navigationSettingService.getSidebarConfiguration();
+              this.settings = await eXo.$navigationSettingService.getSidebarConfiguration();
             } finally {
               this.$root.$applicationLoaded();
             }
@@ -220,9 +218,9 @@ export function init (
           updateParentStyle () {
             if (document.querySelector('#UISiteBody')?.style) {
               if (this.icon) {
-                document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
+                document.querySelector('#UISiteBody').style[eXo.vuetify.rtl && 'marginRight' || 'marginLeft'] = '70px';
               } else {
-                document.querySelector('#UISiteBody').style[this.$vuetify.rtl && 'marginRight' || 'marginLeft'] = '';
+                document.querySelector('#UISiteBody').style[eXo.vuetify.rtl && 'marginRight' || 'marginLeft'] = '';
               }
             } else {
               window.setTimeout(() => this.updateParentStyle(), 50);
@@ -240,7 +238,7 @@ export function init (
         },
         template: `<sidebar id="${appId}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Hamburger Menu');
     });
 }

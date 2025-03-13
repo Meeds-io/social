@@ -98,13 +98,13 @@
     methods: {
       acceptUserRequest () {
         this.accepting = true;
-        this.$spaceService.acceptUserRequest(this.spaceId, this.username)
+        eXo.$spaceService.acceptUserRequest(this.spaceId, this.username)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.accepting = false);
       },
       refuseUserRequest () {
         this.refusing = true;
-        this.$spaceService.refuseUserRequest(this.spaceId, this.username)
+        eXo.$spaceService.refuseUserRequest(this.spaceId, this.username)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.refusing = false);
       },

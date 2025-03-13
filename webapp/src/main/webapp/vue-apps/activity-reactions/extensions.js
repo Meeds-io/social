@@ -3,7 +3,7 @@ export function registerActivityReactionTabs () {
     id: 'like',
     reactionLabel: 'UIActivity.label.likesLabel',
     numberOfReactions: 0,
-    vueComponent: Vue.options.components['activity-likes-list'],
+    vueComponent: Vue.component['activity-likes-list'],
     rank: 1,
   });
 }

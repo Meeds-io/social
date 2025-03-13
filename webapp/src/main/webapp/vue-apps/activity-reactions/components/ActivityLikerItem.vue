@@ -49,14 +49,14 @@
     },
     methods: {
       retrieveUserInformations () {
-        return this.$userService.getUser(this.liker.username, 'all,connectionsInCommonCount,relationshipStatus')
+        return eXo.$userService.getUser(this.liker.username, 'all,connectionsInCommonCount,relationshipStatus')
           .then(item => this.userInformations = item)
           .catch(e => {
             console.error('Error while getting user details', e);
           });
       },
       connect () {
-        this.$userService.connect(this.liker.username)
+        eXo.$userService.connect(this.liker.username)
           .then(this.retrieveUserInformations())
           .catch(e => {
             console.error('Error while connecting to user', e);

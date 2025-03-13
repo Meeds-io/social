@@ -52,7 +52,7 @@ export function init (appId, name, canEdit) {
             return this.links?.length;
           },
           isMobile () {
-            return this.$vuetify?.breakpoint?.smAndDown;
+            return eXo.vuetify?.breakpoint?.smAndDown;
           },
         },
         created () {
@@ -63,7 +63,7 @@ export function init (appId, name, canEdit) {
             return this.retrieveSettings();
           },
           retrieveSettings () {
-            return this.$linkService.getSettings(this.name, this.language)
+            return eXo.$linkService.getSettings(this.name, this.language)
               .then(settings => {
                 if (!settings.vAlign) {
                   settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
@@ -87,7 +87,7 @@ export function init (appId, name, canEdit) {
           },
         },
         template: `<links-app id="${appId}"></links-app>`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n,
       }, `#${appId}`, `Links Application - ${name}`);
     });

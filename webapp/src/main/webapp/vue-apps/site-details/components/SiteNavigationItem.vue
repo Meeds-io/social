@@ -96,13 +96,13 @@
         }
       },
       uri () {
-        return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
       },
       target () {
-        return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeTarget(this.navigation);
       },
       rel () {
-        return this.$navigationUtils.getNavigationNodeRel(this.navigation);
+        return eXo.$navigationUtils.getNavigationNodeRel(this.navigation);
       },
       icon () {
         return this.navigation?.icon || 'fa-folder';

@@ -51,7 +51,7 @@ export function init (badge) {
           now: Date.now(),
         },
         template: `<top-bar-notification id="${appId}"></top-bar-notification>`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n: exoi18n.i18n,
         created () {
           document.addEventListener('extension-WebNotification-notification-content-extension-updated', this.refreshNotificationExtensions);
@@ -77,6 +77,6 @@ export function init (badge) {
       }, `#${appId}`, 'Topbar Notifications');
     })
     .finally(() => {
-      Vue.prototype.$utils.includeExtensions('NotificationPopoverExtension');
+      eXo.$utils.includeExtensions('NotificationPopoverExtension');
     });
 }

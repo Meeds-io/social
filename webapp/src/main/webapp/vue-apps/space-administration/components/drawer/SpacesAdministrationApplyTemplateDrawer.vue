@@ -301,7 +301,7 @@
     watch: {
       async spaceCategoryIds () {
         if (this.spaceCategoryIds?.length) {
-          const spaceCategories = await Promise.all(this.spaceCategoryIds.map(id => this.$categoryService.getCategory(id)));
+          const spaceCategories = await Promise.all(this.spaceCategoryIds.map(id => eXo.$categoryService.getCategory(id)));
           this.spaceCategories = spaceCategories.filter(c => c);
         } else {
           this.spaceCategories = [];
@@ -310,7 +310,7 @@
       },
       async spaceTemplateCategoryIds () {
         if (this.spaceTemplateCategoryIds?.length) {
-          const spaceTemplateCategories = await Promise.all(this.spaceTemplateCategoryIds.map(id => this.$categoryService.getCategory(id)));
+          const spaceTemplateCategories = await Promise.all(this.spaceTemplateCategoryIds.map(id => eXo.$categoryService.getCategory(id)));
           this.spaceTemplateCategories = spaceTemplateCategories.filter(c => c);
         } else {
           this.spaceTemplateCategories = [];
@@ -343,7 +343,7 @@
             this.selectionCount = 0;
             this.callback = null;
             this.spaceTemplateId = this.space.templateId && `${this.space.templateId}` || '0';
-            this.spacePermissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+            this.spacePermissions = await eXo.$spaceAdministrationService.getSpacePermission(this.space.id);
           } else {
             this.space = null;
             this.spaces = obj;
@@ -373,7 +373,7 @@
               removeExistingCategories: this.removeCategories,
             });
           } else {
-            await this.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
+            await eXo.$spaceAdministrationService.applySpaceTemplate(this.space.id, {
               templateId: this.spaceTemplateId,
               updateSite: this.updateSite,
               accessRules: this.accessRules,

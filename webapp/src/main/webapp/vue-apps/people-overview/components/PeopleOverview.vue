@@ -72,7 +72,7 @@
     methods: {
       refresh () {
         let loading = 2;
-        this.$userService.getInvitations()
+        eXo.$userService.getInvitations()
           .then(data => {
             this.invitations = data && data.size || 0;
           })
@@ -85,7 +85,7 @@
               this.$refs.peopleDrawer.open('invitations', this.$t('peopleOverview.label.invitations'));
             }
           });
-        this.$userService.getPending()
+        eXo.$userService.getPending()
           .then(data => {
             this.pending = data && data.size || 0;
           })

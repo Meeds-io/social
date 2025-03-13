@@ -1,5 +1,5 @@
 export function hideGettingStarted () {
-  return fetch(`${Vue.prototype.$spacesConstants.PORTAL_CONTEXT}/${Vue.prototype.$spacesConstants.PORTAL_REST}/getting-started`, {
+  return fetch(`${eXo.$spacesConstants.PORTAL_CONTEXT}/${eXo.$spacesConstants.PORTAL_REST}/getting-started`, {
     method: 'DELETE',
     credentials: 'include',
   }).then(resp => {
@@ -17,11 +17,11 @@ export function init () {
       parentAppElementBtn.onclick = () => {
         hideGettingStarted().then(() => {
           const parentElementToHide = parentAppElement.closest('.PORTLET-FRAGMENT');
-          hideGettingStarted().then(() => Vue.prototype.$updateApplicationVisibility(false, parentElementToHide));
+          hideGettingStarted().then(() => eXo.$updateApplicationVisibility(false, parentElementToHide));
         });
       };
     }
   } else {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#GettingStartedPortletParent'));
+    eXo.$updateApplicationVisibility(false, document.querySelector('#GettingStartedPortletParent'));
   }
 }

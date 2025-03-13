@@ -357,7 +357,7 @@
       },
     },
     created () {
-      this.$userService.isSuperUser().then(
+      eXo.$userService.isSuperUser().then(
         data => {
           this.isSuperUser = data.isSuperUser === 'true';
         });
@@ -380,7 +380,7 @@
           }
           this.selectedUsers = [];
           this.loading = true;
-          this.$userService.multiSelectAction(action, selectedUsers).then(data => {
+          eXo.$userService.multiSelectAction(action, selectedUsers).then(data => {
             if (data.length > 0) {
               msg = this.$t(`UsersManagement.selection.success.${  action}`);
             }
@@ -570,7 +570,7 @@
         });
       },
       formatDate (time) {
-        return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
+        return eXo.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
       },
       sendOnBoardingEmail (username) {
         this.loading = true;

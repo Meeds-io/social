@@ -47,7 +47,7 @@ export function init (tagName) {
       skinUrls,
     },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
-    vuetify: Vue.prototype.vuetifyOptions,
+    vuetify: eXo.vuetify,
     i18n: exoi18n.i18n,
   }, `#${appId}`, appName);
 }

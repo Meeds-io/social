@@ -80,7 +80,7 @@
     },
     methods: {
       retrieveUserInformations () {
-        return this.$userService.getUser(this.userId, 'all,connectionsInCommonCount,relationshipStatus')
+        return eXo.$userService.getUser(this.userId, 'all,connectionsInCommonCount,relationshipStatus')
           .then(item => this.user = item)
           .catch(e => {
            
@@ -89,7 +89,7 @@
           .finally(() => this.attributesLoaded = true);
       },
       connect () {
-        this.$userService.connect(this.userId)
+        eXo.$userService.connect(this.userId)
           .then(this.retrieveUserInformations())
           .catch(e => {
            

@@ -224,7 +224,7 @@
         return this.defaultIcon && this.defaultIcon.size || 58;
       },
       useMobileView () {
-        return this.$vuetify.breakpoint.name === 'sm' && !this.useSameViewForMobile;
+        return eXo.vuetify.display.name.value === 'sm' && !this.useSameViewForMobile;
       },
       htmlElement () {
         return this.sourceLink && this.sourceLink !== '#' && 'a' || 'div';
@@ -281,10 +281,10 @@
         return this.tooltip && this.$t(this.tooltip) || '';
       },
       titleText () {
-        return this.title && this.$utils.htmlToText(this.title) || '';
+        return this.title && eXo.$utils.htmlToText(this.title) || '';
       },
       summaryText () {
-        return this.summary && this.$utils.htmlToText(this.summary) || '';
+        return this.summary && eXo.$utils.htmlToText(this.summary) || '';
       },
       summaryElement () {
         return {
@@ -309,7 +309,7 @@
         return this.collapsed && !this.fullContent && this.canCollapse && this.displayReadMoreButton;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.smAndDown;
+        return eXo.vuetify.display.smAndDown.value;
       },
       thumbnailClass () {
         return `${this.useEmbeddedLinkView && (!this.isMobile && 'border-bottom-left-radius border-top-left-radius' || 'border-top-right-radius border-top-left-radius')} ${this.isLandscapeThumbnail && 'object-fit-cover' || 'object-fit-contain' }`;
@@ -365,11 +365,11 @@
         if (this.title && this.title.key) {
           this.title = this.$t(this.title.key, this.title.params || {});
         } else {
-          this.title = this.$utils.trim(this.title);
+          this.title = eXo.$utils.trim(this.title);
         }
-        this.titleTooltip = this.$utils.htmlToText(this.title);
-        this.summary = this.getSummary && this.$utils.trim(this.getSummary(this.activity, this.isActivityDetail));
-        this.summaryTooltip = this.$utils.htmlToText(this.summary);
+        this.titleTooltip = eXo.$utils.htmlToText(this.title);
+        this.summary = this.getSummary && eXo.$utils.trim(this.getSummary(this.activity, this.isActivityDetail));
+        this.summaryTooltip = eXo.$utils.htmlToText(this.summary);
         this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
         this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
         if (this.supportsThumbnail) {

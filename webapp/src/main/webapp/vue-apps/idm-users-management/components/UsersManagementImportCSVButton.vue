@@ -32,10 +32,10 @@
       },
       importUsers (file) {
         if (file && file.size) {
-          const uploadId = this.$uploadService.generateRandomId();
+          const uploadId = eXo.$uploadService.generateRandomId();
           this.$root.$emit('importCSVStarted', uploadId);
-          return this.$uploadService.upload(file, uploadId)
-            .then(() => this.$userService.importUsers(uploadId))
+          return eXo.$uploadService.upload(file, uploadId)
+            .then(() => eXo.$userService.importUsers(uploadId))
             .then(() => this.$root.$emit('importCSVProgress', uploadId))
             .catch(error => this.$root.$emit('importCSVError', error));
         }

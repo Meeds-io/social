@@ -60,7 +60,7 @@
           this.displayed = false;
         }
       });
-      this.$userService.isSynchronizedUserAllowedToChangePassword().then(
+      eXo.$userService.isSynchronizedUserAllowedToChangePassword().then(
         data => {
           this.allowedToChangePassword = data.isSynchronizedUserAllowedToChangePassword === 'true';
         });

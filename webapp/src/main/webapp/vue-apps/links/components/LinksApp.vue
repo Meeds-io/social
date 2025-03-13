@@ -87,7 +87,7 @@
           return;
         }
         this.loading = true;
-        this.$linkService.getSettings(this.$root.name, this.$root.language)
+        eXo.$linkService.getSettings(this.$root.name, this.$root.language)
           .then(settings => {
             if (!settings.vAlign) {
               settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';

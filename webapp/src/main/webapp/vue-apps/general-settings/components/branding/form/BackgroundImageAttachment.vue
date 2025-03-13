@@ -93,7 +93,7 @@
         if (file?.size) {
           this.sendingImage = true;
           const thiss = this;
-          return this.$uploadService.upload(file)
+          return eXo.$uploadService.upload(file)
             .then(uploadId => {
               return new Promise(resolve => {
                 const reader = new FileReader();

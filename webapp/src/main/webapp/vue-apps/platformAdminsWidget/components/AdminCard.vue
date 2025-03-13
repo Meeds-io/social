@@ -81,7 +81,7 @@
       },
     },
     created () {
-      this.$userService.getUser(this.userName)
+      eXo.$userService.getUser(this.userName)
         .then(user => this.user = user);
     },
     methods: {

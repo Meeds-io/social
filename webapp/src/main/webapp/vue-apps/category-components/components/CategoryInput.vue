@@ -202,7 +202,7 @@
       async refreshCategories () {
         this.loading = true;
         try {
-          this.categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
+          this.categories = await Promise.all(this.categoryIds.map(id => eXo.$categoryService.getCategory(id)
             .catch(() => {
               this.lockedIds.push(id);
               return {

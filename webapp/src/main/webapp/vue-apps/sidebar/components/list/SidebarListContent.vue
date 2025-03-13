@@ -27,7 +27,7 @@
 <script>
   export default {
     created () {
-      this.$socialWebSocket.initCometd('/SpaceWebNotification');
+      eXo.$socialWebSocket.initCometd('/SpaceWebNotification');
     },
   };
 </script>

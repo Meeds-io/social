@@ -119,7 +119,7 @@
     methods: {
       async init () {
         if (this.value) {
-          this.category = await this.$categoryService.getCategory(this.value);
+          this.category = await eXo.$categoryService.getCategory(this.value);
           this.categories = [this.category];
         } else {
           this.category = null;
@@ -133,7 +133,7 @@
         if (this.keyword?.trim?.()?.length) {
           this.loading = true;
           try {
-            this.categories = await this.$categoryService.findCategories({
+            this.categories = await eXo.$categoryService.findCategories({
               query: this.keyword,
               limit: this.limit,
             });

@@ -138,7 +138,7 @@
           this.groups = null;
           this.bindings = null;
           this.originalGroups = null;
-          const groups = await this.$spaceBindingService.getGroupSpaceBindings(this.space.id);
+          const groups = await eXo.$spaceBindingService.getGroupSpaceBindings(this.space.id);
           this.bindings = groups?.groupSpaceBindings || [];
           this.originalGroups = this.bindings.map(b => b.group) || [];
           this.groups = this.originalGroups.slice();
@@ -154,12 +154,12 @@
           if (this.callback) {
             this.callback(this.groups);
           } else {
-            await this.$spaceBindingService.saveGroupsSpaceBindings(this.space.id, this.groups);
+            await eXo.$spaceBindingService.saveGroupsSpaceBindings(this.space.id, this.groups);
             this.$root.$emit('spaces-administration-list-refresh');
             this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceBindingUpdateSuccess'), 'success');
             const bindingsToDelete = this.bindings.filter(b => !this.groups.find(g => g === b.group));
             if (bindingsToDelete.length) {
-              await Promise.all(bindingsToDelete.map(b => this.$spaceBindingService.removeBinding(b.id)));
+              await Promise.all(bindingsToDelete.map(b => eXo.$spaceBindingService.removeBinding(b.id)));
             }
           }
           this.close();

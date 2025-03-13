@@ -157,7 +157,7 @@
           if (resetPage) {
             this.page = 0;
           }
-          const data = await this.$spaceService.getSpaceMemberships({
+          const data = await eXo.$spaceService.getSpaceMemberships({
             space: this.$root.spaceId,
             offset: resetUsers && !resetPage ? 0 : this.page * this.pageSize,
             limit: resetUsers && !resetPage ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
@@ -217,13 +217,13 @@
         try {
           let promiseFunction = null;
           if (this.role === 'manager') {
-            promiseFunction = this.$spaceService.removeManager;
+            promiseFunction = eXo.$spaceService.removeManager;
           } else if (this.role === 'redactor') {
-            promiseFunction = this.$spaceService.removeRedactor;
+            promiseFunction = eXo.$spaceService.removeRedactor;
           } else if (this.role === 'publisher') {
-            promiseFunction = this.$spaceService.removePublisher;
+            promiseFunction = eXo.$spaceService.removePublisher;
           } else if (this.role === 'member') {
-            promiseFunction = this.$spaceService.removeMember;
+            promiseFunction = eXo.$spaceService.removeMember;
           } else {
             throw new Error(`Role ${this.role} isn't managed`);
           }
@@ -246,7 +246,7 @@
         return this.isLastAdmin;
       },
       async computeLastAdmin () {
-        const data = await this.$spaceService.getSpaceMemberships({
+        const data = await eXo.$spaceService.getSpaceMemberships({
           space: this.$root.spaceId,
           offset: 0,
           limit: 2,

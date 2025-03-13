@@ -218,7 +218,7 @@
         const parentCategory = this.$root.getCategory(item.parentId);
         if (parentCategory) {
           if (parentCategory.limit) {
-            const category = await this.$categoryService.getCategory(item.id);
+            const category = await eXo.$categoryService.getCategory(item.id);
             if (!parentCategory.categories?.length) {
               parentCategory.categories = [category];
             } else {
@@ -235,7 +235,7 @@
         }
       },
       async handleCategoryUpdated (item) {
-        item = await this.$categoryService.getCategory(item.id);
+        item = await eXo.$categoryService.getCategory(item.id);
         const category = this.$root.getCategory(item.id);
         category.name = item.name;
         category.icon = item.icon;
@@ -275,7 +275,7 @@
       async deleteCategory (category) {
         this.loading = true;
         try {
-          await this.$categoryService.deleteCategory(category.id);
+          await eXo.$categoryService.deleteCategory(category.id);
           this.$root.$emit('category-deleted', category);
           this.$root.$emit('alert-message', this.$t('categoryManagement.categoryDeletedSuccessfully'), 'success');
         } catch (e) {

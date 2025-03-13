@@ -249,7 +249,7 @@
         if (this.$refs.activityCommentsDrawer) {
           this.$refs.activityCommentsDrawer.startLoading();
         }
-        return this.$activityService.getActivityComments(this.activity.id, !!loadLastComments, this.offset, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        return eXo.$activityService.getActivityComments(this.activity.id, !!loadLastComments, this.offset, this.limit, eXo.$activityConstants.FULL_COMMENT_EXPAND)
           .then(data => {
             let comments = data && data.comments || [];
             this.commentsSize = data && data.size && Number(data.size) || 0;

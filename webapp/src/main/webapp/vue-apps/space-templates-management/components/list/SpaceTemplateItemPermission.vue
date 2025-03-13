@@ -71,7 +71,7 @@
     methods: {
       async retrieveObject () {
         if (this.isSpace) {
-          const space = await this.$spaceService.getSpaceByGroupId(this.groupId);
+          const space = await eXo.$spaceService.getSpaceByGroupId(this.groupId);
           if (space) {
             this.name = space.displayName;
             this.avatarUrl = space.avatarUrl;
@@ -79,7 +79,7 @@
         } else if (this.groupId === 'spaceAdmin') {
           this.name = this.$t('spaceTemplate.permissionsStepSpaceAdmins');
         } else {
-          const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
           if (group) {
             this.name = group.profile?.fullname;
           }

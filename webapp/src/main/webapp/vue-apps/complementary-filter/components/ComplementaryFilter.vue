@@ -199,7 +199,7 @@
         this.isLoading = true;
         this.loadingCallBack(true);
         this.suggestions = [];
-        return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
+        return eXo.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
           .then(suggestions => {
             this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
             this.displayedSuggestions();

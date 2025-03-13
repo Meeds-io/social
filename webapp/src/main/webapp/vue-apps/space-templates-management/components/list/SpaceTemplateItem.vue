@@ -40,13 +40,13 @@
       </div>
     </td>
     <!-- description -->
-    <td v-if="!$vuetify.breakpoint.lgAndDown">
+    <td v-if="!$vuetify.display.lgAndDown.value">
       <div
         v-sanitized-html="description"
         class="text-truncate-3 text-break"></div>
     </td>
     <td
-      v-if="!$vuetify.breakpoint.lgAndDown"
+      v-if="!$vuetify.display.lgAndDown.value"
       class="text-center"
       width="120px">
       <space-templates-management-item-permission
@@ -56,7 +56,7 @@
         :expression="expression" />
     </td>
     <td
-      v-if="!$vuetify.breakpoint.lgAndDown"
+      v-if="!$vuetify.display.lgAndDown.value"
       class="text-truncate text-center"
       width="120px">
       <v-chip
@@ -153,10 +153,10 @@
       changeStatus (enabled) {
         this.$root.$emit('close-alert-message');
         this.loading = true;
-        this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplate.id)
+        eXo.$spaceTemplateService.getSpaceTemplate(this.spaceTemplate.id)
           .then(spaceTemplate => {
             spaceTemplate.enabled = enabled;
-            return this.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
+            return eXo.$spaceTemplateService.updateSpaceTemplate(spaceTemplate)
               .then(() => {
                 this.$root.$emit(`space-templates-${enabled && 'enabled' || 'disabled'}`, spaceTemplate);
               });

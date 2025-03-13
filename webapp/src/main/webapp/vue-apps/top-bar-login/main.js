@@ -37,7 +37,7 @@ export function init (avatarUrl, canRegister, spaceRegistration, isMember, isPen
         isInvitedUser,
       },
       template: `<top-bar-login id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Top Bar Login Button');
   });

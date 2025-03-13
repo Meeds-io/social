@@ -91,7 +91,7 @@
     },
     methods: {
       initPeopleSuggestionsList () {
-        return this.$userService.getUserSuggestions()
+        return eXo.$userService.getUserSuggestions()
           .then(data => {
             this.peopleSuggestionsList = data.items;
           })
@@ -100,7 +100,7 @@
           });
       },
       initSpaceSuggestionsList () {
-        return this.$spaceService.getSuggestionsSpace()
+        return eXo.$spaceService.getSuggestionsSpace()
           .then(data => {
             this.spacesSuggestionsList = data.items;
           })

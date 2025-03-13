@@ -3,6 +3,7 @@ import pluginJs from "@eslint/js";
 import pluginVue from "eslint-plugin-vue";
 import vuetify from "eslint-config-vuetify";
 import pluginVueA11y from "eslint-plugin-vuejs-accessibility";
+import { globalIgnores } from "eslint/config";
 
 const a11yConfig = pluginVueA11y.configs["flat/recommended"];
 a11yConfig.forEach((x) => {
@@ -14,6 +15,7 @@ export default [
   ...pluginVue.configs["flat/recommended"],
   ...vuetify,
   ...a11yConfig,
+  globalIgnores(["**/*.json"]),
   {files: ["**/*.{js,mjs,cjs,vue}"]},
   {languageOptions: { globals: globals.browser }},
   {
@@ -25,6 +27,7 @@ export default [
       "no-irregular-whitespace": "error",
       "no-unexpected-multiline": "error",
       "complexity": ["warn", 32],
+      "comma-dangle": "warn",
       "no-tabs": "error",
       "key-spacing": "error",
       "keyword-spacing": "error",
@@ -88,6 +91,7 @@ export default [
       }],
       "require-await": ["error"],
       "semi": ["error", "always"],
+      "space-before-function-paren": "off",
       "yoda": ["error", "never", { "exceptRange": true }],
       "vue/max-attributes-per-line": ["warn", {
         "singleline": {

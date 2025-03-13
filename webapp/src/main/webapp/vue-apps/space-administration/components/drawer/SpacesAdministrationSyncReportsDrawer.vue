@@ -74,7 +74,7 @@
       async refresh () {
         this.loading = true;
         try {
-          const data = await this.$spaceBindingService.getBindingReportOperations(this.space.id);
+          const data = await eXo.$spaceBindingService.getBindingReportOperations(this.space.id);
           this.operations = data.groupSpaceBindingReportOperations;
         } finally {
           this.loading = false;

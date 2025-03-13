@@ -159,7 +159,7 @@
     },
     methods: {
       getCurrentUser () {
-        return this.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve).then(user => {
+        return eXo.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve).then(user => {
           this.user = user?.profile;
         });
       },
@@ -179,7 +179,7 @@
         }
       },
       getSettings () {
-        return this.$profileSettingsService.getSettings()
+        return eXo.$profileSettingsService.getSettings()
           .then(settings => {
             this.settings = settings?.settings || [];
             this.unHiddenableProperties = settings?.unHiddenableProperties;
@@ -188,7 +188,7 @@
           });
       },
       editSetting (setting, refresh) {
-        this.$profileSettingsService.updateSetting(setting).then(() => {
+        eXo.$profileSettingsService.updateSetting(setting).then(() => {
           if (refresh) {
             this.getSettings();
           }
@@ -200,13 +200,13 @@
         });
       },
       createSetting (setting) {
-        this.$profileSettingsService.addSetting(setting).then(storedSetting => {
+        eXo.$profileSettingsService.addSetting(setting).then(storedSetting => {
           const promises = [];
           if (setting?.labels?.length) {
             setting.labels.forEach(label => {
               label.objectId = storedSetting.id;
             });
-            promises.push(this.$profileLabelService.addLabels(setting.labels));
+            promises.push(eXo.$profileLabelService.addLabels(setting.labels));
           }
           return Promise.all(promises);
         })
@@ -229,13 +229,13 @@
           });
       },
       updateLabels (labels) {
-        this.$profileLabelService.updateLabels(labels);
+        eXo.$profileLabelService.updateLabels(labels);
       },
       createLabels (labels) {
-        this.$profileLabelService.addLabels(labels);
+        eXo.$profileLabelService.addLabels(labels);
       },
       deleteLabels (labels) {
-        this.$profileLabelService.deleteLabels(labels);
+        eXo.$profileLabelService.deleteLabels(labels);
       },
       moveUpSetting (setting) {
         this.moveSetting(setting, 'up');
@@ -282,11 +282,11 @@
           || property.propertyName;
       },
       saveCardSetting (settingKey, settingValue) {
-        return this.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
-                                                    this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
+        return eXo.$settingService.setSettingValue(this.userCardSettingsContextKey, '',
+                                                   this.userCardSettingScopeKey, 'UserCardSettings', settingKey, settingValue);
       },
       getSavedUserCardSettings () {
-        return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
+        return eXo.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
       },
       saveUserCardSettings (firstField, secondField, thirdField) {
         this.isSavingCardSettings = true;

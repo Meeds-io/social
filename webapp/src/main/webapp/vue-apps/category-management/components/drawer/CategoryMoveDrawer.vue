@@ -259,7 +259,7 @@
         this.category.parentId = this.destinationParentId;
         this.saving = true;
         try {
-          await this.$categoryService.updateCategory(this.category);
+          await eXo.$categoryService.updateCategory(this.category);
           this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedSuccessfully'), 'success');
           this.$root.$emit('category-moved', this.category, this.parent, this.destinationParent);
           this.close();

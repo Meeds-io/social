@@ -92,7 +92,7 @@
         return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
       }, 
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'md';
       },
       sortedAttachments () {
         const sortedAttachments = this.attachments?.length && this.attachments.slice() || [];

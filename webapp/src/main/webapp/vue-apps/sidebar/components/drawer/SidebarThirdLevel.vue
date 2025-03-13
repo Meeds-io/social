@@ -69,7 +69,7 @@
         return this.$root.displaySequentially && this.drawerWidth * 2 || 0;
       },
       drawerOffsetStyle () {
-        return this.$vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
+        return eXo.vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
       },
       expand () {
         return this.$root.expand;

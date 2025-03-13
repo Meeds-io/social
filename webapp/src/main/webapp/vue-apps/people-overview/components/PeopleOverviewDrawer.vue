@@ -52,7 +52,7 @@
         return this.loadingUsers || this.users.length >= this.limit;
       },
       searchUsersMethod () {
-        return this.filter === 'invitations' ? this.$userService.getInvitations : this.$userService.getPending;
+        return this.filter === 'invitations' ? eXo.$userService.getInvitations : eXo.$userService.getPending;
       },
     },
     methods: {

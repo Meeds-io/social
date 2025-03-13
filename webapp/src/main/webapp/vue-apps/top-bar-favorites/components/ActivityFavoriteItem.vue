@@ -78,7 +78,7 @@
     },
     created () {
       this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-      this.$activityService.getActivityById(this.id)
+      eXo.$activityService.getActivityById(this.id)
         .then(fullActivity => {
           this.activity = fullActivity;
         });

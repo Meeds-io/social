@@ -109,7 +109,7 @@
             if (redactors?.length) {
               for (const i in redactors) {
                
-                await this.$spaceService.removeRedactor(this.$root.space.id, redactors[i].username);
+                await eXo.$spaceService.removeRedactor(this.$root.space.id, redactors[i].username);
               }
             }
             this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsRemovedSuccessfully'), 'success');
@@ -128,7 +128,7 @@
         return this.getUsers('publisher');
       },
       async getUsers (role, limit, noRecursive) {
-        const data = await this.$spaceService.getSpaceMemberships({
+        const data = await eXo.$spaceService.getSpaceMemberships({
           offset: 0,
           limit: limit || 100,
           status: role,

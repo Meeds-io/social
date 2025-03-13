@@ -30,7 +30,7 @@ export function init () {
       },
       template: `<user-setting-security id="${appId}" v-cacheable />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'User Settings Security');
   });
 }

@@ -105,7 +105,7 @@
         } else {
           this.saving = true;
           try {
-            await this.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds, true);
+            await eXo.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds, true);
             this.categoryIds = this.selectedCategoryIds;
             this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
             this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');

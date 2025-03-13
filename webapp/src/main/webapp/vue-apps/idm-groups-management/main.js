@@ -28,7 +28,7 @@ export function init () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<groups-management id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Group Management');
   });

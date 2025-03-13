@@ -78,10 +78,10 @@
     }),
     computed: {
       leftArrowIcon () {
-        return this.$vuetify.rtl && 'fa-arrow-circle-right' || 'fa-arrow-circle-left';
+        return eXo.vuetify.rtl && 'fa-arrow-circle-right' || 'fa-arrow-circle-left';
       },
       rightArrowIcon () {
-        return this.$vuetify.rtl && 'fa-arrow-circle-left' || 'fa-arrow-circle-right';
+        return eXo.vuetify.rtl && 'fa-arrow-circle-left' || 'fa-arrow-circle-right';
       },
     },
     mounted () {
@@ -139,7 +139,7 @@
         }
       },
       checkDisplayLeftArrow (children) {
-        return Math.abs(this.scrollElement.scrollLeft) - Math.abs(this.$vuetify.rtl ? 0 : children[0].offsetLeft) > 10;
+        return Math.abs(this.scrollElement.scrollLeft) - Math.abs(eXo.vuetify.rtl ? 0 : children[0].offsetLeft) > 10;
       },
       checkDisplayRightArrow () {
         return parseInt(this.scrollElement.scrollWidth - this.scrollElement.offsetWidth - Math.abs(this.scrollElement.scrollLeft)) > 10;

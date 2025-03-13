@@ -24,7 +24,7 @@ export function init (suggestionsType) {
     Vue.createApp({
       template: `<exo-suggestions-people-and-space id="${appId}" suggestionsType="${suggestionsType || 'all'}"></exo-suggestions-people-and-space>`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, `Suggestions ${suggestionsType}`);
   });
 }

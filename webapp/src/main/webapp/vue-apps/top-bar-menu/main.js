@@ -31,7 +31,7 @@ const lang = eXo && eXo.env.portal.language || 'en';
 
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 
 const appId = 'topBarMenu';
 

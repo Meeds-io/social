@@ -48,7 +48,7 @@ export function init (parameters) {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<space-access id="${appId}" :parameters="parameters" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Space Access');
   });

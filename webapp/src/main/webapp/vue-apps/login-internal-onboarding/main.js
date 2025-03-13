@@ -45,7 +45,7 @@ export function init (params) {
         params,
       },
       template: `<portal-internal-onboarding id="${appId}" :params="params" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Internal Onboarding');
   });

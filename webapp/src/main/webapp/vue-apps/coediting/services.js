@@ -19,8 +19,8 @@
  */
 import * as coeditingService from './js/CoeditingService.js';
 
-if (!Vue.prototype.$coeditingService) {
-  window.Object.defineProperty(Vue.prototype, '$coeditingService', {
+if (!eXo.$coeditingService) {
+  window.Object.defineProperty(eXo, '$coeditingService', {
     value: coeditingService,
   });
 }

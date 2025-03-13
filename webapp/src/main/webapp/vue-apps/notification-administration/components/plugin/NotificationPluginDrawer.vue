@@ -96,7 +96,7 @@
       save () {
         this.$refs.drawer.startLoading();
         const channels = Object.keys(this.channels).map(channelId => `${channelId}=${this.channels[channelId]}`).join(',');
-        return this.$notificationAdministration.savePluginSettings(this.plugin.type, channels)
+        return eXo.$notificationAdministration.savePluginSettings(this.plugin.type, channels)
           .then(() => {
             this.$root.$emit('refresh');
             this.$refs.drawer.close();

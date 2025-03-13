@@ -95,7 +95,7 @@
         return this.categories?.find?.(c => c.id === this.$root.selectedCategoryId) || this.categoryTree;
       },
       chevronIcon () {
-        return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+        return eXo.vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
       },
     },
     created () {
@@ -112,7 +112,7 @@
         this.loading = true;
         try {
           if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
-            const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
+            const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => eXo.$categoryService.getCategoryTree({
               parentId: id,
               depth: this.$root.categoryDepth,
               offset: 0,
@@ -126,7 +126,7 @@
               categories: subCategories,
             };
           } else {
-            this.categoryTree = await this.$categoryService.getCategoryTree({
+            this.categoryTree = await eXo.$categoryService.getCategoryTree({
               depth: this.$root.categoryDepth,
               offset: 0,
               limit: -1,

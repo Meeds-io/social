@@ -54,7 +54,7 @@ export function init (filter, isManager, isExternalFeatureEnabled) {
         },
         computed: {
           isMobile () {
-            return this.$vuetify.breakpoint.mobile;
+            return eXo.vuetify.display.mobile.value;
           },
         },
         created () {
@@ -87,12 +87,12 @@ export function init (filter, isManager, isExternalFeatureEnabled) {
           },
           async refreshSpace () {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
+              this.space = await eXo.$spaceService.getSpaceById(this.spaceId, Date.now());
             }
           },
           async refreshExternalInvitations () {
             if (this.isExternalFeatureEnabled && this.space?.canEdit) {
-              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+              this.externalInvitations = await eXo.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
         },
@@ -102,7 +102,7 @@ export function init (filter, isManager, isExternalFeatureEnabled) {
                     :is-external-feature-enabled="${isExternalFeatureEnabled}"
                     filter="${filter || 'member'}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Space Members');
     });
 }

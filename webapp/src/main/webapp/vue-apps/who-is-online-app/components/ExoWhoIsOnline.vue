@@ -80,7 +80,7 @@
       initOnlineUsers (users) {
         if (users && users.length) {
           for (const user of users) {
-            user.href = `${this.$spacesConstants.PORTAL}/${this.$spacesConstants.PORTAL_NAME}/profile/${user.username}`;
+            user.href = `${eXo.$spacesConstants.PORTAL}/${eXo.$spacesConstants.PORTAL_NAME}/profile/${user.username}`;
           }
           this.users = users;
         } else {

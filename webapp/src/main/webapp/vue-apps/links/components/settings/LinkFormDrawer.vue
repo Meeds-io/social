@@ -177,7 +177,7 @@
             v => !!v?.length || ' ',
             v => {
               try {
-                return !!this.$utils.toLinkUrl(v, {
+                return !!eXo.$utils.toLinkUrl(v, {
                   urls: true,
                   email: true,
                   phone: true,

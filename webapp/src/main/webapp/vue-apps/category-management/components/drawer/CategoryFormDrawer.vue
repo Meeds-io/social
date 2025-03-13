@@ -318,13 +318,13 @@
         this.saving = true;
         try {
           if (this.isNew) {
-            this.category = await this.$categoryService.createCategory(this.category);
+            this.category = await eXo.$categoryService.createCategory(this.category);
             await this.$nextTick();
           } else {
-            await this.$categoryService.updateCategory(this.category);
+            await eXo.$categoryService.updateCategory(this.category);
           }
           if (this.nameTranslations) {
-            await this.$translationService.saveTranslations('category', this.category.id, 'name', this.nameTranslations);
+            await eXo.$translationService.saveTranslations('category', this.category.id, 'name', this.nameTranslations);
           }
           this.category.name = this.name;
           if (this.isNew) {

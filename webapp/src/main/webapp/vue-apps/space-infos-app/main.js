@@ -23,7 +23,7 @@ export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       template: `<space-infos id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Space Info');
   });

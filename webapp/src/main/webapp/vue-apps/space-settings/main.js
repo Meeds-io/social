@@ -65,7 +65,7 @@ export function init (isExternalFeatureEnabled) {
             return !this.activeSection;
           },
           isMobile () {
-            return this.$vuetify.breakpoint.mobile;
+            return eXo.vuetify.display.mobile.value;
           },
         },
         watch: {
@@ -113,7 +113,7 @@ export function init (isExternalFeatureEnabled) {
             await this.refreshSpace();
             await this.refreshExternalInvitations();
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            this.$applicationLoaded();
+            this.aapplicationLoaded();
           },
           async handlePendingUpdated () {
             await this.refreshSpace();
@@ -129,12 +129,12 @@ export function init (isExternalFeatureEnabled) {
           },
           async refreshSpace () {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
+              this.space = await eXo.$spaceService.getSpaceById(this.spaceId, Date.now());
             }
           },
           async refreshExternalInvitations () {
             if (this.isExternalFeatureEnabled) {
-              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+              this.externalInvitations = await eXo.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
           showSection (sectionId) {
@@ -151,7 +151,7 @@ export function init (isExternalFeatureEnabled) {
           },
         },
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Space Settings')
-    ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceSettingExtension'));
+    ).finally(() => eXo.$utils.includeExtensions('SpaceSettingExtension'));
 }

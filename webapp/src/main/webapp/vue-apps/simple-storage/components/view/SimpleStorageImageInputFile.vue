@@ -102,7 +102,7 @@
         await processNext();
       },
       uploadFileToServer (image) {
-        this.$uploadService.upload(image.file, image.uploadId).catch(error => {
+        eXo.$uploadService.upload(image.file, image.uploadId).catch(error => {
           image.error = error;
           this.$root.$emit('alert-message', this.$t('simpleStorage.upload.image.error.message'), 'error');
           console.error('Upload failed:', error);
@@ -111,7 +111,7 @@
       },
       trackUploadProgress (image) {
         const interval = setInterval(() => {
-          this.$uploadService.getUploadProgress(image.uploadId).then(percent => {
+          eXo.$uploadService.getUploadProgress(image.uploadId).then(percent => {
             image.progress = Number(percent);
             if (image.progress >= 100) {
               clearInterval(interval);
@@ -124,7 +124,7 @@
         }, 200);
       },
       async saveImageAttachment (uploadId) {
-        await this.$fileAttachmentService.createAttachment({
+        await eXo.$fileAttachmentService.createAttachment({
           fileAttachmentObject: { uploadId },
           objectType: this.objectType,
           objectId: this.objectId,
@@ -132,7 +132,7 @@
           this.$root.$emit('image-attachment-saved', image, uploadId);
           this.$root.$emit('alert-message', this.$t('simpleStorage.save.image.success.message'), 'success');
         }).catch(() => {
-          this.$uploadService.deleteUpload(uploadId);
+          eXo.$uploadService.deleteUpload(uploadId);
           this.$root.$emit('alert-message',  this.$t('simpleStorage.save.image.error.message'), 'error');
         });
       },

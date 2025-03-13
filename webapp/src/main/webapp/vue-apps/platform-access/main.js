@@ -27,7 +27,7 @@ export function init () {
     Vue.createApp({
       template: `<portal-general-hub-access id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Platform Access');
   });
 }

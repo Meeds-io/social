@@ -86,7 +86,7 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'md';
       },
       navigationsLength () {
         return this.mobileNavigations?.length || 0;
@@ -168,7 +168,7 @@
       },
       async getNavigations () {
         if (this.$root.parentNodeId) {
-          const navigations = await this.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, this.$root.parentNodeId, null, true);
+          const navigations = await eXo.$navigationService.getNavigations(this.siteName, this.siteType, this.scope, this.visibility, null, this.$root.parentNodeId, null, true);
           this.navigations = navigations || [];
           this.buildNavigations();
         }

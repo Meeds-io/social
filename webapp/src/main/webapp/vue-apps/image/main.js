@@ -113,7 +113,7 @@ export function init (appId, name, canEdit, files) {
           },
         },
         template: `<image-app id="${appId}"></image-app>`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n,
       }, `#${appId}`, `Image Application - ${name}`);
     });

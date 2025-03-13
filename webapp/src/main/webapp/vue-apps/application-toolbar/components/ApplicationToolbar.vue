@@ -349,7 +349,7 @@
         return this.isMobile || this.compact;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.mobile;
+        return eXo.vuetify.display.mobile.value;
       },
       showLeftButton () {
         return !this.leftButton?.hide

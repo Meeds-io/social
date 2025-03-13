@@ -100,7 +100,7 @@
     methods: {
       init () {
         if (this.objectType && this.attachmentObjectId) {
-          return this.$fileAttachmentService.getAttachments(this.objectType, this.attachmentObjectId)
+          return eXo.$fileAttachmentService.getAttachments(this.objectType, this.attachmentObjectId)
             .then(data => {
               this.attachments = data?.attachments || [];
             })
@@ -139,7 +139,7 @@
             altText: file?.altText || '',
           }));
         attachedFiles.sort((a1, a2) => Number(a1.id) - Number(a2.id));
-        return this.$fileAttachmentService.saveAttachments({
+        return eXo.$fileAttachmentService.saveAttachments({
           objectType: this.objectType,
           objectId: this.attachmentObjectId,
           uploadedFiles,

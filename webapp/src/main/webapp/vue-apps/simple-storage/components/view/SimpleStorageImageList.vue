@@ -172,7 +172,7 @@
     },
     computed: {
       small () {
-        return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.md;
+        return eXo.vuetify.display.width.value < eXo.vuetify.display.thresholds.value.md;
       },
       filteredHeaders () {
         return this.small && this.headers.filter(header => this.minimalColumns.includes(header.value)) || this.headers;

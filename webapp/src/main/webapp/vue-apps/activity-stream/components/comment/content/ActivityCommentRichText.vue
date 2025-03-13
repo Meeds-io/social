@@ -103,17 +103,17 @@
     }),
     computed: {
       avatarUrl () {
-        return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.avatar;
+        return eXo.$currentUserIdentity && eXo.$currentUserIdentity.profile && eXo.$currentUserIdentity.profile.avatar;
       },
       textLength () {
-        const pureText = this.$utils.htmlToText(this.message);
+        const pureText = eXo.$utils.htmlToText(this.message);
         return pureText && pureText.length || 0;
       },
       commentUpdate () {
         return !!this.commentId;
       },
       disableButton () {
-        return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > this.$activityConstants.COMMENT_MAX_LENGTH;
+        return this.commenting || ((!this.message || !this.message.trim() || this.message.trim() === '<p></p>' || this.message.trim() === '<div></div>') && !this.activityCommentAttachmentsEdited) || this.textLength > eXo.$activityConstants.COMMENT_MAX_LENGTH;
       },
       ckEditorType () {
         return this.commentTypeExtension?.ckEditorType
@@ -137,7 +137,7 @@
           files: this.files,
           templateParams: this.templateParams,
           message: this.message,
-          maxMessageLength: this.$activityConstants.COMMENT_MAX_LENGTH,
+          maxMessageLength: eXo.$activityConstants.COMMENT_MAX_LENGTH,
         };
       },
       metadataObjectId () {
@@ -230,7 +230,7 @@
         }
         this.commenting = true;
         if (this.commentUpdate) {
-          this.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
+          eXo.$activityService.updateComment(this.activityId, this.parentCommentId, this.commentId, this.message, this.files, this.templateParams, eXo.$activityConstants.FULL_COMMENT_EXPAND)
             .then(comment => this.comment = comment)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => this.$root.$emit('activity-comment-updated', this.comment))
@@ -239,7 +239,7 @@
               this.commenting = false;
             });
         } else {
-          this.$activityService.createComment(this.activityId, this.parentCommentId, this.message,  this.files, this.templateParams, this.$activityConstants.FULL_COMMENT_EXPAND)
+          eXo.$activityService.createComment(this.activityId, this.parentCommentId, this.message,  this.files, this.templateParams, eXo.$activityConstants.FULL_COMMENT_EXPAND)
             .then(comment => {
               this.comment = comment;
               this.commentId = comment.id;

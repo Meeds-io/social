@@ -112,13 +112,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       openDrawer () {
         this.retrieveFavoritesList();
         window.require(['SHARED/favoriteDrawerExtensions'], () => {
-          Promise.resolve(this.$utils.includeExtensions('FavoriteDrawerExtension'))
+          Promise.resolve(eXo.$utils.includeExtensions('FavoriteDrawerExtension'))
             .then(() => this.$refs.favoritesDrawer.open());
         });
       },
       retrieveFavoritesList () {
         this.loading = true;
-        return this.$favoriteService.getFavorites(this.offset, this.limit, true)
+        return eXo.$favoriteService.getFavorites(this.offset, this.limit, true)
           .then(data => {
             this.totalSize = data && data.size || this.totalSize;
             this.favoritesList = data && data.favoritesItem || [];

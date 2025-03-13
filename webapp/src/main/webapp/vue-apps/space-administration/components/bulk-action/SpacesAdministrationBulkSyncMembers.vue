@@ -40,13 +40,13 @@
       syncMembers (groups) {
         this.$root.applyOperationInBulk(
           async space => {
-            let spaceBoundGroups = await this.$spaceBindingService.getGroupSpaceBindings(space.id);
+            let spaceBoundGroups = await eXo.$spaceBindingService.getGroupSpaceBindings(space.id);
             if (!spaceBoundGroups?.length) {
               spaceBoundGroups = groups;
             } else {
               spaceBoundGroups.push(...groups.filter(g => !spaceBoundGroups.find(g)));
             }
-            await this.$spaceBindingService.saveGroupsSpaceBindings(space.id, spaceBoundGroups);
+            await eXo.$spaceBindingService.saveGroupsSpaceBindings(space.id, spaceBoundGroups);
           },
           null,
           () => {

@@ -23,16 +23,16 @@
       },
       relativeDateLabelKey () {
         if (this.short) {
-          return this.date && this.$dateUtil.getShortRelativeTimeLabelKey(this.date) || '';
+          return this.date && eXo.$dateUtil.getShortRelativeTimeLabelKey(this.date) || '';
         } else {
-          return this.date && this.$dateUtil.getRelativeTimeLabelKey(this.date) || '';
+          return this.date && eXo.$dateUtil.getRelativeTimeLabelKey(this.date) || '';
         }
       },
       relativeDateLabelValue () {
         if (this.short) {
-          return this.date && this.$dateUtil.getShortRelativeTimeValue(this.date) || 1;
+          return this.date && eXo.$dateUtil.getShortRelativeTimeValue(this.date) || 1;
         } else {
-          return this.date && this.$dateUtil.getRelativeTimeValue(this.date) || 1;
+          return this.date && eXo.$dateUtil.getRelativeTimeValue(this.date) || 1;
         }
       },
       relativeDateLabel () {

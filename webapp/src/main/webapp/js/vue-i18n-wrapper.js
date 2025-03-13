@@ -40,12 +40,12 @@
 
   const i18nMessages = {};
   i18nMessages[eXo.env.portal.language] = preloadedMessages;
-  const i18n = new VueI18n({
+  const i18n = VueI18n.createI18n({
     locale: eXo.env.portal.language, // set locale
     fallbackLocale: 'en',
     messages: i18nMessages,
   });
-  window.vueI18nMessages = i18n.messages?.[eXo.env.portal.language];
+  window.vueI18nMessages = i18n.global.messages?.[eXo.env.portal.language];
 
   /**
    * Load translated strings from the given URLs and for the given language
@@ -90,7 +90,7 @@
       return i18NFetch
         .then(data => {
           if (data) {
-            i18n.mergeLocaleMessage(lang, data);
+            i18n.global.mergeLocaleMessage(lang, data);
             if (!cachedMessages && !eXo.developing) {
               try {
                 sessionStorage.setItem(url, JSON.stringify(data));
@@ -109,7 +109,7 @@
           } catch (e) {
             // QuotaExceededError can be thrown, thus nothing to do here
           }
-          window.vueI18nMessages = i18n.messages[eXo.env.portal.language];
+          window.vueI18nMessages = i18n.global.messages?.[eXo.env.portal.language];
           return i18n;
         });
     }

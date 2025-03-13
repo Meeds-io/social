@@ -27,7 +27,7 @@ export async function updateCategories (spaceId, oldCategories, newCategories, d
         const id = linkIds[i];
         // Sequentially update links
          
-        const linkResult = await Vue.prototype.$categoryLinkService.link(id, {
+        const linkResult = await eXo.$categoryLinkService.link(id, {
           type: 'space',
           id: spaceId,
           spaceId,
@@ -43,7 +43,7 @@ export async function updateCategories (spaceId, oldCategories, newCategories, d
         const id = unlinkIds[i];
         // Sequentially update links
          
-        const unlinkResult = await Vue.prototype.$categoryLinkService.unlink(id, {
+        const unlinkResult = await eXo.$categoryLinkService.unlink(id, {
           type: 'space',
           id: spaceId,
           spaceId,

@@ -436,7 +436,7 @@
       },
     },
     created () {
-      this.$registrationService.getRegistrationSettings()
+      eXo.$registrationService.getRegistrationSettings()
         .then(data => {
           this.registrationSettings = data;
           this.init();
@@ -458,7 +458,7 @@
       },
       save () {
         this.$root.loading = true;
-        return this.$registrationService.saveRegistrationSettings({
+        return eXo.$registrationService.saveRegistrationSettings({
           type: this.accessType,
           externalUser: this.accessType === 'OPEN' ? this.externalUserOpenRegistration : this.externalUserRestrictedRegistration,
           extraGroupIds: this.defaultSpaceIds,

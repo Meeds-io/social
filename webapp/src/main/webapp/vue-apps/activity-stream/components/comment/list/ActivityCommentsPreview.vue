@@ -74,7 +74,7 @@
         this.commentsSize = 0;
         this.loading = true;
         this.$nextTick().then(() => {
-          this.comments = this.$activityService.computeParentCommentsList(this.activity.comments) || [];
+          this.comments = eXo.$activityService.computeParentCommentsList(this.activity.comments) || [];
           this.activity.commentsSize = this.commentsSize = this.activity.commentsCount && Number(this.activity.commentsCount) || 0;
           this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
           this.loading = false;
@@ -86,7 +86,7 @@
     methods: {
       retrieveLastComment () {
         this.loading = true;
-        this.$activityService.getActivityComments(this.activity.id, true, 0, this.limit, this.$activityConstants.FULL_COMMENT_EXPAND)
+        eXo.$activityService.getActivityComments(this.activity.id, true, 0, this.limit, eXo.$activityConstants.FULL_COMMENT_EXPAND)
           .then(data => {
             this.comments = [];
             this.commentsSize = 0;

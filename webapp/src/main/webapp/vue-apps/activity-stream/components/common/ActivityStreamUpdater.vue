@@ -49,7 +49,7 @@
       },
     },
     created () {
-      this.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
+      eXo.$activityStreamWebSocket.initCometd(this.handleActivityStreamUpdates);
       this.$root.$on('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
       this.$root.$on('activity-stream-activity-deleteActivity', this.broadcastActivityDeleted);
       this.$root.$on('activity-stream-activity-deleteComment', this.broadcastCommentDeleted);
@@ -108,7 +108,7 @@
         }
       },
       checkActivityWithFilter (activityId) {
-        return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
+        return eXo.$activityService.getActivityById(activityId, eXo.$activityConstants.FULL_ACTIVITY_EXPAND)
           .then(activity => {
             if (this.streamFilter === 'unread_spaces_stream') {
               if (activity?.metadatas?.unread) {
@@ -144,7 +144,7 @@
         this.newerActivitiesCount = this.updatedActivities.size;
       },
       displayNewActivities () {
-        if (this.$activityStreamWebSocket.isDisconnected()) {
+        if (eXo.$activityStreamWebSocket.isDisconnected()) {
           window.location.reload();
           return;
         }

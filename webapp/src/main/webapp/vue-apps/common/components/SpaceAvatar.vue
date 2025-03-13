@@ -216,7 +216,7 @@
         return `${this.boldTitle && 'font-weight-bold ' || ''}${this.smallFontSize && 'caption ' || ''}`;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
       },
       isSpaceMember () {
         return this.space.isMember
@@ -240,10 +240,10 @@
     created () {
       if (!this.space) {
         if (this.spaceId) {
-          this.$spaceService.getSpaceById(this.spaceId)
+          eXo.$spaceService.getSpaceById(this.spaceId)
             .then(space => this.space = space);
         } else if (this.spacePrettyName) {
-          this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
+          eXo.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
             .then(space => this.space = space);
         }
       }

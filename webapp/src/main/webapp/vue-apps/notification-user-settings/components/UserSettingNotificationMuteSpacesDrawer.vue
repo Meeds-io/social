@@ -136,7 +136,7 @@
         return this.settings?.mutedSpaces || [];
       },
       isMobile () {
-        return this.$vuetify.breakpoint.sm || this.$vuetify.breakpoint.xs;
+        return eXo.vuetify.display.sm.value || eXo.vuetify.display.xs.value;
       },
     },
     watch: {
@@ -170,7 +170,7 @@
       },
       retrieveSpaces () {
         this.loading = true;
-        return Promise.all(this.mutedSpaceIds.map(id => this.$spaceService.getSpaceById(id)))
+        return Promise.all(this.mutedSpaceIds.map(id => eXo.$spaceService.getSpaceById(id)))
           .then(spaces => {
             const mutedSpaces = spaces || [];
             mutedSpaces.forEach(space => {
@@ -183,7 +183,7 @@
       muteSpace (space, unmute) {
         this.loading = true;
         const spaceId = space.spaceId || space.id;
-        return this.$spaceService.muteSpace(spaceId, unmute)
+        return eXo.$spaceService.muteSpace(spaceId, unmute)
           .then(() => {
             this.$emit('refresh');
             if (unmute) {

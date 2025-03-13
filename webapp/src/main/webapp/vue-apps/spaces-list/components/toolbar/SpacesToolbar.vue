@@ -170,7 +170,7 @@
       },
       getSpacesInvitation () {
         this.loading++;
-        this.$spaceService.getSpacesByFilter({
+        eXo.$spaceService.getSpacesByFilter({
           filter: 'invited',
         })
           .then(data => this.$root.invitationsCount = data && data.size || 0)
@@ -178,7 +178,7 @@
       },
       getSpacesPending () {
         this.loading++;
-        this.$spaceService.getSpacesByFilter({
+        eXo.$spaceService.getSpacesByFilter({
           filter: 'pending',
         })
           .then(data => this.$root.pendingCount = data?.size || 0)
@@ -186,7 +186,7 @@
       },
       getSpacesRequest () {
         this.loading++;
-        this.$spaceService.getSpacesByFilter({
+        eXo.$spaceService.getSpacesByFilter({
           filter: 'requests',
         })
           .then(data => this.$root.requestsCount = data?.size || 0)

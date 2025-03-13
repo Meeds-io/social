@@ -8,7 +8,7 @@ if (extensionRegistry) {
     });
   }
 }
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 
 const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
@@ -49,16 +49,16 @@ export function init (params) {
       },
       computed: {
         xl () {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl;
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.xl;
         },
         lgAndUp () {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.lg;
         },
         mdAndUp () {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md;
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.md;
         },
         smAndUp () {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.sm;
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.sm;
         },
         hidenIconView () {
           return this.sidebarMode === 'ICON' && !this.mdAndUp;

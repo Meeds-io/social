@@ -105,7 +105,7 @@
       },
       removeImageConfirm () {
         this.loading = true;
-        return this.$fileAttachmentService.saveAttachments({
+        return eXo.$fileAttachmentService.saveAttachments({
           objectType: this.$root.objectType,
           objectId: this.$root.name,
         })
@@ -114,7 +114,7 @@
       },
       updateImage (imageItem) {
         this.loading = true;
-        return this.$fileAttachmentService.saveAttachments({
+        return eXo.$fileAttachmentService.saveAttachments({
           objectType: this.$root.objectType,
           objectId: this.$root.name,
           uploadedFiles: [{
@@ -128,7 +128,7 @@
       },
       refresh () {
         this.loading = true;
-        return this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
+        return eXo.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
           .then(data => this.$root.files = data?.attachments || [])
           .finally(() => this.loading = false);
       },

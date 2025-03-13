@@ -123,7 +123,7 @@
     computed: {
       buttonStyle () {
         if (this.absolute) {
-          if (this.$vuetify.rtl) {
+          if (eXo.vuetify.rtl) {
             return { position: 'absolute', top: `${this.top}px`, left: `${this.right}px` };
           } else {
             return { position: 'absolute', top: `${this.top}px`, right: `${this.right}px` };
@@ -175,7 +175,7 @@
       changeFavorite () {
         this.loading = true;
         if (this.isFavorite) {
-          this.$favoriteService.removeFavorite(this.type, this.id)
+          eXo.$favoriteService.removeFavorite(this.type, this.id)
             .then(() => {
               document.dispatchEvent(new CustomEvent('favorite-removed', {
                 detail: {
@@ -193,7 +193,7 @@
             .catch(() => this.$emit('remove-error'))
             .finally(() => this.loading = false);
         } else {
-          this.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
+          eXo.$favoriteService.addFavorite(this.type, this.id, this.parentId, this.spaceId)
             .then(() => {
               document.dispatchEvent(new CustomEvent('favorite-added', {
                 detail: {

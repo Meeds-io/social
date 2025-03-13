@@ -258,7 +258,7 @@
           || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === this.spaceTemplateId);
       },
       arrowIconLeft () {
-        return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
+        return eXo.vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
       },
       displaySpacesExpandButton () {
         return this.hover && this.hasItems && this.url;
@@ -270,10 +270,10 @@
         return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.spaceTemplateId || this.spaceCategoryId}`;
       },
       spacesIcon () {
-        return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${this.$vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
+        return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${eXo.vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
       },
       arrowIconRight () {
-        return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
+        return eXo.vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
       },
       arrowIcon () {
         return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
@@ -282,7 +282,7 @@
         return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory && !this.isSpace && !this.isSite));
       },
       url () {
-        return this.isUrl && this.item.url && this.$utils.toLinkUrl(this.item.url, {
+        return this.isUrl && this.item.url && eXo.$utils.toLinkUrl(this.item.url, {
           urls: true,
           email: true,
           phone: true,
@@ -414,10 +414,10 @@
         }
       },
       async retrieveSites () {
-        this.$root.sites = await this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
+        this.$root.sites = await eXo.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
       },
       async retrieveSpace (refresh) {
-        this.space = await this.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
+        this.space = await eXo.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
         this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
       },
       forceOpenLink () {

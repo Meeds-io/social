@@ -86,7 +86,7 @@
             class: 'space-template-actions-header',
             width: '50px',
           },
-        ] || (this.$vuetify.breakpoint.lgAndDown && [
+        ] || (eXo.vuetify.display.lgAndDown.value && [
           {
             text: '',
             value: 'icon',
@@ -191,7 +191,7 @@
           const name = this.$te(t.name) ? this.$t(t.name) : t.name;
           const description = this.$te(t.description) ? this.$t(t.description) : t.description;
           return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
-            || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
+            || eXo.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
         }) || spaceTemplates;
       },
       nameToDelete () {
@@ -226,13 +226,13 @@
       },
       refreshSpaceTemplates () {
         this.loading = true;
-        return this.$spaceTemplateService.getSpaceTemplates(true)
+        return eXo.$spaceTemplateService.getSpaceTemplates(true)
           .then(spaceTemplates => this.spaceTemplates = spaceTemplates || [])
           .finally(() => this.loading = false);
       },
       deleteSpaceTemplate (spaceTemplate) {
         this.loading = true;
-        this.$spaceTemplateService.deleteSpaceTemplate(spaceTemplate.id)
+        eXo.$spaceTemplateService.deleteSpaceTemplate(spaceTemplate.id)
           .then(() => {
             this.$root.$emit('space-templates-deleted', spaceTemplate);
             this.$root.$emit('alert-message', this.$t('spaceTemplate.delete.success'), 'success');

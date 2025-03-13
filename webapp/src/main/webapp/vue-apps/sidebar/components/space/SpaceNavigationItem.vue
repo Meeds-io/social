@@ -164,7 +164,7 @@
         return this.showItemActions || this.drawerOpened;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
       },
       drawerOpened () {
         return this.openedSpace?.id === this.space?.id;
@@ -173,10 +173,10 @@
         return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
       },
       arrowIconLeft () {
-        return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
+        return eXo.vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
       },
       arrowIconRight () {
-        return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
+        return eXo.vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
       },
     },
     watch: {

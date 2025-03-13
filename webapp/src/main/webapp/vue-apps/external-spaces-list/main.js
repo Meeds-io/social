@@ -32,7 +32,7 @@ export function init () {
         },
         template: `<external-spaces-list id="${appId}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'External Spaces List');
     });
 }

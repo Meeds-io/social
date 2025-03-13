@@ -235,7 +235,7 @@
         this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
       },
       async refreshUnreadSpaces () {
-        const data = await this.$spaceService.getSpacesByFilter({
+        const data = await eXo.$spaceService.getSpacesByFilter({
           filter: 'member',
           expand: 'unread',
         });
@@ -244,7 +244,7 @@
       async searchSpaces () {
         this.$emit('loading-spaces', true);
         try {
-          const data = await this.$spaceService.getSpacesByFilter({
+          const data = await eXo.$spaceService.getSpacesByFilter({
             categoryId: this.selectedCategoryIds || this.$root.categoryIds,
             templateId: this.$root.templateIds,
             sortBy: this.$root.sortBy,

@@ -24,7 +24,7 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.mobile;
+        return eXo.vuetify.display.mobile.value;
       },
     },
     created () {

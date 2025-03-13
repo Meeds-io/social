@@ -205,7 +205,7 @@
     methods: {
       open () {
         this.$refs.drawer.open();
-        return this.$notificationService.resetBadge()
+        return eXo.$notificationService.resetBadge()
           .then(() => this.$root.$emit('notification-badge-updated', 0));
       },
       close () {
@@ -226,7 +226,7 @@
       },
       markAllAsRead () {
         this.markingAllAsRead = true;
-        return this.$notificationService.markAllAsRead(this.notificationPlugins)
+        return eXo.$notificationService.markAllAsRead(this.notificationPlugins)
           .then(() => {
             document.querySelectorAll('.notifDrawerItems li.unread').forEach(el => {
               el.classList.remove('unread');

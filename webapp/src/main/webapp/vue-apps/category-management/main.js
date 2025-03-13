@@ -55,10 +55,10 @@ export function init () {
       },
       computed: {
         isMobile () {
-          return this.$vuetify.breakpoint.mobile;
+          return eXo.vuetify.display.mobile.value;
         },
         chevronIcon () {
-          return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+          return eXo.vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
         },
         categories () {
           const categories = [];
@@ -105,7 +105,7 @@ export function init () {
           }
           const parentId = item?.id || this.categoryRootId || 0;
           const ownerId = item?.ownerId || this.categoryOwnerId || 0;
-          const categoryTree = await this.$categoryService.getCategoryTree({
+          const categoryTree = await eXo.$categoryService.getCategoryTree({
             parentId,
             ownerId,
             depth,
@@ -121,7 +121,7 @@ export function init () {
           }
         },
         async searchCategories (query) {
-          this.foundCategories = await this.$categoryService.findCategories({
+          this.foundCategories = await eXo.$categoryService.findCategories({
             query,
             ownerId: this.categoryOwnerId,
             offset: 0,
@@ -189,7 +189,7 @@ export function init () {
       },
       template: `<category-management id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Category Management');
   });
 }

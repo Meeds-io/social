@@ -26,7 +26,7 @@
     },
     methods: {
       refresh () {
-        return this.$notificationAdministration.getSettings()
+        return eXo.$notificationAdministration.getSettings()
           .then(settings => {
             if (settings?.channelLabels) {
               Object.keys(settings.channelLabels).forEach(channelId => {

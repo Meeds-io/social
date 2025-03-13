@@ -35,7 +35,7 @@ export function init (maxUploadSize) {
       },
       template: `<profile-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" max-upload-size="${maxUploadSize}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile Header');
   });
 }

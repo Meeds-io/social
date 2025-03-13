@@ -107,7 +107,7 @@
       async download () {
         this.downloading = true;
         try {
-          await this.$spaceBindingService.getReport(
+          await eXo.$spaceBindingService.getReport(
             this.operation.space.id,
             this.operation.operationType,
             this.operation.group.id,

@@ -49,7 +49,7 @@
     methods: {
       retrieveCurrentSite () {
         this.loading = true;
-        return this.$siteService.getSiteById(this.siteId, {
+        return eXo.$siteService.getSiteById(this.siteId, {
           expandNavigations: true,
           lang: eXo.env.portal.language,
           visibility: ['displayed', 'temporal'],

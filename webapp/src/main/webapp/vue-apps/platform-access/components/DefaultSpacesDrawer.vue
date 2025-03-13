@@ -133,7 +133,7 @@
         const spaceGroupIds = this.value || [];
         this.loading = true;
         return Promise.all(
-          spaceGroupIds.map(groupId => this.$spaceService.getSpaceByGroupId(groupId)
+          spaceGroupIds.map(groupId => eXo.$spaceService.getSpaceByGroupId(groupId)
             .then(space => ({
               id: `space:${space.prettyName}`,
               remoteId: space.prettyName,

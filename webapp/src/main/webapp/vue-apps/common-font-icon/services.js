@@ -19,6 +19,6 @@
 
 import * as fontLibrary from './js/fontLibrary.js';
 
-window.Object.defineProperty(Vue.prototype, '$fontLibrary', {
+window.Object.defineProperty(eXo, '$fontLibrary', {
   value: fontLibrary.default,
 });

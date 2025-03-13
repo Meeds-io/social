@@ -80,7 +80,7 @@
       },
       loginBackgroundPreviewSrc () {
         if (this.loginBackgroundData) {
-          return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
+          return eXo.$utils.convertImageDataAsSrc(this.loginBackgroundData);
         } else {
           return this.defaultData;
         }

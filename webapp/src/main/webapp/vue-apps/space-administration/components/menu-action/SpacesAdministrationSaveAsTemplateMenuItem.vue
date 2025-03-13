@@ -53,16 +53,16 @@
               credentials: 'include',
               method: 'GET',
             }).then(resp => resp?.ok && resp.blob());
-            const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
-            const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
+            const bannerData = bannerBlob && await eXo.$utils.blobToBase64(bannerBlob);
+            const bannerUploadId = bannerBlob && await eXo.$uploadService.upload(bannerBlob);
 
-            const translationConfiguration = await this.$translationService.getTranslationConfiguration();
+            const translationConfiguration = await eXo.$translationService.getTranslationConfiguration();
             const nameTranslations = {};
             const descriptionTranslations = {};
             nameTranslations[translationConfiguration?.defaultLanguage] = this.space.displayName;
             descriptionTranslations[translationConfiguration?.defaultLanguage] = this.space.description;
             const spaceTemplate = this.space.templateId && this.$root.spaceTemplates.find(t => t.id === this.space.templateId);
-            const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+            const permissions = await eXo.$spaceAdministrationService.getSpacePermission(this.space.id);
 
             this.$root.$emit('space-templates-name-open',
                              {

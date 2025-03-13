@@ -57,7 +57,7 @@ export function init (applicationId, settings) {
                    :is-space-manager="${settings?.isSpaceManager}"
                    :initial-user-id="${settings?.userId}"/>`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Organizational Chart');
   });
 }

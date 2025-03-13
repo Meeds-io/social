@@ -156,7 +156,7 @@
       },
       draftConfirmMessage () {
         return this.$t(this.messages.draftConfirmMessage, {
-          0: `<strong>${this.revisionTime && this.$dateUtil.formatDateObjectToDisplay(new Date(this.revisionTime), this.dateFormat) || ''}</strong>`,
+          0: `<strong>${this.revisionTime && eXo.$dateUtil.formatDateObjectToDisplay(new Date(this.revisionTime), this.dateFormat) || ''}</strong>`,
         });
       },
       draftConfirmQuestion () {
@@ -182,7 +182,7 @@
       },
       lockingUsers () {
         if (this.lockingUsers?.length) {
-          Promise.all(this.lockingUsers.map(u => this.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
+          Promise.all(this.lockingUsers.map(u => eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
             .then(identities => this.lockingUserIdentities = identities);
         }
       },
@@ -222,7 +222,7 @@
           .finally(() => this.initialized = true);
       },
       getRevision () {
-        return this.$coeditingService.getRevision(this.objectType, this.objectId)
+        return eXo.$coeditingService.getRevision(this.objectType, this.objectId)
           .then(data => this.draft = data);
       },
       setRevision () {
@@ -235,10 +235,10 @@
         }
         revision = revision || this.value;
         if (revision) {
-          return this.$coeditingService.getRevision(this.objectType, this.objectId)
+          return eXo.$coeditingService.getRevision(this.objectType, this.objectId)
             .then(data => {
               if (!data?.revision || String(revision) === String(data.revision)) {
-                return this.$coeditingService.setLock(this.objectType, this.objectId, `${revision}`)
+                return eXo.$coeditingService.setLock(this.objectType, this.objectId, `${revision}`)
                   .then(() => this.draft = { revision });
               } else {
                 this.outdatedRevision = true;
@@ -251,11 +251,11 @@
         this.clearPingRevisionInterval();
       },
       removeRevision () {
-        return this.$coeditingService.removeRevision(this.objectType, this.objectId)
+        return eXo.$coeditingService.removeRevision(this.objectType, this.objectId)
           .then(() => this.draft = null);
       },
       getLockHolders () {
-        return this.$coeditingService.getLockHolders(this.objectType, this.objectId)
+        return eXo.$coeditingService.getLockHolders(this.objectType, this.objectId)
           .then(data => this.lockingUsers = data);
       },
       confirmLock () {
@@ -263,7 +263,7 @@
       },
       confirmDraft () {
         this.draftConfirmed = true;
-        return this.$coeditingService.setLock(this.objectType, this.objectId, this.revision)
+        return eXo.$coeditingService.setLock(this.objectType, this.objectId, this.revision)
           .then(() => {
             this.draft = { revision: this.revision };
             this.$emit('input', this.revision);

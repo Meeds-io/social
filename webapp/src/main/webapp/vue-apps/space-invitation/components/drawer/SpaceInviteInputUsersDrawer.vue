@@ -128,7 +128,7 @@
       },
       inviteUsers () {
         this.saving = true;
-        this.$spaceService.updateSpace({
+        eXo.$spaceService.updateSpace({
           id: this.$root.spaceId,
           invitedMembers: this.invitedMembers,
         })

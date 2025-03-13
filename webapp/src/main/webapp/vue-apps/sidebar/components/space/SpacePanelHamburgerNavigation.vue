@@ -204,7 +204,7 @@
         return this.externalExtensions.filter(extension => extension.enabled);
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
       },
       spaceGroupId () {
         return this.space?.groupId;
@@ -257,7 +257,7 @@
           return;
         }
         this.loading = true;
-        return this.$siteService.getSite('GROUP', this.spaceUri, {
+        return eXo.$siteService.getSite('GROUP', this.spaceUri, {
           expandNavigations: true,
           excludeEmptyNavigationSites: true,
           lang: eXo.env.portal.language,
@@ -269,7 +269,7 @@
           .finally(() => this.loading = false);
       },
       markAsAllRead () {
-        this.$spaceService.markAllAsRead(this.spaceId);
+        eXo.$spaceService.markAllAsRead(this.spaceId);
       },
       closeMenu () {
         this.$emit('close-menu');

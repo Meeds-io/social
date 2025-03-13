@@ -81,7 +81,7 @@
         this.loading = true;
         this.$root.lastLoadedNotificationIndex = 0;
         window.require(['SHARED/notificationExtensions'], () => {
-          Promise.resolve(this.$utils.includeExtensions('NotificationExtension'))
+          Promise.resolve(eXo.$utils.includeExtensions('NotificationExtension'))
             .then(() => {
               this.open = true;
               this.loading = false;

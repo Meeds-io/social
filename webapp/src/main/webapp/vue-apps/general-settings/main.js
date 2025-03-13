@@ -52,7 +52,7 @@ export function init (publicSiteVisible, publicSiteId) {
         },
         computed: {
           isMobile () {
-            return this.$vuetify.breakpoint.mobile;
+            return eXo.vuetify.display.mobile.value;
           },
         },
         watch: {
@@ -82,8 +82,8 @@ export function init (publicSiteVisible, publicSiteId) {
           },
         },
         template: `<portal-general-settings id="${appId}" />`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n,
       }, `#${appId}`, 'General Settings')
-    ).finally(() => Vue.prototype.$utils.includeExtensions('generalSettings'));
+    ).finally(() => eXo.$utils.includeExtensions('generalSettings'));
 }

@@ -65,7 +65,7 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify && eXo.vuetify.display .value&& eXo.vuetify.display.name.value === 'xs';
       },
       width () {
         return this.isMobile && '400' || '200';
@@ -114,7 +114,7 @@
     },
     methods: {
       search () {
-        return this.$tagService.searchTags(this.query , this.searchLimit)
+        return eXo.$tagService.searchTags(this.query , this.searchLimit)
           .then(tagNames => {
             this.tags = tagNames.map(tagName => tagName.name) || [];
             if (this.selectedTags && this.selectedTags.length) {

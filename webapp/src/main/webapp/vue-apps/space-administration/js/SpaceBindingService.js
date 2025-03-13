@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 export function saveGroupsSpaceBindings (spaceId, groupNames) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/saveGroupsSpaceBindings/${spaceId}`, {
+  return fetch(`${eXo.$spacesConstants.SPACE_GROUP_BINDING_API}/saveGroupsSpaceBindings/${spaceId}`, {
     headers: {
       'Content-Type': 'application/json',
     },
@@ -29,19 +29,19 @@ export function saveGroupsSpaceBindings (spaceId, groupNames) {
 }
 
 export function getGroupSpaceBindings (spaceId) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/${spaceId}`, { credentials: 'include' }).then(resp => resp.json());
+  return fetch(`${eXo.$spacesConstants.SPACE_GROUP_BINDING_API}/${spaceId}`, { credentials: 'include' }).then(resp => resp.json());
 }
 
 export function removeBinding (bindingId) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/removeGroupSpaceBinding/${bindingId}`, {
+  return fetch(`${eXo.$spacesConstants.SPACE_GROUP_BINDING_API}/removeGroupSpaceBinding/${bindingId}`, {
     credentials: 'include',
     method: 'delete' });
 }
 
 export function getBindingReportOperations (spaceId) {
-  return fetch(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations?spaceId=${spaceId || ''}`, { credentials: 'include' }).then(resp => resp.json());
+  return fetch(`${eXo.$spacesConstants.SPACE_GROUP_BINDING_API}/getBindingReportOperations?spaceId=${spaceId || ''}`, { credentials: 'include' }).then(resp => resp.json());
 }
 
 export function getReport (spaceId, action, groupId, groupBindingId) {
-  window.open(`${Vue.prototype.$spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, '_blank');
+  window.open(`${eXo.$spacesConstants.SPACE_GROUP_BINDING_API}/getExport?spaceId=${spaceId}&action=${action}&group=${groupId}&groupBindingId=${groupBindingId}`, '_blank');
 }

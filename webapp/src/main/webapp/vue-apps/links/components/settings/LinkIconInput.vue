@@ -81,7 +81,7 @@
     computed: {
       iconUrl () {
         if (this.link?.iconSrc) {
-          return this.$utils.convertImageDataAsSrc(this.link.iconSrc);
+          return eXo.$utils.convertImageDataAsSrc(this.link.iconSrc);
         } else {
           return this.link?.iconUrl;
         }
@@ -122,7 +122,7 @@
           }
           this.sending = true;
           const self = this;
-          return this.$uploadService.upload(file)
+          return eXo.$uploadService.upload(file)
             .then(uploadId => {
               if (uploadId) {
                 const reader = new FileReader();

@@ -24,7 +24,7 @@ export function init () {
     Vue.createApp({
       template: `<spaces-overview id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Spaces Overview');
   });
 }

@@ -81,13 +81,13 @@
     }),
     computed: {
       valid () {
-        return !this.modifyingAboutMe || this.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
+        return !this.modifyingAboutMe || eXo.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
       },
       title () {
         return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
       },
       aboutMeText () {
-        return this.$utils.htmlToText(this.aboutMe);
+        return eXo.$utils.htmlToText(this.aboutMe);
       },
       hasAboutMe () {
         return this.aboutMeText?.trim?.()?.length;
@@ -102,7 +102,7 @@
       },
     },
     created () {
-      this.$userService.getUser(eXo.env.portal.profileOwner)
+      eXo.$userService.getUser(eXo.env.portal.profileOwner)
         .then(user => this.refresh(user && user.aboutMe || ''))
         .finally(() => {
           this.$root.$applicationLoaded();
@@ -129,7 +129,7 @@
       saveAboutMe () {
         this.saving = true;
         this.$refs.aboutMeDrawer.startLoading();
-        return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
+        return eXo.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
           .then(() => this.refresh(this.modifyingAboutMe))
           .catch(() => this.$root.$emit('alert-message', this.$t('profileAboutMe.savingError'), 'error'))
           .finally(() => {

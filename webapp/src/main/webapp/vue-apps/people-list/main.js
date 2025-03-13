@@ -30,7 +30,7 @@ export function init (filter) {
     Vue.createApp({
       computed: {
         isMobile () {
-          return this.$vuetify.breakpoint.mobile;
+          return eXo.vuetify.display.mobile.value;
         },
       },
       mounted () {
@@ -38,7 +38,7 @@ export function init (filter) {
       },
       template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'People List');
   });
 }

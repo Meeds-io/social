@@ -205,7 +205,7 @@
       },
       async retrievePublicSite () {
         if (this.publicSiteId) {
-          this.publicSite = await this.$siteService.getSiteById(this.publicSiteId);
+          this.publicSite = await eXo.$siteService.getSiteById(this.publicSiteId);
         }
       },
       async saveSpacePublicSite () {
@@ -214,7 +214,7 @@
         }
         this.loading = true;
         try {
-          const space = await this.$spaceService.updateSpace({
+          const space = await eXo.$spaceService.updateSpace({
             id: this.$root.spaceId,
             publicSiteVisibility: this.publicSiteVisibility,
           });

@@ -36,7 +36,7 @@ export function init (uploadLimit, imTypes) {
       }),
       computed: {
         isMobile () {
-          return this.$vuetify.breakpoint.mobile;
+          return eXo.vuetify.display.mobile.value;
         },
       },
       mounted () {
@@ -44,7 +44,7 @@ export function init (uploadLimit, imTypes) {
       },
       template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :upload-limit="${uploadLimit}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile Contact Information');
   });
 }

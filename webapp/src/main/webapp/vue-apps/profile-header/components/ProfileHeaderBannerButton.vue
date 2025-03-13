@@ -54,7 +54,7 @@
     },
     methods: {
       removeBanner () {
-        return this.$userService.updateProfileField(eXo.env.portal.userName, 'banner', 'DEFAULT_BANNER')
+        return eXo.$userService.updateProfileField(eXo.env.portal.userName, 'banner', 'DEFAULT_BANNER')
           .then(() => {
             this.isDefaultBanner = true;
             this.$root.$emit('alert-message', this.$t('UIPopupBannerUploader.title.BannerDeleted'), 'success');

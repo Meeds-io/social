@@ -630,7 +630,7 @@
                 this.sendingImage = false;
                 return;
               }
-              this.$uploadService.upload(blob)
+              eXo.$uploadService.upload(blob)
                 .then(uploadId => {
                   if (uploadId) {
                     const reader = new FileReader();

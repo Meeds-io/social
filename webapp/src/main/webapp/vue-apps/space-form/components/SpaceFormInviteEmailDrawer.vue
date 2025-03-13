@@ -199,9 +199,9 @@
           });
           return;
         }
-        const user = await this.$userService.getUserByEmail(email);
+        const user = await eXo.$userService.getUserByEmail(email);
         if (user?.id && user?.id !== 'null') {
-          const data = await this.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
+          const data = await eXo.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
           if (data.isMember === 'true') {
             this.emailInvitations.unshift({
               userEmail: email,

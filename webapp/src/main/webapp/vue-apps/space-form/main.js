@@ -51,14 +51,14 @@ export function open (templateId, isExternalFeatureEnabled) {
           },
           computed: {
             isMobile () {
-              return this.$vuetify.breakpoint.mobile;
+              return eXo.vuetify.display.mobile.value;
             },
           },
           mounted () {
             this.$root.$emit('addNewSpace', templateId);
           },
           template: '<space-form-drawer />',
-          vuetify: Vue.prototype.vuetifyOptions,
+          vuetify: eXo.vuetify,
           i18n,
         }, spaceFormElement, 'Space Form')
       );

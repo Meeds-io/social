@@ -102,7 +102,7 @@
     methods: {
       loadIdentities () {
         if (this.posterUsernames?.length && this.posterUsernames?.length > 1) {
-          return Promise.all(this.posterUsernames.slice(0, 2).map(u => this.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
+          return Promise.all(this.posterUsernames.slice(0, 2).map(u => eXo.$identityService.getIdentityByProviderIdAndRemoteId('organization', u)))
             .then(identities => this.posterIdentities = identities.map(i => i?.profile).filter(p => !!p));
         } else {
           this.posterIdentities = this.notification.from && [this.notification.from] || [];
@@ -110,12 +110,12 @@
         }
       },
       checkObserved () {
-        return this.$observerService.isObserved('activity', this.activityId)
+        return eXo.$observerService.isObserved('activity', this.activityId)
           .then(watched => this.watchCanceled = !watched);
       },
       unwatch () {
         this.unwatching = true;
-        this.$observerService.deleteObserver('activity', this.activityId)
+        eXo.$observerService.deleteObserver('activity', this.activityId)
           .then(() => this.$root.$emit('activity-notification-unwatch'))
           .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: this.activityId })))
           .finally(() => this.unwatching = false);

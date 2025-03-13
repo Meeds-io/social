@@ -89,7 +89,7 @@
       },
       logoPreviewSrc () {
         if (this.logoSrc) {
-          return this.$utils.convertImageDataAsSrc(this.logoSrc);
+          return eXo.$utils.convertImageDataAsSrc(this.logoSrc);
         } else {
           return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/logo?v=${Math.random()}`;
         }
@@ -104,7 +104,7 @@
         }
       },
       logoSrc () {
-        this.$root.$emit('refresh-company-logo', this.$utils.convertImageDataAsSrc(this.logoSrc));
+        this.$root.$emit('refresh-company-logo', eXo.$utils.convertImageDataAsSrc(this.logoSrc));
       },
     },
     methods: {
@@ -130,7 +130,7 @@
           }
           this.sendingImage = true;
           const self = this;
-          return this.$uploadService.upload(file)
+          return eXo.$uploadService.upload(file)
             .then(uploadId => {
               if (uploadId) {
                 const reader = new FileReader();

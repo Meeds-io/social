@@ -33,7 +33,7 @@ if (extensionRegistry) {
 
 const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.SimpleStorage?lang=${lang}`;
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 const appId = 'simpleStorage';
 
 export function init () {

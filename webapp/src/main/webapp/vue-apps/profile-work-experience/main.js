@@ -32,7 +32,7 @@ export function init () {
       },
       template: `<profile-work-experiences v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile Work Experience');
   });
 }

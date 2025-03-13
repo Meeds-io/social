@@ -123,7 +123,7 @@
     },
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.smAndDown;
+        return eXo.vuetify.display.smAndDown.value;
       },
       showApplication () {
         return this.hasSettings || (!this.hasSettings && this.isAdmin) || this.preview;
@@ -222,10 +222,10 @@
       },
       saveOrDeleteTranslations (settings) {
         if (settings?.headerTranslations) {
-          return this.$translationService.saveTranslations(this.translationObjectType, this.applicationId,
-                                                           this.headerTitleFieldName, settings?.headerTranslations);
+          return eXo.$translationService.saveTranslations(this.translationObjectType, this.applicationId,
+                                                          this.headerTitleFieldName, settings?.headerTranslations);
         } else if (this.savedHeaderTranslations) {
-          return this.$translationService.deleteTranslations(this.translationObjectType, this.applicationId);
+          return eXo.$translationService.deleteTranslations(this.translationObjectType, this.applicationId);
         }
         return Promise.resolve();
       },
@@ -250,8 +250,8 @@
         if (!settingValue) {
           return;
         }
-        return this.$settingService.setSettingValue(this.settingsContextKey, '',
-                                                    this.settingScopeKey, `organizationalChart${this.applicationId}`, settingKey, settingValue);
+        return eXo.$settingService.setSettingValue(this.settingsContextKey, '',
+                                                   this.settingScopeKey, `organizationalChart${this.applicationId}`, settingKey, settingValue);
       },
       openSettingsDrawer () {
         this.$refs.chartSettingsDrawer.open();
@@ -276,12 +276,12 @@
       },
       getUser () {
         if (isNaN(this.userId)) {
-          return this.$userService.getUser(this.userId, this.fieldsToRetrieve).then(user => {
+          return eXo.$userService.getUser(this.userId, this.fieldsToRetrieve).then(user => {
             this.user = user;
             this.getManagedUsers();
           });
         } else {
-          return this.$identityService.getIdentityById(this.userId, this.fieldsToRetrieve).then(user => {
+          return eXo.$identityService.getIdentityById(this.userId, this.fieldsToRetrieve).then(user => {
             this.user = user?.profile;
             this.getManagedUsers();
           });
@@ -296,7 +296,7 @@
         this.offset = this.managedUsers.length || 0;
         this.limit = this.limit || this.pageSize;
         this.isLoadingManagedUsers = true;
-        this.$userService.getUsersByAdvancedFilter(profileSetting, this.offset, this.limit + 1, 'settings,managedUsersCount', 'all', null, false, this.abortController.signal).then(data => {
+        eXo.$userService.getUsersByAdvancedFilter(profileSetting, this.offset, this.limit + 1, 'settings,managedUsersCount', 'all', null, false, this.abortController.signal).then(data => {
           const users = data?.users?.slice(0, this.limit);
           this.managedUsers.push(...users);
           this.hasMore = data?.users?.length > this.limit;

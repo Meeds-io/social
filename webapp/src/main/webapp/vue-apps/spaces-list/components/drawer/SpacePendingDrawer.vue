@@ -138,7 +138,7 @@
       async getSpaceMemberships (reset) {
         this.loading = true;
         try {
-          const data = await this.$spaceService.getSpacesByFilter({
+          const data = await eXo.$spaceService.getSpacesByFilter({
             offset: reset ? 0 : this.page * this.pageSize,
             limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
             filter: this.filterType,
@@ -171,7 +171,7 @@
       async acceptUserRequest (membership) {
         this.loading = true;
         try {
-          await this.$spaceService.acceptUserRequest(membership.space.id, membership.user.username);
+          await eXo.$spaceService.acceptUserRequest(membership.space.id, membership.user.username);
           this.memberships.splice(this.memberships.indexOf(membership), 1);
           this.$root.$emit('alert-message', this.$t('spacesList.pending.userAddedAsSpaceMember'), 'success');
           this.$root.$emit('space-list-pending-updated');
@@ -184,7 +184,7 @@
       async denyUserRequest (membership) {
         this.loading = true;
         try {
-          await this.$spaceService.refuseUserRequest(membership.space.id, membership.user.username);
+          await eXo.$spaceService.refuseUserRequest(membership.space.id, membership.user.username);
           this.memberships.splice(this.memberships.indexOf(membership), 1);
           this.$root.$emit('alert-message', this.$t('spacesList.pending.userRequestDenied'), 'success');
           this.$root.$emit('space-list-pending-updated');

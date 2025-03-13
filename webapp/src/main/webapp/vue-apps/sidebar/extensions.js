@@ -32,7 +32,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
   titleKey: 'Notification.tooltip.muteSpaceNotification',
   enabled: space => space.isMuted === 'false',
   click: space => {
-    return Vue.prototype.$spaceService.muteSpace(space?.id, false)
+    return eXo.$spaceService.muteSpace(space?.id, false)
       .then(() => {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
         document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -43,7 +43,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
           name: 'spaceLeftNavigationAction',
           spaceId: space.id,
         } }));
-        Vue.prototype.$set(space, 'isMuted', 'true');
+        space.isMuted = 'true';
       })
       .catch(() => {
         document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -60,7 +60,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
   titleKey: 'Notification.tooltip.unmuteSpaceNotification',
   enabled: space => space.isMuted === 'true',
   click: space => {
-    return Vue.prototype.$spaceService.muteSpace(space?.id, true)
+    return eXo.$spaceService.muteSpace(space?.id, true)
       .then(() => {
         document.dispatchEvent(new CustomEvent('refresh-notifications'));
         document.dispatchEvent(new CustomEvent('alert-message', { detail: {
@@ -71,7 +71,7 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
           name: 'spaceLeftNavigationAction',
           spaceId: space.id,
         } }));
-        Vue.prototype.$set(space, 'isMuted', 'false');
+        space.isMuted = 'false';
       })
       .catch(() => {
         document.dispatchEvent(new CustomEvent('alert-message', { detail: {

@@ -131,7 +131,7 @@
         return this.$t(this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage]);
       },
       seeMoreUrl () {
-        return this.$utils.toLinkUrl(this.settings?.seeMore, {
+        return eXo.$utils.toLinkUrl(this.settings?.seeMore, {
           urls: true,
           email: true,
           phone: true,

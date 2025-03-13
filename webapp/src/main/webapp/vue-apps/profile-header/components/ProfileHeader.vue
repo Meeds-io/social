@@ -95,13 +95,13 @@
     }),
     computed: {
       small () {
-        return this.$vuetify.breakpoint.mdAndDown;
+        return eXo.vuetify.display.mdAndDown.value;
       },
       large () {
-        return this.$vuetify.breakpoint.lgAndUp;
+        return eXo.vuetify.display.lgAndUp.value;
       },
       xlarge () {
-        return this.$vuetify.breakpoint.xlAndUp;
+        return eXo.vuetify.display.xlAndUp.value;
       },
       imageSize () {
         return '15vw';
@@ -170,7 +170,7 @@
       },
       uploadAvatar (uploadId) {
         if (uploadId) {
-          return this.$userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId)
+          return eXo.$userService.updateProfileField(eXo.env.portal.userName, 'avatar', uploadId)
             .then(() => this.avatarUpdated())
             .catch(this.handleError)
             .finally(() => this.imageType = null);
@@ -178,7 +178,7 @@
       },
       uploadBanner (uploadId) {
         if (uploadId) {
-          return this.$userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId)
+          return eXo.$userService.updateProfileField(eXo.env.portal.userName, 'banner', uploadId)
             .then(() => this.bannerUpdated())
             .catch(this.handleError)
             .finally(() => this.imageType = null);
@@ -199,7 +199,7 @@
           });
       },
       refresh () {
-        return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
+        return eXo.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
           .then(user => {
             this.user = user;
             return this.$nextTick();
@@ -211,9 +211,9 @@
       },
       handleError (error) {
         if (error) {
-          if (String(error).indexOf(this.$uploadService.avatarExcceedsLimitError) >= 0) {
+          if (String(error).indexOf(eXo.$uploadService.avatarExcceedsLimitError) >= 0) {
             this.errorMessage = this.$t('profileHeader.label.avatarExcceededAllowedSize', { 0: this.maxUploadSize });
-          } else if (String(error).indexOf(this.$uploadService.bannerExcceedsLimitError) >= 0) {
+          } else if (String(error).indexOf(eXo.$uploadService.bannerExcceedsLimitError) >= 0) {
             this.errorMessage = this.$t('profileHeader.label.bannerExcceededAllowedSize', { 0: this.maxUploadSize });
           } else {
             this.errorMessage = String(error);

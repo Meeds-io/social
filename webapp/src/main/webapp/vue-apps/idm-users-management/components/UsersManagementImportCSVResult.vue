@@ -138,7 +138,7 @@
       },
       finished (newValue, oldValue) {
         if (this.finished && this.uploadId) {
-          this.$userService.cleanImportUsers(this.uploadId)
+          eXo.$userService.cleanImportUsers(this.uploadId)
             .then(result => {
               this.progress = result;
             });
@@ -157,7 +157,7 @@
     methods: {
       watchProgress () {
         if (this.uploadId && !this.finished) {
-          return this.$userService.checkImportUsersProgress(this.uploadId)
+          return eXo.$userService.checkImportUsersProgress(this.uploadId)
             .then(result => {
               window.setTimeout(() => this.progress = result,200);
             })

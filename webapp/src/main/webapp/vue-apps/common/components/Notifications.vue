@@ -152,10 +152,10 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
       },
       dark () {
-        return this.$vuetify.theme.dark;
+        return eXo.vuetify.theme.dark;
       },
       maxWidth () {
         return this.isMobile && '100vw' || '50vw';

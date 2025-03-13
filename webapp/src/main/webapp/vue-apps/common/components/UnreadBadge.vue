@@ -173,7 +173,7 @@
       },
       markAsRead (event) {
         if (this.displayBadge) {
-          this.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId, event?.type && 'click' || 'read');
+          eXo.$spaceService.markAsRead(this.spaceId, this.applicationName, this.applicationId, event?.type && 'click' || 'read');
         }
       },
     },

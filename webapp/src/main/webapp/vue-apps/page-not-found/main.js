@@ -44,7 +44,7 @@ export function init () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<page-not-found id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
     }, `#${appId}`, 'Page Not Found App');
   });

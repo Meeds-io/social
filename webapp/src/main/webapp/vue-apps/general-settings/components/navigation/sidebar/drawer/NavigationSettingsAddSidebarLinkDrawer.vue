@@ -130,7 +130,7 @@
       },
       isValidLink () {
         try {
-          return !!this.$utils.toLinkUrl(this.link, {
+          return !!eXo.$utils.toLinkUrl(this.link, {
             urls: true,
             email: true,
             phone: true,

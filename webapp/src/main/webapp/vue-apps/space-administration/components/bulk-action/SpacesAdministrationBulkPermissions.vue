@@ -45,7 +45,7 @@
             permissions.layoutPermissions = params.layoutPermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
             permissions.publicSitePermissions = params.publicSitePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
             permissions.deletePermissions = params.deletePermissions.map(g => g.replace('spaceAdmin', `manager:${space.groupId}`));
-            await this.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
+            await eXo.$spaceAdministrationService.updateSpacePermissions(space.id, permissions);
           },
           null,
           () => {

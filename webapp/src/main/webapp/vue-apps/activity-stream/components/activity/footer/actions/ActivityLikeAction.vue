@@ -82,7 +82,7 @@
       },
       likeActivity () {
         this.changingLike = true;
-        return this.$activityService.likeActivity(this.activityId)
+        return eXo.$activityService.likeActivity(this.activityId)
           .then(data => {
             this.activity.hasLiked = 'true';
             this.computeLikes(data);
@@ -92,7 +92,7 @@
       },
       unlikeActivity () {
         this.changingLike = true;
-        return this.$activityService.unlikeActivity(this.activityId)
+        return eXo.$activityService.unlikeActivity(this.activityId)
           .then(data => {
             this.activity.hasLiked = 'false';
             this.computeLikes(data);

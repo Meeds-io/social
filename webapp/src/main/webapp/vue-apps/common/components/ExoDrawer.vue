@@ -228,7 +228,7 @@
         return this.expand && '100%' || this.drawerWidth;
       },
       isMobile () {
-        return this.$vuetify?.breakpoint?.smAndDown;
+        return eXo.vuetify?.breakpoint?.smAndDown;
       },
       expandIcon () {
         return this.expand && 'mdi-arrow-collapse' || 'mdi-arrow-expand';

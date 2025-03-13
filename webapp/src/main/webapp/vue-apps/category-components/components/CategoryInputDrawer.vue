@@ -214,10 +214,10 @@
     }),
     computed: {
       isMobile () {
-        return this.$vuetify.breakpoint.mobile;
+        return eXo.vuetify.display.mobile.value;
       },
       chevronIcon () {
-        return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+        return eXo.vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
       },
       categories () {
         const categories = [];
@@ -295,7 +295,7 @@
           this.limit *= 2;
           this.depth *= 2;
           // Can't be parallelized so disable Sonar and ESLint recommandations
-          // eslint-disable-next-line no-await-in-loop
+           
           await this.refreshTree(this.categoryTree, this.depth, 0, this.limit);
           index++;
         } while (!categoryIds.every(id => this.getCategory(id)) && index < 10);
@@ -358,7 +358,7 @@
         try {
           const parentId = item?.id || this.categoryRootId || 0;
           const ownerId = item?.ownerId || this.categoryOwnerId || 0;
-          const categoryTree = await this.$categoryService.getCategoryTree({
+          const categoryTree = await eXo.$categoryService.getCategoryTree({
             parentId,
             ownerId,
             depth,
@@ -380,7 +380,7 @@
         }
       },
       async searchCategories (query) {
-        this.foundCategories = await this.$categoryService.findCategories({
+        this.foundCategories = await eXo.$categoryService.findCategories({
           query,
           ownerId: this.categoryOwnerId,
           offset: 0,
@@ -400,7 +400,7 @@
           let lastLoadedParent = this.getCategory(ancestorId);
           limit = lastLoadedParent.limit + this.pageSize;
           // Can't be parallelized so disable Sonar and ESLint recommandations
-          // eslint-disable-next-line no-await-in-loop
+           
           await this.refreshTree(lastLoadedParent, length - index, 0, limit); // NOSONAR
           lastLoadedParent = this.getCategory(ancestorId);
           if (lastLoadedParent.id === category.parentId

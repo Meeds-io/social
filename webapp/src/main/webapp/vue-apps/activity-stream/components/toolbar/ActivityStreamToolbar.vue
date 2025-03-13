@@ -201,14 +201,14 @@
         return this.user && this.userCanPost;
       },
       isMobile () {
-        return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
       },
       userAvatarSize () {
         return this.isMobile ? '42px' : '45px';
       },
     },
     created () {
-      this.streamFilter = this.$activityUtils.getStreamFilter();
+      this.streamFilter = eXo.$activityUtils.getStreamFilter();
       document.addEventListener('activity-stream-type-filter-applied', event => {
         this.streamFilter = event && event.detail;
       });
@@ -217,9 +217,9 @@
     },
     methods: {
       retrieveUserInformation () {
-        this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
+        this.user = eXo.$currentUserIdentity && eXo.$currentUserIdentity.profile;
         if (!this.user) {
-          return this.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
+          return eXo.$identityService.getIdentityById(eXo.env.portal.userIdentityId)
             .then(data => this.user = data?.profile);
         }
       },
@@ -237,7 +237,7 @@
       },
       markAllAsRead () {
         this.resetting = true;
-        this.$spaceService.markAllAsRead(this.spaceId);
+        eXo.$spaceService.markAllAsRead(this.spaceId);
         window.setTimeout(() => {
           this.$root.$emit('activity-stream-reset-filter', false);
           this.notifyAsRead();

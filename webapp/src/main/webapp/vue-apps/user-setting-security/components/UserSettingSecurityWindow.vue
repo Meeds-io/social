@@ -140,7 +140,7 @@
 
         if (this.$refs.form.validate() && this.$refs.form.$el.reportValidity()) {
           this.saving = true;
-          this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
+          eXo.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
             .then(() => {
               this.$root.$emit('alert-message', this.$t('UserSettings.label.changePasswordSuccess'), 'success');
               this.$refs.form.$el.reset();

@@ -84,7 +84,7 @@
     },
     methods: {
       uploadBanner (uploadId) {
-        return this.$spaceService.updateSpace({
+        return eXo.$spaceService.updateSpace({
           id: eXo.env.portal.spaceId,
           bannerId: uploadId,
         })
@@ -96,7 +96,7 @@
       },
       handleError (error) {
         if (error) {
-          if (String(error).indexOf(this.$uploadService.bannerExcceedsLimitError) >= 0) {
+          if (String(error).indexOf(eXo.$uploadService.bannerExcceedsLimitError) >= 0) {
             this.errorMessage = this.$t('spaceHeader.label.bannerExcceededAllowedSize', { 0: this.maxUploadSize });
           } else {
             this.errorMessage = String(error);
@@ -104,7 +104,7 @@
         }
       },
       removeBanner () {
-        return this.$spaceService.updateSpace({
+        return eXo.$spaceService.updateSpace({
           id: eXo.env.portal.spaceId,
           bannerId: 'DEFAULT_BANNER',
         })

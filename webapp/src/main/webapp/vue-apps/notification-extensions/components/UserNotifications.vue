@@ -135,7 +135,7 @@
       },
       loadNotifications (loadBadgesOnly) {
         this.loading = true;
-        return this.$notificationService.getNotifications({
+        return eXo.$notificationService.getNotifications({
           plugins: this.plugins,
           unreadOnly: this.unreadOnly,
           badgesByPlugin: this.expanded,

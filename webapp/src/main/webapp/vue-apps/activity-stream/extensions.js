@@ -2,31 +2,31 @@ const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalN
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'share-drawer',
-  vueComponent: Vue.options.components['activity-share-drawer'],
+  vueComponent: Vue.component['activity-share-drawer'],
   rank: 10,
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'comments-drawer',
-  vueComponent: Vue.options.components['activity-comments-drawer'],
+  vueComponent: Vue.component['activity-comments-drawer'],
   rank: 20,
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'reactions-drawer',
-  vueComponent: Vue.options.components['activity-reactions-drawer'],
+  vueComponent: Vue.component['activity-reactions-drawer'],
   rank: 25,
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'composer-drawer',
-  vueComponent: Vue.options.components['activity-composer-drawer'],
+  vueComponent: Vue.component['activity-composer-drawer'],
   rank: 35,
 });
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'body',
-  vueComponent: Vue.options.components['activity-body'],
+  vueComponent: Vue.component['activity-body'],
   rank: 1,
 });
 
@@ -40,14 +40,14 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
     const showEmbeddedPreview = !!params?.activityTypeExtension?.showEmbeddedPreview || !isComment;
     return activityTypeExtension.getSourceLink && activityTypeExtension.getSourceLink(activity, isActivityDetail) && showEmbeddedPreview;
   },
-  vueComponent: Vue.options.components['activity-link'],
+  vueComponent: Vue.component['activity-link'],
   rank: 5,
 });
 
 extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensions', {
   id: 'shared-activity',
   isEnabled: params => params.activity && params.activity.originalActivity,
-  vueComponent: Vue.options.components['activity-share'],
+  vueComponent: Vue.component['activity-share'],
   rank: 1000,
 });
 
@@ -94,7 +94,7 @@ const defaultActivityOptions = {
       activity.title = activity.title.replace(`<oembed>${url}</oembed>`, `<oembed>${templateParams.link}</oembed>`);
     }
     templateParams = encodeURIComponent(activity.templateParams);
-    return Vue.prototype.$utils.trim(window.decodeURIComponent(templateParams
+    return eXo.$utils.trim(window.decodeURIComponent(templateParams
       && templateParams.default_title
       && templateParams.default_title
       || (activity?.title?.replaceAll('%', '%25'))
@@ -112,7 +112,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
     const isActivityDetail = params && params.isActivityDetail;
     return (activityTypeExtension.getEmbeddedHtml || defaultActivityOptions.getEmbeddedHtml)(activity, isActivityDetail);
   },
-  vueComponent: Vue.options.components['activity-embedded-html'],
+  vueComponent: Vue.component['activity-embedded-html'],
   rank: 5,
 });
 // Register predefined activity types
@@ -158,7 +158,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     return activity.canPin && !activity.pinned;
   },
   click: activity => {
-    return Vue.prototype.$activityService.pinActivity(activity.id)
+    return eXo.$activityService.pinActivity(activity.id)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-pinned', { detail: activity }));
       });
@@ -177,7 +177,7 @@ extensionRegistry.registerExtension('activity', 'action', {
     return activity.canPin && activity.pinned;
   },
   click: activity => {
-    return Vue.prototype.$activityService.unpinActivity(activity.id)
+    return eXo.$activityService.unpinActivity(activity.id)
       .then(() => {
         document.dispatchEvent(new CustomEvent('activity-unpinned', { detail: activity }));
       });
@@ -225,7 +225,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: (activity, activityTypeExtension, isActivityDetail) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-    return Vue.prototype.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
+    return eXo.$activityService.deleteActivity(activity.id, activityTypeExtension.hideOnDelete)
       .then(() => {
         if (activityTypeExtension.hideOnDelete && isActivityDetail) {
           document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id }));
@@ -252,7 +252,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: (activity, activityTypeExtension, isActivityDetail) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-    return Vue.prototype.$activityService.deleteActivity(activity.id, true)
+    return eXo.$activityService.deleteActivity(activity.id, true)
       .then(() => {
         if (isActivityDetail) {
           document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id }));
@@ -274,7 +274,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   },
   click: activity => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-    return Vue.prototype.$activityService.unhideActivity(activity.id)
+    return eXo.$activityService.unhideActivity(activity.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })))
       .finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
   },
@@ -306,7 +306,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   icon: 'fa-eye',
   isEnabled: activity => !activity?.metadatas?.observers?.length || false,
   click: activity => {
-    return Vue.prototype.$observerService.createObserver('activity', activity.id)
+    return eXo.$observerService.createObserver('activity', activity.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })));
   },
 });
@@ -318,7 +318,7 @@ extensionRegistry.registerExtension('activity', 'action', {
   icon: 'fa-eye-slash',
   isEnabled: activity => activity?.metadatas?.observers?.length || false,
   click: activity => {
-    return Vue.prototype.$observerService.deleteObserver('activity', activity.id)
+    return eXo.$observerService.deleteObserver('activity', activity.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-updated', { detail: activity.id })));
   },
 });
@@ -341,7 +341,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
   },
   click: (activity, comment) => {
     document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-    return Vue.prototype.$activityService.deleteActivity(comment?.id)
+    return eXo.$activityService.deleteActivity(comment?.id)
       .then(() => document.dispatchEvent(new CustomEvent('activity-comment-deleted', { detail: {
         activityId: activity?.id,
         spaceId: activity?.activityStream?.space?.id,
@@ -379,7 +379,7 @@ extensionRegistry.registerExtension('activity', 'comment-action', {
 
 extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', {
   id: 'like',
-  vueComponent: Vue.options.components['activity-like-action'],
+  vueComponent: Vue.component['activity-like-action'],
   rank: 10,
 });
 
@@ -389,13 +389,13 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
         && (!params.activityTypeExtension
         || !params.activityTypeExtension.canComment
         || params.activityTypeExtension.canComment(params.activity)),
-  vueComponent: Vue.options.components['activity-comment-action'],
+  vueComponent: Vue.component['activity-comment-action'],
   rank: 20,
 });
 
 extensionRegistry.registerComponent('ActivityHeader', 'activity-header-action', {
   id: 'favorite',
-  vueComponent: Vue.options.components['activity-favorite-action'],
+  vueComponent: Vue.component['activity-favorite-action'],
   rank: 30,
 });
 
@@ -405,31 +405,31 @@ extensionRegistry.registerComponent('ActivityFooter', 'activity-footer-action', 
         && !params.activity.originalActivity
         && params.activityTypeExtension?.canShare
         && params.activityTypeExtension.canShare(params.activity),
-  vueComponent: Vue.options.components['activity-share-action'],
+  vueComponent: Vue.component['activity-share-action'],
   rank: 100,
 });
 
 extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
   id: 'like',
-  vueComponent: Vue.options.components['activity-comment-like-action'],
+  vueComponent: Vue.component['activity-comment-like-action'],
   rank: 10,
 });
 
 extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-footer-action', {
   id: 'reply',
-  vueComponent: Vue.options.components['activity-comment-reply-action'],
+  vueComponent: Vue.component['activity-comment-reply-action'],
   rank: 20,
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'attachment-dialog',
-  vueComponent: Vue.options.components['attachments-image-preview-dialog'],
+  vueComponent: Vue.component['attachments-image-preview-dialog'],
   rank: 50,
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'attachment-cropper-drawer',
-  vueComponent: Vue.options.components['attachments-image-crop-drawer'],
+  vueComponent: Vue.component['attachments-image-crop-drawer'],
   rank: 40,
 });
 
@@ -439,7 +439,7 @@ extensionRegistry.registerComponent('ActivityContent', 'activity-content-extensi
     const activity = params?.activity;
     return !activity.activityId && activity?.metadatas?.attachments?.length;
   },
-  vueComponent: Vue.options.components['activity-image-attachments'],
+  vueComponent: Vue.component['activity-image-attachments'],
   rank: 15,
 });
 
@@ -449,6 +449,6 @@ extensionRegistry.registerComponent('CommentContent', 'comment-content-extension
     const activity = params?.activity;
     return activity.activityId && activity?.metadatas?.attachments?.length;
   },
-  vueComponent: Vue.options.components['activity-image-attachments'],
+  vueComponent: Vue.component['activity-image-attachments'],
   rank: 15,
 });

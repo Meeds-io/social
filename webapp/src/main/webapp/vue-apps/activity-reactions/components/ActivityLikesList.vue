@@ -46,7 +46,7 @@
     },
     methods: {
       retrieveLikers () {
-        return this.$activityService.getActivityLikers(this.activityId, 0)
+        return eXo.$activityService.getActivityLikers(this.activityId, 0)
           .then(data => {
             this.likers = data.likes;
             this.updateLikers();

@@ -425,7 +425,7 @@
             v => !!v?.length || ' ',
             v => {
               try {
-                return !!this.$utils.toLinkUrl(v, {
+                return !!eXo.$utils.toLinkUrl(v, {
                   urls: true,
                   email: true,
                   phone: true,
@@ -511,7 +511,7 @@
         this.reset();
         this.loading = true;
         this.$nextTick().then(() => this.$refs?.drawer?.open?.());
-        this.$linkService.getSettings(this.$root.name)
+        eXo.$linkService.getSettings(this.$root.name)
           .then(settings => {
             if (settings.showIcon !== false) {
               settings.showIcon = true;
@@ -577,7 +577,7 @@
         this.links.forEach((link, index) => link.order = index);
         settings.links = this.links && JSON.parse(JSON.stringify(this.links)) || [];
         settings.links.forEach(l => delete l.iconSrc);
-        this.$linkService.saveSettings(settings)
+        eXo.$linkService.saveSettings(settings)
           .then(() => {
             this.$root.$emit('links-refresh');
             this.close();

@@ -64,7 +64,7 @@
         return this.activity && this.activity.id;
       },
       isBodyNotEmpty () {
-        return this.body && this.$utils.trim(this.body).length;
+        return this.body && eXo.$utils.trim(this.body).length;
       },
       useParagraph () {
         return !this.body.includes('</p>');
@@ -94,7 +94,7 @@
       window.addEventListener('resize', this.displayReadMore);
     },
     mounted () {
-      this.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
+      eXo.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
       this.displayReadMore();
     },
     beforeUnmount () {

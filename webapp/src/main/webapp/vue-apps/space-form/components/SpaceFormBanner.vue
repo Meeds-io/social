@@ -100,7 +100,7 @@
         return this.maxUploadSize * 1024 * 1024;
       },
       height () {
-        if (this.$vuetify.mobile) {
+        if (eXo.vuetify.mobile) {
           return 125;
         } else {
           return 175;

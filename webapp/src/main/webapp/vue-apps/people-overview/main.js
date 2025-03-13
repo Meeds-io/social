@@ -23,7 +23,7 @@ export function init () {
     Vue.createApp({
       template: `<people-overview id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'People Overview');
   });
 }

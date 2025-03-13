@@ -411,23 +411,23 @@
             this.items = [];
             if (!this.includeGroups) {
               const items = [];
-              this.$suggesterService.searchSpacesOrUsers(this.searchTerm,
-                                                         items,
-                                                         this.typeOfRelations,
-                                                         this.searchOptions,
-                                                         this.includeUsers,
-                                                         this.includeSpaces,
-                                                         this.onlyRedactor,
-                                                         this.noRedactorSpace,
-                                                         this.onlyManager,
-                                                         () => this.loadingSuggestions++,
-                                                         () => {
-                                                           this.loadingSuggestions--;
-                                                           this.items = items;
-                                                         });
+              eXo.$suggesterService.searchSpacesOrUsers(this.searchTerm,
+                                                        items,
+                                                        this.typeOfRelations,
+                                                        this.searchOptions,
+                                                        this.includeUsers,
+                                                        this.includeSpaces,
+                                                        this.onlyRedactor,
+                                                        this.noRedactorSpace,
+                                                        this.onlyManager,
+                                                        () => this.loadingSuggestions++,
+                                                        () => {
+                                                          this.loadingSuggestions--;
+                                                          this.items = items;
+                                                        });
             } else {
               const items = [];
-              this.$suggesterService.search({
+              eXo.$suggesterService.search({
                 term: this.searchTerm,
                 items,
                 typeOfRelations: this.typeOfRelations,

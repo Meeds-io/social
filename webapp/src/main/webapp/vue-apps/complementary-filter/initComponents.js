@@ -35,8 +35,8 @@ for (const key in components) {
   Vue.component(key, components[key]);
 }
 
-if (!Vue.prototype.$complementaryFilterService) {
-  window.Object.defineProperty(Vue.prototype, '$complementaryFilterService', {
+if (!eXo.$complementaryFilterService) {
+  window.Object.defineProperty(eXo, '$complementaryFilterService', {
     value: complementaryFilterService,
   });
 }

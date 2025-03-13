@@ -278,7 +278,7 @@
           const name = this.$te(t.name) ? this.$t(t.name) : t.name;
           const description = this.$te(t.description) ? this.$t(t.description) : t.description;
           return name?.toLowerCase?.()?.includes(this.keyword.toLowerCase())
-            || this.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
+            || eXo.$utils.htmlToText(description)?.toLowerCase?.()?.includes(this.keyword.toLowerCase());
         }) || spaceTemplates;
       },
       spaceTemplate () {
@@ -296,7 +296,7 @@
         });
       },
       isMobile () {
-        return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+        return eXo.vuetify && eXo.vuetify.display .value&& eXo.vuetify.display.name.value === 'xs';
       },
       spaceInvitedMembers () {
         return this.space?.invitedMembers;
@@ -375,7 +375,7 @@
           this.externalAlert = false;
           this.spaceInvitedMembers.filter(item => item.providerId === 'space')
             .forEach(space => {
-              this.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
+              eXo.$spaceService.checkExternals(space.spaceId).then(hasExternals => {
                 if (hasExternals && hasExternals === 'true') {
                   this.selectedSpacesWithExternals.push(space.displayName);
                   this.$nextTick().then(() => this.externalAlert = true);
@@ -434,7 +434,7 @@
           visibility: 'private',
         };
         if (!this.$root.spaceTemplates) {
-          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+          this.$root.spaceTemplates = await eXo.$spaceTemplateService.getSpaceTemplates();
         }
         this.templates = this.$root.spaceTemplates;
         if (this.templates?.length === 1) {
@@ -472,7 +472,7 @@
         }
         this.savingSpace = true;
         this.space.templateId = this.templateId;
-        return this.$spaceService.createSpace(this.space)
+        return eXo.$spaceService.createSpace(this.space)
           .then(space => {
             this.spaceSaved = true;
             window.location.href = `${eXo.env.portal.context}/s/${space.id}`;

@@ -136,7 +136,7 @@
     methods: {
       save (spaceTemplateId) {
         if (this.uploadId) {
-          return this.$fileAttachmentService.saveAttachments({
+          return eXo.$fileAttachmentService.saveAttachments({
             objectType: 'spaceTemplateBanner',
             objectId: this.spaceTemplateId || spaceTemplateId,
             uploadedFiles: this.uploadId && [{ uploadId: this.uploadId }] || [],

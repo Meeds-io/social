@@ -82,13 +82,13 @@
     methods: {
       acceptToConnect () {
         this.accepting = true;
-        this.$userService.confirm(this.username)
+        eXo.$userService.confirm(this.username)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.accepting = false);
       },
       refuseToConnect () {
         this.refusing = true;
-        this.$userService.deleteRelationship(this.username)
+        eXo.$userService.deleteRelationship(this.username)
           .then(() => document.dispatchEvent(new CustomEvent('refresh-notifications')))
           .finally(() => this.refusing = false);
       },

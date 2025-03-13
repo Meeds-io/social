@@ -231,7 +231,7 @@
       },
       loginBackgroundSrc () {
         if (this.hasCustomBackground) {
-          return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
+          return eXo.$utils.convertImageDataAsSrc(this.loginBackgroundData);
         } else if (this.hasDefaultBackground) {
           return this.defaultLoginBackgroundSrc;
         } else {
@@ -299,7 +299,7 @@
         branding.loginSubtitle = this.loginSubtitle;
 
         this.$root.loading = true;
-        return this.$brandingService.updateBrandingInformation(branding)
+        return eXo.$brandingService.updateBrandingInformation(branding)
           .then(() => this.$emit('saved'))
           .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
           .catch(e => this.errorMessage = String(e))

@@ -117,7 +117,7 @@
         this.$root.$emit('reset-advanced-filter-count');
       },
       getSettings () {
-        return this.$profileSettingsService.getSettings()
+        return eXo.$profileSettingsService.getSettings()
           .then(settings => {
             this.settings = settings?.settings.filter(e => e.active && e.visible && e.parentId === null).map(obj => ({
               ...obj,

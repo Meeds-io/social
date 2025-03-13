@@ -34,84 +34,79 @@ if (extensionRegistry) {
   }
 }
 
-Vuetify.prototype.preset = eXo.env.portal.vuetifyPreset;
-Vue.prototype.vuetifyOptions = new Vuetify(eXo.env.portal.vuetifyPreset);
-
-Vue.use(Vuetify);
-
-window.Object.defineProperty(Vue.prototype, '$siteService', {
+window.Object.defineProperty(eXo, '$siteService', {
   value: siteService,
 });
 
-window.Object.defineProperty(Vue.prototype, '$userService', {
+window.Object.defineProperty(eXo, '$userService', {
   value: userService,
 });
-window.Object.defineProperty(Vue.prototype, '$spaceService', {
+window.Object.defineProperty(eXo, '$spaceService', {
   value: spaceService,
 });
-window.Object.defineProperty(Vue.prototype, '$suggesterService', {
+window.Object.defineProperty(eXo, '$suggesterService', {
   value: suggesterService,
 });
-window.Object.defineProperty(Vue.prototype, '$uploadService', {
+window.Object.defineProperty(eXo, '$uploadService', {
   value: uploadService,
 });
-window.Object.defineProperty(Vue.prototype, '$identityService', {
+window.Object.defineProperty(eXo, '$identityService', {
   value: identityService,
 });
-window.Object.defineProperty(Vue.prototype, '$dateUtil', {
+window.Object.defineProperty(eXo, '$dateUtil', {
   value: dateUtil,
 });
-window.Object.defineProperty(Vue.prototype, '$settingService', {
+window.Object.defineProperty(eXo, '$settingService', {
   value: settingService,
 });
-window.Object.defineProperty(Vue.prototype, '$featureService', {
+window.Object.defineProperty(eXo, '$featureService', {
   value: featureService,
 });
-window.Object.defineProperty(Vue.prototype, '$activityService', {
+window.Object.defineProperty(eXo, '$activityService', {
   value: activityService,
 });
-window.Object.defineProperty(Vue.prototype, '$favoriteService', {
+window.Object.defineProperty(eXo, '$favoriteService', {
   value: favoriteService,
 });
-window.Object.defineProperty(Vue.prototype, '$observerService', {
+window.Object.defineProperty(eXo, '$observerService', {
   value: observerService,
 });
-window.Object.defineProperty(Vue.prototype, '$tagService', {
+window.Object.defineProperty(eXo, '$tagService', {
   value: tagService,
 });
-window.Object.defineProperty(Vue.prototype, '$socialWebSocket', {
+window.Object.defineProperty(eXo, '$socialWebSocket', {
   value: socialWebSocket,
 });
-window.Object.defineProperty(Vue.prototype, '$utils', {
+window.Object.defineProperty(eXo, '$utils', {
   value: utils,
 });
-window.Object.defineProperty(Vue.prototype, '$spacesConstants', {
+window.Object.defineProperty(eXo, '$spacesConstants', {
   value: spacesConstants,
 });
-window.Object.defineProperty(Vue.prototype, '$brandingService', {
+window.Object.defineProperty(eXo, '$brandingService', {
   value: brandingService,
 });
-window.Object.defineProperty(Vue.prototype, '$profileSettingsService', {
+window.Object.defineProperty(eXo, '$profileSettingsService', {
   value: profileSettingsService,
 });
-window.Object.defineProperty(Vue.prototype, '$profileLabelService', {
+window.Object.defineProperty(eXo, '$profileLabelService', {
   value: profileLabelService,
 });
-window.Object.defineProperty(Vue.prototype, '$navigationService', {
+window.Object.defineProperty(eXo, '$navigationService', {
   value: navigationService,
 });
-window.Object.defineProperty(Vue.prototype, '$navigationUtils', {
+window.Object.defineProperty(eXo, '$navigationUtils', {
   value: navigationUtils,
 });
-window.Object.defineProperty(Vue.prototype, '$spaceTemplateService', {
+window.Object.defineProperty(eXo, '$spaceTemplateService', {
   value: spaceTemplateService,
 });
-window.Object.defineProperty(Vue.prototype, '$registrationService', {
+window.Object.defineProperty(eXo, '$registrationService', {
   value: registrationService,
 });
 
 if (eXo.env.portal.userIdentityId) {
-  window.Object.defineProperty(Vue.prototype, '$currentUserIdentity', {
+  window.Object.defineProperty(eXo, '$currentUserIdentity', {
     value: {
       id: eXo.env.portal.userIdentityId,
       username: eXo.env.portal.userName,
@@ -120,7 +115,7 @@ if (eXo.env.portal.userIdentityId) {
   identityService.getIdentityById(eXo.env.portal.userIdentityId)
     .then(identity => {
       if (identity) {
-        Object.assign(Vue.prototype.$currentUserIdentity, identity);
+        Object.assign(eXo.$currentUserIdentity, identity);
       }
     });
 }
@@ -148,12 +143,12 @@ export function init (i18n) {
     initSnackbar(i18n);
     return;
   }
-  if ((document.readyState === 'interactive' && document.querySelector('#drawers-overlay')) || document.readyState === 'complete') {
-    new Vue({
+  if ((document.readyState === 'interactive' && parentElement) || document.readyState === 'complete') {
+    Vue.createApp({
       template: '<drawers-overlay id="drawers-overlay" />',
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
-    }).$mount(parentElement);
+    }, '#drawers-overlay', 'Drawers Overlay');
     parentElement.id = null;
     initSnackbar(i18n);
   } else {
@@ -174,10 +169,10 @@ export function initSnackbar (i18n) {
     alertNotificationsElement.class = 'v-application v-application--is-ltr transparent theme--light';
     parentNotificationsElement.appendChild(alertNotificationsElement);
     parentNotificationsElement.classList.add('VuetifyApp');
-    new Vue({
+    Vue.createApp({
       template: '<v-app id="alert-notifications"><alert-notifications /></v-app>',
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
       i18n,
-    }).$mount(alertNotificationsElement);
+    }, '#alert-notifications', 'Alert Notifications');
   }
 }

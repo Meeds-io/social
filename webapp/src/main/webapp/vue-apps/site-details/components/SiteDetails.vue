@@ -139,7 +139,7 @@
       },
       changeHome () {
         const url = this.navigationUri(this.selectedNavigation);
-        this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', url)
+        eXo.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', url)
           .then(() => {
             this.homeLink = eXo.env.portal.homeLink = url;
             if (document.querySelector('#UserHomePortalLink')) {
