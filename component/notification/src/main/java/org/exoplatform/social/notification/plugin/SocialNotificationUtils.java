@@ -501,6 +501,7 @@ public class SocialNotificationUtils {
       previousNotification.setRead(false);
       previousNotification.setResetOnBadge(false);
       previousNotification.setLastModifiedDate(Calendar.getInstance());
+      previousNotification.setFrom(notification.getFrom());
       webNotificationService.update(previousNotification, true);
 
       // Mark new notification as Read as it was grouped
