@@ -20,9 +20,9 @@
 
 <template>
   <v-flex
-    class="d-flex">
+    class="d-flex flex-wrap">
     <div
-      class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
+      class="align-start text-no-wrap font-weight-bold me-3 mt-2 text-truncate">
       {{ propertyLabel }}
       <profile-hidden-property-info
         :property="property"
@@ -30,7 +30,7 @@
         :is-mobile="isMobile" />
     </div>
     <div
-      class="align-end flex-grow-1 text-truncate text-end">
+      class="align-end flex-grow-1 text-truncate text-end mt-2">
       <div
         v-if="userProperty"
         class="ms-auto width-fit-content">
@@ -46,15 +46,14 @@
             align-top />
         </div>
       </div>
-      <v-btn
+      <a
         v-else-if="searchable"
         v-autolinker="propertyDisplayValue"
         class="primary--text pa-0 font-weight-regular"
-        min-width="auto"
-        text
-        @click="quickSearch">
+        @click.prevent="quickSearch"
+        href="javascript:void(0);">
         {{ propertyDisplayValue }}
-      </v-btn>
+      </a>
       <span
         v-else
         class="font-weight-regular"
