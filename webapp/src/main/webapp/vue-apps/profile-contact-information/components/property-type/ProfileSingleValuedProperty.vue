@@ -22,7 +22,7 @@
   <v-flex
     class="d-flex flex-wrap">
     <div
-      class="align-start text-no-wrap font-weight-bold me-3 mt-2">
+      class="align-start text-no-wrap font-weight-bold me-3 mt-2 text-truncate">
       {{ propertyLabel }}
       <profile-hidden-property-info
         :property="property"
