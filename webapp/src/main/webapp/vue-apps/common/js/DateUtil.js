@@ -15,7 +15,7 @@ const DD_MM_YYYY_REGEX = /^\d{2}\/\d{2}\/\d{4}$/;
  * @param {Boolean} isISOString if true, the date will be parsed by ISO 8601 format
  * @returns {Date} Date object
  */
-export function getDateObjectFromString(value, isISOString) {
+export function getDateObjectFromString (value, isISOString) {
   value = String(value).trim();
   if (new RegExp(DIGIT_PATTERN).test(value)) {
     return new Date(parseInt(value));
@@ -53,7 +53,7 @@ export function getDateObjectFromString(value, isISOString) {
  * @param {Date} dateObj Date object
  * @returns {String} ISO 8601 date string with format yyyy-MM-dd
  */
-export function getISODate(dateObj) {
+export function getISODate (dateObj) {
   if (!dateObj) {
     return null;
   }
@@ -77,7 +77,7 @@ export function getISODate(dateObj) {
  *        will be used instead
  * @returns {String} string representation of date object
  */
-export function formatDateObjectToDisplay(dateObj, format, lang) {
+export function formatDateObjectToDisplay (dateObj, format, lang) {
   if (!lang) {
     lang = eXo.env.portal.language;
   }
@@ -88,7 +88,7 @@ export function formatDateObjectToDisplay(dateObj, format, lang) {
   }
 }
 
-export function getRelativeTimeLabelKey(dateObj, short) {
+export function getRelativeTimeLabelKey (dateObj, short) {
   if (!dateObj || !dateObj.getTime) {
     return '';
   }
@@ -114,7 +114,7 @@ export function getRelativeTimeLabelKey(dateObj, short) {
   }
 }
 
-export function getRelativeTimeValue(dateObj) {
+export function getRelativeTimeValue (dateObj) {
   if (!dateObj || !dateObj.getTime) {
     return '';
   }
@@ -130,7 +130,7 @@ export function getRelativeTimeValue(dateObj) {
   }
 }
 
-export function getShortRelativeTimeLabelKey(dateObj) {
+export function getShortRelativeTimeLabelKey (dateObj) {
   if (!dateObj || !dateObj.getTime) {
     return '';
   }
@@ -159,7 +159,7 @@ export function getShortRelativeTimeLabelKey(dateObj) {
   }
 }
 
-export function getShortRelativeTimeValue(dateObj) {
+export function getShortRelativeTimeValue (dateObj) {
   if (!dateObj || !dateObj.getTime) {
     return '';
   }

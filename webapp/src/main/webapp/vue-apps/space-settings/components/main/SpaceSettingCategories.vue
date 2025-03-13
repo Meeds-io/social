@@ -21,7 +21,9 @@
 <template>
   <div v-if="$root.isAllSections">
     <v-card flat>
-      <v-list class="pa-0" dense>
+      <v-list
+        class="pa-0"
+        dense>
         <v-list-item class="pa-0">
           <v-list-item-content>
             <v-list-item-title class="text-title py-1">
@@ -30,19 +32,23 @@
           </v-list-item-content>
           <v-list-item-action v-if="categoriesCount">
             <v-avatar
-              :title="$t('SpaceSettings.categories.button.tooltip')"
               color="#F57C00"
-              size="24">
+              size="24"
+              :title="$t('SpaceSettings.categories.button.tooltip')">
               <span class="white--text pt-2px">{{ categoriesCount }}</span>
             </v-avatar>
           </v-list-item-action>
           <v-list-item-action>
             <v-btn
-              :title="$t('SpaceSettings.categories.button.tooltip')"
-              small
               icon
+              small
+              :title="$t('SpaceSettings.categories.button.tooltip')"
               @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              <v-icon
+                class="icon-default-color"
+                size="18">
+                fa-edit
+              </v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -52,16 +58,16 @@
   </div>
 </template>
 <script>
-export default {
-  computed: {
-    categoriesCount() {
-      return this.$root.space.categoryIds?.length;
+  export default {
+    computed: {
+      categoriesCount () {
+        return this.$root.space.categoryIds?.length;
+      },
     },
-  },
-  methods: {
-    openDrawer() {
-      this.$refs.categoriesDrawer.open(this.$root.space.id, this.$root.space.categoryIds);
+    methods: {
+      openDrawer () {
+        this.$refs.categoriesDrawer.open(this.$root.space.id, this.$root.space.categoryIds);
+      },
     },
-  },
-};
+  };
 </script>

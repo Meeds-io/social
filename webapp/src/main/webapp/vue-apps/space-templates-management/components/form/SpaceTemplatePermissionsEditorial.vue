@@ -26,7 +26,9 @@
         {{ $t('spaceTemplate.permissionsStepIsSpaceEditorialLabel') }}
       </div>
       <div class="position-relative mx-8">
-        <v-switch v-model="editorial" class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
+        <v-switch
+          v-model="editorial"
+          class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
       </div>
     </div>
     <div class="text-subtitle">
@@ -35,23 +37,23 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
     },
-  },
-  data: () => ({
-    editorial: false,
-  }),
-  watch: {
-    editorial() {
-      this.$emit('input', this.editorial);
+    data: () => ({
+      editorial: false,
+    }),
+    watch: {
+      editorial () {
+        this.$emit('input', this.editorial);
+      },
     },
-  },
-  created() {
-    this.editorial = this.value;
-  },
-};
+    created () {
+      this.editorial = this.value;
+    },
+  };
 </script>

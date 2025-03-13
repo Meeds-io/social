@@ -22,12 +22,12 @@ const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.PlatformAdminsWidget?lang=${lang}`;
 const appId = 'PlatformAdminsWidget';
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       template: `<admins id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Platform Admins Widget');
   });
 }

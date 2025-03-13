@@ -19,6 +19,6 @@
 
 import * as notificationService from './js/NotificationService.js';
 
-window.Object.defineProperty(Vue.prototype, '$notificationService', {
+window.Object.defineProperty(eXo, '$notificationService', {
   value: notificationService,
 });

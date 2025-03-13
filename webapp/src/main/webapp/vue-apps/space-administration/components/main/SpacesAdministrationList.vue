@@ -23,66 +23,77 @@
 <template>
   <v-card
     class="d-flex flex-column"
-    min-height="calc(var(--100vh, 100vh) - 220px)"
-    flat>
-    <div id="spacesAdministrationListBody" class="flex-grow-1 flex-shrink-1 pt-2">
+    flat
+    min-height="calc(var(--100vh, 100vh) - 220px)">
+    <div
+      id="spacesAdministrationListBody"
+      class="flex-grow-1 flex-shrink-1 pt-2">
       <v-data-table
         v-if="$root.spacesSize || !$root.initialized"
         v-model="$root.selectedSpaces"
-        :headers="headers"
-        :items="$root.spaces"
-        :loading="$root.loading && !$root.isMobile"
-        :hide-default-header="$root.isMobile"
-        :options.sync="options"
-        :disable-sort="!canSort || $root.isMobile"
-        :must-sort="canSort"
-        :show-select="!$root.isMobile"
+        v-model:options="options"
         class="spacesAdministrationTable full-width px-0"
         disable-pagination
-        hide-default-footer>
-        <template slot="header.data-table-select" slot-scope="{on, props}">
+        :disable-sort="!canSort || $root.isMobile"
+        :headers="headers"
+        hide-default-footer
+        :hide-default-header="$root.isMobile"
+        :items="$root.spaces"
+        :loading="$root.loading && !$root.isMobile"
+        :must-sort="canSort"
+        :show-select="!$root.isMobile">
+        <template
+          #header.data-table-select="{on, props}">
           <v-checkbox
-            v-on="on"
             v-bind="props"
+            class="my-auto pt-2"
             :disabled="$root.isBulkProcessing"
-            on-icon="fas fa-check-square fa-lg primary--text"
             indeterminate-icon="fas fa-minus-square fa-lg"
             off-icon="far fa-square fa-lg"
-            class="my-auto pt-2"
+            on-icon="fas fa-check-square fa-lg primary--text"
+            v-on="on"
             @change="on.input" />
         </template>
-        <template v-if="$root.selectedSpaces.length && !$root.isBulkProcessing" slot="body.prepend">
+        <template
+          v-if="$root.selectedSpaces.length && !$root.isBulkProcessing"
+          #body.prepend>
           <tr>
-            <td :colspan="headers.length + 1" class="px-0">
+            <td
+              class="px-0"
+              :colspan="headers.length + 1">
               <v-alert
-                :icon="false"
-                class="ma-0 ps-5 no-border-radius"
                 border="left"
-                type="info"
-                colored-border>
+                class="ma-0 ps-5 no-border-radius"
+                colored-border
+                :icon="false"
+                type="info">
                 <div v-html="selectionLabel"></div>
               </v-alert>
             </td>
           </tr>
         </template>
-        <template slot="item" slot-scope="props">
+        <template #item="props">
           <spaces-administration-item
             :key="props.item.id"
-            :space="props.item"
             :headers="headers"
+            :select="props.select"
             :selected="props.isSelected"
-            :select="props.select" />
+            :space="props.item" />
         </template>
       </v-data-table>
       <v-card
         v-else-if="!$root.loadingSpaces"
-        min-height="calc(var(--100vh, 100vh) - 280px)"
         class="d-flex text-center noSpacesYetBlock"
-        flat>
+        flat
+        min-height="calc(var(--100vh, 100vh) - 280px)">
         <div class="ma-auto noSpacesYet">
           <p class="noSpacesYetIcons">
-            <v-icon class="fa-9x">fa-chevron-left</v-icon>
-            <v-icon class="fa-9x">fa-chevron-right</v-icon>
+            <v-icon class="fa-9x">
+              fa-chevron-left
+            </v-icon>
+            <v-icon class="fa-9x">
+              fa-chevron-right
+            </v-icon>
           </p>
           <template v-if="spacesSize > 0">
             <p class="text-title">
@@ -99,9 +110,9 @@
             <span>
               {{ $t('spacesList.label.noSpacesYetDescription2') }}
               <v-btn
+                class="primary--text px-0 pb-1 addNewSpaceLink"
                 link
                 text
-                class="primary--text px-0 pb-1 addNewSpaceLink"
                 @click="$root.$emit('addNewSpace')">
                 {{ $t('spacesList.label.noSpacesLink') }}
               </v-btn>
@@ -115,9 +126,9 @@
       id="spacesListFooter"
       class="flex-grow-0 flex-shrink-0 pb-5 border-box-sizing px-2">
       <v-btn
-        :loading="$root.loadingSpaces"
-        class="loadMoreButton border-color elevation-0 ma-auto"
         block
+        class="loadMoreButton border-color elevation-0 ma-auto"
+        :loading="$root.loadingSpaces"
         @click="$root.loadNextPage">
         {{ $t('spacesList.button.showMore') }}
       </v-btn>
@@ -125,164 +136,164 @@
   </v-card>
 </template>
 <script>
-export default {
-  data: () => ({
-    allowOptionsWatching: true,
-    options: {
-      sortBy: ['title'],
-      sortDesc: [false],
-    },
-  }),
-  computed: {
-    canSort() {
-      // Sort is made by pertinence
-      // When search by keyword, thus disable
-      // when the text search is used
-      return !this.$root.keyword?.length && !this.$root.isBulkProcessing;
-    },
-    headers() {
-      const headers = this.$root.isMobile && [
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.name'),
-          value: 'title',
-          align: 'left',
-          sortable: false,
-          class: 'space-name-header px-0',
-          width: '70%'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.users'),
-          value: 'membersCount',
-          align: 'center',
-          sortable: false,
-          class: 'space-users-header px-0',
-          width: '15%'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.actions'),
-          value: 'actions',
-          align: 'center',
-          sortable: false,
-          class: 'space-actions-header px-0',
-          width: '15%'
-        },
-      ] || [
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.name'),
-          value: 'title',
-          align: 'left',
-          sortable: true,
-          class: 'space-name-header pe-0',
-          width: 'auto'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.template'),
-          value: 'templateId',
-          align: 'center',
-          sortable: false,
-          class: 'space-template-header px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.admins'),
-          value: 'managersCount',
-          align: 'center',
-          sortable: false,
-          class: 'space-admins-header px-1',
-          width: '120px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.users'),
-          value: 'membersCount',
-          align: 'center',
-          sortable: false,
-          class: 'space-users-header px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.bindingStatus'),
-          value: 'totalBoundUsers',
-          align: 'center',
-          sortable: false,
-          class: 'space-group-binding-header px-1',
-          width: '90px'
-        },
-        {
-          text: this.$t('social.spaces.administration.manageSpaces.actions'),
-          value: 'actions',
-          align: 'center',
-          sortable: false,
-          class: 'space-actions-header px-1',
-          width: '90px'
-        },
-      ];
-      if (!this.$root.isMobile) {
-        this.$root.tableColumnExtensions.forEach(extension => headers.splice(1, 0, {
-          ...extension.header,
-          text: this.$t(extension.titleKey)
-        }));
-      }
-      return headers;
-    },
-    selectionLabel() {
-      if (this.$root.allSpacesSelected) {
-        return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
-          0: `<strong>${this.$root.spacesSize}</strong>`,
-        });
-      } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
-        return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
-          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
-          1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
-          2: this.$root.spacesSize,
-          3: '</a>',
-        });
-      } else {
-        return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
-          0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
-        });
-      }
-    },
-    selectedSpaces() {
-      return this.$root.selectedSpaces;
-    },
-    isBulkProcessing() {
-      return this.$root.isBulkProcessing;
-    },
-    isAllowOptionsWatching() {
-      return !this.$root.isBulkProcessing && this.allowOptionsWatching;
-    },
-  },
-  watch: {
-    isBulkProcessing() {
-      if (this.isBulkProcessing) {
-        this.allowOptionsWatching = false;
-      } else {
-        // Differ to not update list right after bulk processing finished
-        this.$nextTick().then(() => window.setTimeout(() => this.allowOptionsWatching = true, 200));
-      }
-    },
-    options: {
-      handler () {
-        if (!this.$root.keyword?.length && this.isAllowOptionsWatching) {
-          this.$root.sortBy = this.options?.sortBy?.[0];
-          this.$root.sortDesc = this.options?.sortDesc?.[0];
-          this.$root.searchSpaces(true);
+  export default {
+    data: () => ({
+      allowOptionsWatching: true,
+      options: {
+        sortBy: ['title'],
+        sortDesc: [false],
+      },
+    }),
+    computed: {
+      canSort () {
+        // Sort is made by pertinence
+        // When search by keyword, thus disable
+        // when the text search is used
+        return !this.$root.keyword?.length && !this.$root.isBulkProcessing;
+      },
+      headers () {
+        const headers = this.$root.isMobile && [
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.name'),
+            value: 'title',
+            align: 'left',
+            sortable: false,
+            class: 'space-name-header px-0',
+            width: '70%',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.users'),
+            value: 'membersCount',
+            align: 'center',
+            sortable: false,
+            class: 'space-users-header px-0',
+            width: '15%',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.actions'),
+            value: 'actions',
+            align: 'center',
+            sortable: false,
+            class: 'space-actions-header px-0',
+            width: '15%',
+          },
+        ] || [
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.name'),
+            value: 'title',
+            align: 'left',
+            sortable: true,
+            class: 'space-name-header pe-0',
+            width: 'auto',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.template'),
+            value: 'templateId',
+            align: 'center',
+            sortable: false,
+            class: 'space-template-header px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.admins'),
+            value: 'managersCount',
+            align: 'center',
+            sortable: false,
+            class: 'space-admins-header px-1',
+            width: '120px',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.users'),
+            value: 'membersCount',
+            align: 'center',
+            sortable: false,
+            class: 'space-users-header px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.bindingStatus'),
+            value: 'totalBoundUsers',
+            align: 'center',
+            sortable: false,
+            class: 'space-group-binding-header px-1',
+            width: '90px',
+          },
+          {
+            text: this.$t('social.spaces.administration.manageSpaces.actions'),
+            value: 'actions',
+            align: 'center',
+            sortable: false,
+            class: 'space-actions-header px-1',
+            width: '90px',
+          },
+        ];
+        if (!this.$root.isMobile) {
+          this.$root.tableColumnExtensions.forEach(extension => headers.splice(1, 0, {
+            ...extension.header,
+            text: this.$t(extension.titleKey),
+          }));
+        }
+        return headers;
+      },
+      selectionLabel () {
+        if (this.$root.allSpacesSelected) {
+          return this.$t('social.spaces.administration.manageSpaces.allSpacesSelected', {
+            0: `<strong>${this.$root.spacesSize}</strong>`,
+          });
+        } else if (this.$root.selectedSpaces.length === this.$root.spaces.length && this.$root.spaces.length < this.$root.spacesSize) {
+          return this.$t('social.spaces.administration.manageSpaces.allDisplayedSpacesSelected', {
+            0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
+            1: '<a class="primary--text font-weight-bold" onclick="window.dispatchEvent(new CustomEvent(\'select-all-spaces\'))">',
+            2: this.$root.spacesSize,
+            3: '</a>',
+          });
+        } else {
+          return this.$t('social.spaces.administration.manageSpaces.selectedSpacesCount', {
+            0: `<strong>${this.$root.selectedSpaces.length}</strong>`,
+          });
         }
       },
-      deep: true,
+      selectedSpaces () {
+        return this.$root.selectedSpaces;
+      },
+      isBulkProcessing () {
+        return this.$root.isBulkProcessing;
+      },
+      isAllowOptionsWatching () {
+        return !this.$root.isBulkProcessing && this.allowOptionsWatching;
+      },
     },
-  },
-  created() {
-    this.$root.searchSpaces();
-    window.addEventListener('select-all-spaces', this.selectAllSpaces);
-  },
-  beforeDestroy() {
-    window.removeEventListener('select-all-spaces', this.selectAllSpaces);
-  },
-  methods: {
-    selectAllSpaces() {
-      this.$root.allSpacesSelected = true;
+    watch: {
+      isBulkProcessing () {
+        if (this.isBulkProcessing) {
+          this.allowOptionsWatching = false;
+        } else {
+          // Differ to not update list right after bulk processing finished
+          this.$nextTick().then(() => window.setTimeout(() => this.allowOptionsWatching = true, 200));
+        }
+      },
+      options: {
+        handler () {
+          if (!this.$root.keyword?.length && this.isAllowOptionsWatching) {
+            this.$root.sortBy = this.options?.sortBy?.[0];
+            this.$root.sortDesc = this.options?.sortDesc?.[0];
+            this.$root.searchSpaces(true);
+          }
+        },
+        deep: true,
+      },
     },
-  }
-};
+    created () {
+      this.$root.searchSpaces();
+      window.addEventListener('select-all-spaces', this.selectAllSpaces);
+    },
+    beforeUnmount () {
+      window.removeEventListener('select-all-spaces', this.selectAllSpaces);
+    },
+    methods: {
+      selectAllSpaces () {
+        this.$root.allSpacesSelected = true;
+      },
+    },
+  };
 </script>

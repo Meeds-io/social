@@ -22,10 +22,10 @@
   <div class="full-width border-box-sizing">
     <div class="d-flex position-relative full-width mb-2">
       <help-label
+        class="font-weight-bold flex-grow-1 flex-shrink-1"
         label="spaceTemplate.defaultSpaceConfigurationStepBanner"
         label-class="text-body font-weight-bold"
-        tooltip="spaceTemplate.defaultSpaceConfigurationStepBannerTooltip"
-        class="font-weight-bold flex-grow-1 flex-shrink-1">
+        tooltip="spaceTemplate.defaultSpaceConfigurationStepBannerTooltip">
         <template #helpContent>
           <p>
             {{ $t('spaceTemplate.defaultSpaceConfigurationStepBannerHelp1') }}
@@ -37,118 +37,120 @@
       </help-label>
       <div class="position-relative px-7">
         <v-btn
-          :title="$t('spaceTemplate.defaultSpaceConfigurationStepBannerButtonTooltip')"
           class="absolute-vertical-center"
-          outlined
           icon
+          outlined
+          :title="$t('spaceTemplate.defaultSpaceConfigurationStepBannerButtonTooltip')"
           @click="$refs.imageCropDrawer.open()">
-          <v-icon size="18">fa-camera</v-icon>
+          <v-icon size="18">
+            fa-camera
+          </v-icon>
         </v-btn>
       </div>
     </div>
     <img
-      :src="bannerUrl"
       :alt="$t('spaceTemplate.bannerImage')"
-      width="100%"
+      class="d-flex border-radius"
       height="auto"
-      class="d-flex border-radius">
+      :src="bannerUrl"
+      width="100%">
     <image-crop-drawer
       ref="imageCropDrawer"
       v-model="uploadId"
       :crop-options="cropOptions"
-      :max-file-size="maxUploadSizeInBytes"
-      :src="bannerUrl"
-      max-image-width="1280"
       drawer-title="spaceTemplate.defaultSpaceConfigurationStepBannerCropperDrawer"
+      :max-file-size="maxUploadSizeInBytes"
+      max-image-width="1280"
+      :src="bannerUrl"
       @data="imageData = $event" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    spaceTemplate: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceTemplate: {
+        type: Object,
+        default: null,
+      },
+      bannerUploadId: {
+        type: String,
+        default: null,
+      },
+      bannerData: {
+        type: Object,
+        default: null,
+      },
+      maxUploadSize: {
+        type: Number,
+        default: () => 2,
+      },
     },
-    bannerUploadId: {
-      type: String,
-      default: null,
+    data: () => ({
+      imageData: null,
+      uploadId: null,
+      defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
+      cropOptions: {
+        aspectRatio: 1280 / 175,
+        viewMode: 1,
+      },
+    }),
+    computed: {
+      spaceTemplateId () {
+        return this.spaceTemplate?.id;
+      },
+      bannerFileId () {
+        return this.spaceTemplate?.bannerFileId;
+      },
+      bannerUrl () {
+        if (this.imageData) {
+          return this.imageData;
+        } else if (this.bannerFileId) {
+          return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplateId}/${this.bannerFileId}`;
+        } else {
+          return this.defaultBannerSrc;
+        }
+      },
+      maxUploadSizeInBytes () {
+        return this.maxUploadSize * 1024 * 1024;
+      },
+      height () {
+        if (this.$root.isMobile) {
+          return 125;
+        } else {
+          return 175;
+        }
+      },
     },
-    bannerData: {
-      type: Object,
-      default: null,
+    watch: {
+      imageData () {
+        this.$emit('data', this.imageData);
+      },
+      uploadId () {
+        this.$emit('input', this.uploadId);
+      },
     },
-    maxUploadSize: {
-      type: Number,
-      default: () => 2,
+    created () {
+      this.uploadId = this.bannerUploadId;
+      this.imageData = this.bannerData;
     },
-  },
-  data: () => ({
-    imageData: null,
-    uploadId: null,
-    defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
-    cropOptions: {
-      aspectRatio: 1280 / 175,
-      viewMode: 1,
+    methods: {
+      save (spaceTemplateId) {
+        if (this.uploadId) {
+          return eXo.$fileAttachmentService.saveAttachments({
+            objectType: 'spaceTemplateBanner',
+            objectId: this.spaceTemplateId || spaceTemplateId,
+            uploadedFiles: this.uploadId && [{ uploadId: this.uploadId }] || [],
+            attachedFiles: [],
+          }).then(report => {
+            if (report?.errorByUploadId?.length) {
+              const attachmentHtmlError = Object.values(report.errorByUploadId).join('<br>');
+              this.$root.$emit('alert-message-html', attachmentHtmlError, 'error');
+            } else if (this.$refs.uploadInput) {
+              this.$refs.uploadInput.reset();
+            }
+          });
+        }
+      },
     },
-  }),
-  computed: {
-    spaceTemplateId() {
-      return this.spaceTemplate?.id;
-    },
-    bannerFileId() {
-      return this.spaceTemplate?.bannerFileId;
-    },
-    bannerUrl() {
-      if (this.imageData) {
-        return this.imageData;
-      } else if (this.bannerFileId) {
-        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplateId}/${this.bannerFileId}`;
-      } else {
-        return this.defaultBannerSrc;
-      }
-    },
-    maxUploadSizeInBytes() {
-      return this.maxUploadSize * 1024 * 1024;
-    },
-    height() {
-      if (this.$root.isMobile) {
-        return 125;
-      } else {
-        return 175;
-      }
-    },
-  },
-  watch: {
-    imageData() {
-      this.$emit('data', this.imageData);
-    },
-    uploadId() {
-      this.$emit('input', this.uploadId);
-    },
-  },
-  created() {
-    this.uploadId = this.bannerUploadId;
-    this.imageData = this.bannerData;
-  },
-  methods: {
-    save(spaceTemplateId) {
-      if (this.uploadId) {
-        return this.$fileAttachmentService.saveAttachments({
-          objectType: 'spaceTemplateBanner',
-          objectId: this.spaceTemplateId || spaceTemplateId,
-          uploadedFiles: this.uploadId && [{uploadId: this.uploadId}] || [],
-          attachedFiles: [],
-        }).then((report) => {
-          if (report?.errorByUploadId?.length) {
-            const attachmentHtmlError = Object.values(report.errorByUploadId).join('<br>');
-            this.$root.$emit('alert-message-html', attachmentHtmlError, 'error');
-          } else if (this.$refs.uploadInput) {
-            this.$refs.uploadInput.reset();
-          }
-        });
-      }
-    },
-  },
-};
+  };
 </script>

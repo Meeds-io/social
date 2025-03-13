@@ -24,13 +24,15 @@
     id="SpaceSettingsCategoriesDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading || saving"
     allow-expand
+    :loading="loading || saving"
     right>
     <template #title>
       {{ $t('categoryInput.drawer') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="d-flex flex-column ma-4">
         <div class="mb-2">
           {{ $t('categoryInput.drawer.summary1') }}
@@ -45,19 +47,19 @@
         <category-input v-model="selectedCategoryIds" />
       </div>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
+          :disabled="saving"
           @click="close">
           {{ $t('categoryInput.cancel') }}
         </v-btn>
         <v-btn
+          class="btn btn-primary"
           :disabled="!modified"
           :loading="saving"
-          class="btn btn-primary"
           @click.prevent.stop="save">
           {{ $t('categoryInput.update') }}
         </v-btn>
@@ -66,55 +68,55 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    formModified: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      formModified: {
+        type: Boolean,
+        default: false,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    loading: false,
-    saving: false,
-    spaceId: null,
-    categoryIds: null,
-    selectedCategoryIds: null,
-  }),
-  computed: {
-    modified() {
-      return this.formModified || JSON.stringify(this.selectedCategoryIds) !== JSON.stringify(this.categoryIds);
+    data: () => ({
+      drawer: false,
+      loading: false,
+      saving: false,
+      spaceId: null,
+      categoryIds: null,
+      selectedCategoryIds: null,
+    }),
+    computed: {
+      modified () {
+        return this.formModified || JSON.stringify(this.selectedCategoryIds) !== JSON.stringify(this.categoryIds);
+      },
     },
-  },
-  methods: {
-    open(spaceId, categoryIds) {
-      this.spaceId = spaceId;
-      this.categoryIds = categoryIds || [];
-      this.selectedCategoryIds = this.categoryIds.slice();
-      this.$refs.drawer.open();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    async save() {
-      if (!this.spaceId) {
-        this.$emit('save', this.selectedCategoryIds);
-        return;
-      } else {
-        this.saving = true;
-        try {
-          await this.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds, true);
-          this.categoryIds = this.selectedCategoryIds;
-          this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
-          this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
-          this.close();
-        } catch (e) {
-          this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
-        } finally {
-          this.saving = false;
+    methods: {
+      open (spaceId, categoryIds) {
+        this.spaceId = spaceId;
+        this.categoryIds = categoryIds || [];
+        this.selectedCategoryIds = this.categoryIds.slice();
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      async save () {
+        if (!this.spaceId) {
+          this.$emit('save', this.selectedCategoryIds);
+          return;
+        } else {
+          this.saving = true;
+          try {
+            await eXo.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds, true);
+            this.categoryIds = this.selectedCategoryIds;
+            this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
+            this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
+            this.close();
+          } catch (e) {
+            this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
+          } finally {
+            this.saving = false;
+          }
         }
-      }
+      },
     },
-  },
-};
+  };
 </script>

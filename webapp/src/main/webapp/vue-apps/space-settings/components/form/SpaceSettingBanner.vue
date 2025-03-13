@@ -37,36 +37,40 @@
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
-            ref="bannerInput"
             id="spaceBannerEditButton"
-            :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
-            outlined
+            ref="bannerInput"
             icon
+            outlined
+            :title="$t('UIPopupBannerUploader.title.ChangeBanner')"
             @click="$refs.imageCropDrawer.open()">
-            <v-icon size="18">fa-camera</v-icon>
+            <v-icon size="18">
+              fa-camera
+            </v-icon>
           </v-btn>
           <v-btn
             v-show="!isDefaultBanner"
-            :title="$t('UIPopupBannerUploader.title.deleteBanner')"
             id="spaceBannerDeleteButton"
-            outlined
             icon
+            outlined
+            :title="$t('UIPopupBannerUploader.title.deleteBanner')"
             @click="removeBanner">
-            <v-icon size="18">fa-undo</v-icon>
+            <v-icon size="18">
+              fa-undo
+            </v-icon>
           </v-btn>
         </div>
       </div>
     </div>
     <v-img
-      :lazy-src="imageData || bannerUrl || ''"
-      :src="imageData || bannerUrl || ''"
-      :class="!bannerUrl && 'primary'"
       id="spaceAvatarImg"
-      max-width="100%"
-      height="auto"
       class="d-flex border-radius"
+      :class="!bannerUrl && 'primary'"
       contain
-      eager>
+      eager
+      height="auto"
+      :lazy-src="imageData || bannerUrl || ''"
+      max-width="100%"
+      :src="imageData || bannerUrl || ''">
       <v-card
         class="full-width full-height"
         flat
@@ -75,62 +79,62 @@
     <image-crop-drawer
       ref="imageCropDrawer"
       :crop-options="cropOptions"
-      :max-file-size="maxUploadSizeInBytes"
-      :src="imageData || `${bannerUrl}&size=0`"
-      max-image-width="1280"
       drawer-title="UIPopupBannerUploader.title.ChangeBanner"
+      :max-file-size="maxUploadSizeInBytes"
+      max-image-width="1280"
+      :src="imageData || `${bannerUrl}&size=0`"
       @data="imageData = $event"
       @input="updateBanner" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    maxUploadSize: {
-      type: Number,
-      default: () => 2,
+  export default {
+    props: {
+      maxUploadSize: {
+        type: Number,
+        default: () => 2,
+      },
     },
-  },
-  data: () => ({
-    imageData: null,
-    useDefaultBanner: false,
-    cropOptions: {
-      aspectRatio: 1280 / 175,
-      viewMode: 1,
+    data: () => ({
+      imageData: null,
+      useDefaultBanner: false,
+      cropOptions: {
+        aspectRatio: 1280 / 175,
+        viewMode: 1,
+      },
+    }),
+    computed: {
+      bannerUrl () {
+        if (this.useDefaultBanner) {
+          return this.$root.space?.template ? `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/${this.$root.space?.template}/banner?lastModified=${Date.now()}` : '';
+        } else {
+          return this.imageData || this.$root.space?.bannerUrl;
+        }
+      },
+      isDefaultBanner () {
+        return this.useDefaultBanner || !this.bannerUrl || this.bannerUrl.includes('/spaceTemplates/');
+      },
+      maxUploadSizeInBytes () {
+        return this.maxUploadSize * 1024 * 1024;
+      },
+      height () {
+        if (this.$root.isMobile) {
+          return 125;
+        } else {
+          return 175;
+        }
+      },
     },
-  }),
-  computed: {
-    bannerUrl() {
-      if (this.useDefaultBanner) {
-        return this.$root.space?.template ? `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaceTemplates/${this.$root.space?.template}/banner?lastModified=${Date.now()}` : '';
-      } else {
-        return this.imageData || this.$root.space?.bannerUrl;
-      }
+    methods: {
+      removeBanner () {
+        this.useDefaultBanner = true;
+        this.imageData = null;
+        this.$emit('input', 'DEFAULT_BANNER');
+      },
+      updateBanner (uploadId) {
+        this.useDefaultBanner = false;
+        this.$emit('input', uploadId);
+      },
     },
-    isDefaultBanner() {
-      return this.useDefaultBanner || !this.bannerUrl || this.bannerUrl.includes('/spaceTemplates/');
-    },
-    maxUploadSizeInBytes() {
-      return this.maxUploadSize * 1024 * 1024;
-    },
-    height() {
-      if (this.$root.isMobile) {
-        return 125;
-      } else {
-        return 175;
-      }
-    },
-  },
-  methods: {
-    removeBanner() {
-      this.useDefaultBanner = true;
-      this.imageData = null;
-      this.$emit('input', 'DEFAULT_BANNER');
-    },
-    updateBanner(uploadId) {
-      this.useDefaultBanner = false;
-      this.$emit('input', uploadId);
-    },
-  },
-};
+  };
 </script>

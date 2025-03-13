@@ -23,64 +23,66 @@
 <template>
   <v-menu
     v-if="breadcrumb && category.categories?.length"
+    :key="category.id"
     ref="menu"
     v-model="menu"
-    :key="category.id"
-    :max-width="350"
+    bottom
     close-delay="500"
-    open-on-hover
     close-on-click
+    :max-width="350"
     offset-y
-    bottom>
+    open-on-hover>
     <template #activator="{on, attrs}">
       <v-chip
         ref="chip"
-        v-on="$listeners?.select && {
+        v-bind="attrs"
+        class="text-truncate border-box-sizing"
+        :class="[chipClass, !visible && 'invisible' || '']"
+        color="primary"
+        :outlined="!selected"
+        v-on="$attrs?.select && {
           ...on,
           click: () => openCategory(category),
-        } || on"
-        v-bind="attrs"
-        :outlined="!selected"
-        :class="[chipClass, !visible && 'invisible' || '']"
-        class="text-truncate border-box-sizing"
-        color="primary">
+        } || on">
         <v-card
-          :title="category.name"
+          class="text-truncate"
           :class="[
             selected && 'white--text' || 'primary--text',
           ]"
-          :max-width="maxWidth"
           color="transparent"
-          width="auto"
-          class="text-truncate"
-          flat>
+          flat
+          :max-width="maxWidth"
+          :title="category.name"
+          width="auto">
           {{ category.name }}
         </v-card>
         <v-icon
           v-if="category.categories?.length"
-          :color="selected && 'white' || 'primary'"
           class="ms-2"
-          size="16"
+          :color="selected && 'white' || 'primary'"
           right
+          size="16"
           @click.stop.prevent="menu = true">
           fa-chevron-down
         </v-icon>
       </v-chip>
     </template>
-    <v-list class="pa-0" dense>
+    <v-list
+      class="pa-0"
+      dense>
       <v-list-item
         v-for="subItem in category.categories"
         :key="subItem.id"
-        :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
         class="text-truncate"
+        :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
         dense
         @click.prevent.stop="openCategory(subItem)">
         <v-card
-          :title="subItem.name"
-          :max-width="maxWidth"
-          color="transparent"
           class="text-truncate"
-          flat>
+          color="transparent"
+          flat
+          :max-width="maxWidth"
+          :title="subItem.name">
           {{ subItem.name }}
         </v-card>
       </v-list-item>
@@ -89,98 +91,98 @@
   <v-chip
     v-else
     ref="chip"
-    :outlined="!selected"
-    :class="[chipClass, !visible && 'invisible' || '']"
     class="text-truncate border-box-sizing"
+    :class="[chipClass, !visible && 'invisible' || '']"
     color="primary"
+    :outlined="!selected"
     @click.prevent.stop="openCategory(category)">
     <v-card
-      :title="category.name"
+      class="text-truncate"
       :class="[
         selected && 'white--text' || 'primary--text',
       ]"
-      :max-width="maxWidth"
-      class="text-truncate"
       color="transparent"
-      width="auto"
-      flat>
+      flat
+      :max-width="maxWidth"
+      :title="category.name"
+      width="auto">
       {{ category.name }}
     </v-card>
   </v-chip>
 </template>
 <script>
-export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      category: {
+        type: Object,
+        default: null,
+      },
+      selected: {
+        type: Boolean,
+        default: false,
+      },
+      breadcrumb: {
+        type: Boolean,
+        default: false,
+      },
+      maxWidth: {
+        type: Number,
+        default: () => 150,
+      },
+      chipClass: {
+        type: String,
+        default: null,
+      },
+      parentWidth: {
+        type: Number,
+        default: null,
+      },
     },
-    selected: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      menu: false,
+      width: null,
+    }),
+    computed: {
+      visible () {
+        return !this.parentWidth || !this.width || this.width < this.parentWidth;
+      },
     },
-    breadcrumb: {
-      type: Boolean,
-      default: false,
+    watch: {
+      visible: {
+        immediate: true,
+        handler () {
+          if (this.parentWidth && this.width) {
+            this.$emit('initialized', this.visible);
+          }
+        },
+      },
     },
-    maxWidth: {
-      type: Number,
-      default: () => 150,
+    created () {
+      document.addEventListener('click', this.closeMenuImmediatly);
     },
-    chipClass: {
-      type: String,
-      default: null,
-    },
-    parentWidth: {
-      type: Number,
-      default: null,
-    },
-  },
-  data: () => ({
-    menu: false,
-    width: null,
-  }),
-  computed: {
-    visible() {
-      return !this.parentWidth || !this.width || this.width < this.parentWidth;
-    },
-  },
-  watch: {
-    visible: {
-      immediate: true,
-      handler() {
-        if (this.parentWidth && this.width) {
-          this.$emit('initialized', this.visible);
+    mounted () {
+      window.setTimeout(() => {
+        if (this.$refs?.chip?.$el) {
+          this.width = this.$refs.chip.$el.offsetLeft + this.$refs.chip.$el.offsetWidth;
         }
-      }
+      }, 10);
     },
-  },
-  created() {
-    document.addEventListener('click', this.closeMenuImmediatly);
-  },
-  mounted() {
-    window.setTimeout(() => {
-      if (this.$refs?.chip?.$el) {
-        this.width = this.$refs.chip.$el.offsetLeft + this.$refs.chip.$el.offsetWidth;
-      }
-    }, 10);
-  },
-  beforeDestroy() {
-    document.removeEventListener('click', this.closeMenuImmediatly);
-  },
-  methods: {
-    closeMenuImmediatly() {
-      this.menu = false;
+    beforeUnmount () {
+      document.removeEventListener('click', this.closeMenuImmediatly);
     },
-    openCategory(category) {
-      this.$emit('select', category);
-      if (this.menu) {
-        this.closeMenu();
-      }
+    methods: {
+      closeMenuImmediatly () {
+        this.menu = false;
+      },
+      openCategory (category) {
+        this.$emit('select', category);
+        if (this.menu) {
+          this.closeMenu();
+        }
+      },
+      closeMenu () {
+        window.setTimeout(() => this.menu = false, 50);
+      },
     },
-    closeMenu() {
-      window.setTimeout(() => this.menu = false, 50);
-    },
-  },
-};
+  };
 </script>

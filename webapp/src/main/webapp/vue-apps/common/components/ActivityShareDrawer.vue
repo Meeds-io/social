@@ -1,14 +1,14 @@
 <template>
   <exo-drawer
-    ref="activityShareDrawer"
     id="activityShareDrawer"
+    ref="activityShareDrawer"
     right
-    @opened="opened = true"
-    @closed="opened = false">
-    <template slot="title">
+    @closed="opened = false"
+    @opened="opened = true">
+    <template #title>
       {{ $t('UIActivity.share.drawer.popupTitle') }}
     </template>
-    <template slot="content">
+    <template #content>
       <v-form
         v-if="activityId"
         ref="activityShareFrom"
@@ -23,30 +23,32 @@
               id="selectDestinationSpaceToShare"
               ref="activitySpaceSuggester"
               v-model="spaces"
-              :labels="spaceSuggesterLabels"
-              :include-users="false"
-              :width="220"
-              name="activitySpaceAutocomplete"
+              autofocus
               class="space-suggester activitySpaceAutocomplete"
               include-spaces
+              :include-users="false"
+              :labels="spaceSuggesterLabels"
               multiple
+              name="activitySpaceAutocomplete"
               only-redactor
-              autofocus />
+              :width="220" />
           </div>
           <div class="d-flex flex-row">
             <rich-editor
               id="shareMessageInput"
               ref="activityShareMessage"
               v-model="description"
-              :template-params="templateParams"
-              :max-length="MESSAGE_MAX_LENGTH"
-              :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
               ck-editor-type="activityShare"
               class="flex"
+              :max-length="MESSAGE_MAX_LENGTH"
+              :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
+              :template-params="templateParams"
               @validity-updated="validInput = $event" />
           </div>
           <div class="d-flex flex-row mt-4">
-            <v-icon class="warning--text">warning</v-icon>
+            <v-icon class="warning--text">
+              warning
+            </v-icon>
             <span class="ms-2 grey--text">
               {{ $t('UIActivity.share.warnMessage') }}
             </span>
@@ -54,21 +56,21 @@
         </div>
       </v-form>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex justify-end">
         <v-btn
           id="cancelShareActivityButton"
-          class="btn me-2"
           :aria-label="$t('Confirmation.label.Cancel')"
+          class="btn me-2"
           @click="close">
           {{ $t('Confirmation.label.Cancel') }}
         </v-btn>
         <v-btn
           id="shareActivityButton"
-          :loading="sharing"
-          :disabled="buttonDisabled"
           :aria-label="$t('UIActivity.share')"
           class="btn btn-primary me-2"
+          :disabled="buttonDisabled"
+          :loading="sharing"
           @click="shareActivity">
           {{ $t('UIActivity.share') }}
         </v-btn>
@@ -78,74 +80,74 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    MESSAGE_MAX_LENGTH: 1250,
-    opened: false,
-    sharing: false,
-    validInput: true,
-    description: '',
-    activityId: null,
-    currentApp: '',
-    spaces: [],
-  }),
-  computed: {
-    buttonDisabled() {
-      return !this.activityId
-        || !this.validInput
-        || this.sharing
-        || !this.spaces
-        || !this.spaces.filter(part => part).length;
+  export default {
+    data: () => ({
+      MESSAGE_MAX_LENGTH: 1250,
+      opened: false,
+      sharing: false,
+      validInput: true,
+      description: '',
+      activityId: null,
+      currentApp: '',
+      spaces: [],
+    }),
+    computed: {
+      buttonDisabled () {
+        return !this.activityId
+          || !this.validInput
+          || this.sharing
+          || !this.spaces
+          || !this.spaces.filter(part => part).length;
+      },
+      spaceSuggesterLabels () {
+        return {
+          searchPlaceholder: this.$t('UIActivity.share.spaces.searchPlaceholder'),
+          placeholder: this.$t('UIActivity.share.spaces.placeholder'),
+          noDataLabel: this.$t('UIActivity.share.spaces.noDataLabel'),
+        };
+      },
     },
-    spaceSuggesterLabels() {
-      return {
-        searchPlaceholder: this.$t('UIActivity.share.spaces.searchPlaceholder'),
-        placeholder: this.$t('UIActivity.share.spaces.placeholder'),
-        noDataLabel: this.$t('UIActivity.share.spaces.noDataLabel'),
-      };
+    created () {
+      this.$root.$on('activity-share-drawer-open', this.open);
     },
-  },
-  created() {
-    this.$root.$on('activity-share-drawer-open', this.open);
-  },
-  methods: {
-    clear() {
-      this.activityId = null;
-      this.spaces = [];
-      this.templateParams = {};
-      this.description = '';
-      this.sharing = false;
+    methods: {
+      clear () {
+        this.activityId = null;
+        this.spaces = [];
+        this.templateParams = {};
+        this.description = '';
+        this.sharing = false;
+      },
+      open (activityId, currentApp) {
+        this.activityId = activityId;
+        this.currentApp = currentApp;
+        if (this.activityId) {
+          this.$refs.activityShareDrawer.open();
+        }
+      },
+      close () {
+        this.$refs.activityShareDrawer.close();
+      },
+      shareActivity () {
+        const spacePrettyNames = this.spaces.map(space => space.remoteId);
+        this.sharing = true;
+        eXo.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
+          .then(() => {
+            const spaces = this.spaces.map(space => ({
+              prettyName: space.remoteId,
+              displayName: space && space.profile && space.profile.fullName,
+              avatarUrl: space && space.profile && space.profile.avatarUrl,
+            }));
+            this.$root.$emit('activity-shared', this.activityId, spaces, this.currentApp);
+            if (spaces && spaces.length > 0) {
+              const spaceDisplayNames = spaces.map(space => space.displayName || '');
+              this.$root.$emit('alert-message', `${this.$t('UIActivity.share.message')} ${spaceDisplayNames.join(', ')}`, 'success');
+            }
+            this.close();
+            this.clear();
+          })
+          .finally(() => this.sharing = false);
+      },
     },
-    open(activityId, currentApp) {
-      this.activityId = activityId;
-      this.currentApp = currentApp;
-      if (this.activityId) {
-        this.$refs.activityShareDrawer.open();
-      }
-    },
-    close() {
-      this.$refs.activityShareDrawer.close();
-    },
-    shareActivity() {
-      const spacePrettyNames = this.spaces.map(space => space.remoteId);
-      this.sharing = true;
-      this.$activityService.shareActivity(this.activityId, this.description, this.templateParams, spacePrettyNames)
-        .then(() => {
-          const spaces = this.spaces.map(space => ({
-            prettyName: space.remoteId,
-            displayName: space && space.profile && space.profile.fullName,
-            avatarUrl: space && space.profile && space.profile.avatarUrl,
-          }));
-          this.$root.$emit('activity-shared', this.activityId, spaces, this.currentApp);
-          if (spaces && spaces.length > 0) {
-            const spaceDisplayNames = spaces.map(space => space.displayName || '');
-            this.$root.$emit('alert-message', `${this.$t('UIActivity.share.message')} ${spaceDisplayNames.join(', ')}`, 'success');
-          }
-          this.close();
-          this.clear();
-        })
-        .finally(() => this.sharing = false);
-    },
-  },
-};
+  };
 </script>

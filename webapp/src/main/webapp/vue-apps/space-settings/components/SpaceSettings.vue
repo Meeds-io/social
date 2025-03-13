@@ -21,33 +21,35 @@
 -->
 <template>
   <v-app class="application-body">
-    <v-main v-if="$root.space" class="px-5 py-1 border-box-sizing">
+    <v-main
+      v-if="$root.space"
+      class="px-5 py-1 border-box-sizing">
       <space-setting-overview id="SpaceSettingsOverview" />
       <space-setting-roles id="SpaceSettingsRoles" />
       <space-setting-access id="SpaceSettingsAccess" />
       <space-setting-categories id="SpaceSettingsCategories" />
       <space-setting-public-site
-        id="SpaceSettingsPublicAccess"
-        v-if="$root.space?.canManagePublicSite" />
+        v-if="$root.space?.canManagePublicSite"
+        id="SpaceSettingsPublicAccess" />
       <template>
         <extension-registry-components
-          :params="extensionParams"
+          element="div"
           name="SpaceSettings"
-          type="space-settings-components"
+          :params="extensionParams"
           parent-element="div"
-          element="div" />
+          type="space-settings-components" />
       </template>
     </v-main>
   </v-app>
 </template>
 <script>
-export default {
-  computed: {
-    extensionParams() {
-      return {
-        spaceId: this.$root.spaceId,
-      };
+  export default {
+    computed: {
+      extensionParams () {
+        return {
+          spaceId: this.$root.spaceId,
+        };
+      },
     },
-  },
-};
+  };
 </script>

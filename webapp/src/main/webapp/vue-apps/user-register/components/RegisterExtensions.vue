@@ -21,12 +21,14 @@
 <template>
   <v-card
     v-if="confirmed"
-    width="600px"
-    max-width="100%"
     class="mx-auto px-4"
-    flat>
+    flat
+    max-width="100%"
+    width="600px">
     <div class="d-flex flex-column align-center justify-center pt-10 pb-5">
-      <v-icon size="80" color="tertiary">
+      <v-icon
+        color="tertiary"
+        size="80">
         fa-envelope
       </v-icon>
       <span class="mt-8">
@@ -39,28 +41,28 @@
   </v-card>
   <extension-registry-components
     v-else
-    :params="{params}"
+    element="div"
     name="Register"
-    type="register-extension"
+    :params="{params}"
     parent-element="div"
-    element="div">
+    type="register-extension">
     <template #separator>
       <portal-register-separator class="my-5" />
     </template>
   </extension-registry-components>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    confirmed() {
-      return !!this.params?.success?.length;
+    computed: {
+      confirmed () {
+        return !!this.params?.success?.length;
+      },
     },
-  },
-};
+  };
 </script>

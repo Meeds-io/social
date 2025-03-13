@@ -23,24 +23,26 @@
   <v-list-item
     dense
     @click="$root.$emit('category-form-open', category)">
-    <v-icon size="13">fa-edit</v-icon>
+    <v-icon size="13">
+      fa-edit
+    </v-icon>
     <v-list-item-title class="ps-2">
       {{ $t('categoryManagement.editCategory') }}
     </v-list-item-title>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      category: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    categoryId() {
-      return this.category?.id;
+    computed: {
+      categoryId () {
+        return this.category?.id;
+      },
     },
-  },
-};
+  };
 </script>

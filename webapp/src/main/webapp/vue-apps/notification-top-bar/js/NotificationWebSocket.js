@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function initCometd() {
+export function initCometd () {
   const loc = window.location;
   cCometd.configure({
     url: `${loc.protocol}//${loc.hostname}${loc.port && ':' || ''}${loc.port || ''}/cometd/cometd`,
@@ -25,8 +25,8 @@ export function initCometd() {
     exoToken: eXo.env.portal.cometdToken,
   });
 
-  cCometd.subscribe('/eXo/Application/web/NotificationMessage', null, (event) => {
+  cCometd.subscribe('/eXo/Application/web/NotificationMessage', null, event => {
     const data = JSON.parse(event.data);
-    document.dispatchEvent(new CustomEvent('cometdNotifEvent', {'detail': {'data': data}}));
+    document.dispatchEvent(new CustomEvent('cometdNotifEvent', { 'detail': { data } }));
   });
 }

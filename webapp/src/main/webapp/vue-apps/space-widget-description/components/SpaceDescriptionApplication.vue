@@ -22,56 +22,72 @@
   <v-app>
     <v-hover v-model="hover">
       <widget-wrapper
-        :title="!emptyDescription && $t('social.space.description.title')"
-        extra-class="application-body">
-        <template v-if="$root.isManager && !emptyDescription" #action>
+        extra-class="application-body"
+        :title="!emptyDescription && $t('social.space.description.title')">
+        <template
+          v-if="$root.isManager && !emptyDescription"
+          #action>
           <v-btn
             v-show="hover"
-            :title="$t('social.space.description.editTooltip')"
-            :href="administrationUrl"
-            height="27"
-            width="27"
-            min-width="auto"
             class="pa-0"
+            height="27"
+            :href="administrationUrl"
             icon
+            min-width="auto"
+            small
             text
-            small>
+            :title="$t('social.space.description.editTooltip')"
+            width="27">
             <v-icon
-              size="18"
-              color="primary">
+              color="primary"
+              size="18">
               fa-external-link-alt
             </v-icon>
           </v-btn>
         </template>
         <template #default>
-          <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center my-12">
-            <v-icon size="54" color="tertiary">fa-align-left</v-icon>
-            <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
+          <div
+            v-if="emptyDescription"
+            class="d-flex flex-column align-center justify-center my-12">
+            <v-icon
+              color="tertiary"
+              size="54">
+              fa-align-left
+            </v-icon>
+            <div class="my-2">
+              {{ $t('social.space.description.noDescription') }}
+            </div>
             <v-btn
-              :title="$t('social.space.description.editTooltip')"
-              :href="administrationUrl"
               color="primary"
-              elevation="0">
+              elevation="0"
+              :href="administrationUrl"
+              :title="$t('social.space.description.editTooltip')">
               {{ $t('social.space.description.addDescription') }}
             </v-btn>
           </div>
           <span
             v-else
             id="spaceDescription"
-            ref="spaceDescription"
             key="spaceDescription"
+            ref="spaceDescription"
             v-sanitized-html="$root.spaceDescription"
             class="text-color"></span>
         </template>
-        <template v-if="publicSiteUrl" #footer>
+        <template
+          v-if="publicSiteUrl"
+          #footer>
           <v-card
+            flat
             :href="publicSiteUrl"
             :title="$t('social.space.description.visitPublicSite.tooltip')"
-            width="100%"
-            flat>
+            width="100%">
             <v-divider />
             <div class="d-flex align-center">
-              <v-icon size="48" class="ma-4">fa-globe</v-icon>
+              <v-icon
+                class="ma-4"
+                size="48">
+                fa-globe
+              </v-icon>
               {{ $t('social.space.description.visitPublicSite') }}
             </div>
           </v-card>
@@ -81,26 +97,26 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    hover: false,
-  }),
-  computed: {
-    administrationUrl() {
-      return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
+  export default {
+    data: () => ({
+      hover: false,
+    }),
+    computed: {
+      administrationUrl () {
+        return `${eXo.env.portal.context}/s/${this.$root.spaceId}/settings#overview`;
+      },
+      publicSiteUrl () {
+        return this.$root.publicSiteName
+          && eXo.env.portal.portalName !== this.$root.publicSiteName
+          && `${eXo.env.portal.context}/${this.$root.publicSiteName}`;
+      },
+      emptyDescription () {
+        return !this.$root.spaceDescription
+          || !eXo.$utils.htmlToText(this.$root.spaceDescription).length;
+      },
     },
-    publicSiteUrl() {
-      return this.$root.publicSiteName
-        && eXo.env.portal.portalName !== this.$root.publicSiteName
-        && `${eXo.env.portal.context}/${this.$root.publicSiteName}`;
+    mounted () {
+      this.$root.$applicationLoaded();
     },
-    emptyDescription() {
-      return !this.$root.spaceDescription
-        || !this.$utils.htmlToText(this.$root.spaceDescription).length;
-    },
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-};
+  };
 </script>

@@ -24,27 +24,37 @@
     id="spacePendingUsersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
-    :right="!$vuetify.rtl"
     allow-expand
-    no-x-scroll>
+    :loading="loading"
+    no-x-scroll
+    :right="!$vuetify.rtl">
     <template #title>
       {{ $t('spacesList.pending.drawer.title') }}
     </template>
-    <template v-if="drawer" #content>
-      <div v-if="memberships?.length" class="pa-5">
+    <template
+      v-if="drawer"
+      #content>
+      <div
+        v-if="memberships?.length"
+        class="pa-5">
         <span class="mb-2">
           {{ $t('spacesList.label.pendingRequests.description') }}
         </span>
         <spaces-role-list
-          :memberships="memberships"
           approve-button
           display-date
+          :memberships="memberships"
           @approve="acceptUserRequest"
           @remove="denyUserRequest" />
       </div>
-      <div v-else-if="!loading" class="d-flex flex-column align-center justify-center py-8">
-        <v-icon size="54" color="secondary">fa-history</v-icon>
+      <div
+        v-else-if="!loading"
+        class="d-flex flex-column align-center justify-center py-8">
+        <v-icon
+          color="secondary"
+          size="54">
+          fa-history
+        </v-icon>
         <span class="my-4">{{ $t('spacesList.pending.placeholder.emptyRequests') }}</span>
         <v-btn
           class="btn"
@@ -54,12 +64,14 @@
         </v-btn>
       </div>
     </template>
-    <template v-if="hasMore" #footer>
+    <template
+      v-if="hasMore"
+      #footer>
       <div class="d-flex">
         <v-btn
-          :loading="loading"
-          class="btn me-2"
           block
+          class="btn me-2"
+          :loading="loading"
           @click="loadMore">
           <template>
             {{ $t('spacesList.pending.loadMore') }}
@@ -70,118 +82,118 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    loading: false,
-    filterType: 'requests',
-    pageSize: 0,
-    limit: 0,
-    memberSpaces: null,
-    visitedSpaces: null,
-    activeSpaces: null,
-    hasMore: false,
-    memberships: null,
-    page: 0,
-    size: 0,
-    pendingUsersCount: 0,
-  }),
-  watch: {
-    filterType() {
-      this.reset();
-      this.refreshMemberships();
+  export default {
+    data: () => ({
+      drawer: false,
+      loading: false,
+      filterType: 'requests',
+      pageSize: 0,
+      limit: 0,
+      memberSpaces: null,
+      visitedSpaces: null,
+      activeSpaces: null,
+      hasMore: false,
+      memberships: null,
+      page: 0,
+      size: 0,
+      pendingUsersCount: 0,
+    }),
+    watch: {
+      filterType () {
+        this.reset();
+        this.refreshMemberships();
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-list-pending-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-list-pending-open', this.open);
-  },
-  methods: {
-    open(pendingUsersCount, filterType) {
-      this.filterType = filterType || 'requests';
-      this.pendingUsersCount = pendingUsersCount;
-      this.reset();
-      this.getSpaceMemberships();
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('space-list-pending-open', this.open);
     },
-    reset() {
-      this.pageSize = parseInt((window.innerHeight - 180) / 56);
-      this.page = 0;
-      this.size = 0;
-      this.memberships = [];
-      this.loading = false;
-      this.hasMore = false;
+    beforeUnmount () {
+      this.$root.$off('space-list-pending-open', this.open);
     },
-    refreshMemberships() {
-      if (this.drawer) {
-        this.getSpaceMemberships(true);
-      }
-    },
-    loadMore() {
-      this.page++;
-      this.getSpaceMemberships();
-    },
-    async getSpaceMemberships(reset) {
-      this.loading = true;
-      try {
-        const data = await this.$spaceService.getSpacesByFilter({
-          offset: reset ? 0 : this.page * this.pageSize,
-          limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
-          filter: this.filterType,
-        });
-        const memberships = data?.spaces?.filter?.(space => space?.pending?.length)?.
-          flatMap?.(space => space.pending.map(user => ({
-            user,
-            space,
-          })));
-        if (memberships?.length) {
-          if (reset) {
-            this.memberships = memberships.slice(0, this.pageSize);
-          } else {
-            this.memberships.push(...memberships.slice(0, this.pageSize));
-          }
-          this.hasMore = memberships.length > this.pageSize;
-        } else {
-          if (reset) {
-            this.memberships = [];
-          }
-          this.hasMore = false;
+    methods: {
+      open (pendingUsersCount, filterType) {
+        this.filterType = filterType || 'requests';
+        this.pendingUsersCount = pendingUsersCount;
+        this.reset();
+        this.getSpaceMemberships();
+        this.$refs.drawer.open();
+      },
+      reset () {
+        this.pageSize = parseInt((window.innerHeight - 180) / 56);
+        this.page = 0;
+        this.size = 0;
+        this.memberships = [];
+        this.loading = false;
+        this.hasMore = false;
+      },
+      refreshMemberships () {
+        if (this.drawer) {
+          this.getSpaceMemberships(true);
         }
-      } finally {
-        this.loading = false;
-      }
+      },
+      loadMore () {
+        this.page++;
+        this.getSpaceMemberships();
+      },
+      async getSpaceMemberships (reset) {
+        this.loading = true;
+        try {
+          const data = await eXo.$spaceService.getSpacesByFilter({
+            offset: reset ? 0 : this.page * this.pageSize,
+            limit: reset ? (this.page + 1) * this.pageSize + 1 : this.pageSize + 1,
+            filter: this.filterType,
+          });
+          const memberships = data?.spaces?.filter?.(space => space?.pending?.length)?.
+            flatMap?.(space => space.pending.map(user => ({
+              user,
+              space,
+            })));
+          if (memberships?.length) {
+            if (reset) {
+              this.memberships = memberships.slice(0, this.pageSize);
+            } else {
+              this.memberships.push(...memberships.slice(0, this.pageSize));
+            }
+            this.hasMore = memberships.length > this.pageSize;
+          } else {
+            if (reset) {
+              this.memberships = [];
+            }
+            this.hasMore = false;
+          }
+        } finally {
+          this.loading = false;
+        }
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      async acceptUserRequest (membership) {
+        this.loading = true;
+        try {
+          await eXo.$spaceService.acceptUserRequest(membership.space.id, membership.user.username);
+          this.memberships.splice(this.memberships.indexOf(membership), 1);
+          this.$root.$emit('alert-message', this.$t('spacesList.pending.userAddedAsSpaceMember'), 'success');
+          this.$root.$emit('space-list-pending-updated');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('spacesList.pending.error.unknownErrorWhenSavingRoles'), 'error');
+        } finally {
+          this.loading = false;
+        }
+      },
+      async denyUserRequest (membership) {
+        this.loading = true;
+        try {
+          await eXo.$spaceService.refuseUserRequest(membership.space.id, membership.user.username);
+          this.memberships.splice(this.memberships.indexOf(membership), 1);
+          this.$root.$emit('alert-message', this.$t('spacesList.pending.userRequestDenied'), 'success');
+          this.$root.$emit('space-list-pending-updated');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('spacesList.pending.error.unknownErrorWhenSavingRoles'), 'error');
+        } finally {
+          this.loading = false;
+        }
+      },
     },
-    close() {
-      this.$refs.drawer.close();
-    },
-    async acceptUserRequest(membership) {
-      this.loading = true;
-      try {
-        await this.$spaceService.acceptUserRequest(membership.space.id, membership.user.username);
-        this.memberships.splice(this.memberships.indexOf(membership), 1);
-        this.$root.$emit('alert-message', this.$t('spacesList.pending.userAddedAsSpaceMember'), 'success');
-        this.$root.$emit('space-list-pending-updated');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('spacesList.pending.error.unknownErrorWhenSavingRoles'), 'error');
-      } finally {
-        this.loading = false;
-      }
-    },
-    async denyUserRequest(membership) {
-      this.loading = true;
-      try {
-        await this.$spaceService.refuseUserRequest(membership.space.id, membership.user.username);
-        this.memberships.splice(this.memberships.indexOf(membership), 1);
-        this.$root.$emit('alert-message', this.$t('spacesList.pending.userRequestDenied'), 'success');
-        this.$root.$emit('space-list-pending-updated');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('spacesList.pending.error.unknownErrorWhenSavingRoles'), 'error');
-      } finally {
-        this.loading = false;
-      }
-    },
-  }
-};
+  };
 </script>

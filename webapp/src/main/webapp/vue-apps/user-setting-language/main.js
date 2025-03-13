@@ -20,21 +20,21 @@ const url = `/social/i18n/locale.portlet.social.UserSettings?lang=${lang}`;
 
 const appId = 'UserSettingLanguage';
 
-export function init(languages) {
+export function init (languages) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     Vue.createApp({
       data: {
-        languages: languages,
+        languages,
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<user-setting-language v-cacheable id="${appId}" :languages="languages" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'User Setting Language');
   });
 }

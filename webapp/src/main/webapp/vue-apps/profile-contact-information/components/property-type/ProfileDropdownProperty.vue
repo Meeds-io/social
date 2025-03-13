@@ -25,20 +25,20 @@
     </label>
     <div class="d-flex align-center">
       <v-combobox
-        v-model="selectedOption"
-        :items="mappedOptions"
         :ref="`propertyOptions${property.id}`"
-        :name="`propertyOptions${property.id}`"
+        v-model="selectedOption"
         class="elevation-0 mt-2 pt-0 no-border dropdownPropertyInput"
-        item-text="translatedValue"
-        item-value="id"
         clear-icon="fas fa-times"
         clearable
-        single-line
-        solo
+        dense
         flat
+        item-text="translatedValue"
+        item-value="id"
+        :items="mappedOptions"
+        :name="`propertyOptions${property.id}`"
         outlined
-        dense>
+        single-line
+        solo>
         <template #label>
           <span class="text-sub-title">
             {{ $t('profileContactInformation.dropdown.property.choose.label') }}
@@ -63,65 +63,65 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      selectedOption: null,
-      propertyObject: null,
-      hasInputFilterValue: false
-    };
-  },
-  props: {
-    property: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: null,
+      },
+      parentProperty: {
+        type: Object,
+        default: null,
+      },
+      propertyLabel: {
+        type: String,
+        default: null,
+      },
+      multiValued: {
+        type: Boolean,
+        default: false,
+      },
     },
-    parentProperty: {
-      type: Object,
-      default: null
+    data () {
+      return {
+        selectedOption: null,
+        propertyObject: null,
+        hasInputFilterValue: false,
+      };
     },
-    propertyLabel: {
-      type: String,
-      default: null
+    computed: {
+      mappedOptions () {
+        return this.options && this.mapOptions(this.options);
+      },
+      options () {
+        return this.parentProperty?.propertyOptions || this.property?.propertyOptions;
+      },
     },
-    multiValued: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    mappedOptions() {
-      return this.options && this.mapOptions(this.options);
+    watch: {
+      property () {
+        this.clonePropertyObject();
+      },
+      selectedOption () {
+        this.propertyObject.value = this.selectedOption?.id;
+        this.$emit('property-updated', this.propertyObject);
+      },
     },
-    options() {
-      return this.parentProperty?.propertyOptions || this.property?.propertyOptions;
-    }
-  },
-  watch: {
-    property() {
+    created () {
       this.clonePropertyObject();
     },
-    selectedOption() {
-      this.propertyObject.value = this.selectedOption?.id;
-      this.$emit('property-updated', this.propertyObject);
-    }
-  },
-  created() {
-    this.clonePropertyObject();
-  },
-  methods: {
-    mapOptions(options) {
-      return options.map(option => ({
-        ...option,
-        translatedValue: option.translatedValue ?? option.value
-      }));
+    methods: {
+      mapOptions (options) {
+        return options.map(option => ({
+          ...option,
+          translatedValue: option.translatedValue ?? option.value,
+        }));
+      },
+      clonePropertyObject () {
+        this.propertyObject = this.parentProperty && this.property || structuredClone(this.property);
+        this.selectedOption = this.mappedOptions?.find(
+          option => `${option.id}` === `${this.propertyObject.value}`
+        );
+      },
     },
-    clonePropertyObject() {
-      this.propertyObject = this.parentProperty && this.property || structuredClone(this.property);
-      this.selectedOption = this.mappedOptions?.find(
-        option => `${option.id}` === `${this.propertyObject.value}`
-      );
-    }
-  }
-};
+  };
 </script>

@@ -27,8 +27,8 @@
     @save="saveSpaces">
     <space-avatar
       v-if="space"
-      :space="space"
-      class="mb-4" />
+      class="mb-4"
+      :space="space" />
     <div
       v-else-if="spaces"
       class="mb-4">
@@ -43,58 +43,60 @@
       </v-chip>
       <div class="d-flex align-center">
         <div>{{ $t('social.spaces.administration.manageSpaces.dropExistingCategories') }}</div>
-        <v-switch v-model="dropExisting" class="ms-auto my-0 me-n2" />
+        <v-switch
+          v-model="dropExisting"
+          class="ms-auto my-0 me-n2" />
       </div>
     </div>
   </space-categories-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    saving: false,
-    space: null,
-    spaces: null,
-    categoryIds: [],
-    selectionCount: null,
-    callback: null,
-    dropExisting: false,
-  }),
-  created() {
-    this.$root.$on('space-administration-edit-categories-drawer-open', this.open);
-    this.$root.$on('space-categories-updated', this.handleSpaceUpdated);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-administration-edit-categories-drawer-open', this.open);
-    this.$root.$off('space-categories-updated', this.handleSpaceUpdated);
-  },
-  methods: {
-    open(obj, selectionCount, callback) {
-      if (obj?.id) {
-        this.space = obj;
-        this.spaces = null;
-        this.categoryIds = this.space.categoryIds || [];
-        this.selectionCount = 0;
-        this.callback = null;
-      } else {
-        this.space = null;
-        this.spaces = obj;
-        this.categoryIds = [];
-        this.selectionCount = selectionCount;
-        this.callback = callback;
-      }
-      this.dropExisting = false;
-      this.$refs.drawer.open(this.space?.id, this.categoryIds);
+  export default {
+    data: () => ({
+      saving: false,
+      space: null,
+      spaces: null,
+      categoryIds: [],
+      selectionCount: null,
+      callback: null,
+      dropExisting: false,
+    }),
+    created () {
+      this.$root.$on('space-administration-edit-categories-drawer-open', this.open);
+      this.$root.$on('space-categories-updated', this.handleSpaceUpdated);
     },
-    handleSpaceUpdated(_, categoryIds) {
-      this.space.categoryIds = categoryIds;
+    beforeUnmount () {
+      this.$root.$off('space-administration-edit-categories-drawer-open', this.open);
+      this.$root.$off('space-categories-updated', this.handleSpaceUpdated);
     },
-    saveSpaces(categoryIds) {
-      this.callback({
-        categoryIds,
-        dropExisting: this.dropExisting,
-      });
-      this.$refs.drawer.close();
+    methods: {
+      open (obj, selectionCount, callback) {
+        if (obj?.id) {
+          this.space = obj;
+          this.spaces = null;
+          this.categoryIds = this.space.categoryIds || [];
+          this.selectionCount = 0;
+          this.callback = null;
+        } else {
+          this.space = null;
+          this.spaces = obj;
+          this.categoryIds = [];
+          this.selectionCount = selectionCount;
+          this.callback = callback;
+        }
+        this.dropExisting = false;
+        this.$refs.drawer.open(this.space?.id, this.categoryIds);
+      },
+      handleSpaceUpdated (_, categoryIds) {
+        this.space.categoryIds = categoryIds;
+      },
+      saveSpaces (categoryIds) {
+        this.callback({
+          categoryIds,
+          dropExisting: this.dropExisting,
+        });
+        this.$refs.drawer.close();
+      },
     },
-  },
-};
+  };
 </script>

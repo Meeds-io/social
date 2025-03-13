@@ -13,10 +13,14 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              small
               icon
+              small
               @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              <v-icon
+                class="icon-default-color"
+                size="18">
+                fa-edit
+              </v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -30,51 +34,51 @@
 </template>
 
 <script>
-export default {
-  props: {
-    languages: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      languages: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    id: `Settings${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
-    language: eXo.env.portal.language,
-    displayed: true,
-  }),
-  computed: {
-    languageLabel() {
-      const language = this.languages.find(lang => lang.value === this.language);
-      return language && language.text;
+    data: () => ({
+      id: `Settings${parseInt(Math.random() * 10000)
+        .toString()
+        .toString()}`,
+      language: eXo.env.portal.language,
+      displayed: true,
+    }),
+    computed: {
+      languageLabel () {
+        const language = this.languages.find(lang => lang.value === this.language);
+        return language && language.text;
+      },
     },
-  },
-  watch: {
-    displayed() {
-      if (this.displayed) {
-        this.$nextTick().then(() => this.$root.$emit('application-cache'));
-      }
+    watch: {
+      displayed () {
+        if (this.displayed) {
+          this.$nextTick().then(() => this.$root.$emit('application-cache'));
+        }
+        this.$root.$updateApplicationVisibility(this.displayed);
+      },
+    },
+    created () {
+      this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
+      document.addEventListener('hideSettingsApps', event => {
+        if (event && event.detail && this.id !== event.detail) {
+          this.displayed = false;
+        }
+      });
+      document.addEventListener('showSettingsApps', () => this.displayed = true);
+    },
+    mounted () {
+      this.$nextTick().then(() => this.$root.$applicationLoaded());
       this.$root.$updateApplicationVisibility(this.displayed);
     },
-  },
-  created() {
-    this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
-    document.addEventListener('hideSettingsApps', (event) => {
-      if (event && event.detail && this.id !== event.detail) {
-        this.displayed = false;
-      }
-    });
-    document.addEventListener('showSettingsApps', () => this.displayed = true);
-  },
-  mounted() {
-    this.$nextTick().then(() => this.$root.$applicationLoaded());
-    this.$root.$updateApplicationVisibility(this.displayed);
-  },
-  methods: {
-    openDrawer() {
-      this.$refs.languagesDrawer.open();
+    methods: {
+      openDrawer () {
+        this.$refs.languagesDrawer.open();
+      },
     },
-  },
-};
+  };
 </script>

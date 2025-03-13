@@ -21,90 +21,94 @@
 <template>
   <v-list-item
     :id="id"
-    :href="link"
-    :target="targetLink"
-    min-width="auto"
-    rel="nofollow noreferrer noopener"
     color="primary"
-    outlined
     dense
+    :href="link"
+    min-width="auto"
+    outlined
+    rel="nofollow noreferrer noopener"
+    :target="targetLink"
     @click="clickOnProviderButton">
     <v-list-item-icon class="me-2">
       <v-img
         v-if="providerImage"
-        :src="providerImage"
+        class="my-auto me-2"
+        eager
         height="16"
         max-width="16"
-        class="my-auto me-2"
-        eager />
-      <v-icon v-else :class="providerIcon" />
+        :src="providerImage" />
+      <v-icon
+        v-else
+        :class="providerIcon" />
     </v-list-item-icon>
     <v-list-item-content>
-      <v-list-item-title class="text-truncate">{{ providerButtonLabel }}</v-list-item-title>
+      <v-list-item-title class="text-truncate">
+        {{ providerButtonLabel }}
+      </v-list-item-title>
     </v-list-item-content>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    provider: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      provider: {
+        type: Object,
+        default: null,
+      },
+      params: {
+        type: Object,
+        default: null,
+      },
+      rememberme: {
+        type: Boolean,
+        default: false,
+      },
     },
-    params: {
-      type: Object,
-      default: null,
+    data: () => ({
+      defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
+    }),
+    computed: {
+      providerKeyLowerCase () {
+        return this.provider?.key?.toLowerCase();
+      },
+      providerKeyCapitalize () {
+        return `${this.providerKeyLowerCase.charAt(0).toUpperCase()}${this.providerKeyLowerCase.substring(1)}`;
+      },
+      id () {
+        return `login-${this.providerKeyLowerCase}`;
+      },
+      link () {
+        const link = this.provider?.url;
+        if (link && link.startsWith('/')) {
+          return this.rememberme && `${link}&_rememberme=true` || link;
+        }
+        return link;
+      },
+      targetLink () {
+        return this.link && this.link.startsWith('/') && '_self' || '_blank';
+      },
+      providerButtonLabel () {
+        const providerName = this.$te(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
+          ? this.$t(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
+          : this.providerKeyCapitalize;
+        return this.$t('UILoginForm.label.singInWith', { 0: providerName });
+      },
+      providerIcon () {
+        return this.provider?.icon;
+      },
+      providerImage () {
+        const image = this.provider?.image;
+        if (!image && this.defaultProviders.indexOf(this.providerKeyLowerCase) >= 0) {
+          return `/platform-ui/skin/images/oauth/${this.providerKeyLowerCase}.png`;
+        } else {
+          return image;
+        }
+      },
     },
-    rememberme: {
-      type: Boolean,
-      default: false,
+    methods: {
+      clickOnProviderButton () {
+        this.$emit('submit');
+      },
     },
-  },
-  data: () => ({
-    defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
-  }),
-  computed: {
-    providerKeyLowerCase() {
-      return this.provider?.key?.toLowerCase();
-    },
-    providerKeyCapitalize() {
-      return `${this.providerKeyLowerCase.charAt(0).toUpperCase()}${this.providerKeyLowerCase.substring(1)}`;
-    },
-    id() {
-      return `login-${this.providerKeyLowerCase}`;
-    },
-    link() {
-      const link = this.provider?.url;
-      if (link && link.startsWith('/')) {
-        return this.rememberme && `${link}&_rememberme=true` || link;
-      }
-      return link;
-    },
-    targetLink() {
-      return this.link && this.link.startsWith('/') && '_self' || '_blank';
-    },
-    providerButtonLabel() {
-      const providerName = this.$te(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
-        ? this.$t(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
-        : this.providerKeyCapitalize;
-      return this.$t('UILoginForm.label.singInWith', {0: providerName});
-    },
-    providerIcon() {
-      return this.provider?.icon;
-    },
-    providerImage() {
-      const image = this.provider?.image;
-      if (!image && this.defaultProviders.indexOf(this.providerKeyLowerCase) >= 0) {
-        return `/platform-ui/skin/images/oauth/${this.providerKeyLowerCase}.png`;
-      } else {
-        return image;
-      }
-    },
-  },
-  methods: {
-    clickOnProviderButton() {
-      this.$emit('submit');
-    },
-  },
-};
+  };
 </script>

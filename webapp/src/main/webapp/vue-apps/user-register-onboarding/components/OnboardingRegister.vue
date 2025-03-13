@@ -20,78 +20,82 @@
 -->
 <template>
   <form
-    name="registerForm"
-    method="post"
     autocomplete="off"
-    class="d-flex ma-0 flex-column">
+    class="d-flex ma-0 flex-column"
+    method="post"
+    name="registerForm">
     <div class="d-flex flex-column">
-      <div class="mb-5 mx-auto text-header primary--text">{{ $t('onboarding.emailSummary') }}</div>
+      <div class="mb-5 mx-auto text-header primary--text">
+        {{ $t('onboarding.emailSummary') }}
+      </div>
       <v-row class="ma-0 pa-0">
         <v-text-field
           id="email"
           v-model="email"
-          :title="$t('onboarding.emailPlaceholder')"
-          :placeholder="$t('onboarding.emailPlaceholder')"
-          name="email"
-          prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-          class="login-username border-box-sizing pt-0"
-          autofocus="autofocus"
           aria-required="true"
-          type="email"
-          tabindex="0"
-          required="required"
+          autofocus="autofocus"
+          class="login-username border-box-sizing pt-0"
+          dense
+          name="email"
           outlined
-          dense />
+          :placeholder="$t('onboarding.emailPlaceholder')"
+          prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+          required="required"
+          tabindex="0"
+          :title="$t('onboarding.emailPlaceholder')"
+          type="email" />
         <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
         <v-card
           class="d-flex mt-4"
-          width="350"
-          flat>
+          flat
+          width="350">
           <v-img
-            src="/portal/register?serveCaptcha=true"
-            width="150"
-            heigh="40"
             class="primary me-2 rounded-lg"
+            contain
             eager
-            contain />
+            heigh="40"
+            src="/portal/register?serveCaptcha=true"
+            width="150" />
           <v-text-field
             id="captcha"
             v-model="captcha"
-            :title="$t('onboarding.captchaPlaceholder')"
-            :placeholder="$t('onboarding.captchaPlaceholder')"
-            name="captcha"
-            class="login-username border-box-sizing pa-0 mt-1"
             aria-required="true"
-            type="text"
-            required="required"
+            class="login-username border-box-sizing pa-0 mt-1"
+            dense
+            name="captcha"
             outlined
-            dense />
+            :placeholder="$t('onboarding.captchaPlaceholder')"
+            required="required"
+            :title="$t('onboarding.captchaPlaceholder')"
+            type="text" />
         </v-card>
       </v-row>
       <v-row class="mx-0 mt-4 pa-0">
         <v-btn
           :aria-label="$t('forgotpassword.send')"
-          :disabled="disabled"
-          type="submit"
-          width="222"
-          max-width="100%"
-          color="primary"
           class="mx-auto login-button btn-primary text-none"
-          elevation="0">
+          color="primary"
+          :disabled="disabled"
+          elevation="0"
+          max-width="100%"
+          type="submit"
+          width="222">
           {{ $t('forgotpassword.send') }}
         </v-btn>
       </v-row>
       <v-row class="mx-0 mt-4 pa-0">
         <v-btn
           :aria-label="$t('forgotpassword.back')"
-          href="/portal/login"
-          width="222"
-          max-width="100%"
           class="mx-auto login-button text-none"
           elevation="0"
-          outlined>
+          href="/portal/login"
+          max-width="100%"
+          outlined
+          width="222">
           <span>
-            <v-icon size="16" class="position-absolute mt-n2">fas fa-arrow-left</v-icon>
+            <v-icon
+              class="position-absolute mt-n2"
+              size="16">fas fa-arrow-left</v-icon>
           </span>
           <span class="mx-auto">
             {{ $t('forgotpassword.backToLogin') }}
@@ -102,25 +106,25 @@
   </form>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    email: null,
-    captcha: null,
-  }),
-  computed: {
-    disabled() {
-      return !this.email?.length
-        || !this.captcha?.length;
+    data: () => ({
+      email: null,
+      captcha: null,
+    }),
+    computed: {
+      disabled () {
+        return !this.email?.length
+          || !this.captcha?.length;
+      },
     },
-  },
-  mounted() {
-    this.email = this.params?.email;
-  }, 
-};
+    mounted () {
+      this.email = this.params?.email;
+    }, 
+  };
 </script>

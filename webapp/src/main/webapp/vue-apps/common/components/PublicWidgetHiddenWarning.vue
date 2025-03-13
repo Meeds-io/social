@@ -20,14 +20,16 @@
 
 -->
 <template>
-  <v-tooltip v-if="isPublicSite && !hubAccessOpen" top>
+  <v-tooltip
+    v-if="isPublicSite && !hubAccessOpen"
+    top>
     <template #activator="{attrs, on}">
       <v-icon
         class="me-2"
         color="warning"
         size="18"
-        v-on="on"
-        v-bind="attrs">
+        v-bind="attrs"
+        v-on="on">
         fa-exclamation-triangle
       </v-icon>
     </template>
@@ -39,28 +41,28 @@
   </v-tooltip>
 </template>
 <script>
-export default {
-  data: () => ({
-    isPublicSite: eXo.env.portal.portalName === 'public',
-    registrationSettings: null,
-  }),
-  computed: {
-    hubAccessOpen() {
-      return !this.registrationSettings || this.registrationSettings?.type === 'OPEN';
+  export default {
+    data: () => ({
+      isPublicSite: eXo.env.portal.portalName === 'public',
+      registrationSettings: null,
+    }),
+    computed: {
+      hubAccessOpen () {
+        return !this.registrationSettings || this.registrationSettings?.type === 'OPEN';
+      },
     },
-  },
-  created() {
-    if (this.isPublicSite) {
-      this.initRegistration();
-    }
-  },
-  methods: {
-    initRegistration() {
-      return this.$registrationService.getRegistrationSettings()
-        .then(registrationSettings => {
-          this.registrationSettings = registrationSettings;
-        });
+    created () {
+      if (this.isPublicSite) {
+        this.initRegistration();
+      }
     },
-  },
-};
+    methods: {
+      initRegistration () {
+        return eXo.$registrationService.getRegistrationSettings()
+          .then(registrationSettings => {
+            this.registrationSettings = registrationSettings;
+          });
+      },
+    },
+  };
 </script>

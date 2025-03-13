@@ -20,20 +20,26 @@
 
 -->
 <template>
-  <v-list-item dense @click="$root.$emit('category-delete', category)">
-    <v-icon class="error--text" size="13">fa-trash</v-icon>
+  <v-list-item
+    dense
+    @click="$root.$emit('category-delete', category)">
+    <v-icon
+      class="error--text"
+      size="13">
+      fa-trash
+    </v-icon>
     <v-list-item-title class="ps-2">
       <span class="error--text">{{ $t('categoryManagement.deleteCategory') }}</span>
     </v-list-item-title>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      category: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

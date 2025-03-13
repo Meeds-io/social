@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function saveRegistrationSettings(settings){
+export function saveRegistrationSettings (settings){
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/registration/settings`, {
     method: 'PUT',
     credentials: 'include',
@@ -25,18 +25,18 @@ export function saveRegistrationSettings(settings){
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(settings),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error while saving Registration settings');
     }
   });
 }
 
-export function getRegistrationSettings() {
+export function getRegistrationSettings () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/registration/settings`, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {

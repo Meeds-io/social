@@ -32,17 +32,17 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      category: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    categoryId() {
-      return this.category?.id;
+    computed: {
+      categoryId () {
+        return this.category?.id;
+      },
     },
-  },
-};
+  };
 </script>

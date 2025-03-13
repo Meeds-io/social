@@ -28,42 +28,42 @@
     <activity-stream-activity
       :key="activity.id"
       :activity="activity"
-      :activity-types="activityTypes"
       :activity-actions="activityActions"
-      :comment-types="commentTypes"
+      :activity-types="activityTypes"
       :comment-actions="commentActions"
+      :comment-types="commentTypes"
       :is-activity-detail="isActivityDetail"
       @loaded="$emit('loaded')" />
   </div>
 </template>
 
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      activityTypes: {
+        type: Object,
+        default: null,
+      },
+      activityActions: {
+        type: Object,
+        default: null,
+      },
+      commentTypes: {
+        type: Object,
+        default: null,
+      },
+      commentActions: {
+        type: Object,
+        default: null,
+      },
+      isActivityDetail: {
+        type: Boolean,
+        default: false,
+      },
     },
-    activityTypes: {
-      type: Object,
-      default: null,
-    },
-    activityActions: {
-      type: Object,
-      default: null,
-    },
-    commentTypes: {
-      type: Object,
-      default: null,
-    },
-    commentActions: {
-      type: Object,
-      default: null,
-    },
-    isActivityDetail: {
-      type: Boolean,
-      default: false,
-    }
-  }
-};
+  };
 </script>

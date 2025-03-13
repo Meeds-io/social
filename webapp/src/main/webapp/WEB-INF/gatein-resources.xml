@@ -2797,6 +2797,7 @@
       <adapter>
         (function() {
         <include>/js/lib/vue-i18n.min.js</include>
+        window.VueI18n = VueI18n;
         return VueI18n;
         })();
       </adapter>
@@ -2811,7 +2812,21 @@
     <load-group>vueGRP</load-group>
     <script>
       <minify>false</minify>
-      <path>/js/lib/vue.min.js</path>
+      <adapter>
+        (function() {
+        <include>/js/lib/vue.min.js</include>
+        window.Vue = Vue;
+        window.VueCommonApp = Vue.createApp({});
+        Vue.component = (k, v) => {
+          if (!window.VueCommonApp.component(k)) {
+            window.VueCommonApp.component(k, v);
+          }
+        };
+        Vue.directive = (k, v) => window.VueCommonApp.directive(k, v);
+        Vue.prototype = {};
+        return Vue;
+        })();
+      </adapter>
     </script>
   </module>
 

@@ -30,35 +30,35 @@
   </div>
 </template>
 <script>
-export default {
-  data: () => ({
-    options: [
-      {
-        name: 'themeColors',
-        event: 'open-update-theme-colors-drawer',
-        resetEvent: 'reset-theme-colors'
-      },
-      {
-        name: 'pageStylingDrawer',
-        event: 'open-page-styling-drawer',
-        resetEvent: 'reset-page-styling'
-      },
-      {
-        name: 'topBarStyling',
-        event: 'open-top-bar-styling-drawer',
-        resetEvent: 'reset-top-bar-styling'
-      },
-      {
-        name: 'sideBarStyling',
-        event: 'open-sidebar-styling-drawer',
-        resetEvent: 'reset-sidebar-styling'
-      },
-      {
-        name: 'drawerStyling',
-        event: 'open-drawer-styling',
-        resetEvent: 'reset-drawer-styling'
-      },
-    ]
-  }),
-};
+  export default {
+    data: () => ({
+      options: [
+        {
+          name: 'themeColors',
+          event: 'open-update-theme-colors-drawer',
+          resetEvent: 'reset-theme-colors',
+        },
+        {
+          name: 'pageStylingDrawer',
+          event: 'open-page-styling-drawer',
+          resetEvent: 'reset-page-styling',
+        },
+        {
+          name: 'topBarStyling',
+          event: 'open-top-bar-styling-drawer',
+          resetEvent: 'reset-top-bar-styling',
+        },
+        {
+          name: 'sideBarStyling',
+          event: 'open-sidebar-styling-drawer',
+          resetEvent: 'reset-sidebar-styling',
+        },
+        {
+          name: 'drawerStyling',
+          event: 'open-drawer-styling',
+          resetEvent: 'reset-drawer-styling',
+        },
+      ],
+    }),
+  };
 </script>

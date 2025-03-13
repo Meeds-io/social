@@ -30,22 +30,24 @@
       align="center">
       <date-format
         v-if="operation.startDate && operation.startDate !== 'null'"
-        :value="operation.startDate"
-        :format="fullDateFormat" />
-      <template v-else>-</template>
+        :format="fullDateFormat"
+        :value="operation.startDate" />
+      <template v-else>
+        -
+      </template>
     </td>
     <td
       v-if="!$root.isMobile"
       align="center">
       <date-format
         v-if="operation.endDate && operation.endDate !== 'null'"
-        :value="operation.endDate"
-        :format="fullDateFormat" />
+        :format="fullDateFormat"
+        :value="operation.endDate" />
       <v-icon
         v-else
-        :title="$t('social.spaces.administration.manageSpaces.operationInProgress')"
         color="primary"
-        size="20">
+        size="20"
+        :title="$t('social.spaces.administration.manageSpaces.operationInProgress')">
         fa-spinner
       </v-icon>
     </td>
@@ -55,55 +57,65 @@
       {{ $t(`social.spaces.administration.manageSpaces.operationType.${operation.operationType}`) }}
     </td>
     <td align="center">
-      <number-format v-if="operation.addedUsers && operation.addedUsers !== '0'" :value="operation.addedUsers" />
-      <template v-else>-</template>
+      <number-format
+        v-if="operation.addedUsers && operation.addedUsers !== '0'"
+        :value="operation.addedUsers" />
+      <template v-else>
+        -
+      </template>
     </td>
     <td align="center">
-      <number-format v-if="operation.removedUsers && operation.removedUsers !== '0'" :value="operation.removedUsers" />
-      <template v-else>-</template>
+      <number-format
+        v-if="operation.removedUsers && operation.removedUsers !== '0'"
+        :value="operation.removedUsers" />
+      <template v-else>
+        -
+      </template>
     </td>
     <td align="center">
       <v-btn
-        :title="$t('social.spaces.administration.manageSpaces.downloadReportTooltip')"
-        :loading="downloading"
         icon
+        :loading="downloading"
+        :title="$t('social.spaces.administration.manageSpaces.downloadReportTooltip')"
         @click="download">
-        <v-icon size="20">fa-download</v-icon>
+        <v-icon size="20">
+          fa-download
+        </v-icon>
       </v-btn>
     </td>
   </tr>
 </template>
 <script>
-export default {
-  props: {
-    operation: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      operation: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    downloading: false,
-    fullDateFormat: {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
+    data: () => ({
+      downloading: false,
+      fullDateFormat: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      },
+    }),
+    methods: {
+      async download () {
+        this.downloading = true;
+        try {
+          await eXo.$spaceBindingService.getReport(
+            this.operation.space.id,
+            this.operation.operationType,
+            this.operation.group.id,
+            this.operation.bindingId);
+        } finally {
+          this.downloading = false;
+        }
+      },
     },
-  }),
-  methods: {
-    async download() {
-      this.downloading = true;
-      try {
-        await this.$spaceBindingService.getReport(
-          this.operation.space.id,
-          this.operation.operationType,
-          this.operation.group.id,
-          this.operation.bindingId);
-      } finally {
-        this.downloading = false;
-      }
-    },
-  },
-};
+  };
 </script>

@@ -20,19 +20,21 @@
 -->
 <template>
   <application-toolbar
+    class="px-1"
     :right-text-filter="{
       minCharacters: 1,
       placeholder: $t('spaceTemplates.filter.placeholder'),
       tooltip: $t('spaceTemplates.filter.placeholder'),
     }"
-    class="px-1"
     @filter-text-input="$emit('space-templates-filter', $event)">
-    <template v-if="!$root.isMobile" #left>
+    <template
+      v-if="!$root.isMobile"
+      #left>
       <v-btn
         id="applicationToolbarLeftButton"
         :aria-label="$t('spaceTemplates.add')"
-        :class="$root.isMobile && 'px-0'"
         class="btn btn-primary text-truncate"
+        :class="$root.isMobile && 'px-0'"
         @click="$root.$emit('space-templates-name-open')">
         <v-icon
           size="18">

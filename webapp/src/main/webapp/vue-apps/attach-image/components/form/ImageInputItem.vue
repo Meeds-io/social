@@ -20,16 +20,16 @@
   <v-card 
     v-if="imageUploadProgress < 100"
     class="d-flex align-center justify-center grey-background"
-    width="120"
-    min-height="120"
+    flat
     max-height="120"
-    flat> 
+    min-height="120"
+    width="120"> 
     <v-progress-circular
+      color="primary"
       :rotate="-90"
       :size="40"
-      :width="4"
       :value="imageUploadProgress"
-      color="primary">
+      :width="4">
       {{ imageUploadProgress }}%
     </v-progress-circular>
     <v-card-actions class="position-absolute t-0 r-0">
@@ -38,7 +38,11 @@
         fab
         x-small
         @click="deleteFile">
-        <v-icon class="error-color" small>fa-trash</v-icon>
+        <v-icon
+          class="error-color"
+          small>
+          fa-trash
+        </v-icon>
       </v-btn>
     </v-card-actions>
   </v-card> 
@@ -47,66 +51,74 @@
     class="position-relative" 
     flat>
     <v-img
-      :src="imageItem.src"
       class="white--text align-end"
-      width="120"
+      max-height="120"
       min-height="120"
-      max-height="120" />
+      :src="imageItem.src"
+      width="120" />
     <v-card-actions class="position-absolute t-0 r-0">
       <v-btn 
         class="mr-1" 
         fab 
         x-small
         @click="openImageCropDrawer">
-        <v-icon class="icon-default-color" small>fa-edit</v-icon>
+        <v-icon
+          class="icon-default-color"
+          small>
+          fa-edit
+        </v-icon>
       </v-btn>
       <v-btn 
         class="ml-0" 
         fab 
         x-small
         @click.prevent.stop="deleteFile">
-        <v-icon class="error-color" small>fa-trash</v-icon>
+        <v-icon
+          class="error-color"
+          small>
+          fa-trash
+        </v-icon>
       </v-btn>
     </v-card-actions>
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    image: {
-      type: String,
-      default: ''
+  export default {
+    props: {
+      image: {
+        type: String,
+        default: '',
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
+      objectType: {
+        type: String,
+        default: null,
+      },
     },
-    objectId: {
-      type: String,
-      default: null
+    computed: {
+      imageItem () {
+        return this.image;
+      },
+      imageUploadProgress () {
+        return this.image?.progress;
+      },
+      fileId () {
+        return !this.image?.uploadId ? this.image?.name : '';
+      },
     },
-    objectType: {
-      type: String,
-      default: null
+    methods: {
+      deleteFile () {
+        this.$emit('delete', this.image);
+      },
+      openImageCropDrawer () {
+        if (this.imageItem?.src) {
+          this.imageItem.src = this.imageItem.src.split('&')[0];
+        }
+        document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{ detail: this.imageItem }));
+      },
     },
-  },
-  computed: {
-    imageItem() {
-      return this.image;
-    },
-    imageUploadProgress() {
-      return this.image?.progress;
-    },
-    fileId() {
-      return !this.image?.uploadId ? this.image?.name : '';
-    }
-  },
-  methods: {
-    deleteFile() {
-      this.$emit('delete', this.image);
-    },
-    openImageCropDrawer() {
-      if (this.imageItem?.src) {
-        this.imageItem.src = this.imageItem.src.split('&')[0];
-      }
-      document.dispatchEvent(new CustomEvent('attachments-image-open-crop-drawer',{detail: this.imageItem}));
-    },
-  }
-};
+  };
 </script>

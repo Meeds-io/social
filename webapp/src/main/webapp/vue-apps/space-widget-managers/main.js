@@ -34,9 +34,9 @@ if (extensionRegistry) {
 const appId = 'SpaceManagersApplication';
 const url = `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
-export async function init(spaceId, isManager, isMember, managers) {
+export async function init (spaceId, isManager, isMember, managers) {
   if (!isManager && !managers.length) {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+    eXo.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
   const i18n = await exoi18n.loadLanguageAsync(lang, url);
@@ -48,7 +48,7 @@ export async function init(spaceId, isManager, isMember, managers) {
       managers,
     },
     template: `<space-managers-application id="${appId}" />`,
-    vuetify: Vue.prototype.vuetifyOptions,
+    vuetify: eXo.vuetify,
     i18n,
   }, `#${appId}`, 'Space Managers');
 }

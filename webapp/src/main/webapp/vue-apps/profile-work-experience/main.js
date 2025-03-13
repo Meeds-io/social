@@ -21,18 +21,18 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.ProfileWorkExperience?lang=${lang}`;
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     Vue.createApp({
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-work-experiences v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile Work Experience');
   });
 }

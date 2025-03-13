@@ -1,27 +1,31 @@
 <template>
   <v-list-item class="pa-0 spaceItem">
     <v-list-item-avatar
+      class="my-0"
       :class="spaceItemClass"
       :href="url"
-      class="my-0"
       tile>
-      <v-avatar :size="avatarSize" tile>
+      <v-avatar
+        :size="avatarSize"
+        tile>
         <v-img
-          :src="avatarUrl"
+          class="mx-auto spaceAvatar"
           :height="avatarSize"
-          :width="avatarSize"
           :max-height="avatarSize"
           :max-width="avatarSize"
-          class="mx-auto spaceAvatar"
-          role="presentation" />
+          role="presentation"
+          :src="avatarUrl"
+          :width="avatarSize" />
       </v-avatar>
     </v-list-item-avatar>
     <v-list-item-content
+      class="pa-0"
       :class="spaceItemClass"
-      :href="url"
-      class="pa-0">
+      :href="url">
       <v-list-item-title>
-        <a :href="url" class="text-color">
+        <a
+          class="text-color"
+          :href="url">
           {{ space.displayName }}
         </a>
       </v-list-item-title>
@@ -37,91 +41,101 @@
     <v-list-item-action class="ma-0 flex-row align-self-center">
       <template v-if="filter === 'requests'">
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="me-2 spacesOverviewCheck success-color-background"
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="acceptUserRequest">
-          <v-icon size="18" dark>
+          <v-icon
+            dark
+            size="18">
             fa-check
           </v-icon>
         </v-btn>
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="spacesOverviewClose error-color-background"
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="refuseUserRequest">
-          <v-icon size="18" dark>
+          <v-icon
+            dark
+            size="18">
             fa-times
           </v-icon>
         </v-btn>
       </template>
       <template v-if="filter === 'invited'">
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="me-2 spacesOverviewCheck success-color-background"
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="acceptToJoin">
-          <v-icon size="18" dark>
+          <v-icon
+            dark
+            size="18">
             fa-check
           </v-icon>
         </v-btn>
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="spacesOverviewClose error-color-background"
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="refuseToJoin">
-          <v-icon size="18" dark>
+          <v-icon
+            dark
+            size="18">
             fa-times
           </v-icon>
         </v-btn>
       </template>
       <template v-if="filter === 'manager'">
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="spacesOverviewCheck outlined"
-          icon
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          icon
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="$emit('edit')">
           <i class="uiIcon uiIconEdit"></i>
         </v-btn>
       </template>
       <template v-if="filter === 'pending'">
         <v-btn
-          :width="actionIconSize"
-          :height="actionIconSize"
-          :loading="sendingAction"
-          :disabled="sendingAction"
           class="spacesOverviewClose error-color-background"
-          fab
           dark
           depressed
+          :disabled="sendingAction"
+          fab
+          :height="actionIconSize"
+          :loading="sendingAction"
+          :width="actionIconSize"
           @click="cancelRequest">
-          <v-icon size="18" dark>
+          <v-icon
+            dark
+            size="18">
             fa-times
           </v-icon>
         </v-btn>
@@ -131,106 +145,106 @@
 </template>
 
 <script>
-const randomMax = 10000;
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: () => null,
+  const randomMax = 10000;
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: () => null,
+      },
+      filter: {
+        type: String,
+        default: () => null,
+      },
+      avatarSize: {
+        type: Number,
+        default: () => 37,
+      },
     },
-    filter: {
-      type: String,
-      default: () => null,
+    data () {
+      return {
+        actionIconSize: 27,
+        sendingAction: false,
+        spaceItemClass: `spaceList${parseInt(Math.random() * randomMax)
+          .toString()
+          .toString()}`,
+      };
     },
-    avatarSize: {
-      type: Number,
-      default: () => 37,
+    computed: {
+      avatarUrl () {
+        return this.space && this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.prettyName}/avatar`;
+      },
+      user () {
+        return this?.space?.pending?.[0];
+      },
+      url () {
+        if (!this.space?.id) {
+          return '#';
+        }
+        return `${eXo.env.portal.context}/s/${this.space.id}`;
+      },
     },
-  },
-  data() {
-    return {
-      actionIconSize: 27,
-      sendingAction: false,
-      spaceItemClass: `spaceList${parseInt(Math.random() * randomMax)
-        .toString()
-        .toString()}`,
-    };
-  },
-  computed: {
-    avatarUrl() {
-      return this.space && this.space.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/${this.space.prettyName}/avatar`;
+    methods: {
+      acceptUserRequest () {
+        this.sendingAction = true;
+        eXo.$spaceService.acceptUserRequest(this.space.id, this.user.username)
+          .then(() => this.$emit('refresh', 'receivedRequests'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      refuseUserRequest () {
+        this.sendingAction = true;
+        eXo.$spaceService.refuseUserRequest(this.space.id, this.user.username)
+          .then(() => this.$emit('refresh', 'receivedRequests'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      acceptToJoin () {
+        this.sendingAction = true;
+        eXo.$spaceService.accept(this.space.id)
+          .then(() => this.$emit('refresh', 'invitations'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      refuseToJoin () {
+        this.sendingAction = true;
+        eXo.$spaceService.deny(this.space.id)
+          .then(() => this.$emit('refresh', 'invitations'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      cancelRequest () {
+        this.sendingAction = true;
+        eXo.$spaceService.cancel(this.space.id)
+          .then(() => this.$emit('refresh', 'sentRequests'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
     },
-    user() {
-      return this?.space?.pending?.[0];
-    },
-    url() {
-      if (!this.space?.id) {
-        return '#';
-      }
-      return `${eXo.env.portal.context}/s/${this.space.id}`;
-    },
-  },
-  methods: {
-    acceptUserRequest() {
-      this.sendingAction = true;
-      this.$spaceService.acceptUserRequest(this.space.id, this.user.username)
-        .then(() => this.$emit('refresh', 'receivedRequests'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    refuseUserRequest() {
-      this.sendingAction = true;
-      this.$spaceService.refuseUserRequest(this.space.id, this.user.username)
-        .then(() => this.$emit('refresh', 'receivedRequests'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    acceptToJoin() {
-      this.sendingAction = true;
-      this.$spaceService.accept(this.space.id)
-        .then(() => this.$emit('refresh', 'invitations'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    refuseToJoin() {
-      this.sendingAction = true;
-      this.$spaceService.deny(this.space.id)
-        .then(() => this.$emit('refresh', 'invitations'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    cancelRequest() {
-      this.sendingAction = true;
-      this.$spaceService.cancel(this.space.id)
-        .then(() => this.$emit('refresh', 'sentRequests'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-  }
-};
+  };
 </script>

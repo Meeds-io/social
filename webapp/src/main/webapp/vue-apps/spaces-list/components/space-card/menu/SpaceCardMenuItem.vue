@@ -22,15 +22,15 @@
 -->
 <template>
   <v-list-item
-    v-on="this.$listeners.click && {
-      click: this.$listeners.click
-    }"
-    v-bind="this.$attrs.href && {
-      href: this.$attrs.href
+    v-bind="$attrs.href && {
+      href: $attrs.href
     }"
     :aria-label="$t(label)"
     class="ps-0 py-0"
-    link>
+    link
+    v-on="$attrs.click && {
+      click: $attrs.click
+    }">
     <v-list-item-icon class="mx-2">
       <v-icon
         class="ma-auto"
@@ -42,30 +42,34 @@
       </v-icon>
     </v-list-item-icon>
     <v-list-item-content class="d-inline">
-      <v-list-item-title :class="labelColor && `${labelColor}--text`" class="text-body">{{ $t(label) }}</v-list-item-title>
+      <v-list-item-title
+        class="text-body"
+        :class="labelColor && `${labelColor}--text`">
+        {{ $t(label) }}
+      </v-list-item-title>
     </v-list-item-content>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    label: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      label: {
+        type: String,
+        default: null,
+      },
+      labelColor: {
+        type: String,
+        default: null,
+      },
+      icon: {
+        type: String,
+        default: null,
+      },
+      iconColor: {
+        type: String,
+        default: null,
+      },
     },
-    labelColor: {
-      type: String,
-      default: null,
-    },
-    icon: {
-      type: String,
-      default: null,
-    },
-    iconColor: {
-      type: String,
-      default: null,
-    },
-  },
-};
+  };
 </script>
 

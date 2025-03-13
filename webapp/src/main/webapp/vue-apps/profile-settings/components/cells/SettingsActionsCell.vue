@@ -31,21 +31,21 @@
             v-bind="attrs"
             v-on="on">
             <v-icon
-              :size="isMobile ? 14 : 18"
               class="clickable icon-default-color button-settings-action"
+              :size="isMobile ? 14 : 18"
               @click="displayActionMenu()">
               mdi-dots-vertical
             </v-icon>
           </v-btn>
           <v-menu
             v-model="menuDisplayed"
+            absolute
             :attach="`#setting-action-menu-cel-${setting.id}`"
-            transition="slide-x-reverse-transition"
-            :content-class="isMobile ? 'settingsActionMenuMobile' : 'settingsActionMenu'"
-            offset-y
-            offset-x
             close-on-click
-            absolute>
+            :content-class="isMobile ? 'settingsActionMenuMobile' : 'settingsActionMenu'"
+            offset-x
+            offset-y
+            transition="slide-x-reverse-transition">
             <profile-settings-action-menu
               :setting="setting"
               :settings="settings" />
@@ -59,50 +59,50 @@
   </div>
 </template>
 <script>
-export default {
+  export default {
 
-  props: {
-    setting: {
-      type: Object,
-      default: null,
+    props: {
+      setting: {
+        type: Object,
+        default: null,
+      },
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-    settings: {
-      type: Object,
-      default: null,
-    }
-  },
-  data: () => ({
-    loading: false,
-    menuDisplayed: false,
-    waitTimeUntilCloseMenu: 200,
-  }),
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    data: () => ({
+      loading: false,
+      menuDisplayed: false,
+      waitTimeUntilCloseMenu: 200,
+    }),
+    computed: {
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
+      },
+      menuActionTooltip () {
+        return this.$t('profileSettings.label.menu.action.tooltip');
+      },
     },
-    menuActionTooltip() {
-      return this.$t('profileSettings.label.menu.action.tooltip');
+    created () {
+      $(document).on('mousedown', () => {
+        if (this.menuDisplayed) {
+          window.setTimeout(() => {
+            $(`#setting-action-menu-cel-${this.setting.id}`).parent().parent().parent().parent().css('background', '#fff');
+            this.menuDisplayed = false;
+          }, this.waitTimeUntilCloseMenu);
+        }
+      });
     },
-  },
-  created() {
-    $(document).on('mousedown', () => {
-      if (this.menuDisplayed) {
-        window.setTimeout(() => {
-          $(`#setting-action-menu-cel-${this.setting.id}`).parent().parent().parent().parent().css('background', '#fff');
-          this.menuDisplayed = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
-  },
-  methods: {
-    displayActionMenu() {
-      if (this.isMobile){
-        this.$root.$emit('open-setting-action-menu', this.setting);
-      } else {
-        this.menuDisplayed = true;
-        $(`#setting-action-menu-cel-${this.setting.id}`).parent().parent().parent().parent().css('background', '#eee');
-      }
+    methods: {
+      displayActionMenu () {
+        if (this.isMobile){
+          this.$root.$emit('open-setting-action-menu', this.setting);
+        } else {
+          this.menuDisplayed = true;
+          $(`#setting-action-menu-cel-${this.setting.id}`).parent().parent().parent().parent().css('background', '#eee');
+        }
+      },
     },
-  }
-};
+  };
 </script>

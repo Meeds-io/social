@@ -1,4 +1,4 @@
-export function initTags(tooltipTitle) {
+export function initTags (tooltipTitle) {
   const tags = document.querySelectorAll('.metadata-tag:not([title])');
   if (tags && tags.length) {
     tags.forEach(tagItem => {
@@ -7,7 +7,7 @@ export function initTags(tooltipTitle) {
   }
 }
 
-export function searchTags(query, limit) {
+export function searchTags (query, limit) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/tags?q=${query || ''}&limit=${limit || 10}`, {
     method: 'GET',
     credentials: 'include',

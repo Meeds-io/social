@@ -23,17 +23,19 @@
   <v-menu
     v-if="extensions?.length"
     v-model="menu"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
     content-class="application-menu z-index-modal"
-    offset-y>
+    :left="!$vuetify.rtl"
+    offset-y
+    :right="$vuetify.rtl">
     <template #activator="{attrs, on}">
       <v-btn
         :aria-label="$t('menu.spaces.openSpaceAdvancedActions')"
         icon
         v-bind="attrs"
         v-on="on">
-        <v-icon size="18">fa-ellipsis-v</v-icon>
+        <v-icon size="18">
+          fa-ellipsis-v
+        </v-icon>
       </v-btn>
     </template>
     <v-list
@@ -52,7 +54,9 @@
           click: event => clickButton(extension, event),
         }">
         <v-list-item-icon class="my-auto me-2 ms-0">
-          <v-icon size="18">{{ extension.icon }}</v-icon>
+          <v-icon size="18">
+            {{ extension.icon }}
+          </v-icon>
         </v-list-item-icon>
         <v-list-item-content class="ms-0 text-body my-auto">
           <v-list-item-title>
@@ -64,88 +68,88 @@
   </v-menu>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    extensions: [],
-    menu: false,
-    conserveHover: false,
-  }),
-  computed: {
-    enabledExtensions() {
-      return this.extensions?.filter?.(extension => extension.enabled(this.space, {
-        allowUserHome: this.$root.allowUserHome,
-      }));
+    data: () => ({
+      extensions: [],
+      menu: false,
+      conserveHover: false,
+    }),
+    computed: {
+      enabledExtensions () {
+        return this.extensions?.filter?.(extension => extension.enabled(this.space, {
+          allowUserHome: this.$root.allowUserHome,
+        }));
+      },
     },
-  },
-  watch: {
-    menu() {
-      if (this.conserveHover) {
-        this.conserveHover = false;
-      } else {
-        if (this.menu) {
-          this.refreshExtensions();
+    watch: {
+      menu () {
+        if (this.conserveHover) {
+          this.conserveHover = false;
+        } else {
+          if (this.menu) {
+            this.refreshExtensions();
+          }
+          this.setMenuVisibility(this.menu);
         }
-        this.setMenuVisibility(this.menu);
-      }
-      // Workaround to fix closing menu when clicking outside
-      if (this.menu) {
-        document.addEventListener('mousedown', this.closeMenuAsync);
-      } else {
-        document.removeEventListener('mousedown', this.closeMenuAsync);
-      }
+        // Workaround to fix closing menu when clicking outside
+        if (this.menu) {
+          document.addEventListener('mousedown', this.closeMenuAsync);
+        } else {
+          document.removeEventListener('mousedown', this.closeMenuAsync);
+        }
+      },
     },
-  },
-  created() {
-    document.addEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
-    document.addEventListener('drawerClosed', this.closeMenuAsync);
-    this.refreshExtensions();
-  },
-  beforeDestroy() {
-    document.removeEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
-    document.removeEventListener('drawerClosed', this.closeMenuAsync);
-    window.setTimeout(() => this.$root.hoverMenu = false, 50);
-  },
-  methods: {
-    refreshExtensions() {
-      this.extensions = extensionRegistry.loadExtensions('space-hamburger', 'menu-item');
+    created () {
+      document.addEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
+      document.addEventListener('drawerClosed', this.closeMenuAsync);
+      this.refreshExtensions();
     },
-    setMenuVisibility(visible) {
-      if (visible) {
-        this.$root.$emit('menu-opened');
-        this.$root.hoverMenu = visible;
-      } else if (!this.conserveHover) {
-        this.$root.$emit('menu-closed');
-        window.setTimeout(() => this.$root.hoverMenu = visible, 50);
-      }
+    beforeUnmount () {
+      document.removeEventListener('extension-space-hamburger-menu-item-updated', this.refreshExtensions);
+      document.removeEventListener('drawerClosed', this.closeMenuAsync);
+      window.setTimeout(() => this.$root.hoverMenu = false, 50);
     },
-    closeMenu() {
-      this.menu = false;
-    },
-    closeMenuAsync() {
-      window.setTimeout(() => {
+    methods: {
+      refreshExtensions () {
+        this.extensions = extensionRegistry.loadExtensions('space-hamburger', 'menu-item');
+      },
+      setMenuVisibility (visible) {
+        if (visible) {
+          this.$root.$emit('menu-opened');
+          this.$root.hoverMenu = visible;
+        } else if (!this.conserveHover) {
+          this.$root.$emit('menu-closed');
+          window.setTimeout(() => this.$root.hoverMenu = visible, 50);
+        }
+      },
+      closeMenu () {
         this.menu = false;
-      }, 200);
+      },
+      closeMenuAsync () {
+        window.setTimeout(() => {
+          this.menu = false;
+        }, 200);
+      },
+      clickButton (extension, event) {
+        this.conserveHover = extension.conserveHover;
+        event.stopPropagation();
+        event.preventDefault();
+        window.setTimeout(() => {
+          this.menu = false;
+        }, 50);
+        if (extension.eventName) {
+          this.$root.$emit(extension.eventName, this.space);
+          document.dispatchEvent(new CustomEvent(extension.eventName, { detail: this.space }));
+        } else {
+          extension.click(this.space);
+        }
+      },
     },
-    clickButton(extension, event) {
-      this.conserveHover = extension.conserveHover;
-      event.stopPropagation();
-      event.preventDefault();
-      window.setTimeout(() => {
-        this.menu = false;
-      }, 50);
-      if (extension.eventName) {
-        this.$root.$emit(extension.eventName, this.space);
-        document.dispatchEvent(new CustomEvent(extension.eventName, {detail: this.space}));
-      } else {
-        extension.click(this.space);
-      }
-    },
-  },
-};
+  };
 </script>

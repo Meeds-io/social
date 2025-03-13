@@ -28,14 +28,14 @@
       <exo-identity-suggester
         :ref="`suggester${property.propertyName}`"
         v-model="users"
-        :labels="{
-          searchPlaceholder: this.$t('profileSettings.search.placeholder'),
-          placeholder: this.$t(`profileSettings.search.${property.propertyName}.label`),
-          noDataLabel: this.$t('Search.noResults'),
-        }"
-        :ignore-items="listIgnoredItems"
         :disabled="!property.editable"
+        :ignore-items="listIgnoredItems"
         include-users
+        :labels="{
+          searchPlaceholder: $t('profileSettings.search.placeholder'),
+          placeholder: $t(`profileSettings.search.${property.propertyName}.label`),
+          noDataLabel: $t('Search.noResults'),
+        }"
         :search-options="{}"
         @input="addSelected" />
       <div class="ma-auto">
@@ -44,84 +44,84 @@
       </div>
     </div>
     <profile-user-type-property-values
-      :user-type-properties="propertyObject?.children || propertyObject"
       :disabled="!propertyObject.editable"
+      :user-type-properties="propertyObject?.children || propertyObject"
       @remove-value="removeUser" />
   </div>
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      users: [],
-      ignoredItems: [],
-      propertyObject: null
-    };
-  },
-  props: {
-    property: {
-      type: Object,
-      default: null
-    }
-  },
-  computed: {
-    listIgnoredItems() {
-      return this.ignoredItems;
-    }
-  },
-  watch: {
-    'property.children': function() {
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: null,
+      },
+    },
+    data () {
+      return {
+        users: [],
+        ignoredItems: [],
+        propertyObject: null,
+      };
+    },
+    computed: {
+      listIgnoredItems () {
+        return this.ignoredItems;
+      },
+    },
+    watch: {
+      'property.children' () {
+        this.clonePropertyObject();
+      },
+    },
+    created () {
       this.clonePropertyObject();
-    }
-  },
-  created() {
-    this.clonePropertyObject();
-  },
-  methods: {
-    clonePropertyObject() {
-      this.propertyObject = structuredClone(this.property);
     },
-    removeUser(value) {
-      if (this.propertyObject.multiValued) {
-        const index = this.propertyObject?.children?.findIndex(property => property.value === value);
-        if (index !== -1) {
-          this.propertyObject.children.splice(index, 1);
-          this.ignoredItems.splice(index, 1);
+    methods: {
+      clonePropertyObject () {
+        this.propertyObject = structuredClone(this.property);
+      },
+      removeUser (value) {
+        if (this.propertyObject.multiValued) {
+          const index = this.propertyObject?.children?.findIndex(property => property.value === value);
+          if (index !== -1) {
+            this.propertyObject.children.splice(index, 1);
+            this.ignoredItems.splice(index, 1);
+          }
+        } else {
+          this.propertyObject.value = null;
         }
-      } else {
-        this.propertyObject.value = null;
-      }
-      this.$emit('property-updated', this.propertyObject);
-    },
-    addSelected(user) {
-      if (!user) {
-        return;
-      }
-      if (this.propertyObject.multiValued) {
-        const index = this.propertyObject?.children?.findIndex(property => property.value === user?.remoteId);
-        if (index === -1) {
-          this.propertyObject?.children.push({isNew: true, value: user.remoteId});
+        this.$emit('property-updated', this.propertyObject);
+      },
+      addSelected (user) {
+        if (!user) {
+          return;
         }
-      } else {
-        this.propertyObject.value = user.remoteId;
-      }
-      this.ignoredItems.push(user.id);
-      this.$nextTick(() => {
-        this.users = null;
-      });
-      this.$emit('property-updated', this.propertyObject);
+        if (this.propertyObject.multiValued) {
+          const index = this.propertyObject?.children?.findIndex(property => property.value === user?.remoteId);
+          if (index === -1) {
+            this.propertyObject?.children.push({ isNew: true, value: user.remoteId });
+          }
+        } else {
+          this.propertyObject.value = user.remoteId;
+        }
+        this.ignoredItems.push(user.id);
+        this.$nextTick(() => {
+          this.users = null;
+        });
+        this.$emit('property-updated', this.propertyObject);
+      },
+      getResolvedName (property){
+        const lang = eXo?.env.portal.language || 'en';
+        const resolvedLabel = !property.labels ? null : property.labels.find(v => v.language === lang);
+        if (resolvedLabel) {
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$te(`profileContactInformation.${property.propertyName}`)
+          && this.$t(`profileContactInformation.${property.propertyName}`)
+          || property.propertyName;
+      },
     },
-    getResolvedName(property){
-      const lang = eXo?.env.portal.language || 'en';
-      const resolvedLabel = !property.labels ? null : property.labels.find(v => v.language === lang);
-      if (resolvedLabel) {
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$te(`profileContactInformation.${property.propertyName}`)
-                     && this.$t(`profileContactInformation.${property.propertyName}`)
-                     || property.propertyName;
-    }
-  }
-};
+  };
 </script>

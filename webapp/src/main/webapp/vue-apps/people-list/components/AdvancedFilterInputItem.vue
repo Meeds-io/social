@@ -19,41 +19,41 @@
 <template>
   <input
     v-model="inputValueItem"
+    class="input-block-level ignore-vuetify-classes my-3"
     :placeholder="itemResolvedName"
-    type="text"
-    class="input-block-level ignore-vuetify-classes my-3">
+    type="text">
 </template>
 <script>
-export default {
-  name: 'AdvancedFilterInputItem',
-  props: {
-    settingsItem: {
-      type: Object,
-      default: null,
+  export default {
+    name: 'AdvancedFilterInputItem',
+    props: {
+      settingsItem: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    inputValueItem: '',
-  }),
-  created() {
-    this.$root.$on('reset-advanced-filter', () => this.inputValueItem = '');
-    this.$root.$on('cancel-advanced-filter', () => this.inputValueItem = '');
-  },
-  computed: {
-    itemResolvedName(){
-      const item = this.settingsItem ;
-      const lang = eXo && eXo.env.portal.language || 'en';
-      const resolvedLabel = item.labels.find(v => v.language === lang);
-      if (resolvedLabel){
-        return resolvedLabel.label;
-      }
-      return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`) !== `profileSettings.property.name.${item.propertyName}` ? this.$t(`profileSettings.property.name.${item.propertyName}`) : item.propertyName;
+    data: () => ({
+      inputValueItem: '',
+    }),
+    computed: {
+      itemResolvedName (){
+        const item = this.settingsItem ;
+        const lang = eXo && eXo.env.portal.language || 'en';
+        const resolvedLabel = item.labels.find(v => v.language === lang);
+        if (resolvedLabel){
+          return resolvedLabel.label;
+        }
+        return this.$t && this.$t(`profileSettings.property.name.${item.propertyName}`) !== `profileSettings.property.name.${item.propertyName}` ? this.$t(`profileSettings.property.name.${item.propertyName}`) : item.propertyName;
+      },
     },
-  },
-  watch: {
-    inputValueItem() {
-      this.$emit('input-value-changed', {'itemId': this.settingsItem.id, 'valueTosearch': this.inputValueItem});
-    }
-  },
-};
+    watch: {
+      inputValueItem () {
+        this.$emit('input-value-changed', { 'itemId': this.settingsItem.id, 'valueTosearch': this.inputValueItem });
+      },
+    },
+    created () {
+      this.$root.$on('reset-advanced-filter', () => this.inputValueItem = '');
+      this.$root.$on('cancel-advanced-filter', () => this.inputValueItem = '');
+    },
+  };
 </script>

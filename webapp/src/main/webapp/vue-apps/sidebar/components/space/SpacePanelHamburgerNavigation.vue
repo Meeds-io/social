@@ -28,19 +28,23 @@
         v-if="!$root.displaySequentially"
         class="backToMenu my-5 mx-2 icon-default-color justify-center"
         @click="$emit('close')">
-        <v-icon size="20">{{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}</v-icon>
+        <v-icon size="20">
+          {{ $vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left' }}
+        </v-icon>
       </v-list-item-icon>
       <v-list-item class="width-min-content pt-3">
         <v-list-item-avatar
           class="spaceAvatar mt-0 mb-0 align-self-start"
-          :width="avatarWidth"
-          :height="avatarHeight">
+          :height="avatarHeight"
+          :width="avatarWidth">
           <v-img
             class="object-fit-cover"
             :src="avatar" />
         </v-list-item-avatar>
         <v-list-item-content class="pb-0 pt-0">
-          <a :href="spaceURL" class="font-weight-bold text-truncate-2 primary--text mb-2">{{ spaceDisplayName }}</a>
+          <a
+            class="font-weight-bold text-truncate-2 primary--text mb-2"
+            :href="spaceURL">{{ spaceDisplayName }}</a>
           <v-list-item-subtitle>
             {{ membersCount }} {{ $t('space.logo.banner.popover.members') }}
           </v-list-item-subtitle>
@@ -60,14 +64,14 @@
         </v-list-item-content>
         <v-list-item-action>
           <exo-user-avatars-list
-            :users="managersToDisplay"
-            :icon-size="30"
-            :popover="false"
-            :margin-left="managersToDisplay.length > 1 && 'ml-n5' || ''"
-            :compact="managersToDisplay.length > 1"
-            clickable="'false'"
-            max="3"
             avatar-overlay-position
+            clickable="'false'"
+            :compact="managersToDisplay.length > 1"
+            :icon-size="30"
+            :margin-left="managersToDisplay.length > 1 && 'ml-n5' || ''"
+            max="3"
+            :popover="false"
+            :users="managersToDisplay"
             @open-detail="openDetails()" />
         </v-list-item-action>
       </v-list-item>
@@ -80,13 +84,15 @@
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
             <v-btn
-              :disabled="markAsReadDisabled"
               v-bind="attrs"
-              v-on="on"
               class="me-2"
+              :disabled="markAsReadDisabled"
               icon
+              v-on="on"
               @click="markAsAllRead">
-              <v-icon class="me-0 pa-2" small>
+              <v-icon
+                class="me-0 pa-2"
+                small>
                 fa-envelope-open-text
               </v-icon>
             </v-btn>
@@ -96,200 +102,202 @@
           </span>
         </v-tooltip>
         <space-favorite-action
+          class="me-2"
+          entity-type="spaces_left_navigation"
           :is-favorite="isFavorite"
           :space-id="spaceId"
-          entity-type="spaces_left_navigation"
-          class="me-2"
-          @removed="space.isFavorite = 'false'"
-          @added="space.isFavorite = 'true'" />
+          @added="space.isFavorite = 'true'"
+          @removed="space.isFavorite = 'false'" />
         <extension-registry-components
-          :params="params"
-          name="SpacePopover"
-          type="space-popover-action"
-          parent-element="div"
+          class="space-panel-action d-flex"
           element="div"
           element-class="me-2 ms-0"
-          class="space-panel-action d-flex" />
+          name="SpacePopover"
+          :params="params"
+          parent-element="div"
+          type="space-popover-action" />
         <span
           v-for="extension in enabledExtensionComponents"
           :key="extension.key"
-          :class="`${extension.appClass} ${extension.typeClass}`"
           :ref="extension.key"
-          class="space-panel-action me-2"></span>
+          class="space-panel-action me-2"
+          :class="`${extension.appClass} ${extension.typeClass}`"></span>
         <space-hamburger-action-menu
-          :space="space"
-          class="me-2" />
+          class="me-2"
+          :space="space" />
       </v-list-item-action>
     </v-flex>
     <v-flex>
-      <v-list v-if="spaceNavigations" class="pa-0">
+      <v-list
+        v-if="spaceNavigations"
+        class="pa-0">
         <site-navigation-tree
+          collapsed
           :navigations="spaceNavigations"
-          :site-name="spaceGroupId"
           :selected-name="selectedNavigationName"
-          collapsed />
+          :site-name="spaceGroupId" />
       </v-list>
     </v-flex>
   </v-container>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
+      homeLink: {
+        type: String,
+        default: null,
+      },
     },
-    homeLink: {
-      type: String,
-      default: null
+    data: () => ({
+      spaceNavigations: null,
+      externalExtensions: [],
+      selectedNavigationName: null,
+      loading: false,
+    }),
+    computed: {
+      spaceId () {
+        return this.space?.id;
+      },
+      spacePrettyName () {
+        return this.space?.prettyName;
+      },
+      spaceDisplayName () {
+        return this.space?.displayName;
+      },
+      avatar () {
+        return this.space?.avatarUrl;
+      },
+      membersCount () {
+        return this.space?.membersCount;
+      },
+      description () {
+        return this.space?.description;
+      },
+      managersToDisplay () {
+        return this.space?.managers;
+      },
+      isFavorite () {
+        return this.space?.isFavorite;
+      },
+      muted () {
+        return this.space?.isMuted === 'true';
+      },
+      isHomeLink () {
+        return this.spaceURL === this.homeLink;
+      },
+      canRedactOnSpace () {
+        return this.space?.canRedactOnSpace;
+      },
+      params () {
+        return {
+          identityType: 'space',
+          identityId: this.spaceId,
+          spacePrettyName: this.spacePrettyName,
+          canRedactOnSpace: this.canRedactOnSpace,
+        };
+      },
+      enabledExtensionComponents () {
+        return this.externalExtensions.filter(extension => extension.enabled);
+      },
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
+      },
+      spaceGroupId () {
+        return this.space?.groupId;
+      },
+      spaceUri () {
+        return this.spaceGroupId?.replace?.(/\//g, ':');
+      },
+      spaceURL () {
+        if (this.space?.id) {
+          return `${eXo.env.portal.context}/s/${this.space?.id}/`;
+        } else {
+          return '#';
+        }
+      },
+      avatarWidth () {
+        return this.isMobile && '45' || '60';
+      },
+      avatarHeight () {
+        return this.isMobile && '45' || '60';
+      },
+      hasUnreadItems () {
+        return this.$root?.unreadPerSpace?.[this.space?.id];
+      },
+      markAsReadDisabled () {
+        return !this.hasUnreadItems;
+      },
     },
-  },
-  data: () => ({
-    spaceNavigations: null,
-    externalExtensions: [],
-    selectedNavigationName: null,
-    loading: false,
-  }),
-  computed: {
-    spaceId() {
-      return this.space?.id;
+    watch: {
+      spaceId: {
+        immediate: true,
+        handler (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            if (this.spaceId) {
+              this.spaceNavigations = null;
+              this.retrieveSpaceNavigations()
+                .then(() => this.refreshExtensions());
+            }
+          }
+        },
+      },
     },
-    spacePrettyName() {
-      return this.space?.prettyName;
+    created () {
+      this.retrieveSpaceNavigations(this.spaceId);
+      this.selectedNavigationName = eXo.env.portal.siteKeyName === this.spaceGroupId
+        && eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
     },
-    spaceDisplayName() {
-      return this.space?.displayName;
-    },
-    avatar() {
-      return this.space?.avatarUrl;
-    },
-    membersCount() {
-      return this.space?.membersCount;
-    },
-    description() {
-      return this.space?.description;
-    },
-    managersToDisplay() {
-      return this.space?.managers;
-    },
-    isFavorite() {
-      return this.space?.isFavorite;
-    },
-    muted() {
-      return this.space?.isMuted === 'true';
-    },
-    isHomeLink() {
-      return this.spaceURL === this.homeLink;
-    },
-    canRedactOnSpace() {
-      return this.space?.canRedactOnSpace;
-    },
-    params() {
-      return {
-        identityType: 'space',
-        identityId: this.spaceId,
-        spacePrettyName: this.spacePrettyName,
-        canRedactOnSpace: this.canRedactOnSpace,
-      };
-    },
-    enabledExtensionComponents() {
-      return this.externalExtensions.filter(extension => extension.enabled);
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
-    },
-    spaceGroupId() {
-      return this.space?.groupId;
-    },
-    spaceUri() {
-      return this.spaceGroupId?.replace?.(/\//g, ':');
-    },
-    spaceURL() {
-      if (this.space?.id) {
-        return `${eXo.env.portal.context}/s/${this.space?.id}/`;
-      } else {
-        return '#';
-      }
-    },
-    avatarWidth() {
-      return this.isMobile && '45' || '60';
-    },
-    avatarHeight() {
-      return this.isMobile && '45' || '60';
-    },
-    hasUnreadItems() {
-      return this.$root?.unreadPerSpace?.[this.space?.id];
-    },
-    markAsReadDisabled() {
-      return !this.hasUnreadItems;
-    },
-  },
-  watch: {
-    spaceId: {
-      immediate: true,
-      handler(newVal, oldVal) {
-        if (newVal !== oldVal) {
-          if (this.spaceId) {
-            this.spaceNavigations = null;
-            this.retrieveSpaceNavigations()
-              .then(() => this.refreshExtensions());
+    methods: {
+      retrieveSpaceNavigations () {
+        if (this.loading) {
+          return;
+        }
+        this.loading = true;
+        return eXo.$siteService.getSite('GROUP', this.spaceUri, {
+          expandNavigations: true,
+          excludeEmptyNavigationSites: true,
+          lang: eXo.env.portal.language,
+          visibility: ['displayed', 'temporal'],
+          excludeGroupNodesWithoutPageChildNodes: true,
+          temporalCheck: true,
+        })
+          .then(data => this.spaceNavigations = data?.siteNavigations || [])
+          .finally(() => this.loading = false);
+      },
+      markAsAllRead () {
+        eXo.$spaceService.markAllAsRead(this.spaceId);
+      },
+      closeMenu () {
+        this.$emit('close-menu');
+      },
+      openDetails () {
+        document.dispatchEvent(new CustomEvent('display-users-list-drawer', { detail: this.managersToDisplay } ));
+      },
+      refreshExtensions () {
+        this.externalExtensions = [];
+        this.$nextTick(() => {
+          this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
+          this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
+        });
+      },
+      initExtensionAction (extension) {
+        if (extension.enabled) {
+          let container = this.$refs[extension.key];
+          if (container && container.length > 0) {
+            container = container[0];
+            extension.init(container, this.space.prettyName);
+          } else {
+           
+            console.error(
+              `Error initialization of the ${extension.key} action component: empty container`
+            );
           }
         }
       },
     },
-  },
-  created() {
-    this.retrieveSpaceNavigations(this.spaceId);
-    this.selectedNavigationName = eXo.env.portal.siteKeyName === this.spaceGroupId
-      && eXo.env.portal.selectedNodeUri?.split?.('/')?.reverse?.()?.[0];
-  },
-  methods: {
-    retrieveSpaceNavigations() {
-      if (this.loading) {
-        return;
-      }
-      this.loading = true;
-      return this.$siteService.getSite('GROUP', this.spaceUri, {
-        expandNavigations: true,
-        excludeEmptyNavigationSites: true,
-        lang: eXo.env.portal.language,
-        visibility: ['displayed', 'temporal'],
-        excludeGroupNodesWithoutPageChildNodes: true,
-        temporalCheck: true,
-      })
-        .then(data => this.spaceNavigations = data?.siteNavigations || [])
-        .finally(() => this.loading = false);
-    },
-    markAsAllRead() {
-      this.$spaceService.markAllAsRead(this.spaceId);
-    },
-    closeMenu() {
-      this.$emit('close-menu');
-    },
-    openDetails() {
-      document.dispatchEvent(new CustomEvent('display-users-list-drawer', {detail: this.managersToDisplay} ));
-    },
-    refreshExtensions() {
-      this.externalExtensions = [];
-      this.$nextTick(() => {
-        this.externalExtensions = extensionRegistry.loadExtensions('space-popup', 'space-popup-action') || [];
-        this.$nextTick().then(() => this.externalExtensions.forEach(this.initExtensionAction));
-      });
-    },
-    initExtensionAction(extension) {
-      if (extension.enabled) {
-        let container = this.$refs[extension.key];
-        if (container && container.length > 0) {
-          container = container[0];
-          extension.init(container, this.space.prettyName);
-        } else {
-          // eslint-disable-next-line no-console
-          console.error(
-            `Error initialization of the ${extension.key} action component: empty container`
-          );
-        }
-      }
-    },
-  },
-};
+  };
 </script>

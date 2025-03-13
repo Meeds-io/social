@@ -21,13 +21,13 @@
 <template>
   <application-toolbar
     id="spaceSettingUsersListToolbar"
+    compact
+    no-text-truncate
     :right-text-filter="hasUsers && {
       minCharacters: 3,
       placeholder: $t('SpaceSettings.users.filterByName'),
       tooltip: $t('SpaceSettings.users.filterByName')
     }"
-    no-text-truncate
-    compact
     @filter-text-input-end-typing="query = $event"
     @loading="$emit('loading', $event)">
     <template #left>
@@ -37,13 +37,13 @@
         <v-btn
           v-else
           :id="`${role}AddUser`"
-          :title="$t('SpaceSettings.users.add')"
           color="primary"
           elevation="0"
+          :title="$t('SpaceSettings.users.add')"
           @click="$emit('add')">
           <v-icon
-            color="while"
             class="me-2"
+            color="while"
             size="18">
             fa-plus
           </v-icon>
@@ -54,25 +54,25 @@
   </application-toolbar>
 </template>
 <script>
-export default {
-  props: {
-    hasUsers: {
-      type: Boolean,
-      default: null,
+  export default {
+    props: {
+      hasUsers: {
+        type: Boolean,
+        default: null,
+      },
+      role: {
+        type: String,
+        default: null,
+      },
     },
-    role: {
-      type: String,
-      default: null,
+    data: () => ({
+      query: null,
+    }),
+    watch: {
+      query () {
+        this.$emit('query', this.query);
+      },
     },
-  },
-  data: () => ({
-    query: null,
-  }),
-  watch: {
-    query() {
-      this.$emit('query', this.query);
-    },
-  },
-};
+  };
 </script>
 

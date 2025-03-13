@@ -21,63 +21,69 @@
 <template>
   <v-list-item
     v-if="isMobile"
-    :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
+    :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     role="button"
-    @keyup.space="openOrCloseDrawer"
-    @click="openOrCloseDrawer">
+    @click="openOrCloseDrawer"
+    @keyup.space="openOrCloseDrawer">
     <v-list-item-avatar 
-      size="28"
       class="me-3 ms-3 tile my-0 spaceAvatar"
+      size="28"
       tile>
       <img
-        :src="spaceAvatar"
         alt=""
-        width="28"
-        height="28">
+        height="28"
+        :src="spaceAvatar"
+        width="28">
     </v-list-item-avatar>
     <v-list-item-content>
-      <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+      <v-list-item-title class="menu-text-color">
+        {{ spaceDisplayName }}
+      </v-list-item-title>
     </v-list-item-content>
     <v-list-item-action
       v-if="spaceUnreadCount"
       class="me-2 my-auto align-center">
       <v-chip
         color="error-color-background"
-        min-width="22"
+        dark
         height="22"
-        dark>
+        min-width="22">
         {{ spaceUnreadCount }}
       </v-chip>
     </v-list-item-action>
   </v-list-item>
-  <v-hover v-else v-model="showItemActions">
+  <v-hover
+    v-else
+    v-model="showItemActions">
     <v-list-item
-      :href="spaceLink"
-      :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
       :arial-label="$t('space.avatar.href.title',{0:space.prettyName})"
-      :title="spaceDisplayName"
       class="px-2 spaceItem"
-      role="link">
+      :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
+      :href="spaceLink"
+      role="link"
+      :title="spaceDisplayName">
       <v-list-item-avatar 
-        size="28"
         class="me-3 ms-2 tile my-0 spaceAvatar"
+        size="28"
         tile>
         <img
-          :src="spaceAvatar"
           alt=""
           class="rounded"
-          width="28"
-          height="28">
+          height="28"
+          :src="spaceAvatar"
+          width="28">
       </v-list-item-avatar>
       <v-list-item-content>
-        <v-list-item-title v-text="spaceDisplayName" class="menu-text-color" />
+        <v-list-item-title class="menu-text-color">
+          {{ spaceDisplayName }}
+        </v-list-item-title>
       </v-list-item-content>
       <v-list-item-action
         v-if="toggleArrow"
+        class="me-2 my-auto align-center"
         :disabled="loading"
-        :loading="loading"
-        class="me-2 my-auto align-center">
+        :loading="loading">
         <ripple-hover-button
           :active="!drawerOpened"
           icon
@@ -96,9 +102,9 @@
         <v-chip
           v-if="spaceUnreadCount"
           color="error-color-background"
-          min-width="22"
+          dark
           height="22"
-          dark>
+          min-width="22">
           {{ spaceUnreadCount }}
         </v-chip>
       </v-list-item-action>
@@ -107,91 +113,91 @@
 </template>
 <script>
 
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
-    },
-    spaceUrl: {
-      type: String,
-      default: null
-    },
-    homeLink: {
-      type: String,
-      default: null,
-    },
-    homeIcon: {
-      type: Boolean,
-      default: false,
-    },
-    openedSpace: {
-      type: Object,
-      default: null,
-    },
-    thirdLevel: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    showItemActions: false,
-    spaceUnreadItems: null,
-  }),
-  computed: {
-    spaceId() {
-      return this.space?.id;
-    },
-    spaceLink() {
-      return this.spaceUrl;
-    },
-    spaceAvatar() {
-      return this.space?.avatarUrl;
-    },
-    spaceDisplayName() {
-      return this.space?.displayName;
-    },
-    spaceUnreadCount() {
-      return this.$root?.unreadPerSpace?.[this.space?.id];
-    },
-    toggleArrow() {
-      return this.showItemActions || this.drawerOpened;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
-    },
-    drawerOpened() {
-      return this.openedSpace?.id === this.space?.id;
-    },
-    arrowIcon() {
-      return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
-    },
-    arrowIconLeft() {
-      return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
-    },
-    arrowIconRight() {
-      return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
-    },
-  },
-  watch: {
-    space: {
-      immediate: true,
-      deep: true,
-      handler: function() {
-        if (JSON.stringify(this.spaceUnreadItems || {}) !== JSON.stringify(this.space?.unread || {})) {
-          this.spaceUnreadItems = this.space?.unread;
-        }
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
+      spaceUrl: {
+        type: String,
+        default: null,
+      },
+      homeLink: {
+        type: String,
+        default: null,
+      },
+      homeIcon: {
+        type: Boolean,
+        default: false,
+      },
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
+      thirdLevel: {
+        type: Boolean,
+        default: false,
       },
     },
-  },
-  methods: {
-    openOrCloseDrawer(event) {
-      if (event) {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-      this.$root.$emit('change-space-menu', this.space, this.thirdLevel);
+    data: () => ({
+      showItemActions: false,
+      spaceUnreadItems: null,
+    }),
+    computed: {
+      spaceId () {
+        return this.space?.id;
+      },
+      spaceLink () {
+        return this.spaceUrl;
+      },
+      spaceAvatar () {
+        return this.space?.avatarUrl;
+      },
+      spaceDisplayName () {
+        return this.space?.displayName;
+      },
+      spaceUnreadCount () {
+        return this.$root?.unreadPerSpace?.[this.space?.id];
+      },
+      toggleArrow () {
+        return this.showItemActions || this.drawerOpened;
+      },
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
+      },
+      drawerOpened () {
+        return this.openedSpace?.id === this.space?.id;
+      },
+      arrowIcon () {
+        return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
+      },
+      arrowIconLeft () {
+        return eXo.vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
+      },
+      arrowIconRight () {
+        return eXo.vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
+      },
     },
-  },
-};
+    watch: {
+      space: {
+        immediate: true,
+        deep: true,
+        handler () {
+          if (JSON.stringify(this.spaceUnreadItems || {}) !== JSON.stringify(this.space?.unread || {})) {
+            this.spaceUnreadItems = this.space?.unread;
+          }
+        },
+      },
+    },
+    methods: {
+      openOrCloseDrawer (event) {
+        if (event) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        this.$root.$emit('change-space-menu', this.space, this.thirdLevel);
+      },
+    },
+  };
 </script>

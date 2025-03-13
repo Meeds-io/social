@@ -22,17 +22,23 @@
 <template>
   <div>
     <div class="d-flex align-center mb-2">
-      <div class="font-weight-bold" slot="title">
+      <div class="font-weight-bold">
         {{ $t(title) }}
       </div>
       <v-spacer />
       <div class="me-4">
         {{ $t('social.spaces.administration.manageSpaces.templateUpdateProperty') }}
       </div>
-      <v-switch v-model="enabled" class="my-0 me-n2" />
+      <v-switch
+        v-model="enabled"
+        class="my-0 me-n2" />
     </div>
-    <div v-if="$slots.spaceValue && $slots.templateValue" class="d-flex flex-column mb-4">
-      <div v-if="$slots.spaceValue" class="d-flex mb-2">
+    <div
+      v-if="$slots.spaceValue && $slots.templateValue"
+      class="d-flex flex-column mb-4">
+      <div
+        v-if="$slots.spaceValue"
+        class="d-flex mb-2">
         <div class="col-4 pa-0">
           {{ $t('social.spaces.administration.manageSpaces.spaceCurrentCharacteristic') }}
         </div>
@@ -40,7 +46,9 @@
           <slot name="spaceValue"></slot>
         </div>
       </div>
-      <div v-if="$slots.templateValue" class="d-flex">
+      <div
+        v-if="$slots.templateValue"
+        class="d-flex">
         <div class="col-4 pa-0">
           {{ $t('social.spaces.administration.manageSpaces.spaceNewCharacteristic') }}
         </div>
@@ -52,27 +60,27 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
+      title: {
+        type: String,
+        default: null,
+      },
     },
-    title: {
-      type: String,
-      default: null,
+    data: () => ({
+      enabled: false,
+    }),
+    watch: {
+      enabled () {
+        this.$emit('input', this.enabled);
+      },
     },
-  },
-  data: () => ({
-    enabled: false,
-  }),
-  watch: {
-    enabled() {
-      this.$emit('input', this.enabled);
+    created () {
+      this.enabled = this.value;
     },
-  },
-  created() {
-    this.enabled = this.value;
-  },
-};
+  };
 </script>

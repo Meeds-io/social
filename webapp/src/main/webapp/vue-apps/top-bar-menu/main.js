@@ -31,11 +31,11 @@ const lang = eXo && eXo.env.portal.language || 'en';
 
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 
 const appId = 'topBarMenu';
 
-export function init(cacheId, parentNodeId) {
+export function init (cacheId, parentNodeId) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
   const appElement = document.createElement('div');
@@ -46,11 +46,11 @@ export function init(cacheId, parentNodeId) {
       data: {
         cacheId,
         parentNodeId,
-        isTopBarElement: true
+        isTopBarElement: true,
       },
       template: `<top-bar-navigation-menu v-cacheable id="${appId}" />`,
       vuetify,
-      i18n
+      i18n,
     }, appElement, 'TopBar Navigation Menu')
   ).finally(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
 }

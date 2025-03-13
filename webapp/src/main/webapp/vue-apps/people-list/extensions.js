@@ -22,7 +22,7 @@ extensionRegistry.registerExtension('profile-extension', 'action', {
   icon: 'fa-external-link-alt',
   order: 1,
   enabled: (user, spaceId) => spaceId && user.enabled,
-  link: (user) => {
+  link: user => {
     return `${window.location.origin}${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${user.username}`;
   },
 });
@@ -33,11 +33,11 @@ extensionRegistry.registerExtension('profile-extension', 'action', {
   icon: 'fa-link',
   order: 2,
   enabled: (user, spaceId) => spaceId && user.enabled,
-  click: (user) => {
+  click: user => {
     navigator.clipboard.writeText(`${window.location.origin}${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${user.username}`);
-    document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+    document.dispatchEvent(new CustomEvent('alert-message', { detail: {
       alertType: 'success',
       alertMessageKey: 'peopleList.button.linkCopied',
-    }}));
+    } }));
   },
 });

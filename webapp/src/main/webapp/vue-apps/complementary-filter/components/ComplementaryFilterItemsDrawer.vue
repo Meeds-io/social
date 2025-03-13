@@ -24,12 +24,12 @@
     allow-expand
     right
     @closed="closed">
-    <template slot="title">
+    <template #title>
       <div>
         <v-btn
+          :aria-label="$t('label.close')"
           class="align-start"
           icon
-          :aria-label="$t('label.close')"
           @click="hideDrawer">
           <v-icon size="20">
             fas fa-arrow-left
@@ -40,15 +40,15 @@
         </span>
       </div>
     </template>
-    <template slot="content">
+    <template #content>
       <div class="my-2 mx-5">
         <div
           v-for="suggestion in listSuggestions"
           :key="suggestion.value"
           class="my-2">
           <complementary-filter-item
-            :suggestion="suggestion"
             :is-selected="isSuggestionSelected(suggestion)"
+            :suggestion="suggestion"
             @select-suggestion="selectSuggestion" />
         </div>
       </div>
@@ -57,49 +57,49 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      hide: false
-    };
-  },
-  props: {
-    suggestions: {
-      type: Array,
-      default: () => []
+  export default {
+    props: {
+      suggestions: {
+        type: Array,
+        default: () => [],
+      },
+      selections: {
+        type: Array,
+        default: () => [],
+      },
     },
-    selections: {
-      type: Array,
-      default: () => []
-    }
-  },
-  computed: {
-    listSuggestions() {
-      return this.suggestions;
+    data () {
+      return {
+        hide: false,
+      };
     },
-  },
-  methods: {
-    hideDrawer() {
-      this.hide = true;
-      this.close();
+    computed: {
+      listSuggestions () {
+        return this.suggestions;
+      },
     },
-    closed() {
-      this.$emit('closed', !this.hide);
-    },
-    open() {
-      this.hide = false;
-      this.$refs.complementaryFilterItemsDrawer.open();
-    },
-    close() {
-      this.$refs.complementaryFilterItemsDrawer.close();
-    },
-    selectSuggestion(suggestion) {
-      this.$emit('select-suggestion', suggestion);
-    },
-    isSuggestionSelected(suggestion) {
-      return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
+    methods: {
+      hideDrawer () {
+        this.hide = true;
+        this.close();
+      },
+      closed () {
+        this.$emit('closed', !this.hide);
+      },
+      open () {
+        this.hide = false;
+        this.$refs.complementaryFilterItemsDrawer.open();
+      },
+      close () {
+        this.$refs.complementaryFilterItemsDrawer.close();
+      },
+      selectSuggestion (suggestion) {
+        this.$emit('select-suggestion', suggestion);
+      },
+      isSuggestionSelected (suggestion) {
+        return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
           existObject.key === suggestion.key) !== -1;
-    }
-  }
-};
+      },
+    },
+  };
 </script>

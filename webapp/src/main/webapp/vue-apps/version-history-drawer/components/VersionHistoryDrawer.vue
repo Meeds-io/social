@@ -20,10 +20,10 @@
     class="versionHistoryDrawer"
     right
     @closed="closed">
-    <template slot="title">
+    <template #title>
       {{ $t('versionHistory.label.title') }}
     </template>
-    <template slot="content">
+    <template #content>
       <div
         v-if="!isLoading && versions.length === 0"
         class="text-center mt-5">
@@ -39,29 +39,31 @@
             <v-list-item
               v-for="version in versions"
               :key="version.id"
+              class="history-line pa-2 mb-2 border-color border-radius d-block"
               :class="[version.current? 'light-grey-background-color' : '']"
-              @click="openVersion(version)"
-              class="history-line pa-2 mb-2 border-color border-radius d-block">
+              @click="openVersion(version)">
               <version-card
-                :version="version"
                 :can-manage="canManage"
                 :disable-restore-version="disableRestoreVersion"
                 :enable-edit-description="enableEditDescription"
-                @version-update-description="updateVersionDescription"
-                @restore-version="restoreVersion" />
+                :version="version"
+                @restore-version="restoreVersion"
+                @version-update-description="updateVersionDescription" />
             </v-list-item>
           </v-slide-y-transition>
         </v-list-item-group>
       </v-list>
     </template>
-    <template v-if="showLoadMore" slot="footer">
+    <template
+      v-if="showLoadMore"
+      #footer>
       <div
         class="d-flex mx-4">
         <v-btn
-          :loading="isLoading"
-          @click="loadMore"
           class="primary--text mx-auto"
-          text>
+          :loading="isLoading"
+          text
+          @click="loadMore">
           {{ $t('versionHistory.button.loadMore') }}
         </v-btn>
       </div>
@@ -71,73 +73,73 @@
 
 <script>
 
-export default {
-  props: {
-    versions: {
-      type: Array,
-      default: () => {
-        return null;
-      }
+  export default {
+    props: {
+      versions: {
+        type: Array,
+        default: () => {
+          return null;
+        },
+      },
+      canManage: {
+        type: Boolean,
+        default: () => {
+          return false;
+        },
+      },
+      showLoadMore: {
+        type: Boolean,
+        default: () => {
+          return false;
+        },
+      },
+      isLoading: {
+        type: Boolean,
+        default: () => {
+          return false;
+        },
+      },
+      enableEditDescription: {
+        type: Boolean,
+        default: () => {
+          return false;
+        },
+      },
+      disableRestoreVersion: {
+        type: Boolean,
+        default: () => {
+          return false;
+        },
+      },
     },
-    canManage: {
-      type: Boolean,
-      default: () => {
-        return false;
-      }
+    watch: {
+      isLoading () {
+        if (this.isLoading) {
+          this.$refs.versionHistoryDrawer.startLoading();
+        } else {
+          this.$refs.versionHistoryDrawer.endLoading();
+        }
+      },
     },
-    showLoadMore: {
-      type: Boolean,
-      default: () => {
-        return false;
-      }
+    methods: {
+      open () {
+        this.$refs.versionHistoryDrawer.open();
+      },
+      closed () {
+        this.$emit('drawer-closed');
+      },
+      loadMore () {
+        this.$emit('load-more');
+      },
+      openVersion (version) {
+        this.$emit('open-version', version);
+      },
+      updateVersionDescription (version, newDescription) {
+        this.$emit('version-update-description', version, newDescription);
+      },
+      restoreVersion (version) {
+        this.$emit('restore-version', version);
+      },
     },
-    isLoading: {
-      type: Boolean,
-      default: () => {
-        return false;
-      }
-    },
-    enableEditDescription: {
-      type: Boolean,
-      default: () => {
-        return false;
-      }
-    },
-    disableRestoreVersion: {
-      type: Boolean,
-      default: () => {
-        return false;
-      }
-    }
-  },
-  watch: {
-    isLoading() {
-      if (this.isLoading) {
-        this.$refs.versionHistoryDrawer.startLoading();
-      } else {
-        this.$refs.versionHistoryDrawer.endLoading();
-      }
-    },
-  },
-  methods: {
-    open() {
-      this.$refs.versionHistoryDrawer.open();
-    },
-    closed() {
-      this.$emit('drawer-closed');
-    },
-    loadMore() {
-      this.$emit('load-more');
-    },
-    openVersion(version) {
-      this.$emit('open-version', version);
-    },
-    updateVersionDescription(version, newDescription) {
-      this.$emit('version-update-description', version, newDescription);
-    },
-    restoreVersion(version) {
-      this.$emit('restore-version', version);
-    }
-  }
-};
+  };
 </script>

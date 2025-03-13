@@ -36,20 +36,20 @@ const lang = eXo && eXo.env.portal.language || 'en';
 
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 
 const appId = 'profileSettings';
 
-export function init(languages) {
+export function init (languages) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
       data: {
-        languages: languages,
+        languages,
       },
       template: `<profile-settings id="${appId}" :languages="languages"/>`,
       vuetify,
-      i18n
+      i18n,
     }, `#${appId}`, 'Profile settings');
   });
 }

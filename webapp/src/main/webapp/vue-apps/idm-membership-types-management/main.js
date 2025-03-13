@@ -20,16 +20,16 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<membership-types-management id="${appId}" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
-      i18n
+      vuetify: eXo.vuetify,
+      i18n,
     }, `#${appId}`, 'Membership Type Management');
   });
 }

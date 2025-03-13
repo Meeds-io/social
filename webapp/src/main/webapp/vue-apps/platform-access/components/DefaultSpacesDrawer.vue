@@ -20,18 +20,20 @@
 -->
 <template>
   <exo-drawer
-    ref="drawer"
     id="defaultSpacesRegistrationDrawer"
+    ref="drawer"
     v-model="drawer"
-    :loading="loading"
     allow-expand
-    right
-    disable-pull-to-refresh>
+    disable-pull-to-refresh
+    :loading="loading"
+    right>
     <template #title>
       {{ $t('generalSettings.access.defaultSpacesHeader') }}
     </template>
     <template #content>
-      <v-card class="pa-4" flat>
+      <v-card
+        class="pa-4"
+        flat>
         <div>
           {{ $t('generalSettings.access.defaultSpacesTitle') }}
         </div>
@@ -43,25 +45,25 @@
           {{ $t('generalSettings.access.selectDefaultSpaces') }}
         </div>
         <exo-identity-suggester
-          ref="defaultSpacesInput"
           id="defaultSpacesInput"
+          ref="defaultSpacesInput"
           v-model="defaultSpaceIdentities"
-          :labels="suggesterLabels"
-          :search-options="{
-            filterType: 'accessible',
-          }"
-          name="defaultSpaces"
           height="100"
           include-spaces
-          multiple />
+          :labels="suggesterLabels"
+          multiple
+          name="defaultSpaces"
+          :search-options="{
+            filterType: 'accessible',
+          }" />
       </v-card>
     </template>
     <template #footer>
       <div class="d-flex justify-end">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
-          :disabled="loading"
           class="btn cancel-button me-4"
+          :disabled="loading"
           elevation="0"
           @click="close">
           <span class="text-none">
@@ -70,11 +72,11 @@
         </v-btn>
         <v-btn
           :aria-label="$t('generalSettings.apply')"
-          :disabled="!changed"
-          :loading="loading"
-          color="primary"
           class="btn btn-primary"
+          color="primary"
+          :disabled="!changed"
           elevation="0"
+          :loading="loading"
           @click="apply">
           <span class="text-none">
             {{ $t('generalSettings.apply') }}
@@ -85,72 +87,72 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    loading: false,
-    defaultSpaceIdentities: [],
-  }),
-  computed: {
-    changed() {
-      return String(this.defaultSpaceGroupIds) !== String(this.value);
+    data: () => ({
+      drawer: false,
+      loading: false,
+      defaultSpaceIdentities: [],
+    }),
+    computed: {
+      changed () {
+        return String(this.defaultSpaceGroupIds) !== String(this.value);
+      },
+      suggesterLabels () {
+        return {
+          searchPlaceholder: this.$t('generalSettings.access.defaultSpaces.searchPlaceholder'),
+          placeholder: this.$t('generalSettings.access.defaultSpaces.placeholder'),
+          noDataLabel: this.$t('generalSettings.access.defaultSpaces.noDataLabel'),
+        };
+      },
+      defaultSpacesSubTitle () {
+        return this.$t('generalSettings.access.defaultSpacesSubTitle', {
+          0: `<a href="${this.mandatorySpacesLink}">`,
+          1: '</a>',
+        });
+      },
+      defaultSpaceGroupIds () {
+        return this.defaultSpaceIdentities.map(identity => identity.groupId);
+      },
     },
-    suggesterLabels() {
-      return {
-        searchPlaceholder: this.$t('generalSettings.access.defaultSpaces.searchPlaceholder'),
-        placeholder: this.$t('generalSettings.access.defaultSpaces.placeholder'),
-        noDataLabel: this.$t('generalSettings.access.defaultSpaces.noDataLabel'),
-      };
+    methods: {
+      open () {
+        this.reset();
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      reset () {
+        this.defaultSpaceIdentities = [];
+        const spaceGroupIds = this.value || [];
+        this.loading = true;
+        return Promise.all(
+          spaceGroupIds.map(groupId => eXo.$spaceService.getSpaceByGroupId(groupId)
+            .then(space => ({
+              id: `space:${space.prettyName}`,
+              remoteId: space.prettyName,
+              spaceId: space.id,
+              groupId: space.groupId,
+              providerId: 'space',
+              displayName: space.displayName,
+              profile: {
+                fullName: space.displayName,
+                avatarUrl: space.avatarUrl,
+              },
+            })))
+        ).then(spaceIdentities => this.defaultSpaceIdentities = spaceIdentities)
+          .finally(() => this.loading = false);
+      },
+      apply () {
+        this.$emit('input', this.defaultSpaceGroupIds);
+        this.close();
+      },
     },
-    defaultSpacesSubTitle() {
-      return this.$t('generalSettings.access.defaultSpacesSubTitle', {
-        0: `<a href="${this.mandatorySpacesLink}">`,
-        1: '</a>',
-      });
-    },
-    defaultSpaceGroupIds() {
-      return this.defaultSpaceIdentities.map(identity => identity.groupId);
-    },
-  },
-  methods: {
-    open() {
-      this.reset();
-      this.$refs.drawer.open();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    reset() {
-      this.defaultSpaceIdentities = [];
-      const spaceGroupIds = this.value || [];
-      this.loading = true;
-      return Promise.all(
-        spaceGroupIds.map(groupId => this.$spaceService.getSpaceByGroupId(groupId)
-          .then(space => ({
-            id: `space:${space.prettyName}`,
-            remoteId: space.prettyName,
-            spaceId: space.id,
-            groupId: space.groupId,
-            providerId: 'space',
-            displayName: space.displayName,
-            profile: {
-              fullName: space.displayName,
-              avatarUrl: space.avatarUrl,
-            }
-          })))
-      ).then(spaceIdentities => this.defaultSpaceIdentities = spaceIdentities)
-        .finally(() => this.loading = false);
-    },
-    apply() {
-      this.$emit('input', this.defaultSpaceGroupIds);
-      this.close();
-    },
-  }
-};
+  };
 </script>

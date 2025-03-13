@@ -18,9 +18,9 @@
   <v-app>
     <v-main class="application-body">
       <v-card
-        min-height="var(--100vh, 100vh)"
         color="transparent"
-        flat>
+        flat
+        min-height="var(--100vh, 100vh)">
         <vertical-menu-content :extra-class="extraClass" />
         <template v-if="$root.isMobile">
           <vertical-menu-button />

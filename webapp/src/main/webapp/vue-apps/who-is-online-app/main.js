@@ -1,7 +1,7 @@
 import './components/initComponents.js';
 
 // getting language of the PLF
-const lang = `${Vue.prototype.$spacesConstants.LANG}`;
+const lang = `${eXo.$spacesConstants.LANG}`;
 
 // should expose the locale ressources as REST API
 const url = `/social/i18n/locale.portlet.whoisonline.whoisonline?lang=${lang}`;
@@ -20,16 +20,16 @@ const appId = 'OnlinePortlet';
 const appName = 'Who is Online';
 
 // getting locale ressources
-export function init() {
-  document.dispatchEvent(new CustomEvent('vue-app-loading-start', {detail: {
-    appName: appName,
+export function init () {
+  document.dispatchEvent(new CustomEvent('vue-app-loading-start', { detail: {
+    appName,
     time: Date.now(),
-  }}));
+  } }));
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
       const onlineUsers = JSON.parse(document.getElementById('whoIsOnlineDefaultValue').value);
       if (!onlineUsers.length) {
-        Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet'));
+        eXo.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet'));
       }
       if (onlineUsers && onlineUsers.length) {
         const avatars = JSON.parse(document.getElementById('whoIsOnlineAvatarsDefaultValue').value);
@@ -42,7 +42,7 @@ export function init() {
           onlineUsers,
         },
         template: `<exo-who-is-online id="${appId}"></exo-who-is-online>`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n: exoi18n.i18n,
       }, `#${appId}`, appName);
     });

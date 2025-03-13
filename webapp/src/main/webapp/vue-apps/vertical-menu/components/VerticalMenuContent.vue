@@ -17,48 +17,48 @@
 <template>
   <v-card
     id="verticalMenuSiteDetails"
-    :loading="loading"
     :class="extraClass"
     color="transparent"
-    min-height="100%"
-    flat>
+    flat
+    :loading="loading"
+    min-height="100%">
     <site-details
       v-if="site"
-      :site="site"
-      extra-class=" px-0 py-0 "
       display-sequentially
-      expand-selection-only />
+      expand-selection-only
+      extra-class=" px-0 py-0 "
+      :site="site" />
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    extraClass: {
-      type: String,
-      default: null
-    }
-  },
-  data: () => ({
-    loading: false,
-    site: null,
-    siteId: eXo.env.portal.siteId,
-  }),
-  created() {
-    this.retrieveCurrentSite();
-  },
-  methods: {
-    retrieveCurrentSite() {
-      this.loading = true;
-      return this.$siteService.getSiteById(this.siteId, {
-        expandNavigations: true,
-        lang: eXo.env.portal.language,
-        visibility: ['displayed', 'temporal'],
-        excludeGroupNodesWithoutPageChildNodes: true,
-        temporalCheck: true,
-      })
-        .then(site => this.site = site)
-        .finally(() => this.loading = false);
+  export default {
+    props: {
+      extraClass: {
+        type: String,
+        default: null,
+      },
     },
-  }
-};
+    data: () => ({
+      loading: false,
+      site: null,
+      siteId: eXo.env.portal.siteId,
+    }),
+    created () {
+      this.retrieveCurrentSite();
+    },
+    methods: {
+      retrieveCurrentSite () {
+        this.loading = true;
+        return eXo.$siteService.getSiteById(this.siteId, {
+          expandNavigations: true,
+          lang: eXo.env.portal.language,
+          visibility: ['displayed', 'temporal'],
+          excludeGroupNodesWithoutPageChildNodes: true,
+          temporalCheck: true,
+        })
+          .then(site => this.site = site)
+          .finally(() => this.loading = false);
+      },
+    },
+  };
 </script>

@@ -20,13 +20,17 @@
 -->
 <template>
   <v-app ref="app">
-    <v-hover v-model="hover" :disabled="!canEdit">
+    <v-hover
+      v-model="hover"
+      :disabled="!canEdit">
       <v-card
-        :color="$root.hasImages && 'transparent' || 'primary'"
         class="application-body application-dimension overflow-hidden no-border-radius"
-        min-width="100%"
-        flat>
-        <v-responsive :aspect-ratio="$root.imageAspectRatio" class="application-dimension overflow-hidden">
+        :color="$root.hasImages && 'transparent' || 'primary'"
+        flat
+        min-width="100%">
+        <v-responsive
+          :aspect-ratio="$root.imageAspectRatio"
+          class="application-dimension overflow-hidden">
           <image-settings-header
             v-if="canEdit"
             :hover="hover || loading"
@@ -48,92 +52,92 @@
       <exo-confirm-dialog
         v-if="removeConfirm"
         ref="confirmDialog"
-        :title="$t('image.label.removeImageConfirmTitle')"
+        :cancel-label="$t('image.label.no')"
         :message="$t('image.label.removeImageConfirmMessage')"
         :ok-label="$t('image.label.yes')"
-        :cancel-label="$t('image.label.no')"
-        @ok="removeImageConfirm"
-        @dialog-closed="removeConfirm = false" />
+        :title="$t('image.label.removeImageConfirmTitle')"
+        @dialog-closed="removeConfirm = false"
+        @ok="removeImageConfirm" />
     </template>
   </v-app>
 </template>
 
 <script>
-export default {
-  data: () => ({
-    hover: false,
-    loading: false,
-    saving: false,
-    edit: false,
-    removeConfirm: false,
-    previewMode: false,
-  }),
-  computed: {
-    width() {
-      return this.$refs?.app?.$el?.offsetWidth;
+  export default {
+    data: () => ({
+      hover: false,
+      loading: false,
+      saving: false,
+      edit: false,
+      removeConfirm: false,
+      previewMode: false,
+    }),
+    computed: {
+      width () {
+        return this.$refs?.app?.$el?.offsetWidth;
+      },
+      height () {
+        return this.$refs?.app?.$el?.offsetHeight;
+      },
+      canEdit () {
+        return !this.previewMode && this.$root.canEdit;
+      },
     },
-    height() {
-      return this.$refs?.app?.$el?.offsetHeight;
+    created () {
+      document.addEventListener('cms-preview-mode', this.switchToPreview);
+      document.addEventListener('cms-edit-mode', this.switchToEdit);
     },
-    canEdit() {
-      return !this.previewMode && this.$root.canEdit;
+    mounted () {
+      this.$root.$applicationLoaded();
     },
-  },
-  created() {
-    document.addEventListener('cms-preview-mode', this.switchToPreview);
-    document.addEventListener('cms-edit-mode', this.switchToEdit);
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  methods: {
-    editSettings() {
-      this.edit = true;
-      this.$nextTick().then(() => {
-        window.setTimeout(() => this.$refs?.drawer?.open?.(), 50);
-      });
+    methods: {
+      editSettings () {
+        this.edit = true;
+        this.$nextTick().then(() => {
+          window.setTimeout(() => this.$refs?.drawer?.open?.(), 50);
+        });
+      },
+      removeImage () {
+        this.removeConfirm = true;
+        this.$nextTick().then(() => {
+          window.setTimeout(() => this.$refs?.confirmDialog?.open?.(), 50);
+        });
+      },
+      removeImageConfirm () {
+        this.loading = true;
+        return eXo.$fileAttachmentService.saveAttachments({
+          objectType: this.$root.objectType,
+          objectId: this.$root.name,
+        })
+          .then(() => this.$root.files = null)
+          .finally(() => this.loading = false);
+      },
+      updateImage (imageItem) {
+        this.loading = true;
+        return eXo.$fileAttachmentService.saveAttachments({
+          objectType: this.$root.objectType,
+          objectId: this.$root.name,
+          uploadedFiles: [{
+            uploadId: imageItem.uploadId,
+            altText: imageItem.altText,
+            format: imageItem.format,
+          }],
+        })
+          .then(() => this.refresh())
+          .finally(() => this.loading = false);
+      },
+      refresh () {
+        this.loading = true;
+        return eXo.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
+          .then(data => this.$root.files = data?.attachments || [])
+          .finally(() => this.loading = false);
+      },
+      switchToPreview () {
+        this.previewMode = true;
+      },
+      switchToEdit () {
+        this.previewMode = false;
+      },
     },
-    removeImage() {
-      this.removeConfirm = true;
-      this.$nextTick().then(() => {
-        window.setTimeout(() => this.$refs?.confirmDialog?.open?.(), 50);
-      });
-    },
-    removeImageConfirm() {
-      this.loading = true;
-      return this.$fileAttachmentService.saveAttachments({
-        objectType: this.$root.objectType,
-        objectId: this.$root.name,
-      })
-        .then(() => this.$root.files = null)
-        .finally(() => this.loading = false);
-    },
-    updateImage(imageItem) {
-      this.loading = true;
-      return this.$fileAttachmentService.saveAttachments({
-        objectType: this.$root.objectType,
-        objectId: this.$root.name,
-        uploadedFiles: [{
-          uploadId: imageItem.uploadId,
-          altText: imageItem.altText,
-          format: imageItem.format,
-        }],
-      })
-        .then(() => this.refresh())
-        .finally(() => this.loading = false);
-    },
-    refresh() {
-      this.loading = true;
-      return this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.name)
-        .then(data => this.$root.files = data?.attachments || [])
-        .finally(() => this.loading = false);
-    },
-    switchToPreview() {
-      this.previewMode = true;
-    },
-    switchToEdit() {
-      this.previewMode = false;
-    },
-  },
-};
+  };
 </script>

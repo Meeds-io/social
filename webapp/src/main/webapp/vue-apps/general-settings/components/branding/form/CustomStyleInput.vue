@@ -21,8 +21,14 @@
 -->
 <template>
   <div>
-    <v-btn class="btn" @click="open">
-      <v-icon class="icon-default-color me-2" size="18">fa-edit</v-icon>
+    <v-btn
+      class="btn"
+      @click="open">
+      <v-icon
+        class="icon-default-color me-2"
+        size="18">
+        fa-edit
+      </v-icon>
       {{ $t('generalSettings.editCustomStyle') }}
     </v-btn>
     <exo-drawer
@@ -44,16 +50,16 @@
         <div class="d-flex justify-end">
           <v-btn
             :aria-label="$t('generalSettings.cancel')"
-            :disabled="loading"
             class="btn cancel-button me-4"
+            :disabled="loading"
             elevation="0"
             @click="close">
             {{ $t('generalSettings.cancel') }}
           </v-btn>
           <v-btn
             :aria-label="$t('generalSettings.apply')"
-            color="primary"
             class="btn btn-primary"
+            color="primary"
             elevation="0"
             @click="apply">
             {{ $t('generalSettings.apply') }}
@@ -64,31 +70,31 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    customStyle: null,
-  }),
-  created() {
-    this.customStyle = this.value;
-  },
-  methods: {
-    open() {
+    data: () => ({
+      customStyle: null,
+    }),
+    created () {
       this.customStyle = this.value;
-      this.$refs.drawer.open();
     },
-    close() {
-      this.$refs.drawer.close();
+    methods: {
+      open () {
+        this.customStyle = this.value;
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      apply () {
+        this.$emit('input', this.customStyle);
+        this.$refs.drawer.close();
+      },
     },
-    apply() {
-      this.$emit('input', this.customStyle);
-      this.$refs.drawer.close();
-    },
-  },
-};
+  };
 </script>

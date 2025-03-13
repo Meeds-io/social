@@ -1,4 +1,4 @@
-export function setSettingValue(contextKey, contextValue, scopeKey, scopeValue, key, value) {
+export function setSettingValue (contextKey, contextValue, scopeKey, scopeValue, key, value) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/${contextKey},${contextValue}/${scopeKey},${scopeValue}/${key}`, {
     method: 'PUT',
     credentials: 'include',
@@ -7,7 +7,7 @@ export function setSettingValue(contextKey, contextValue, scopeKey, scopeValue, 
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      value: value,
+      value,
     }),
   }).then(resp => {
     if (!resp || !resp.ok) {
@@ -16,7 +16,7 @@ export function setSettingValue(contextKey, contextValue, scopeKey, scopeValue, 
   });
 }
 
-export function getSettingValue(contextKey, contextValue, scopeKey, scopeValue, key) {
+export function getSettingValue (contextKey, contextValue, scopeKey, scopeValue, key) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/settings/${contextKey},${contextValue}/${scopeKey},${scopeValue}/${key}`, {
     method: 'GET',
     credentials: 'include',

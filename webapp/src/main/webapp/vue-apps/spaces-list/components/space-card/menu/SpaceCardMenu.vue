@@ -24,37 +24,37 @@
   <div class="d-flex align-center">
     <space-card-button
       v-if="spacePublicSiteUrl"
+      class="mx-2"
       :extension="{
         icon: 'fas fa-globe',
         iconOnly: true,
         title: $t('spacesList.button.visitPublicSite'),
         click: openSpacePublicSiteUrl
       }"
-      :space="space"
-      class="mx-2" />
+      :space="space" />
     <space-favorite-action
       v-if="space.isMember"
-      :is-favorite="space.isFavorite"
-      :space-id="space.id"
+      class="ms-1"
       :icon-size="20"
-      class="ms-1" />
+      :is-favorite="space.isFavorite"
+      :space-id="space.id" />
     <space-card-button
       v-for="(extension, i) in spaceActionExtensions"
       :key="i"
+      class="ms-1"
       :extension="extension"
-      :space="space"
-      class="ms-1" />
+      :space="space" />
     <component
-      v-if="space.canEdit || space.isMember"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      v-if="space.canEdit || space.isMember"
       ref="actionMenu"
       v-model="menu"
       :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
-      :left="!$vuetify.rtl"
-      :right="$vuetify.rtl"
-      transition="slide-x-reverse-transition"
       content-class="position-absolute application-menu z-index-modal"
-      offset-y>
+      :left="!$vuetify.rtl"
+      offset-y
+      :right="$vuetify.rtl"
+      transition="slide-x-reverse-transition">
       <template #activator="{attrs}">
         <space-card-button
           v-bind="attrs"
@@ -64,352 +64,352 @@
             loading: sendingAction,
             click: () => menu = !menu,
           }"
-          :space="space"
-          icon />
+          icon
+          :space="space" />
       </template>
       <v-list
-        :max-width="!$root.isMobile && 300 || 'auto'"
         :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
-        dense>
+        dense
+        :max-width="!$root.isMobile && 300 || 'auto'">
         <space-card-menu-item
           v-if="$root.isMobile"
           :href="url"
-          label="spacesList.button.openSpace"
-          icon="fa-external-link-alt" />
+          icon="fa-external-link-alt"
+          label="spacesList.button.openSpace" />
         <space-card-menu-item
-          label="spacesList.button.copyLink"
           icon="fa-link"
+          label="spacesList.button.copyLink"
           @click="copyLink" />
         <space-card-menu-item
           v-if="space.isMember && !space.isUserBound"
-          label="spacesList.button.leave"
           icon="fa-sign-out-alt"
+          label="spacesList.button.leave"
           @click="leaveConfirm" />
         <template v-else-if="space.isInvited">
           <space-card-menu-item
-            label="spacesList.button.acceptToJoin"
             icon="fa-check"
             icon-color="success"
+            label="spacesList.button.acceptToJoin"
             @click="acceptToJoin" />
           <space-card-menu-item
-            label="spacesList.button.refuseToJoin"
             icon="fa-times"
             icon-color="error"
+            label="spacesList.button.refuseToJoin"
             @click="refuseToJoin" />
         </template>
         <space-card-menu-item
           v-else-if="space.isPending"
-          label="spacesList.button.cancelRequest"
           icon="fa-times"
           icon-color="error"
+          label="spacesList.button.cancelRequest"
           @click="cancelRequest" />
         <space-card-menu-item
           v-else-if="space.subscription === 'open' && !space.isMember"
-          label="spacesList.button.join"
           icon="fa-sign-in-alt"
+          label="spacesList.button.join"
           @click="join" />
         <space-card-menu-item
           v-else-if="space.subscription === 'validation' && !space.isMember && !space.isPending"
-          label="spacesList.button.requestJoin"
           icon="fa-sign-in-alt"
+          label="spacesList.button.requestJoin"
           @click="requestJoin" />
         <space-card-menu-item
           v-if="space.canDelete"
-          label="spacesList.button.remove"
-          label-color="error"
           icon="fa-trash"
           icon-color="error"
+          label="spacesList.button.remove"
+          label-color="error"
           @click="removeSpaceConfirm" />
       </v-list>
     </component>
     <component
-      v-else-if="space.isInvited"
       :is="$root.isMobile && 'v-bottom-sheet' || 'v-menu'"
+      v-else-if="space.isInvited"
       ref="actionMenu"
       v-model="menu"
       :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
-      :left="!$vuetify.rtl"
-      :right="$vuetify.rtl"
-      transition="slide-x-reverse-transition"
       content-class="position-absolute application-menu z-index-modal"
-      offset-y>
+      :left="!$vuetify.rtl"
+      offset-y
+      :right="$vuetify.rtl"
+      transition="slide-x-reverse-transition">
       <template #activator="{attrs}">
         <space-card-button
           v-bind="attrs"
+          class="mx-2"
           :extension="{
             icon: 'fa fa-question warning--text',
             title: $t('spacesList.button.answerInvitation'),
             loading: sendingAction,
             click: () => menu = !menu,
           }"
-          :space="space"
-          class="mx-2" />
+          :space="space" />
       </template>
       <v-list
-        :max-width="!$root.isMobile && 300 || 'auto'"
         :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
-        dense>
+        dense
+        :max-width="!$root.isMobile && 300 || 'auto'">
         <space-card-menu-item
-          label="spacesList.button.acceptToJoin"
           icon="fa-check"
           icon-color="success"
+          label="spacesList.button.acceptToJoin"
           @click="acceptToJoin" />
         <space-card-menu-item
-          label="spacesList.button.refuseToJoin"
           icon="fa-times"
           icon-color="error"
+          label="spacesList.button.refuseToJoin"
           @click="refuseToJoin" />
       </v-list>
     </component>
     <space-card-button
       v-else-if="space.isPending"
+      class="mx-2"
       :extension="{
         title: $t('spacesList.button.cancelRequest'),
         loading: sendingAction,
         click: cancelRequest
       }"
-      :space="space"
-      class="mx-2" />
+      :space="space" />
     <space-card-button
       v-else-if="space.subscription === 'open' && !space.isMember"
+      class="mx-2"
       :extension="{
         title: $t('spacesList.button.join'),
         loading: sendingAction,
         click: join
       }"
-      :space="space"
-      class="mx-2" />
+      :space="space" />
     <space-card-button
       v-else-if="space.subscription === 'validation' && !space.isMember && !space.isPending"
+      class="mx-2"
       :extension="{
         title: $t('spacesList.button.requestJoin'),
         loading: sendingAction,
         click: requestJoin
       }"
-      :space="space"
-      class="mx-2" />
+      :space="space" />
     <confirm-dialog
       v-if="confirmDialog"
       ref="confirmDialog"
-      :title="confirmTitle"
+      :cancel-label="okMethod && $t('spacesList.label.cancel')"
       :message="confirmMessage"
       :ok-label="$t('spacesList.label.ok')"
-      :cancel-label="okMethod && $t('spacesList.label.cancel')"
-      @ok="okConfirmDialog"
-      @dialog-closed="closeConfirmDialog" />
+      :title="confirmTitle"
+      @dialog-closed="closeConfirmDialog"
+      @ok="okConfirmDialog" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
+      spaceActionExtensions: {
+        type: Object,
+        default: null,
+      },
     },
-    spaceActionExtensions: {
-      type: Object,
-      default: null,
+    data: () => ({
+      id: Math.random(), // NOSONAR
+      sendingAction: false,
+      confirmTitle: '',
+      confirmMessage: '',
+      confirmDialog: false,
+      menu: false,
+      okMethod: null,
+    }),
+    computed: {
+      url () {
+        return `${eXo.env.portal.context}/s/${this.space.id}`;
+      },
+      publicSiteName () {
+        return this.space?.publicSiteName;
+      },
+      spacePublicSiteUrl () {
+        return this.publicSiteName && `${eXo.env.portal.context}/${this.publicSiteName}`;
+      },
     },
-  },
-  data: () => ({
-    id: Math.random(), // NOSONAR
-    sendingAction: false,
-    confirmTitle: '',
-    confirmMessage: '',
-    confirmDialog: false,
-    menu: false,
-    okMethod: null,
-  }),
-  computed: {
-    url() {
-      return `${eXo.env.portal.context}/s/${this.space.id}`;
-    },
-    publicSiteName() {
-      return this.space?.publicSiteName;
-    },
-    spacePublicSiteUrl() {
-      return this.publicSiteName && `${eXo.env.portal.context}/${this.publicSiteName}`;
-    },
-  },
-  watch: {
-    menu() {
-      // Workaround to fix closing menu when clicking outside
-      if (this.menu) {
-        document.addEventListener('mousedown', this.closeMenu);
-        this.$root.$emit('spaces-list-menu-opened', this.id);
-      } else {
-        document.removeEventListener('mousedown', this.closeMenu);
-      }
-    },
-    spaceBannerUrl() {
-      return this.space && (this.space.bannerUrl || `/portal/rest/v1/social/spaces/${this.space.prettyName}/banner`);
-    },
-  },
-  created() {
-    this.$root.$on('spaces-list-menu-opened', this.closeMenu);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-menu-opened', this.closeMenu);
-    document.removeEventListener('mousedown', this.closeMenu);
-  },
-  methods: {
-    removeSpaceConfirm() {
-      this.openConfirmDialog(
-        this.$t('spacesList.title.deleteSpace'),
-        this.$t('spacesList.message.deleteSpace'),
-        this.removeSpace);
-    },
-    removeSpace() {
-      this.sendingAction = true;
-      this.$spaceService.removeSpace(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    leaveConfirm() {
-      const isOnlyManagrLeftInSpace = this.space.isManager && this.space.managersCount <= 1;
-      if (isOnlyManagrLeftInSpace) {
-        this.openConfirmDialog(
-          this.$t('spacesList.warning'),
-          this.$t('spacesList.warning.lastManager'));
-      } else {
-        this.openConfirmDialog(
-          this.$t('spacesList.title.leaveSpace'),
-          this.$t('spacesList.message.leaveSpace', {0: `<b>${this.space.displayName}</b>`}),
-          this.leave);
-      }
-    },
-    leave() {
-      this.sendingAction = true;
-      this.$spaceService.leave(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    acceptToJoin() {
-      this.sendingAction = true;
-      this.$spaceService.accept(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    refuseToJoin() {
-      this.sendingAction = true;
-      this.$spaceService.deny(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    join() {
-      if (this.$root.anonymous) {
-        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
-        return;
-      }
-      this.sendingAction = true;
-      this.$spaceService.join(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    requestJoin() {
-      if (this.$root.anonymous) {
-        window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
-        return;
-      }
-      this.sendingAction = true;
-      this.$spaceService.requestJoin(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    cancelRequest() {
-      this.sendingAction = true;
-      this.$spaceService.cancel(this.space.id)
-        .then(() => this.$root.$emit('spaces-list-refresh'))
-        .catch((e) => {
-          // eslint-disable-next-line no-console
-          console.error('Error processing action', e);
-        })
-        .finally(() => {
-          this.sendingAction = false;
-        });
-    },
-    async openConfirmDialog(title, message, okMethod) {
-      this.confirmDialog = true;
-      await this.$nextTick();
-      this.confirmTitle = title;
-      this.confirmMessage = message;
-      if (okMethod) {
-        this.okMethod = okMethod;
-      } else {
-        this.okMethod = null;
-      }
-      this.$refs.confirmDialog.open();
-    },
-    okConfirmDialog() {
-      if (this.okMethod) {
-        this.okMethod();
-      }
-    },
-    closeMenu(event) {
-      if (event !== this.id) {
-        if (event?.target) {
-          window.setTimeout(() => {
-            this.menu = false;
-          }, 200);
+    watch: {
+      menu () {
+        // Workaround to fix closing menu when clicking outside
+        if (this.menu) {
+          document.addEventListener('mousedown', this.closeMenu);
+          this.$root.$emit('spaces-list-menu-opened', this.id);
         } else {
-          this.menu = false;
+          document.removeEventListener('mousedown', this.closeMenu);
         }
-      }
+      },
+      spaceBannerUrl () {
+        return this.space && (this.space.bannerUrl || `/portal/rest/v1/social/spaces/${this.space.prettyName}/banner`);
+      },
     },
-    copyLink() {
-      try {
-        navigator.clipboard.writeText(`${window.location.origin}${eXo.env.portal.context}/s/${this.space.id}`);
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.success'), 'success');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
-      }
+    created () {
+      this.$root.$on('spaces-list-menu-opened', this.closeMenu);
     },
-    openSpacePublicSiteUrl() {
-      window.location.href = `${this.spacePublicSiteUrl}`;
+    beforeUnmount () {
+      this.$root.$off('spaces-list-menu-opened', this.closeMenu);
+      document.removeEventListener('mousedown', this.closeMenu);
     },
-    closeConfirmDialog() {
-      this.confirmTitle = '';
-      this.confirmMessage = '';
-      this.okMethod = null;
-      this.confirmDialog = false;
+    methods: {
+      removeSpaceConfirm () {
+        this.openConfirmDialog(
+          this.$t('spacesList.title.deleteSpace'),
+          this.$t('spacesList.message.deleteSpace'),
+          this.removeSpace);
+      },
+      removeSpace () {
+        this.sendingAction = true;
+        eXo.$spaceService.removeSpace(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      leaveConfirm () {
+        const isOnlyManagrLeftInSpace = this.space.isManager && this.space.managersCount <= 1;
+        if (isOnlyManagrLeftInSpace) {
+          this.openConfirmDialog(
+            this.$t('spacesList.warning'),
+            this.$t('spacesList.warning.lastManager'));
+        } else {
+          this.openConfirmDialog(
+            this.$t('spacesList.title.leaveSpace'),
+            this.$t('spacesList.message.leaveSpace', { 0: `<b>${this.space.displayName}</b>` }),
+            this.leave);
+        }
+      },
+      leave () {
+        this.sendingAction = true;
+        eXo.$spaceService.leave(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      acceptToJoin () {
+        this.sendingAction = true;
+        eXo.$spaceService.accept(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      refuseToJoin () {
+        this.sendingAction = true;
+        eXo.$spaceService.deny(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      join () {
+        if (this.$root.anonymous) {
+          window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+          return;
+        }
+        this.sendingAction = true;
+        eXo.$spaceService.join(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      requestJoin () {
+        if (this.$root.anonymous) {
+          window.location.href = `${this.spacePublicSiteUrl ? this.spacePublicSiteUrl : '/portal/login'}`;
+          return;
+        }
+        this.sendingAction = true;
+        eXo.$spaceService.requestJoin(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      cancelRequest () {
+        this.sendingAction = true;
+        eXo.$spaceService.cancel(this.space.id)
+          .then(() => this.$root.$emit('spaces-list-refresh'))
+          .catch(e => {
+           
+            console.error('Error processing action', e);
+          })
+          .finally(() => {
+            this.sendingAction = false;
+          });
+      },
+      async openConfirmDialog (title, message, okMethod) {
+        this.confirmDialog = true;
+        await this.$nextTick();
+        this.confirmTitle = title;
+        this.confirmMessage = message;
+        if (okMethod) {
+          this.okMethod = okMethod;
+        } else {
+          this.okMethod = null;
+        }
+        this.$refs.confirmDialog.open();
+      },
+      okConfirmDialog () {
+        if (this.okMethod) {
+          this.okMethod();
+        }
+      },
+      closeMenu (event) {
+        if (event !== this.id) {
+          if (event?.target) {
+            window.setTimeout(() => {
+              this.menu = false;
+            }, 200);
+          } else {
+            this.menu = false;
+          }
+        }
+      },
+      copyLink () {
+        try {
+          navigator.clipboard.writeText(`${window.location.origin}${eXo.env.portal.context}/s/${this.space.id}`);
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.success'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.publicSite.drawer.copyLink.error'), 'warning');
+        }
+      },
+      openSpacePublicSiteUrl () {
+        window.location.href = `${this.spacePublicSiteUrl}`;
+      },
+      closeConfirmDialog () {
+        this.confirmTitle = '';
+        this.confirmMessage = '';
+        this.okMethod = null;
+        this.confirmDialog = false;
+      },
     },
-  },
-};
+  };
 </script>
 

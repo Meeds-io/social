@@ -15,96 +15,100 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-list-item v-if="displayUserAvatar" class="text-truncate">
+  <v-list-item
+    v-if="displayUserAvatar"
+    class="text-truncate">
     <exo-user-avatar
+      avatar
       :identity="posterIdentity"
-      :size="42"
-      avatar />
+      :size="42" />
     <v-list-item-content class="py-0 accountTitleLabel ms-2">
       <v-list-item-title class="font-weight-bold d-flex mb-0">
         <exo-user-avatar
-          :identity="posterIdentity"
+          bold-title
           extra-class="me-5 text-truncate"
           fullname
-          bold-title
+          :identity="posterIdentity"
           link-style
           username-class />
       </v-list-item-title>
       <v-list-item-subtitle>
         <activity-head-time
           :activity="activity"
+          class="d-flex activity-head-time"
           :is-activity-shared="isActivityShared"
           is-mobile
-          no-icon
-          class="d-flex activity-head-time" />
+          no-icon />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
-  <v-list-item v-else class="text-truncate">
+  <v-list-item
+    v-else
+    class="text-truncate">
     <exo-space-avatar
-      :space="space"
+      avatar
       extra-class="text-truncate"
       :size="42"
-      avatar />
+      :space="space" />
     <exo-user-avatar
-      :identity="posterIdentity"
-      :size="31"
+      avatar
       extra-class="ms-n4 mt-6"
-      avatar />
+      :identity="posterIdentity"
+      :size="31" />
     <v-list-item-content class="py-0 accountTitleLabel text-truncate">
       <v-list-item-title class="font-weight-bold d-flex mb-0">
         <exo-space-avatar
-          :space="space"
+          bold-title
           extra-class="text-truncate"
           fullname
-          bold-title
           link-style
+          :space="space"
           username-class />
       </v-list-item-title>
       <v-list-item-subtitle class="d-flex flex-row flex-nowrap">
         <exo-user-avatar
-          :identity="posterIdentity"
           extra-class="text-truncate ms-2 me-1"
           fullname
+          :identity="posterIdentity"
           link-style
           small-font-size
           username-class />
         <activity-head-time
           :activity="activity"
+          class="text-caption activity-head-time pt-0 ps-0"
           :is-activity-shared="isActivityShared"
           is-mobile
-          no-icon
-          class="text-caption activity-head-time pt-0 ps-0" />
+          no-icon />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
 </template>
 
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      isActivityShared: {
+        type: Boolean,
+        default: () => false,
+      },
+      posterIdentity: {
+        type: Object,
+        default: null,
+      },
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-    isActivityShared: {
-      type: Boolean,
-      default: () => false
+    computed: {
+      displayUserAvatar () {
+        return eXo.env.portal.spaceId !== '' || !this.space;
+      },
     },
-    posterIdentity: {
-      type: Object,
-      default: null,
-    },
-    space: {
-      type: Object,
-      default: null,
-    }
-  },
-  computed: {
-    displayUserAvatar() {
-      return eXo.env.portal.spaceId !== '' || !this.space;
-    },
-  },
 
-};
+  };
 </script>

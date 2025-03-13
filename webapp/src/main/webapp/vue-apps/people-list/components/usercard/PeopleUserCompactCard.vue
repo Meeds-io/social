@@ -22,40 +22,46 @@
   <v-hover v-model="hover">
     <v-card
       :id="userMenuParentId"
-      :class="hover && 'grey lighten-4'"
       class="peopleCardItem d-flex mx-2"
+      :class="hover && 'grey lighten-4'"
       flat>
       <div class="peopleToolbarIcons my-auto ms-auto">
         <v-avatar
           v-if="user.isGroupBound"
-          :title="$t('peopleList.label.groupBound')"
+          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0"
           :size="28"
-          class="peopleGroupMemberBindingIcon d-flex mx-2 my-0">
-          <v-icon size="12" color="white">fa-users</v-icon>
+          :title="$t('peopleList.label.groupBound')">
+          <v-icon
+            color="white"
+            size="12">
+            fa-users
+          </v-icon>
         </v-avatar>
         <people-user-menu
-          :user="user"
-          :space-id="spaceId"
-          :user-navigation-extensions="userNavigationExtensions"
-          :space-members-extensions="spaceMembersExtensions"
-          :profile-action-extensions="profileActionExtensions"
-          :display-menu-button="$root.isMobile || hover"
+          attach-menu
           :bottom-menu="$root.isMobile"
+          :display-menu-button="$root.isMobile || hover"
           menu-button-class="me-1"
-          attach-menu />
+          :profile-action-extensions="profileActionExtensions"
+          :space-id="spaceId"
+          :space-members-extensions="spaceMembersExtensions"
+          :user="user"
+          :user-navigation-extensions="userNavigationExtensions" />
       </div>
       <div class="peopleAvatar">
-        <a :href="url" :aria-label="$t('profileSettings.label.profile')">
+        <a
+          :aria-label="$t('profileSettings.label.profile')"
+          :href="url">
           <v-img
-            :lazy-src="`${userAvatarUrl}`"
-            :src="`${userAvatarUrl}`"
-            transition="none"
             class="mx-auto"
+            eager
             height="40px"
-            width="40px"
+            :lazy-src="`${userAvatarUrl}`"
             max-height="40px"
             max-width="40px"
-            eager />
+            :src="`${userAvatarUrl}`"
+            transition="none"
+            width="40px" />
         </a>
       </div>
       <v-card-text
@@ -66,12 +72,14 @@
         }">
         <div class="my-auto">
           <a
-            :href="url"
-            :title="user.fullname"
+            class="userFullname font-weight-bold text-capitalize"
             :class="usernameClass"
-            class="userFullname font-weight-bold text-capitalize">
+            :href="url"
+            :title="user.fullname">
             {{ user.fullname }}
-            <span v-if="externalUser" class="externalFlagClass">
+            <span
+              v-if="externalUser"
+              class="externalFlagClass">
               {{ $t('peopleList.label.external') }}
             </span>
           </a>
@@ -82,8 +90,8 @@
               'mt-auto': !mobileDisplay,
             }">
             <a
-              :href="url"
-              class="grey--text text--darken-1">
+              class="grey--text text--darken-1"
+              :href="url">
               {{ userPosition }}
             </a>
           </v-card-subtitle>
@@ -93,61 +101,61 @@
   </v-hover>
 </template>
 <script>
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
+      spaceId: {
+        type: String,
+        default: null,
+      },
+      userNavigationExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      profileActionExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      spaceMembersExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      mobileDisplay: {
+        type: Boolean,
+        default: false,
+      },
+      url: {
+        type: String,
+        default: null,
+      },
+      userAvatarUrl: {
+        type: String,
+        default: null,
+      },
+      isUpdatingStatus: {
+        type: Boolean,
+        default: false,
+      },
     },
-    spaceId: {
-      type: String,
-      default: null,
+    data: () => ({
+      hover: false,
+    }),
+    computed: {
+      userMenuParentId () {
+        return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
+      },
+      usernameClass () {
+        return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
+      },
+      userPosition () {
+        return this.user?.position || '';
+      },
+      externalUser () {
+        return this.user?.external === 'true';
+      },
     },
-    userNavigationExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    profileActionExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    spaceMembersExtensions: {
-      type: Array,
-      default: () => [],
-    },
-    mobileDisplay: {
-      type: Boolean,
-      default: false,
-    },
-    url: {
-      type: String,
-      default: null
-    },
-    userAvatarUrl: {
-      type: String,
-      default: null
-    },
-    isUpdatingStatus: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data: () => ({
-    hover: false,
-  }),
-  computed: {
-    userMenuParentId() {
-      return this.user?.id && `userMenuParent-${this.user.id}` || 'userMenuParent';
-    },
-    usernameClass() {
-      return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
-    },
-    userPosition() {
-      return this.user?.position || '';
-    },
-    externalUser() {
-      return this.user?.external === 'true';
-    },
-  },
-};
+  };
 </script>

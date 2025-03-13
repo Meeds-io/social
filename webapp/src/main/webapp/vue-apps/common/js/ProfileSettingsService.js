@@ -19,7 +19,7 @@
  */
 
 
-export function getSettings() {
+export function getSettings () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
     method: 'GET',
     credentials: 'include',
@@ -32,7 +32,7 @@ export function getSettings() {
   });
 }
 
-export function addSetting(setting) {
+export function addSetting (setting) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
     method: 'POST',
     credentials: 'include',
@@ -55,7 +55,7 @@ export function addSetting(setting) {
   });
 }
 
-export function updateSetting(setting) {
+export function updateSetting (setting) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
     method: 'PUT',
     credentials: 'include',

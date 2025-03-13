@@ -16,45 +16,53 @@
 -->
 <template>
   <v-fade-transition>
-    <div v-if="displayDropZone" class="grey-background opacity-8 full-height full-width position-absolute t-0 d-flex align-center justify-center z-index-one pa-4">
+    <div
+      v-if="displayDropZone"
+      class="grey-background opacity-8 full-height full-width position-absolute t-0 d-flex align-center justify-center z-index-one pa-4">
       <div class="full-height full-width border-primary-dashed ma-4 rounded-lg d-flex align-center justify-center flex-column">
-        <v-icon size="40" class="primary--text pb-4">fas fa-file-import</v-icon>
-        <p class="text-title">{{ $t('attachment.dropZoneLabel') }}</p>
+        <v-icon
+          class="primary--text pb-4"
+          size="40">
+          fas fa-file-import
+        </v-icon>
+        <p class="text-title">
+          {{ $t('attachment.dropZoneLabel') }}
+        </p>
       </div>
     </div>
   </v-fade-transition>
 </template>
 <script>
-export default {
-  data: () => ({
-    isDisplayed: false
-  }),
-  props: {
-    dropEnabled: {
-      type: Boolean,
-      default: false
-    }
-  },
-  computed: {
-    displayDropZone() {
-      return this.isDisplayed;
-    }
-  },
-  created() {
-    document.addEventListener('attachments-show-drop-zone', this.showDropZone);
-    document.addEventListener('attachments-hide-drop-zone', this.hideDropZone);
-  },
-  beforeDestroy() {
-    document.removeEventListener('attachments-show-drop-zone', this.showDropZone);
-    document.removeEventListener('attachments-hide-drop-zone', this.hideDropZone);
-  },
-  methods: {
-    showDropZone() {
-      this.isDisplayed = true;
+  export default {
+    props: {
+      dropEnabled: {
+        type: Boolean,
+        default: false,
+      },
     },
-    hideDropZone() {
-      this.isDisplayed = false;
+    data: () => ({
+      isDisplayed: false,
+    }),
+    computed: {
+      displayDropZone () {
+        return this.isDisplayed;
+      },
     },
-  }
-};
+    created () {
+      document.addEventListener('attachments-show-drop-zone', this.showDropZone);
+      document.addEventListener('attachments-hide-drop-zone', this.hideDropZone);
+    },
+    beforeUnmount () {
+      document.removeEventListener('attachments-show-drop-zone', this.showDropZone);
+      document.removeEventListener('attachments-hide-drop-zone', this.hideDropZone);
+    },
+    methods: {
+      showDropZone () {
+        this.isDisplayed = true;
+      },
+      hideDropZone () {
+        this.isDisplayed = false;
+      },
+    },
+  };
 </script>

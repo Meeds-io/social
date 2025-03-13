@@ -22,96 +22,96 @@
   <v-menu
     v-model="menu"
     :absolute="false"
+    attach="#ParentSiteStickyMenu"
     :close-on-click="false"
     :close-on-content-click="false"
     :content-class="`overflow-hidden layout-side-bar border-right-color elevation-0 fill-height application-menu ${menuContentClass} ${componentId}`"
-    :min-width="drawerWidth"
-    :role="null"
-    max-width="none"
-    attach="#ParentSiteStickyMenu"
     disable-keys
     disabled
     eager
+    max-width="none"
+    :min-width="drawerWidth"
+    :role="null"
     tile>
     <slot></slot>
   </v-menu>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
+      drawerWidth: {
+        type: String,
+        default: null,
+      },
+      levelsOpened: {
+        type: Boolean,
+        default: false,
+      },
     },
-    drawerWidth: {
-      type: String,
-      default: null,
+    data: () => ({
+      open: false,
+      menu: true,
+      componentId: `sticky-menu-${parseInt(Math.random() * 65536)}`,
+      zIndexClass: '',
+    }),
+    computed: {
+      stickyModeClass () {
+        return this.$root.sticky && 'position-relative' || '';
+      },
+      menuContentClass () {
+        return `${this.stickyModeClass} ${this.zIndexClass}`;
+      },
     },
-    levelsOpened: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    open: false,
-    menu: true,
-    componentId: `sticky-menu-${parseInt(Math.random() * 65536)}`,
-    zIndexClass: '',
-  }),
-  computed: {
-    stickyModeClass() {
-      return this.$root.sticky && 'position-relative' || '';
-    },
-    menuContentClass() {
-      return `${this.stickyModeClass} ${this.zIndexClass}`;
-    },
-  },
-  watch: {
-    levelsOpened() {
-      if (this.levelsOpened) {
-        this.zIndexClass = 'z-index-drawer';
-      } else {
-        window.setTimeout(() => {
-          this.zIndexClass = '';
-        }, 300);
-      }
-    },
-    menu() {
-      if (!this.menu) {
-        this.$nextTick().then(() => this.menu = true);
-      }
-    },
-    open() {
-      if (this.value !== this.open) {
-        this.$emit('input', this.open);
-      }
-    },
-    value() {
-      if (this.value !== this.open) {
-        this.open = this.value;
-      }
-    },
-  },
-  created() {
-    window.addEventListener('beforeunload', this.cacheMenuContent);
-  },
-  mounted() {
-    window.setTimeout(this.hideCachedMenu, 200);
-  },
-  methods: {
-    cacheMenuContent() {
-      const menuElement = document.querySelector('#ParentSiteStickyMenu > .v-menu__content');
-      menuElement.style.zIndex = String(parseInt(menuElement.style.zIndex) - 1);
-      sessionStorage.setItem('ParentSiteStickyMenu', document.querySelector('#ParentSiteStickyMenu').innerHTML);
-    },
-    hideCachedMenu() {
-      const menuElements = document.querySelectorAll('#ParentSiteStickyMenu > .v-menu__content');
-      for (const menuElement of menuElements) {
-        if (!menuElement.classList.contains(this.componentId)) {
-          menuElement.remove();
+    watch: {
+      levelsOpened () {
+        if (this.levelsOpened) {
+          this.zIndexClass = 'z-index-drawer';
+        } else {
+          window.setTimeout(() => {
+            this.zIndexClass = '';
+          }, 300);
         }
-      }
+      },
+      menu () {
+        if (!this.menu) {
+          this.$nextTick().then(() => this.menu = true);
+        }
+      },
+      open () {
+        if (this.value !== this.open) {
+          this.$emit('input', this.open);
+        }
+      },
+      value () {
+        if (this.value !== this.open) {
+          this.open = this.value;
+        }
+      },
     },
-  },
-};
+    created () {
+      window.addEventListener('beforeunload', this.cacheMenuContent);
+    },
+    mounted () {
+      window.setTimeout(this.hideCachedMenu, 200);
+    },
+    methods: {
+      cacheMenuContent () {
+        const menuElement = document.querySelector('#ParentSiteStickyMenu > .v-menu__content');
+        menuElement.style.zIndex = String(parseInt(menuElement.style.zIndex) - 1);
+        sessionStorage.setItem('ParentSiteStickyMenu', document.querySelector('#ParentSiteStickyMenu').innerHTML);
+      },
+      hideCachedMenu () {
+        const menuElements = document.querySelectorAll('#ParentSiteStickyMenu > .v-menu__content');
+        for (const menuElement of menuElements) {
+          if (!menuElement.classList.contains(this.componentId)) {
+            menuElement.remove();
+          }
+        }
+      },
+    },
+  };
 </script>

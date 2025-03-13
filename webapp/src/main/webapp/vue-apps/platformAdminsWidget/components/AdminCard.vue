@@ -23,10 +23,10 @@
   <div>
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
-      :message="deleteConfirmMessage"
-      :title="$t('social.admins.confirmDeleteAdminMembership')"
-      :ok-label="$t('social.admins.button.ok')"
       :cancel-label="$t('social.admins.button.cancel')"
+      :message="deleteConfirmMessage"
+      :ok-label="$t('social.admins.button.ok')"
+      :title="$t('social.admins.confirmDeleteAdminMembership')"
       @ok="ConfirmDeleteAdminMembership()" />
     <a :href="url">
       <v-list-item>
@@ -39,10 +39,12 @@
         </v-list-item-content>
         <v-list-item-action @click="deleteAdminMembership()">
           <v-btn
-            :title="$t('social.admins.button.delete')"
             icon
+            :title="$t('social.admins.button.delete')"
             @click.stop.prevent="deleteAdminMembership()">
-            <v-icon size="18" color="error">fa-trash</v-icon>
+            <v-icon
+              color="error"
+              size="18">fa-trash</v-icon>
           </v-btn>
         </v-list-item-action>
       </v-list-item>
@@ -50,54 +52,54 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    membership: {
-      type: Object,
-      default: null
-    }
-  },
-  data: () => ({
-    user: null,
-    deleteConfirmMessage: null
-  }),
-  computed: {
-    avatarUrl() {
-      return this.user?.avatar;
+  export default {
+    props: {
+      membership: {
+        type: Object,
+        default: null,
+      },
     },
-    fullName() {
-      return this.user?.fullname;
+    data: () => ({
+      user: null,
+      deleteConfirmMessage: null,
+    }),
+    computed: {
+      avatarUrl () {
+        return this.user?.avatar;
+      },
+      fullName () {
+        return this.user?.fullname;
+      },
+      position () {
+        return this.user?.position;
+      },
+      userName () {
+        return this.membership?.userName || this.membership?.remoteId;
+      },
+      url () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user?.username}`;
+      },
     },
-    position() {
-      return this.user?.position;
+    created () {
+      eXo.$userService.getUser(this.userName)
+        .then(user => this.user = user);
     },
-    userName() {
-      return this.membership?.userName || this.membership?.remoteId;
+    methods: {
+      deleteAdminMembership () {
+        this.deleteConfirmMessage = this.$t('social.admins.confirmDeleteAdminMembership.message', { 0: this.fullName });
+        this.$refs.deleteConfirmDialog.open();
+      },
+      ConfirmDeleteAdminMembership () {
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id}`, {
+          method: 'DELETE',
+          credentials: 'include',
+        }).then(resp => {
+          if (!resp || !resp.ok) {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          }
+          this.$root.$emit('platform-settings-admins-refresh');
+        });
+      },
     },
-    url() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.user?.username}` || '#';
-    }
-  },
-  created() {
-    this.$userService.getUser(this.userName)
-      .then(user => this.user = user);
-  },
-  methods: {
-    deleteAdminMembership() {
-      this.deleteConfirmMessage = this.$t('social.admins.confirmDeleteAdminMembership.message', {0: this.fullName});
-      this.$refs.deleteConfirmDialog.open();
-    },
-    ConfirmDeleteAdminMembership() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/groups/memberships?membershipId=${this.membership.id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
-        }
-        this.$root.$emit('platform-settings-admins-refresh');
-      });
-    },
-  }
-};
+  };
 </script>

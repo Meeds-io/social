@@ -25,9 +25,11 @@
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      min-width="20"
-      flat>
-      <v-icon size="16">fa-columns</v-icon>
+      flat
+      min-width="20">
+      <v-icon size="16">
+        fa-columns
+      </v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
       {{ $t('social.spaces.administration.manageSpaces.saveAsTemplate') }}
@@ -35,58 +37,58 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  methods: {
-    saveAsTemplate() {
-      this.$emit('loading', true);
-      window.require(['PORTLET/social/SpaceTemplateManagement'], () => {
-        window.setTimeout(async () => {
-          const bannerBlob = await fetch(this.space.bannerUrl, {
-            credentials: 'include',
-            method: 'GET',
-          }).then(resp => resp?.ok && resp.blob());
-          const bannerData = bannerBlob && await this.$utils.blobToBase64(bannerBlob);
-          const bannerUploadId = bannerBlob && await this.$uploadService.upload(bannerBlob);
+    methods: {
+      saveAsTemplate () {
+        this.$emit('loading', true);
+        window.require(['PORTLET/social/SpaceTemplateManagement'], () => {
+          window.setTimeout(async () => {
+            const bannerBlob = await fetch(this.space.bannerUrl, {
+              credentials: 'include',
+              method: 'GET',
+            }).then(resp => resp?.ok && resp.blob());
+            const bannerData = bannerBlob && await eXo.$utils.blobToBase64(bannerBlob);
+            const bannerUploadId = bannerBlob && await eXo.$uploadService.upload(bannerBlob);
 
-          const translationConfiguration = await this.$translationService.getTranslationConfiguration();
-          const nameTranslations = {};
-          const descriptionTranslations = {};
-          nameTranslations[translationConfiguration?.defaultLanguage] = this.space.displayName;
-          descriptionTranslations[translationConfiguration?.defaultLanguage] = this.space.description;
-          const spaceTemplate = this.space.templateId && this.$root.spaceTemplates.find(t => t.id === this.space.templateId);
-          const permissions = await this.$spaceAdministrationService.getSpacePermission(this.space.id);
+            const translationConfiguration = await eXo.$translationService.getTranslationConfiguration();
+            const nameTranslations = {};
+            const descriptionTranslations = {};
+            nameTranslations[translationConfiguration?.defaultLanguage] = this.space.displayName;
+            descriptionTranslations[translationConfiguration?.defaultLanguage] = this.space.description;
+            const spaceTemplate = this.space.templateId && this.$root.spaceTemplates.find(t => t.id === this.space.templateId);
+            const permissions = await eXo.$spaceAdministrationService.getSpacePermission(this.space.id);
 
-          this.$root.$emit('space-templates-name-open',
-            {
-              enabled: true,
-              icon: spaceTemplate?.icon || 'fa-people-arrows',
-              spaceFields: spaceTemplate?.spaceFields || ['name', 'invitation', 'properties', 'access'],
-              permissions: spaceTemplate?.permissions,
-              layout: `group::${this.space.groupId}`,
-              spaceDefaultVisibility: this.space.visibility?.toUpperCase?.(),
-              spaceDefaultRegistration: this.space.subscription?.toUpperCase?.(),
-              spaceAllowContentCreation: !!this.space.redactorsCount,
-              spaceLayoutPermissions: permissions?.layoutPermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-              spacePublicSitePermissions: permissions?.publicSitePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-              spaceDeletePermissions: permissions?.deletePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
-            },
-            this.space.displayName,
-            nameTranslations,
-            this.space.description,
-            descriptionTranslations,
-            true,
-            bannerUploadId,
-            bannerData);
-          this.$emit('loading', false);
-        }, 200);
-      });
+            this.$root.$emit('space-templates-name-open',
+                             {
+                               enabled: true,
+                               icon: spaceTemplate?.icon || 'fa-people-arrows',
+                               spaceFields: spaceTemplate?.spaceFields || ['name', 'invitation', 'properties', 'access'],
+                               permissions: spaceTemplate?.permissions,
+                               layout: `group::${this.space.groupId}`,
+                               spaceDefaultVisibility: this.space.visibility?.toUpperCase?.(),
+                               spaceDefaultRegistration: this.space.subscription?.toUpperCase?.(),
+                               spaceAllowContentCreation: !!this.space.redactorsCount,
+                               spaceLayoutPermissions: permissions?.layoutPermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+                               spacePublicSitePermissions: permissions?.publicSitePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+                               spaceDeletePermissions: permissions?.deletePermissions?.map?.(p => (p === `manager:${this.space.groupId}` ? 'spaceAdmin' : p)),
+                             },
+                             this.space.displayName,
+                             nameTranslations,
+                             this.space.description,
+                             descriptionTranslations,
+                             true,
+                             bannerUploadId,
+                             bannerData);
+            this.$emit('loading', false);
+          }, 200);
+        });
+      },
     },
-  },
-};
+  };
 </script>

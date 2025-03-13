@@ -20,15 +20,15 @@
 -->
 <template>
   <v-tooltip
-    :value="true"
+    bottom
     :position-x="positionX"
     :position-y="positionY"
-    bottom>
+    :value="true">
     <div class="d-flex flex-no-wrap align-center">
       <v-icon
-        size="18"
         class="me-2"
-        dark>
+        dark
+        size="18">
         fa-question-circle
       </v-icon>
       {{ text }}
@@ -36,30 +36,30 @@
   </v-tooltip>
 </template>
 <script>
-export default {
-  props: {
-    label: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      label: {
+        type: String,
+        default: null,
+      },
+      attach: {
+        type: Object,
+        default: null,
+      },
     },
-    attach: {
-      type: Object,
-      default: null,
+    computed: {
+      text () {
+        return this.$t(this.label);
+      },
+      position () {
+        return this.attach?.getBoundingClientRect();
+      },
+      positionX () {
+        return (this.position?.left || 0) + 100;
+      },
+      positionY () {
+        return (this.position?.top || 0) + 20;
+      },
     },
-  },
-  computed: {
-    text() {
-      return this.$t(this.label);
-    },
-    position() {
-      return this.attach?.getBoundingClientRect();
-    },
-    positionX() {
-      return (this.position?.left || 0) + 100;
-    },
-    positionY() {
-      return (this.position?.top || 0) + 20;
-    },
-  },
-};
+  };
 </script>

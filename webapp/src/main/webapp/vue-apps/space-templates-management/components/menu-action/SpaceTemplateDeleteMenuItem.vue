@@ -19,14 +19,16 @@
 
 -->
 <template>
-  <v-tooltip :disabled="!spaceTemplate.system" bottom>
+  <v-tooltip
+    bottom
+    :disabled="!spaceTemplate.system">
     <template #activator="{ on, attrs }">
       <div
-        v-on="on"
-        v-bind="attrs">
+        v-bind="attrs"
+        v-on="on">
         <v-list-item
-          :disabled="spaceTemplate.system"
           dense
+          :disabled="spaceTemplate.system"
           @click="$root.$emit('space-templates-delete', spaceTemplate)">
           <v-icon
             :class="!spaceTemplate.system && 'error--text' || 'disabled--text'"
@@ -43,12 +45,12 @@
   </v-tooltip>
 </template>
 <script>
-export default {
-  props: {
-    spaceTemplate: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceTemplate: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

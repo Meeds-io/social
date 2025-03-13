@@ -1,26 +1,30 @@
 <template>
   <div class="d-inline-flex ms-xl-4 ms-lg-3">
     <!-- Added for mobile -->
-    <v-tooltip :disabled="isMobile" bottom>
+    <v-tooltip
+      bottom
+      :disabled="isMobile">
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
-          :class="commentTextColorClass"
           class="pa-0 mt-0"
-          text
+          :class="commentTextColorClass"
           link
           small
+          text
           v-bind="attrs"
           v-on="on"
           @click="openCommentsDrawer">
           <div class="d-flex flex-lg-row flex-column">
             <v-icon
-              :class="commentColorClass"
               class="baseline-vertical-align mx-auto"
+              :class="commentColorClass"
               :size="isMobile && '20' || '16'">
               fa-comment
             </v-icon>
-            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
+            <span
+              v-if="!isMobile"
+              class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
               {{ $t('UIActivity.label.Comment') }}
             </span>
           </div>
@@ -34,66 +38,66 @@
 </template>
 
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      isMobile: {
+        type: Boolean,
+        default: () => false,
+      },
     },
-    isMobile: {
-      type: Boolean,
-      default: () => false
+    data: () => ({
+      hasCommented: false,
+    }),
+    computed: {
+      activityId () {
+        return this.activity && this.activity.id;
+      },
+      commentColorClass () {
+        return this.hasCommented && 'primary--text' || 'disabled--text';
+      },
+      commentTextColorClass () {
+        return this.hasCommented && 'primary--text' || '';
+      },
     },
-  },
-  data: () => ({
-    hasCommented: false,
-  }),
-  computed: {
-    activityId() {
-      return this.activity && this.activity.id;
+    watch: {
+      activity () {
+        this.checkWhetherCommented();
+      },
     },
-    commentColorClass() {
-      return this.hasCommented && 'primary--text' || 'disabled--text';
-    },
-    commentTextColorClass() {
-      return this.hasCommented && 'primary--text' || '';
-    },
-  },
-  watch: {
-    activity() {
+    created () {
+      this.$root.$on('activity-comment-created', this.handleCommentCreated);
+      this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
       this.checkWhetherCommented();
     },
-  },
-  created() {
-    this.$root.$on('activity-comment-created', this.handleCommentCreated);
-    this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
-    this.checkWhetherCommented();
-  },
-  beforeDestroy() {
-    this.$root.$off('activity-comment-created', this.handleCommentCreated);
-    this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
-  },
-  methods: {
-    handleCommentCreated(comment) {
-      if (comment.activityId === this.activityId) {
-        this.hasCommented = true;
-      }
+    beforeUnmount () {
+      this.$root.$off('activity-comment-created', this.handleCommentCreated);
+      this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
     },
-    handleCommentDeleted(event) {
-      const activityId = event?.activityId;
-      if (activityId === this.activityId) {
-        this.checkWhetherCommented();
-      }
+    methods: {
+      handleCommentCreated (comment) {
+        if (comment.activityId === this.activityId) {
+          this.hasCommented = true;
+        }
+      },
+      handleCommentDeleted (event) {
+        const activityId = event?.activityId;
+        if (activityId === this.activityId) {
+          this.checkWhetherCommented();
+        }
+      },
+      checkWhetherCommented () {
+        this.hasCommented = this.activity && this.activity.hasCommented === 'true';
+      },
+      openCommentsDrawer () {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', { detail: {
+          activity: this.activity,
+          newComment: true,
+        } }));
+      },
     },
-    checkWhetherCommented() {
-      this.hasCommented = this.activity && this.activity.hasCommented === 'true';
-    },
-    openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        newComment: true,
-      }}));
-    },
-  },
-};
+  };
 </script>

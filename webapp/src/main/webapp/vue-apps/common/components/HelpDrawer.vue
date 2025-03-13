@@ -23,17 +23,27 @@
     ref="drawer"
     v-model="initialized"
     allow-expand
-    right
     disable-pull-to-refresh
+    right
     @closed="$emit('closed')">
     <template #title>
       <div class="d-flex flex-no-wrap align-center overflow-hidden">
-        <v-icon size="18" class="me-2">fa-question-circle</v-icon>
-        <div :title="title" class="text-truncate">{{ title }}</div>
+        <v-icon
+          class="me-2"
+          size="18">
+          fa-question-circle
+        </v-icon>
+        <div
+          class="text-truncate"
+          :title="title">
+          {{ title }}
+        </div>
       </div>
     </template>
     <template #content>
-      <v-card class="pa-4" flat>
+      <v-card
+        class="pa-4"
+        flat>
         <template v-if="$slots.content">
           <slot name="content"></slot>
         </template>
@@ -45,30 +55,30 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    titleKey: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      titleKey: {
+        type: String,
+        default: null,
+      },
+      contentKey: {
+        type: String,
+        default: null,
+      },
     },
-    contentKey: {
-      type: String,
-      default: null,
+    data: () => ({
+      initialized: false,
+    }),
+    computed: {
+      title () {
+        return this.$t(this.titleKey);
+      },
+      content () {
+        return this.contentKey && this.$t(this.contentKey) || '';
+      },
     },
-  },
-  data: () => ({
-    initialized: false,
-  }),
-  computed: {
-    title() {
-      return this.$t(this.titleKey);
+    mounted () {
+      window.setTimeout(() => this.initialized = true, 50);
     },
-    content() {
-      return this.contentKey && this.$t(this.contentKey) || '';
-    },
-  },
-  mounted() {
-    window.setTimeout(() => this.initialized = true, 50);
-  },
-};
+  };
 </script>

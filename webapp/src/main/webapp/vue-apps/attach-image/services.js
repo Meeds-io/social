@@ -19,6 +19,6 @@
 
 import * as fileAttachmentService from './js/FileAttachmentService.js';
 
-window.Object.defineProperty(Vue.prototype, '$fileAttachmentService', {
+window.Object.defineProperty(eXo, '$fileAttachmentService', {
   value: fileAttachmentService,
 });

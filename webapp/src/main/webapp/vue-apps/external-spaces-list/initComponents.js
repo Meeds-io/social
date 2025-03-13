@@ -5,7 +5,7 @@ import ExternalSpacesRequestsItems from './components/ExternalSpacesRequestsItem
 const components = {
   'external-spaces-list': ExternalSpacesList,
   'external-space-item': ExternalSpaceItem,
-  'external-spaces-requests-items': ExternalSpacesRequestsItems
+  'external-spaces-requests-items': ExternalSpacesRequestsItems,
 };
 
 for (const key in components) {

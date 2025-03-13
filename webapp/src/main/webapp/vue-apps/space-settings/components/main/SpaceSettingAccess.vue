@@ -21,7 +21,9 @@
 <template>
   <div v-if="$root.isAllSections">
     <v-card flat>
-      <v-list class="pa-0" dense>
+      <v-list
+        class="pa-0"
+        dense>
         <v-list-item class="pa-0">
           <v-list-item-content>
             <v-list-item-title class="text-title py-1">
@@ -30,10 +32,14 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
-              small
               icon
+              small
               @click="openDrawer">
-              <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              <v-icon
+                class="icon-default-color"
+                size="18">
+                fa-edit
+              </v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -43,11 +49,11 @@
   </div>
 </template>
 <script>
-export default {
-  methods: {
-    openDrawer() {
-      this.$refs.accessSettingDrawer.open();
+  export default {
+    methods: {
+      openDrawer () {
+        this.$refs.accessSettingDrawer.open();
+      },
     },
-  },
-};
+  };
 </script>

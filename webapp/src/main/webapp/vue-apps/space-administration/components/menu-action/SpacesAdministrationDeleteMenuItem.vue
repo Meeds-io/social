@@ -25,9 +25,13 @@
     <v-card
       class="d-flex full-height justify-center"
       color="transparent"
-      min-width="20"
-      flat>
-      <v-icon class="error--text" size="16">fa-trash</v-icon>
+      flat
+      min-width="20">
+      <v-icon
+        class="error--text"
+        size="16">
+        fa-trash
+      </v-icon>
     </v-card>
     <v-list-item-title class="ps-2">
       <span class="error--text">{{ $t('social.spaces.administration.manageSpaces.delete') }}</span>
@@ -35,48 +39,48 @@
     <confirm-dialog
       v-if="dialog"
       ref="dialog"
-      :title="$t('social.spaces.administration.manageSpaces.deleteConfirmTitle')"
+      :cancel-label="$t('social.spaces.administration.manageSpaces.cancel')"
       :message="$t('social.spaces.administration.manageSpaces.deleteConfirmMessage', {0: `<br><strong>${space.displayName}</strong>`})"
       :ok-label="$t('social.spaces.administration.manageSpaces.confirm')"
-      :cancel-label="$t('social.spaces.administration.manageSpaces.cancel')"
-      @ok="deleteSpace"
-      @closed="close" />
+      :title="$t('social.spaces.administration.manageSpaces.deleteConfirmTitle')"
+      @closed="close"
+      @ok="deleteSpace" />
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    dialog: false,
-  }),
-  methods: {
-    async openConfirmDialog() {
-      this.dialog = true;
-      await this.$nextTick();
-      window.setTimeout(() => this.$refs.dialog.open(), 200);
+    data: () => ({
+      dialog: false,
+    }),
+    methods: {
+      async openConfirmDialog () {
+        this.dialog = true;
+        await this.$nextTick();
+        window.setTimeout(() => this.$refs.dialog.open(), 200);
+      },
+      close () {
+        window.setTimeout(() => this.dialog = false, 200);
+      },
+      async deleteSpace () {
+        this.$root.displayLoading();
+        this.$emit('loading', true);
+        try {
+          await eXo.$spaceService.removeSpace(this.space.id);
+          this.$root.$emit('spaces-administration-list-refresh');
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletedSuccessfully'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletionError', { 0: this.space.displayName }), 'error');
+          this.$root.hideLoading();
+        } finally {
+          this.$emit('loading', false);
+        }
+      },
     },
-    close() {
-      window.setTimeout(() => this.dialog = false, 200);
-    },
-    async deleteSpace() {
-      this.$root.displayLoading();
-      this.$emit('loading', true);
-      try {
-        await this.$spaceService.removeSpace(this.space.id);
-        this.$root.$emit('spaces-administration-list-refresh');
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletedSuccessfully'), 'success');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('social.spaces.administration.manageSpaces.spaceDeletionError', {0: this.space.displayName}), 'error');
-        this.$root.hideLoading();
-      } finally {
-        this.$emit('loading', false);
-      }
-    },
-  },
-};
+  };
 </script>

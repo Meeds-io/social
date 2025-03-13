@@ -17,31 +17,31 @@
  */
 let translationConfiguration = null;
 
-export function getTranslationConfiguration() {
+export function getTranslationConfiguration () {
   if (translationConfiguration) {
     return Promise.resolve(JSON.parse(JSON.stringify(translationConfiguration)));
   } else {
     return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/configuration`, {
       method: 'GET',
       credentials: 'include',
-    }).then((resp) => {
+    }).then(resp => {
       if (resp?.ok) {
         return resp.json();
       } else {
         throw new Error('Error when getting translation configuration');
       }
-    }).then((configuration) => {
+    }).then(configuration => {
       translationConfiguration = configuration;
       return JSON.parse(JSON.stringify(translationConfiguration));
     });
   }
 }
 
-export function getTranslations(objectType, objectId, fieldName) {
+export function getTranslations (objectType, objectId, fieldName) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}/${fieldName}`, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -50,26 +50,26 @@ export function getTranslations(objectType, objectId, fieldName) {
   });
 }
 
-export function saveTranslations(objectType, objectId, fieldName, labels) {
+export function saveTranslations (objectType, objectId, fieldName, labels) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}/${fieldName}`, {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(labels),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error(`Error when saving the list of translations for field ${objectType}/${objectId}/${fieldName}`);
     }
   });
 }
 
-export function deleteTranslations(objectType, objectId) {
+export function deleteTranslations (objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}`, {
     method: 'DELETE',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp;
     } else {

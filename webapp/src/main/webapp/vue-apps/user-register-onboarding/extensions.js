@@ -18,7 +18,7 @@
  */
 extensionRegistry.registerComponent('Register', 'register-extension', {
   id: 'onboarding',
-  vueComponent: Vue.options.components['portal-register-onboarding'],
+  vueComponent: Vue.component['portal-register-onboarding'],
   isEnabled: params => params && params.params && params.params.onboardingRegisterEnabled,
   rank: 80,
 });

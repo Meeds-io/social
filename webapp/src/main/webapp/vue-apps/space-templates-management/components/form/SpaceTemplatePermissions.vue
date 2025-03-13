@@ -23,13 +23,15 @@
     <help-label
       v-if="helpLabel"
       :label="helpLabel"
-      :tooltip="helpTooltip"
-      label-class="font-weight-bold">
-      <template slot="helpContent">
+      label-class="font-weight-bold"
+      :tooltip="helpTooltip">
+      <template #helpContent>
         <slot name="helpContent"></slot>
       </template>
     </help-label>
-    <div v-else class="font-weight-bold">
+    <div
+      v-else
+      class="font-weight-bold">
       {{ $t(label) }}
     </div>
     <v-checkbox
@@ -77,145 +79,145 @@
       v-if="isCustomPermissions"
       ref="targetPermissions"
       v-model="specificGroupEntries"
-      :labels="suggesterLabels"
-      :group-member="userGroup"
-      :search-options="{filterType: 'all'}"
-      name="specificGroupPermissions"
-      class="mb-n3"
-      include-spaces
-      include-groups
       all-groups-for-admin
+      class="mb-n3"
+      :group-member="userGroup"
+      include-groups
+      include-spaces
+      :labels="suggesterLabels"
       multiple
-      required />
+      name="specificGroupPermissions"
+      required
+      :search-options="{filterType: 'all'}" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    label: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      label: {
+        type: String,
+        default: null,
+      },
+      helpLabel: {
+        type: String,
+        default: null,
+      },
+      helpTooltip: {
+        type: String,
+        default: null,
+      },
+      value: {
+        type: String,
+        default: null,
+      },
+      users: {
+        type: Boolean,
+        default: false,
+      },
+      admins: {
+        type: Boolean,
+        default: false,
+      },
+      spaceAdmin: {
+        type: Boolean,
+        default: false,
+      },
     },
-    helpLabel: {
-      type: String,
-      default: null,
+    data: () => ({
+      isAdministrationPermissions: true,
+      isUserPermissions: false,
+      isSpaceAdminPermissions: false,
+      isCustomPermissions: false,
+      specificGroupEntries: null,
+    }),
+    computed: {
+      isSpecificGroup () {
+        return !!this.specificGroupEntries?.length;
+      },
+      permissions () {
+        const permissions = [];
+        if (this.isUserPermissions) {
+          permissions.push(this.$root.usersPermission);
+        }
+        if (this.isSpaceAdminPermissions) {
+          permissions.push('spaceAdmin');
+        }
+        if (this.specificGroupEntries?.length) {
+          const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
+          permissions.push(...specificGroupEntries);
+        }
+        if (!permissions.length) {
+          permissions.push(this.$root.administratorsPermission);
+        }
+        return permissions;
+      },
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('spaceTemplate.groupSuggester.placeholder'),
+          noDataLabel: this.$t('spaceTemplate.groupSuggester.noData'),
+        };
+      },
     },
-    helpTooltip: {
-      type: String,
-      default: null,
+    watch: {
+      permissions () {
+        this.$emit('input', this.permissions);
+      },
     },
-    value: {
-      type: String,
-      default: null,
-    },
-    users: {
-      type: Boolean,
-      default: false,
-    },
-    admins: {
-      type: Boolean,
-      default: false,
-    },
-    spaceAdmin: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    isAdministrationPermissions: true,
-    isUserPermissions: false,
-    isSpaceAdminPermissions: false,
-    isCustomPermissions: false,
-    specificGroupEntries: null,
-  }),
-  computed: {
-    isSpecificGroup() {
-      return !!this.specificGroupEntries?.length;
-    },
-    permissions() {
-      const permissions = [];
-      if (this.isUserPermissions) {
-        permissions.push(this.$root.usersPermission);
-      }
-      if (this.isSpaceAdminPermissions) {
-        permissions.push('spaceAdmin');
-      }
-      if (this.specificGroupEntries?.length) {
-        const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
-        permissions.push(...specificGroupEntries);
-      }
-      if (!permissions.length) {
-        permissions.push(this.$root.administratorsPermission);
-      }
-      return permissions;
-    },
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('spaceTemplate.groupSuggester.placeholder'),
-        noDataLabel: this.$t('spaceTemplate.groupSuggester.noData')
-      };
-    },
-  },
-  watch: {
-    permissions() {
-      this.$emit('input', this.permissions);
-    },
-  },
-  created() {
-    const permissions = this.value?.slice?.();
-    this.isUserPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
-    this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin') && true || false;
-    this.specificGroupEntries = [];
+    created () {
+      const permissions = this.value?.slice?.();
+      this.isUserPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
+      this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin') && true || false;
+      this.specificGroupEntries = [];
 
-    const specificGroupEntries = permissions?.filter?.(p =>
-      p !== this.$root.administratorsPermission
-      && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
-      && (!this.users || p !== this.$root.usersPermission)
-      && (!this.spaceAdmin || p !== 'spaceAdmin')
-    ) || null;
-    this.isCustomPermissions = !!specificGroupEntries?.length;
-    if (specificGroupEntries?.length) {
-      specificGroupEntries.forEach(this.retrieveObject);
-    }
-  },
-  methods: {
-    async retrieveObject(groupId) {
-      groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
-      if (groupId.indexOf('/spaces/') === 0) {
-        const space = await this.$spaceService.getSpaceByGroupId(groupId);
-        if (space) {
-          this.specificGroupEntries.push({
-            id: `space:${space.prettyName}`,
-            remoteId: space.prettyName,
-            spaceId: space.id,
-            groupId: space.groupId,
-            providerId: 'space',
-            displayName: space.displayName,
-            profile: {
-              fullName: space.displayName,
-              originalName: space.shortName,
-              avatarUrl: space.avatarUrl ? space.avatarUrl : `/portal/rest/v1/social/spaces/${space.prettyName}/avatar`,
-            },
-          });
-        }
-      } else {
-        const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
-        if (group) {
-          this.specificGroupEntries.push({
-            id: `group:${group.remoteId}`,
-            remoteId: group.remoteId,
-            spaceId: groupId,
-            groupId: groupId,
-            providerId: 'group',
-            displayName: group.profile?.fullname,
-            profile: {
-              fullName: group.profile?.fullname,
-              originalName: group.profile?.fullname,
-            },
-          });
-        }
+      const specificGroupEntries = permissions?.filter?.(p =>
+        p !== this.$root.administratorsPermission
+        && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
+        && (!this.users || p !== this.$root.usersPermission)
+        && (!this.spaceAdmin || p !== 'spaceAdmin')
+      ) || null;
+      this.isCustomPermissions = !!specificGroupEntries?.length;
+      if (specificGroupEntries?.length) {
+        specificGroupEntries.forEach(this.retrieveObject);
       }
     },
-  },
-};
+    methods: {
+      async retrieveObject (groupId) {
+        groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
+        if (groupId.indexOf('/spaces/') === 0) {
+          const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
+          if (space) {
+            this.specificGroupEntries.push({
+              id: `space:${space.prettyName}`,
+              remoteId: space.prettyName,
+              spaceId: space.id,
+              groupId: space.groupId,
+              providerId: 'space',
+              displayName: space.displayName,
+              profile: {
+                fullName: space.displayName,
+                originalName: space.shortName,
+                avatarUrl: space.avatarUrl ? space.avatarUrl : `/portal/rest/v1/social/spaces/${space.prettyName}/avatar`,
+              },
+            });
+          }
+        } else {
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          if (group) {
+            this.specificGroupEntries.push({
+              id: `group:${group.remoteId}`,
+              remoteId: group.remoteId,
+              spaceId: groupId,
+              groupId,
+              providerId: 'group',
+              displayName: group.profile?.fullname,
+              profile: {
+                fullName: group.profile?.fullname,
+                originalName: group.profile?.fullname,
+              },
+            });
+          }
+        }
+      },
+    },
+  };
 </script>

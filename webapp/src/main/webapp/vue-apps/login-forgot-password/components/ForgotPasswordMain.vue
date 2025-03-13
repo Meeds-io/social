@@ -20,10 +20,10 @@
 -->
 <template>
   <v-card
-    width="350px"
-    max-width="100%"
     class="mx-auto"
-    flat>
+    flat
+    max-width="100%"
+    width="350px">
     <portal-forgot-password-expired
       v-if="action === 'expired'"
       :params="params" />
@@ -36,17 +36,17 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    action() {
-      return this.params?.action;
+    computed: {
+      action () {
+        return this.params?.action;
+      },
     },
-  },
-};
+  };
 </script>

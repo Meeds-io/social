@@ -21,20 +21,20 @@
 -->
 <template>
   <application-toolbar
+    class="px-1"
     :right-text-filter="{
       minCharacters: 1,
       placeholder: $t('categoryInput.filter.placeholder'),
       tooltip: $t('categoryInput.filter.placeholder'),
     }"
-    class="px-1"
     @filter-text-input="$emit('filter-changed', $event)"
     @filter-text-input-end-typing="$emit('filter-changed-end-typing', $event)">
     <template #left>
       <v-btn
         id="applicationToolbarLeftButton"
         :aria-label="$t('categoryManagement.add')"
-        :class="$root.isMobile && 'px-0'"
         class="btn btn-primary text-truncate"
+        :class="$root.isMobile && 'px-0'"
         @click="$root.$emit('category-form-open')">
         <v-icon
           size="18">

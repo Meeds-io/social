@@ -21,35 +21,39 @@
 -->
 <template>
   <v-btn
-    :disabled="$root.isBulkProcessing"
     color="primary"
+    :disabled="$root.isBulkProcessing"
     elevation="0"
     outlined
     @click="$root.$emit('space-administration-sync-members-drawer-open', $root.selectedSpaces, $root.allSpacesSelected ? $root.spacesSize : $root.selectedSpaces.length, syncMembers)">
-    <v-icon size="16" class="me-2">fa-users</v-icon>
+    <v-icon
+      class="me-2"
+      size="16">
+      fa-users
+    </v-icon>
     {{ $t('social.spaces.administration.manageSpaces.syncMembers') }}
   </v-btn>
 </template>
 <script>
-export default {
-  methods: {
-    syncMembers(groups) {
-      this.$root.applyOperationInBulk(
-        async space => {
-          let spaceBoundGroups = await this.$spaceBindingService.getGroupSpaceBindings(space.id);
-          if (!spaceBoundGroups?.length) {
-            spaceBoundGroups = groups;
-          } else {
-            spaceBoundGroups.push(...groups.filter(g => !spaceBoundGroups.find(g)));
-          }
-          await this.$spaceBindingService.saveGroupsSpaceBindings(space.id, spaceBoundGroups);
-        },
-        null,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.groupsBoundOnSpaces'), 'success');
-          this.$root.$emit('spaces-administration-list-refresh');
-        });
+  export default {
+    methods: {
+      syncMembers (groups) {
+        this.$root.applyOperationInBulk(
+          async space => {
+            let spaceBoundGroups = await eXo.$spaceBindingService.getGroupSpaceBindings(space.id);
+            if (!spaceBoundGroups?.length) {
+              spaceBoundGroups = groups;
+            } else {
+              spaceBoundGroups.push(...groups.filter(g => !spaceBoundGroups.find(g)));
+            }
+            await eXo.$spaceBindingService.saveGroupsSpaceBindings(space.id, spaceBoundGroups);
+          },
+          null,
+          () => {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.groupsBoundOnSpaces'), 'success');
+            this.$root.$emit('spaces-administration-list-refresh');
+          });
+      },
     },
-  },
-};
+  };
 </script>

@@ -26,80 +26,82 @@
     ref="actionMenu"
     v-model="menu"
     :attach="$root.isMobile && '#vuetify-apps' || attachMenu"
-    :left="!$vuetify.rtl"
-    :right="$vuetify.rtl"
-    transition="slide-x-reverse-transition"
     content-class="position-absolute application-menu z-index-modal"
+    eager
+    :left="!$vuetify.rtl"
     offset-y
-    eager>
+    :right="$vuetify.rtl"
+    transition="slide-x-reverse-transition">
     <template #activator="{on, attrs}">
       <v-btn
         v-bind="attrs"
-        v-on="on"
-        :title="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
         :disabled="$root.isBulkProcessing"
+        icon
         :loading="loading"
-        icon>
-        <v-icon size="20">fa-ellipsis-v</v-icon>
+        :title="$t('social.spaces.administration.manageSpaces.spaceActionsMenu')"
+        v-on="on">
+        <v-icon size="20">
+          fa-ellipsis-v
+        </v-icon>
       </v-btn>
     </template>
     <v-list
-      :max-width="!$root.isMobile && 300 || 'auto'"
       :class="$root.isMobile && 'border-top-left-radius border-top-right-radius'"
-      dense>
+      dense
+      :max-width="!$root.isMobile && 300 || 'auto'">
       <component
+        :is="extension.componentName"
         v-for="extension in $root.itemMenuExtensions"
         :key="extension.name"
-        :is="extension.componentName"
         :space="space"
         @loading="loading = $event" />
     </v-list>
   </component>
 </template>
 <script>
-export default {
-  props: {
-    space: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      space: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    id: Math.random(), // NOSONAR
-    menu: false,
-    loading: false,
-  }),
-  watch: {
-    menu() {
-      // Workaround to fix closing menu when clicking outside
-      if (this.menu) {
-        document.addEventListener('mousedown', this.closeMenu);
-        this.$root.$emit('spaces-administration-list-menu-opened', this.id);
-      } else {
-        document.removeEventListener('mousedown', this.closeMenu);
-      }
-    },
-  },
-  created() {
-    this.$root.$on('spaces-administration-list-menu-opened', this.closeMenu);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-administration-list-menu-opened', this.closeMenu);
-    document.removeEventListener('mousedown', this.closeMenu);
-  },
-  methods: {
-    closeMenu(event) {
-      if (event !== this.id) {
-        if (event?.target) {
-          window.setTimeout(() => {
-            this.menu = false;
-          }, 200);
+    data: () => ({
+      id: Math.random(), // NOSONAR
+      menu: false,
+      loading: false,
+    }),
+    watch: {
+      menu () {
+        // Workaround to fix closing menu when clicking outside
+        if (this.menu) {
+          document.addEventListener('mousedown', this.closeMenu);
+          this.$root.$emit('spaces-administration-list-menu-opened', this.id);
         } else {
-          this.menu = false;
+          document.removeEventListener('mousedown', this.closeMenu);
         }
-      }
+      },
     },
-  }
-};
+    created () {
+      this.$root.$on('spaces-administration-list-menu-opened', this.closeMenu);
+    },
+    beforeUnmount () {
+      this.$root.$off('spaces-administration-list-menu-opened', this.closeMenu);
+      document.removeEventListener('mousedown', this.closeMenu);
+    },
+    methods: {
+      closeMenu (event) {
+        if (event !== this.id) {
+          if (event?.target) {
+            window.setTimeout(() => {
+              this.menu = false;
+            }, 200);
+          } else {
+            this.menu = false;
+          }
+        }
+      },
+    },
+  };
 </script>
 

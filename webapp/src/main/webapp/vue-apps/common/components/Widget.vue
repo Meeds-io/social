@@ -15,31 +15,39 @@
 -->
 <template>
   <v-card
-    :loading="loading"
-    :class="extraClass"
-    :height="height"
-    :min-width="minWidth"
     class="d-flex flex-column"
-    flat>
+    :class="extraClass"
+    flat
+    :height="height"
+    :loading="loading"
+    :min-width="minWidth">
     <div
-      :class="!noMargin && 'pa-5'"
-      class="d-flex flex-column flex-grow-1">
+      class="d-flex flex-column flex-grow-1"
+      :class="!noMargin && 'pa-5'">
       <div 
         v-if="hasHeader"
-        :class="headerPadding"
-        class="d-flex align-center widget-text-header">
-        <slot v-if="$slots.title" name="title"></slot>
-        <div v-else-if="title" class="text-truncate">{{ title }}</div> 
+        class="d-flex align-center widget-text-header"
+        :class="headerPadding">
+        <slot
+          v-if="$slots.title"
+          name="title"></slot>
+        <div
+          v-else-if="title"
+          class="text-truncate">
+          {{ title }}
+        </div> 
         <v-spacer />
-        <slot v-if="$slots.action" name="action"></slot>
+        <slot
+          v-if="$slots.action"
+          name="action"></slot>
         <v-btn 
           v-else-if="actionUrl" 
           class="flex-shrink-0 px-0" 
-          :href="actionUrl"
-          :target="externalLink && '_blank' || '_self'"
           height="27"
-          text
-          small> 
+          :href="actionUrl"
+          small
+          :target="externalLink && '_blank' || '_self'"
+          text> 
           <span class="text-font-size primary--text text-capitalize-first-letter"> 
             {{ actionText }} 
           </span>
@@ -67,67 +75,67 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    title: {
-      type: String,
-      default: () => '',
+  export default {
+    props: {
+      title: {
+        type: String,
+        default: () => '',
+      },
+      subtitle: {
+        type: String,
+        default: () => '',
+      },
+      actionUrl: {
+        type: String,
+        default: () => '',
+      },
+      actionLabel: {
+        type: String,
+        default: () => '',
+      },
+      extraClass: {
+        type: String,
+        default: () => '',
+      },
+      externalLink: {
+        type: Boolean,
+        default: () => false,
+      },
+      loading: {
+        type: Boolean,
+        default: () => false,
+      },
+      height: {
+        type: String,
+        default: () => '',
+      },
+      minWidth: {
+        type: String,
+        default: () => '',
+      },
+      noMargin: {
+        type: Boolean,
+        default: false,
+      },
     },
-    subtitle: {
-      type: String,
-      default: () => '',
-    },
-    actionUrl: {
-      type: String,
-      default: () => '',
-    },
-    actionLabel: {
-      type: String,
-      default: () => '',
-    },
-    extraClass: {
-      type: String,
-      default: () => '',
-    },
-    externalLink: {
-      type: Boolean,
-      default: () => false
-    },
-    loading: {
-      type: Boolean,
-      default: () => false,
-    },
-    height: {
-      type: String,
-      default: () => '',
-    },
-    minWidth: {
-      type: String,
-      default: () => '',
-    },
-    noMargin: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    hasHeader() {
-      return this.$slots.title || this.title || this.$slots.actions || this.actionUrl;
-    },
-    headerPadding() {
-      if (!this.$slots.default) {
-        if (this.subtitle || this.$slots.subtitle) {
-          return 'mb-4';
+    computed: {
+      hasHeader () {
+        return this.$slots.title || this.title || this.$slots.actions || this.actionUrl;
+      },
+      headerPadding () {
+        if (!this.$slots.default) {
+          if (this.subtitle || this.$slots.subtitle) {
+            return 'mb-4';
+          } else {
+            return '';
+          }
         } else {
-          return '';
+          return 'mb-5';
         }
-      } else {
-        return 'mb-5';
-      }
+      },
+      actionText () {
+        return this.actionLabel || this.$t('Widget.label.seeAll');
+      },
     },
-    actionText() {
-      return this.actionLabel || this.$t('Widget.label.seeAll');
-    }
-  }
-};
+  };
 </script>

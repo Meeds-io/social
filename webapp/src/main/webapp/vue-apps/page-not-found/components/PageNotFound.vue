@@ -25,7 +25,9 @@
       color="transparent"
       flat>
       <v-card-text>
-        <v-icon color="primary" class="fa-7x">
+        <v-icon
+          class="fa-7x"
+          color="primary">
           fa-question-circle
         </v-icon>
       </v-card-text>
@@ -37,9 +39,9 @@
       </v-card-text>
       <v-card-actions class="justify-center py-5">
         <v-btn
-          :href="defaultLink"
+          class="btn pageNotFoundLink"
           color="primary"
-          class="btn pageNotFoundLink">
+          :href="defaultLink">
           <span class="text-none">{{ $t('siteAccess.pageNotFoundButton') }}</span>
         </v-btn>
       </v-card-actions>
@@ -47,14 +49,14 @@
   </v-app>
 </template>
 <script>
-export default {
-  computed: {
-    defaultLink() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}`;
+  export default {
+    computed: {
+      defaultLink () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}`;
+      },
     },
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-};
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+  };
 </script>

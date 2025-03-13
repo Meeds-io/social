@@ -4,10 +4,10 @@
       <template #activator="{ on, attrs }">
         <v-btn
           :id="`CommentLink${activityId}`"
-          :class="commentTextColorClass"
           class="pa-0 me-0"
-          text
+          :class="commentTextColorClass"
           link
+          text
           x-small
           v-bind="attrs"
           v-on="on"
@@ -26,10 +26,10 @@
         <v-btn
           v-show="subCommentsSize"
           :id="`RepliesListLink${commentId}`"
-          :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
           class="primary--text font-weight-bold"
-          x-small
           icon
+          :title="$t('UIActivity.label.ViewAllReplies', {0: subCommentsSize})"
+          x-small
           v-bind="attrs"
           v-on="on"
           @click="openReplies">
@@ -44,78 +44,78 @@
 </template>
 
 <script>
-export default {
-  props: {
-    activity: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      activity: {
+        type: Object,
+        default: null,
+      },
+      comment: {
+        type: Object,
+        default: null,
+      },
     },
-    comment: {
-      type: Object,
-      default: null,
+    data: () => ({
+      hasCommented: false,
+    }),
+    computed: {
+      activityId () {
+        return this.comment && this.comment.activityId;
+      },
+      commentId () {
+        return this.comment && (this.comment.parentCommentId || this.comment.id) || '';
+      },
+      commentTextColorClass () {
+        return this.hasCommented && 'primary--text' || '';
+      },
+      subCommentsSize () {
+        return this.comment && this.comment.subCommentsSize || 0;
+      },
     },
-  },
-  data: () => ({
-    hasCommented: false,
-  }),
-  computed: {
-    activityId() {
-      return this.comment && this.comment.activityId;
+    watch: {
+      comment () {
+        this.checkWhetherCommented();
+      },
     },
-    commentId() {
-      return this.comment && (this.comment.parentCommentId || this.comment.id) || '';
-    },
-    commentTextColorClass() {
-      return this.hasCommented && 'primary--text' || '';
-    },
-    subCommentsSize() {
-      return this.comment && this.comment.subCommentsSize || 0;
-    },
-  },
-  watch: {
-    comment() {
+    created () {
+      this.$root.$on('activity-comment-created', this.handleCommentCreated);
+      this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
       this.checkWhetherCommented();
     },
-  },
-  created() {
-    this.$root.$on('activity-comment-created', this.handleCommentCreated);
-    this.$root.$on('activity-comment-deleted', this.handleCommentDeleted);
-    this.checkWhetherCommented();
-  },
-  beforeDestroy() {
-    this.$root.$off('activity-comment-created', this.handleCommentCreated);
-    this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
-  },
-  methods: {
-    handleCommentCreated(comment) {
-      if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
-        this.hasCommented = true;
-      }
+    beforeUnmount () {
+      this.$root.$off('activity-comment-created', this.handleCommentCreated);
+      this.$root.$off('activity-comment-deleted', this.handleCommentDeleted);
     },
-    handleCommentDeleted(event) {
-      const activityId = event?.activityId;
-      const parentCommentId = event?.parentCommentId;
-      if (activityId === this.activityId && this.comment.id === parentCommentId) {
-        this.checkWhetherCommented();
-      }
+    methods: {
+      handleCommentCreated (comment) {
+        if (comment.activityId === this.activityId && this.comment.id === comment.parentCommentId) {
+          this.hasCommented = true;
+        }
+      },
+      handleCommentDeleted (event) {
+        const activityId = event?.activityId;
+        const parentCommentId = event?.parentCommentId;
+        if (activityId === this.activityId && this.comment.id === parentCommentId) {
+          this.checkWhetherCommented();
+        }
+      },
+      checkWhetherCommented () {
+        this.hasCommented = this.comment && this.comment.hasCommented === 'true';
+      },
+      openCommentsDrawer () {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', { detail: {
+          activity: this.activity,
+          commentId: this.commentId,
+          newComment: true,
+        } }));
+      },
+      openReplies () {
+        document.dispatchEvent(new CustomEvent('activity-comments-display', { detail: {
+          activity: this.activity,
+          commentId: this.commentId,
+          highlightRepliesCommentId: this.commentId,
+        } }));
+      },
     },
-    checkWhetherCommented() {
-      this.hasCommented = this.comment && this.comment.hasCommented === 'true';
-    },
-    openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        commentId: this.commentId,
-        newComment: true,
-      }}));
-    },
-    openReplies() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
-        activity: this.activity,
-        commentId: this.commentId,
-        highlightRepliesCommentId: this.commentId,
-      }}));
-    },
-  },
-};
+  };
 </script>

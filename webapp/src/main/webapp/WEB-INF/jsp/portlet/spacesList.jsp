@@ -58,7 +58,7 @@
     </script>
   <% } else { %>
     <script type="text/javascript">
-      require(['SHARED/vue'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#<%=domId%>')));
+      require(['SHARED/vue'], () => eXo.$updateApplicationVisibility(false, document.querySelector('#<%=domId%>')));
     </script>
   <% } %>
   </div>

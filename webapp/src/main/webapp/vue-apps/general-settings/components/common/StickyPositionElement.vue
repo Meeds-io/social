@@ -21,12 +21,12 @@
 -->
 <template>
   <v-card
-    :style="cssStyle"
     class="position-sticky no-border-radius"
-    flat>
+    flat
+    :style="cssStyle">
     <div
-      :style="parentStyle"
-      class="white ms-n6">
+      class="white ms-n6"
+      :style="parentStyle">
       <v-divider
         v-if="elevate" />
       <slot></slot>
@@ -34,74 +34,74 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    top: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      top: {
+        type: String,
+        default: null,
+      },
+      bottom: {
+        type: String,
+        default: null,
+      },
+      scrollDiff: {
+        type: Number,
+        default: null,
+      },
+      dividerWidth: {
+        type: String,
+        default: () => 'calc(100% + 48px)',
+      },
+      parentSelector: {
+        type: String,
+        default: () => '.site-scroll-parent',
+      },
     },
-    bottom: {
-      type: String,
-      default: null,
+    data: () => ({
+      scrolled: true,
+    }),
+    computed: {
+      isScrollTop () {
+        return this.top !== null;
+      },
+      isScrollBottom () {
+        return this.bottom !== null;
+      },
+      elevate () {
+        return this.scrolled;
+      },
+      parentStyle () {
+        return `min-width: ${this.dividerWidth}`;
+      },
+      cssStyle () {
+        if (this.isScrollTop) {
+          return {
+            'top': `${this.top}px`,
+          };
+        } else if (this.isScrollBottom) {
+          return {
+            'bottom': `${this.bottom}px`,
+          };
+        }
+        return null;
+      },
     },
-    scrollDiff: {
-      type: Number,
-      default: null,
+    mounted () {
+      window.setTimeout(() => {
+        const parentScroll = document.querySelector(this.parentSelector);
+        if (parentScroll) {
+          parentScroll?.addEventListener?.('scroll', this.computeScollPosition, false);
+        }
+      }, 50);
     },
-    dividerWidth: {
-      type: String,
-      default: () => 'calc(100% + 48px)',
+    methods: {
+      computeScollPosition (event) {
+        if (this.isScrollBottom) {
+          this.scrolled = parseInt(event?.target?.scrollHeight - event?.target?.offsetHeight - event?.target?.scrollTop) > (this.scrollDiff && Number(this.scrollDiff) || 0);
+        } else if (this.isScrollTop) {
+          this.scrolled = event?.target?.scrollTop > (this.scrollDiff && Number(this.scrollDiff) || 0);
+        }
+      },
     },
-    parentSelector: {
-      type: String,
-      default: () => '.site-scroll-parent',
-    },
-  },
-  data: () => ({
-    scrolled: true,
-  }),
-  computed: {
-    isScrollTop() {
-      return this.top !== null;
-    },
-    isScrollBottom() {
-      return this.bottom !== null;
-    },
-    elevate() {
-      return this.scrolled;
-    },
-    parentStyle() {
-      return `min-width: ${this.dividerWidth}`;
-    },
-    cssStyle() {
-      if (this.isScrollTop) {
-        return {
-          'top': `${this.top}px`,
-        };
-      } else if (this.isScrollBottom) {
-        return {
-          'bottom': `${this.bottom}px`,
-        };
-      }
-      return null;
-    },
-  },
-  mounted() {
-    window.setTimeout(() => {
-      const parentScroll = document.querySelector(this.parentSelector);
-      if (parentScroll) {
-        parentScroll?.addEventListener?.('scroll', this.computeScollPosition, false);
-      }
-    }, 50);
-  },
-  methods: {
-    computeScollPosition(event) {
-      if (this.isScrollBottom) {
-        this.scrolled = parseInt(event?.target?.scrollHeight - event?.target?.offsetHeight - event?.target?.scrollTop) > (this.scrollDiff && Number(this.scrollDiff) || 0);
-      } else if (this.isScrollTop) {
-        this.scrolled = event?.target?.scrollTop > (this.scrollDiff && Number(this.scrollDiff) || 0);
-      }
-    },
-  },
-};
+  };
 </script>

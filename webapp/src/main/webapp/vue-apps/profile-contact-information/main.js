@@ -22,10 +22,10 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 const urls = [
   `/social/i18n/locale.portlet.social.ProfileContactInformation?lang=${lang}`,
   `/social/i18n/locale.portlet.social.ComplementaryFilter?lang=${lang}`,
-  `/social/i18n/locale.portlet.Portlets?lang=${lang}`
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
 ];
 
-export function init(uploadLimit, imTypes) {
+export function init (uploadLimit, imTypes) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
@@ -35,16 +35,16 @@ export function init(uploadLimit, imTypes) {
         imTypes,
       }),
       computed: {
-        isMobile() {
-          return this.$vuetify.breakpoint.mobile;
+        isMobile () {
+          return eXo.vuetify.display.mobile.value;
         },
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-contact-information v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :upload-limit="${uploadLimit}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile Contact Information');
   });
 }

@@ -2,9 +2,11 @@
   <v-app>
     <widget-wrapper
       v-if="isShown"
-      :title="$t('externalSpacesList.title.yourSpaces')"
-      extra-class="application-body">
-      <v-list dense class="py-0 external-spaces-list">
+      extra-class="application-body"
+      :title="$t('externalSpacesList.title.yourSpaces')">
+      <v-list
+        class="py-0 external-spaces-list"
+        dense>
         <template>
           <external-space-item
             v-for="space in spacesList"
@@ -14,8 +16,8 @@
       </v-list>
       <v-btn
         v-if="hasMore"
-        :loading="loading"
         class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
+        :loading="loading"
         outlined
         @click="loadMore()">
         {{ $t('button.loadMore') }}
@@ -24,51 +26,51 @@
   </v-app>
 </template>
 <script>
-export default {
-  data () {
-    return {
-      spacesList: [],
-      hasMore: false,
-      loading: false,
-      pageSize: 10,
-      limit: 10,
-      offset: 0,
-    };
-  },
-  computed: {
-    isShown() {
-      return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
+  export default {
+    data () {
+      return {
+        spacesList: [],
+        hasMore: false,
+        loading: false,
+        pageSize: 10,
+        limit: 10,
+        offset: 0,
+      };
     },
-  },
-  watch: {
-    isShown: {
-      immediate: true,
-      handler() {
-        this.$root.$updateApplicationVisibility(this.isShown, this.$el);
+    computed: {
+      isShown () {
+        return this.spacesList && this.spacesList.length > 0 || this.spacesRequestsSize > 0;
       },
     },
-  },
-  created() {
-    this.getExternalSpacesList();
-  },
-  methods: {
-    getExternalSpacesList() {
-      this.loading = true;
-      return this.$spaceService.getSpacesByFilter({
-        offset: this.offset,
-        limit: this.limit,
-        filter: 'member',
-      })
-        .then(data => {
-          this.spacesList = this.spacesList.concat(data.spaces);
-          this.hasMore = data.size > this.spacesList.length;
-        })
-        .finally(() => this.loading = false);
+    watch: {
+      isShown: {
+        immediate: true,
+        handler () {
+          this.$root.$updateApplicationVisibility(this.isShown, this.$el);
+        },
+      },
     },
-    loadMore() {
-      this.offset += this.pageSize;
+    created () {
       this.getExternalSpacesList();
-    }
-  }
-};
+    },
+    methods: {
+      getExternalSpacesList () {
+        this.loading = true;
+        return eXo.$spaceService.getSpacesByFilter({
+          offset: this.offset,
+          limit: this.limit,
+          filter: 'member',
+        })
+          .then(data => {
+            this.spacesList = this.spacesList.concat(data.spaces);
+            this.hasMore = data.size > this.spacesList.length;
+          })
+          .finally(() => this.loading = false);
+      },
+      loadMore () {
+        this.offset += this.pageSize;
+        this.getExternalSpacesList();
+      },
+    },
+  };
 </script>

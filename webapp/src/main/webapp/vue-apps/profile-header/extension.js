@@ -1,4 +1,4 @@
-function getExtensionsByType(type) {
+function getExtensionsByType (type) {
   return extensionRegistry.loadExtensions('profile-header', type);
 }
 

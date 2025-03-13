@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export function updateBrandingInformation(branding){
+export function updateBrandingInformation (branding){
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding`, {
     method: 'PUT',
     credentials: 'include',
@@ -24,32 +24,32 @@ export function updateBrandingInformation(branding){
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(branding),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp || !resp.ok) {
       return throwErrorFromServerCall(resp, 'Error saving Company Name');
     }
   });
 }
 
-export function getBrandingInformation() {
+export function getBrandingInformation () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => resp.json());
 }
 
-export function getDefaultBrandingThemeStyle() {
+export function getDefaultBrandingThemeStyle () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/default`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => resp.json());
 }
 
-export function throwErrorFromServerCall(serverResponse, defaultErrorMessage) {
+export function throwErrorFromServerCall (serverResponse, defaultErrorMessage) {
   if (!serverResponse || !serverResponse.ok) {
     const contentType = serverResponse && serverResponse.headers && serverResponse.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
-      return serverResponse.json().then((error) => {
+      return serverResponse.json().then(error => {
         const message = getMessageFromServerError(error, defaultErrorMessage);
         throw new Error(message);
       });
@@ -58,7 +58,7 @@ export function throwErrorFromServerCall(serverResponse, defaultErrorMessage) {
   throw new Error(defaultErrorMessage);
 }
 
-export function getMessageFromServerError(error, defaultMessage) {
+export function getMessageFromServerError (error, defaultMessage) {
   if (!error || !error.code || !error.suffix || !error.message) {
     return defaultMessage;
   }

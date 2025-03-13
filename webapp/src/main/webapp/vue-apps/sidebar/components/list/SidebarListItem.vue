@@ -20,35 +20,45 @@
 
 -->
 <template>
-  <v-divider v-if="item.type === 'SEPARATOR'" class="my-1" />
+  <v-divider
+    v-if="item.type === 'SEPARATOR'"
+    class="my-1" />
   <div v-else-if="isSitePages">
     <sidebar-list-sub-list
       :item="item" />
   </div>
   <div v-else-if="isSpaces || isSpaceTemplate || isSpaceCategory">
     <v-hover
-      v-model="hover"
       v-if="displaySpacesList"
+      v-model="hover"
       :disabled="!$root.displaySequentially">
       <v-list-item
-        :title="spacesTooltip"
-        :class="$root.iconCollapse && 'mx-0'"
         class="d-flex ps-3"
+        :class="$root.iconCollapse && 'mx-0'"
         dense
+        :title="spacesTooltip"
         @click="handleSpacesClick">
-        <v-list-item-avatar class="me-2 my-auto" min-width="40">
+        <v-list-item-avatar
+          class="me-2 my-auto"
+          min-width="40">
           <v-btn
             v-if="displaySpacesExpandButton"
-            :title="spacesTooltip"
             height="36"
-            width="36"
             icon
+            :title="spacesTooltip"
+            width="36"
+            @click.prevent.stop="collapsedSpaces = !collapsedSpaces"
             @mousedown.prevent.stop="0"
-            @mouseup.prevent.stop="0"
-            @click.prevent.stop="collapsedSpaces = !collapsedSpaces">
-            <v-icon size="18">{{ spacesIcon }}</v-icon>
+            @mouseup.prevent.stop="0">
+            <v-icon size="18">
+              {{ spacesIcon }}
+            </v-icon>
           </v-btn>
-          <v-icon v-else size="18">{{ spacesIcon }}</v-icon>
+          <v-icon
+            v-else
+            size="18">
+            {{ spacesIcon }}
+          </v-icon>
         </v-list-item-avatar>
         <v-list-item-content v-if="$root.expand">
           <v-list-item-title class="menu-text-color text-truncate">
@@ -62,9 +72,9 @@
           @mouseup.stop.prevent>
           <ripple-hover-button
             :active="!drawerOpened"
-            :title="$t('menu.accessToSpacesList')"
             class="ms-2"
             icon
+            :title="$t('menu.accessToSpacesList')"
             @ripple-hover="openSpacesList">
             <v-icon
               class="me-0 pa-2 icon-default-color"
@@ -86,13 +96,13 @@
     v-model="hover">
     <v-list-item
       v-bind="itemAttributes"
-      v-on="itemActions"
+      class="d-flex ps-3"
+      :class="!$root.expand && item.avatar && 'ms-n2px'"
+      dense
+      :disabled="!item.url"
       :title="tooltip"
       :value="item.url"
-      :disabled="!item.url"
-      :class="!$root.expand && item.avatar && 'ms-n2px'"
-      class="d-flex ps-3"
-      dense>
+      v-on="itemActions">
       <v-list-item-avatar
         v-if="$root.expand || !item.avatar"
         class="my-auto me-2"
@@ -106,26 +116,26 @@
       </v-list-item-avatar>
       <v-list-item-avatar
         v-if="item.avatar"
-        :class="$root.expand && 'me-2' || 'ms-2'"
         class="my-auto"
-        min-width="28"
-        width="28"
+        :class="$root.expand && 'me-2' || 'ms-2'"
         height="28"
-        tile>
+        min-width="28"
+        tile
+        width="28">
         <img
-          :src="item.avatar"
           alt=""
           class="border-radius"
-          width="28"
-          height="auto">
+          height="auto"
+          :src="item.avatar"
+          width="28">
       </v-list-item-avatar>
       <v-card
         v-if="spaceUnreadCount && $root.icon && !$root.expand"
-        :class="$vuetify.rtl && 'l-0' || 'r-0'"
         class="hamburger-unread-badge border-radius-circle error-color-background position-absolute t-0 me-4 mt-0"
-        width="12"
+        :class="$vuetify.rtl && 'l-0' || 'r-0'"
+        flat
         height="12"
-        flat />
+        width="12" />
       <v-list-item-content v-if="$root.expand">
         <v-list-item-title class="menu-text-color text-truncate">
           {{ item.name }}
@@ -138,9 +148,9 @@
         @mouseup.stop.prevent>
         <ripple-hover-button
           :active="!drawerOpened"
-          :title="$t('menu.accessToPagesList')"
           class="ms-2"
           icon
+          :title="$t('menu.accessToPagesList')"
           @ripple-hover="openOrCloseDrawer()">
           <v-icon
             class="me-0 pa-2 icon-default-color"
@@ -157,13 +167,13 @@
         <v-btn
           v-if="$root.expand && $root.allowUserHome"
           v-show="hover || isHome"
-          :title="$t('menu.spaces.makeAsHomePage')"
           class="ms-2"
           icon
+          :title="$t('menu.spaces.makeAsHomePage')"
           @click.stop.prevent="$root.$emit('update-home-link-page', item)">
           <v-icon
-            :class="isHome && 'primary--text' || 'icon-default-color'"
             class="me-0 pa-2"
+            :class="isHome && 'primary--text' || 'icon-default-color'"
             small>
             fa-house-user
           </v-icon>
@@ -179,244 +189,244 @@
   </v-hover>
 </template>
 <script>
-export default {
-  props: {
-    item: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      item: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    hover: false,
-    collapsedSpaces: false,
-    space: null,
-  }),
-  computed: {
-    menuItems() {
-      return this.item?.items;
-    },
-    hasItems() {
-      return this.menuItems?.length;
-    },
-    defaultUserPath() {
-      return this.$root.defaultUserPath;
-    },
-    isHome() {
-      return this.isPage && this.defaultUserPath === this.item?.url;
-    },
-    isSitePages() {
-      return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
-    },
-    isLink() {
-      return this.item.type === 'LINK';
-    },
-    isSpaces() {
-      return this.item.type === 'SPACES';
-    },
-    isSpace() {
-      return this.item.type === 'SPACE';
-    },
-    isSite() {
-      return this.item.type === 'SITE' && this.item.properties.expandPages !== 'true';
-    },
-    isPage() {
-      return this.item.type === 'PAGE';
-    },
-    isSpaceTemplate() {
-      return this.item.type === 'SPACE_TEMPLATE';
-    },
-    isSpaceCategory() {
-      return this.item.type === 'SPACE_CATEGORY';
-    },
-    siteName() {
-      return this.isSite && this.item?.properties?.siteName;
-    },
-    spaceId() {
-      return this.isSpace && this.item?.properties?.id;
-    },
-    spaceTemplateId() {
-      return this.isSpaceTemplate && Number(this.item?.properties?.spaceTemplateId);
-    },
-    spaceCategoryId() {
-      return this.isSpaceCategory && Number(this.item?.properties?.spaceCategoryId);
-    },
-    drawerOpened() {
-      return (this.isSite && this.$root.openedSiteName === this.siteName)
-        || (this.isSpace && this.$root.openedFirstLevelType === 'SPACE' && Number(this.$root.openedSpaceId) === Number(this.spaceId))
-        || (this.isSpaces && this.$root.openedSpaces)
-        || (this.isSpaceCategory && Number(this.$root.openedSpaceCategoryId) === this.spaceCategoryId)
-        || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === this.spaceTemplateId);
-    },
-    arrowIconLeft() {
-      return this.$vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
-    },
-    displaySpacesExpandButton() {
-      return this.hover && this.hasItems && this.url;
-    },
-    displaySpacesExpandFull() {
-      return this.hover && this.hasItems && !this.url || null;
-    },
-    displaySpacesExpandKey() {
-      return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.spaceTemplateId || this.spaceCategoryId}`;
-    },
-    spacesIcon() {
-      return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${this.$vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
-    },
-    arrowIconRight() {
-      return this.$vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
-    },
-    arrowIcon() {
-      return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
-    },
-    isUrl() {
-      return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory && !this.isSpace && !this.isSite));
-    },
-    url() {
-      return this.isUrl && this.item.url && this.$utils.toLinkUrl(this.item.url, {
-        urls: true,
-        email: true,
-        phone: true,
-      }) || this.item.url;
-    },
-    target() {
-      return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
-    },
-    itemAttributes() {
-      const attributes = {};
-      if (this.isUrl) {
-        attributes.href = this.url;
-        attributes.target = this.target;
-        if (attributes.target === '_blank') {
-          attributes.rel = 'nofollow noreferrer noopener';
+    data: () => ({
+      hover: false,
+      collapsedSpaces: false,
+      space: null,
+    }),
+    computed: {
+      menuItems () {
+        return this.item?.items;
+      },
+      hasItems () {
+        return this.menuItems?.length;
+      },
+      defaultUserPath () {
+        return this.$root.defaultUserPath;
+      },
+      isHome () {
+        return this.isPage && this.defaultUserPath === this.item?.url;
+      },
+      isSitePages () {
+        return this.item.type === 'SITE' && this.item.properties.expandPages === 'true';
+      },
+      isLink () {
+        return this.item.type === 'LINK';
+      },
+      isSpaces () {
+        return this.item.type === 'SPACES';
+      },
+      isSpace () {
+        return this.item.type === 'SPACE';
+      },
+      isSite () {
+        return this.item.type === 'SITE' && this.item.properties.expandPages !== 'true';
+      },
+      isPage () {
+        return this.item.type === 'PAGE';
+      },
+      isSpaceTemplate () {
+        return this.item.type === 'SPACE_TEMPLATE';
+      },
+      isSpaceCategory () {
+        return this.item.type === 'SPACE_CATEGORY';
+      },
+      siteName () {
+        return this.isSite && this.item?.properties?.siteName;
+      },
+      spaceId () {
+        return this.isSpace && this.item?.properties?.id;
+      },
+      spaceTemplateId () {
+        return this.isSpaceTemplate && Number(this.item?.properties?.spaceTemplateId);
+      },
+      spaceCategoryId () {
+        return this.isSpaceCategory && Number(this.item?.properties?.spaceCategoryId);
+      },
+      drawerOpened () {
+        return (this.isSite && this.$root.openedSiteName === this.siteName)
+          || (this.isSpace && this.$root.openedFirstLevelType === 'SPACE' && Number(this.$root.openedSpaceId) === Number(this.spaceId))
+          || (this.isSpaces && this.$root.openedSpaces)
+          || (this.isSpaceCategory && Number(this.$root.openedSpaceCategoryId) === this.spaceCategoryId)
+          || (this.isSpaceTemplate && Number(this.$root.openedSpaceTemplateId) === this.spaceTemplateId);
+      },
+      arrowIconLeft () {
+        return eXo.vuetify.rtl && 'fa-arrow-right' || 'fa-arrow-left';
+      },
+      displaySpacesExpandButton () {
+        return this.hover && this.hasItems && this.url;
+      },
+      displaySpacesExpandFull () {
+        return this.hover && this.hasItems && !this.url || null;
+      },
+      displaySpacesExpandKey () {
+        return `sidebar-collapsed-${this.item.type}-${this.item.url || this.spaceId || this.spaceTemplateId || this.spaceCategoryId}`;
+      },
+      spacesIcon () {
+        return this.hover && this.hasItems ? (this.collapsedSpaces && `fa-caret-${eXo.vuetify.rtl && 'left' || 'right'}` || 'fa-caret-down') : (this.item.icon || 'fa-folder');
+      },
+      arrowIconRight () {
+        return eXo.vuetify.rtl && 'fa-arrow-left' || 'fa-arrow-right';
+      },
+      arrowIcon () {
+        return this.drawerOpened && this.arrowIconLeft || this.arrowIconRight;
+      },
+      isUrl () {
+        return this.item.url && (this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory && !this.isSpace && !this.isSite));
+      },
+      url () {
+        return this.isUrl && this.item.url && eXo.$utils.toLinkUrl(this.item.url, {
+          urls: true,
+          email: true,
+          phone: true,
+        }) || this.item.url;
+      },
+      target () {
+        return this.isUrl && this.item.target === 'NEW_TAB' && '_blank' || null;
+      },
+      itemAttributes () {
+        const attributes = {};
+        if (this.isUrl) {
+          attributes.href = this.url;
+          attributes.target = this.target;
+          if (attributes.target === '_blank') {
+            attributes.rel = 'nofollow noreferrer noopener';
+          }
         }
-      }
-      return attributes;
-    },
-    itemActions() {
-      const actions = {};
-      if (!this.isUrl) {
-        if (this.isSite || this.isSpace) {
-          actions.click = this.openOrCloseDrawer;
+        return attributes;
+      },
+      itemActions () {
+        const actions = {};
+        if (!this.isUrl) {
+          if (this.isSite || this.isSpace) {
+            actions.click = this.openOrCloseDrawer;
+          }
+        } else if (this.url?.includes?.('#')) {
+          actions.click = this.forceOpenLink;
         }
-      } else if (this.url?.includes?.('#')) {
-        actions.click = this.forceOpenLink;
-      }
-      return actions;
-    },
-    toggleArrow() {
-      return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
-        && (this.hover || this.drawerOpened);
-    },
-    tooltip() {
-      if (this.isSpace) {
-        return this.$t('menu.spaceTooltip', {
+        return actions;
+      },
+      toggleArrow () {
+        return (this.isSite || this.isSpace || this.isSpaceTemplate || this.isSpaceCategory || this.isSpaces)
+          && (this.hover || this.drawerOpened);
+      },
+      tooltip () {
+        if (this.isSpace) {
+          return this.$t('menu.spaceTooltip', {
+            0: this.item.name,
+          });
+        } else if (this.isPage) {
+          const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
+          return descriptions?.[eXo.env.portal.language] || descriptions?.['en'] || this.$t('menu.pageNameTooltip', {
+            0: this.item.name,
+          });
+        } else if (this.isSite) {
+          return this.$t('menu.siteNameTooltip', {
+            0: this.item.name,
+          });
+        }
+        return null;
+      },
+      spaceUnreadCount () {
+        return this.isSpace && this.$root?.unreadPerSpace?.[this.spaceId];
+      },
+      spacesTooltip () {
+        return (this.isSpaceTemplate || this.isSpaceCategory) && (this.collapsedSpaces && this.$t('menu.spacesExpand', {
           0: this.item.name,
-        });
-      } else if (this.isPage) {
-        const descriptions = this.item?.properties?.descriptions && JSON.parse(this.item.properties.descriptions);
-        return descriptions?.[eXo.env.portal.language] || descriptions?.['en'] || this.$t('menu.pageNameTooltip', {
+        }) || this.$t('menu.spacesCollapse', {
           0: this.item.name,
-        });
-      } else if (this.isSite) {
-        return this.$t('menu.siteNameTooltip', {
-          0: this.item.name,
-        });
-      }
-      return null;
+        })) || (this.isSpaces && this.$t('menu.spacesTooltip')) || null;
+      },
+      displayItemsInMobile () {
+        return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory) || this.item?.properties?.displayItemsInMobile === 'true';
+      },
+      displayOnlyWhenMember () {
+        return this.item?.properties?.displayOnlyWhenMember === 'true';
+      },
+      notSpaceMember () {
+        return this.item?.properties?.notMember === 'true';
+      },
+      displaySpacesList () {
+        return this.hasItems || !this.displayOnlyWhenMember || !this.notSpaceMember;
+      },
     },
-    spaceUnreadCount() {
-      return this.isSpace && this.$root?.unreadPerSpace?.[this.spaceId];
+    watch: {
+      hover () {
+        if (this.hover) {
+          this.initHover();
+        }
+      },
+      collapsedSpaces () {
+        if (this.collapsedSpaces) {
+          window.localStorage.setItem(this.displaySpacesExpandKey, 'true');
+        } else {
+          window.localStorage.removeItem(this.displaySpacesExpandKey);
+        }
+      },
     },
-    spacesTooltip() {
-      return (this.isSpaceTemplate || this.isSpaceCategory) && (this.collapsedSpaces && this.$t('menu.spacesExpand', {
-        0: this.item.name
-      }) || this.$t('menu.spacesCollapse', {
-        0: this.item.name
-      })) || (this.isSpaces && this.$t('menu.spacesTooltip')) || null;
+    created () {
+      this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
     },
-    displayItemsInMobile() {
-      return this.$root.displaySequentially || (!this.isSpaces && !this.isSpaceTemplate && !this.isSpaceCategory) || this.item?.properties?.displayItemsInMobile === 'true';
-    },
-    displayOnlyWhenMember() {
-      return this.item?.properties?.displayOnlyWhenMember === 'true';
-    },
-    notSpaceMember() {
-      return this.item?.properties?.notMember === 'true';
-    },
-    displaySpacesList() {
-      return this.hasItems || !this.displayOnlyWhenMember || !this.notSpaceMember;
-    },
-  },
-  watch: {
-    hover() {
-      if (this.hover) {
-        this.initHover();
-      }
-    },
-    collapsedSpaces() {
-      if (this.collapsedSpaces) {
-        window.localStorage.setItem(this.displaySpacesExpandKey, 'true');
-      } else {
-        window.localStorage.removeItem(this.displaySpacesExpandKey);
-      }
-    },
-  },
-  created() {
-    this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
-  },
-  methods: {
-    handleSpacesClick() {
-      if (this.$root.displaySequentially && (this.isSpaceTemplate || this.isSpaceCategory)) {
-        this.collapsedSpaces = !this.collapsedSpaces;
-      } else {
-        this.openSpacesList();
-      }
-    },
-    openSpacesList() {
-      this.$root.openedItem = this.item;
-      this.$root.$emit('change-spaces-menu',
-        this.isSpaceTemplate && this.spaceTemplateId,
-        this.isSpaceCategory && this.spaceCategoryId,
-        this.isSpaces && this.url,
-        this.item.properties?.sortBy,
-        this.item.name,
-        this.item.type);
-    },
-    async openOrCloseDrawer() {
-      if (this.isSite) {
-        if (!this.$root.sites) {
+    methods: {
+      handleSpacesClick () {
+        if (this.$root.displaySequentially && (this.isSpaceTemplate || this.isSpaceCategory)) {
+          this.collapsedSpaces = !this.collapsedSpaces;
+        } else {
+          this.openSpacesList();
+        }
+      },
+      openSpacesList () {
+        this.$root.openedItem = this.item;
+        this.$root.$emit('change-spaces-menu',
+                         this.isSpaceTemplate && this.spaceTemplateId,
+                         this.isSpaceCategory && this.spaceCategoryId,
+                         this.isSpaces && this.url,
+                         this.item.properties?.sortBy,
+                         this.item.name,
+                         this.item.type);
+      },
+      async openOrCloseDrawer () {
+        if (this.isSite) {
+          if (!this.$root.sites) {
+            await this.retrieveSites();
+          }
+          const site = this.$root.sites?.find(s => s.name === this.siteName);
+          this.$root.$emit('change-site-menu', site);
+        } else if (this.isSpace) {
+          if (!this.space) {
+            await this.retrieveSpace();
+          }
+          this.$root.$emit('change-space-menu', this.space);
+        }
+      },
+      async initHover () {
+        if (this.isSite && !this.$root.sites) {
           await this.retrieveSites();
-        }
-        const site = this.$root.sites?.find(s => s.name === this.siteName);
-        this.$root.$emit('change-site-menu', site);
-      } else if (this.isSpace) {
-        if (!this.space) {
+        } else if (this.isSpace && !this.space) {
           await this.retrieveSpace();
         }
-        this.$root.$emit('change-space-menu', this.space);
-      }
+      },
+      async retrieveSites () {
+        this.$root.sites = await eXo.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
+      },
+      async retrieveSpace (refresh) {
+        this.space = await eXo.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
+        this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
+      },
+      forceOpenLink () {
+        if (this.target === '_blank') {
+          window.open(this.url);
+        } else {
+          window.location.href = this.url;
+        }
+      },
     },
-    async initHover() {
-      if (this.isSite && !this.$root.sites) {
-        await this.retrieveSites();
-      } else if (this.isSpace && !this.space) {
-        await this.retrieveSpace();
-      }
-    },
-    async retrieveSites() {
-      this.$root.sites = await this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
-    },
-    async retrieveSpace(refresh) {
-      this.space = await this.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
-      this.$set(this.$root.unreadPerSpace, this.space.id, this.space.unread && Number(this.space.unread) || 0);
-    },
-    forceOpenLink() {
-      if (this.target === '_blank') {
-        window.open(this.url);
-      } else {
-        window.location.href = this.url;
-      }
-    },
-  },
-};
+  };
 </script>

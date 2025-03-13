@@ -18,24 +18,24 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const urls = [
   `/social/i18n/locale.portlet.UserNotificationPortlet?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.UserSettings?lang=${lang}`
+  `/social/i18n/locale.portlet.social.UserSettings?lang=${lang}`,
 ];
 
 const appId = 'UserSettingNotifications';
 
-export function init(settings) {
+export function init (settings) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
       data: {
-        settings: settings,
+        settings,
         autoOpen: window.location.hash === '#notifications',
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<user-setting-notifications id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'User Settings Notifications');
   });
 }

@@ -28,108 +28,114 @@
     </v-card-title>
 
     <form
-      name="resetPasswordForm"
-      method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
+      class="d-flex ma-0 flex-column"
+      method="post"
+      name="resetPasswordForm">
       <input
-        type="hidden"
         name="action"
+        type="hidden"
         value="resetPassword">
       <div>
         <v-card-title class="px-0 mt-4 text-break text-header">
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="username"
               v-model="username"
-              :title="$t('portal.login.Username')"
-              :placeholder="$t('portal.login.Username')"
-              name="username"
-              prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-              class="login-username border-box-sizing pt-0"
               aria-required="true"
-              type="text"
-              required="required"
-              readonly
+              class="login-username border-box-sizing pt-0"
+              dense
+              name="username"
               outlined
-              dense />
+              :placeholder="$t('portal.login.Username')"
+              prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+              readonly
+              required="required"
+              :title="$t('portal.login.Username')"
+              type="text" />
           </v-card>
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="password"
               v-model="password"
-              :title="$t('onboarding.NewPassword')"
-              :placeholder="$t('onboarding.NewPassword')"
-              :type="passwordType"
               :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-              class="login-password border-box-sizing"
-              name="password"
               autocomplete="new-password"
               autofocus="autofocus"
-              tabindex="0"
-              required="required"
-              outlined
+              class="login-password border-box-sizing"
               dense
+              name="password"
+              outlined
+              :placeholder="$t('onboarding.NewPassword')"
+              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+              required="required"
+              tabindex="0"
+              :title="$t('onboarding.NewPassword')"
+              :type="passwordType"
               @click:append="toggleShow" />
           </v-card>
           <span class="caption">{{ $t('onboarding.passwordCondition') }}</span>
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="password2"
               v-model="confirmPassword"
-              :title="$t('onboarding.ConfirmNewPassword')"
-              :placeholder="$t('onboarding.ConfirmNewPassword')"
-              :type="passwordConfirmType"
               :append-icon="showConfirmPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-              class="login-password border-box-sizing pt-2"
-              name="password2"
               autocomplete="new-password"
-              required="required"
-              outlined
+              class="login-password border-box-sizing pt-2"
               dense
+              name="password2"
+              outlined
+              :placeholder="$t('onboarding.ConfirmNewPassword')"
+              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+              required="required"
+              :title="$t('onboarding.ConfirmNewPassword')"
+              :type="passwordConfirmType"
               @click:append="toggleConfirmShow" />
           </v-card>
           <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card
             class="d-flex mt-4"
-            width="350"
-            flat>
+            flat
+            width="350">
             <v-img
-              src="/portal/on-boarding?serveCaptcha=true"
-              width="150"
-              heigh="40"
               class="primary me-2 rounded-lg"
+              contain
               eager
-              contain />
+              heigh="40"
+              src="/portal/on-boarding?serveCaptcha=true"
+              width="150" />
             <v-text-field
               id="captcha"
               v-model="captcha"
-              :title="$t('onboarding.captchaPlaceholder')"
-              :placeholder="$t('onboarding.captchaPlaceholder')"
-              name="captcha"
-              class="login-username border-box-sizing pa-0 mt-1"
               aria-required="true"
-              type="text"
-              required="required"
+              class="login-username border-box-sizing pa-0 mt-1"
+              dense
+              name="captcha"
               outlined
-              dense />
+              :placeholder="$t('onboarding.captchaPlaceholder')"
+              required="required"
+              :title="$t('onboarding.captchaPlaceholder')"
+              type="text" />
           </v-card>
         </v-row>
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
-            :disabled="!username"
-            type="submit"
-            width="222"
-            max-width="100%"
-            color="primary"
             class="login-button btn-primary text-none mx-auto"
-            elevation="0">
+            color="primary"
+            :disabled="!username"
+            elevation="0"
+            max-width="100%"
+            type="submit"
+            width="222">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -138,41 +144,41 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    captcha: '',
-    showPassword: false,
-    showConfirmPassword: false,
-  }),
-  computed: {
-    passwordType() {
-      return this.showPassword ? 'text' :'password';
+    data: () => ({
+      username: '',
+      password: '',
+      confirmPassword: '',
+      captcha: '',
+      showPassword: false,
+      showConfirmPassword: false,
+    }),
+    computed: {
+      passwordType () {
+        return this.showPassword ? 'text' :'password';
+      },
+      passwordConfirmType () {
+        return this.showConfirmPassword ? 'text' :'password';
+      },
     },
-    passwordConfirmType() {
-      return this.showConfirmPassword ? 'text' :'password';
+    mounted () {
+      this.username = this.params?.username;
+      this.password = this.params?.password;
+      this.confirmPassword = this.params?.password2;
     },
-  },
-  mounted() {
-    this.username = this.params?.username;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
-  },
-  methods: {
-    toggleShow() {
-      this.showPassword = !this.showPassword;
+    methods: {
+      toggleShow () {
+        this.showPassword = !this.showPassword;
+      },
+      toggleConfirmShow () {
+        this.showConfirmPassword = !this.showConfirmPassword;
+      },
     },
-    toggleConfirmShow() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
-  },
-};
+  };
 </script>

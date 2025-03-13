@@ -32,9 +32,9 @@ const appId = 'spaceFormDrawer';
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export function open(templateId, isExternalFeatureEnabled) {
+export function open (templateId, isExternalFeatureEnabled) {
   if (window.spaceFormAdded) {
-    document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
+    document.dispatchEvent(new CustomEvent('addNewSpace', { detail: templateId }));
   } else {
     const spaceFormElement = document.createElement('div');
     spaceFormElement.setAttribute('id', appId);
@@ -46,19 +46,19 @@ export function open(templateId, isExternalFeatureEnabled) {
             isExternalFeatureEnabled,
             collator: new Intl.Collator(eXo.env.portal.language, {
               numeric: true,
-              sensitivity: 'base'
+              sensitivity: 'base',
             }),
           },
           computed: {
-            isMobile() {
-              return this.$vuetify.breakpoint.mobile;
+            isMobile () {
+              return eXo.vuetify.display.mobile.value;
             },
           },
-          mounted() {
+          mounted () {
             this.$root.$emit('addNewSpace', templateId);
           },
           template: '<space-form-drawer />',
-          vuetify: Vue.prototype.vuetifyOptions,
+          vuetify: eXo.vuetify,
           i18n,
         }, spaceFormElement, 'Space Form')
       );

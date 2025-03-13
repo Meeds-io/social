@@ -2,22 +2,22 @@ import './initComponents.js';
 import './extensions.js';
 
 import * as activityStreamWebSocket from './js/WebSocket.js';
-if (!Vue.prototype.$activityStreamWebSocket) {
-  window.Object.defineProperty(Vue.prototype, '$activityStreamWebSocket', {
+if (!eXo.$activityStreamWebSocket) {
+  window.Object.defineProperty(eXo, '$activityStreamWebSocket', {
     value: activityStreamWebSocket,
   });
 }
 
 import * as activityConstants from './js/ActivityConstants.js';
-if (!Vue.prototype.$activityConstants) {
-  window.Object.defineProperty(Vue.prototype, '$activityConstants', {
+if (!eXo.$activityConstants) {
+  window.Object.defineProperty(eXo, '$activityConstants', {
     value: activityConstants.default,
   });
 }
 
 import * as activityUtils from './js/ActivityUtils.js';
-if (!Vue.prototype.$activityUtils) {
-  window.Object.defineProperty(Vue.prototype, '$activityUtils', {
+if (!eXo.$activityUtils) {
+  window.Object.defineProperty(eXo, '$activityUtils', {
     value: activityUtils,
   });
 }
@@ -52,31 +52,31 @@ const urls = [
   `/social/i18n/locale.social.Webui?lang=${lang}`,
 ];
 
-export function init(maxFileSize) {
+export function init (maxFileSize) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
           maxFileSize,
-          activityBaseLink: activityBaseLink,
+          activityBaseLink,
           selectedActivityId: null,
           selectedCommentId: null,
           canPost: null,
           replyToComment: false,
-          displayCommentActionTypes: []
+          displayCommentActionTypes: [],
         },
         computed: {
-          isMobile() {
-            return this.$vuetify?.breakpoint?.mobile;
+          isMobile () {
+            return eXo.vuetify?.breakpoint?.mobile;
           },
         },
-        created() {
+        created () {
           this.replyToComment = window.location.hash.includes('#comment-reply');
         },
         template: `<activity-stream id="${appId}" />`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n,
       }, `#${appId}`, 'Stream');
     })
-    .finally(() => Vue.prototype.$utils.includeExtensions('ActivityStreamExtension'));
+    .finally(() => eXo.$utils.includeExtensions('ActivityStreamExtension'));
 }

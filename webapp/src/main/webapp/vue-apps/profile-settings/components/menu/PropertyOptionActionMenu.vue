@@ -21,17 +21,17 @@
 <template>
   <v-menu
     v-model="menu"
-    transition="slide-x-reverse-transition"
     content-class="py-0 pa-0 overflow-hidden"
+    left
     min-width="169"
     offset-y
-    left>
+    transition="slide-x-reverse-transition">
     <template #activator="{ on, attrs }">
       <v-btn
         v-bind="attrs"
-        v-on="on"
         :aria-label="$t('profileSettings.dropdownList.actions.ariaLabel')"
-        icon>
+        icon
+        v-on="on">
         <v-icon
           class="icon-default-color"
           size="20">
@@ -45,8 +45,8 @@
         @click="editPropertyOption">
         <div class="d-flex option-menu-icon">
           <v-icon
-            size="12"
-            class="clickable ma-auto icon-default-color">
+            class="clickable ma-auto icon-default-color"
+            size="12">
             fas fa-edit
           </v-icon>
         </div>
@@ -59,8 +59,8 @@
         @click="deletePropertyOption">
         <div class="d-flex option-menu-icon">
           <v-icon
-            size="12"
-            class="clickable ma-auto error-color">
+            class="clickable ma-auto error-color"
+            size="12">
             fas fa-trash-alt
           </v-icon>
         </div>
@@ -73,29 +73,29 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-      menu: false,
-      waitTime: 200
-    };
-  },
-  created() {
-    document.addEventListener('mousedown', this.closeMenu);
-  },
-  methods: {
-    closeMenu() {
-      if (!this.menu) {
-        return;
-      }
-      setTimeout(() => this.menu = false, this.waitTime);
+  export default {
+    data () {
+      return {
+        menu: false,
+        waitTime: 200,
+      };
     },
-    editPropertyOption() {
-      this.$emit('edit');
+    created () {
+      document.addEventListener('mousedown', this.closeMenu);
     },
-    deletePropertyOption() {
-      this.$emit('delete');
-    }
-  }
-};
+    methods: {
+      closeMenu () {
+        if (!this.menu) {
+          return;
+        }
+        setTimeout(() => this.menu = false, this.waitTime);
+      },
+      editPropertyOption () {
+        this.$emit('edit');
+      },
+      deletePropertyOption () {
+        this.$emit('delete');
+      },
+    },
+  };
 </script>

@@ -18,7 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div id="settingsHeader" class="d-flex flex-row">
+  <div
+    id="settingsHeader"
+    class="d-flex flex-row">
     <button
       class="btn btn-primary primary px-2 py-0"
       @click="openCreateDrawer()">
@@ -31,7 +33,7 @@
     <v-spacer />
     <select
       id="filterSettingsSelect"
-      v-model="filter"
+      v-model="filterValue"
       class="width-auto my-auto ignore-vuetify-classes d-none d-sm-inline"
       @change="changeSettingsFilter">
       <option
@@ -45,24 +47,33 @@
 </template>
 
 <script>
-export default {
-  props: {
-    filter: {
-      type: String,
-      default: 'Active'
+  export default {
+    props: {
+      filter: {
+        type: String,
+        default: 'Active',
+      },
     },
-  },
-  data: () => ({
-    filterSettings: [{name: 'Active'},{name: 'Inactive'},{name: 'All'}],
-  }),
-
-  methods: {
-    openCreateDrawer() {
-      this.$root.$emit('open-settings-create-drawer');
+    data: () => ({
+      filterSettings: [{ name: 'Active' },{ name: 'Inactive' },{ name: 'All' }],
+    }),
+    computed: {
+      filterValue: {
+        set (value) {
+          this.$emit('input', value);
+        },
+        get () {
+          return this.filter;
+        },
+      },
     },
-    changeSettingsFilter(){
-      this.$root.$emit('settings-set-filter', this.filter);
+    methods: {
+      openCreateDrawer () {
+        this.$root.$emit('open-settings-create-drawer');
+      },
+      changeSettingsFilter (){
+        this.$root.$emit('settings-set-filter', this.filter);
+      },
     },
-  }
-};
+  };
 </script>

@@ -31,17 +31,17 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    spaceTemplate: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceTemplate: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    spaceTemplateId() {
-      return this.spaceTemplate?.id;
+    computed: {
+      spaceTemplateId () {
+        return this.spaceTemplate?.id;
+      },
     },
-  },
-};
+  };
 </script>

@@ -18,15 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function saveDefaultLanguage(lang) {
+export function saveDefaultLanguage (lang) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/configuration/defaultLanguage`, {
     method: 'PUT',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: `lang=${lang}`,
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error(`Error when saving default language '${lang}' configuration`);
     }

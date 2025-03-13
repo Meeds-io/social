@@ -12,7 +12,7 @@ const components = {
   'activity-likes-list': ActivityLikesList,
   'activity-liker-item': ActivityLikerItem,
   'activity-reactions-drawer': ActivityReactionsDrawer,
-  'activity-reactions-mobile': ActivityReactionsMobile
+  'activity-reactions-mobile': ActivityReactionsMobile,
 };
 
 for (const key in components) {

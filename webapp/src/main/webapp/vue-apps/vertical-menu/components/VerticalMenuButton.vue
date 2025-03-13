@@ -17,10 +17,10 @@
 <template>
   <v-btn
     id="verticalMenuBotton"
-    size="22"
-    outlined
-    icon
     class="mx-2 my-auto d-none"
+    icon
+    outlined
+    size="22"
     @click="$root.$emit('open-vertical-menu-drawer')">
     <v-icon size="22">
       fas fa-bars
@@ -28,35 +28,35 @@
   </v-btn>
 </template>
 <script>
-export default {
-  data: () => ({
-    interval: null,
-  }),
-  mounted() {
-    this.interval = window.setInterval(this.init, 50);
-  },
-  methods: {
-    init() {
-      if (document.querySelector('#breadcrumb')) {
-        if (document.querySelector('#breadcrumbParent')) {
-          this.mountElement();
+  export default {
+    data: () => ({
+      interval: null,
+    }),
+    mounted () {
+      this.interval = window.setInterval(this.init, 50);
+    },
+    methods: {
+      init () {
+        if (document.querySelector('#breadcrumb')) {
+          if (document.querySelector('#breadcrumbParent')) {
+            this.mountElement();
+          } else {
+            document.addEventListener('breadcrumb-app-mounted', this.mountElement);
+          }
         } else {
-          document.addEventListener('breadcrumb-app-mounted', this.mountElement);
+          this.$el.classList.remove('d-none');
         }
-      } else {
-        this.$el.classList.remove('d-none');
-      }
+      },
+      mountElement () {
+        if (document.querySelector('#breadcrumbParent')) {
+          window.clearInterval(this.interval);
+          document.querySelector('#breadcrumbParent').prepend(this.$el);
+          this.$el.classList.add('me-2');
+          this.$el.classList.remove('ma-2');
+          this.$el.classList.remove('d-none');
+        }
+      },
     },
-    mountElement() {
-      if (document.querySelector('#breadcrumbParent')) {
-        window.clearInterval(this.interval);
-        document.querySelector('#breadcrumbParent').prepend(this.$el);
-        this.$el.classList.add('me-2');
-        this.$el.classList.remove('ma-2');
-        this.$el.classList.remove('d-none');
-      }
-    },
-  },
-};
+  };
 </script>
 

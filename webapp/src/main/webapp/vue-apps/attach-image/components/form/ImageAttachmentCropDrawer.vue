@@ -19,116 +19,116 @@
 <template>
   <image-crop-drawer
     ref="drawer"
-    :drawer-title="$t('attachment.imageCropDrawer.title')"
-    :src="imageCropperSrc"
-    :max-file-size="maxFileSize"
-    :crop-options="cropOptions"
-    :can-upload="canUpload"
-    :back-icon="backIcon"
-    :use-format="useFormat"
-    :custom-format="!useFormat"
     alt
-    @input="uploadId = $event"
-    @data="imageData = $event"
+    :back-icon="backIcon"
+    :can-upload="canUpload"
+    :crop-options="cropOptions"
+    :custom-format="!useFormat"
+    :drawer-title="$t('attachment.imageCropDrawer.title')"
+    :max-file-size="maxFileSize"
+    :src="imageCropperSrc"
+    :use-format="useFormat"
     @alt-text="altText = $event"
-    @format="format = $event" />
+    @data="imageData = $event"
+    @format="format = $event"
+    @input="uploadId = $event" />
 </template>
 <script>
-export default {
-  props: {
-    cropOptions: {
-      type: Object,
-      default: () => ({
-        aspectRatio: 1,
-        viewMode: 1,
-      }),
+  export default {
+    props: {
+      cropOptions: {
+        type: Object,
+        default: () => ({
+          aspectRatio: 1,
+          viewMode: 1,
+        }),
+      },
+      canUpload: {
+        type: Boolean,
+        default: false,
+      },
+      useFormat: {
+        type: Boolean,
+        default: false,
+      },
+      backIcon: {
+        type: Boolean,
+        default: false,
+      },
+      embedded: {
+        type: Boolean,
+        default: false,
+      },
     },
-    canUpload: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      imageItem: null,
+      uploadId: null,
+      maxFileSize: 20971520,
+      altText: null,
+      format: null,
+      imageData: null,
+    }),
+    computed: {
+      imageCropperSrc () {
+        let imageSrc = this.imageItem?.src || '';
+        if (imageSrc.length) {
+          imageSrc = imageSrc.split('?')[0];
+        }
+        return imageSrc;
+      },
+      imageMimeType () {
+        return this.imageItem?.mimetype || this.imageItem?.data &&  this.$refs.drawer.getBase64Mimetype(this.imageItem.data) || '';
+      },
     },
-    useFormat: {
-      type: Boolean,
-      default: false,
-    },
-    backIcon: {
-      type: Boolean,
-      default: false,
-    },
-    embedded: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    imageItem: null,
-    uploadId: null,
-    maxFileSize: 20971520,
-    altText: null,
-    format: null,
-    imageData: null
-  }),
-  computed: {
-    imageCropperSrc() {
-      let imageSrc = this.imageItem?.src || '';
-      if (imageSrc.length) {
-        imageSrc = imageSrc.split('?')[0];
-      }
-      return imageSrc;
-    },
-    imageMimeType() {
-      return this.imageItem?.mimetype || this.imageItem?.data &&  this.$refs.drawer.getBase64Mimetype(this.imageItem.data) || '';
-    }
-  },
-  watch: {
-    imageData() {
-      this.updateImageData();
-    },
-    altText() {
-      if (this.imageMimeType === 'image/gif') {
+    watch: {
+      imageData () {
         this.updateImageData();
-      }
+      },
+      altText () {
+        if (this.imageMimeType === 'image/gif') {
+          this.updateImageData();
+        }
+      },
     },
-  },
-  created() {
-    document.addEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
-  },
-  beforeDestroy() {
-    document.removeEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
-  },
-  methods: {
-    openAttachmentCropDrawer(event) {
-      this.open(event?.detail);
+    created () {
+      document.addEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
     },
-    open(imageItem) {
-      this.imageItem = imageItem;
-      this.$refs.drawer.open(this.imageItem);
+    beforeUnmount () {
+      document.removeEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
     },
-    updateImageData() {
-      if (this.embedded) {
-        this.$emit('update', {
-          src: this.imageData || '',
-          uploadId: this.uploadId,
-          id: this.imageItem?.id || '',
-          progress: 100,
-          oldUploadId: this.imageItem?.uploadId || '',
-          altText: this.altText || '',
-          format: this.format || '',
-          mimetype: this.imageMimeType
-        });
-      } else {
-        document.dispatchEvent(new CustomEvent('attachment-update', {detail: {
-          src: this.imageData || '',
-          uploadId: this.uploadId,
-          id: this.imageItem?.id || '',
-          progress: 100,
-          oldUploadId: this.imageItem?.uploadId || '',
-          altText: this.altText || '',
-          format: this.format || '',
-          mimetype: this.imageMimeType
-        }}));
-      }
+    methods: {
+      openAttachmentCropDrawer (event) {
+        this.open(event?.detail);
+      },
+      open (imageItem) {
+        this.imageItem = imageItem;
+        this.$refs.drawer.open(this.imageItem);
+      },
+      updateImageData () {
+        if (this.embedded) {
+          this.$emit('update', {
+            src: this.imageData || '',
+            uploadId: this.uploadId,
+            id: this.imageItem?.id || '',
+            progress: 100,
+            oldUploadId: this.imageItem?.uploadId || '',
+            altText: this.altText || '',
+            format: this.format || '',
+            mimetype: this.imageMimeType,
+          });
+        } else {
+          document.dispatchEvent(new CustomEvent('attachment-update', { detail: {
+            src: this.imageData || '',
+            uploadId: this.uploadId,
+            id: this.imageItem?.id || '',
+            progress: 100,
+            oldUploadId: this.imageItem?.uploadId || '',
+            altText: this.altText || '',
+            format: this.format || '',
+            mimetype: this.imageMimeType,
+          } }));
+        }
+      },
     },
-  },
-};
+  };
 </script>

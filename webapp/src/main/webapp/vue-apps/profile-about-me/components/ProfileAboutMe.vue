@@ -3,8 +3,8 @@
     v-if="displayApp"
     :class="owner && 'profileAboutMe' || 'profileAboutMeOther'">
     <widget-wrapper
-      :title="title"
-      extra-class="application-body">
+      extra-class="application-body"
+      :title="title">
       <template #action>
         <v-btn
           v-if="owner"
@@ -13,13 +13,15 @@
           outlined
           small
           @click="editAboutMe">
-          <v-icon size="18">fas fa-edit</v-icon>
+          <v-icon size="18">
+            fas fa-edit
+          </v-icon>
         </v-btn>
       </template>
       <div
         v-if="hasAboutMe || !owner"
-        v-sanitized-html="aboutMe"
         id="aboutMeParagraph"
+        v-sanitized-html="aboutMe"
         class="text-color"></div>
       <div
         v-else
@@ -32,29 +34,31 @@
       v-if="owner && initialized"
       ref="aboutMeDrawer"
       v-model="drawer"
-      class="aboutMeDrawer"
       allow-expand
+      class="aboutMeDrawer"
       right>
-      <template slot="title">
+      <template #title>
         {{ title }}
       </template>
-      <template v-if="drawer" slot="content">
+      <template
+        v-if="drawer"
+        #content>
         <v-card flat>
           <v-card-text>
             <rich-editor
               id="aboutMeRichEditor"
               v-model="modifyingAboutMe"
-              :placeholder="$t('profileAboutMe.placeholder')"
+              ck-editor-type="abountMe"
               :max-length="maxLength"
-              :tag-enabled="false"
-              ck-editor-type="abountMe" />
+              :placeholder="$t('profileAboutMe.placeholder')"
+              :tag-enabled="false" />
           </v-card-text>
           <v-card-actions class="px-4">
             <v-spacer />
             <v-btn
-              :loading="saving"
-              :disabled="saving || !valid"
               class="btn btn-primary"
+              :disabled="saving || !valid"
+              :loading="saving"
               @click="saveAboutMe">
               {{ $t('profileAboutMe.save') }}
             </v-btn>
@@ -65,74 +69,74 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
-    aboutMe: null,
-    saving: null,
-    modifyingAboutMe: null,
-    maxLength: 1300,
-    initialized: false,
-    drawer: false,
-  }),
-  computed: {
-    valid() {
-      return !this.modifyingAboutMe || this.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
+  export default {
+    data: () => ({
+      owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
+      aboutMe: null,
+      saving: null,
+      modifyingAboutMe: null,
+      maxLength: 1300,
+      initialized: false,
+      drawer: false,
+    }),
+    computed: {
+      valid () {
+        return !this.modifyingAboutMe || eXo.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
+      },
+      title () {
+        return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
+      },
+      aboutMeText () {
+        return eXo.$utils.htmlToText(this.aboutMe);
+      },
+      hasAboutMe () {
+        return this.aboutMeText?.trim?.()?.length;
+      },
+      displayApp () {
+        return this.owner || !this.initialized || this.hasAboutMe;
+      },
     },
-    title() {
-      return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
+    watch: {
+      displayApp () {
+        this.$root.$updateApplicationVisibility(this.displayApp);
+      },
     },
-    aboutMeText() {
-      return this.$utils.htmlToText(this.aboutMe);
-    },
-    hasAboutMe() {
-      return this.aboutMeText?.trim?.()?.length;
-    },
-    displayApp() {
-      return this.owner || !this.initialized || this.hasAboutMe;
-    },
-  },
-  watch: {
-    displayApp() {
-      this.$root.$updateApplicationVisibility(this.displayApp);
-    }
-  },
-  created() {
-    this.$userService.getUser(eXo.env.portal.profileOwner)
-      .then(user => this.refresh(user && user.aboutMe || ''))
-      .finally(() => {
-        this.$root.$applicationLoaded();
-        this.initialized = true;
-      });
-  },
-  mounted() {
-    if (this.aboutMe) {
-      this.$root.$emit('application-loaded');
-    }
-  },
-  methods: {
-    refresh(aboutMe) {
-      this.aboutMe = aboutMe;
-      if (this.$refs.aboutMeDrawer) {
-        this.$refs.aboutMeDrawer.close();
-      }
-      return this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-    },
-    editAboutMe() {
-      this.modifyingAboutMe = this.aboutMe;
-      this.$refs.aboutMeDrawer.open();
-    },
-    saveAboutMe() {
-      this.saving = true;
-      this.$refs.aboutMeDrawer.startLoading();
-      return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
-        .then(() => this.refresh(this.modifyingAboutMe))
-        .catch(() => this.$root.$emit('alert-message', this.$t('profileAboutMe.savingError'), 'error'))
+    created () {
+      eXo.$userService.getUser(eXo.env.portal.profileOwner)
+        .then(user => this.refresh(user && user.aboutMe || ''))
         .finally(() => {
-          this.saving = false;
-          this.$refs.aboutMeDrawer.endLoading();
+          this.$root.$applicationLoaded();
+          this.initialized = true;
         });
     },
-  },
-};
+    mounted () {
+      if (this.aboutMe) {
+        this.$root.$emit('application-loaded');
+      }
+    },
+    methods: {
+      refresh (aboutMe) {
+        this.aboutMe = aboutMe;
+        if (this.$refs.aboutMeDrawer) {
+          this.$refs.aboutMeDrawer.close();
+        }
+        return this.$nextTick().then(() => this.$root.$emit('application-loaded'));
+      },
+      editAboutMe () {
+        this.modifyingAboutMe = this.aboutMe;
+        this.$refs.aboutMeDrawer.open();
+      },
+      saveAboutMe () {
+        this.saving = true;
+        this.$refs.aboutMeDrawer.startLoading();
+        return eXo.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
+          .then(() => this.refresh(this.modifyingAboutMe))
+          .catch(() => this.$root.$emit('alert-message', this.$t('profileAboutMe.savingError'), 'error'))
+          .finally(() => {
+            this.saving = false;
+            this.$refs.aboutMeDrawer.endLoading();
+          });
+      },
+    },
+  };
 </script>

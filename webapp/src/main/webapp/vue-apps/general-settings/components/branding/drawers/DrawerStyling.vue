@@ -26,8 +26,12 @@
     <template #title>
       {{ $t('generalSettings.drawerStyling.drawer.title') }}
     </template>
-    <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+    <template
+      v-if="drawer"
+      #content>
+      <v-card
+        class="pa-4"
+        flat>
         <p>
           {{ $t('generalSettings.drawerStyling.help1') }}
         </p>
@@ -70,101 +74,101 @@
 </template>
 <script>
 
-export default {
-  data: () => ({
-    drawer: false,
-    backgroundProperties: null,
-    drawerTextProperties: null,
-    defaultDrawerStylingProperties: null,
-    initialized: false,
-  }),
-  props: {
-    drawerStylingProperties: {
-      type: Object,
-      required: true
+  export default {
+    props: {
+      drawerStylingProperties: {
+        type: Object,
+        required: true,
+      },
     },
-  },
-  computed: {
-    saveButtonDisabled() {
-      if (!this.backgroundProperties && !this.drawerTextProperties) {
-        return false;
-      }
-      const oldDrawerProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultDrawerStylingProperties)));
-      const newDrawerProperties = {
-        backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        drawerTextProperties: Object.assign(JSON.parse(JSON.stringify(this.drawerTextProperties))),
-      };
-      return JSON.stringify(oldDrawerProperties) === JSON.stringify(newDrawerProperties);
+    data: () => ({
+      drawer: false,
+      backgroundProperties: null,
+      drawerTextProperties: null,
+      defaultDrawerStylingProperties: null,
+      initialized: false,
+    }),
+    computed: {
+      saveButtonDisabled () {
+        if (!this.backgroundProperties && !this.drawerTextProperties) {
+          return false;
+        }
+        const oldDrawerProperties = Object.assign(JSON.parse(JSON.stringify(this.defaultDrawerStylingProperties)));
+        const newDrawerProperties = {
+          backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
+          drawerTextProperties: Object.assign(JSON.parse(JSON.stringify(this.drawerTextProperties))),
+        };
+        return JSON.stringify(oldDrawerProperties) === JSON.stringify(newDrawerProperties);
+      },
     },
-  },
-  created() {
-    this.$root.$on('open-drawer-styling', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('open-drawer-styling', this.open);
-  },
-  methods: {
-    init() {
-      this.backgroundProperties = {
-        backgroundColor: this.drawerStylingProperties?.drawerBackgroundColor || null,
-        backgroundPosition: this.drawerStylingProperties?.drawerBackgroundPosition || null,
-        background: this.drawerStylingProperties?.drawerBackground || null,
-        backgroundRepeat: this.drawerStylingProperties?.drawerBackgroundRepeat || null,
-        backgroundSize: this.drawerStylingProperties?.drawerBackgroundSize || null,
-        backgroundEffect: this.getDrawerBackgroundEffect()
-      };
-      this.drawerTextProperties = {
-        textColor: this.drawerStylingProperties?.drawerTextColor,
-        textFontSize: this.drawerStylingProperties?.drawerTextFontSize,
-        textFontStyle: this.drawerStylingProperties?.drawerTextFontStyle,
-        textFontWeight: this.drawerStylingProperties?.drawerTextFontWeight,
-        textSubtitleColor: this.drawerStylingProperties?.drawerTextSubtitleColor,
-        textSubtitleFontSize: this.drawerStylingProperties?.drawerTextSubtitleFontSize,
-        textSubtitleFontStyle: this.drawerStylingProperties?.drawerTextSubtitleFontStyle,
-        textSubtitleFontWeight: this.drawerStylingProperties?.drawerTextSubtitleFontWeight,
-        textTitleColor: this.drawerStylingProperties?.drawerTextTitleColor,
-        textTitleFontSize: this.drawerStylingProperties?.drawerTextTitleFontSize,
-        textTitleFontStyle: this.drawerStylingProperties?.drawerTextTitleFontStyle,
-        textTitleFontWeight: this.drawerStylingProperties?.drawerTextTitleFontWeight,
-        textHeaderColor: this.drawerStylingProperties?.drawerTextHeaderColor,
-        textHeaderFontSize: this.drawerStylingProperties?.drawerTextHeaderFontSize,
-        textHeaderFontStyle: this.drawerStylingProperties?.drawerTextHeaderFontStyle,
-        textHeaderFontWeight: this.drawerStylingProperties?.drawerTextHeaderFontWeight
-      };
-      this.defaultDrawerStylingProperties = {
-        backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
-        drawerTextProperties: Object.assign(JSON.parse(JSON.stringify(this.drawerTextProperties))),
-      };
-      this.initialized = true;
+    created () {
+      this.$root.$on('open-drawer-styling', this.open);
     },
-    reset() {
-      this.backgroundProperties = null;
-      this.drawerTextProperties = null;
-      this.defaultDrawerStylingProperties = null;
-      this.initialized = false;
+    beforeUnmount () {
+      this.$root.$off('open-drawer-styling', this.open);
     },
-    open() {
-      this.init();
-      this.$refs.drawer.open();
+    methods: {
+      init () {
+        this.backgroundProperties = {
+          backgroundColor: this.drawerStylingProperties?.drawerBackgroundColor || null,
+          backgroundPosition: this.drawerStylingProperties?.drawerBackgroundPosition || null,
+          background: this.drawerStylingProperties?.drawerBackground || null,
+          backgroundRepeat: this.drawerStylingProperties?.drawerBackgroundRepeat || null,
+          backgroundSize: this.drawerStylingProperties?.drawerBackgroundSize || null,
+          backgroundEffect: this.getDrawerBackgroundEffect(),
+        };
+        this.drawerTextProperties = {
+          textColor: this.drawerStylingProperties?.drawerTextColor,
+          textFontSize: this.drawerStylingProperties?.drawerTextFontSize,
+          textFontStyle: this.drawerStylingProperties?.drawerTextFontStyle,
+          textFontWeight: this.drawerStylingProperties?.drawerTextFontWeight,
+          textSubtitleColor: this.drawerStylingProperties?.drawerTextSubtitleColor,
+          textSubtitleFontSize: this.drawerStylingProperties?.drawerTextSubtitleFontSize,
+          textSubtitleFontStyle: this.drawerStylingProperties?.drawerTextSubtitleFontStyle,
+          textSubtitleFontWeight: this.drawerStylingProperties?.drawerTextSubtitleFontWeight,
+          textTitleColor: this.drawerStylingProperties?.drawerTextTitleColor,
+          textTitleFontSize: this.drawerStylingProperties?.drawerTextTitleFontSize,
+          textTitleFontStyle: this.drawerStylingProperties?.drawerTextTitleFontStyle,
+          textTitleFontWeight: this.drawerStylingProperties?.drawerTextTitleFontWeight,
+          textHeaderColor: this.drawerStylingProperties?.drawerTextHeaderColor,
+          textHeaderFontSize: this.drawerStylingProperties?.drawerTextHeaderFontSize,
+          textHeaderFontStyle: this.drawerStylingProperties?.drawerTextHeaderFontStyle,
+          textHeaderFontWeight: this.drawerStylingProperties?.drawerTextHeaderFontWeight,
+        };
+        this.defaultDrawerStylingProperties = {
+          backgroundProperties: Object.assign(JSON.parse(JSON.stringify(this.backgroundProperties))),
+          drawerTextProperties: Object.assign(JSON.parse(JSON.stringify(this.drawerTextProperties))),
+        };
+        this.initialized = true;
+      },
+      reset () {
+        this.backgroundProperties = null;
+        this.drawerTextProperties = null;
+        this.defaultDrawerStylingProperties = null;
+        this.initialized = false;
+      },
+      open () {
+        this.init();
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.reset();
+        this.$refs.drawer.close();
+      },
+      getDrawerBackgroundEffect () {
+        const effect = this.drawerStylingProperties?.drawerBackgroundImage;
+        if (!effect || effect === 'none') {
+          return null;
+        }
+        if (effect.includes('url')) {
+          return effect.split('), ')[1];
+        }
+        return effect;
+      },
+      updateDrawerStylingProperties () {
+        this.$root.$emit('update-drawer-styling-properties', this.backgroundProperties, this.drawerTextProperties);
+        this.close();
+      },
     },
-    close() {
-      this.reset();
-      this.$refs.drawer.close();
-    },
-    getDrawerBackgroundEffect() {
-      const effect = this.drawerStylingProperties?.drawerBackgroundImage;
-      if (!effect || effect === 'none') {
-        return null;
-      }
-      if (effect.includes('url')) {
-        return effect.split('), ')[1];
-      }
-      return effect;
-    },
-    updateDrawerStylingProperties() {
-      this.$root.$emit('update-drawer-styling-properties', this.backgroundProperties, this.drawerTextProperties);
-      this.close();
-    }
-  }
-};
+  };
 </script>

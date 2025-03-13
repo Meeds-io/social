@@ -20,20 +20,24 @@
 -->
 <template>
   <exo-drawer
-    ref="drawer"
     id="defaultSpacesRegistrationDrawer"
+    ref="drawer"
     v-model="drawer"
-    right
-    disable-pull-to-refresh>
+    disable-pull-to-refresh
+    right>
     <template #title>
       {{ $t('generalSettings.managePublicSite') }}
     </template>
     <template #content>
-      <v-card class="pa-4" flat>
+      <v-card
+        class="pa-4"
+        flat>
         <div>
           {{ $t('generalSettings.enablePublicSiteDescription') }}
         </div>
-        <v-list-item class="px-0" two-line>
+        <v-list-item
+          class="px-0"
+          two-line>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">
               {{ $t('generalSettings.makePublicSiteVisible') }}
@@ -43,16 +47,18 @@
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-tooltip :disabled="$root.isMobile" bottom>
+            <v-tooltip
+              bottom
+              :disabled="$root.isMobile">
               <template #activator="{on, bind}">
                 <div
-                  v-on="on"
-                  v-bind="bind">
+                  v-bind="bind"
+                  v-on="on">
                   <v-switch
                     v-model="publicSiteVisible"
-                    :loading="loading"
                     class="my-auto"
                     hide-details
+                    :loading="loading"
                     @click="switchSiteMode" />
                 </div>
               </template>
@@ -60,7 +66,9 @@
             </v-tooltip>
           </v-list-item-action>
         </v-list-item>
-        <v-list-item class="px-0" two-line>
+        <v-list-item
+          class="px-0"
+          two-line>
           <v-list-item-content>
             <v-list-item-title class="font-weight-bold">
               {{ $t('generalSettings.editPublicSite') }}
@@ -70,29 +78,41 @@
             </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-action>
-            <v-tooltip :disabled="$root.isMobile" bottom>
+            <v-tooltip
+              bottom
+              :disabled="$root.isMobile">
               <template #activator="{on, bind}">
                 <v-btn
-                  v-on="on"
                   v-bind="bind"
                   icon
+                  v-on="on"
                   @click="copyAddress">
-                  <v-icon size="18" class="icon-default-color">fa-clone</v-icon>
+                  <v-icon
+                    class="icon-default-color"
+                    size="18">
+                    fa-clone
+                  </v-icon>
                 </v-btn>
               </template>
               <span>{{ $t('generalSettings.copyPublicSiteUrl') }}</span>
             </v-tooltip>
           </v-list-item-action>
           <v-list-item-action class="ms-2">
-            <v-tooltip :disabled="$root.isMobile" bottom>
+            <v-tooltip
+              bottom
+              :disabled="$root.isMobile">
               <template #activator="{on, bind}">
                 <v-btn
-                  v-on="on"
                   v-bind="bind"
                   :href="publicSiteLink"
+                  icon
                   target="_blank"
-                  icon>
-                  <v-icon size="18" class="icon-default-color">fa-external-link-alt</v-icon>
+                  v-on="on">
+                  <v-icon
+                    class="icon-default-color"
+                    size="18">
+                    fa-external-link-alt
+                  </v-icon>
                 </v-btn>
               </template>
               <span>{{ $t('generalSettings.openPublicSite') }}</span>
@@ -104,62 +124,62 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    loading: false,
-    publicSiteVisible: false,
-    publicSiteLink: '/portal/public',
-  }),
-  created() {
-    this.publicSiteVisible = this.$root.publicSiteVisible;
-    this.$root.$on('public-site-edit', this.open);
-  },
-  methods: {
-    open() {
-      this.$refs.drawer.open();
+    data: () => ({
+      drawer: false,
+      loading: false,
+      publicSiteVisible: false,
+      publicSiteLink: '/portal/public',
+    }),
+    created () {
+      this.publicSiteVisible = this.$root.publicSiteVisible;
+      this.$root.$on('public-site-edit', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
-    },
-    switchSiteMode() {
-      this.loading = true;
-      const formData = new FormData();
-      formData.append('name', 'accessPermissions');
-      formData.append('value', this.publicSiteVisible && 'Everyone' || '*:/platform/administrators,publisher:/platform/web-contributors');
-      const params = new URLSearchParams(formData).toString();
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        method: 'PATCH',
-        credentials: 'include',
-        body: params,
-      })
-        .then(resp => {
-          if (resp?.ok) {
-            this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdatedSuccessfully'), 'success');
-          } else {
-            this.publicSiteVisible = !this.publicSiteVisible;
-            this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdateError'), 'error');
-          }
+    methods: {
+      open () {
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      switchSiteMode () {
+        this.loading = true;
+        const formData = new FormData();
+        formData.append('name', 'accessPermissions');
+        formData.append('value', this.publicSiteVisible && 'Everyone' || '*:/platform/administrators,publisher:/platform/web-contributors');
+        const params = new URLSearchParams(formData).toString();
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${this.$root.publicSiteId}`, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          method: 'PATCH',
+          credentials: 'include',
+          body: params,
         })
-        .finally(() => this.loading = false);
+          .then(resp => {
+            if (resp?.ok) {
+              this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdatedSuccessfully'), 'success');
+            } else {
+              this.publicSiteVisible = !this.publicSiteVisible;
+              this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUpdateError'), 'error');
+            }
+          })
+          .finally(() => this.loading = false);
+      },
+      copyAddress () {
+        try {
+          navigator.clipboard.writeText(`${window.location.origin}${this.publicSiteLink}`);
+          this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUrlCopiedSuccessfully'), 'success');
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUrlCopiedError'), 'warning');
+        }
+      },
     },
-    copyAddress() {
-      try {
-        navigator.clipboard.writeText(`${window.location.origin}${this.publicSiteLink}`);
-        this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUrlCopiedSuccessfully'), 'success');
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('generalSettings.publicSiteUrlCopiedError'), 'warning');
-      }
-    },
-  }
-};
+  };
 </script>

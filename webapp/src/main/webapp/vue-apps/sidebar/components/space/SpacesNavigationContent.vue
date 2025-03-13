@@ -20,30 +20,32 @@
 -->
 <template>
   <v-flex
-    :class="shaped && 'ms-12'"
     class="mx-0 spacesNavigationContent"
+    :class="shaped && 'ms-12'"
     flat>
     <v-list
-      :role="null"
-      dense>
+      dense
+      :role="null">
       <v-list-item-group
-        :value="selectedSpaceIndex"
-        :role="null">
+        :role="null"
+        :value="selectedSpaceIndex">
         <space-navigation-item
           v-for="space in filteredSpaces" 
           :key="space.id"
-          :space="space"
-          :space-url="url(space)"
           :home-icon="homeIcon"
           :home-link="homeLink"
           :opened-space="openedSpace"
+          :space="space"
+          :space-url="url(space)"
           :third-level="thirdLevel" />
       </v-list-item-group>
     </v-list>
-    <v-row v-if="canShowMore" class="mx-0 my-4 justify-center">
+    <v-row
+      v-if="canShowMore"
+      class="mx-0 my-4 justify-center">
       <v-btn
-        :loading="loadingSpaces"
         class="btn"
+        :loading="loadingSpaces"
         small
         @click="loadNextPage()">
         {{ $t('menu.spaces.showMore') }}
@@ -52,211 +54,211 @@
   </v-flex>
 </template>
 <script>
-export default {
-  props: {
-    homeLink: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      homeLink: {
+        type: String,
+        default: null,
+      },
+      homeIcon: {
+        type: Boolean,
+        default: false,
+      },
+      offset: {
+        type: Number,
+        default: 0,
+      },
+      limit: {
+        type: Number,
+        default: 10,
+      },
+      pageSize: {
+        type: Number,
+        default: 10,
+      },
+      keyword: {
+        type: Object,
+        default: null,
+      },
+      showMoreButton: {
+        type: Boolean,
+        default: false,
+      },
+      shaped: {
+        type: Boolean,
+        default: false,
+      },
+      thirdLevel: {
+        type: Boolean,
+        default: false,
+      },
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
+      filterType: {
+        type: String,
+        default: null,
+      },
+      spaces: {
+        type: Array,
+        default: null,
+      },
     },
-    homeIcon: {
-      type: Boolean,
-      default: false,
-    },
-    offset: {
-      type: Number,
-      default: 0,
-    },
-    limit: {
-      type: Number,
-      default: 10,
-    },
-    pageSize: {
-      type: Number,
-      default: 10,
-    },
-    keyword: {
-      type: Object,
-      default: null,
-    },
-    showMoreButton: {
-      type: Boolean,
-      default: false,
-    },
-    shaped: {
-      type: Boolean,
-      default: false,
-    },
-    thirdLevel: {
-      type: Boolean,
-      default: false,
-    },
-    openedSpace: {
-      type: Object,
-      default: null,
-    },
-    filterType: {
-      type: String,
-      default: null,
-    },
-    spaces: {
-      type: Array,
-      default: null,
-    },
-  },
-  data: () => ({
-    startSearchAfterInMilliseconds: 400,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
-    loadedSpaces: [],
-    loadingSpaces: false,
-    initialized: false,
-    limitToFetch: 0,
-    originalLimitToFetch: 0,
-    selectedSpaceIndex: -1,
-  }),
-  computed: {
-    canShowMore() {
-      return this.showMoreButton && this.initialized && (this.loadingSpaces || this.loadedSpaces.length >= this.limitToFetch);
-    },
-    filteredSpaces() {
-      if (!this.keyword) {
-        if (!this.spaces) {
-          return this.loadedSpaces;
-        } else {
-          return this.spaces;
-        }
-      } else {
-        return this.loadedSpaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
-      }
-    },
-  },
-  watch: {
-    keyword() {
-      if (!this.keyword) {
-        this.resetSearch();
-        this.searchSpaces();
-        return;
-      }
-      this.startTypingKeywordTimeout = Date.now();
-      if (!this.loadingSpaces) {
-        this.loadingSpaces = true;
-        this.waitForEndTyping();
-      }
-    },
-    limitToFetch() {
-      this.searchSpaces();
-    },
-    filterType() {
-      this.loadedSpaces = [];
-      this.searchSpaces();
-    },
-    filteredSpaces() {
-      this.$emit('spaces-count', this.filteredSpaces?.length);
-    },
-    loadedSpaces() {
-      this.refreshSelectedSpace();
-    },
-    loadingSpaces() {
-      this.$emit('loading', this.loadingSpaces);
-      if (!this.loadingSpaces && !this.initialized) {
-        this.initialized = true;
-      }
-    },
-  }, 
-  created() {
-    this.originalLimitToFetch = this.limitToFetch = this.limit;
-    document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
-    document.addEventListener('unread-items-deleted', this.refreshByEvent);
-    this.refreshSelectedSpace();
-  },
-  beforeDestroy() {
-    document.removeEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
-    document.removeEventListener('unread-items-deleted', this.refreshByEvent);
-    this.refreshSelectedSpace();
-  },
-  methods: {
-    refreshByEvent(event) {
-      if (event) {
-        this.searchSpaces();
-      }
-    },
-    refreshSelectedSpace() {
-      this.selectedSpaceIndex = this.loadedSpaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
-    },
-    applySpaceUnreadChanges(event) {
-      if (!event?.detail) {
-        return;
-      }
-      const {spaceId, unread} = event.detail;
-      const space = this.loadedSpaces?.find(displayedSpace => displayedSpace.id === spaceId);
-      if (space) {
-        space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
-      }
-    },
-    async searchSpaces() {
-      this.loadingSpaces = true;
-      try {
-        if (this.filterType === 'unread') {
-          let spaceIds = this.$root.unreadPerSpace && Object.keys(this.$root.unreadPerSpace)
-            .filter(id => Number(this.$root.unreadPerSpace[id]))
-            .sort((id1, id2) => Number(this.$root.unreadPerSpace[id2]) - Number(this.$root.unreadPerSpace[id1]));
-          if (this.offset) {
-            spaceIds = spaceIds.slice(this.offset);
-          }
-          if (this.limitToFetch) {
-            spaceIds = spaceIds.slice(0, this.limitToFetch);
-          }
-          if (spaceIds?.length) {
-            this.loadedSpaces = await Promise
-              .all(spaceIds.map(spaceId => this.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
+    data: () => ({
+      startSearchAfterInMilliseconds: 400,
+      endTypingKeywordTimeout: 50,
+      startTypingKeywordTimeout: 0,
+      loadedSpaces: [],
+      loadingSpaces: false,
+      initialized: false,
+      limitToFetch: 0,
+      originalLimitToFetch: 0,
+      selectedSpaceIndex: -1,
+    }),
+    computed: {
+      canShowMore () {
+        return this.showMoreButton && this.initialized && (this.loadingSpaces || this.loadedSpaces.length >= this.limitToFetch);
+      },
+      filteredSpaces () {
+        if (!this.keyword) {
+          if (!this.spaces) {
+            return this.loadedSpaces;
           } else {
-            this.loadedSpaces = [];
+            return this.spaces;
           }
         } else {
-          const data = await this.$spaceService.getSpacesByFilter({
-            query: this.filterType === 'lastVisited' ? this.keyword : '',
-            categoryId: this.$root.openedItem?.properties?.spaceCategoryIds && JSON.parse(this.$root.openedItem?.properties?.spaceCategoryIds) || null,
-            templateId: this.$root.openedSpaceTemplateId || 0,
-            filter: this.filterType || 'lastVisited',
-            sortBy: 'lastVisited',
-            expand: 'member,managers,favorite,unread,muted',
-            offset: this.offset,
-            limit: this.limitToFetch,
-          });
-          this.loadedSpaces = data?.spaces || [];
+          return this.loadedSpaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
         }
-        await this.$nextTick();
-        if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
-          this.limitToFetch += this.pageSize;
-        }
-      } finally {
-        this.loadingSpaces = false;
-      }
+      },
     },
-    resetSearch() {
-      if (this.limitToFetch !== this.originalLimitToFetch) {
-        this.limitToFetch = this.originalLimitToFetch;
-      }
-    },
-    loadNextPage() {
-      this.originalLimitToFetch = this.limitToFetch += this.pageSize;
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
+    watch: {
+      keyword () {
+        if (!this.keyword) {
+          this.resetSearch();
           this.searchSpaces();
-        } else {
+          return;
+        }
+        this.startTypingKeywordTimeout = Date.now();
+        if (!this.loadingSpaces) {
+          this.loadingSpaces = true;
           this.waitForEndTyping();
         }
-      }, this.endTypingKeywordTimeout);
+      },
+      limitToFetch () {
+        this.searchSpaces();
+      },
+      filterType () {
+        this.loadedSpaces = [];
+        this.searchSpaces();
+      },
+      filteredSpaces () {
+        this.$emit('spaces-count', this.filteredSpaces?.length);
+      },
+      loadedSpaces () {
+        this.refreshSelectedSpace();
+      },
+      loadingSpaces () {
+        this.$emit('loading', this.loadingSpaces);
+        if (!this.loadingSpaces && !this.initialized) {
+          this.initialized = true;
+        }
+      },
+    }, 
+    created () {
+      this.originalLimitToFetch = this.limitToFetch = this.limit;
+      document.addEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
+      document.addEventListener('unread-items-deleted', this.refreshByEvent);
+      this.refreshSelectedSpace();
     },
-    url(space) {
-      if (space?.id) {
-        return `${eXo.env.portal.context}/s/${space.id}/`;
-      } else {
-        return '#';
-      }
+    beforeUnmount () {
+      document.removeEventListener('space-unread-activities-updated', this.applySpaceUnreadChanges);
+      document.removeEventListener('unread-items-deleted', this.refreshByEvent);
+      this.refreshSelectedSpace();
     },
-  }
-};
+    methods: {
+      refreshByEvent (event) {
+        if (event) {
+          this.searchSpaces();
+        }
+      },
+      refreshSelectedSpace () {
+        this.selectedSpaceIndex = this.loadedSpaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
+      },
+      applySpaceUnreadChanges (event) {
+        if (!event?.detail) {
+          return;
+        }
+        const { spaceId, unread } = event.detail;
+        const space = this.loadedSpaces?.find(displayedSpace => displayedSpace.id === spaceId);
+        if (space) {
+          space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
+        }
+      },
+      async searchSpaces () {
+        this.loadingSpaces = true;
+        try {
+          if (this.filterType === 'unread') {
+            let spaceIds = this.$root.unreadPerSpace && Object.keys(this.$root.unreadPerSpace)
+              .filter(id => Number(this.$root.unreadPerSpace[id]))
+              .sort((id1, id2) => Number(this.$root.unreadPerSpace[id2]) - Number(this.$root.unreadPerSpace[id1]));
+            if (this.offset) {
+              spaceIds = spaceIds.slice(this.offset);
+            }
+            if (this.limitToFetch) {
+              spaceIds = spaceIds.slice(0, this.limitToFetch);
+            }
+            if (spaceIds?.length) {
+              this.loadedSpaces = await Promise
+                .all(spaceIds.map(spaceId => eXo.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
+            } else {
+              this.loadedSpaces = [];
+            }
+          } else {
+            const data = await eXo.$spaceService.getSpacesByFilter({
+              query: this.filterType === 'lastVisited' ? this.keyword : '',
+              categoryId: this.$root.openedItem?.properties?.spaceCategoryIds && JSON.parse(this.$root.openedItem?.properties?.spaceCategoryIds) || null,
+              templateId: this.$root.openedSpaceTemplateId || 0,
+              filter: this.filterType || 'lastVisited',
+              sortBy: 'lastVisited',
+              expand: 'member,managers,favorite,unread,muted',
+              offset: this.offset,
+              limit: this.limitToFetch,
+            });
+            this.loadedSpaces = data?.spaces || [];
+          }
+          await this.$nextTick();
+          if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
+            this.limitToFetch += this.pageSize;
+          }
+        } finally {
+          this.loadingSpaces = false;
+        }
+      },
+      resetSearch () {
+        if (this.limitToFetch !== this.originalLimitToFetch) {
+          this.limitToFetch = this.originalLimitToFetch;
+        }
+      },
+      loadNextPage () {
+        this.originalLimitToFetch = this.limitToFetch += this.pageSize;
+      },
+      waitForEndTyping () {
+        window.setTimeout(() => {
+          if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
+            this.searchSpaces();
+          } else {
+            this.waitForEndTyping();
+          }
+        }, this.endTypingKeywordTimeout);
+      },
+      url (space) {
+        if (space?.id) {
+          return `${eXo.env.portal.context}/s/${space.id}/`;
+        } else {
+          return '#';
+        }
+      },
+    },
+  };
 </script>

@@ -47,7 +47,7 @@ const components = {
   'user-card-settings-drawer': UserCardSettingsDrawer,
   'dropdown-list-values-drawer': DropdownListValuesDrawer,
   'property-option-action-menu': PropertyOptionActionMenu,
-  'dropdown-list-option-item-value': DropdownListOptionItemValue
+  'dropdown-list-option-item-value': DropdownListOptionItemValue,
 };
 
 for (const key in components) {

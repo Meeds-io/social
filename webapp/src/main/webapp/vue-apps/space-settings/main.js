@@ -36,12 +36,12 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API
 const urls = [
   `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`
+  `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`,
 ];
 
 const appId = 'SpaceSettings';
 
-export function init(isExternalFeatureEnabled) {
+export function init (isExternalFeatureEnabled) {
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => 
       Vue.createApp({
@@ -52,24 +52,24 @@ export function init(isExternalFeatureEnabled) {
           space: null,
           activeSection: null,
           externalInvitations: null,
-          collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+          collator: new Intl.Collator(eXo.env.portal.language, { numeric: true, sensitivity: 'base' }),
         },
         computed: {
-          isOverviewSection() {
+          isOverviewSection () {
             return this.activeSection === 'overview';
           },
-          isRolesSection() {
+          isRolesSection () {
             return this.activeSection === 'roles';
           },
-          isAllSections() {
+          isAllSections () {
             return !this.activeSection;
           },
-          isMobile() {
-            return this.$vuetify.breakpoint.mobile;
+          isMobile () {
+            return eXo.vuetify.display.mobile.value;
           },
         },
         watch: {
-          activeSection() {
+          activeSection () {
             if (this.$root.isAllSections) {
               window.history.replaceState('', window.document.title, window.location.href.split('#')[0]);
             } else {
@@ -78,7 +78,7 @@ export function init(isExternalFeatureEnabled) {
             this.$root.$emit('close-alert-message');
           },
         },
-        created() {
+        created () {
           document.addEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
           document.addEventListener('showSettingsApps', this.handleShowMainEvent);
 
@@ -91,7 +91,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-categories-updated', this.handleSpaceUpdated);
           this.init();
         },
-        beforeDestroy() {
+        beforeDestroy () {
           document.removeEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
           document.removeEventListener('showSettingsApps', this.handleShowMainEvent);
 
@@ -104,7 +104,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$off('space-categories-updated', this.handleSpaceUpdated);
         },
         methods: {
-          async init() {
+          async init () {
             if (window.location.hash === '#overview') {
               this.$root.showSection('overview');
             } else if (window.location.hash === '#roles') {
@@ -113,45 +113,45 @@ export function init(isExternalFeatureEnabled) {
             await this.refreshSpace();
             await this.refreshExternalInvitations();
             document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-            this.$applicationLoaded();
+            this.aapplicationLoaded();
           },
-          async handlePendingUpdated() {
+          async handlePendingUpdated () {
             await this.refreshSpace();
             await this.refreshExternalInvitations();
           },
-          async handleSpaceUpdated() {
+          async handleSpaceUpdated () {
             const oldPrettyName = this.space.prettyName;
             await this.refreshSpace();
             if (oldPrettyName !== this.space.prettyName) {
               window.history.replaceState('', window.document.title, window.location.href.replaceAll(`/${oldPrettyName}/`, `/${this.space.prettyName}/`));
             }
-            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
+            document.dispatchEvent(new CustomEvent('space-settings-updated', { detail: this.space }));
           },
-          async refreshSpace() {
+          async refreshSpace () {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now());
+              this.space = await eXo.$spaceService.getSpaceById(this.spaceId, Date.now());
             }
           },
-          async refreshExternalInvitations() {
+          async refreshExternalInvitations () {
             if (this.isExternalFeatureEnabled) {
-              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+              this.externalInvitations = await eXo.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
-          showSection(sectionId) {
-            document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: sectionId}));
+          showSection (sectionId) {
+            document.dispatchEvent(new CustomEvent('hideSettingsApps', { detail: sectionId }));
           },
-          showMain() {
+          showMain () {
             document.dispatchEvent(new CustomEvent('showSettingsApps'));
           },
-          handleDisplaySectionEvent(event) {
+          handleDisplaySectionEvent (event) {
             this.activeSection = event?.detail;
           },
-          handleShowMainEvent() {
+          handleShowMainEvent () {
             this.activeSection = null;
           },
         },
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Space Settings')
-    ).finally(() => Vue.prototype.$utils.includeExtensions('SpaceSettingExtension'));
+    ).finally(() => eXo.$utils.includeExtensions('SpaceSettingExtension'));
 }

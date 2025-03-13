@@ -20,21 +20,21 @@
 -->
 <template>
   <v-chip
-    :title="expression"
+    class="border-box-sizing"
     color="primary"
-    class="border-box-sizing">
+    :title="expression">
     <v-icon
       v-if="isGroup"
-      color="white"
       class="me-2 ms-n1"
+      color="white"
       size="18">
       fa-users
     </v-icon>
     <v-avatar
       v-else
       class="spaceAvatar"
-      tile
-      left>
+      left
+      tile>
       <v-img :src="avatarUrl" />
     </v-avatar>
     <span class="text-truncate">
@@ -43,48 +43,48 @@
   </v-chip>
 </template>
 <script>
-export default {
-  props: {
-    expression: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      expression: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    name: null,
-    avatarUrl: null,
-  }),
-  computed: {
-    groupId() {
-      return this.expression?.includes(':') ? this.expression.split(':')[1] : this.expression;
+    data: () => ({
+      name: null,
+      avatarUrl: null,
+    }),
+    computed: {
+      groupId () {
+        return this.expression?.includes(':') ? this.expression.split(':')[1] : this.expression;
+      },
+      isSpace () {
+        return this.groupId?.indexOf('/spaces/') === 0;
+      },
+      isGroup () {
+        return !this.isSpace;
+      },
     },
-    isSpace() {
-      return this.groupId?.indexOf('/spaces/') === 0;
+    created () {
+      this.retrieveObject();
     },
-    isGroup() {
-      return !this.isSpace;
-    },
-  },
-  created() {
-    this.retrieveObject();
-  },
-  methods: {
-    async retrieveObject() {
-      if (this.isSpace) {
-        const space = await this.$spaceService.getSpaceByGroupId(this.groupId);
-        if (space) {
-          this.name = space.displayName;
-          this.avatarUrl = space.avatarUrl;
+    methods: {
+      async retrieveObject () {
+        if (this.isSpace) {
+          const space = await eXo.$spaceService.getSpaceByGroupId(this.groupId);
+          if (space) {
+            this.name = space.displayName;
+            this.avatarUrl = space.avatarUrl;
+          }
+        } else if (this.groupId === 'spaceAdmin') {
+          this.name = this.$t('spaceTemplate.permissionsStepSpaceAdmins');
+        } else {
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
+          if (group) {
+            this.name = group.profile?.fullname;
+          }
         }
-      } else if (this.groupId === 'spaceAdmin') {
-        this.name = this.$t('spaceTemplate.permissionsStepSpaceAdmins');
-      } else {
-        const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
-        if (group) {
-          this.name = group.profile?.fullname;
-        }
-      }
+      },
     },
-  },
-};
+  };
 </script>

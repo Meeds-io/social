@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getSettings() {
+export function getSettings () {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings`, {
     method: 'GET',
     credentials: 'include',
@@ -30,7 +30,7 @@ export function getSettings() {
   });
 }
 
-export function saveSenderEmail(name, email) {
+export function saveSenderEmail (name, email) {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('email', email);
@@ -41,7 +41,7 @@ export function saveSenderEmail(name, email) {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: params
+    body: params,
   }).then(resp => {
     if (!resp?.ok) {
       if (resp?.status === 400) {
@@ -55,14 +55,14 @@ export function saveSenderEmail(name, email) {
   });
 }
 
-export function savePluginSettings(pluginId, channels) {
+export function savePluginSettings (pluginId, channels) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/plugin/${pluginId}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: `channels=${channels}`
+    body: `channels=${channels}`,
   }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error saving plugin settings');
@@ -70,14 +70,14 @@ export function savePluginSettings(pluginId, channels) {
   });
 }
 
-export function saveChannelStatus(channelId, enable) {
+export function saveChannelStatus (channelId, enable) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/channel/${channelId}`, {
     method: 'PATCH',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: `enable=${enable}`
+    body: `enable=${enable}`,
   }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error saving channel setting');

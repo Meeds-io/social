@@ -18,7 +18,7 @@
  */
 
 
-export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions, excludeGroupNodesWithoutPageChildNodes, temporalCheck, visibility) {
+export function getSites (siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions, excludeGroupNodesWithoutPageChildNodes, temporalCheck, visibility) {
   return getSitesByFilter({
     siteType,
     excludedSiteType,
@@ -32,11 +32,11 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
     filterByPermissions,
     excludeGroupNodesWithoutPageChildNodes,
     temporalCheck,
-    visibility
+    visibility,
   });
 }
 
-export function getSitesByFilter({
+export function getSitesByFilter ({
   siteType,
   excludedSiteType,
   excludedSiteName,
@@ -50,7 +50,7 @@ export function getSitesByFilter({
   excludeGroupNodesWithoutPageChildNodes,
   temporalCheck,
   visibility,
-  expand
+  expand,
 }) {
   const formData = new FormData();
   if (siteType) {
@@ -97,7 +97,7 @@ export function getSitesByFilter({
   });
 }
 
-export function getSite(siteType, siteName, params) {
+export function getSite (siteType, siteName, params) {
   const formData = new FormData();
   formData.append('lang', params.lang);
   formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
@@ -124,7 +124,7 @@ export function getSite(siteType, siteName, params) {
   });
 }
 
-export function getSiteById(siteId, params) {
+export function getSiteById (siteId, params) {
   const formData = new FormData();
   formData.append('lang', params?.lang || eXo.env.portal.language);
   if (params?.excludeEmptyNavigationSites) {

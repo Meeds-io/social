@@ -19,6 +19,6 @@
 
 import * as linkService from './js/LinkService.js';
 
-window.Object.defineProperty(Vue.prototype, '$linkService', {
+window.Object.defineProperty(eXo, '$linkService', {
   value: linkService,
 });

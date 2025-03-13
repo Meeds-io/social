@@ -16,7 +16,7 @@ const appName = 'Search';
 let initialized = false;
 
 // Handle Tag Link click
-document.onclick = (event) => {
+document.onclick = event => {
   if (event?.target?.className
       && JSON.stringify(event.target.className).includes('metadata-tag')) {
     const tagName = event.target.innerText;
@@ -27,12 +27,12 @@ document.onclick = (event) => {
       if (!initialized) {
         init(tagName.replace('#', ''));
       }
-      document.dispatchEvent(new CustomEvent('search-metadata-tag', {detail: tagName.replace('#', '')}));
+      document.dispatchEvent(new CustomEvent('search-metadata-tag', { detail: tagName.replace('#', '') }));
     }
   }
 };
 
-export function init(tagName) {
+export function init (tagName) {
   if (initialized || !document.querySelector(`#${appId}`)) {
     return;
   }
@@ -47,7 +47,7 @@ export function init(tagName) {
       skinUrls,
     },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
-    vuetify: Vue.prototype.vuetifyOptions,
+    vuetify: eXo.vuetify,
     i18n: exoi18n.i18n,
   }, `#${appId}`, appName);
 }

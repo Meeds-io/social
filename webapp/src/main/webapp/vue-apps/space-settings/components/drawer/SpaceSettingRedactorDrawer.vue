@@ -23,14 +23,16 @@
     id="SpaceSettingsRedactorsDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="saving"
     allow-expand
+    :loading="saving"
     right
     @closed="$emit('closed')">
     <template #title>
       {{ $t('SpaceSettings.roles.restrictContentCreation.drawer') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <div class="pa-4">
         <div>
           {{ $t('SpaceSettings.roles.restrictContentCreation.placeholder1') }}
@@ -42,26 +44,28 @@
           v-if="!originalRedactors.length && !publishers.length"
           class="pa-5 d-flex align-center justify-center">
           <v-icon
-            color="secondary"
             class="me-2"
+            color="secondary"
             size="18">
             fa-paper-plane
           </v-icon>
           <span>{{ $t('SpaceSettings.roles.noPublisher') }}</span>
         </div>
         <identity-suggester
-          ref="suggester"
           id="userMemberSuggester"
+          ref="suggester"
           v-model="selectedUser"
-          :labels="suggesterLabels"
-          :search-options="searchOptions"
-          :ignore-items="ignoreSuggesterItems"
-          name="userMemberSuggester"
           class="user-suggester"
-          width="220"
+          ignore-cache
+          :ignore-items="ignoreSuggesterItems"
           include-users
-          ignore-cache />
-        <div v-if="redactors?.length" id="SpaceSettingsRedactorsList">
+          :labels="suggesterLabels"
+          name="userMemberSuggester"
+          :search-options="searchOptions"
+          width="220" />
+        <div
+          v-if="redactors?.length"
+          id="SpaceSettingsRedactorsList">
           <space-setting-role-list
             :users="redactors"
             @add="addUserMembership"
@@ -73,17 +77,17 @@
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="saving"
           class="btn me-2"
+          :disabled="saving"
           @click="close">
           <template>
             {{ $t('SpaceSettings.button.cancel') }}
           </template>
         </v-btn>
         <v-btn
+          class="btn btn-primary"
           :disabled="disabled"
           :loading="saving"
-          class="btn btn-primary"
           @click.prevent.stop="saveRedactors">
           {{ $t('SpaceSettings.button.apply') }}
         </v-btn>
@@ -92,125 +96,125 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    saving: false,
-    selectedUser: null,
-    originalRedactors: null,
-    publishers: null,
-    addedRedactors: null,
-    removedRedactors: null,
-  }),
-  computed: {
-    disabled() {
-      return !this.addedRedactors?.length && !this.removedRedactors?.length;
-    },
-    redactors() {
-      const redactors = this.originalRedactors?.slice() || [];
-      this.addedRedactors.forEach(u => redactors.push(u));
-      this.removedRedactors.forEach(user => {
-        const index = redactors.findIndex(u => u.id === user.id);
-        if (index >= 0) {
-          redactors.splice(index, 1);
-        } else {
-          // eslint-disable-next-line
-          console.warn('User not found', user);
-        }
-      });
-      return redactors;
-    },
-    ignoreSuggesterItems() {
-      return this.redactors.map(u => `organization:${u.username}`);
-    },
-    suggesterLabels() {
-      return {
-        searchPlaceholder: this.$t('SpaceSettings.roles.redactor.searchPlaceholder'),
-        placeholder: this.$t('SpaceSettings.roles.redactor.placeholder'),
-        noDataLabel: this.$t('SpaceSettings.roles.redactor.noDataLabel'),
-      };
-    },
-    searchOptions() {
-      return {
-        spacePrettyName: eXo.env.portal.spaceName,
-        currentUser: false,
-      };
-    },
-  },
-  watch: {
-    selectedUser() {
-      if (this.selectedUser) {
-        this.addUserMembership({
-          id: this.selectedUser.identityId,
-          fullname: this.selectedUser?.profile?.fullName,
-          username: this.selectedUser?.remoteId,
-          avatar: this.selectedUser?.profile?.avatarUrl,
-          deleted: false,
-          enabled: true,
+  export default {
+    data: () => ({
+      drawer: false,
+      saving: false,
+      selectedUser: null,
+      originalRedactors: null,
+      publishers: null,
+      addedRedactors: null,
+      removedRedactors: null,
+    }),
+    computed: {
+      disabled () {
+        return !this.addedRedactors?.length && !this.removedRedactors?.length;
+      },
+      redactors () {
+        const redactors = this.originalRedactors?.slice() || [];
+        this.addedRedactors.forEach(u => redactors.push(u));
+        this.removedRedactors.forEach(user => {
+          const index = redactors.findIndex(u => u.id === user.id);
+          if (index >= 0) {
+            redactors.splice(index, 1);
+          } else {
+           
+            console.warn('User not found', user);
+          }
         });
-        this.$nextTick().then(() => this.selectedUser = null);
-      }
+        return redactors;
+      },
+      ignoreSuggesterItems () {
+        return this.redactors.map(u => `organization:${u.username}`);
+      },
+      suggesterLabels () {
+        return {
+          searchPlaceholder: this.$t('SpaceSettings.roles.redactor.searchPlaceholder'),
+          placeholder: this.$t('SpaceSettings.roles.redactor.placeholder'),
+          noDataLabel: this.$t('SpaceSettings.roles.redactor.noDataLabel'),
+        };
+      },
+      searchOptions () {
+        return {
+          spacePrettyName: eXo.env.portal.spaceName,
+          currentUser: false,
+        };
+      },
     },
-  },
-  methods: {
-    open(redactors, publishers) {
-      this.publishers = publishers?.slice?.() || [];
-      this.originalRedactors = redactors?.slice?.() || [];
-      this.addedRedactors = !this.originalRedactors.length
-        && this.publishers.slice()
-        || [];
-      this.removedRedactors = [];
-      this.$refs.drawer.open();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    removeUserMembership(user) {
-      if (this.addedRedactors.find(u => u.id === user.id)) {
-        const index = this.addedRedactors.findIndex(u => u.id === user.id);
-        this.addedRedactors.splice(index, 1);
-        this.addedRedactors = this.addedRedactors.slice();
-      }
-      if (!this.removedRedactors.find(u => u.id === user.id)
-          && this.originalRedactors.find(u => u.id === user.id)) {
-        this.removedRedactors.push(user);
-      }
-    },
-    addUserMembership(user) {
-      if (this.removedRedactors.find(u => u.id === user.id)) {
-        const index = this.removedRedactors.findIndex(u => u.id === user.id);
-        this.removedRedactors.splice(index, 1);
-        this.removedRedactors = this.removedRedactors.slice();
-      }
-      if (!this.addedRedactors.find(u => u.id === user.id)
-          && !this.originalRedactors.find(u => u.id === user.id)) {
-        this.addedRedactors.push(user);
-      }
-    },
-    async saveRedactors() {
-      if (this.saving) {
-        return;
-      }
-      this.error = null;
-      this.saving = true;
-      try {
-        for (const i in this.addedRedactors) {
-          // eslint-disable-next-line no-await-in-loop
-          await this.$spaceService.promoteRedactor(this.$root.space.id, this.addedRedactors[i].username);
+    watch: {
+      selectedUser () {
+        if (this.selectedUser) {
+          this.addUserMembership({
+            id: this.selectedUser.identityId,
+            fullname: this.selectedUser?.profile?.fullName,
+            username: this.selectedUser?.remoteId,
+            avatar: this.selectedUser?.profile?.avatarUrl,
+            deleted: false,
+            enabled: true,
+          });
+          this.$nextTick().then(() => this.selectedUser = null);
         }
-        for (const i in this.removedRedactors) {
-          // eslint-disable-next-line no-await-in-loop
-          await this.$spaceService.removeRedactor(this.$root.space.id, this.removedRedactors[i].username);
-        }
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsUpdatedSuccessfully'), 'success');
+      },
+    },
+    methods: {
+      open (redactors, publishers) {
+        this.publishers = publishers?.slice?.() || [];
+        this.originalRedactors = redactors?.slice?.() || [];
+        this.addedRedactors = !this.originalRedactors.length
+          && this.publishers.slice()
+          || [];
+        this.removedRedactors = [];
+        this.$refs.drawer.open();
+      },
+      close () {
         this.$refs.drawer.close();
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
-      } finally {
-        this.$root.$emit('space-settings-redactors-updated', this.addedRedactors, this.removedRedactors);
-        this.saving = false;
-      }
+      },
+      removeUserMembership (user) {
+        if (this.addedRedactors.find(u => u.id === user.id)) {
+          const index = this.addedRedactors.findIndex(u => u.id === user.id);
+          this.addedRedactors.splice(index, 1);
+          this.addedRedactors = this.addedRedactors.slice();
+        }
+        if (!this.removedRedactors.find(u => u.id === user.id)
+          && this.originalRedactors.find(u => u.id === user.id)) {
+          this.removedRedactors.push(user);
+        }
+      },
+      addUserMembership (user) {
+        if (this.removedRedactors.find(u => u.id === user.id)) {
+          const index = this.removedRedactors.findIndex(u => u.id === user.id);
+          this.removedRedactors.splice(index, 1);
+          this.removedRedactors = this.removedRedactors.slice();
+        }
+        if (!this.addedRedactors.find(u => u.id === user.id)
+          && !this.originalRedactors.find(u => u.id === user.id)) {
+          this.addedRedactors.push(user);
+        }
+      },
+      async saveRedactors () {
+        if (this.saving) {
+          return;
+        }
+        this.error = null;
+        this.saving = true;
+        try {
+          for (const i in this.addedRedactors) {
+           
+            await eXo.$spaceService.promoteRedactor(this.$root.space.id, this.addedRedactors[i].username);
+          }
+          for (const i in this.removedRedactors) {
+           
+            await eXo.$spaceService.removeRedactor(this.$root.space.id, this.removedRedactors[i].username);
+          }
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.roles.redactorsUpdatedSuccessfully'), 'success');
+          this.$refs.drawer.close();
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingRoles'), 'error');
+        } finally {
+          this.$root.$emit('space-settings-redactors-updated', this.addedRedactors, this.removedRedactors);
+          this.saving = false;
+        }
+      },
     },
-  },
-};
+  };
 </script>

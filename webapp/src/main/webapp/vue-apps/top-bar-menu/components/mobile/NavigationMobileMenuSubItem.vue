@@ -22,9 +22,9 @@
 <template>
   <v-bottom-sheet
     v-model="showChildren"
-    inset
     :content-class="`topBar-navigation-bottom-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
-    hide-overlay>
+    hide-overlay
+    inset>
     <v-sheet
       v-if="showChildren"
       class="transparent">
@@ -49,12 +49,14 @@
               v-if="nav.pageKey || nav.children?.length || nav.pageLink"
               :key="nav.id"
               :href="nav.nodeUri || $navigationUtils.getNavigationNodeUri(baseSiteUri, nav)"
-              :target="nav.nodeTarget || $navigationUtils.getNavigationNodeTarget(nav)"
-              :rel="nav.nodeRel || $navigationUtils.getNavigationNodeRel(nav)"
               :link="!!nav.pageKey"
+              :rel="nav.nodeRel || $navigationUtils.getNavigationNodeRel(nav)"
+              :target="nav.nodeTarget || $navigationUtils.getNavigationNodeTarget(nav)"
               @click="checkLink(nav, $event)">
               <v-list-item-content>
-                <v-list-item-title class="text-body" v-text="nav.label" />
+                <v-list-item-title class="text-body">
+                  {{ nav.label }}
+                </v-list-item-title>
               </v-list-item-content>
               <v-list-item-icon
                 v-if="nav.children?.length"
@@ -76,73 +78,73 @@
 </template>
 
 <script>
-export default {
-  props: {
-    navigation: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      navigation: {
+        type: Object,
+        default: null,
+      },
+      baseSiteUri: {
+        type: String,
+        default: null,
+      },
+      showMenu: {
+        type: Boolean,
+        default: false,
+      },
+      parentNavigationUri: {
+        type: String,
+        default: null,
+      },
     },
-    baseSiteUri: {
-      type: String,
-      default: null
+    data: () => ({
+      navigationObject: null,
+      showChildren: false,
+    }),
+    computed: {
+      isTopBarElement () {
+        return this.$root.isTopBarElement;
+      },
     },
-    showMenu: {
-      type: Boolean,
-      default: false
-    },
-    parentNavigationUri: {
-      type: String,
-      default: null
-    }
-  },
-  data: () => ({
-    navigationObject: null,
-    showChildren: false,
-  }),
-  computed: {
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
-  },
-  watch: {
-    showMenu(value) {
-      this.showChildren = value;
-      if (value) {
-        this.navigationObject = Object.assign({}, this.navigation);
-      }
-    }
-  },
-  created() {
-    this.navigationObject = Object.assign({}, this.navigation);
-    this.showChildren = this.showMenu;
-  },
-  methods: {
-    next(navigation) {
-      const previous = this.navigationObject;
-      this.navigationObject = navigation.children ;
-      this.navigationObject.previous = previous;
-    },
-    prev() {
-      this.navigationObject = this.navigationObject.previous;
-    },
-    checkLink(navigation, e) {
-      if (!navigation.pageKey) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (navigation.children) {
-          this.next(navigation);
+    watch: {
+      showMenu (value) {
+        this.showChildren = value;
+        if (value) {
+          this.navigationObject = Object.assign({}, this.navigation);
         }
-      } else {
-        this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
-      }
-      if (navigation?.nodeUri?.includes?.('#')) {
-        if (navigation?.nodeTarget === '_blank') {
-          window.open(navigation.nodeUri);
+      },
+    },
+    created () {
+      this.navigationObject = Object.assign({}, this.navigation);
+      this.showChildren = this.showMenu;
+    },
+    methods: {
+      next (navigation) {
+        const previous = this.navigationObject;
+        this.navigationObject = navigation.children ;
+        this.navigationObject.previous = previous;
+      },
+      prev () {
+        this.navigationObject = this.navigationObject.previous;
+      },
+      checkLink (navigation, e) {
+        if (!navigation.pageKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (navigation.children) {
+            this.next(navigation);
+          }
         } else {
-          window.location.href = navigation.nodeUri;
+          this.$emit('update-navigation-state', `${this.parentNavigationUri}`);
         }
-      }
-    }
-  }
-};
+        if (navigation?.nodeUri?.includes?.('#')) {
+          if (navigation?.nodeTarget === '_blank') {
+            window.open(navigation.nodeUri);
+          } else {
+            window.location.href = navigation.nodeUri;
+          }
+        }
+      },
+    },
+  };
 </script>

@@ -28,89 +28,93 @@
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
-            ref="bannerInput"
             id="spaceBannerEditButton"
-            :title="$t('spacesList.label.changeBanner')"
-            outlined
+            ref="bannerInput"
             icon
+            outlined
+            :title="$t('spacesList.label.changeBanner')"
             @click="$refs.imageCropDrawer.open()">
-            <v-icon size="18">fa-camera</v-icon>
+            <v-icon size="18">
+              fa-camera
+            </v-icon>
           </v-btn>
           <v-btn
             v-show="!isDefaultBanner"
-            :title="$t('spacesList.label.deleteBanner')"
             id="spaceBannerDeleteButton"
-            outlined
             icon
+            outlined
+            :title="$t('spacesList.label.deleteBanner')"
             @click="removeBanner">
-            <v-icon size="18">fa-undo</v-icon>
+            <v-icon size="18">
+              fa-undo
+            </v-icon>
           </v-btn>
         </div>
       </div>
     </div>
     <img
-      :src="bannerUrl"
-      :class="!bannerUrl && 'primary'"
-      width="100%"
-      height="50px"
       class="border-radius clickable"
+      :class="!bannerUrl && 'primary'"
+      height="50px"
+      :src="bannerUrl"
+      width="100%"
       @click="$refs.imageCropDrawer.open()">
     <image-crop-drawer
       ref="imageCropDrawer"
       :crop-options="cropOptions"
-      :max-file-size="maxUploadSizeInBytes"
-      :src="bannerUrl"
-      max-image-width="1280"
       drawer-title="UIPopupBannerUploader.title.ChangeBanner"
+      :max-file-size="maxUploadSizeInBytes"
+      max-image-width="1280"
+      :src="bannerUrl"
       @data="imageData = $event"
       @input="updateBanner" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    maxUploadSize: {
-      type: Number,
-      default: () => 2,
+  export default {
+    props: {
+      maxUploadSize: {
+        type: Number,
+        default: () => 2,
+      },
+      defaultBannerUrl: {
+        type: String,
+        default: null,
+      },
     },
-    defaultBannerUrl: {
-      type: String,
-      default: null,
+    data: () => ({
+      imageData: null,
+      cropOptions: {
+        aspectRatio: 1280 / 175,
+        viewMode: 1,
+      },
+    }),
+    computed: {
+      bannerUrl () {
+        return this.imageData || this.defaultBannerUrl;
+      },
+      isDefaultBanner () {
+        return !this.imageData;
+      },
+      maxUploadSizeInBytes () {
+        return this.maxUploadSize * 1024 * 1024;
+      },
+      height () {
+        if (eXo.vuetify.mobile) {
+          return 125;
+        } else {
+          return 175;
+        }
+      },
     },
-  },
-  data: () => ({
-    imageData: null,
-    cropOptions: {
-      aspectRatio: 1280 / 175,
-      viewMode: 1,
+    methods: {
+      removeBanner () {
+        this.imageData = null;
+        this.$emit('input', null);
+      },
+      updateBanner (uploadId) {
+        this.$emit('input', uploadId);
+      },
     },
-  }),
-  computed: {
-    bannerUrl() {
-      return this.imageData || this.defaultBannerUrl;
-    },
-    isDefaultBanner() {
-      return !this.imageData;
-    },
-    maxUploadSizeInBytes() {
-      return this.maxUploadSize * 1024 * 1024;
-    },
-    height() {
-      if (this.$vuetify.mobile) {
-        return 125;
-      } else {
-        return 175;
-      }
-    },
-  },
-  methods: {
-    removeBanner() {
-      this.imageData = null;
-      this.$emit('input', null);
-    },
-    updateBanner(uploadId) {
-      this.$emit('input', uploadId);
-    },
-  },
-};
+  };
 </script>

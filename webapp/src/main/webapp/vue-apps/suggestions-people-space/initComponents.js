@@ -5,7 +5,7 @@ import ExoSuggestionsPeopleListItem from './components/ExoSuggestionsPeopleListI
 const components = {
   'exo-suggestions-people-and-space': ExoSuggestionsPeopleAndSpace,
   'exo-suggestions-space-list-item': ExoSuggestionsSpaceListItem,
-  'exo-suggestions-people-list-item': ExoSuggestionsPeopleListItem
+  'exo-suggestions-people-list-item': ExoSuggestionsPeopleListItem,
 };
 
 for (const key in components) {

@@ -31,17 +31,19 @@
           @click="$root.$emit('space-form-invite-member', true)">
           <v-list-item-content class="d-inline">
             <v-list-item-title>{{ $t('SpaceSettings.users.button.inviteInternalMembers') }}</v-list-item-title>
-            <v-list-item-subtitle class="text-truncate-3 text-wrap">{{ $t('SpaceSettings.users.button.inviteInternalMembers.description') }}</v-list-item-subtitle>
+            <v-list-item-subtitle class="text-truncate-3 text-wrap">
+              {{ $t('SpaceSettings.users.button.inviteInternalMembers.description') }}
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-avatar
             v-if="invitedMembers?.length"
             min-width="fit-content">
             <v-avatar
               class="error-color-background white--text pa-1"
-              width="auto"
               height="24"
+              min-height="24"
               min-width="24"
-              min-height="24">
+              width="auto">
               {{ invitedMembersSize }}
             </v-avatar>
           </v-list-item-avatar>
@@ -53,17 +55,19 @@
           @click="$root.$emit('space-form-invite-email', true)">
           <v-list-item-content class="d-inline">
             <v-list-item-title>{{ $t('SpaceSettings.users.button.inviteByEmail') }}</v-list-item-title>
-            <v-list-item-subtitle class="text-truncate-3 text-wrap">{{ $t('SpaceSettings.users.button.inviteByEmail.description') }}</v-list-item-subtitle>
+            <v-list-item-subtitle class="text-truncate-3 text-wrap">
+              {{ $t('SpaceSettings.users.button.inviteByEmail.description') }}
+            </v-list-item-subtitle>
           </v-list-item-content>
           <v-list-item-avatar
             v-if="externalInvitedUsers?.length"
             min-width="fit-content">
             <v-avatar
               class="error-color-background white--text pa-1"
-              width="auto"
               height="24"
+              min-height="24"
               min-width="24"
-              min-height="24">
+              width="auto">
               {{ externalInvitedUsersSize }}
             </v-avatar>
           </v-list-item-avatar>
@@ -81,32 +85,32 @@
   </div>
 </template>
 <script>
-export default {
-  data: () => ({
-    invitedMembers: [],
-    externalInvitedUsers: [],
-  }),
-  computed: {
-    invitedMembersSize() {
-      return this.invitedMembers?.length ? this.invitedMembers.reduce((sum, v) => sum += v?.profile?.membersCount || 1, 0) : 0;
+  export default {
+    data: () => ({
+      invitedMembers: [],
+      externalInvitedUsers: [],
+    }),
+    computed: {
+      invitedMembersSize () {
+        return this.invitedMembers?.length ? this.invitedMembers.reduce((sum, v) => sum += v?.profile?.membersCount || 1, 0) : 0;
+      },
+      externalInvitedUsersSize () {
+        return this.externalInvitedUsers?.length;
+      },
     },
-    externalInvitedUsersSize() {
-      return this.externalInvitedUsers?.length;
+    watch: {
+      invitedMembers () {
+        this.$emit('invited-members', this.invitedMembers);
+      },
+      externalInvitedUsers () {
+        this.$emit('invited-email', this.externalInvitedUsers);
+      },
     },
-  },
-  watch: {
-    invitedMembers() {
-      this.$emit('invited-members', this.invitedMembers);
+    methods: {
+      updateMembers (invitedMembers) {
+        invitedMembers = invitedMembers.filter(m => !this.invitedMembers.find(m2 => m.id === m2.id));
+        this.invitedMembers.push(...invitedMembers);
+      },
     },
-    externalInvitedUsers() {
-      this.$emit('invited-email', this.externalInvitedUsers);
-    },
-  },
-  methods: {
-    updateMembers(invitedMembers) {
-      invitedMembers = invitedMembers.filter(m => !this.invitedMembers.find(m2 => m.id === m2.id));
-      this.invitedMembers.push(...invitedMembers);
-    },
-  },
-};
+  };
 </script>

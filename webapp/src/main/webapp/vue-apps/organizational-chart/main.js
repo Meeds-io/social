@@ -37,19 +37,19 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const lang = eXo?.env?.portal?.language || 'en';
 const urls = [
   `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`
+  `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`,
 ];
 
-export function init(applicationId, settings) {
+export function init (applicationId, settings) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     Vue.createApp({
-      data() {
+      data () {
         return {
-          applicationId: applicationId,
-          settings: settings
+          applicationId,
+          settings,
         };
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<organizational-chart-app 
@@ -57,7 +57,7 @@ export function init(applicationId, settings) {
                    :is-space-manager="${settings?.isSpaceManager}"
                    :initial-user-id="${settings?.userId}"/>`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'Organizational Chart');
   });
 }

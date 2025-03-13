@@ -19,10 +19,12 @@
               :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
               <v-btn
                 :disabled="!allowedToChangePassword"
-                small
                 icon
+                small
                 @click="openSecurityDetail">
-                <v-icon size="24" class="icon-default-color">
+                <v-icon
+                  class="icon-default-color"
+                  size="24">
                   {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
                 </v-icon>
               </v-btn>
@@ -35,49 +37,49 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    id: `Security${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
-    displayed: true,
-    allowedToChangePassword: false,
-    displayDetails: false,
-  }),
-  watch: {
-    displayed() {
-      if (this.displayed) {
-        this.$nextTick().then(() => this.$root.$emit('application-cache'));
-      }
+  export default {
+    data: () => ({
+      id: `Security${parseInt(Math.random() * 10000)
+        .toString()
+        .toString()}`,
+      displayed: true,
+      allowedToChangePassword: false,
+      displayDetails: false,
+    }),
+    watch: {
+      displayed () {
+        if (this.displayed) {
+          this.$nextTick().then(() => this.$root.$emit('application-cache'));
+        }
+        this.$root.$updateApplicationVisibility(this.displayed);
+      },
+    },
+    created () {
+      document.addEventListener('hideSettingsApps', event => {
+        if (event && event.detail && this.id !== event.detail) {
+          this.displayed = false;
+        }
+      });
+      eXo.$userService.isSynchronizedUserAllowedToChangePassword().then(
+        data => {
+          this.allowedToChangePassword = data.isSynchronizedUserAllowedToChangePassword === 'true';
+        });
+      document.addEventListener('showSettingsApps', () => this.displayed = true);
+    },
+    mounted () {
+      this.$nextTick().then(() => this.$root.$applicationLoaded());
       this.$root.$updateApplicationVisibility(this.displayed);
     },
-  },
-  created() {
-    document.addEventListener('hideSettingsApps', (event) => {
-      if (event && event.detail && this.id !== event.detail) {
-        this.displayed = false;
-      }
-    });
-    this.$userService.isSynchronizedUserAllowedToChangePassword().then(
-      (data) => {
-        this.allowedToChangePassword = data.isSynchronizedUserAllowedToChangePassword === 'true';
-      });
-    document.addEventListener('showSettingsApps', () => this.displayed = true);
-  },
-  mounted() {
-    this.$nextTick().then(() => this.$root.$applicationLoaded());
-    this.$root.$updateApplicationVisibility(this.displayed);
-  },
-  methods: {
-    openSecurityDetail() {
-      document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
-      this.displayDetails = true;
+    methods: {
+      openSecurityDetail () {
+        document.dispatchEvent(new CustomEvent('hideSettingsApps', { detail: this.id }));
+        this.displayDetails = true;
+      },
+      closeSecurityDetail () {
+        document.dispatchEvent(new CustomEvent('showSettingsApps'));
+        this.displayDetails = false;
+      },
     },
-    closeSecurityDetail() {
-      document.dispatchEvent(new CustomEvent('showSettingsApps'));
-      this.displayDetails = false;
-    },
-  },
-};
+  };
 </script>
 

@@ -23,19 +23,21 @@
   <v-list-item
     dense
     @click="$root.$emit('category-move-open', category)">
-    <v-icon size="13">fa-expand-arrows-alt</v-icon>
+    <v-icon size="13">
+      fa-expand-arrows-alt
+    </v-icon>
     <v-list-item-title class="ps-2">
       {{ $t('categoryManagement.moveCategory') }}
     </v-list-item-title>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    category: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      category: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

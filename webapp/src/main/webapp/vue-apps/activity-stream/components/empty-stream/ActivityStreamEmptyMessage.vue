@@ -22,37 +22,41 @@
 <template>
   <div class="application-background-color application-border application-border-radius">
     <div class="d-flex flex-column align-center justify-center pa-5">
-      <p v-sanitized-html="welcomeTitle" class="text-title"></p>
-      <p v-sanitized-html="welcomeSubTitle" class="text-body"></p>
+      <p
+        v-sanitized-html="welcomeTitle"
+        class="text-title"></p>
+      <p
+        v-sanitized-html="welcomeSubTitle"
+        class="text-body"></p>
       <v-card
         v-if="$root.canPost == true"
-        :max-width="$root.isMobile && 250 || 'auto'"
         class="d-flex flex-column flex-sm-row flex-wrap align-start justify-center my-6"
-        flat>
+        flat
+        :max-width="$root.isMobile && 250 || 'auto'">
         <activity-stream-empty-message-card
-          :info-message="$t('UIActivity.label.empty_stream_write_post')"
           icon-index="1"
+          :info-message="$t('UIActivity.label.empty_stream_write_post')"
           @apply="openComposer" />
         <activity-stream-empty-message-card
           v-if="spaceId"
-          :info-message="$t('UIActivity.label.empty_stream_start_poll')"
           icon-index="2"
+          :info-message="$t('UIActivity.label.empty_stream_start_poll')"
           @apply="writePoll" />
         <activity-stream-empty-message-card
           v-else
-          :info-message="$t('UIActivity.label.empty_stream_send_kudos')"
           icon-index="2"
+          :info-message="$t('UIActivity.label.empty_stream_send_kudos')"
           @apply="sendKudos" />
         <activity-stream-empty-message-card
           v-if="spaceId"
-          :info-message="$t('UIActivity.label.empty_stream_write_article')"
           icon-index="3"
+          :info-message="$t('UIActivity.label.empty_stream_write_article')"
           @apply="writeArticle" />
         <activity-stream-empty-message-card
           v-else
+          icon-index="3"
           :info-message="$t('UIActivity.label.empty_stream_join_spaces')"
-          :link="spacesLink"
-          icon-index="3" />
+          :link="spacesLink" />
       </v-card>
       <p
         v-else-if="spaceId && $root.canPost === false"
@@ -62,67 +66,67 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    title: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      title: {
+        type: String,
+        default: null,
+      },
+      subtitle: {
+        type: String,
+        default: null,
+      },
     },
-    subtitle: {
-      type: String,
-      default: null,
+    data: () => ({
+      spaceId: eXo.env.portal.spaceId,
+    }),
+    computed: {
+      spacesUri () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
+      },
+      profileName () {
+        return eXo.$currentUserIdentity && eXo.$currentUserIdentity.profile && eXo.$currentUserIdentity.profile.fullname;
+      },
+      profileUri () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`;
+      },
+      profilelink () {
+        return `<a href="${this.profileUri}"><strong class="text-color">${this.profileName}</strong></a>`;
+      },
+      welcomeTitle () {
+        return this.title || this.$t('UIActivity.label.Welcome_Activity_Welcome_Onboard', {
+          'user full name': this.profilelink,
+        });
+      },
+      welcomeSubTitle () {
+        return this.subtitle || this.$t('UIActivity.label.Welcome_Activity_Placeholder');
+      },
+      spacesLink () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
+      },
     },
-  },
-  data: () => ({
-    spaceId: eXo.env.portal.spaceId,
-  }),
-  computed: {
-    spacesUri() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
+    methods: {
+      openComposer () {
+        document.dispatchEvent(new CustomEvent('activity-composer-drawer-open'));
+      },
+      sendKudos () {
+        this.getSendKudosElement().click();
+      },
+      writeArticle () {
+        this.getWriteArticleElement().click();
+      },
+      writePoll () {
+        this.getPollElement().click();
+      },
+      getWriteArticleElement () {
+        return document.querySelector('#writeNewsBtnToolbar');
+      },
+      getSendKudosElement () {
+        return document.querySelector('#kudosBtnToolbar');
+      },
+      getPollElement () {
+        return document.querySelector('#pollBtnToolbar');
+      },
     },
-    profileName() {
-      return this.$currentUserIdentity && this.$currentUserIdentity.profile && this.$currentUserIdentity.profile.fullname;
-    },
-    profileUri() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`;
-    },
-    profilelink() {
-      return `<a href="${this.profileUri}"><strong class="text-color">${this.profileName}</strong></a>`;
-    },
-    welcomeTitle() {
-      return this.title || this.$t('UIActivity.label.Welcome_Activity_Welcome_Onboard', {
-        'user full name': this.profilelink,
-      });
-    },
-    welcomeSubTitle() {
-      return this.subtitle || this.$t('UIActivity.label.Welcome_Activity_Placeholder');
-    },
-    spacesLink() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
-    },
-  },
-  methods: {
-    openComposer() {
-      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open'));
-    },
-    sendKudos() {
-      this.getSendKudosElement().click();
-    },
-    writeArticle() {
-      this.getWriteArticleElement().click();
-    },
-    writePoll() {
-      this.getPollElement().click();
-    },
-    getWriteArticleElement() {
-      return document.querySelector('#writeNewsBtnToolbar');
-    },
-    getSendKudosElement() {
-      return document.querySelector('#kudosBtnToolbar');
-    },
-    getPollElement() {
-      return document.querySelector('#pollBtnToolbar');
-    },
-  },
-};
+  };
 </script>

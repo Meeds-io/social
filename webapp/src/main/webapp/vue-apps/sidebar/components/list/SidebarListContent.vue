@@ -25,9 +25,9 @@
   </div>
 </template>
 <script>
-export default {
-  created() {
-    this.$socialWebSocket.initCometd('/SpaceWebNotification');
-  },
-};
+  export default {
+    created () {
+      eXo.$socialWebSocket.initCometd('/SpaceWebNotification');
+    },
+  };
 </script>

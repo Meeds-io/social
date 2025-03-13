@@ -20,10 +20,10 @@
     ref="filterStreamDrawer"
     body-classes="hide-scroll decrease-z-index-more"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('activity.filter.title') }}
     </template>
-    <template slot="content">
+    <template #content>
       <div class="pa-5">
         <v-radio-group
           v-model="filter"
@@ -36,7 +36,7 @@
         </v-radio-group>
       </div>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="VuetifyApp flex d-flex">
         <v-btn
           class="dark-grey-color px-1 hidden-xs-only"
@@ -69,72 +69,72 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    filterToChange: null,
-    spaceId: eXo.env.portal.spaceId,
-    filter: 'all_stream',
-  }),
-  computed: {
-    streamFilters() {
-      return [{
-        text: this.spaceId && this.$t('activity.filter.anyActivity') || this.$t('activity.filter.all'),
-        value: 'all_stream',
-      },{
-        text: this.$t('activity.filter.unreadSpacesStream'),
-        value: 'unread_spaces_stream',
-      },{
-        text: this.$t('activity.filter.pinnedActivities'),
-        value: 'pin_stream',
-        enable: !this.spaceId,
-      },{
-        text: this.$t('activity.filter.myActivities'),
-        value: 'user_stream',
-      },{
-        text: this.$t('activity.filter.favoriteActivities'),
-        value: 'user_favorite_stream',
-      },{
-        text: this.$t('activity.filter.manageSpaces'),
-        value: 'manage_spaces_stream',
-        enable: !this.spaceId,
-      },{
-        text: this.$t('activity.filter.favoriteSpaces'),
-        value: 'favorite_spaces_stream',
-        enable: !this.spaceId,
-      }].filter(filter => filter.enable == null || filter.enable === true);
+  export default {
+    data: () => ({
+      filterToChange: null,
+      spaceId: eXo.env.portal.spaceId,
+      filter: 'all_stream',
+    }),
+    computed: {
+      streamFilters () {
+        return [{
+          text: this.spaceId && this.$t('activity.filter.anyActivity') || this.$t('activity.filter.all'),
+          value: 'all_stream',
+        },{
+          text: this.$t('activity.filter.unreadSpacesStream'),
+          value: 'unread_spaces_stream',
+        },{
+          text: this.$t('activity.filter.pinnedActivities'),
+          value: 'pin_stream',
+          enable: !this.spaceId,
+        },{
+          text: this.$t('activity.filter.myActivities'),
+          value: 'user_stream',
+        },{
+          text: this.$t('activity.filter.favoriteActivities'),
+          value: 'user_favorite_stream',
+        },{
+          text: this.$t('activity.filter.manageSpaces'),
+          value: 'manage_spaces_stream',
+          enable: !this.spaceId,
+        },{
+          text: this.$t('activity.filter.favoriteSpaces'),
+          value: 'favorite_spaces_stream',
+          enable: !this.spaceId,
+        }].filter(filter => filter.enable == null || filter.enable === true);
+      },
     },
-  },
-  created() {
-    this.$root.$on('activity-stream-reset-filter', this.resetFilter);
-    this.filter = this.$activityUtils.getStreamFilter();
-  },
-  beforeDestroy() {
-    this.$root.$off('activity-stream-reset-filter', this.resetFilter);
-  },
-  methods: {
-    applyFilter() {
-      this.$root.$emit('close-alert-message');
-      document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
-      this.$activityUtils.setStreamFilter(this.filter);
-      this.$refs.filterStreamDrawer.close();
+    created () {
+      this.$root.$on('activity-stream-reset-filter', this.resetFilter);
+      this.filter = eXo.$activityUtils.getStreamFilter();
     },
-    open() {
-      this.$refs.filterStreamDrawer.open();
+    beforeUnmount () {
+      this.$root.$off('activity-stream-reset-filter', this.resetFilter);
     },
-    cancel() {
-      this.filter = this.$activityUtils.getStreamFilter();
-      if (this.$refs.filterStreamDrawer) {
+    methods: {
+      applyFilter () {
+        this.$root.$emit('close-alert-message');
+        document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', { detail: this.filter }));
+        eXo.$activityUtils.setStreamFilter(this.filter);
         this.$refs.filterStreamDrawer.close();
-      }
+      },
+      open () {
+        this.$refs.filterStreamDrawer.open();
+      },
+      cancel () {
+        this.filter = eXo.$activityUtils.getStreamFilter();
+        if (this.$refs.filterStreamDrawer) {
+          this.$refs.filterStreamDrawer.close();
+        }
+      },
+      resetFilter (silent) {
+        if (silent) {
+          eXo.$activityUtils.setStreamFilter('all_stream');
+        } else {
+          this.filter = 'all_stream';
+          this.applyFilter();
+        }
+      },
     },
-    resetFilter(silent) {
-      if (silent) {
-        this.$activityUtils.setStreamFilter('all_stream');
-      } else {
-        this.filter = 'all_stream';
-        this.applyFilter();
-      }
-    }
-  },
-};
+  };
 </script>

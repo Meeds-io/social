@@ -23,78 +23,78 @@
         v-for="attachment in sortedAttachments"
         :key="attachment.id"
         :attachment="attachment"
-        :object-type="objectType"
-        :object-id="objectId"
-        :preview-width="previewWidth"
-        :preview-height="previewHeight"
         class="attachments-image-item"
+        :object-id="objectId"
+        :object-type="objectType"
+        :preview-height="previewHeight"
+        :preview-width="previewWidth"
         @preview-attachment="openPreview(attachment.id)" />
     </card-carousel>
   </div>
 </template>
 
 <script>
-export default {
-  props: {
-    objectType: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      objectType: {
+        type: String,
+        default: null,
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
+      attachments: {
+        type: Array,
+        default: null,
+      },
+      previewHeight: {
+        type: Number,
+        default: () => 50,
+      },
+      previewWidth: {
+        type: Number,
+        default: () => 50,
+      },
     },
-    objectId: {
-      type: String,
-      default: null,
+    data: () => ({
+      updatedAttachments: null,
+    }),
+    computed: {
+      imageAttachments () {
+        return this.updatedAttachments || this.attachments || [];
+      },
+      attachmentsCount () {
+        return this.imageAttachments?.length || 0;
+      },
+      sortedAttachments () {
+        const sortedAttachments = this.attachmentsCount && this.imageAttachments.slice() || [];
+        sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
+        return sortedAttachments;
+      },
     },
-    attachments: {
-      type: Array,
-      default: null,
-    },
-    previewHeight: {
-      type: Number,
-      default: () => 50,
-    },
-    previewWidth: {
-      type: Number,
-      default: () => 50,
-    },
-  },
-  data: () => ({
-    updatedAttachments: null,
-  }),
-  computed: {
-    imageAttachments() {
-      return this.updatedAttachments || this.attachments || [];
-    },
-    attachmentsCount() {
-      return this.imageAttachments?.length || 0;
-    },
-    sortedAttachments() {
-      const sortedAttachments = this.attachmentsCount && this.imageAttachments.slice() || [];
-      sortedAttachments.sort((a1, a2) => Number(a1.id) - Number(a2.id));
-      return sortedAttachments;
-    },
-  },
-  created() {
-    document.addEventListener('attachments-updated', this.updateAttachments);
-    if (!this.attachments) {
-      this.retrieveAttachments();
-    }
-  },
-  beforeDestroy() {
-    document.removeEventListener('attachments-updated', this.updateAttachments);
-  },
-  methods: {
-    updateAttachments(event) {
-      if (event?.detail?.objectType === this.objectType && this.objectId === event?.detail?.objectId) {
+    created () {
+      document.addEventListener('attachments-updated', this.updateAttachments);
+      if (!this.attachments) {
         this.retrieveAttachments();
       }
     },
-    retrieveAttachments() {
-      return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
-        .then(data => this.updatedAttachments = data?.attachments || []);
+    beforeUnmount () {
+      document.removeEventListener('attachments-updated', this.updateAttachments);
     },
-    openPreview(attachmentId) {
-      this.$root.$emit('open-attachments-preview', this.objectType, this.objectId, this.imageAttachments || [], attachmentId);
+    methods: {
+      updateAttachments (event) {
+        if (event?.detail?.objectType === this.objectType && this.objectId === event?.detail?.objectId) {
+          this.retrieveAttachments();
+        }
+      },
+      retrieveAttachments () {
+        return eXo.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
+          .then(data => this.updatedAttachments = data?.attachments || []);
+      },
+      openPreview (attachmentId) {
+        this.$root.$emit('open-attachments-preview', this.objectType, this.objectId, this.imageAttachments || [], attachmentId);
+      },
     },
-  },
-};
+  };
 </script>

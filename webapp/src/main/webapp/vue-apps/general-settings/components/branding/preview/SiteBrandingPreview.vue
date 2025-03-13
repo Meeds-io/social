@@ -30,123 +30,122 @@
       <iframe
         v-if="initialized && parentWidth"
         id="previewIframe" 
-        :title="$t('generalSettings.preview.title')"
-        :src="pageHomeLink" 
-        :width="`${iframeWidthPercentage}%`"
-        :height="`${iframeHeightPercentage}%`"
-        :style="`transform: scale(${zoom}); transform-origin: 0 0;`"
+        class="no-border"
+        :height="`${iframeHeightPercentage}%`" 
         name="pageHomeLink"
-        class="no-border">
-      </iframe>
+        :src="pageHomeLink"
+        :style="`transform: scale(${zoom}); transform-origin: 0 0;`"
+        :title="$t('generalSettings.preview.title')"
+        :width="`${iframeWidthPercentage}%`"></iframe>
     </div>
   </div>
 </template>
 <script>
-export default {
-  data: ()=> ({
-    initialized: false,
-    sites: null,
-    parentWidth: 0,
-    zoom: 0.5,
-    iframeParentHeight: '600px'
-  }),
-  computed: {
-    iframeWidthPercentage() {
-      return parseInt((1 / this.zoom) * 100);
+  export default {
+    data: ()=> ({
+      initialized: false,
+      sites: null,
+      parentWidth: 0,
+      zoom: 0.5,
+      iframeParentHeight: '600px',
+    }),
+    computed: {
+      iframeWidthPercentage () {
+        return parseInt((1 / this.zoom) * 100);
+      },
+      iframeHeightPercentage () {
+        return parseInt((1 / this.zoom) * 100);
+      },
+      pageHomeLink () {
+        return `${eXo.env.portal.context}/${this.sites?.[0]?.name || eXo.env.portal.metaPortalName}?sticky=false`;
+      },
     },
-    iframeHeightPercentage() {
-      return parseInt((1 / this.zoom) * 100);
+    created () {
+      this.$root.$on('refresh-style-property', this.setStyleProperty);
+      this.$root.$on('refresh-body-style-property', this.setBodyStyleProperty);
+      this.$root.$on('refresh-iframe', this.reloadURL);
+      this.$root.$on('refresh-company-name', this.refreshCompanyName);
+      this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
+      this.$root.$on('refresh-style-properties', this.setStyleProperties);
+      this.init();
     },
-    pageHomeLink() {
-      return `${eXo.env.portal.context}/${this.sites?.[0]?.name || eXo.env.portal.metaPortalName}?sticky=false`;
+    mounted () {
+      this.computeWidth();
     },
-  },
-  created() {
-    this.$root.$on('refresh-style-property', this.setStyleProperty);
-    this.$root.$on('refresh-body-style-property', this.setBodyStyleProperty);
-    this.$root.$on('refresh-iframe', this.reloadURL);
-    this.$root.$on('refresh-company-name', this.refreshCompanyName);
-    this.$root.$on('refresh-company-logo', this.refreshCompanyLogo);
-    this.$root.$on('refresh-style-properties', this.setStyleProperties);
-    this.init();
-  },
-  mounted() {
-    this.computeWidth();
-  },
-  beforeDestroy() {
-    this.$root.$off('refresh-style-property', this.setStyleProperty);
-    this.$root.$off('refresh-body-style-property', this.setBodyStyleProperty);
-    this.$root.$off('refresh-iframe', this.reloadURL);
-    this.$root.$off('refresh-company-name', this.refreshCompanyName);
-    this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
-    this.$root.$off('refresh-style-properties', this.setStyleProperties);
-  },
-  methods: {
-    init() {
-      return this.$siteService.getSites('PORTAL', null, 'global', true, true, false, true, true, true, true, true, true, ['displayed', 'temporal'])
-        .then(data => this.sites = data || [])
-        .then(this.computeWidth)
-        .finally(() => this.initialized = true);
+    beforeUnmount () {
+      this.$root.$off('refresh-style-property', this.setStyleProperty);
+      this.$root.$off('refresh-body-style-property', this.setBodyStyleProperty);
+      this.$root.$off('refresh-iframe', this.reloadURL);
+      this.$root.$off('refresh-company-name', this.refreshCompanyName);
+      this.$root.$off('refresh-company-logo', this.refreshCompanyLogo);
+      this.$root.$off('refresh-style-properties', this.setStyleProperties);
     },
-    computeWidth() {
-      if (this.$refs.iframeParent) {
-        this.parentWidth = this.$refs.iframeParent.clientWidth;
-      }
-    },
-    reloadURL() {
-      document.getElementById('previewIframe').src = this.pageHomeLink;
-    },
-    setStyleProperty(event) {
-      if (this.initialized
+    methods: {
+      init () {
+        return eXo.$siteService.getSites('PORTAL', null, 'global', true, true, false, true, true, true, true, true, true, ['displayed', 'temporal'])
+          .then(data => this.sites = data || [])
+          .then(this.computeWidth)
+          .finally(() => this.initialized = true);
+      },
+      computeWidth () {
+        if (this.$refs.iframeParent) {
+          this.parentWidth = this.$refs.iframeParent.clientWidth;
+        }
+      },
+      reloadURL () {
+        document.getElementById('previewIframe').src = this.pageHomeLink;
+      },
+      setStyleProperty (event) {
+        if (this.initialized
           && event?.detail
           && event.detail?.propertyName
           && event.detail?.propertyValue) {
-        const propertyName = event.detail.propertyName;
-        const propertyValue = event.detail.propertyValue;
-        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+          const propertyName = event.detail.propertyName;
+          const propertyValue = event.detail.propertyValue;
+          const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+          if (iframeDoc) {
+            iframeDoc.style.setProperty(propertyName, propertyValue);
+          }
+        }
+      },
+      setBodyStyleProperty (property) {
+        const propertyName = property.name;
+        const propertyValue = property.value;
+        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.body;
         if (iframeDoc) {
           iframeDoc.style.setProperty(propertyName, propertyValue);
         }
-      }
-    },
-    setBodyStyleProperty(property) {
-      const propertyName = property.name;
-      const propertyValue = property.value;
-      const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.body;
-      if (iframeDoc) {
-        iframeDoc.style.setProperty(propertyName, propertyValue);
-      }
-    },
-    refreshCompanyName(event) {
-      if (event) {
-        const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementsByClassName?.('logoTitle')[0];
-        if (companyNameElement) {
-          companyNameElement.innerHTML = event;
+      },
+      refreshCompanyName (event) {
+        if (event) {
+          const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementsByClassName?.('logoTitle')[0];
+          if (companyNameElement) {
+            companyNameElement.innerHTML = event;
+          }
         }
-      }
-    },
-    refreshCompanyLogo(event) {
-      if (event) {
-        const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementById?.('UserHomePortalLink').getElementsByTagName('img')[0];
-        if (companyNameElement) {
-          companyNameElement.src = event;
+      },
+      refreshCompanyLogo (event) {
+        if (event) {
+          const companyNameElement =  document.getElementById('previewIframe')?.contentWindow?.document?.getElementById?.('UserHomePortalLink').getElementsByTagName('img')[0];
+          if (companyNameElement) {
+            companyNameElement.src = event;
+          }
         }
-      }
-    },
-    setStyleProperties(event) {
-      if (this.initialized && event?.detail) {
-        const properties = event.detail;
-        const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
+      },
+      setStyleProperties (event) {
+        if (this.initialized && event?.detail) {
+          const properties = event.detail;
+          const iframeDoc = document.getElementById('previewIframe')?.contentWindow?.document?.documentElement;
 
-        if (iframeDoc) {
-          for (const [propertyName, propertyValue] of Object.entries(properties)) {
-            if (propertyName && propertyValue) {
-              iframeDoc.style.setProperty(propertyName, propertyValue);
+          if (iframeDoc) {
+            for (const [propertyName, propertyValue] of Object.entries(properties)) {
+              if (propertyName && propertyValue) {
+                iframeDoc.style.setProperty(propertyName, propertyValue);
+              }
             }
           }
         }
-      }
-    }
-  }
-};
+      },
+    },
+  };
 </script>

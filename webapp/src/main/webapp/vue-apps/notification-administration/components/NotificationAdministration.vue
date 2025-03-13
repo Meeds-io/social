@@ -1,7 +1,9 @@
 <template>
   <v-app>
     <v-main v-if="notificationSettings">
-      <v-card class="pa-5 application-body" flat>
+      <v-card
+        class="pa-5 application-body"
+        flat>
         <notification-administration-contact
           :settings="notificationSettings" />
         <notification-administration-channels
@@ -14,33 +16,33 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    notificationSettings: null,
-  }),
-  created() {
-    this.$root.$on('refresh', this.refresh);
-    this.refresh();
-  },
-  methods: {
-    refresh() {
-      return this.$notificationAdministration.getSettings()
-        .then(settings => {
-          if (settings?.channelLabels) {
-            Object.keys(settings.channelLabels).forEach(channelId => {
-              if (this.$te(`NotificationAdmin.${channelId}.name`)) {
-                settings.channelLabels[channelId] = this.$t(`NotificationAdmin.${channelId}.name`);
-              }
-            });
-          }
-          this.notificationSettings = settings;
-          return this.$nextTick();
-        })
-        .finally(() => {
-          this.$nextTick().then(() => this.$root.$applicationLoaded());
-        });
+  export default {
+    data: () => ({
+      notificationSettings: null,
+    }),
+    created () {
+      this.$root.$on('refresh', this.refresh);
+      this.refresh();
     },
-  },
-};
+    methods: {
+      refresh () {
+        return eXo.$notificationAdministration.getSettings()
+          .then(settings => {
+            if (settings?.channelLabels) {
+              Object.keys(settings.channelLabels).forEach(channelId => {
+                if (this.$te(`NotificationAdmin.${channelId}.name`)) {
+                  settings.channelLabels[channelId] = this.$t(`NotificationAdmin.${channelId}.name`);
+                }
+              });
+            }
+            this.notificationSettings = settings;
+            return this.$nextTick();
+          })
+          .finally(() => {
+            this.$nextTick().then(() => this.$root.$applicationLoaded());
+          });
+      },
+    },
+  };
 </script>
 

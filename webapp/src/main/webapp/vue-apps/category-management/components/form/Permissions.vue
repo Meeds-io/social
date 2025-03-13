@@ -72,203 +72,203 @@
       v-if="isCustomPermissions"
       ref="targetPermissions"
       v-model="specificGroupEntries"
-      :labels="suggesterLabels"
-      :group-member="userGroup"
-      :search-options="{filterType: 'all'}"
-      name="specificGroupPermissions"
-      class="mb-n3"
-      include-spaces
-      include-groups
       all-groups-for-admin
+      class="mb-n3"
+      :group-member="userGroup"
+      include-groups
+      include-spaces
+      :labels="suggesterLabels"
       multiple
-      required />
+      name="specificGroupPermissions"
+      required
+      :search-options="{filterType: 'all'}" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
+      showAny: {
+        type: Boolean,
+        default: false,
+      },
     },
-    showAny: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    isAdministrationPermissions: true,
-    isUserPermissions: false,
-    isGuestPermissions: false,
-    isAnyPermissions: false,
-    isCustomPermissions: false,
-    specificGroupEntries: null,
-    permissionIdentityIds: null,
-    initialized: false,
-  }),
-  computed: {
-    permissions() {
-      const permissions = [];
-      if (this.isAnyPermissions) {
-        permissions.push(this.$root.everyonePermission);
-      } else {
-        if (this.isUserPermissions) {
-          permissions.push(this.$root.usersPermission);
+    data: () => ({
+      isAdministrationPermissions: true,
+      isUserPermissions: false,
+      isGuestPermissions: false,
+      isAnyPermissions: false,
+      isCustomPermissions: false,
+      specificGroupEntries: null,
+      permissionIdentityIds: null,
+      initialized: false,
+    }),
+    computed: {
+      permissions () {
+        const permissions = [];
+        if (this.isAnyPermissions) {
+          permissions.push(this.$root.everyonePermission);
+        } else {
+          if (this.isUserPermissions) {
+            permissions.push(this.$root.usersPermission);
+          }
+          if (this.isGuestPermissions) {
+            permissions.push(this.$root.guestsPermission);
+          }
+          if (this.specificGroupEntries?.length) {
+            const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
+            permissions.push(...specificGroupEntries);
+          }
         }
-        if (this.isGuestPermissions) {
-          permissions.push(this.$root.guestsPermission);
+        return permissions;
+      },
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('categoryManagement.groupSuggester.placeholder'),
+          noDataLabel: this.$t('categoryManagement.groupSuggester.noData'),
+        };
+      },
+    },
+    watch: {
+      permissions () {
+        if (this.initialized) {
+          this.computePermissionIdentityIds();
         }
-        if (this.specificGroupEntries?.length) {
-          const specificGroupEntries = this.specificGroupEntries?.map?.(g => g.groupId)?.filter?.(g => g) || [];
-          permissions.push(...specificGroupEntries);
+      },
+      permissionIdentityIds () {
+        if (this.initialized) {
+          this.$emit('input', this.permissionIdentityIds);
         }
-      }
-      return permissions;
+      },
+      isAnyPermissions () {
+        if (this.isAnyPermissions) {
+          this.isAdministrationPermissions = true;
+          this.isUserPermissions = true;
+          this.isGuestPermissions = true;
+          this.isCustomPermissions = false;
+        }
+      },
     },
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('categoryManagement.groupSuggester.placeholder'),
-        noDataLabel: this.$t('categoryManagement.groupSuggester.noData')
-      };
-    },
-  },
-  watch: {
-    permissions() {
-      if (this.initialized) {
-        this.computePermissionIdentityIds();
-      }
-    },
-    permissionIdentityIds() {
-      if (this.initialized) {
-        this.$emit('input', this.permissionIdentityIds);
-      }
-    },
-    isAnyPermissions() {
-      if (this.isAnyPermissions) {
-        this.isAdministrationPermissions = true;
-        this.isUserPermissions = true;
-        this.isGuestPermissions = true;
-        this.isCustomPermissions = false;
-      }
-    },
-  },
-  async created() {
-    const identityIds = this.value?.slice?.() || [];
-    const permissions = await Promise.all(identityIds.map(this.retrieveGroupIdByIdentityId));
-    this.isAnyPermissions = permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
-    this.isUserPermissions = permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
-    this.isGuestPermissions = permissions?.find?.(p => p === this.$root.guestsPermission) && true || false;
-    this.specificGroupEntries = [];
+    async created () {
+      const identityIds = this.value?.slice?.() || [];
+      const permissions = await Promise.all(identityIds.map(this.retrieveGroupIdByIdentityId));
+      this.isAnyPermissions = permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
+      this.isUserPermissions = permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
+      this.isGuestPermissions = permissions?.find?.(p => p === this.$root.guestsPermission) && true || false;
+      this.specificGroupEntries = [];
 
-    const specificGroupEntries = permissions?.filter?.(p => p
-      && p !== this.$root.administratorsPermission
-      && p !== this.$root.usersPermission
-      && p !== this.$root.guestsPermission
-      && p !== this.$root.everyonePermission
-    ) || null;
-    if (specificGroupEntries?.length) {
-      await Promise.all(specificGroupEntries.map(this.retrieveObject));
-    }
-    this.isCustomPermissions = !!this.specificGroupEntries?.length;
-    this.initialized = true;
-  },
-  methods: {
-    async retrieveObject(groupId) {
-      groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
-      if (groupId.indexOf('/spaces/') === 0) {
-        const space = await this.$spaceService.getSpaceByGroupId(groupId);
-        if (space) {
-          this.specificGroupEntries.push({
-            id: `space:${space.prettyName}`,
-            remoteId: space.prettyName,
-            spaceId: space.id,
-            groupId: space.groupId,
-            providerId: 'space',
-            displayName: space.displayName,
-            profile: {
-              fullName: space.displayName,
-              originalName: space.shortName,
-              avatarUrl: space.avatarUrl ? space.avatarUrl : `/portal/rest/v1/social/spaces/${space.prettyName}/avatar`,
-            },
-          });
-        }
-      } else {
-        const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
-        if (group) {
-          this.specificGroupEntries.push({
-            id: `group:${group.remoteId}`,
-            remoteId: group.remoteId,
-            spaceId: groupId,
-            groupId: groupId,
-            providerId: 'group',
-            displayName: group.profile?.fullname,
-            profile: {
-              fullName: group.profile?.fullname,
-              originalName: group.profile?.fullname,
-            },
-          });
-        }
+      const specificGroupEntries = permissions?.filter?.(p => p
+        && p !== this.$root.administratorsPermission
+        && p !== this.$root.usersPermission
+        && p !== this.$root.guestsPermission
+        && p !== this.$root.everyonePermission
+      ) || null;
+      if (specificGroupEntries?.length) {
+        await Promise.all(specificGroupEntries.map(this.retrieveObject));
       }
+      this.isCustomPermissions = !!this.specificGroupEntries?.length;
+      this.initialized = true;
     },
-    async computePermissionIdentityIds() {
-      this.permissionIdentityIds = await Promise.all(this.permissions.map(this.retrieveIdentityIdByGroupId));
-    },
-    async retrieveIdentityIdByGroupId(groupId) {
-      if (Object.hasOwn(this.$root.identityIdPerGroup, groupId)) {
-        return this.$root.identityIdPerGroup[groupId];
-      } else if (groupId === this.$root.everyonePermission) {
-        return 0;
-      } else {try {
-        if (groupId?.startsWith('/spaces/')) {
-          const space = await this.$spaceService.getSpaceByGroupId(groupId);
+    methods: {
+      async retrieveObject (groupId) {
+        groupId = groupId.includes(':') ? groupId.split(':')[1] : groupId;
+        if (groupId.indexOf('/spaces/') === 0) {
+          const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
           if (space) {
-            const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
-            if (identity) {
-              const identityId = Number(identity.id);
-              this.$root.identityIdPerGroup[groupId] = identityId;
-              return identityId;
+            this.specificGroupEntries.push({
+              id: `space:${space.prettyName}`,
+              remoteId: space.prettyName,
+              spaceId: space.id,
+              groupId: space.groupId,
+              providerId: 'space',
+              displayName: space.displayName,
+              profile: {
+                fullName: space.displayName,
+                originalName: space.shortName,
+                avatarUrl: space.avatarUrl ? space.avatarUrl : `/portal/rest/v1/social/spaces/${space.prettyName}/avatar`,
+              },
+            });
+          }
+        } else {
+          const group = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+          if (group) {
+            this.specificGroupEntries.push({
+              id: `group:${group.remoteId}`,
+              remoteId: group.remoteId,
+              spaceId: groupId,
+              groupId,
+              providerId: 'group',
+              displayName: group.profile?.fullname,
+              profile: {
+                fullName: group.profile?.fullname,
+                originalName: group.profile?.fullname,
+              },
+            });
+          }
+        }
+      },
+      async computePermissionIdentityIds () {
+        this.permissionIdentityIds = await Promise.all(this.permissions.map(this.retrieveIdentityIdByGroupId));
+      },
+      async retrieveIdentityIdByGroupId (groupId) {
+        if (Object.hasOwn(this.$root.identityIdPerGroup, groupId)) {
+          return this.$root.identityIdPerGroup[groupId];
+        } else if (groupId === this.$root.everyonePermission) {
+          return 0;
+        } else {try {
+                  if (groupId?.startsWith('/spaces/')) {
+                    const space = await eXo.$spaceService.getSpaceByGroupId(groupId);
+                    if (space) {
+                      const identity = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('space', space.prettyName);
+                      if (identity) {
+                        const identityId = Number(identity.id);
+                        this.$root.identityIdPerGroup[groupId] = identityId;
+                        return identityId;
+                      }
+                    }
+                  } else if (groupId?.startsWith('/')) {
+                    const identity = await eXo.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
+                    if (identity) {
+                      const identityId = Number(identity.id);
+                      this.$root.identityIdPerGroup[groupId] = identityId;
+                      return identityId;
+                    }
+                  }
+                } catch (e) {
+         
+                  console.error('Error while retrieving Identity with groupId : ', groupId);
+                }
+                return 0;
+        }
+      },
+      async retrieveGroupIdByIdentityId (identityId) {
+        if (Object.hasOwn(this.$root.groupPerIdentityId, identityId)) {
+          return this.$root.groupPerIdentityId[identityId];
+        } else if (identityId === 0) {
+          return this.$root.everyonePermission;
+        } else {
+          try {
+            const identity = await eXo.$identityService.getIdentityById(identityId);
+            if (identity.providerId === 'space') {
+              const groupId = identity?.space?.groupId;
+              this.$root.groupPerIdentityId[identityId] = groupId;
+              return groupId;
+            } else {
+              const groupId = identity?.remoteId;
+              this.$root.groupPerIdentityId[identityId] = groupId;
+              return groupId;
             }
+          } catch (e) {
+           
+            console.error('Error while retrieving Identity with id : ', identityId);
           }
-        } else if (groupId?.startsWith('/')) {
-          const identity = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', groupId);
-          if (identity) {
-            const identityId = Number(identity.id);
-            this.$root.identityIdPerGroup[groupId] = identityId;
-            return identityId;
-          }
+          this.$root.groupPerIdentityId[identityId] = null;
+          return null;
         }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error('Error while retrieving Identity with groupId : ', groupId);
-      }
-      return 0;
-      }
+      },
     },
-    async retrieveGroupIdByIdentityId(identityId) {
-      if (Object.hasOwn(this.$root.groupPerIdentityId, identityId)) {
-        return this.$root.groupPerIdentityId[identityId];
-      } else if (identityId === 0) {
-        return this.$root.everyonePermission;
-      } else {
-        try {
-          const identity = await this.$identityService.getIdentityById(identityId);
-          if (identity.providerId === 'space') {
-            const groupId = identity?.space?.groupId;
-            this.$root.groupPerIdentityId[identityId] = groupId;
-            return groupId;
-          } else {
-            const groupId = identity?.remoteId;
-            this.$root.groupPerIdentityId[identityId] = groupId;
-            return groupId;
-          }
-        } catch (e) {
-          // eslint-disable-next-line no-console
-          console.error('Error while retrieving Identity with id : ', identityId);
-        }
-        this.$root.groupPerIdentityId[identityId] = null;
-        return null;
-      }
-    },
-  },
-};
+  };
 </script>

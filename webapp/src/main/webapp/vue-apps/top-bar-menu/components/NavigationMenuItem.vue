@@ -22,28 +22,28 @@
 <template>
   <v-menu
     v-model="showMenu"
-    rounded
-    :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
-    :left="$vuetify.rtl"
-    :open-on-hover="isOpenedOnHover"
     bottom
+    :content-class="`topBar-navigation-drop-menu ${isTopBarElement && 'layout-top-bar' || ''}`"
+    eager
+    :left="$vuetify.rtl"
     offset-y
-    eager>
+    :open-on-hover="isOpenedOnHover"
+    rounded>
     <template #activator="{ on, attrs }">
       <v-tab
         v-if="hasPage || hasChildren && childrenHasPage"
-        :href="navigationNodeUri"
-        :target="navigationNodeTarget"
-        :rel="navigationNodeRel"
-        :link="hasPage"
         :aria-label="navigation.label"
         :class="`mx-auto text-break ${notClickable}`"
-        :value="navigationNodeUri"
-        v-on="on"
+        :href="navigationNodeUri"
+        :link="hasPage"
+        :rel="navigationNodeRel"
         v-bind="attrs"
         role="tab"
-        @click="checkLink"
-        @change="updateNavigationState">
+        :target="navigationNodeTarget"
+        :value="navigationNodeUri"
+        v-on="on"
+        @change="updateNavigationState"
+        @click="checkLink">
         <span
           class="text-truncate-3">
           {{ navigation.label }}
@@ -61,141 +61,141 @@
     </template>
     <navigation-menu-sub-item
       v-for="children in navigation.children"
-      class="transparent"
       :key="children.id"
-      :navigation="children"
       :base-site-uri="baseSiteUri"
+      class="transparent"
+      :navigation="children"
       :parent-navigation-uri="navigation.uri"
       :selected-path="selectedPath"
-      @update-navigation-state="updateNavigationState"
-      @select="updateNavigationState" />
+      @select="updateNavigationState"
+      @update-navigation-state="updateNavigationState" />
   </v-menu>
 </template>
 
 <script>
-export default {
-  props: {
-    navigation: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      navigation: {
+        type: Object,
+        default: null,
+      },
+      baseSiteUri: {
+        type: String,
+        default: null,
+      },
+      selectedPath: {
+        type: String,
+        default: null,
+      },
     },
-    baseSiteUri: {
-      type: String,
-      default: null
+    data () {
+      return {
+        showMenu: false,
+        isOpenedOnHover: true,
+      };
     },
-    selectedPath: {
-      type: String,
-      default: null
+    computed: {
+      isSelected () {
+        return this.selectedPath === this.navigationNodeUri;
+      },
+      notClickable () {
+        return `${this.hasPage ? ' ' : ' not-clickable ' }`;
+      },
+      hasChildren () {
+        return this.navigation?.children?.length;
+      },
+      hasPage () {
+        return !!this.navigation?.pageKey;
+      },
+      navigationNodeUri () {
+        return eXo.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
+      },
+      navigationNodeTarget () {
+        return eXo.$navigationUtils.getNavigationNodeTarget(this.navigation);
+      },
+      navigationNodeRel () {
+        return eXo.$navigationUtils.getNavigationNodeRel(this.navigation);
+      },
+      childrenHasPage () {
+        return this.checkChildrenHasPage(this.navigation);
+      },
+      isTopBarElement () {
+        return this.$root.isTopBarElement;
+      },
     },
-  },
-  data () {
-    return {
-      showMenu: false,
-      isOpenedOnHover: true,
-    };
-  },
-  computed: {
-    isSelected() {
-      return this.selectedPath === this.navigationNodeUri;
+    watch: {
+      showMenu () {
+        this.isOpenedOnHover = !this.showMenu;
+        this.$root.$emit('close-sibling-drop-menus', this); 
+      },
+      isSelected: {
+        immediate: true,
+        handler () {
+          if (this.isSelected) {
+            this.updateNavigationState();
+          }
+        },
+      },
     },
-    notClickable() {
-      return `${this.hasPage ? ' ' : ' not-clickable ' }`;
+    created () {
+      document.addEventListener('click', this.handleCloseMenu);
+      this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
     },
-    hasChildren() {
-      return this.navigation?.children?.length;
-    },
-    hasPage() {
-      return !!this.navigation?.pageKey;
-    },
-    navigationNodeUri() {
-      return this.$navigationUtils.getNavigationNodeUri(this.baseSiteUri, this.navigation);
-    },
-    navigationNodeTarget() {
-      return this.$navigationUtils.getNavigationNodeTarget(this.navigation);
-    },
-    navigationNodeRel() {
-      return this.$navigationUtils.getNavigationNodeRel(this.navigation);
-    },
-    childrenHasPage() {
-      return this.checkChildrenHasPage(this.navigation);
-    },
-    isTopBarElement() {
-      return this.$root.isTopBarElement;
-    }
-  },
-  watch: {
-    showMenu() {
-      this.isOpenedOnHover = !this.showMenu;
-      this.$root.$emit('close-sibling-drop-menus', this); 
-    },
-    isSelected: {
-      immediate: true,
-      handler() {
-        if (this.isSelected) {
-          this.updateNavigationState();
+    methods: {
+      updateNavigationState () {
+        this.$emit('update-navigation-state', this.navigationNodeUri);
+      },
+      checkLink (e) {
+        if (!this.navigationNodeUri) {
+          e.stopPropagation();
+          e.preventDefault();
         }
-      }
-    },
-  },
-  created() {
-    document.addEventListener('click', this.handleCloseMenu);
-    this.$root.$on('close-sibling-drop-menus', this.handleCloseSiblingMenus);
-  },
-  methods: {
-    updateNavigationState() {
-      this.$emit('update-navigation-state', this.navigationNodeUri);
-    },
-    checkLink(e) {
-      if (!this.navigationNodeUri) {
-        e.stopPropagation();
-        e.preventDefault();
-      }
-      if (this.navigationNodeUri?.includes?.('#')) {
-        if (this.navigationNodeTarget === '_blank') {
-          window.open(this.navigationNodeUri);
-        } else {
-          window.location.href = this.navigationNodeUri;
+        if (this.navigationNodeUri?.includes?.('#')) {
+          if (this.navigationNodeTarget === '_blank') {
+            window.open(this.navigationNodeUri);
+          } else {
+            window.location.href = this.navigationNodeUri;
+          }
+        } else if (this.hasChildren && this.childrenHasPage) {
+          this.openDropMenu();
         }
-      } else if (this.hasChildren && this.childrenHasPage) {
-        this.openDropMenu();
-      }
-    },
-    openDropMenu(persist) {
-      if (!persist && this.showMenu) {
-        this.showMenu = false;
-      } else if (!this.showMenu) {
-        this.showMenu = true;
-        this.$root.$emit('close-sibling-drop-menus', this);
-      }
-    },
-    handleCloseSiblingMenus(emitter) {
-      if (this !== emitter && this.showMenu) {
-        this.showMenu = false;
-      }
-    },
-    handleCloseMenu() {
-      if (this.showMenu) {
-        setTimeout(() => {
+      },
+      openDropMenu (persist) {
+        if (!persist && this.showMenu) {
           this.showMenu = false;
-        }, 100);
-      }
-    },
-    checkChildrenHasPage(navigation) {
-      let childrenHasPage = false;
-      navigation.children.forEach(child => {
-        if (childrenHasPage === true) {
-          return;
+        } else if (!this.showMenu) {
+          this.showMenu = true;
+          this.$root.$emit('close-sibling-drop-menus', this);
         }
-        if (child.pageKey) {
-          childrenHasPage = true;
-        } else if (child.children.length > 0) {
-          childrenHasPage = this.checkChildrenHasPage(child);
-        } else {
-          childrenHasPage = false;
+      },
+      handleCloseSiblingMenus (emitter) {
+        if (this !== emitter && this.showMenu) {
+          this.showMenu = false;
         }
-      });
-      return childrenHasPage;
+      },
+      handleCloseMenu () {
+        if (this.showMenu) {
+          setTimeout(() => {
+            this.showMenu = false;
+          }, 100);
+        }
+      },
+      checkChildrenHasPage (navigation) {
+        let childrenHasPage = false;
+        navigation.children.forEach(child => {
+          if (childrenHasPage === true) {
+            return;
+          }
+          if (child.pageKey) {
+            childrenHasPage = true;
+          } else if (child.children.length > 0) {
+            childrenHasPage = this.checkChildrenHasPage(child);
+          } else {
+            childrenHasPage = false;
+          }
+        });
+        return childrenHasPage;
+      },
     },
-  }
-};
+  };
 </script>

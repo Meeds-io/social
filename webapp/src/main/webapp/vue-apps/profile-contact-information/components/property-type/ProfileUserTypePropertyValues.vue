@@ -26,19 +26,19 @@
       :disabled="disabled"
       outlined>
       <exo-user-avatar
-        :profile-id="property.value"
-        :size="28"
+        align-top
         class="my-auto"
         popover-left-position
-        align-top />
+        :profile-id="property.value"
+        :size="28" />
       <v-btn
+        :aria-label="$t('label.remove')"
         class="ms-auto"
         :disabled="disabled"
-        :aria-label="$t('label.remove')"
         icon>
         <v-icon
-          small
           class="red--text"
+          small
           @click="removeUser(property.value)">
           fa-minus
         </v-icon>
@@ -48,21 +48,21 @@
 </template>
 
 <script>
-export default {
-  props: {
-    userTypeProperties: {
-      type: Array,
-      default: () => []
+  export default {
+    props: {
+      userTypeProperties: {
+        type: Array,
+        default: () => [],
+      },
+      disabled: {
+        type: Boolean,
+        default: false,
+      },
     },
-    disabled: {
-      type: Boolean,
-      default: false
+    methods: {
+      removeUser (userName) {
+        this.$emit('remove-value', userName);
+      },
     },
-  },
-  methods: {
-    removeUser(userName) {
-      this.$emit('remove-value', userName);
-    }
-  }
-};
+  };
 </script>

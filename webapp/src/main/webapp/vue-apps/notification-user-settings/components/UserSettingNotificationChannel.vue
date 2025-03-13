@@ -11,7 +11,7 @@
       </v-list-item-content>
       <v-list-item-action>
         <v-switch
-          v-model="active"
+          v-model="activeValue"
           :loading="saving"
           @change="save" />
       </v-list-item-action>
@@ -21,51 +21,59 @@
 </template>
 
 <script>
-export default {
-  props: {
-    channel: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      channel: {
+        type: String,
+        default: null,
+      },
+      active: {
+        type: Boolean,
+        default: null,
+      },
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-    active: {
-      type: Boolean,
-      default: null,
-    },
-    settings: {
-      type: Object,
-      default: null,
-    },
-  },
-  data: () => ({
-    saving: false,
-  }),
-  computed: {
-    label() {
-      return this.settings && this.settings.channelLabels && this.settings.channelLabels[this.channel];
-    },
-    description() {
-      return this.settings && this.settings.channelDescriptions && this.settings.channelDescriptions[this.channel];
-    },
-  },
-  methods: {
-    save() {
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/channel/${this.channel}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+    data: () => ({
+      saving: false,
+    }),
+    computed: {
+      label () {
+        return this.settings && this.settings.channelLabels && this.settings.channelLabels[this.channel];
+      },
+      description () {
+        return this.settings && this.settings.channelDescriptions && this.settings.channelDescriptions[this.channel];
+      },
+      activeValue: {
+        set (value) {
+          this.$emit('input', value);
         },
-        body: `enable=${this.active}`
-      }).then(resp => {
-        if (resp && resp.ok) {
-          this.$root.$emit('refresh');
-        }
-      })
-        .finally(() => {
-          this.saving = false;
-        });
+        get () {
+          return this.active;
+        },
+      },
     },
-  },
-};
+    methods: {
+      save () {
+        return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/${eXo.env.portal.userName}/channel/${this.channel}`, {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `enable=${this.active}`,
+        }).then(resp => {
+          if (resp && resp.ok) {
+            this.$root.$emit('refresh');
+          }
+        })
+          .finally(() => {
+            this.saving = false;
+          });
+      },
+    },
+  };
 </script>
 

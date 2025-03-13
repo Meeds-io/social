@@ -18,12 +18,16 @@
 -->
 <template>
   <div>
-    <div v-if="!noLabel" class="mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
+    <div
+      v-if="!noLabel"
+      class="mb-2">
+      {{ label || $t('nodeIconPickerDrawer.label') }}
+    </div>
     <div class="d-flex align-center">
       <v-icon
         v-if="!noIcon"
-        size="40"
-        class="icon-default-color me-4">
+        class="icon-default-color me-4"
+        size="40">
         {{ value }}
       </v-icon>
       <v-btn
@@ -43,51 +47,51 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
-    },
-    label: {
-      type: String,
-      default: null,
-    },
-    buttonLabel: {
-      type: String,
-      default: () => 'nodeIconPickerDrawer.edit',
-    },
-    noLabel: {
-      type: Boolean,
-      default: false,
-    },
-    noIcon: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    icon: null,
-    drawer: false,
-  }),
-  watch: {
-    value: {
-      immediate: true,
-      handler() {
-        this.icon = this.value || 'fa-question-circle';
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
+      label: {
+        type: String,
+        default: null,
+      },
+      buttonLabel: {
+        type: String,
+        default: () => 'nodeIconPickerDrawer.edit',
+      },
+      noLabel: {
+        type: Boolean,
+        default: false,
+      },
+      noIcon: {
+        type: Boolean,
+        default: false,
       },
     },
-    icon() {
-      if (this.icon !== this.value) {
-        this.$emit('input', this.icon);
-      }
+    data: () => ({
+      icon: null,
+      drawer: false,
+    }),
+    watch: {
+      value: {
+        immediate: true,
+        handler () {
+          this.icon = this.value || 'fa-question-circle';
+        },
+      },
+      icon () {
+        if (this.icon !== this.value) {
+          this.$emit('input', this.icon);
+        }
+      },
     },
-  },
-  methods: {
-    edit() {
-      this.drawer = true;
-      this.$nextTick().then(() => this.$refs.drawer.open());
+    methods: {
+      edit () {
+        this.drawer = true;
+        this.$nextTick().then(() => this.$refs.drawer.open());
+      },
     },
-  },
-};
+  };
 </script>

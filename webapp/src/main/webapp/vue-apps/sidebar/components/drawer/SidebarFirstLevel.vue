@@ -22,22 +22,22 @@
   <component
     :is="stickyDisplay && 'sidebar-parent-menu' || 'sidebar-parent-drawer'"
     id="HamburgerMenuNavigation"
-    :value="firstLevelDrawer"
-    :drawer-width="drawerWidth"
-    :drawer-style="drawerStyle"
-    :levels-opened="levelsOpened"
     class="HamburgerMenuFirstLevelParent layout-side-bar no-box-shadow border-box-sizing"
-    @opened="$emit('firstLevelDrawer', true)"
-    @closed="$emit('firstLevelDrawer', false)">
+    :drawer-style="drawerStyle"
+    :drawer-width="drawerWidth"
+    :levels-opened="levelsOpened"
+    :value="firstLevelDrawer"
+    @closed="$emit('firstLevelDrawer', false)"
+    @opened="$emit('firstLevelDrawer', true)">
     <v-hover v-model="$root.hoverFirstLevel">
       <v-card
         :aria-label="$t('menu.role.navigation.first.level')"
-        :max-width="drawerWidth"
-        max-height="var(--100vh, 100vh)"
         class="d-flex flex-column fill-height HamburgerNavigationMenu transparent"
-        role="navigation"
         color="white"
         flat
+        max-height="var(--100vh, 100vh)"
+        :max-width="drawerWidth"
+        role="navigation"
         tile>
         <sidebar-list />
       </v-card>
@@ -45,76 +45,76 @@
   </component>
 </template>
 <script>
-export default {
-  props: {
-    firstLevelDrawer: {
-      type: Boolean,
-      default: false,
-    },
-    secondLevelDrawer: {
-      type: Boolean,
-      default: false,
-    },
-    thirdLevelDrawer: {
-      type: Boolean,
-      default: false,
-    },
-    secondLevel: {
-      type: Boolean,
-      default: false,
-    },
-    sites: {
-      type: Array,
-      default: () => [],
-    },
-    openedSite: {
-      type: Object,
-      default: null,
-    },
-    spaces: {
-      type: Array,
-      default: null,
-    },
-    openedSpace: {
-      type: Object,
-      default: null,
-    },
-    drawerWidth: {
-      type: Number,
-      default: null,
-    },
-  },
-  data: () => ({
-    drawerStyle: null,
-  }),
-  computed: {
-    levelsOpened() {
-      return this.secondLevelDrawer || this.thirdLevelDrawer;
-    },
-    stickyDisplay() {
-      return this.$root.sticky;
-    },
-    iconCollapse() {
-      return this.$root.iconCollapse;
-    },
-  },
-  watch: {
-    iconCollapse: {
-      immediate: true,
-      handler() {
-        if (this.iconCollapse) {
-          window.setTimeout(() => {
-            if (this.iconCollapse) {
-              this.drawerStyle = 'z-index: 2 !important';
-            } else {
-              this.drawerStyle = '';
-            }
-          }, 500);
-        } else {
-          this.drawerStyle = '';
-        }
+  export default {
+    props: {
+      firstLevelDrawer: {
+        type: Boolean,
+        default: false,
+      },
+      secondLevelDrawer: {
+        type: Boolean,
+        default: false,
+      },
+      thirdLevelDrawer: {
+        type: Boolean,
+        default: false,
+      },
+      secondLevel: {
+        type: Boolean,
+        default: false,
+      },
+      sites: {
+        type: Array,
+        default: () => [],
+      },
+      openedSite: {
+        type: Object,
+        default: null,
+      },
+      spaces: {
+        type: Array,
+        default: null,
+      },
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
+      drawerWidth: {
+        type: Number,
+        default: null,
       },
     },
-  },
-};
+    data: () => ({
+      drawerStyle: null,
+    }),
+    computed: {
+      levelsOpened () {
+        return this.secondLevelDrawer || this.thirdLevelDrawer;
+      },
+      stickyDisplay () {
+        return this.$root.sticky;
+      },
+      iconCollapse () {
+        return this.$root.iconCollapse;
+      },
+    },
+    watch: {
+      iconCollapse: {
+        immediate: true,
+        handler () {
+          if (this.iconCollapse) {
+            window.setTimeout(() => {
+              if (this.iconCollapse) {
+                this.drawerStyle = 'z-index: 2 !important';
+              } else {
+                this.drawerStyle = '';
+              }
+            }, 500);
+          } else {
+            this.drawerStyle = '';
+          }
+        },
+      },
+    },
+  };
 </script>

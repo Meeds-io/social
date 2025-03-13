@@ -21,14 +21,14 @@
 -->
 <template>
   <exo-drawer
-    ref="peopleAdvancedFilterDrawer"
     id="peopleAdvancedFilterDrawer"
+    ref="peopleAdvancedFilterDrawer"
     right
     @closed="close">
-    <template slot="title">
+    <template #title>
       <span class="popupTitle">{{ $t('pepole.advanced.filter.title') }}</span>
     </template>
-    <template slot="content">
+    <template #content>
       <v-form class="pa-2 ms-2 mt-4">
         <div class="d-flex flex-column flex-grow-1">
           <div
@@ -42,15 +42,19 @@
         </div>
       </v-form>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="flex d-flex">
         <v-btn
           color="primary"
           elevation="0"
-          text
           link
+          text
           @click="reset">
-          <v-icon x-small class="pr-1">fas fa-redo</v-icon>
+          <v-icon
+            class="pr-1"
+            x-small>
+            fas fa-redo
+          </v-icon>
           {{ $t('pepole.advanced.filter.button.reset') }}
         </v-btn>
         <v-spacer />
@@ -63,8 +67,8 @@
             </template>
           </v-btn>
           <v-btn
-            :disabled="disabled"
             class="btn btn-primary"
+            :disabled="disabled"
             @click="confirm">
             <template>
               {{ $t('pepole.advanced.filter.button.confirm') }}
@@ -76,71 +80,71 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  name: 'PeopleAdvancedFilterDrawer',
-  data() {
-    return {
-      settings: [],
-    };
-  },
-  created() {
-    this.$root.$on('open-people-advanced-filter-drawer', this.openDrawer);
-    this.getSettings();
-  },
-  methods: {
-    openDrawer() {
-      this.$refs.peopleAdvancedFilterDrawer.open();
+  export default {
+    name: 'PeopleAdvancedFilterDrawer',
+    data () {
+      return {
+        settings: [],
+      };
     },
-    close() {
-      this.$refs.peopleAdvancedFilterDrawer.close();
+    created () {
+      this.$root.$on('open-people-advanced-filter-drawer', this.openDrawer);
+      this.getSettings();
     },
-    cancel() {
-      this.settings.forEach((element) => {
-        if (element && element.valueToSearch) {
-          element.valueToSearch = '';
-        }
-      });
-      this.$root.$emit('cancel-advanced-filter');
-      this.$refs.peopleAdvancedFilterDrawer.close();
-    },
-    reset() {
-      this.settings.forEach((element) => {
-        if (element && element.valueToSearch) {
-          element.valueToSearch = '';
-        }
-      });
-      this.$root.$emit('reset-advanced-filter');
-      this.$root.$emit('reset-advanced-filter-count');
-    },
-    getSettings() {
-      return this.$profileSettingsService.getSettings()
-        .then(settings => {
-          this.settings = settings?.settings.filter((e) => e.active && e.visible && e.parentId === null).map(obj => ({
-            ...obj,
-            valueToSearch: ''
-          })) || [];
+    methods: {
+      openDrawer () {
+        this.$refs.peopleAdvancedFilterDrawer.open();
+      },
+      close () {
+        this.$refs.peopleAdvancedFilterDrawer.close();
+      },
+      cancel () {
+        this.settings.forEach(element => {
+          if (element && element.valueToSearch) {
+            element.valueToSearch = '';
+          }
         });
+        this.$root.$emit('cancel-advanced-filter');
+        this.$refs.peopleAdvancedFilterDrawer.close();
+      },
+      reset () {
+        this.settings.forEach(element => {
+          if (element && element.valueToSearch) {
+            element.valueToSearch = '';
+          }
+        });
+        this.$root.$emit('reset-advanced-filter');
+        this.$root.$emit('reset-advanced-filter-count');
+      },
+      getSettings () {
+        return eXo.$profileSettingsService.getSettings()
+          .then(settings => {
+            this.settings = settings?.settings.filter(e => e.active && e.visible && e.parentId === null).map(obj => ({
+              ...obj,
+              valueToSearch: '',
+            })) || [];
+          });
+      },
+      confirm () {
+        const keyValue = {};
+        this.settings.forEach(e=>{
+          if (e && e.valueToSearch){
+            keyValue[e.propertyName] = e.valueToSearch;
+          }
+        });
+        this.$root.$emit('advanced-filter', keyValue);
+        const advancedFilterCount = Object.keys(keyValue).length || 0 ;
+        this.$root.$emit('advanced-filter-count', advancedFilterCount);
+        this.close();
+      },
+      setValueToSearch (item){
+        this.settings.forEach(e=>{
+          if (e.id === item.itemId){
+            e.valueToSearch = item.valueTosearch;
+          }
+        });
+      },
     },
-    confirm() {
-      const keyValue = {};
-      this.settings.forEach((e)=>{
-        if (e && e.valueToSearch){
-          keyValue[e.propertyName] = e.valueToSearch;
-        }
-      });
-      this.$root.$emit('advanced-filter', keyValue);
-      const advancedFilterCount = Object.keys(keyValue).length || 0 ;
-      this.$root.$emit('advanced-filter-count', advancedFilterCount);
-      this.close();
-    },
-    setValueToSearch(item){
-      this.settings.forEach((e)=>{
-        if (e.id === item.itemId){
-          e.valueToSearch = item.valueTosearch;
-        }
-      });
-    }
-  }
-};
+  };
 
 </script>

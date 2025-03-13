@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getConfiguration() {
+export function getConfiguration () {
   return fetch('/social/rest/navigation/settings', {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -31,17 +31,17 @@ export function getConfiguration() {
   });
 }
 
-export function saveConfiguration(configuration) {
+export function saveConfiguration (configuration) {
   configuration = JSON.parse(JSON.stringify(configuration));
   configuration.sidebar.items.forEach(item => delete item.items);
   return fetch('/social/rest/navigation/settings', {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     method: 'PUT',
     credentials: 'include',
     body: JSON.stringify(configuration),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when saving configuration');
     }

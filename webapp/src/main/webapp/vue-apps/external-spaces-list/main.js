@@ -21,18 +21,18 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'ExternalSpacesListPortlet';
 
-export function init() {
+export function init () {
   //getting locale ressources
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
-        mounted() {
+        mounted () {
           document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: `<external-spaces-list id="${appId}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'External Spaces List');
     });
 }

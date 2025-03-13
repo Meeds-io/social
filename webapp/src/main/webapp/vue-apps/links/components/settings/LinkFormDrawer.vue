@@ -22,16 +22,18 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
+    class="linkFormDrawer"
     :confirm-close="modified"
     :confirm-close-labels="confirmCloseLabels"
-    class="linkFormDrawer"
     go-back-button
     right
     @closed="reset">
-    <template slot="title">
+    <template #title>
       {{ $t('links.label.addLinkDrawerTitle') }}
     </template>
-    <template v-if="link && drawer" #content>
+    <template
+      v-if="link && drawer"
+      #content>
       <v-form
         ref="form"
         autocomplete="off"
@@ -41,50 +43,50 @@
           {{ $t('links.label.linkName') }}
         </div>
         <translation-text-field
-          ref="linkNameInput"
           id="linkNameInput"
+          ref="linkNameInput"
           v-model="link.name"
-          :rules="rules.name"
-          :placeholder="$t('links.label.linkNamePlaceholder')"
-          :maxlength="maxNameLength"
-          drawer-title="links.label.nameTranslation"
-          class="width-auto flex-grow-1 mb-4"
-          no-expand-icon
-          back-icon
           autofocus
-          required />
+          back-icon
+          class="width-auto flex-grow-1 mb-4"
+          drawer-title="links.label.nameTranslation"
+          :maxlength="maxNameLength"
+          no-expand-icon
+          :placeholder="$t('links.label.linkNamePlaceholder')"
+          required
+          :rules="rules.name" />
 
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
           {{ $t('links.label.description') }}
         </div>
         <translation-text-field
-          ref="linkDescriptionInput"
           id="linkDescriptionInput"
+          ref="linkDescriptionInput"
           v-model="link.description"
-          :rules="rules.description"
-          :placeholder="$t('links.label.descriptionPlaceholder')"
-          :maxlength="maxDescriptionLength"
-          :required="false"
-          drawer-title="links.label.descriptionTranslation"
+          back-icon
           class="width-auto flex-grow-1 mb-4"
+          drawer-title="links.label.descriptionTranslation"
+          :maxlength="maxDescriptionLength"
           no-expand-icon
-          back-icon />
+          :placeholder="$t('links.label.descriptionPlaceholder')"
+          :required="false"
+          :rules="rules.description" />
 
         <div class="d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
           {{ $t('links.label.url') }}
         </div>
         <v-text-field
           id="linkUrlInput"
-          name="linkUrlInput"
           ref="linkUrlInput"
           v-model="link.url"
+          class="border-box-sizing width-auto pt-0 mb-4"
+          dense
+          mandatory
+          name="linkUrlInput"
+          outlined
           :placeholder="$t('links.label.enterUrl')"
           :rules="rules.url"
-          class="border-box-sizing width-auto pt-0 mb-4"
-          type="text"
-          outlined
-          dense
-          mandatory />
+          type="text" />
 
         <div class="d-flex mb-4">
           <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
@@ -102,10 +104,10 @@
           </div>
           <links-icon-input
             v-model="link.iconUploadId"
-            :link="link"
             class="mt-2"
-            @reset="resetIcon"
+            :link="link"
             @icon="link.icon = $event"
+            @reset="resetIcon"
             @src="link.iconSrc = $event" />
         </div>
       </v-form>
@@ -118,8 +120,8 @@
           {{ $t('links.label.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="disabled"
           class="btn primary"
+          :disabled="disabled"
           @click="apply">
           {{ edit && $t('links.label.update') || $t('links.label.add') }}
         </v-btn>
@@ -128,163 +130,163 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    link: null,
-    originalLink: null,
-    drawer: false,
-    edit: false,
-    canValidate: false,
-    index: -1,
-    valid: true,
-    maxNameLength: 50,
-    maxDescriptionLength: 50,
-  }),
-  computed: {
-    disabled() {
-      return !this.valid
-        || !this.modified
-        || this.link?.name?.[this.$root.defaultLanguage]?.length > this.maxNameLength
-        || this.link?.description?.[this.$root.defaultLanguage]?.length > this.maxDescriptionLength;
+  export default {
+    data: () => ({
+      link: null,
+      originalLink: null,
+      drawer: false,
+      edit: false,
+      canValidate: false,
+      index: -1,
+      valid: true,
+      maxNameLength: 50,
+      maxDescriptionLength: 50,
+    }),
+    computed: {
+      disabled () {
+        return !this.valid
+          || !this.modified
+          || this.link?.name?.[this.$root.defaultLanguage]?.length > this.maxNameLength
+          || this.link?.description?.[this.$root.defaultLanguage]?.length > this.maxDescriptionLength;
+      },
+      modified () {
+        return this.originalLink && JSON.stringify(this.originalLink) !== JSON.stringify(this.link || {});
+      },
+      confirmCloseLabels () {
+        return {
+          title: this.$t('links.title.confirmCloseModification'),
+          message: this.$t('links.message.confirmCloseModification'),
+          ok: this.$t('confirm.yes'),
+          cancel: this.$t('confirm.no'),
+        };
+      },
+      rules () {
+        return {
+          name: [
+            v => !!v?.length || ' ',
+            v => !v?.length || v.length < this.maxNameLength || this.$t('links.input.exceedsMaxLength', {
+              0: this.maxNameLength,
+            }),
+          ],
+          description: [
+            v => !v?.length || v.length < this.maxDescriptionLength || this.$t('links.input.exceedsMaxLength', {
+              0: this.maxDescriptionLength,
+            }),
+          ],
+          url: [
+            v => !!v?.length || ' ',
+            v => {
+              try {
+                return !!eXo.$utils.toLinkUrl(v, {
+                  urls: true,
+                  email: true,
+                  phone: true,
+                })?.length || this.$t('links.input.invalidLink');
+              } catch (e) {
+                return this.$t('links.input.invalidLink');
+              }
+            },
+          ],
+        };
+      },
     },
-    modified() {
-      return this.originalLink && JSON.stringify(this.originalLink) !== JSON.stringify(this.link || {});
-    },
-    confirmCloseLabels() {
-      return {
-        title: this.$t('links.title.confirmCloseModification'),
-        message: this.$t('links.message.confirmCloseModification'),
-        ok: this.$t('confirm.yes'),
-        cancel: this.$t('confirm.no'),
-      };
-    },
-    rules() {
-      return {
-        name: [
-          v => !!v?.length || ' ',
-          v => !v?.length || v.length < this.maxNameLength || this.$t('links.input.exceedsMaxLength', {
-            0: this.maxNameLength,
-          }),
-        ],
-        description: [
-          v => !v?.length || v.length < this.maxDescriptionLength || this.$t('links.input.exceedsMaxLength', {
-            0: this.maxDescriptionLength,
-          }),
-        ],
-        url: [
-          v => !!v?.length || ' ',
-          v => {
-            try {
-              return !!this.$utils.toLinkUrl(v, {
-                urls: true,
-                email: true,
-                phone: true,
-              })?.length || this.$t('links.input.invalidLink');
-            } catch (e) {
-              return this.$t('links.input.invalidLink');
+    watch: {
+      link: {
+        deep: true,
+        handler () {
+          if ((this.canValidate || this.edit) && this.$refs.form) {
+            this.valid = this.$refs.form.validate();
+            this.$refs.form.resetValidation();
+          }
+        },
+      },
+      drawer () {
+        if (this.drawer) {
+          this.valid = false;
+          window.setTimeout(() => {
+            if (this.edit) {
+              this.valid = false;
+            } else {
+              this.canValidate = true;
             }
-          },
-        ],
-      };
-    },
-  },
-  watch: {
-    link: {
-      deep: true,
-      handler() {
-        if ((this.canValidate || this.edit) && this.$refs.form) {
-          this.valid = this.$refs.form.validate();
-          this.$refs.form.resetValidation();
+          }, 200);
         }
       },
     },
-    drawer() {
-      if (this.drawer) {
+    created () {
+      this.$root.$on('links-form-drawer', this.open);
+    },
+    mounted () {
+      document.querySelector('#vuetify-apps').appendChild(this.$el);
+    },
+    beforeUnmount () {
+      this.$root.$off('links-form-drawer', this.open);
+    },
+    methods: {
+      async open (link, edit, index) {
+        if (!link) {
+          link = {};
+          link.name = {};
+          link.name[this.$root.defaultLanguage] = '';
+          link.description = {};
+          link.description[this.$root.defaultLanguage] = '';
+        }
+        if (!link.iconSrc) {
+          link.iconSrc = null;
+        }
+        if (!link.icon) {
+          link.icon = null;
+        }
+        this.link = JSON.parse(JSON.stringify(link));
+        this.setLocalizedValue(this.link, 'name');
+        this.setLocalizedValue(this.link, 'description');
+        this.originalLink = JSON.parse(JSON.stringify(this.link));
+        this.edit = edit;
+        this.index = index;
+        this.canValidate = false;
         this.valid = false;
-        window.setTimeout(() => {
-          if (this.edit) {
-            this.valid = false;
-          } else {
-            this.canValidate = true;
-          }
-        }, 200);
-      }
+        await this.$nextTick();
+        this.$refs.drawer.open();
+      },
+      reset () {
+        this.link = null;
+        this.originalLink = null;
+      },
+      close () {
+        this.originalLink = null;
+        return this.$nextTick().then(() => this.$refs.drawer.close());
+      },
+      resetIcon () {
+        this.link.iconUrl = null;
+        this.link.iconSrc = null;
+        this.link.iconUploadId = null;
+        this.link.iconFileId = 0;
+      },
+      apply () {
+        this.canValidate = true;
+        this.valid = this.$refs.form.validate();
+        if (!this.valid) {
+          return;
+        }
+        if (this.edit) {
+          this.$emit('link-edit', this.link, this.index);
+        } else {
+          this.$emit('link-add', this.link);
+        }
+        this.close();
+      },
+      setLocalizedValue (link, field) {
+        const defaultLang = this.$root.defaultLanguage;
+        const currentLang = this.$root.language;
+        if (!link[field]?.[defaultLang]) {
+          link[field][defaultLang] = link[field]['en'] || '';
+        } else {
+          link[field][defaultLang] = this.$t(link[field][defaultLang]);
+        }
+        if (currentLang && link[field]?.[currentLang]) {
+          link[field][currentLang] = this.$t(link[field][currentLang]);
+        }
+      },
     },
-  },
-  created() {
-    this.$root.$on('links-form-drawer', this.open);
-  },
-  mounted() {
-    document.querySelector('#vuetify-apps').appendChild(this.$el);
-  },
-  beforeDestroy() {
-    this.$root.$off('links-form-drawer', this.open);
-  },
-  methods: {
-    async open(link, edit, index) {
-      if (!link) {
-        link = {};
-        link.name = {};
-        link.name[this.$root.defaultLanguage] = '';
-        link.description = {};
-        link.description[this.$root.defaultLanguage] = '';
-      }
-      if (!link.iconSrc) {
-        link.iconSrc = null;
-      }
-      if (!link.icon) {
-        link.icon = null;
-      }
-      this.link = JSON.parse(JSON.stringify(link));
-      this.setLocalizedValue(this.link, 'name');
-      this.setLocalizedValue(this.link, 'description');
-      this.originalLink = JSON.parse(JSON.stringify(this.link));
-      this.edit = edit;
-      this.index = index;
-      this.canValidate = false;
-      this.valid = false;
-      await this.$nextTick();
-      this.$refs.drawer.open();
-    },
-    reset() {
-      this.link = null;
-      this.originalLink = null;
-    },
-    close() {
-      this.originalLink = null;
-      return this.$nextTick().then(() => this.$refs.drawer.close());
-    },
-    resetIcon() {
-      this.link.iconUrl = null;
-      this.link.iconSrc = null;
-      this.link.iconUploadId = null;
-      this.link.iconFileId = 0;
-    },
-    apply() {
-      this.canValidate = true;
-      this.valid = this.$refs.form.validate();
-      if (!this.valid) {
-        return;
-      }
-      if (this.edit) {
-        this.$emit('link-edit', this.link, this.index);
-      } else {
-        this.$emit('link-add', this.link);
-      }
-      this.close();
-    },
-    setLocalizedValue(link, field) {
-      const defaultLang = this.$root.defaultLanguage;
-      const currentLang = this.$root.language;
-      if (!link[field]?.[defaultLang]) {
-        link[field][defaultLang] = link[field]['en'] || '';
-      } else {
-        link[field][defaultLang] = this.$t(link[field][defaultLang]);
-      }
-      if (currentLang && link[field]?.[currentLang]) {
-        link[field][currentLang] = this.$t(link[field][currentLang]);
-      }
-    }
-  },
-};
+  };
 </script>

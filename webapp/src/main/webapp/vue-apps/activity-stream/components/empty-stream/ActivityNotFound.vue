@@ -1,9 +1,11 @@
 <template>
   <v-card
-    min-height="75vh"
     class="full-width d-flex flex-column align-center justify-center py-8 px-4 border-box-sizing"
-    flat>
-    <v-icon size="100" color="primary">
+    flat
+    min-height="75vh">
+    <v-icon
+      color="primary"
+      size="100">
       far fa-question-circle
     </v-icon>
     <div class="text-color headline mt-6">
@@ -11,14 +13,14 @@
     </div>
     <v-card
       class="text-title mt-6 mx-2 d-none d-sm-inline"
+      flat
       max-width="80%"
-      width="80%"
-      flat>
+      width="80%">
       {{ $t('activity.notFound.message') }}
     </v-card>
     <v-btn
-      :href="activityStreamUrl"
       class="btn btn-primary mt-6"
+      :href="activityStreamUrl"
       large>
       <span class="text-none text-title">
         {{ $t('activity.notFound.button.exploreActivities') }}
@@ -27,9 +29,9 @@
   </v-card>
 </template>
 <script>
-export default {
-  data: () =>({
-    activityStreamUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`,
-  }),
-};
+  export default {
+    data: () =>({
+      activityStreamUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`,
+    }),
+  };
 </script>

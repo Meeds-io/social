@@ -21,31 +21,31 @@
 <template>
   <v-card
     v-if="registerEnabled"
-    :width="confirmed && 600 || 350"
-    max-width="100%"
     class="mx-auto"
-    flat>
+    flat
+    max-width="100%"
+    :width="confirmed && 600 || 350">
     <portal-register-extensions :params="params" />
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  computed: {
-    action() {
-      return this.params?.action;
+    computed: {
+      action () {
+        return this.params?.action;
+      },
+      registerEnabled () {
+        return this.params?.registerEnabled;
+      },
+      confirmed () {
+        return !!this.params?.success?.length;
+      },
     },
-    registerEnabled() {
-      return this.params?.registerEnabled;
-    },
-    confirmed() {
-      return !!this.params?.success?.length;
-    },
-  },
-};
+  };
 </script>

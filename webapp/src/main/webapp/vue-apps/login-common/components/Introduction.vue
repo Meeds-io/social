@@ -20,14 +20,14 @@
 -->
 <template>
   <v-card
-    :width="width"
-    :max-width="maxWidth"
+    class="border-box-sizing d-flex"
+    :color="color"
+    flat
     :height="height"
     :max-height="maxHeight"
-    :color="color"
-    class="border-box-sizing d-flex"
+    :max-width="maxWidth"
     tile
-    flat>
+    :width="width">
     <v-row
       align-content="center"
       justify="center"
@@ -36,8 +36,8 @@
         <v-card
           class="text-center"
           color="transparent"
-          flat
-          dark>
+          dark
+          flat>
           <v-card-title class="d-flex flex-column">
             <span
               v-if="$slots.title"
@@ -56,33 +56,33 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    width: {
-      type: String,
-      default: () => '100%',
+  export default {
+    props: {
+      width: {
+        type: String,
+        default: () => '100%',
+      },
+      height: {
+        type: String,
+        default: () => '100%',
+      },
+      maxWidth: {
+        type: String,
+        default: () => '100%',
+      },
+      maxHeight: {
+        type: String,
+        default: () => '100%',
+      },
+      color: {
+        type: String,
+        default: () => 'primary',
+      },
     },
-    height: {
-      type: String,
-      default: () => '100%',
+    computed: {
+      mobile () {
+        return eXo.vuetify.display.mobile.value;
+      },
     },
-    maxWidth: {
-      type: String,
-      default: () => '100%',
-    },
-    maxHeight: {
-      type: String,
-      default: () => '100%',
-    },
-    color: {
-      type: String,
-      default: () => 'primary',
-    },
-  },
-  computed: {
-    mobile() {
-      return this.$vuetify.breakpoint.mobile;
-    },
-  },
-};
+  };
 </script>

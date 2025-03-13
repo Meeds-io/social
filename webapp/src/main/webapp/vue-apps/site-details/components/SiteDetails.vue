@@ -16,7 +16,9 @@
 -->
 
 <template>
-  <v-container class="siteDetails" :class="extraClass">
+  <v-container
+    class="siteDetails"
+    :class="extraClass">
     <v-card
       v-if="site"
       class="full-height"
@@ -37,13 +39,15 @@
         </v-btn>
       </row>
       <img
-        :src="site?.bannerUrl"
         :alt="site?.displayName"
-        width="100%"
-        height="auto"
         class="mt-1 card-border-radius"
-        eager>
-      <v-card-title :title="site?.displayName" class="text-body font-weight-bold">
+        eager
+        height="auto"
+        :src="site?.bannerUrl"
+        width="100%">
+      <v-card-title
+        class="text-body font-weight-bold"
+        :title="site?.displayName">
         {{ site?.displayName }}
       </v-card-title>
       <v-card-subtitle
@@ -51,101 +55,101 @@
         class="py-2 rich-editor-content" />
       <site-navigation-tree
         v-if="site?.siteNavigations?.length"
-        :navigations="site.siteNavigations"
-        :site-name="site?.name"
+        collapsed
         :enable-change-home="enableChangeHome"
-        collapsed />
+        :navigations="site.siteNavigations"
+        :site-name="site?.name" />
     </v-card>
     <exo-confirm-dialog
       ref="confirmDialog"
-      :title="$t('menu.confirmation.title.changeHome')"
+      :cancel-label="$t('menu.confirmation.cancel')"
       :message="confirmMessage"
       :ok-label="$t('menu.confirmation.ok')"
-      :cancel-label="$t('menu.confirmation.cancel')"
+      :title="$t('menu.confirmation.title.changeHome')"
+      @closed="$root.$emit('dialog-closed')"
       @ok="changeHome"
-      @opened="$root.$emit('dialog-opened')"
-      @closed="$root.$emit('dialog-closed')" />
+      @opened="$root.$emit('dialog-opened')" />
   </v-container>
 </template>
 
 <script>
-export default {
-  props: {
-    site: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      site: {
+        type: Object,
+        default: null,
+      },
+      enableChangeHome: {
+        type: Boolean,
+        default: false,
+      },
+      displaySequentially: {
+        type: Boolean,
+        default: false,
+      },
+      expandSelectionOnly: {
+        type: Boolean,
+        default: false,
+      },
+      extraClass: {
+        type: String,
+        default: '',
+      },
     },
-    enableChangeHome: {
-      type: Boolean,
-      default: false,
-    },
-    displaySequentially: {
-      type: Boolean,
-      default: false,
-    },
-    expandSelectionOnly: {
-      type: Boolean,
-      default: false,
-    },
-    extraClass: {
-      type: String,
-      default: '',
-    },
-  },
-  data: () => ({
-    selectedNavigation: null,
-    homeLink: eXo.env.portal.homeLink,
-  }),
-  computed: {
-    confirmMessage() {
-      return this.$t('menu.confirmation.message.changeHome', {
-        0: `<b>${ this.selectedNavigation?.label || this.selectedNavigation?.name }</b>`,
-      });
-    },
-  },
-  created() {
-    this.$root.$on('update-home-link', this.selectHome);
-    document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
-  },
-  beforeDestroy() {
-    this.$root.$off('update-home-link', this.selectHome);
-    document.removeEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
-  },
-  methods: {
-    navigationUri(navigation) {
-      if (!navigation.pageKey && !navigation.url) {
-        return '';
-      }
-      if (navigation.url) {
-        return navigation.url;
-      } else {
-        let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
-        if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
-          url = `//${url}`;
-        }
-        return url;
-      }
-    },
-    selectHome(nav) {
-      if (!nav?.pageKey && !nav.url) {
-        return;
-      }
-      this.selectedNavigation = nav;
-      this.$refs?.confirmDialog?.open?.();
-    },
-    changeHome() {
-      const url = this.navigationUri(this.selectedNavigation);
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', url)
-        .then(() => {
-          this.homeLink = eXo.env.portal.homeLink = url;
-          if (document.querySelector('#UserHomePortalLink')) {
-            document.querySelector('#UserHomePortalLink').href = this.homeLink;
-          }
-          document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.homeLink}));
-          this.selectedNavigation = null;
+    data: () => ({
+      selectedNavigation: null,
+      homeLink: eXo.env.portal.homeLink,
+    }),
+    computed: {
+      confirmMessage () {
+        return this.$t('menu.confirmation.message.changeHome', {
+          0: `<b>${ this.selectedNavigation?.label || this.selectedNavigation?.name }</b>`,
         });
-    }
-  }
+      },
+    },
+    created () {
+      this.$root.$on('update-home-link', this.selectHome);
+      document.addEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
+    },
+    beforeUnmount () {
+      this.$root.$off('update-home-link', this.selectHome);
+      document.removeEventListener('homeLinkUpdated', () => this.homeLink = eXo.env.portal.homeLink);
+    },
+    methods: {
+      navigationUri (navigation) {
+        if (!navigation.pageKey && !navigation.url) {
+          return '';
+        }
+        if (navigation.url) {
+          return navigation.url;
+        } else {
+          let url = navigation.pageLink || `/portal/${navigation.siteKey.name}/${navigation.uri}`;
+          if (!url.match(/^(https?:\/\/|javascript:|\/portal\/)/)) {
+            url = `//${url}`;
+          }
+          return url;
+        }
+      },
+      selectHome (nav) {
+        if (!nav?.pageKey && !nav.url) {
+          return;
+        }
+        this.selectedNavigation = nav;
+        this.$refs?.confirmDialog?.open?.();
+      },
+      changeHome () {
+        const url = this.navigationUri(this.selectedNavigation);
+        eXo.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', url)
+          .then(() => {
+            this.homeLink = eXo.env.portal.homeLink = url;
+            if (document.querySelector('#UserHomePortalLink')) {
+              document.querySelector('#UserHomePortalLink').href = this.homeLink;
+            }
+            document.dispatchEvent(new CustomEvent('homeLinkUpdated', { detail: this.homeLink }));
+            this.selectedNavigation = null;
+          });
+      },
+    },
 
-};
+  };
 </script>

@@ -26,8 +26,12 @@
     <template #title>
       {{ $t('generalSettings.themeColors.option.label') }}
     </template>
-    <template v-if="drawer" #content>
-      <v-card class="pa-4" flat>
+    <template
+      v-if="drawer"
+      #content>
+      <v-card
+        class="pa-4"
+        flat>
         <p>
           {{ $t('generalSettings.themeColors.help1') }}
         </p>
@@ -80,55 +84,55 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    primaryColor: null,
-    secondaryColor: null,
-    tertiaryColor: null,
-  }),
-  props: {
-    themeColors: {
-      type: Object,
-      required: true
-    }
-  },
-  computed: {
-    saveButtonDisabled() {
-      return this.primaryColor === this.themeColors.primaryColor &&
+  export default {
+    props: {
+      themeColors: {
+        type: Object,
+        required: true,
+      },
+    },
+    data: () => ({
+      drawer: false,
+      primaryColor: null,
+      secondaryColor: null,
+      tertiaryColor: null,
+    }),
+    computed: {
+      saveButtonDisabled () {
+        return this.primaryColor === this.themeColors.primaryColor &&
           this.secondaryColor === this.themeColors.secondaryColor &&
           this.tertiaryColor === this.themeColors.tertiaryColor;
-    }
-  },
-  created() {
-    this.$root.$on('open-update-theme-colors-drawer', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('open-update-theme-colors-drawer', this.open);
-  },
-  methods: {
-    init() {
-      this.primaryColor = this.themeColors?.primaryColor;
-      this.secondaryColor = this.themeColors?.secondaryColor;
-      this.tertiaryColor = this.themeColors?.tertiaryColor;
+      },
     },
-    reset() {
-      this.primaryColor = null;
-      this.secondaryColor = null;
-      this.tertiaryColor = null;
+    created () {
+      this.$root.$on('open-update-theme-colors-drawer', this.open);
     },
-    open() {
-      this.init();
-      this.$refs.drawer.open();
+    beforeUnmount () {
+      this.$root.$off('open-update-theme-colors-drawer', this.open);
     },
-    close() {
-      this.reset();
-      this.$refs.drawer.close();
+    methods: {
+      init () {
+        this.primaryColor = this.themeColors?.primaryColor;
+        this.secondaryColor = this.themeColors?.secondaryColor;
+        this.tertiaryColor = this.themeColors?.tertiaryColor;
+      },
+      reset () {
+        this.primaryColor = null;
+        this.secondaryColor = null;
+        this.tertiaryColor = null;
+      },
+      open () {
+        this.init();
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.reset();
+        this.$refs.drawer.close();
+      },
+      updateBrandingThemeColors () {
+        this.$root.$emit('update-branding-theme-colors', this.primaryColor, this.secondaryColor, this.tertiaryColor);
+        this.close();
+      },
     },
-    updateBrandingThemeColors() {
-      this.$root.$emit('update-branding-theme-colors', this.primaryColor, this.secondaryColor, this.tertiaryColor);
-      this.close();
-    }
-  }
-};
+  };
 </script>

@@ -1,5 +1,7 @@
 <template>
-  <v-toolbar id="membershipTypesManagementToolbar" flat>
+  <v-toolbar
+    id="membershipTypesManagementToolbar"
+    flat>
     <v-toolbar-title>
       <v-btn
         class="btn btn-primary addNewMembershipTypeButton"
@@ -14,22 +16,22 @@
     <v-scale-transition>
       <v-text-field
         v-model="keyword"
+        class="inputMembershipTypeFilter pa-0 me-3 my-auto"
         :placeholder="$t('MembershipTypesManagement.filterBy')"
-        prepend-inner-icon="fa-filter"
-        class="inputMembershipTypeFilter pa-0 me-3 my-auto" />
+        prepend-inner-icon="fa-filter" />
     </v-scale-transition>
   </v-toolbar>
 </template>
 
 <script>
-export default {
-  data: () => ({
-    keyword: null,
-  }),
-  watch: {
-    keyword() {
-      this.$root.$emit('searchMembershipType', this.keyword);
+  export default {
+    data: () => ({
+      keyword: null,
+    }),
+    watch: {
+      keyword () {
+        this.$root.$emit('searchMembershipType', this.keyword);
+      },
     },
-  }
-};
+  };
 </script>

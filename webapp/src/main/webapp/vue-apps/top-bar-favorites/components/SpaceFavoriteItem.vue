@@ -15,19 +15,21 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-list-item class="clickable" :href="spaceUrl">
+  <v-list-item
+    class="clickable"
+    :href="spaceUrl">
     <v-list-item-icon class="me-3 my-auto">
       <exo-space-avatar 
-        :space="space" 
+        avatar 
         :size="25"
-        avatar />
+        :space="space" />
     </v-list-item-icon>
 
     <v-list-item-content>
       <v-list-item-title>
         <p
-          class="ma-auto text-truncate"
-          v-sanitized-html="spaceName"></p>
+          v-sanitized-html="spaceName"
+          class="ma-auto text-truncate"></p>
       </v-list-item-title>
     </v-list-item-content>
 
@@ -35,51 +37,51 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <favorite-button
         :id="id"
         :favorite="isFavorite"
+        :right="right"
         :space-id="id"
         :top="top"
-        :right="right"
         type="space"
-        @removed="removed"
-        @remove-error="removeError" />
+        @remove-error="removeError"
+        @removed="removed" />
     </v-list-item-action>
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    id: {
-      type: String,
-      default: () => null,
+  export default {
+    props: {
+      id: {
+        type: String,
+        default: () => null,
+      },
     },
-  },
-  data: () => ({
-    space: null,
-    spaceName: '',
-    spaceUrl: '#',
-    isFavorite: true
-  }),
-  created() {
-    this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-    this.$spaceService.getSpaceById(this.id)
-      .then((spaceData)=> {
-        this.space = spaceData;
-        this.spaceName = spaceData?.displayName ? spaceData.displayName : this.$t('UITopBarFavoritesPortlet.label.space');
-        this.spaceUrl = `${eXo.env.portal.context}/s/${spaceData.id}`;
-      });
-  },
-  methods: {
-    removed() {
-      this.isFavorite = !this.isFavorite;
-      this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', {0: this.$t('spaceList.alert.label')}));
-      this.$emit('removed');
-      this.$root.$emit('refresh-favorite-list');
+    data: () => ({
+      space: null,
+      spaceName: '',
+      spaceUrl: '#',
+      isFavorite: true,
+    }),
+    created () {
+      this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
+      eXo.$spaceService.getSpaceById(this.id)
+        .then(spaceData=> {
+          this.space = spaceData;
+          this.spaceName = spaceData?.displayName ? spaceData.displayName : this.$t('UITopBarFavoritesPortlet.label.space');
+          this.spaceUrl = `${eXo.env.portal.context}/s/${spaceData.id}`;
+        });
     },
-    removeError() {
-      this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', {0: this.$t('spaceList.alert.label')}), 'error');
+    methods: {
+      removed () {
+        this.isFavorite = !this.isFavorite;
+        this.displayAlert(this.$t('Favorite.tooltip.SuccessfullyDeletedFavorite', { 0: this.$t('spaceList.alert.label') }));
+        this.$emit('removed');
+        this.$root.$emit('refresh-favorite-list');
+      },
+      removeError () {
+        this.displayAlert(this.$t('Favorite.tooltip.ErrorDeletingFavorite', { 0: this.$t('spaceList.alert.label') }), 'error');
+      },
+      displayAlert (message, type) {
+        this.$root.$emit('alert-message', message, type || 'success');
+      },
     },
-    displayAlert(message, type) {
-      this.$root.$emit('alert-message', message, type || 'success');
-    },
-  }
-};
+  };
 </script>

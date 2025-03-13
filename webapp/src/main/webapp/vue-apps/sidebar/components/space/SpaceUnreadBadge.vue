@@ -25,59 +25,59 @@
     class="my-auto align-center">
     <v-chip
       color="error-color-background"
-      min-width="22"
+      dark
       height="22"
-      dark>
+      min-width="22">
       {{ spaceUnreadBadge }}
     </v-chip>
   </v-list-item-action>
 </template>
 <script>
-export default {
-  props: {
-    spaceId: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      spaceId: {
+        type: Object,
+        default: null,
+      },
+      unreadBadge: {
+        type: Number,
+        default: () => 0,
+      },
     },
-    unreadBadge: {
-      type: Number,
-      default: () => 0,
+    data: () => ({
+      spaceUnreadBadge: 0,
+    }),
+    watch: {
+      unreadBadge () {
+        this.spaceUnreadBadge = this.unreadBadge;
+      },
     },
-  },
-  data: () => ({
-    spaceUnreadBadge: 0,
-  }),
-  watch: {
-    unreadBadge() {
-      this.spaceUnreadBadge = this.unreadBadge;
+    created () {
+      document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+      this.spaceUnreadBadge = this.$root.unreadPerSpace[`${this.spaceId}`];
     },
-  },
-  created() {
-    document.addEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.addEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-    this.spaceUnreadBadge = this.$root.unreadPerSpace[`${this.spaceId}`];
-  },
-  beforeDestroy() {
-    document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
-    document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
-  },
-  methods: {
-    handleUpdatesFromWebSocket(event) {
-      const data = event?.detail;
-      const wsEventName = data?.wsEventName || '';
-      let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem
-        || data?.message?.spacewebnotificationitem;
-      if (spaceWebNotificationItem?.length) {
-        spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
-      }
-      const spaceId = spaceWebNotificationItem?.spaceId;
-      if (wsEventName === 'notification.read.allItems'
+    beforeUnmount () {
+      document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
+      document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+    },
+    methods: {
+      handleUpdatesFromWebSocket (event) {
+        const data = event?.detail;
+        const wsEventName = data?.wsEventName || '';
+        let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem
+          || data?.message?.spacewebnotificationitem;
+        if (spaceWebNotificationItem?.length) {
+          spaceWebNotificationItem = JSON.parse(spaceWebNotificationItem);
+        }
+        const spaceId = spaceWebNotificationItem?.spaceId;
+        if (wsEventName === 'notification.read.allItems'
           || (spaceId && Number(this.spaceId) === Number(spaceId))) {
-        this.$emit('refresh');
-      }
+          this.$emit('refresh');
+        }
+      },
     },
-  },
-};
+  };
 </script>

@@ -20,11 +20,11 @@
 -->
 <template>
   <extension-registry-components
-    :params="extensionParams"
+    element="div"
     name="LoginHeader"
-    type="login-header"
+    :params="extensionParams"
     parent-element="div"
-    element="div">
+    type="login-header">
     <template #separator>
       <portal-login-separator class="my-5" />
     </template>
@@ -34,24 +34,24 @@
   </extension-registry-components>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
+      rememberme: {
+        type: Boolean,
+        default: false,
+      },
     },
-    rememberme: {
-      type: Boolean,
-      default: false,
+    computed: {
+      extensionParams () {
+        return {
+          params: this.params,
+          rememberme: this.rememberme,
+        };
+      },
     },
-  },
-  computed: {
-    extensionParams() {
-      return {
-        params: this.params,
-        rememberme: this.rememberme,
-      };
-    },
-  },
-};
+  };
 </script>

@@ -18,11 +18,11 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getSidebarConfiguration() {
+export function getSidebarConfiguration () {
   return fetch('/social/rest/navigation/settings/sidebar', {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -31,11 +31,11 @@ export function getSidebarConfiguration() {
   });
 }
 
-export function getTopbarConfiguration() {
+export function getTopbarConfiguration () {
   return fetch('/social/rest/navigation/settings/topbar', {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -44,7 +44,7 @@ export function getTopbarConfiguration() {
   });
 }
 
-export function updateSidebarUserMode(mode) {
+export function updateSidebarUserMode (mode) {
   return fetch('/social/rest/navigation/settings/sidebar/mode', {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

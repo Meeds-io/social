@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getSpaceTemplates(includeDisabled) {
+export function getSpaceTemplates (includeDisabled) {
   return fetch(`/social/rest/space/templates?includeDisabled=${includeDisabled || false}`, {
     method: 'GET',
     credentials: 'include',
@@ -30,7 +30,7 @@ export function getSpaceTemplates(includeDisabled) {
   });
 }
 
-export function getSpaceTemplate(id) {
+export function getSpaceTemplate (id) {
   return fetch(`/social/rest/space/templates/${id}`, {
     method: 'GET',
     credentials: 'include',
@@ -43,7 +43,7 @@ export function getSpaceTemplate(id) {
   });
 }
 
-export function createSpaceTemplate(spaceTemplate) {
+export function createSpaceTemplate (spaceTemplate) {
   return fetch('/social/rest/space/templates', {
     credentials: 'include',
     method: 'POST',
@@ -51,7 +51,7 @@ export function createSpaceTemplate(spaceTemplate) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(spaceTemplate),
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -60,7 +60,7 @@ export function createSpaceTemplate(spaceTemplate) {
   });
 }
 
-export function updateSpaceTemplate(spaceTemplate) {
+export function updateSpaceTemplate (spaceTemplate) {
   return fetch(`/social/rest/space/templates/${spaceTemplate.id}`, {
     credentials: 'include',
     method: 'PUT',
@@ -68,18 +68,18 @@ export function updateSpaceTemplate(spaceTemplate) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(spaceTemplate),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when updating space template');
     }
   });
 }
 
-export function deleteSpaceTemplate(id) {
+export function deleteSpaceTemplate (id) {
   return fetch(`/social/rest/space/templates/${id}`, {
     credentials: 'include',
     method: 'DELETE',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when deleting space template');
     }

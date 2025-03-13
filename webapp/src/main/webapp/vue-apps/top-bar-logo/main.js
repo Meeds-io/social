@@ -8,13 +8,13 @@ if (extensionRegistry) {
     });
   }
 }
-const vuetify = Vue.prototype.vuetifyOptions;
+const vuetify = eXo.vuetify;
 
 const lang = eXo && eXo.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 let popover;
-export function init(params) {
+export function init (params) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale resources are ready
     popover = Vue.createApp({
@@ -45,28 +45,28 @@ export function init(params) {
         isSitePage: params.isSitePage,
         siteIcon: params.siteIcon,
         isStandaloneSite: !document.querySelector('#HamburgerNavigationMenu'),
-        isTopBarElement: false
+        isTopBarElement: false,
       },
       computed: {
-        xl() {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl;
+        xl () {
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.xl;
         },
-        lgAndUp() {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+        lgAndUp () {
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.lg;
         },
-        mdAndUp() {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.md;
+        mdAndUp () {
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.md;
         },
-        smAndUp() {
-          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.sm;
+        smAndUp () {
+          return eXo.vuetify.display.width.value >= eXo.vuetify.display.thresholds.value.sm;
         },
-        hidenIconView() {
+        hidenIconView () {
           return this.sidebarMode === 'ICON' && !this.mdAndUp;
         },
-        hidenStickyView() {
+        hidenStickyView () {
           return this.sidebarMode === 'STICKY' && !this.lgAndUp;
         },
-        sidebarModeDisplay() {
+        sidebarModeDisplay () {
           if (this.sidebarMode === 'STICKY' && !this.lgAndUp && this.mdAndUp) {
             return 'ICON';
           } else if (this.hidenIconView || this.hidenStickyView) {
@@ -75,10 +75,10 @@ export function init(params) {
             return this.sidebarMode;
           }
         },
-        displayCompanyLogo() {
+        displayCompanyLogo () {
           return this.isStandaloneSite || (!this.mdAndUp && this.displayMobileCompanyLogo) || (this.mdAndUp && this.sidebarModeDisplay === 'HIDDEN');
         },
-        displayCompanyTitle() {
+        displayCompanyTitle () {
           return this.isStandaloneSite
             || (this.displayCompanyName
                 && this.logoTitle
@@ -87,10 +87,10 @@ export function init(params) {
                 && (this.sidebarModeDisplay === 'HIDDEN' || this.sidebarModeDisplay === 'ICON' || !this.displaySite)
             );
         },
-        displayCompany() {
+        displayCompany () {
           return this.displayCompanyLogo || this.displayCompanyTitle;
         },
-        displaySiteTitle() {
+        displaySiteTitle () {
           return this.displaySiteName
             && this.mdAndUp
             && (
@@ -98,29 +98,29 @@ export function init(params) {
               (this.spaceLogoPath && this.spacePortalPath)
             );
         },
-        displaySiteLogo() {
+        displaySiteLogo () {
           return this.siteTitle || this.spaceLogoPath;
         },
-        displaySite() {
+        displaySite () {
           return this.displaySiteLogo || this.displaySiteTitle;
         },
       },
-      created() {
+      created () {
         document.addEventListener('space-settings-updated', this.refreshSpaceSettings);
         document.addEventListener('homeLinkUpdated', this.updateUserHome);
         document.addEventListener('sidebar-mode-changed', this.updateSidebarMode);
       },
-      mounted() {
+      mounted () {
         this.isTopBarElement = !!this.$el.closest('.layout-top-bar');
       },
       methods: {
-        updateUserHome(event) {
+        updateUserHome (event) {
           this.portalPath = event?.detail;
         },
-        updateSidebarMode(event) {
+        updateSidebarMode (event) {
           this.sidebarMode = event?.detail;
         },
-        refreshSpaceSettings(event) {
+        refreshSpaceSettings (event) {
           const space = event?.detail;
           if (space) {
             this.spaceLogoTitle = space.displayName;
@@ -129,14 +129,14 @@ export function init(params) {
             this.membersNumber = space.membersCount;
             this.$forceUpdate();
           }
-        }
+        },
       },
       i18n,
       vuetify,
     }, `#${appId}`, 'Topbar Logo');
   });
 }
-export function destroy() {
+export function destroy () {
   if (popover) {
     popover.$destroy();
   }

@@ -26,11 +26,11 @@
     <v-radio-group
       v-model="registration"
       class="mt-2 ms-n1"
-      mandatory
-      inset>
+      inset
+      mandatory>
       <v-radio
-        value="OPEN"
-        class="mt-0 mb-8">
+        class="mt-0 mb-8"
+        value="OPEN">
         <template #label>
           <div class="d-flex flex-column">
             <div class="text-body">
@@ -43,8 +43,8 @@
         </template>
       </v-radio>
       <v-radio
-        value="VALIDATION"
-        class="mt-0 mb-8">
+        class="mt-0 mb-8"
+        value="VALIDATION">
         <template #label>
           <div class="d-flex flex-column">
             <div class="text-body">
@@ -57,8 +57,8 @@
         </template>
       </v-radio>
       <v-radio
-        value="CLOSED"
-        class="mt-0 mb-6">
+        class="mt-0 mb-6"
+        value="CLOSED">
         <template #label>
           <div class="d-flex flex-column">
             <div class="text-body">
@@ -74,23 +74,23 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    registration: null,
-  }),
-  watch: {
-    registration() {
-      this.$emit('input', this.registration);
+    data: () => ({
+      registration: null,
+    }),
+    watch: {
+      registration () {
+        this.$emit('input', this.registration);
+      },
     },
-  },
-  created() {
-    this.registration = this.value;
-  },
-};
+    created () {
+      this.registration = this.value;
+    },
+  };
 </script>

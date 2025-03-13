@@ -37,18 +37,18 @@
       <complementary-filter-item
         v-for="suggestion in listSuggestions"
         :key="suggestion.value"
-        :suggestion="suggestion"
         :is-selected="isSuggestionSelected(suggestion)"
+        :suggestion="suggestion"
         @select-suggestion="selectSuggestion" />
       <v-btn
         v-if="suggestions.length > elementToDisplay"
         class="ma-auto"
         :class="otherFilterItemsSelected && 'btn-primary elevation-0'
           || 'grey darken-1'"
+        color="white"
+        fab
         :outlined="!otherFilterItemsSelected"
         x-small
-        fab
-        color="white"
         @click="openListSuggestionsDrawer">
         <span>
           +{{ suggestions.length - elementToDisplay }}
@@ -57,158 +57,158 @@
     </div>
     <complementary-filter-items-drawer
       ref="filterItemsDrawer"
-      :suggestions="suggestions"
       :selections="selections"
-      @select-suggestion="selectSuggestion"
-      @closed="filterDrawerClosed" />
+      :suggestions="suggestions"
+      @closed="filterDrawerClosed"
+      @select-suggestion="selectSuggestion" />
   </v-app>
 </template>
 
 <script>
 
-export default {
-  props: {
-    objectIds: {
-      type: Array,
-      default: () => []
+  export default {
+    props: {
+      objectIds: {
+        type: Array,
+        default: () => [],
+      },
+      attributes: {
+        type: Array,
+        default: () => [],
+      },
+      indexAlias: {
+        type: String,
+        default: null,
+      },
+      minDocCount: {
+        type: Number,
+        default: () => 2,
+      },
+      showMessage: {
+        type: Boolean,
+        default: () => true,
+      },
+      loadingCallBack: {
+        type: Function,
+        default: null,
+      },
+      parentExpanded: {
+        type: Boolean,
+        default: () => false,
+      },
     },
-    attributes: {
-      type: Array,
-      default: () => []
+    data () {
+      return {
+        selections: [],
+        suggestions: [],
+        tempRemovedSuggestions: [],
+        otherFilterItemsSelected: false,
+        isLoading: false,
+        elementToDisplay: 0,
+      };
     },
-    indexAlias: {
-      type: String,
-      default: null
+    computed: {
+      hasValues () {
+        return this.listSuggestions.length > 0;
+      },
+      listSuggestions () {
+        return this.suggestions.slice(0, this.elementToDisplay);
+      },
+      listObjectIds () {
+        return this.objectIds;
+      },
+      listAttributes () {
+        return this.attributes;
+      },
     },
-    minDocCount: {
-      type: Number,
-      default: () => 2
-    },
-    showMessage: {
-      type: Boolean,
-      default: () => true
-    },
-    loadingCallBack: {
-      type: Function,
-      default: null
-    },
-    parentExpanded: {
-      type: Boolean,
-      default: () => false
-    }
-  },
-  data() {
-    return {
-      selections: [],
-      suggestions: [],
-      tempRemovedSuggestions: [],
-      otherFilterItemsSelected: false,
-      isLoading: false,
-      elementToDisplay: 0
-    };
-  },
-  computed: {
-    hasValues() {
-      return this.listSuggestions.length > 0;
-    },
-    listSuggestions() {
-      return this.suggestions.slice(0, this.elementToDisplay);
-    },
-    listObjectIds() {
-      return this.objectIds;
-    },
-    listAttributes() {
-      return this.attributes;
-    }
-  },
-  watch: {
-    selections() {
-      this.$emit('filter-changed', this.selections);
-    },
-    parentExpanded() {
-      setTimeout(() => {
-        this.displayedSuggestions();
-      }, '500');
-    }
-  },
-  created() {
-    this.$root.$on('filter-reset-selections', this.resetSelections);
-    this.$root.$on('update-filter-suggestions', this.updateFilterSuggestions);
-  },
-  methods: {
-    filterDrawerClosed(close) {
-      this.$emit('filter-drawer-closed', close);
-    },
-    resetSelections() {
-      this.otherFilterItemsSelected = false;
-      this.selections = [];
-    },
-    openListSuggestionsDrawer() {
-      this.$refs.filterItemsDrawer.open();
-    },
-    displayedSuggestions() {
-      console.log('updated display width');
-      let totalSize = 32;
-      const elementWidth = this.$el.clientWidth;
-      for (let index = 0; index < this.suggestions.length; index ++) {
-        const suggestion = this.suggestions[index];
-        totalSize += (suggestion.value.length * 6) + (12 * 2) + (4 * 2);
-        if (totalSize < elementWidth) {
-          this.elementToDisplay = index;
-        }
-      }
-      if (totalSize < elementWidth) {
-        this.elementToDisplay = this.suggestions.length;
-      }
-    },
-    checkOnlyInTopThreeSelection() {
-      this.otherFilterItemsSelected = false;
-      this.selections.some(suggestion => {
-        if (this.listSuggestions.findIndex(existObject => existObject.value === suggestion.value &&
-            existObject.key === suggestion.key) === -1) {
-          this.otherFilterItemsSelected = true;
-          return true;
-        }
-      });
-    },
-    selectSuggestion(suggestion) {
-      const index = this.getSelectionIndex(suggestion);
-      if (index === -1) {
-        this.selections.push(suggestion);
-      } else {
-        this.selections.splice(index, 1);
-        this.$emit('filter-suggestion-unselected', suggestion);
-      }
-      this.checkOnlyInTopThreeSelection();
-    },
-    getSelectionIndex(suggestion) {
-      return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
-          existObject.key === suggestion.key);
-    },
-    isSuggestionSelected(suggestion) {
-      return this.getSelectionIndex(suggestion) !== -1;
-    },
-    updateFilterSuggestions() {
-      if (this.listObjectIds?.length <= 1) {
-        this.suggestions = [...this.selections].sort((a, b) => b.count - a.count);
-      } else {
-        this.getComplementaryFilterSuggestions();
-      }
-    },
-    getComplementaryFilterSuggestions() {
-      this.isLoading = true;
-      this.loadingCallBack(true);
-      this.suggestions = [];
-      return this.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
-        .then(suggestions => {
-          this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
+    watch: {
+      selections () {
+        this.$emit('filter-changed', this.selections);
+      },
+      parentExpanded () {
+        setTimeout(() => {
           this.displayedSuggestions();
-        }).finally(() => {
-          this.$emit('build-suggestions-terminated', this.suggestions);
-          this.loadingCallBack(false);
-          this.isLoading = false;
+        }, '500');
+      },
+    },
+    created () {
+      this.$root.$on('filter-reset-selections', this.resetSelections);
+      this.$root.$on('update-filter-suggestions', this.updateFilterSuggestions);
+    },
+    methods: {
+      filterDrawerClosed (close) {
+        this.$emit('filter-drawer-closed', close);
+      },
+      resetSelections () {
+        this.otherFilterItemsSelected = false;
+        this.selections = [];
+      },
+      openListSuggestionsDrawer () {
+        this.$refs.filterItemsDrawer.open();
+      },
+      displayedSuggestions () {
+        console.log('updated display width');
+        let totalSize = 32;
+        const elementWidth = this.$el.clientWidth;
+        for (let index = 0; index < this.suggestions.length; index ++) {
+          const suggestion = this.suggestions[index];
+          totalSize += (suggestion.value.length * 6) + (12 * 2) + (4 * 2);
+          if (totalSize < elementWidth) {
+            this.elementToDisplay = index;
+          }
+        }
+        if (totalSize < elementWidth) {
+          this.elementToDisplay = this.suggestions.length;
+        }
+      },
+      checkOnlyInTopThreeSelection () {
+        this.otherFilterItemsSelected = false;
+        this.selections.some(suggestion => {
+          if (this.listSuggestions.findIndex(existObject => existObject.value === suggestion.value &&
+            existObject.key === suggestion.key) === -1) {
+            this.otherFilterItemsSelected = true;
+            return true;
+          }
         });
-    }
-  }
-};
+      },
+      selectSuggestion (suggestion) {
+        const index = this.getSelectionIndex(suggestion);
+        if (index === -1) {
+          this.selections.push(suggestion);
+        } else {
+          this.selections.splice(index, 1);
+          this.$emit('filter-suggestion-unselected', suggestion);
+        }
+        this.checkOnlyInTopThreeSelection();
+      },
+      getSelectionIndex (suggestion) {
+        return this.selections.findIndex(existObject => existObject.value === suggestion.value &&
+          existObject.key === suggestion.key);
+      },
+      isSuggestionSelected (suggestion) {
+        return this.getSelectionIndex(suggestion) !== -1;
+      },
+      updateFilterSuggestions () {
+        if (this.listObjectIds?.length <= 1) {
+          this.suggestions = [...this.selections].sort((a, b) => b.count - a.count);
+        } else {
+          this.getComplementaryFilterSuggestions();
+        }
+      },
+      getComplementaryFilterSuggestions () {
+        this.isLoading = true;
+        this.loadingCallBack(true);
+        this.suggestions = [];
+        return eXo.$complementaryFilterService.getComplementaryFilterSuggestions(this.listObjectIds, this.listAttributes, this.indexAlias, this.minDocCount)
+          .then(suggestions => {
+            this.suggestions = suggestions?.sort((a, b) => b.count - a.count);
+            this.displayedSuggestions();
+          }).finally(() => {
+            this.$emit('build-suggestions-terminated', this.suggestions);
+            this.loadingCallBack(false);
+            this.isLoading = false;
+          });
+      },
+    },
+  };
 </script>

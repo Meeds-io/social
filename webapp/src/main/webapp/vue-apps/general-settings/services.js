@@ -20,13 +20,13 @@
 import * as languageSettingService from './js/LanguageSettingService.js';
 import * as navigationConfigurationService from './js/NavigationConfigurationService.js';
 
-if (!Vue.prototype.$languageSettingService) {
-  window.Object.defineProperty(Vue.prototype, '$languageSettingService', {
+if (!eXo.$languageSettingService) {
+  window.Object.defineProperty(eXo, '$languageSettingService', {
     value: languageSettingService,
   });
 }
-if (!Vue.prototype.$navigationConfigurationService) {
-  window.Object.defineProperty(Vue.prototype, '$navigationConfigurationService', {
+if (!eXo.$navigationConfigurationService) {
+  window.Object.defineProperty(eXo, '$navigationConfigurationService', {
     value: navigationConfigurationService,
   });
 }

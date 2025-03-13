@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getCategoryTree(options) {
+export function getCategoryTree (options) {
   const formData = new FormData();
   if (options.parentId) {
     formData.append('parentId', options.parentId);
@@ -54,7 +54,7 @@ export function getCategoryTree(options) {
   });
 }
 
-export function getCategory(id) {
+export function getCategory (id) {
   return fetch(`/social/rest/categories/${id}`, {
     method: 'GET',
     credentials: 'include',
@@ -67,7 +67,7 @@ export function getCategory(id) {
   });
 }
 
-export function getAncestorIds(id) {
+export function getAncestorIds (id) {
   return fetch(`/social/rest/categories/${id}/ancestors`, {
     method: 'GET',
     credentials: 'include',
@@ -80,7 +80,7 @@ export function getAncestorIds(id) {
   });
 }
 
-export function getSubcategoryIds(id, options) {
+export function getSubcategoryIds (id, options) {
   const formData = new FormData();
   if (options.depth) {
     formData.append('depth', options.depth);
@@ -107,7 +107,7 @@ export function getSubcategoryIds(id, options) {
   });
 }
 
-export function findCategories(options) {
+export function findCategories (options) {
   const formData = new FormData();
   if (options.query) {
     formData.append('query', options.query);
@@ -143,7 +143,7 @@ export function findCategories(options) {
   });
 }
 
-export function createCategory(category) {
+export function createCategory (category) {
   return fetch('/social/rest/categories', {
     credentials: 'include',
     method: 'POST',
@@ -151,7 +151,7 @@ export function createCategory(category) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(category),
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -160,7 +160,7 @@ export function createCategory(category) {
   });
 }
 
-export function updateCategory(category) {
+export function updateCategory (category) {
   return fetch(`/social/rest/categories/${category.id}`, {
     credentials: 'include',
     method: 'PUT',
@@ -168,25 +168,25 @@ export function updateCategory(category) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(category),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when updating the category');
     }
   });
 }
 
-export function deleteCategory(id) {
+export function deleteCategory (id) {
   return fetch(`/social/rest/categories/${id}`, {
     credentials: 'include',
     method: 'DELETE',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when deleting the category');
     }
   });
 }
 
-export function canEdit(id) {
+export function canEdit (id) {
   return fetch(`/social/rest/categories/canEdit/${id}`, {
     method: 'GET',
     credentials: 'include',
@@ -199,7 +199,7 @@ export function canEdit(id) {
   });
 }
 
-export function canLink(id) {
+export function canLink (id) {
   return fetch(`/social/rest/categories/canLink/${id}`, {
     method: 'GET',
     credentials: 'include',

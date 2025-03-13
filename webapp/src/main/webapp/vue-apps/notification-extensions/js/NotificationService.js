@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function getNotifications(options) {
+export function getNotifications (options) {
   const formData = new FormData();
   if (options?.plugins) {
     options?.plugins.forEach(p => formData.append('plugin', p));
@@ -41,7 +41,7 @@ export function getNotifications(options) {
   return fetch(`/portal/rest/notifications/webNotifications?${params}`, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp && resp.ok) {
       return resp.json();
     } else {
@@ -50,7 +50,7 @@ export function getNotifications(options) {
   });
 }
 
-export function resetBadge(plugins) {
+export function resetBadge (plugins) {
   const formData = new FormData();
   if (plugins) {
     plugins.forEach(p => formData.append('plugin', p));
@@ -59,14 +59,14 @@ export function resetBadge(plugins) {
   return fetch(`/portal/rest/notifications/webNotifications?operation=resetBadge${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp.ok) {
       throw new Error('Error processing request on server');
     }
   });
 }
 
-export function markAllAsRead(plugins) {
+export function markAllAsRead (plugins) {
   const formData = new FormData();
   if (plugins) {
     plugins.forEach(p => formData.append('plugin', p));
@@ -75,29 +75,29 @@ export function markAllAsRead(plugins) {
   return fetch(`/portal/rest/notifications/webNotifications?operation=markAllAsRead${params && '&' || ''}${params || ''}`, {
     method: 'PATCH',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp.ok) {
       throw new Error('Error processing request on server');
     }
   });
 }
 
-export function markRead(id) {
+export function markRead (id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}?operation=markAsRead`, {
     credentials: 'include',
     method: 'PATCH',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp.ok) {
       throw new Error('Error processing request on server');
     }
   });
 }
 
-export function hideNotification(id) {
+export function hideNotification (id) {
   return fetch(`/portal/rest/notifications/webNotifications/${id || ''}`, {
     method: 'DELETE',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp.ok) {
       throw new Error('Error processing request on server');
     }

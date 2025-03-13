@@ -28,96 +28,100 @@
       <div class="flex-grow-1 ms-2 position-relative">
         <div class="absolute-vertical-center">
           <v-btn
-            ref="avatarInput"
             id="spaceAvatarEditButton"
-            :title="$t('spacesList.label.changeAvatar')"
+            ref="avatarInput"
             icon
             outlined
+            :title="$t('spacesList.label.changeAvatar')"
             @click="$refs.imageCropDrawer.open()">
-            <v-icon size="18">fa-camera</v-icon>
+            <v-icon size="18">
+              fa-camera
+            </v-icon>
           </v-btn>
           <v-btn
             v-show="!isDefaultAvatar"
-            :title="$t('spacesList.label.deleteAvatar')"
             id="spaceAvatarDeleteButton"
-            outlined
             icon
+            outlined
+            :title="$t('spacesList.label.deleteAvatar')"
             @click="removeAvatar">
-            <v-icon size="18">fa-undo</v-icon>
+            <v-icon size="18">
+              fa-undo
+            </v-icon>
           </v-btn>
         </div>
       </div>
     </div>
     <img
       v-if="imageData"
+      class="border-radius clickable"
+      height="50px"
       :src="imageData"
       width="50px"
-      height="50px"
-      class="border-radius clickable"
       @click="$refs.imageCropDrawer.open()">
     <v-avatar
       v-else
       class="clickable"
       color="primary"
-      width="50px"
       height="50px"
       rounded
+      width="50px"
       @click="$refs.imageCropDrawer.open()">
       <span class="white--text text-h5">{{ nameInitials }}</span>
     </v-avatar>
     <image-crop-drawer
       ref="imageCropDrawer"
       :crop-options="cropOptions"
-      :max-file-size="maxUploadSizeInBytes"
-      :src="imageData"
-      max-image-width="1280"
       drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
+      :max-file-size="maxUploadSizeInBytes"
+      max-image-width="1280"
+      :src="imageData"
       @data="imageData = $event"
       @input="updateAvatar" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    maxUploadSize: {
-      type: Number,
-      default: () => 2,
+  export default {
+    props: {
+      maxUploadSize: {
+        type: Number,
+        default: () => 2,
+      },
+      name: {
+        type: String,
+        default: null,
+      },
     },
-    name: {
-      type: String,
-      default: null,
+    data: () => ({
+      imageData: null,
+      cropOptions: {
+        aspectRatio: 1,
+        viewMode: 1,
+      },
+    }),
+    computed: {
+      isDefaultAvatar () {
+        return !this.imageData;
+      },
+      nameInitials () {
+        if (this.name) {
+          return this.name.split(' ').filter(n => n?.length).map(n => n.at(0).toUpperCase()).slice(0, 2).join('');
+        } else {
+          return '';
+        }
+      },
+      maxUploadSizeInBytes () {
+        return this.maxUploadSize * 1024 * 1024;
+      },
     },
-  },
-  data: () => ({
-    imageData: null,
-    cropOptions: {
-      aspectRatio: 1,
-      viewMode: 1,
+    methods: {
+      removeAvatar () {
+        this.imageData = null;
+        this.$emit('input', null);
+      },
+      updateAvatar (uploadId) {
+        this.$emit('input', uploadId);
+      },
     },
-  }),
-  computed: {
-    isDefaultAvatar() {
-      return !this.imageData;
-    },
-    nameInitials() {
-      if (this.name) {
-        return this.name.split(' ').filter(n => n?.length).map(n => n.at(0).toUpperCase()).slice(0, 2).join('');
-      } else {
-        return '';
-      }
-    },
-    maxUploadSizeInBytes() {
-      return this.maxUploadSize * 1024 * 1024;
-    },
-  },
-  methods: {
-    removeAvatar() {
-      this.imageData = null;
-      this.$emit('input', null);
-    },
-    updateAvatar(uploadId) {
-      this.$emit('input', uploadId);
-    },
-  },
-};
+  };
 </script>

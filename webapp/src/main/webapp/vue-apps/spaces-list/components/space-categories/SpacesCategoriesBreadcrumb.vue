@@ -25,24 +25,26 @@
     <v-btn
       class="hidden-xs-only"
       height="32"
-      width="32"
       icon
+      width="32"
       @click="$root.selectedCategoryId = null">
-      <v-icon size="24">fa-home</v-icon>
+      <v-icon size="24">
+        fa-home
+      </v-icon>
     </v-btn>
     <div
       v-for="(category, index) in breadcrumb"
       :key="category.id">
       <div class="d-flex align-center">
         <v-icon
-          :class="index === 0 && 'hidden-xs-only'"
           class="mx-2"
+          :class="index === 0 && 'hidden-xs-only'"
           size="16">
           {{ chevronIcon }}
         </v-icon>
         <spaces-category-chip
-          :category="category"
           :breadcrumb="index > 1"
+          :category="category"
           class="flex-shrink-0"
           selected
           @select="$emit('select', $event)" />
@@ -51,17 +53,17 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    breadcrumb: {
-      type: Array,
-      default: null,
-    }
-  },
-  computed: {
-    chevronIcon() {
-      return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+  export default {
+    props: {
+      breadcrumb: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-};
+    computed: {
+      chevronIcon () {
+        return eXo.vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
+      },
+    },
+  };
 </script>

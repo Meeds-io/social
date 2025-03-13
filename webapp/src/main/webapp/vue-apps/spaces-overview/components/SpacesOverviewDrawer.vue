@@ -3,18 +3,20 @@
     ref="overviewDrawer"
     body-classes="hide-scroll decrease-z-index-more"
     right>
-    <template slot="title">
+    <template #title>
       {{ title }}
     </template>
-    <template slot="content">
-      <v-layout column class="ma-3">
+    <template #content>
+      <v-layout
+        class="ma-3"
+        column>
         <spaces-overview-spaces-list
           v-if="spaces && spaces.length"
-          :spaces="spaces"
-          :filter="filter"
           class="ma-0 border-box-sizing"
-          @refresh="refresh"
-          @edit="editSpace" />
+          :filter="filter"
+          :spaces="spaces"
+          @edit="editSpace"
+          @refresh="refresh" />
         <template v-else-if="!loadingSpaces">
           <span class="ma-auto">{{ $t('spacesOverview.label.noResults') }}</span>
         </template>
@@ -22,9 +24,9 @@
           <v-spacer />
           <v-btn
             v-if="canShowMore"
-            :loading="loadingSpaces"
-            :disabled="loadingSpaces"
             class="loadMoreButton ma-auto btn"
+            :disabled="loadingSpaces"
+            :loading="loadingSpaces"
             @click="loadNextPage">
             {{ $t('spacesOverview.label.showMore') }}
           </v-btn>
@@ -36,55 +38,55 @@
 </template>
 
 <script>
-export default {
-  data: () => ({
-    title: null,
-    filter: null,
-    loadingSpaces: false,
-    offset: 0,
-    limit: 20,
-    pageSize: 20,
-    spaces: [],
-  }),
-  computed: {
-    canShowMore() {
-      return this.loadingSpaces || this.spaces.length >= this.limit;
+  export default {
+    data: () => ({
+      title: null,
+      filter: null,
+      loadingSpaces: false,
+      offset: 0,
+      limit: 20,
+      pageSize: 20,
+      spaces: [],
+    }),
+    computed: {
+      canShowMore () {
+        return this.loadingSpaces || this.spaces.length >= this.limit;
+      },
     },
-  },
-  methods: {
-    refresh(itemType) {
-      this.$emit('refresh', itemType);
-      this.searchSpaces();
+    methods: {
+      refresh (itemType) {
+        this.$emit('refresh', itemType);
+        this.searchSpaces();
+      },
+      searchSpaces (filter) {
+        this.spaces = [];
+        this.loadingSpaces = true;
+        return eXo.$spaceService.getSpacesByFilter({
+          offset: this.offset,
+          limit: this.limit,
+          filter: filter || this.filter,
+        }).then(data => {
+          this.spaces = data && data.spaces || [];
+          if (filter) {
+            this.filter = filter;
+          }
+          return this.$nextTick();
+        }).finally(() => this.loadingSpaces = false);
+      },
+      loadNextPage () {
+        this.limit += this.pageSize;
+        this.searchSpaces();
+      },
+      editSpace (space) {
+        document.dispatchEvent(new CustomEvent('meeds.social.editSpace', { 'detail': { 'data': space } }));
+        this.$refs.overviewDrawer.close();
+      },
+      open (filter, title) {
+        this.title = title;
+        this.limit = this.pageSize;
+        this.searchSpaces(filter);
+        this.$refs.overviewDrawer.open();
+      },
     },
-    searchSpaces(filter) {
-      this.spaces = [];
-      this.loadingSpaces = true;
-      return this.$spaceService.getSpacesByFilter({
-        offset: this.offset,
-        limit: this.limit,
-        filter: filter || this.filter,
-      }).then(data => {
-        this.spaces = data && data.spaces || [];
-        if (filter) {
-          this.filter = filter;
-        }
-        return this.$nextTick();
-      }).finally(() => this.loadingSpaces = false);
-    },
-    loadNextPage() {
-      this.limit += this.pageSize;
-      this.searchSpaces();
-    },
-    editSpace(space) {
-      document.dispatchEvent(new CustomEvent('meeds.social.editSpace', {'detail': {'data': space}}));
-      this.$refs.overviewDrawer.close();
-    },
-    open(filter, title) {
-      this.title = title;
-      this.limit = this.pageSize;
-      this.searchSpaces(filter);
-      this.$refs.overviewDrawer.open();
-    },
-  }
-};
+  };
 </script>

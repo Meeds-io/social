@@ -36,94 +36,94 @@
       ref="imageCropDrawer"
       v-model="loginBackgroundUploadId"
       :crop-options="cropOptions"
+      drawer-title="generalSettings.changeLoginBackground.drawerTitle"
       :max-file-size="maxFileSize"
       :src="loginBackgroundPreviewSrc"
-      drawer-title="generalSettings.changeLoginBackground.drawerTitle"
       @data="loginBackgroundData = $event" />
   </div>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: String,
-      default: () => null,
+  export default {
+    props: {
+      value: {
+        type: String,
+        default: () => null,
+      },
+      aspectRatio: {
+        type: Number,
+        default: () => 16 / 9,
+      },
+      defaultData: {
+        type: String,
+        default: null,
+      },
     },
-    aspectRatio: {
-      type: Number,
-      default: () => 16 / 9,
+    data: () => ({
+      loginBackgroundData: null,
+      loginBackgroundUploadId: null,
+      loginBackgroundTextColor: '#FFFFFF',
+      uploadInProgress: false,
+      uploadProgress: 0,
+      maxFileSize: 2097152,
+      resetInput: false,
+    }),
+    computed: {
+      cropOptions () {
+        return {
+          aspectRatio: this.aspectRatio,
+          cropBoxResizable: false,
+          minCropBoxHeight: 200,
+        };
+      },
+      hasImage () {
+        return this.loginBackgroundData;
+      },
+      loginBackgroundPreviewSrc () {
+        if (this.loginBackgroundData) {
+          return eXo.$utils.convertImageDataAsSrc(this.loginBackgroundData);
+        } else {
+          return this.defaultData;
+        }
+      },
     },
-    defaultData: {
-      type: String,
-      default: null,
+    watch: {
+      loginBackgroundUploadId () {
+        this.$emit('input', this.loginBackgroundUploadId || '');
+      },
+      loginBackgroundData () {
+        this.$emit('data-updated', this.loginBackgroundData);
+      },
+      loginBackgroundTextColor () {
+        this.$emit('text-color-updated', this.loginBackgroundTextColor);
+      },
     },
-  },
-  data: () => ({
-    loginBackgroundData: null,
-    loginBackgroundUploadId: null,
-    loginBackgroundTextColor: '#FFFFFF',
-    uploadInProgress: false,
-    uploadProgress: 0,
-    maxFileSize: 2097152,
-    resetInput: false,
-  }),
-  computed: {
-    cropOptions() {
-      return {
-        aspectRatio: this.aspectRatio,
-        cropBoxResizable: false,
-        minCropBoxHeight: 200,
-      };
+    methods: {
+      init (defaultData, defaultTextColor, defaultUploadId) {
+        this.loginBackgroundUploadId = defaultUploadId || null;
+        this.loginBackgroundData = defaultData;
+        this.loginBackgroundTextColor = defaultTextColor || '#FFFFFF';
+        if (this.$refs.imageCropDrawer) {
+          this.$refs.imageCropDrawer.init();
+        }
+      },
+      preSave (branding) {
+        if (this.loginBackgroundUploadId) {
+          Object.assign(branding, {
+            loginBackground: {
+              uploadId: this.loginBackgroundUploadId,
+            },
+          });
+        }
+        if (this.defaultData || this.loginBackgroundUploadId) {
+          Object.assign(branding, {
+            loginBackgroundTextColor: this.loginBackgroundTextColor,
+          });
+        } else {
+          Object.assign(branding, {
+            loginBackgroundTextColor: null,
+          });
+        }
+      },
     },
-    hasImage() {
-      return this.loginBackgroundData;
-    },
-    loginBackgroundPreviewSrc() {
-      if (this.loginBackgroundData) {
-        return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
-      } else {
-        return this.defaultData;
-      }
-    },
-  },
-  watch: {
-    loginBackgroundUploadId() {
-      this.$emit('input', this.loginBackgroundUploadId || '');
-    },
-    loginBackgroundData() {
-      this.$emit('data-updated', this.loginBackgroundData);
-    },
-    loginBackgroundTextColor() {
-      this.$emit('text-color-updated', this.loginBackgroundTextColor);
-    },
-  },
-  methods: {
-    init(defaultData, defaultTextColor, defaultUploadId) {
-      this.loginBackgroundUploadId = defaultUploadId || null;
-      this.loginBackgroundData = defaultData;
-      this.loginBackgroundTextColor = defaultTextColor || '#FFFFFF';
-      if (this.$refs.imageCropDrawer) {
-        this.$refs.imageCropDrawer.init();
-      }
-    },
-    preSave(branding) {
-      if (this.loginBackgroundUploadId) {
-        Object.assign(branding, {
-          loginBackground: {
-            uploadId: this.loginBackgroundUploadId,
-          },
-        });
-      }
-      if (this.defaultData || this.loginBackgroundUploadId) {
-        Object.assign(branding, {
-          loginBackgroundTextColor: this.loginBackgroundTextColor,
-        });
-      } else {
-        Object.assign(branding, {
-          loginBackgroundTextColor: null,
-        });
-      }
-    },
-  },
-};
+  };
 </script>

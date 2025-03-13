@@ -24,32 +24,36 @@
         class="clickable mx-2"
         @click="edit()">
         <v-icon
-          size="21"
-          class="pe-1">
+          class="pe-1"
+          size="21">
           fas fa-edit
         </v-icon>
         <span class="ps-1">{{ $t('profileSettings.label.edit') }}</span>
       </div>
     </v-list-item>
-    <v-list-item v-if="canMoveUp" class="menu-list px-2 text-left action-menu-item">
+    <v-list-item
+      v-if="canMoveUp"
+      class="menu-list px-2 text-left action-menu-item">
       <div
         class="clickable mx-2"
         @click="moveUp()">
         <v-icon
-          size="21"
-          class="pe-1">
+          class="pe-1"
+          size="21">
           mdi-mouse-move-up
         </v-icon>
         <span class="ps-1">{{ $t('profileSettings.label.moveUp') }}</span>
       </div>
     </v-list-item>
-    <v-list-item v-if="canMoveDown" class="menu-list px-2 text-left action-menu-item">
+    <v-list-item
+      v-if="canMoveDown"
+      class="menu-list px-2 text-left action-menu-item">
       <div
         class="clickable mx-2"
         @click="moveDown()">
         <v-icon
-          size="21"
-          class="pe-1">
+          class="pe-1"
+          size="21">
           mdi-mouse-move-down
         </v-icon>
         <span class="ps-1">{{ $t('profileSettings.label.moveDown') }}</span>
@@ -59,45 +63,45 @@
 </template>
 <script>
 
-export default {
-  props: {
-    setting: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      setting: {
+        type: Object,
+        default: null,
+      },
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-    settings: {
-      type: Object,
-      default: null,
-    }
-  },
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'sm';
+    computed: {
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'sm';
+      },
+      index (){
+        return this.settings.findIndex(object => {
+          return object.id === this.setting.id;
+        });
+      },
+      canMoveUp ()
+      {
+        return this.index > 0;
+      },
+      canMoveDown ()
+      {
+        return this.index < this.settings.length - 1;
+      }, 
     },
-    index(){
-      return this.settings.findIndex(object => {
-        return object.id === this.setting.id;
-      });
+    methods: {
+      edit (){
+        this.$root.$emit('open-settings-edit-drawer', JSON.parse(JSON.stringify( this.setting)));
+      },
+      moveUp (){
+        this.$root.$emit('move-up-setting', this.setting);
+      },
+      moveDown (){
+        this.$root.$emit('move-down-setting', this.setting);
+      },
     },
-    canMoveUp()
-    {
-      return this.index > 0;
-    },
-    canMoveDown()
-    {
-      return this.index < this.settings.length - 1;
-    }, 
-  },
-  methods: {
-    edit(){
-      this.$root.$emit('open-settings-edit-drawer', JSON.parse(JSON.stringify( this.setting)));
-    },
-    moveUp(){
-      this.$root.$emit('move-up-setting', this.setting);
-    },
-    moveDown(){
-      this.$root.$emit('move-down-setting', this.setting);
-    }
-  }
-};
+  };
 </script>

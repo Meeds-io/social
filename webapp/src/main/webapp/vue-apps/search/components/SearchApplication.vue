@@ -1,11 +1,13 @@
 <template>
   <v-app role="search">
     <v-btn
-      :title="buttonTooltip"
-      icon
       class="transparent"
+      icon
+      :title="buttonTooltip"
       @click="$refs.dialog.toogle()">
-      <v-icon size="20">fa-search</v-icon>
+      <v-icon size="20">
+        fa-search
+      </v-icon>
     </v-btn>
     <search-dialog
       ref="dialog"
@@ -14,19 +16,19 @@
   </v-app>
 </template>
 <script>
-export default {
-  props: {
-    connectors: {
-      type: Array,
-      default: () => [],
+  export default {
+    props: {
+      connectors: {
+        type: Array,
+        default: () => [],
+      },
+      skinUrls: {
+        type: Array,
+        default: () => [],
+      },
     },
-    skinUrls: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  data: () => ({
-    dialog: false,
-  }),
-};
+    data: () => ({
+      dialog: false,
+    }),
+  };
 </script>

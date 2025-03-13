@@ -22,20 +22,22 @@
 <template>
   <v-card
     class="d-flex"
-    height="48"
-    flat>
+    flat
+    height="48">
     <v-list-item
-      :class="!$root.expand && 'mx-0 px-0'"
       class="my-auto"
+      :class="!$root.expand && 'mx-0 px-0'"
       dense>
-      <v-list-item-action v-if="$root.expand" class="me-auto font-weight-bold">
+      <v-list-item-action
+        v-if="$root.expand"
+        class="me-auto font-weight-bold">
         <v-tooltip top>
           <template #activator="{ on, attrs }">
             <a
-              :href="productLink"
               :aria-label="$t('menu.productName.seeProduct')"
-              target="_blank"
               class="text-body font-weight-bold my-auto"
+              :href="productLink"
+              target="_blank"
               v-bind="attrs"
               v-on="on">
               {{ productName }}
@@ -47,61 +49,71 @@
         </v-tooltip>
       </v-list-item-action>
       <v-spacer v-if="$root.expand" />
-      <div v-else class="me-3"></div>
+      <div
+        v-else
+        class="me-3"></div>
       <v-list-item-action
-        :class="$root.expand && 'mx-0' || 'ms-1 me-0'"
-        class="my-auto d-flex flex-row">
+        class="my-auto d-flex flex-row"
+        :class="$root.expand && 'mx-0' || 'ms-1 me-0'">
         <v-tooltip top>
           <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
-              :href="profileUri"
               :aria-label="$t('menu.userProfilePageLink')"
-              :class="!$root.expand && 'ms-n2px'"
               class="accountTitleItem my-auto"
-              icon>
+              :class="!$root.expand && 'ms-n2px'"
+              :href="profileUri"
+              icon
+              v-on="on">
               <v-avatar
-                :href="profileUri"
                 class="userAvatar"
+                :href="profileUri"
                 size="24">
                 <img
-                  :src="avatarUrl"
                   :alt="userName"
+                  contain
                   height="24"
-                  width="24"
-                  contain>
+                  :src="avatarUrl"
+                  width="24">
               </v-avatar>
             </v-btn>
           </template>
           <span>{{ $t('menu.userProfilePageLink') }}</span>
         </v-tooltip>
-        <v-tooltip v-if="$root.expand" top>
+        <v-tooltip
+          v-if="$root.expand"
+          top>
           <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
-              :href="settingsUrl"
               :aria-label="$t('menu.settings')"
               class="userSettingsLink my-auto"
-              icon>
-              <v-icon size="20">fa-sliders-h</v-icon>
+              :href="settingsUrl"
+              icon
+              v-on="on">
+              <v-icon size="20">
+                fa-sliders-h
+              </v-icon>
             </v-btn>
           </template>
           <span>
             {{ $t('menu.settings') }}
           </span>
         </v-tooltip>
-        <v-tooltip v-if="$root.expand" top>
+        <v-tooltip
+          v-if="$root.expand"
+          top>
           <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              v-on="on"
-              :href="logoutUrl"
               :aria-label="$t('menu.logout')"
               class="logoutLink me-n3 my-auto"
-              icon>
-              <v-icon size="20">fa-power-off</v-icon>
+              :href="logoutUrl"
+              icon
+              v-on="on">
+              <v-icon size="20">
+                fa-power-off
+              </v-icon>
             </v-btn>
           </template>
           <span>
@@ -113,19 +125,19 @@
   </v-card>
 </template>
 <script>
-export default {
-  data: () => ({
-    settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
-    logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
-    profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
-    productName: eXo.env.portal.productName,
-    productLink: eXo.env.portal.productLink,
-    userName: eXo.env.portal.userName,
-  }),
-  computed: {
-    avatarUrl() {
-      return this.$root.avatarUrl;
+  export default {
+    data: () => ({
+      settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
+      logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/?portal:action=Logout&portal:componentId=UIPortal`,
+      profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
+      productName: eXo.env.portal.productName,
+      productLink: eXo.env.portal.productLink,
+      userName: eXo.env.portal.userName,
+    }),
+    computed: {
+      avatarUrl () {
+        return this.$root.avatarUrl;
+      },
     },
-  },
-};
+  };
 </script>

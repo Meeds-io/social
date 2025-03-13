@@ -19,7 +19,9 @@
 
 -->
 <template>
-  <form ref="form" class="px-5">
+  <form
+    ref="form"
+    class="px-5">
     <div class="d-flex flex-column">
       <div class="text-header">
         {{ $t('spacesList.label.accessTitle') }}
@@ -27,11 +29,11 @@
       <v-radio-group
         v-model="spaceSubscription"
         class="mt-2 mx-0"
-        mandatory
-        inset>
+        inset
+        mandatory>
         <v-radio
-          value="open"
-          class="mt-0 mb-8">
+          class="mt-0 mb-8"
+          value="open">
           <template #label>
             <div class="d-flex flex-column">
               <div class="text-body">
@@ -44,8 +46,8 @@
           </template>
         </v-radio>
         <v-radio
-          value="validation"
-          class="mt-0 mb-8">
+          class="mt-0 mb-8"
+          value="validation">
           <template #label>
             <div class="d-flex flex-column">
               <div class="text-body">
@@ -58,8 +60,8 @@
           </template>
         </v-radio>
         <v-radio
-          value="closed"
-          class="mt-0 mb-6">
+          class="mt-0 mb-6"
+          value="closed">
           <template #label>
             <div class="d-flex flex-column">
               <div class="text-body">
@@ -80,11 +82,11 @@
       <v-radio-group
         v-model="spaceVisibility"
         class="mt-2 mx-0"
-        mandatory
-        inset>
+        inset
+        mandatory>
         <v-radio
-          value="private"
-          class="mb-6">
+          class="mb-6"
+          value="private">
           <template #label>
             <div class="d-flex flex-column">
               <div class="text-body">
@@ -97,8 +99,8 @@
           </template>
         </v-radio>
         <v-radio
-          value="hidden"
-          class="mt-0 mb-8">
+          class="mt-0 mb-8"
+          value="hidden">
           <template #label>
             <div class="d-flex flex-column">
               <div class="text-body">
@@ -115,38 +117,38 @@
   </form>
 </template>
 <script>
-export default {
-  props: {
-    subscription: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      subscription: {
+        type: Object,
+        default: null,
+      },
+      visibility: {
+        type: Object,
+        default: null,
+      },
     },
-    visibility: {
-      type: Object,
-      default: null,
+    data: () => ({
+      spaceSubscription: null,
+      spaceVisibility: null,
+    }),
+    watch: {
+      subscription () {
+        this.spaceSubscription = this.subscription;
+      },
+      visibility () {
+        this.spaceVisibility = this.visibility;
+      },
+      spaceSubscription () {
+        this.$emit('subscription', this.spaceSubscription);
+      },
+      spaceVisibility () {
+        this.$emit('visibility', this.spaceVisibility);
+      },
     },
-  },
-  data: () => ({
-    spaceSubscription: null,
-    spaceVisibility: null,
-  }),
-  watch: {
-    subscription() {
+    created () {
       this.spaceSubscription = this.subscription;
-    },
-    visibility() {
       this.spaceVisibility = this.visibility;
     },
-    spaceSubscription() {
-      this.$emit('subscription', this.spaceSubscription);
-    },
-    spaceVisibility() {
-      this.$emit('visibility', this.spaceVisibility);
-    },
-  },
-  created() {
-    this.spaceSubscription = this.subscription;
-    this.spaceVisibility = this.visibility;
-  }
-};
+  };
 </script>

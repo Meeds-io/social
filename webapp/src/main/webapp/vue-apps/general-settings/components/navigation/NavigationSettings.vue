@@ -20,7 +20,9 @@
 
 -->
 <template>
-  <div v-if="initialized" class="mb-4">
+  <div
+    v-if="initialized"
+    class="mb-4">
     <portal-general-settings-navigation-settings-topbar
       :settings="navigationSettings"
       @changed="navigationSettings.topbar = $event" />
@@ -30,13 +32,13 @@
       @changed="navigationSettings.sidebar = $event" />
     <div class="d-inline pt-8">
       <sticky-position-element
-        scroll-diff="50"
-        bottom="0">
+        bottom="0"
+        scroll-diff="50">
         <div class="d-flex justify-end py-4 pe-5">
           <v-btn
             :aria-label="$t('generalSettings.cancel')"
-            :disabled="loading"
             class="btn cancel-button me-4"
+            :disabled="loading"
             elevation="0"
             @click="$emit('close')">
             <span class="text-none">
@@ -45,11 +47,11 @@
           </v-btn>
           <v-btn
             :aria-label="$t('generalSettings.apply')"
-            :disabled="!modified"
-            :loading="loading"
-            color="primary"
             class="btn btn-primary"
+            color="primary"
+            :disabled="!modified"
             elevation="0"
+            :loading="loading"
             @click="save">
             <span class="text-none">
               {{ $t('generalSettings.apply') }}
@@ -64,55 +66,55 @@
   </div>
 </template>
 <script>
-export default {
-  data: () => ({
-    navigationSettings: {
-      topbar: {
-        applications: [],
-        displayCompanyName: true,
-        displayMobileCompanyLogo: false,
-        displaySiteName: true,
+  export default {
+    data: () => ({
+      navigationSettings: {
+        topbar: {
+          applications: [],
+          displayCompanyName: true,
+          displayMobileCompanyLogo: false,
+          displaySiteName: true,
+        },
+        sidebar: {
+          items: [],
+          allowUserCustomHome: false,
+          defaultMode: 'HIDDEN',
+          allowedModes: ['HIDDEN','ICON','STICKY'],
+        },
       },
-      sidebar: {
-        items: [],
-        allowUserCustomHome: false,
-        defaultMode: 'HIDDEN',
-        allowedModes: ['HIDDEN','ICON','STICKY'],
+      originalNavigationSettings: null,
+      loading: false,
+      initialized: false,
+    }),
+    computed: {
+      modified () {
+        return JSON.stringify(this.originalNavigationSettings) !== JSON.stringify(this.navigationSettings);
       },
     },
-    originalNavigationSettings: null,
-    loading: false,
-    initialized: false,
-  }),
-  computed: {
-    modified() {
-      return JSON.stringify(this.originalNavigationSettings) !== JSON.stringify(this.navigationSettings);
+    async created () {
+      await this.refresh();
+      this.initialized = true;
     },
-  },
-  async created() {
-    await this.refresh();
-    this.initialized = true;
-  },
-  methods: {
-    async refresh() {
-      this.loading = true;
-      try {
-        this.navigationSettings = await this.$navigationConfigurationService.getConfiguration();
-        this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
-      } finally {
-        this.loading = false;
-      }
+    methods: {
+      async refresh () {
+        this.loading = true;
+        try {
+          this.navigationSettings = await eXo.$navigationConfigurationService.getConfiguration();
+          this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
+        } finally {
+          this.loading = false;
+        }
+      },
+      save () {
+        this.loading = true;
+        try {
+          eXo.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
+        } finally {
+          this.$root.$emit('alert-message', this.$t('generalSettings.navigationSettingsUpdatedSuccessfully'), 'success');
+          this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
+          window.setTimeout(() => this.loading = false, 200);
+        }
+      },
     },
-    save() {
-      this.loading = true;
-      try {
-        this.$navigationConfigurationService.saveConfiguration(this.navigationSettings);
-      } finally {
-        this.$root.$emit('alert-message', this.$t('generalSettings.navigationSettingsUpdatedSuccessfully'), 'success');
-        this.originalNavigationSettings = JSON.parse(JSON.stringify(this.navigationSettings));
-        window.setTimeout(() => this.loading = false, 200);
-      }
-    },
-  },
-};
+  };
 </script>

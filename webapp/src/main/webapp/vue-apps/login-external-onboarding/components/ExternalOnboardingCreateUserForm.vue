@@ -21,12 +21,14 @@
 <template>
   <v-card
     v-if="confirmed"
-    width="600px"
-    max-width="100%"
     class="mx-auto px-4"
-    flat>
+    flat
+    max-width="100%"
+    width="600px">
     <div class="d-flex flex-column align-center justify-center pt-10 pb-5">
-      <v-icon size="80" color="tertiary">
+      <v-icon
+        color="tertiary"
+        size="80">
         fa-envelope
       </v-icon>
       <span class="mt-8">
@@ -48,160 +50,166 @@
     </v-card-title>
 
     <form
-      name="form"
       ref="form"
-      method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
+      method="post"
+      name="form"
       @submit="validateForm()">
       <input
-        type="hidden"
         name="action"
+        type="hidden"
         value="saveExternal">
       <input
+        name="username"
         type="hidden"
-        :value="username"
-        name="username">
+        :value="username">
       <input
+        name="initialURI"
         type="hidden"
-        :value="initialURI"
-        name="initialURI">
+        :value="initialURI">
       <div>
         <v-card-title class="px-0 mt-4 text-break text-header">
           {{ $t('onboarding.yourProfileTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="email"
               ref="email"
               v-model="email"
-              :title="$t('onboarding.emailPlaceholder')"
-              :readonly="isEmailReadOnly"
-              :tabindex="!isEmailReadOnly && '0'"
-              :autofocus="!isEmailReadOnly && 'autofocus'"
-              :placeholder="$t('onboarding.emailPlaceholder')"
-              name="email"
-              prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
-              class="login-username border-box-sizing pt-0"
               aria-required="true"
-              type="email"
-              required="required"
+              :autofocus="!isEmailReadOnly && 'autofocus'"
+              class="login-username border-box-sizing pt-0"
+              dense
+              name="email"
               outlined
-              dense />
+              :placeholder="$t('onboarding.emailPlaceholder')"
+              prepend-inner-icon="fas fa-user ms-n2 grey--text text--lighten-1"
+              :readonly="isEmailReadOnly"
+              required="required"
+              :tabindex="!isEmailReadOnly && '0'"
+              :title="$t('onboarding.emailPlaceholder')"
+              type="email" />
             <v-text-field
               id="firstName"
               ref="firstName"
               v-model="firstName"
-              :title="$t('onboarding.firstName')"
-              :placeholder="$t('onboarding.firstName')"
-              :tabindex="isEmailReadOnly && '0'"
-              :autofocus="isEmailReadOnly && 'autofocus'"
-              name="firstName"
-              class="login-username border-box-sizing"
               aria-required="true"
-              type="text"
-              required="required"
-              minlength="1"
+              :autofocus="isEmailReadOnly && 'autofocus'"
+              class="login-username border-box-sizing"
+              dense
               maxlength="255"
+              minlength="1"
+              name="firstName"
               outlined
-              dense />
+              :placeholder="$t('onboarding.firstName')"
+              required="required"
+              :tabindex="isEmailReadOnly && '0'"
+              :title="$t('onboarding.firstName')"
+              type="text" />
             <v-text-field
               id="lastName"
               ref="lastName"
               v-model="lastName"
-              :title="$t('onboarding.lastName')"
-              :placeholder="$t('onboarding.lastName')"
-              name="lastName"
-              class="login-username border-box-sizing"
               aria-required="true"
-              type="text"
-              required="required"
-              minlength="1"
+              class="login-username border-box-sizing"
+              dense
               maxlength="255"
+              minlength="1"
+              name="lastName"
               outlined
-              dense />
+              :placeholder="$t('onboarding.lastName')"
+              required="required"
+              :title="$t('onboarding.lastName')"
+              type="text" />
           </v-card>
         </v-row>
         <v-card-title class="px-0 text-break text-header">
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="password"
               ref="password"
               v-model="password"
-              :title="$t('onboarding.NewPassword')"
-              :placeholder="$t('onboarding.NewPassword')"
-              :type="passwordType"
               :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-              class="login-password border-box-sizing pt-0"
-              name="password"
               autocomplete="new-password"
-              required="required"
-              outlined
+              class="login-password border-box-sizing pt-0"
               dense
+              name="password"
+              outlined
+              :placeholder="$t('onboarding.NewPassword')"
+              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+              required="required"
+              :title="$t('onboarding.NewPassword')"
+              :type="passwordType"
               @click:append="toggleShow" />
           </v-card>
           <span class="caption">{{ $t('onboarding.passwordCondition') }}</span>
-          <v-card width="350" flat>
+          <v-card
+            flat
+            width="350">
             <v-text-field
               id="password2"
               ref="password2"
               v-model="confirmPassword"
-              :title="$t('onboarding.ConfirmNewPassword')"
-              :placeholder="$t('onboarding.ConfirmNewPassword')"
-              :type="passwordConfirmType"
               :append-icon="showConfirmPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
-              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
-              class="login-password border-box-sizing pt-2"
-              name="password2"
               autocomplete="new-password"
-              required="required"
-              outlined
+              class="login-password border-box-sizing pt-2"
               dense
+              name="password2"
+              outlined
+              :placeholder="$t('onboarding.ConfirmNewPassword')"
+              prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
+              required="required"
+              :title="$t('onboarding.ConfirmNewPassword')"
+              :type="passwordConfirmType"
               @click:append="toggleConfirmShow" />
           </v-card>
           <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card
             class="d-flex mt-4"
-            width="350"
-            flat>
+            flat
+            width="350">
             <v-img
-              src="/portal/external-registration?serveCaptcha=true"
-              width="150"
-              heigh="40"
               class="primary me-2 rounded-lg"
+              contain
               eager
-              contain />
+              heigh="40"
+              src="/portal/external-registration?serveCaptcha=true"
+              width="150" />
             <v-text-field
               id="captcha"
               ref="captcha"
               v-model="captcha"
-              :title="$t('onboarding.captchaPlaceholder')"
-              :placeholder="$t('onboarding.captchaPlaceholder')"
-              name="captcha"
-              class="login-username border-box-sizing pa-0 mt-1"
               aria-required="true"
-              type="text"
-              required="required"
+              class="login-username border-box-sizing pa-0 mt-1"
+              dense
+              name="captcha"
               outlined
-              dense />
+              :placeholder="$t('onboarding.captchaPlaceholder')"
+              required="required"
+              :title="$t('onboarding.captchaPlaceholder')"
+              type="text" />
           </v-card>
         </v-row>
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
-            :disabled="disabled"
-            :loading="loading"
-            type="submit"
-            width="222"
-            max-width="100%"
-            color="primary"
             class="login-button btn-primary text-none mx-auto"
-            elevation="0">
+            color="primary"
+            :disabled="disabled"
+            elevation="0"
+            :loading="loading"
+            max-width="100%"
+            type="submit"
+            width="222">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -210,85 +218,85 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    username: null,
-    email: null,
-    firstName: null,
-    lastName: null,
-    password: null,
-    confirmPassword: null,
-    captcha: null,
-    initialURI: null,
-    showPassword: false,
-    showConfirmPassword: false,
-    loading: false,
-    error: null,
-    errorField: null,
-  }),
-  computed: {
-    passwordType() {
-      return this.showPassword ? 'text' :'password';
+    data: () => ({
+      username: null,
+      email: null,
+      firstName: null,
+      lastName: null,
+      password: null,
+      confirmPassword: null,
+      captcha: null,
+      initialURI: null,
+      showPassword: false,
+      showConfirmPassword: false,
+      loading: false,
+      error: null,
+      errorField: null,
+    }),
+    computed: {
+      passwordType () {
+        return this.showPassword ? 'text' :'password';
+      },
+      passwordConfirmType () {
+        return this.showConfirmPassword ? 'text' :'password';
+      },
+      isEmailReadOnly () {
+        return !this.username;
+      },
+      disabled () {
+        return !this.email?.length
+          || !this.firstName?.length
+          || !this.lastName?.length
+          || !this.password?.length
+          || !this.confirmPassword?.length
+          || !this.captcha?.length;
+      },
+      confirmed () {
+        return !!this.params?.success?.length;
+      },
     },
-    passwordConfirmType() {
-      return this.showConfirmPassword ? 'text' :'password';
+    watch: {
+      errorField () {
+        if (this.error && this.errorField) {
+          const element = this.$refs[this.errorField].setCustomValidity && this.$refs[this.errorField] || this.$refs[this.errorField].$el.querySelector('input');
+          element.setCustomValidity(this.error);
+          window.setTimeout(() => this.$refs.form.reportValidity(), 200);
+          element.onkeydown = () => {
+            element.setCustomValidity('');
+          };
+        }
+      },
     },
-    isEmailReadOnly() {
-      return !this.username;
+    mounted () {
+      this.username = this.params?.username;
+      this.email = this.params?.email;
+      this.firstName = this.params?.firstName;
+      this.lastName = this.params?.lastName;
+      this.password = this.params?.password;
+      this.confirmPassword = this.params?.password2;
+      this.initialURI = this.params?.initialURI;
+      this.errorField = this.params?.errorField;
+      this.error = this.params?.error;
     },
-    disabled() {
-      return !this.email?.length
-        || !this.firstName?.length
-        || !this.lastName?.length
-        || !this.password?.length
-        || !this.confirmPassword?.length
-        || !this.captcha?.length;
+    methods: {
+      toggleShow () {
+        this.showPassword = !this.showPassword;
+      },
+      toggleConfirmShow () {
+        this.showConfirmPassword = !this.showConfirmPassword;
+      },
+      validateForm () {
+        this.loading = this.$refs.form.reportValidity();
+        window.setTimeout(() => this.loading = false, 10000);
+        return !this.disabled;
+      },
     },
-    confirmed() {
-      return !!this.params?.success?.length;
-    },
-  },
-  watch: {
-    errorField() {
-      if (this.error && this.errorField) {
-        const element = this.$refs[this.errorField].setCustomValidity && this.$refs[this.errorField] || this.$refs[this.errorField].$el.querySelector('input');
-        element.setCustomValidity(this.error);
-        window.setTimeout(() => this.$refs.form.reportValidity(), 200);
-        element.onkeydown = () => {
-          element.setCustomValidity('');
-        };
-      }
-    },
-  },
-  mounted() {
-    this.username = this.params?.username;
-    this.email = this.params?.email;
-    this.firstName = this.params?.firstName;
-    this.lastName = this.params?.lastName;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
-    this.initialURI = this.params?.initialURI;
-    this.errorField = this.params?.errorField;
-    this.error = this.params?.error;
-  },
-  methods: {
-    toggleShow() {
-      this.showPassword = !this.showPassword;
-    },
-    toggleConfirmShow() {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    },
-    validateForm() {
-      this.loading = this.$refs.form.reportValidity();
-      window.setTimeout(() => this.loading = false, 10000);
-      return !this.disabled;
-    },
-  },
-};
+  };
 </script>

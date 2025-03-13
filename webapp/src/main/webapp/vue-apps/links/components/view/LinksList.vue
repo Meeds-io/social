@@ -19,99 +19,101 @@
 
 -->
 <template>
-  <div class="max-width-fit overflow-hidden" :class="[vAlignClass, hAlignClass]">
+  <div
+    class="max-width-fit overflow-hidden"
+    :class="[vAlignClass, hAlignClass]">
     <component
-      v-if="links?.length"
       :is="isColumn && 'v-list' || 'card-carousel'"
+      v-if="links?.length"
       :class="isColumn && 'pa-0' || 'mt-n2 mb-n4'"
       v-bind="isColumn && {
         dense: !largeIcon
       }">
       <component
+        :is="componentName"
         v-for="link in links"
         :key="link.id"
-        :is="componentName"
+        :icon-size="iconSize"
+        :large-icon="largeIcon"
         :link="link"
-        :type="type"
-        :show-name="showName"
         :show-description="showDescription"
         :show-icon="showIcon"
-        :icon-size="iconSize"
-        :large-icon="largeIcon" />
+        :show-name="showName"
+        :type="type" />
     </component>
   </div>
 </template>
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
+      links: {
+        type: Array,
+        default: null,
+      },
     },
-    links: {
-      type: Array,
-      default: null,
+    computed: {
+      type () {
+        return this.settings?.type || 'CARD';
+      },
+      showName () {
+        return this.settings?.showName || false;
+      },
+      showDescription () {
+        return this.settings?.showDescription || false;
+      },
+      showIcon () {
+        return this.settings?.showIcon || false;
+      },
+      iconSize () {
+        return this.showIcon && this.settings?.iconSize || (this.settings?.largeIcon ? 48 : 34);
+      },
+      largeIcon () {
+        return this.iconSize > 40;
+      },
+      header () {
+        return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
+      },
+      seeMoreUrl () {
+        return eXo.$utils.toLinkUrl(this.settings?.seeMore, {
+          urls: true,
+          email: true,
+          phone: true,
+        });
+      },
+      isColumn () {
+        return this.type === 'COLUMN';
+      },
+      componentName () {
+        return this.isColumn && 'links-column' || 'links-card';
+      },
+      hAlign () {
+        return this.settings?.hAlign || 'CENTER';
+      },
+      vAlign () {
+        return this.settings?.vAlign || 'MIDDLE';
+      },
+      vAlignClass () {
+        if (this.vAlign === 'START') {
+          return 'mb-auto';
+        } else if (this.vAlign === 'END') {
+          return 'mt-auto';
+        } else {
+          return 'my-auto';
+        }
+      },
+      hAlignClass () {
+        if (this.hAlign === 'START') {
+          return 'me-auto';
+        } else if (this.hAlign === 'END') {
+          return 'ms-auto';
+        } else {
+          return 'mx-auto';
+        }
+      },
     },
-  },
-  computed: {
-    type() {
-      return this.settings?.type || 'CARD';
-    },
-    showName() {
-      return this.settings?.showName || false;
-    },
-    showDescription() {
-      return this.settings?.showDescription || false;
-    },
-    showIcon() {
-      return this.settings?.showIcon || false;
-    },
-    iconSize() {
-      return this.showIcon && this.settings?.iconSize || (this.settings?.largeIcon && 48 || 34) || 0;
-    },
-    largeIcon() {
-      return this.iconSize > 40;
-    },
-    header() {
-      return this.settings?.header?.[this.$root.language] || this.settings?.header?.[this.$root.defaultLanguage];
-    },
-    seeMoreUrl() {
-      return this.$utils.toLinkUrl(this.settings?.seeMore, {
-        urls: true,
-        email: true,
-        phone: true,
-      });
-    },
-    isColumn() {
-      return this.type === 'COLUMN';
-    },
-    componentName() {
-      return this.isColumn && 'links-column' || 'links-card';
-    },
-    hAlign() {
-      return this.settings?.hAlign || 'CENTER';
-    },
-    vAlign() {
-      return this.settings?.vAlign || 'MIDDLE';
-    },
-    vAlignClass() {
-      if (this.vAlign === 'START') {
-        return 'mb-auto';
-      } else if (this.vAlign === 'END') {
-        return 'mt-auto';
-      } else {
-        return 'my-auto';
-      }
-    },
-    hAlignClass() {
-      if (this.hAlign === 'START') {
-        return 'me-auto';
-      } else if (this.hAlign === 'END') {
-        return 'ms-auto';
-      } else {
-        return 'mx-auto';
-      }
-    },
-  },
-};
+  };
 </script>

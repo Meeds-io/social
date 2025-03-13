@@ -21,49 +21,53 @@
 <template>
   <div class="d-inline">
     <v-btn
-      :disabled="$root.isBulkProcessing"
       color="error"
+      :disabled="$root.isBulkProcessing"
       elevation="0"
       outlined
       @click="openConfirmDialog">
-      <v-icon size="16" class="me-2">fa-trash</v-icon>
+      <v-icon
+        class="me-2"
+        size="16">
+        fa-trash
+      </v-icon>
       {{ $t('social.spaces.administration.manageSpaces.delete') }}
     </v-btn>
     <confirm-dialog
       ref="dialog"
-      :title="$t('social.spaces.administration.manageSpaces.deleteConfirmTitle')"
+      :cancel-label="$t('social.spaces.administration.manageSpaces.cancel')"
       :message="$t('social.spaces.administration.manageSpaces.deleteSpacesConfirmMessage', {0: `<strong>${spacesCount}</strong>`})"
       :ok-label="$t('social.spaces.administration.manageSpaces.confirm')"
-      :cancel-label="$t('social.spaces.administration.manageSpaces.cancel')"
-      @ok="deleteSpaces"
-      @closed="close" />
+      :title="$t('social.spaces.administration.manageSpaces.deleteConfirmTitle')"
+      @closed="close"
+      @ok="deleteSpaces" />
   </div>
 </template>
 <script>
-export default {
-  computed: {
-    spacesCount() {
-      return this.$root.allSpacesSelected ? this.$root.spacesSize : this.$root.selectedSpaces.length;
+  export default {
+    computed: {
+      spacesCount () {
+        return this.$root.allSpacesSelected ? this.$root.spacesSize : this.$root.selectedSpaces.length;
+      },
     },
-  },
-  methods: {
-    openConfirmDialog() {
-      window.setTimeout(() => this.$refs.dialog.open(), 200);
+    methods: {
+      openConfirmDialog () {
+        window.setTimeout(() => this.$refs.dialog.open(), 200);
+      },
+      deleteSpaces () {
+        this.$root.applyOperationInBulk(
+          space => eXo.$spaceService.removeSpace(space.id),
+          null,
+          () => {
+            this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {
+              0: this.spacesCount,
+            }), 'success');
+            this.$root.$emit('spaces-administration-list-refresh');
+          });
+      },
+      close () {
+        window.setTimeout(() => this.dialog = false, 200);
+      },
     },
-    deleteSpaces() {
-      this.$root.applyOperationInBulk(
-        space => this.$spaceService.removeSpace(space.id),
-        null,
-        () => {
-          this.$root.$emit('alert-message', this.$root.$t('social.spaces.administration.manageSpaces.spacesDeletedSuccessfully', {
-            0: this.spacesCount
-          }), 'success');
-          this.$root.$emit('spaces-administration-list-refresh');
-        });
-    },
-    close() {
-      window.setTimeout(() => this.dialog = false, 200);
-    },
-  },
-};
+  };
 </script>

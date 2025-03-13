@@ -19,6 +19,6 @@
 
 import * as notificationAdministration from './js/NotificationAdministration.js';
 
-window.Object.defineProperty(Vue.prototype, '$notificationAdministration', {
+window.Object.defineProperty(eXo, '$notificationAdministration', {
   value: notificationAdministration,
 });

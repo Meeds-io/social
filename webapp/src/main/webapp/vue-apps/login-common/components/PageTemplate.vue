@@ -22,25 +22,25 @@
   <v-app>
     <div class="d-flex flex-row full-height">
       <v-card
-        color="transparent"
-        :min-width="!background && '33%'"
-        :max-width="background && '50%'"
-        height="100%"
         class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
+        color="transparent"
         flat
+        height="100%"
+        :max-width="background && '50%'"
+        :min-width="!background && '33%'"
         tile>
         <img
           v-if="background"
+          alt=""
           :src="background"
-          style="height: 100%;"
-          alt="">
+          style="height: 100%;">
         <v-card
+          class="fill-height width-min-content flex-shrink-1 transparent"
           :class="background && 'position-absolute t-0'"
-          min-width="100%"
-          height="100%"
-          tile
           flat
-          class="fill-height width-min-content flex-shrink-1 transparent">
+          height="100%"
+          min-width="100%"
+          tile>
           <nav class="fill-height flex-grow-1">
             <portal-login-introduction :color="background && 'transparent' || 'primary'">
               <template #title>
@@ -55,23 +55,35 @@
       </v-card>
       <v-main
         id="mainAppArea"
-        role="main"
-        class="border-box-sizing fill-height flex-grow-1 flex-shrink-1 pa-0 mb-16 mb-sm-0">
-        <v-row class="overflow-x-hidden" no-gutters>
-          <v-col v-if="center" class="d-none d-sm-flex" />
+        class="border-box-sizing fill-height flex-grow-1 flex-shrink-1 pa-0 mb-16 mb-sm-0"
+        role="main">
+        <v-row
+          class="overflow-x-hidden"
+          no-gutters>
+          <v-col
+            v-if="center"
+            class="d-none d-sm-flex" />
           <v-col :class="center && 'align-self-top align-self-sm-center' || 'd-flex flex-column'">
             <portal-login-introduction
-              height="150px"
-              class="d-sm-none d-block">
-              <template v-if="$slots.title" #title>
+              class="d-sm-none d-block"
+              height="150px">
+              <template
+                v-if="$slots.title"
+                #title>
                 <slot name="title"></slot>
               </template>
-              <template v-else #title>
+              <template
+                v-else
+                #title>
                 {{ companyName }}
               </template>
             </portal-login-introduction>
-            <div :class="center && 'd-block' || 'd-sm-flex flex-column flex-grow-1 px-sm-8'" class="px-4 px-sm-0">
-              <v-card-title v-if="$slots.title" class="display-1 primary--text px-0 d-none d-sm-flex text-wrap">
+            <div
+              class="px-4 px-sm-0"
+              :class="center && 'd-block' || 'd-sm-flex flex-column flex-grow-1 px-sm-8'">
+              <v-card-title
+                v-if="$slots.title"
+                class="display-1 primary--text px-0 d-none d-sm-flex text-wrap">
                 <slot name="title"></slot>
               </v-card-title>
               <v-card-title
@@ -85,104 +97,106 @@
             </div>
             <portal-login-branding-image
               v-if="brandingImage"
-              :params="params"
-              class="d-none d-md-flex" />
+              class="d-none d-md-flex"
+              :params="params" />
           </v-col>
-          <v-col v-if="center" class="d-none d-sm-flex" />
+          <v-col
+            v-if="center"
+            class="d-none d-sm-flex" />
         </v-row>
       </v-main>
     </div>
   </v-app>
 </template>
 <script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-    center: {
-      type: Boolean,
-      default: false,
-    },
-    brandingImage: {
-      type: Boolean,
-      default: false,
-    },
-    hideSuccessMessage: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    companyName() {
-      return this.params?.companyName;
-    },
-    background() {
-      return this.params?.authenticationBackground;
-    },
-    backgroundTextColor() {
-      return this.params?.authenticationTextColor;
-    },
-    title() {
-      return this.$t(this.authenticationTitleKey);
-    },
-    subtitle() {
-      return this.$t(this.authenticationSubtitleKey);
-    },
-    authenticationTitleKey() {
-      return this.params?.authenticationTitle;
-    },
-    authenticationSubtitleKey() {
-      return this.params?.authenticationSubtitle;
-    },
-    successCode() {
-      return this.params?.success || this.params?.successCode || this.params?.successMessage;
-    },
-    errorCode() {
-      return this.params?.error || this.params?.errorCode || this.params?.errorMessage;
-    },
-    errorField() {
-      return this.params?.errorField;
-    },
-    successMessage() {
-      return this.successCode && this.$te(`UILoginForm.label.${this.successCode}`)
-        && this.$t(`UILoginForm.label.${this.successCode}`)
-        || this.successCode;
-    },
-    errorMessage() {
-      return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
-        && this.$t(`UILoginForm.label.${this.errorCode}`)
-        || this.errorCode;
-    },
-  },
-  watch: {
-    successMessage: {
-      immediate: true,
-      handler: function() {
-        if (this.successMessage?.trim()?.length && !this.hideSuccessMessage) {
-          this.displayAlert(this.successMessage, 'success');
-        }
+  export default {
+    props: {
+      params: {
+        type: Object,
+        default: null,
+      },
+      center: {
+        type: Boolean,
+        default: false,
+      },
+      brandingImage: {
+        type: Boolean,
+        default: false,
+      },
+      hideSuccessMessage: {
+        type: Boolean,
+        default: false,
       },
     },
-    errorMessage: {
-      immediate: true,
-      handler: function() {
-        if (!this.errorField && this.errorMessage?.trim()?.length) {
-          this.displayAlert(this.errorMessage, 'error');
-        }
+    computed: {
+      companyName () {
+        return this.params?.companyName;
+      },
+      background () {
+        return this.params?.authenticationBackground;
+      },
+      backgroundTextColor () {
+        return this.params?.authenticationTextColor;
+      },
+      title () {
+        return this.$t(this.authenticationTitleKey);
+      },
+      subtitle () {
+        return this.$t(this.authenticationSubtitleKey);
+      },
+      authenticationTitleKey () {
+        return this.params?.authenticationTitle;
+      },
+      authenticationSubtitleKey () {
+        return this.params?.authenticationSubtitle;
+      },
+      successCode () {
+        return this.params?.success || this.params?.successCode || this.params?.successMessage;
+      },
+      errorCode () {
+        return this.params?.error || this.params?.errorCode || this.params?.errorMessage;
+      },
+      errorField () {
+        return this.params?.errorField;
+      },
+      successMessage () {
+        return this.successCode && this.$te(`UILoginForm.label.${this.successCode}`)
+          && this.$t(`UILoginForm.label.${this.successCode}`)
+          || this.successCode;
+      },
+      errorMessage () {
+        return this.errorCode && this.$te(`UILoginForm.label.${this.errorCode}`)
+          && this.$t(`UILoginForm.label.${this.errorCode}`)
+          || this.errorCode;
       },
     },
-  },
-  mounted() {
-    this.$root.$applicationLoaded();
-  },
-  methods: {
-    displayAlert(message, type) {
-      window.setTimeout(() => {
-        this.$root.$emit('alert-message', message, type);
-      }, 200);
+    watch: {
+      successMessage: {
+        immediate: true,
+        handler () {
+          if (this.successMessage?.trim()?.length && !this.hideSuccessMessage) {
+            this.displayAlert(this.successMessage, 'success');
+          }
+        },
+      },
+      errorMessage: {
+        immediate: true,
+        handler () {
+          if (!this.errorField && this.errorMessage?.trim()?.length) {
+            this.displayAlert(this.errorMessage, 'error');
+          }
+        },
+      },
     },
-  },
-};
+    mounted () {
+      this.$root.$applicationLoaded();
+    },
+    methods: {
+      displayAlert (message, type) {
+        window.setTimeout(() => {
+          this.$root.$emit('alert-message', message, type);
+        }, 200);
+      },
+    },
+  };
 </script>

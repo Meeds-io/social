@@ -35,14 +35,14 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API 
 const urls = [
   `/social/i18n/locale.portlet.social.PeopleListApplication?lang=${lang}`,
-  `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`
+  `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`,
 ];
 
 const appId = 'SpaceMembersApplication';
 
-export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
+export function init (spaceId, isManager, isMember, isExternalFeatureEnabled, members) {
   if (!isManager && !members.length) {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+    eXo.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
   exoi18n.loadLanguageAsync(lang, urls)
@@ -58,50 +58,50 @@ export function init(spaceId, isManager, isMember, isExternalFeatureEnabled, mem
           externalInvitations: null,
         },
         computed: {
-          isMobile() {
-            return this.$vuetify.breakpoint.mobile;
+          isMobile () {
+            return eXo.vuetify.display.mobile.value;
           },
         },
-        created() {
+        created () {
           this.init();
           this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-members-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-pending-updated', this.handlePendingUpdated);
         },
-        beforeDestroy() {
+        beforeDestroy () {
           this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-members-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-pending-updated', this.handlePendingUpdated);
         },
         methods: {
-          async init() {
+          async init () {
             if (eXo.env.portal.userName?.length) {
               await this.refreshSpace();
             }
             await this.refreshExternalInvitations();
           },
-          handlePendingUpdated() {
+          handlePendingUpdated () {
             this.refreshSpace();
             this.refreshExternalInvitations();
           },
-          async handleSpaceUpdated() {
+          async handleSpaceUpdated () {
             await this.refreshSpace();
-            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
+            document.dispatchEvent(new CustomEvent('space-settings-updated', { detail: this.space }));
           },
-          async refreshSpace() {
+          async refreshSpace () {
             if (this.spaceId) {
-              this.space = await this.$spaceService.getSpaceById(this.spaceId, Date.now(), 'membersCount');
+              this.space = await eXo.$spaceService.getSpaceById(this.spaceId, Date.now(), 'membersCount');
             }
           },
-          async refreshExternalInvitations() {
+          async refreshExternalInvitations () {
             if (this.isExternalFeatureEnabled && this.isManager) {
-              this.externalInvitations = await this.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
+              this.externalInvitations = await eXo.$spaceService.findSpaceExternalInvitationsBySpaceId(this.spaceId);
             }
           },
         },
         template: `<space-members-application id="${appId}" />`,
         i18n,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
       }, `#${appId}`, 'Space Members');
     });
 }

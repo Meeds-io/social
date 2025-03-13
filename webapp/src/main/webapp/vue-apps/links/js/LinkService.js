@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 
-export function getSettings(name, lang) {
+export function getSettings (name, lang) {
   const formData = new FormData();
   if (lang) {
     formData.append('lang', lang);
@@ -27,7 +27,7 @@ export function getSettings(name, lang) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/links/${name}${params}`, {
     method: 'GET',
     credentials: 'include',
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else if (resp?.status === 404) {
@@ -38,7 +38,7 @@ export function getSettings(name, lang) {
   });
 }
 
-export function saveSettings(settings) {
+export function saveSettings (settings) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/links/${settings.name}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -46,7 +46,7 @@ export function saveSettings(settings) {
     method: 'PUT',
     credentials: 'include',
     body: JSON.stringify(settings),
-  }).then((resp) => {
+  }).then(resp => {
     if (resp?.ok) {
       return resp.json();
     } else {
@@ -55,7 +55,7 @@ export function saveSettings(settings) {
   });
 }
 
-export function saveSettingName(url, name) {
+export function saveSettingName (url, name) {
   return fetch(url, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
@@ -63,7 +63,7 @@ export function saveSettingName(url, name) {
     method: 'POST',
     credentials: 'include',
     body: `name=${name}`,
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error saving settings');
     }

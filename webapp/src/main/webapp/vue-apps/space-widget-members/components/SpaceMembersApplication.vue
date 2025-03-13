@@ -4,23 +4,23 @@
     flat>
     <v-hover v-model="hover">
       <widget-wrapper
-        :title="$t('social.space.description.members')"
-        ref="spaceMembers"
         key="spaceMembers"
-        extra-class="application-body">
+        ref="spaceMembers"
+        extra-class="application-body"
+        :title="$t('social.space.description.members')">
         <template #action>
           <div class="position-relative">
             <exo-user-avatars-list
-              :users="$root.members"
+              class="absolute-vertical-center"
+              :class="$vuetify.rtl && 'l-0' || 'r-0'"
+              clickable
+              compact
               :default-length="peopleCount"
-              :margin-left="$root.members.length > 1 && 'ml-n5' || ''"
               :icon-size="33"
+              :margin-left="$root.members.length > 1 && 'ml-n5' || ''"
               :max="4"
               :popover="!isAnonymous"
-              :class="$vuetify.rtl && 'l-0' || 'r-0'"
-              class="absolute-vertical-center"
-              compact
-              clickable
+              :users="$root.members"
               @open-detail="$root.$emit('space-members-drawer-open')" />
           </div>
         </template>
@@ -30,47 +30,47 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    keyword: null,
-    loading: false,
-    isAnonymous: !eXo.env.portal.userName,
-  }),
-  computed: {
-    space() {
-      return this.$root.space;
+  export default {
+    data: () => ({
+      keyword: null,
+      loading: false,
+      isAnonymous: !eXo.env.portal.userName,
+    }),
+    computed: {
+      space () {
+        return this.$root.space;
+      },
+      peopleCount () {
+        return this.$root.space?.membersCount || 0;
+      },
     },
-    peopleCount() {
-      return this.$root.space?.membersCount || 0;
-    },
-  },
-  created() {
-    this.$root.$on('space-settings-members-updated', this.refreshMembers);
-    this.$root.$on('space-settings-pending-updated', this.refreshPending);
+    created () {
+      this.$root.$on('space-settings-members-updated', this.refreshMembers);
+      this.$root.$on('space-settings-pending-updated', this.refreshPending);
 
-    if (this.isManager) {
-      document.dispatchEvent(new CustomEvent('space-member-management-actions-load'));
-    }
-  },
-  beforeDestroy() {
-    this.$root.$off('space-settings-members-updated', this.refreshMembers);
-    this.$root.$off('space-settings-pending-updated', this.refreshPending);
-  },
-  methods: {
-    refreshMembers() {
-      if (this.filter === 'member') {
-        this.refreshUsers();
+      if (this.isManager) {
+        document.dispatchEvent(new CustomEvent('space-member-management-actions-load'));
       }
     },
-    refreshPending() {
-      if (this.filter === 'invited' || this.filter === 'pending') {
-        this.refreshUsers();
-      }
+    beforeUnmount () {
+      this.$root.$off('space-settings-members-updated', this.refreshMembers);
+      this.$root.$off('space-settings-pending-updated', this.refreshPending);
     },
-    refreshUsers() {
-      this.$refs.spaceMembers.searchPeople();
+    methods: {
+      refreshMembers () {
+        if (this.filter === 'member') {
+          this.refreshUsers();
+        }
+      },
+      refreshPending () {
+        if (this.filter === 'invited' || this.filter === 'pending') {
+          this.refreshUsers();
+        }
+      },
+      refreshUsers () {
+        this.$refs.spaceMembers.searchPeople();
+      },
     },
-  },
-};
+  };
 </script>
 

@@ -1,4 +1,4 @@
-export function isFeatureEnabled(featureName) {
+export function isFeatureEnabled (featureName) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/features/${featureName}`, {
     method: 'GET',
     credentials: 'include',

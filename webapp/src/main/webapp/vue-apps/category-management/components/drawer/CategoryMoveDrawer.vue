@@ -23,82 +23,116 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
-    :loading="saving"
-    class="categoryMoveDrawer"
     allow-expand
+    class="categoryMoveDrawer"
+    :loading="saving"
     right>
     <template #title>
       {{ $t('categoryManagement.drawer.moveCategory') }}
     </template>
-    <template v-if="drawer && category" #content>
+    <template
+      v-if="drawer && category"
+      #content>
       <div class="pa-5">
-        <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.category') }}</div>
-        <div class="mb-4 font-weight-bold text-truncate">{{ category.name }}</div>
-        <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.currentPosition') }}</div>
+        <div class="mb-2 text-header">
+          {{ $t('categoryManagement.moveCategoryDrawer.category') }}
+        </div>
+        <div class="mb-4 font-weight-bold text-truncate">
+          {{ category.name }}
+        </div>
+        <div class="mb-2 text-header">
+          {{ $t('categoryManagement.moveCategoryDrawer.currentPosition') }}
+        </div>
         <v-card
           class="d-flex flex-wrap mb-4"
           color="transparent"
-          min-height="24"
-          flat>
+          flat
+          min-height="24">
           <div
             v-for="(item, index) in currentBreadcrumb"
             :key="item.id"
             class="d-flex flex-row align-center">
             <v-icon
               v-if="index > 0"
-              size="16"
-              class="mx-2 text--disabled">
+              class="mx-2 text--disabled"
+              size="16">
               {{ $root.chevronIcon }}
             </v-icon>
-            <v-icon v-if="index === 0" size="16">fa-home</v-icon>
-            <v-icon v-else size="16">{{ item.icon }}</v-icon>
-            <div class="ms-1">{{ item.name }}</div>
+            <v-icon
+              v-if="index === 0"
+              size="16">
+              fa-home
+            </v-icon>
+            <v-icon
+              v-else
+              size="16">
+              {{ item.icon }}
+            </v-icon>
+            <div class="ms-1">
+              {{ item.name }}
+            </div>
           </div>
         </v-card>
-        <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.destinationPosition') }}</div>
+        <div class="mb-2 text-header">
+          {{ $t('categoryManagement.moveCategoryDrawer.destinationPosition') }}
+        </div>
         <v-card
           class="d-flex flex-wrap mb-4"
           color="transparent"
-          min-height="24"
-          flat>
+          flat
+          min-height="24">
           <div
             v-for="(item, index) in destinationBreadcrumb"
             :key="item.id"
             class="d-flex flex-row align-center">
             <v-icon
               v-if="index > 0"
-              size="16"
-              class="mx-2 text--disabled">
+              class="mx-2 text--disabled"
+              size="16">
               {{ $root.chevronIcon }}
             </v-icon>
-            <v-icon v-if="index === 0" size="16">fa-home</v-icon>
-            <v-icon v-else size="16">{{ item.icon }}</v-icon>
-            <div class="ms-1">{{ item.name }}</div>
+            <v-icon
+              v-if="index === 0"
+              size="16">
+              fa-home
+            </v-icon>
+            <v-icon
+              v-else
+              size="16">
+              {{ item.icon }}
+            </v-icon>
+            <div class="ms-1">
+              {{ item.name }}
+            </div>
           </div>
         </v-card>
-        <div class="mb-2 text-header">{{ $t('categoryManagement.moveCategoryDrawer.position') }}</div>
+        <div class="mb-2 text-header">
+          {{ $t('categoryManagement.moveCategoryDrawer.position') }}
+        </div>
         <div class="overflow-hidden">
           <v-treeview
-            :active.sync="activeIds"
-            :open.sync="openedIds"
-            :items="categoryTreeItems"
-            :load-children="$root.loadChildren"
+            v-model:active="activeIds"
+            v-model:open="openedIds"
+            activatable
             class="ms-n9"
+            dense
             expand-icon=""
+            hoverable
             item-children="categories"
             item-key="id"
             item-text="name"
-            hoverable
-            activatable
+            :items="categoryTreeItems"
+            :load-children="$root.loadChildren"
             open-on-click
-            transition
-            dense>
+            transition>
             <template #label="{ item, open, active }">
-              <div v-if="!item.loadMore" class="d-flex align-center">
+              <div
+                v-if="!item.loadMore"
+                class="d-flex align-center">
                 <v-card
                   color="transparent"
-                  min-width="24"
-                  flat>
+                  flat
+                  min-width="24">
                   <v-icon
                     v-show="!item.limit || item.size"
                     :class="{
@@ -110,35 +144,39 @@
                   </v-icon>
                 </v-card>
                 <v-card
-                  :title="item.name || ''"
                   class="d-flex align-center flex-grow-1 flex-shrink-1 overflow-hidden"
                   color="transparent"
-                  height="36"
                   flat
-                  @keypress.enter="setActive(item)"
-                  @click.prevent.stop="setActive(item)">
+                  height="36"
+                  :title="item.name || ''"
+                  @click.prevent.stop="setActive(item)"
+                  @keypress.enter="setActive(item)">
                   <v-card
                     class="d-flex align-center justify-center me-2"
                     color="transparent"
-                    min-width="16"
-                    flat>
-                    <v-icon size="16">{{ item.id === $root.categoryRootId && 'fa-home' || item.icon }}</v-icon>
+                    flat
+                    min-width="16">
+                    <v-icon size="16">
+                      {{ item.id === $root.categoryRootId && 'fa-home' || item.icon }}
+                    </v-icon>
                   </v-card>
                   <div
-                    :class="active && 'primary--text font-weight-bold'"
-                    class="text-truncate">
+                    class="text-truncate"
+                    :class="active && 'primary--text font-weight-bold'">
                     {{ item.id === $root.categoryRootId && $t('categoryManagement.rootName') || item.name }}
                   </div>
                 </v-card>
               </div>
-              <div v-else class="d-flex align-center">
+              <div
+                v-else
+                class="d-flex align-center">
                 <v-btn
-                  :title="$t('categoryInput.loadMore')"
-                  :loading="item.loading"
-                  color="transparent"
                   class="ms-10 px-0"
+                  color="transparent"
                   elevation="0"
                   link
+                  :loading="item.loading"
+                  :title="$t('categoryInput.loadMore')"
                   @click.prevent.stop="$root.loadMore(item.parentId)">
                   <span class="text-link">{{ $t('categoryInput.loadMore') }}</span>
                 </v-btn>
@@ -151,15 +189,15 @@
     <template #footer>
       <div class="d-flex align-center">
         <v-btn
-          :title="$t('categoryManagement.cancel')"
           class="btn ms-auto me-2"
+          :title="$t('categoryManagement.cancel')"
           @click="close()">
           {{ $t('categoryManagement.cancel') }}
         </v-btn>
         <v-btn
+          class="btn primary"
           :disabled="disabled"
           :loading="saving"
-          class="btn primary"
           @click="move">
           {{ $t('categoryManagement.move') }}
         </v-btn>
@@ -168,98 +206,98 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    saving: false,
-    category: null,
-    parent: null,
-    activeIds: null,
-    openedIds: null,
-    categoryTree: null,
-  }),
-  computed: {
-    currentBreadcrumb() {
-      return this.category && this.getBreadcrumb(this.category);
+  export default {
+    data: () => ({
+      drawer: false,
+      saving: false,
+      category: null,
+      parent: null,
+      activeIds: null,
+      openedIds: null,
+      categoryTree: null,
+    }),
+    computed: {
+      currentBreadcrumb () {
+        return this.category && this.getBreadcrumb(this.category);
+      },
+      destinationBreadcrumb () {
+        const destinationCategory = this.category && JSON.parse(JSON.stringify(this.category));
+        if (destinationCategory && this.destinationParent) {
+          destinationCategory.parentId = this.destinationParent.id;
+        }
+        return destinationCategory.parentId && this.getBreadcrumb(destinationCategory) || [];
+      },
+      categoryTreeItems () {
+        const categories = this.$root.categoryTree && [this.$root.categoryTree] || [];
+        return this.filterTree(JSON.parse(JSON.stringify(categories)));
+      },
+      destinationParentId () {
+        return this.activeIds?.[0];
+      },
+      destinationParent () {
+        return this.activeIds?.[0] && this.$root.getCategory(this.activeIds?.[0]);
+      },
+      disabled () {
+        return !this.destinationParentId || this.destinationParentId === this.category?.parentId;
+      },
     },
-    destinationBreadcrumb() {
-      const destinationCategory = this.category && JSON.parse(JSON.stringify(this.category));
-      if (destinationCategory && this.destinationParent) {
-        destinationCategory.parentId = this.destinationParent.id;
-      }
-      return destinationCategory.parentId && this.getBreadcrumb(destinationCategory) || [];
+    created () {
+      this.$root.$on('category-move-open', this.openDrawer);
     },
-    categoryTreeItems() {
-      const categories = this.$root.categoryTree && [this.$root.categoryTree] || [];
-      return this.filterTree(JSON.parse(JSON.stringify(categories)));
+    beforeUnmount () {
+      this.$root.$off('category-move-open', this.openDrawer);
     },
-    destinationParentId() {
-      return this.activeIds?.[0];
+    methods: {
+      openDrawer (category) {
+        this.parent = this.$root.getCategory(category.parentId);
+        this.activeIds = [this.parent.id];
+        this.category = category;
+        this.openedIds = this.currentBreadcrumb.map(cat => cat.id);
+        this.$refs.drawer.open();
+      },
+      async move () {
+        this.category.parentId = this.destinationParentId;
+        this.saving = true;
+        try {
+          await eXo.$categoryService.updateCategory(this.category);
+          this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedSuccessfully'), 'success');
+          this.$root.$emit('category-moved', this.category, this.parent, this.destinationParent);
+          this.close();
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedError'), 'success');
+        } finally {
+          this.saving = false;
+        }
+      },
+      close () {
+        this.$refs.drawer.close();
+        this.category = null;
+      },
+      getBreadcrumb (category) {
+        if (!category) {
+          return [];
+        }
+        const breadcrumb = [];
+        do {
+          const parentCategory = this.$root.getCategory(breadcrumb?.[0]?.parentId || category.parentId);
+          breadcrumb.unshift(parentCategory);
+        } while (breadcrumb[0].id !== this.$root.categoryRootId);
+        return breadcrumb;
+      },
+      filterTree (categories) {
+        return categories
+          .filter(cat => cat?.id && cat?.id !== this.category?.id)
+          .map(cat => {
+            cat.categories = this.filterTree(cat.categories);
+            if (cat.limit && !cat.categories?.length && cat.size) {
+              cat.size = 0;
+            }
+            return cat;
+          });
+      },
+      setActive (category) {
+        this.activeIds = [category.id];
+      },
     },
-    destinationParent() {
-      return this.activeIds?.[0] && this.$root.getCategory(this.activeIds?.[0]);
-    },
-    disabled() {
-      return !this.destinationParentId || this.destinationParentId === this.category?.parentId;
-    },
-  },
-  created() {
-    this.$root.$on('category-move-open', this.openDrawer);
-  },
-  beforeDestroy() {
-    this.$root.$off('category-move-open', this.openDrawer);
-  },
-  methods: {
-    openDrawer(category) {
-      this.parent = this.$root.getCategory(category.parentId);
-      this.activeIds = [this.parent.id];
-      this.category = category;
-      this.openedIds = this.currentBreadcrumb.map(cat => cat.id);
-      this.$refs.drawer.open();
-    },
-    async move() {
-      this.category.parentId = this.destinationParentId;
-      this.saving = true;
-      try {
-        await this.$categoryService.updateCategory(this.category);
-        this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedSuccessfully'), 'success');
-        this.$root.$emit('category-moved', this.category, this.parent, this.destinationParent);
-        this.close();
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('categoryManagement.categoryMovedError'), 'success');
-      } finally {
-        this.saving = false;
-      }
-    },
-    close() {
-      this.$refs.drawer.close();
-      this.category = null;
-    },
-    getBreadcrumb(category) {
-      if (!category) {
-        return [];
-      }
-      const breadcrumb = [];
-      do {
-        const parentCategory = this.$root.getCategory(breadcrumb?.[0]?.parentId || category.parentId);
-        breadcrumb.unshift(parentCategory);
-      } while (breadcrumb[0].id !== this.$root.categoryRootId);
-      return breadcrumb;
-    },
-    filterTree(categories) {
-      return categories
-        .filter(cat => cat?.id && cat?.id !== this.category?.id)
-        .map(cat => {
-          cat.categories = this.filterTree(cat.categories);
-          if (cat.limit && !cat.categories?.length && cat.size) {
-            cat.size = 0;
-          }
-          return cat;
-        });
-    },
-    setActive(category) {
-      this.activeIds = [category.id];
-    },
-  },
-};
+  };
 </script>

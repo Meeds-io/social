@@ -23,331 +23,344 @@
   <v-snackbar
     v-if="snackbar"
     v-model="snackbar"
+    app
+    class="z-index-snackbar"
+    :class="isMobile && 'full-height'"
+    color="transparent ma-0"
+    :content-class="isMobile && 'pa-0 ma-0'"
+    elevation="0"
     :left="!$vuetify.rtl"
     :right="$vuetify.rtl"
-    :timeout="timeout"
-    :content-class="isMobile && 'pa-0 ma-0'"
-    :class="isMobile && 'full-height'"
-    class="z-index-snackbar"
-    color="transparent ma-0"
-    elevation="0"
-    app>
+    :timeout="timeout">
     <confeti-animation
       v-if="confeti"
       class="overflow-hidden" />
     <v-alert
-      :type="alertType"
-      :min-width="minWidth"
-      :max-width="maxWidth"
-      :min-height="minHeight"
-      :dense="isMobile"
-      :dismissible="!isMobile && alertDismissible"
-      :icon="false"
-      :border="!isMobile && 'left' || false"
-      :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
-      :style="absolute && {
-        left: `${left}px`,
-      }"
-      :role="alertType"
       v-touch="{
         start: moveStart,
         end: moveEnd,
         move: moveSwipe,
       }"
+      :border="!isMobile && 'left' || false"
       class="d-flex flex-column justify-center white mt-0 mx-0 py-2 px-4 border-box-sizing"
-      elevation="2"
-      light
-      outlined
+      :class="isMobile && 'no-border-radius b-0 mb-0' || 'mb-5'"
       colored-border
+      :dense="isMobile"
+      :dismissible="!isMobile && alertDismissible"
+      elevation="2"
+      :icon="false"
+      light
+      :max-width="maxWidth"
+      :min-height="minHeight"
+      :min-width="minWidth"
+      outlined
+      :role="alertType"
+      :style="absolute && {
+        left: `${left}px`,
+      }"
+      :type="alertType"
       @input="closeAlertIfDismissed">
       <div
-        :class="isMobile && 'mt-2'"
-        class="d-flex flex-nowrap text-start align-center justify-center full-width">
+        class="d-flex flex-nowrap text-start align-center justify-center full-width"
+        :class="isMobile && 'mt-2'">
         <v-progress-linear
           v-if="isMobile"
+          class="position-absolute t-0 l-0 r-0 mt-n1"
           :color="`${alertType}-color-background`"
-          :value="progression"
           height="6"
-          class="position-absolute t-0 l-0 r-0 mt-n1" />
+          :value="progression" />
         <component
-          v-if="alertComponent"
           :is="alertComponent"
+          v-if="alertComponent"
           v-bind="alertComponentParams"
           class="flex-grow-1 mx-4" />
         <span
           v-else-if="useHtml"
-          class="flex-grow-1 me-4"
           v-sanitized-html="alertMessage"
-          @click="handleAlertClicked">
-        </span>
-        <span v-else class="flex-grow-1 me-4">
+          class="flex-grow-1 me-4"
+          @click="handleAlertClicked"></span>
+        <span
+          v-else
+          class="flex-grow-1 me-4">
           {{ alertMessage }}
         </span>
         <v-btn
           v-if="alertLink || alertLinkCallback"
-          :href="alertLink"
-          :title="alertLinkTooltip"
           :class="alertLinkText && 'elevation-0 transparent primary--text' || 'secondary--text'"
-          :target="alertLinkTarget || '_blank'"
+          :href="alertLink"
           :icon="!alertLinkText && alertLinkIcon"
+          link
           name="closeSnackbarButton"
           rel="nofollow noreferrer noopener"
-          link
+          :target="alertLinkTarget || '_blank'"
+          :title="alertLinkTooltip"
           @click="linkCallback">
-          <div v-if="alertLinkText" class="text-none">{{ alertLinkText }}</div>
-          <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
+          <div
+            v-if="alertLinkText"
+            class="text-none">
+            {{ alertLinkText }}
+          </div>
+          <v-icon v-else-if="alertLinkIcon">
+            {{ alertLinkIcon }}
+          </v-icon>
         </v-btn>
       </div>
-      <template v-if="!isMobile && alertDismissible" #close="{toggle}">
+      <template
+        v-if="!isMobile && alertDismissible"
+        #close="{toggle}">
         <v-btn
           icon
           @click="dismiss(toggle)">
-          <v-icon size="16" class="icon-default-color">fa-times</v-icon>
+          <v-icon
+            class="icon-default-color"
+            size="16">
+            fa-times
+          </v-icon>
         </v-btn>
       </template>
     </v-alert>
   </v-snackbar>
 </template>
 <script>
-export default {
-  data: () => ({
-    snackbar: false,
-    timeout: 10000,
-    alertMessage: null,
-    useHtml: false,
-    confeti: false,
-    alertType: null,
-    alertLink: null,
-    alertLinkCallback: null,
-    alertDismissCallback: null,
-    alertComponent: null,
-    alertComponentParams: null,
-    alertDismissible: true,
-    alertLinkIcon: null,
-    alertLinkText: null,
-    alertLinkTarget: null,
-    alertLinkTooltip: null,
-    timeoutInstance: null,
-    maxIconsSize: '20px',
-    interval: 0,
-    progression: 0,
-    absolute: false,
-    left: 0,
-    startEvent: null,
-    moving: false,
-    isHandleAlertClicked: false,
-  }),
-  computed: {
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+  export default {
+    data: () => ({
+      snackbar: false,
+      timeout: 10000,
+      alertMessage: null,
+      useHtml: false,
+      confeti: false,
+      alertType: null,
+      alertLink: null,
+      alertLinkCallback: null,
+      alertDismissCallback: null,
+      alertComponent: null,
+      alertComponentParams: null,
+      alertDismissible: true,
+      alertLinkIcon: null,
+      alertLinkText: null,
+      alertLinkTarget: null,
+      alertLinkTooltip: null,
+      timeoutInstance: null,
+      maxIconsSize: '20px',
+      interval: 0,
+      progression: 0,
+      absolute: false,
+      left: 0,
+      startEvent: null,
+      moving: false,
+      isHandleAlertClicked: false,
+    }),
+    computed: {
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs';
+      },
+      dark () {
+        return eXo.vuetify.theme.dark;
+      },
+      maxWidth () {
+        return this.isMobile && '100vw' || '50vw';
+      },
+      minWidth () {
+        return this.isMobile && '100vw' || 400;
+      },
+      minHeight () {
+        return this.isMobile && 69 || 57;
+      },
     },
-    dark() {
-      return this.$vuetify.theme.dark;
-    },
-    maxWidth() {
-      return this.isMobile && '100vw' || '50vw';
-    },
-    minWidth() {
-      return this.isMobile && '100vw' || 400;
-    },
-    minHeight() {
-      return this.isMobile && 69 || 57;
-    },
-  },
-  watch: {
-    snackbar() {
-      if (this.isMobile) {
-        if (this.snackbar) {
-          this.interval = window.setInterval(() => {
-            this.progression -= this.timeout / 1000;
-          }, 1000);
-        } else if (this.interval) {
-          window.clearInterval(this.interval);
-          this.interval = 0;
+    watch: {
+      snackbar () {
+        if (this.isMobile) {
+          if (this.snackbar) {
+            this.interval = window.setInterval(() => {
+              this.progression -= this.timeout / 1000;
+            }, 1000);
+          } else if (this.interval) {
+            window.clearInterval(this.interval);
+            this.interval = 0;
+          }
         }
-      }
-      if (!this.snackbar && !this.isHandleAlertClicked){
-        this.dispatchDismissed();
-      }
-      this.isHandleAlertClicked = false;
+        if (!this.snackbar && !this.isHandleAlertClicked){
+          this.dispatchDismissed();
+        }
+        this.isHandleAlertClicked = false;
+      },
     },
-  },
-  created() {
-    document.addEventListener('alert-message', (event) => {
-      const alertObj = event?.detail;
-      if (alertObj) {
-        this.openAlert(alertObj);
-      }
-    });
-    document.addEventListener('alert-message-html', (event) => {
-      const alertObj = event?.detail && Object.assign({
-        useHtml: true,
-      }, event?.detail);
-      if (alertObj) {
-        this.openAlert(alertObj);
-      }
-    });
-    document.addEventListener('alert-message-html-confeti', (event) => {
-      const alertObj = event?.detail && Object.assign({
-        useHtml: true,
-        confeti: true,
-      }, event?.detail);
-      if (alertObj) {
-        this.openAlert(alertObj);
-      }
-    });
-    document.addEventListener('close-alert-message', () => {
-      this.closeAlert();
-    });
-
-    this.$root.$on('alert-message-object', alertObj => this.openAlert(alertObj));
-
-    this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
-      this.openAlert({
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-        alertDismissCallback: dismissCallback,
+    created () {
+      document.addEventListener('alert-message', event => {
+        const alertObj = event?.detail;
+        if (alertObj) {
+          this.openAlert(alertObj);
+        }
       });
-    });
-    this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
-      this.openAlert({
-        useHtml: true,
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-        alertDismissCallback: dismissCallback,
+      document.addEventListener('alert-message-html', event => {
+        const alertObj = event?.detail && Object.assign({
+          useHtml: true,
+        }, event?.detail);
+        if (alertObj) {
+          this.openAlert(alertObj);
+        }
       });
-    });
-    this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
-      this.openAlert({
-        confeti: true,
-        useHtml: true,
-        alertType: type,
-        alertMessage: message,
-        alertLinkCallback: linkCallback,
-        alertLinkIcon: linkIcon,
-        alertLinkTooltip: linkTooltip,
-        alertDismissCallback: dismissCallback,
+      document.addEventListener('alert-message-html-confeti', event => {
+        const alertObj = event?.detail && Object.assign({
+          useHtml: true,
+          confeti: true,
+        }, event?.detail);
+        if (alertObj) {
+          this.openAlert(alertObj);
+        }
       });
-    });
-    this.$root.$on('close-alert-message', this.closeAlert);
-
-    // Kept for backward compatibility
-    document.addEventListener('notification-alert', event => {
-      this.openAlert({
-        alertType: event?.detail?.type,
-        alertMessage: event?.detail?.message,
-      });
-    });
-  },
-  methods: {
-    dispatchDismissed() {
-      document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
-    },
-    async openAlert(params) {
-      this.reset();
-      this.closeAlert();
-      this.progression = 100;
-      await this.$nextTick();
-      this.useHtml = params.useHtml || false;
-      this.confeti = params.confeti || false;
-      this.alertLink = params.alertLink || null;
-      this.alertMessage = params.alertMessage || (params.alertMessageKey && this.$t(params.alertMessageKey)) || null;
-      this.alertLinkText = params.alertLinkText || (params.alertLinkTextKey && this.$t(params.alertLinkTextKey)) || null;
-      this.alertLinkTarget = params.alertLinkTarget || null;
-      this.alertLinkIcon = params.alertLinkIcon || null;
-      this.alertType = params.alertType || 'info';
-      this.alertLinkTooltip = params.alertLinkTooltip || null;
-      this.alertLinkCallback = params.alertLinkCallback || null;
-      this.alertDismissCallback = params.alertDismissCallback || null;
-      this.alertComponent = params.alertComponent || null;
-      this.alertComponentParams = params.alertComponentParams || null;
-      this.alertDismissible = Object.hasOwn(params, 'alertDismissible') ? params.alertDismissible : true;
-      this.timeout = params.alertTimeout || 10000;
-      if (this.confeti) {
-        await new Promise(resolve => window.require(['SHARED/animationComponents'], resolve));
-      }
-      this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
-    },
-    closeAlertIfDismissed(closed) {
-      if (!closed) {
+      document.addEventListener('close-alert-message', () => {
         this.closeAlert();
-      }
-    },
-    closeAlert() {
-      if (this.timeoutInstance) {
-        window.clearTimeout(this.timeoutInstance);
-      }
-      this.snackbar = false;
-    },
-    linkCallback() {
-      this.isHandleAlertClicked = true;
-      if (this.alertLinkCallback) {
-        this.alertLinkCallback();
-      }
-    },
-    cancelEvent(event) {
-      if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
-    },
-    handleAlertClicked(event) {
-      if (event) {
-        event.stopPropagation();
-        event.preventDefault();
-      }
-      if (!event || event?.target?.tagName?.toLowerCase() === 'a') {
-        this.linkCallback();
-      }
-    },
-    reset() {
-      this.absolute = false;
-      this.left = -8;
-      this.startEvent = null;
-      this.moving = false;
-    },
-    moveStart() {
-      if (this.absolute) {
-        return;
-      }
-      this.reset();
-      window.setTimeout(() => this.absolute = true, 50);
-    },
-    moveEnd() {
-      const confirm = Math.abs(this.left) > (window.innerWidth / 4);
-      if (confirm) {
-        this.dismiss();
-      } else {
-        this.reset();
-      }
-    },
-    dismiss(toogle) {
-      this.alertDismissCallback?.();
-      if (toogle) {
-        toogle();
-      }
-      this.snackbar = false;
-    },
-    moveSwipe(event) {
-      if (!this.absolute) {
-        return;
-      }
-      if (!this.startEvent) {
-        this.startEvent = event;
-      } else if (!this.moving) {
-        this.moving = true;
-        this.$nextTick().then(() => {
-          this.left = parseInt(event.touchmoveX - this.startEvent.touchmoveX) - 8;
-          this.moving = false;
+      });
+
+      this.$root.$on('alert-message-object', alertObj => this.openAlert(alertObj));
+
+      this.$root.$on('alert-message', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
+        this.openAlert({
+          alertType: type,
+          alertMessage: message,
+          alertLinkCallback: linkCallback,
+          alertLinkIcon: linkIcon,
+          alertLinkTooltip: linkTooltip,
+          alertDismissCallback: dismissCallback,
         });
-      }
+      });
+      this.$root.$on('alert-message-html', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
+        this.openAlert({
+          useHtml: true,
+          alertType: type,
+          alertMessage: message,
+          alertLinkCallback: linkCallback,
+          alertLinkIcon: linkIcon,
+          alertLinkTooltip: linkTooltip,
+          alertDismissCallback: dismissCallback,
+        });
+      });
+      this.$root.$on('alert-message-html-confeti', (message, type, linkCallback, linkIcon, linkTooltip, dismissCallback) => {
+        this.openAlert({
+          confeti: true,
+          useHtml: true,
+          alertType: type,
+          alertMessage: message,
+          alertLinkCallback: linkCallback,
+          alertLinkIcon: linkIcon,
+          alertLinkTooltip: linkTooltip,
+          alertDismissCallback: dismissCallback,
+        });
+      });
+      this.$root.$on('close-alert-message', this.closeAlert);
+
+      // Kept for backward compatibility
+      document.addEventListener('notification-alert', event => {
+        this.openAlert({
+          alertType: event?.detail?.type,
+          alertMessage: event?.detail?.message,
+        });
+      });
     },
-  },
-};
+    methods: {
+      dispatchDismissed () {
+        document.dispatchEvent(new CustomEvent('alert-message-dismissed'));
+      },
+      async openAlert (params) {
+        this.reset();
+        this.closeAlert();
+        this.progression = 100;
+        await this.$nextTick();
+        this.useHtml = params.useHtml || false;
+        this.confeti = params.confeti || false;
+        this.alertLink = params.alertLink || null;
+        this.alertMessage = params.alertMessage || (params.alertMessageKey && this.$t(params.alertMessageKey)) || null;
+        this.alertLinkText = params.alertLinkText || (params.alertLinkTextKey && this.$t(params.alertLinkTextKey)) || null;
+        this.alertLinkTarget = params.alertLinkTarget || null;
+        this.alertLinkIcon = params.alertLinkIcon || null;
+        this.alertType = params.alertType || 'info';
+        this.alertLinkTooltip = params.alertLinkTooltip || null;
+        this.alertLinkCallback = params.alertLinkCallback || null;
+        this.alertDismissCallback = params.alertDismissCallback || null;
+        this.alertComponent = params.alertComponent || null;
+        this.alertComponentParams = params.alertComponentParams || null;
+        this.alertDismissible = Object.hasOwn(params, 'alertDismissible') ? params.alertDismissible : true;
+        this.timeout = params.alertTimeout || 10000;
+        if (this.confeti) {
+          await new Promise(resolve => window.require(['SHARED/animationComponents'], resolve));
+        }
+        this.timeoutInstance = window.setTimeout(() => this.snackbar = true, 500);
+      },
+      closeAlertIfDismissed (closed) {
+        if (!closed) {
+          this.closeAlert();
+        }
+      },
+      closeAlert () {
+        if (this.timeoutInstance) {
+          window.clearTimeout(this.timeoutInstance);
+        }
+        this.snackbar = false;
+      },
+      linkCallback () {
+        this.isHandleAlertClicked = true;
+        if (this.alertLinkCallback) {
+          this.alertLinkCallback();
+        }
+      },
+      cancelEvent (event) {
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+      },
+      handleAlertClicked (event) {
+        if (event) {
+          event.stopPropagation();
+          event.preventDefault();
+        }
+        if (!event || event?.target?.tagName?.toLowerCase() === 'a') {
+          this.linkCallback();
+        }
+      },
+      reset () {
+        this.absolute = false;
+        this.left = -8;
+        this.startEvent = null;
+        this.moving = false;
+      },
+      moveStart () {
+        if (this.absolute) {
+          return;
+        }
+        this.reset();
+        window.setTimeout(() => this.absolute = true, 50);
+      },
+      moveEnd () {
+        const confirm = Math.abs(this.left) > (window.innerWidth / 4);
+        if (confirm) {
+          this.dismiss();
+        } else {
+          this.reset();
+        }
+      },
+      dismiss (toogle) {
+        this.alertDismissCallback?.();
+        if (toogle) {
+          toogle();
+        }
+        this.snackbar = false;
+      },
+      moveSwipe (event) {
+        if (!this.absolute) {
+          return;
+        }
+        if (!this.startEvent) {
+          this.startEvent = event;
+        } else if (!this.moving) {
+          this.moving = true;
+          this.$nextTick().then(() => {
+            this.left = parseInt(event.touchmoveX - this.startEvent.touchmoveX) - 8;
+            this.moving = false;
+          });
+        }
+      },
+    },
+  };
 </script>

@@ -17,7 +17,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function link(id, object) {
+export function link (id, object) {
   return fetch(`/social/rest/category/links/${id}`, {
     credentials: 'include',
     method: 'POST',
@@ -25,14 +25,14 @@ export function link(id, object) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(object),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when linking object to the category');
     }
   });
 }
 
-export function unlink(id, object) {
+export function unlink (id, object) {
   return fetch(`/social/rest/category/links/${id}`, {
     credentials: 'include',
     method: 'DELETE',
@@ -40,7 +40,7 @@ export function unlink(id, object) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(object),
-  }).then((resp) => {
+  }).then(resp => {
     if (!resp?.ok) {
       throw new Error('Error when unlinking object to the category');
     }

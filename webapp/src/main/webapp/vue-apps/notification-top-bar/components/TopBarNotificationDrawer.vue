@@ -21,26 +21,30 @@
 <template>
   <exo-drawer
     ref="drawer"
-    :loading="loading > 0"
-    class="notifDrawer"
-    body-classes="hide-scroll"
     allow-expand
+    body-classes="hide-scroll"
+    class="notifDrawer"
+    :loading="loading > 0"
     right
     @closed="$emit('closed')"
     @expand-updated="expanded = $event">
-    <template slot="title">
+    <template #title>
       {{ $t('UIIntranetNotificationsPortlet.title.notifications') }}
     </template>
     <template #titleIcons>
       <v-tooltip bottom>
         <template #activator="{on, bind}">
-          <div v-on="on" v-bind="bind">
+          <div
+            v-bind="bind"
+            v-on="on">
             <v-btn
               :disabled="markingAsReadDisabled"
-              :loading="markingAllAsRead"
               icon
+              :loading="markingAllAsRead"
               @click="markAllAsRead">
-              <v-icon size="18">fa-envelope-open-text</v-icon>
+              <v-icon size="18">
+                fa-envelope-open-text
+              </v-icon>
             </v-btn>
           </div>
         </template>
@@ -51,10 +55,14 @@
           <v-btn
             :href="settingsLink"
             icon
-            v-on="on"
             v-bind="bind"
+            v-on="on"
             @click="openSettings">
-            <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
+            <v-icon
+              class="notifDrawerSettings"
+              size="18">
+              fa-sliders-h
+            </v-icon>
           </v-btn>
         </template>
         <span>{{ $t('UIIntranetNotificationsPortlet.title.NotificationsSetting') }}</span>
@@ -62,21 +70,21 @@
     </template>
     <template #content>
       <div
-        :class="expanded && 'pa-4'"
-        class="d-flex light-grey-background-color fill-height">
+        class="d-flex light-grey-background-color fill-height"
+        :class="expanded && 'pa-4'">
         <div
           class="singlePageApplication pa-0 d-flex fill-height">
           <v-card
             v-if="expanded"
             class="card-border-radius"
+            flat
             height="fit-content"
-            min-width="270"
-            width="270"
             max-width="30%"
-            flat>
+            min-width="270"
+            width="270">
             <user-notification-types
-              ref="notificationTypes"
               id="notificationTypes"
+              ref="notificationTypes"
               :badge="badge"
               :badge-by-plugin="badgeByPlugin"
               class="flex-grow-0 flex-shrink-0"
@@ -84,37 +92,37 @@
           </v-card>
           <v-expand-x-transition>
             <v-card
-              :min-width="separatorWidth"
-              :class="expanded && 'me-4'" />
+              :class="expanded && 'me-4'"
+              :min-width="separatorWidth" />
           </v-expand-x-transition>
           <v-card
-            :max-height="expanded && '100%' || 'auto'"
             class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius overflow-hidden"
-            flat>
+            flat
+            :max-height="expanded && '100%' || 'auto'">
             <v-card
-              :max-height="expanded && '100%' || 'auto'"
-              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius' || 'overflow-x-hidden no-border-radius'"
-              :tile="!expanded"
               class="d-flex flex-column flex-grow-1 flex-shrink-1"
+              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius' || 'overflow-x-hidden no-border-radius'"
               flat
+              :max-height="expanded && '100%' || 'auto'"
+              :tile="!expanded"
               @scroll="scrollActivated">
               <user-notifications
-                ref="notifications"
                 id="notificationsList"
-                :plugins="notificationPlugins"
-                :expanded="expanded"
-                :unread-only="unreadOnly"
+                ref="notifications"
                 class="notifDrawerItems"
+                :expanded="expanded"
+                :plugins="notificationPlugins"
+                :unread-only="unreadOnly"
                 @badge="$emit('update:badge', $event)"
-                @hasMore="hasMore = $event"
-                @badgeByPlugin="badgeByPlugin = $event"
-                @notificationsCount="notificationsCount = $event"
-                @unreadCount="hasUnread = $event" />
+                @badge-by-plugin="badgeByPlugin = $event"
+                @has-more="hasMore = $event"
+                @notifications-count="notificationsCount = $event"
+                @unread-count="hasUnread = $event" />
             </v-card>
             <v-btn
               v-if="expanded && hasMore && $root.initialized"
-              :loading="loading > 0"
               class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
+              :loading="loading > 0"
               outlined
               @click="$refs.notifications.loadMore()">
               {{ $t('button.loadMore') }}
@@ -123,13 +131,15 @@
         </div>
       </div>
     </template>
-    <template v-if="!expanded && hasMore && $root.initialized" #footer>
+    <template
+      v-if="!expanded && hasMore && $root.initialized"
+      #footer>
       <div class="d-flex align-center justify-center">
         <v-btn
-          :loading="loading > 0"
-          class="btn"
-          outlined
           block
+          class="btn"
+          :loading="loading > 0"
+          outlined
           @click="$refs.notifications.loadMore()">
           {{ $t('button.loadMore') }}
         </v-btn>
@@ -138,101 +148,101 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    badge: {
-      type: Number,
-      default: () => 0,
+  export default {
+    props: {
+      badge: {
+        type: Number,
+        default: () => 0,
+      },
     },
-  },
-  data: () =>({
-    loading: 0,
-    hasMore: false,
-    hasUnread: false,
-    expanded: false,
-    unreadOnly: false,
-    notificationsCount: 0,
-    groupName: 'all',
-    notificationPlugins: null,
-    badgeByPlugin: null,
-    separatorWidth: 0,
-    markingAllAsRead: false,
-    settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings#notifications`,
-  }),
-  computed: {
-    markingAsReadDisabled() {
-      return !this.hasUnread || this.loading > 0;
+    data: () =>({
+      loading: 0,
+      hasMore: false,
+      hasUnread: false,
+      expanded: false,
+      unreadOnly: false,
+      notificationsCount: 0,
+      groupName: 'all',
+      notificationPlugins: null,
+      badgeByPlugin: null,
+      separatorWidth: 0,
+      markingAllAsRead: false,
+      settingsLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings#notifications`,
+    }),
+    computed: {
+      markingAsReadDisabled () {
+        return !this.hasUnread || this.loading > 0;
+      },
     },
-  },
-  watch: {
-    loading() {
-      if (this.loading === 0) {
-        this.$nextTick().then(() => {
-          this.$root.initialized = true;
-          this.$root.$emit('notifications-initialized');
-        });
-      }
-    },
-    expanded() {
-      if (!this.expanded) {
-        if (this.notificationPlugins) {
-          this.notificationPlugins = null;
-          this.unread = false;
-        }
-        this.separatorWidth = '50%';
-        window.setTimeout(() => this.separatorWidth = '0', 200);
-      }
-    },
-  },
-  created() {
-    this.$root.$on('notification-loading-start', this.incrementLoading);
-    this.$root.$on('notification-loading-end', this.decrementLoading);
-  },
-  beforeDestroy() {
-    this.$root.$off('notification-loading-start', this.incrementLoading);
-    this.$root.$off('notification-loading-end', this.decrementLoading);
-  },
-  methods: {
-    open() {
-      this.$refs.drawer.open();
-      return this.$notificationService.resetBadge()
-        .then(() => this.$root.$emit('notification-badge-updated', 0));
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    incrementLoading() {
-      this.loading++;
-    },
-    decrementLoading() {
-      this.loading--;
-    },
-    openSettings() {
-      document.dispatchEvent(new CustomEvent('showNotificationSettings'));
-      this.close();
-    },
-    scrollActivated() {
-      document.dispatchEvent(new CustomEvent('notifications-list-scroll-activated'));
-    },
-    markAllAsRead() {
-      this.markingAllAsRead = true;
-      return this.$notificationService.markAllAsRead(this.notificationPlugins)
-        .then(() => {
-          document.querySelectorAll('.notifDrawerItems li.unread').forEach(el => {
-            el.classList.remove('unread');
-            el.classList.add('read');
+    watch: {
+      loading () {
+        if (this.loading === 0) {
+          this.$nextTick().then(() => {
+            this.$root.initialized = true;
+            this.$root.$emit('notifications-initialized');
           });
-        })
-        .finally(() => {
-          this.markingAllAsRead = false;
-          document.dispatchEvent(new CustomEvent('refresh-notifications'));
-        });
+        }
+      },
+      expanded () {
+        if (!this.expanded) {
+          if (this.notificationPlugins) {
+            this.notificationPlugins = null;
+            this.unread = false;
+          }
+          this.separatorWidth = '50%';
+          window.setTimeout(() => this.separatorWidth = '0', 200);
+        }
+      },
     },
-    selectType(name, plugins, unread) {
-      this.groupName = name;
-      this.notificationPlugins = plugins;
-      this.unreadOnly = unread;
-    }
-  },
-};
+    created () {
+      this.$root.$on('notification-loading-start', this.incrementLoading);
+      this.$root.$on('notification-loading-end', this.decrementLoading);
+    },
+    beforeUnmount () {
+      this.$root.$off('notification-loading-start', this.incrementLoading);
+      this.$root.$off('notification-loading-end', this.decrementLoading);
+    },
+    methods: {
+      open () {
+        this.$refs.drawer.open();
+        return eXo.$notificationService.resetBadge()
+          .then(() => this.$root.$emit('notification-badge-updated', 0));
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      incrementLoading () {
+        this.loading++;
+      },
+      decrementLoading () {
+        this.loading--;
+      },
+      openSettings () {
+        document.dispatchEvent(new CustomEvent('showNotificationSettings'));
+        this.close();
+      },
+      scrollActivated () {
+        document.dispatchEvent(new CustomEvent('notifications-list-scroll-activated'));
+      },
+      markAllAsRead () {
+        this.markingAllAsRead = true;
+        return eXo.$notificationService.markAllAsRead(this.notificationPlugins)
+          .then(() => {
+            document.querySelectorAll('.notifDrawerItems li.unread').forEach(el => {
+              el.classList.remove('unread');
+              el.classList.add('read');
+            });
+          })
+          .finally(() => {
+            this.markingAllAsRead = false;
+            document.dispatchEvent(new CustomEvent('refresh-notifications'));
+          });
+      },
+      selectType (name, plugins, unread) {
+        this.groupName = name;
+        this.notificationPlugins = plugins;
+        this.unreadOnly = unread;
+      },
+    },
+  };
 </script>

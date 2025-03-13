@@ -25,7 +25,7 @@ const components = {
   'admins': Admins,
   'admins-drawer': AdminsDrawer,
   'add-admin-drawer': AddAdminDrawer,
-  'admin-card': AdminCard
+  'admin-card': AdminCard,
 
 };
 

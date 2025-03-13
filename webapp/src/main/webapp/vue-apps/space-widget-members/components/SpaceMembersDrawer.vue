@@ -24,27 +24,31 @@
     id="SpaceMembersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
     allow-expand
+    :loading="loading"
     no-x-scroll
     right
     @expand-updated="expanded = $event">
     <template #title>
       {{ $t('social.space.description.members.drawer') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <application-toolbar
         id="peopleListToolbar"
+        compact
+        no-text-truncate
         :right-text-filter="{
           minCharacters: 3,
           placeholder: $t('peopleList.label.filterPeople'),
           tooltip: $t('peopleList.label.filterPeople')
         }"
-        compact
-        no-text-truncate
         @filter-text-input-end-typing="keyword = $event"
         @loading="loading = $event">
-        <template v-if="$root.isManager" #left>
+        <template
+          v-if="$root.isManager"
+          #left>
           <div class="d-flex">
             <space-invite-buttons-group class="px-2" />
           </div>
@@ -52,28 +56,30 @@
       </application-toolbar>
       <people-card-list
         ref="spaceMembers"
-        :space-id="$root.spaceId"
+        class="px-1 my-2"
+        :compact-display="!expanded"
+        filter="member"
         :is-manager="$root.isManager"
         :keyword="keyword"
-        :people-count="peopleCount"
-        :sm="expanded && 6 || 12"
-        :md="expanded && 4 || 12"
         :lg="expanded && 3 || 12"
-        :xl="expanded && 3 || 12"
-        :compact-display="!expanded"
+        :md="expanded && 4 || 12"
         :mobile-display="!expanded"
-        filter="member"
         no-load-more-button
         no-margins
-        class="px-1 my-2"
+        :people-count="peopleCount"
+        :sm="expanded && 6 || 12"
+        :space-id="$root.spaceId"
+        :xl="expanded && 3 || 12"
         @has-more="hasMore = $event"
         @loading="loading = $event" />
     </template>
-    <template v-if="hasMore" #footer>
+    <template
+      v-if="hasMore"
+      #footer>
       <v-btn
-        :loading="loading"
         block
         class="btn pa-0"
+        :loading="loading"
         @click="loadNextPage">
         {{ $t('social.space.description.members.loadMore') }}
       </v-btn>
@@ -81,60 +87,60 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    keyword: null,
-    initialized: false,
-    loading: false,
-    expanded: false,
-    hasMore: false,
-  }),
-  computed: {
-    space() {
-      return this.$root.space;
+  export default {
+    data: () => ({
+      drawer: false,
+      keyword: null,
+      initialized: false,
+      loading: false,
+      expanded: false,
+      hasMore: false,
+    }),
+    computed: {
+      space () {
+        return this.$root.space;
+      },
+      peopleCount () {
+        return this.$root.space?.membersCount || 0;
+      },
     },
-    peopleCount() {
-      return this.$root.space?.membersCount || 0;
+    created () {
+      this.$root.$on('space-settings-members-updated', this.refreshMembers);
+      this.$root.$on('space-settings-pending-updated', this.refreshPending);
+      this.$root.$on('space-members-drawer-open', this.open);
     },
-  },
-  created() {
-    this.$root.$on('space-settings-members-updated', this.refreshMembers);
-    this.$root.$on('space-settings-pending-updated', this.refreshPending);
-    this.$root.$on('space-members-drawer-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-settings-members-updated', this.refreshMembers);
-    this.$root.$off('space-settings-pending-updated', this.refreshPending);
-    this.$root.$off('space-members-drawer-open', this.open);
-  },
-  methods: {
-    open() {
-      if (this.$root.isManager && !this.initialized) {
-        document.dispatchEvent(new CustomEvent('space-member-management-actions-load'));
-        this.initialized = true;
-      }
-      this.$refs.drawer.open();
+    beforeUnmount () {
+      this.$root.$off('space-settings-members-updated', this.refreshMembers);
+      this.$root.$off('space-settings-pending-updated', this.refreshPending);
+      this.$root.$off('space-members-drawer-open', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    methods: {
+      open () {
+        if (this.$root.isManager && !this.initialized) {
+          document.dispatchEvent(new CustomEvent('space-member-management-actions-load'));
+          this.initialized = true;
+        }
+        this.$refs.drawer.open();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      refreshMembers () {
+        if (this.filter === 'member') {
+          this.refreshUsers();
+        }
+      },
+      refreshPending () {
+        if (this.filter === 'invited' || this.filter === 'pending') {
+          this.refreshUsers();
+        }
+      },
+      refreshUsers () {
+        this.$refs.spaceMembers.searchPeople();
+      },
+      loadNextPage () {
+        this.$refs.spaceMembers.loadNextPage();
+      },
     },
-    refreshMembers() {
-      if (this.filter === 'member') {
-        this.refreshUsers();
-      }
-    },
-    refreshPending() {
-      if (this.filter === 'invited' || this.filter === 'pending') {
-        this.refreshUsers();
-      }
-    },
-    refreshUsers() {
-      this.$refs.spaceMembers.searchPeople();
-    },
-    loadNextPage() {
-      this.$refs.spaceMembers.loadNextPage();
-    },
-  },
-};
+  };
 </script>

@@ -29,10 +29,12 @@
     <template #title>
       {{ $t('spacesList.title.usersToInvite') }}
     </template>
-    <template v-if="drawer" #content>
+    <template
+      v-if="drawer"
+      #content>
       <space-form-invite-users-input
-        :value="invitedMembers"
         class="pa-5"
+        :value="invitedMembers"
         @input="invitedMembers = $event" />
     </template>
     <template #footer>
@@ -53,43 +55,43 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    invitedMembers: [],
-  }),
-  computed: {
-    suggesterLabels() {
-      return {
-        placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
-        noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
-      };
+    data: () => ({
+      drawer: false,
+      invitedMembers: [],
+    }),
+    computed: {
+      suggesterLabels () {
+        return {
+          placeholder: this.$t('SpaceSettings.inviteMembers.placeholder'),
+          noDataLabel: this.$t('SpaceSettings.inviteMembers.noResults'),
+        };
+      },
     },
-  },
-  created() {
-    this.$root.$on('space-form-invite-member', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-form-invite-member', this.open);
-  },
-  methods: {
-    open() {
-      this.invitedMembers = this.value || [];
-      this.$refs.drawer.open();
+    created () {
+      this.$root.$on('space-form-invite-member', this.open);
     },
-    apply() {
-      this.$emit('input', this.invitedMembers);
-      this.close();
+    beforeUnmount () {
+      this.$root.$off('space-form-invite-member', this.open);
     },
-    close() {
-      this.$refs.drawer.close();
+    methods: {
+      open () {
+        this.invitedMembers = this.value || [];
+        this.$refs.drawer.open();
+      },
+      apply () {
+        this.$emit('input', this.invitedMembers);
+        this.close();
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
     },
-  },
-};
+  };
 </script>

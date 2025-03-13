@@ -23,17 +23,19 @@
     id="SpaceSettingsAccessDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="savingSpace"
     allow-expand
+    :loading="savingSpace"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('SpaceSettings.accessAndVisibility.drawer') }}
     </template>
-    <template v-if="drawer" slot="content">
+    <template
+      v-if="drawer"
+      #content>
       <form
         ref="form"
-        :disabled="savingSpace"
         class="my-4 d-flex flex-column"
+        :disabled="savingSpace"
         @submit.prevent.stop="saveSpace">
         <div class="d-flex flex-column">
           <div class="text-header mx-4">
@@ -42,11 +44,11 @@
           <v-radio-group
             v-model="subscription"
             class="mt-2 ms-3"
-            mandatory
-            inset>
+            inset
+            mandatory>
             <v-radio
-              value="open"
-              class="mt-0 mb-8">
+              class="mt-0 mb-8"
+              value="open">
               <template #label>
                 <div class="d-flex flex-column">
                   <div class="text-body">
@@ -59,8 +61,8 @@
               </template>
             </v-radio>
             <v-radio
-              value="validation"
-              class="mt-0 mb-8">
+              class="mt-0 mb-8"
+              value="validation">
               <template #label>
                 <div class="d-flex flex-column">
                   <div class="text-body">
@@ -73,8 +75,8 @@
               </template>
             </v-radio>
             <v-radio
-              value="closed"
-              class="mt-0 mb-6">
+              class="mt-0 mb-6"
+              value="closed">
               <template #label>
                 <div class="d-flex flex-column">
                   <div class="text-body">
@@ -95,11 +97,11 @@
           <v-radio-group
             v-model="visibility"
             class="mt-2 ms-3"
-            mandatory
-            inset>
+            inset
+            mandatory>
             <v-radio
-              value="private"
-              class="mb-6">
+              class="mb-6"
+              value="private">
               <template #label>
                 <div class="d-flex flex-column">
                   <div class="text-body">
@@ -112,8 +114,8 @@
               </template>
             </v-radio>
             <v-radio
-              value="hidden"
-              class="mt-0 mb-8">
+              class="mt-0 mb-8"
+              value="hidden">
               <template #label>
                 <div class="d-flex flex-column">
                   <div class="text-body">
@@ -129,20 +131,20 @@
         </div>
       </form>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
-          :disabled="savingSpace"
           class="btn me-2"
+          :disabled="savingSpace"
           @click="close">
           <template>
             {{ $t('SpaceSettings.button.cancel') }}
           </template>
         </v-btn>
         <v-btn
-          :loading="savingSpace"
           class="btn btn-primary"
+          :loading="savingSpace"
           @click.prevent.stop="saveSpace">
           {{ $t('SpaceSettings.button.updateSpace') }}
         </v-btn>
@@ -151,43 +153,43 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  data: () => ({
-    drawer: false,
-    savingSpace: false,
-    subscription: null,
-    visibility: null,
-  }),
-  methods: {
-    open() {
-      this.subscription = this.$root.space?.subscription;
-      this.visibility = this.$root.space?.visibility;
-      this.$refs.drawer.open();
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    async saveSpace() {
-      if (this.savingSpace) {
-        return;
-      }
-      this.error = null;
-      this.savingSpace = true;
-      try {
-        const space = await this.$spaceService.updateSpace({
-          id: this.$root.spaceId,
-          subscription: this.subscription,
-          visibility: this.visibility,
-        });
-        this.$root.$emit('space-settings-updated', space);
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.successfullySaved'), 'success');
+  export default {
+    data: () => ({
+      drawer: false,
+      savingSpace: false,
+      subscription: null,
+      visibility: null,
+    }),
+    methods: {
+      open () {
+        this.subscription = this.$root.space?.subscription;
+        this.visibility = this.$root.space?.visibility;
+        this.$refs.drawer.open();
+      },
+      close () {
         this.$refs.drawer.close();
-      } catch (e) {
-        this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
-      } finally {
-        this.savingSpace = false;
-      }
+      },
+      async saveSpace () {
+        if (this.savingSpace) {
+          return;
+        }
+        this.error = null;
+        this.savingSpace = true;
+        try {
+          const space = await eXo.$spaceService.updateSpace({
+            id: this.$root.spaceId,
+            subscription: this.subscription,
+            visibility: this.visibility,
+          });
+          this.$root.$emit('space-settings-updated', space);
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.successfullySaved'), 'success');
+          this.$refs.drawer.close();
+        } catch (e) {
+          this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
+        } finally {
+          this.savingSpace = false;
+        }
+      },
     },
-  },
-};
+  };
 </script>

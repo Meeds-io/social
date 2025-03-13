@@ -25,20 +25,20 @@ const appId = 'peopleListApplication';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init(filter) {
+export function init (filter) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       computed: {
-        isMobile() {
-          return this.$vuetify.breakpoint.mobile;
+        isMobile () {
+          return eXo.vuetify.display.mobile.value;
         },
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<people-list id="${appId}" filter="${filter || 'all'}"></people-list>`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'People List');
   });
 }

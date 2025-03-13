@@ -22,32 +22,34 @@
 -->
 <template>
   <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
-    <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
+    <div
+      v-if="initialized"
+      class="flex-grow-0 flex-shrink-1 overflow-hidden">
       <spaces-category-chip
         v-for="category in categories"
         :key="category.id"
-        :category="category"
-        :parent-width="parentWidth"
-        chip-class="flex-shrink-0 me-2"
         breadcrumb
+        :category="category"
+        chip-class="flex-shrink-0 me-2"
+        :parent-width="parentWidth"
         @initialized="setVisible(category, $event)"
         @select="openCategory" />
     </div>
     <v-chip
       ref="moreButton"
+      class="flex-shrink-0 flex-grow-0 ms-2"
       :class="{
         'invisible' : !hasInvisibleItems,
       }"
-      class="flex-shrink-0 flex-grow-0 ms-2"
       color="grey"
       dark
       @click="$root.$emit('spaces-list-category-open', categories)">
       <v-card
-        :min-width="85"
-        :max-width="85"
-        color="transparent"
         class="text-truncate"
-        flat>
+        color="transparent"
+        flat
+        :max-width="85"
+        :min-width="85">
         {{ $t('spacesList.categories.more', {
           0: remainingSize,
         }) }}
@@ -56,72 +58,72 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    categories: {
-      type: Array,
-      default: null,
-    }
-  },
-  data: () => ({
-    resizeObserver: null,
-    parentWidth: 0,
-    moreButtonWidth: 0,
-    initialized: false,
-    invisibleIds: new Set(),
-    remainingSize: 0,
-  }),
-  computed: {
-    hasInvisibleItems() {
-      return this.remainingSize > 0;
+  export default {
+    props: {
+      categories: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  watch: {
-    async categories() {
-      this.initialized = false;
-      await this.$nextTick();
-      if (this.categories?.length) {
-        this.categories.forEach(c => c.visible = true);
-      }
-      this.invisibleIds = new Set();
-      this.remainingSize = 0;
-      this.setParentWidth();
-      this.initialized = true;
+    data: () => ({
+      resizeObserver: null,
+      parentWidth: 0,
+      moreButtonWidth: 0,
+      initialized: false,
+      invisibleIds: new Set(),
+      remainingSize: 0,
+    }),
+    computed: {
+      hasInvisibleItems () {
+        return this.remainingSize > 0;
+      },
     },
-  },
-  mounted() {
-    window.setTimeout(() => {
-      this.resizeObserver = new ResizeObserver(this.setParentWidth).observe(this.$el);
-      this.initialized = true;
-    }, 50);
-  },
-  beforeDestroy() {
-    this.resizeObserver?.disconnect?.();
-  },
-  methods: {
-    setParentWidth() {
-      if (!this.$el) {
-        return;
-      }
-      if (!this.moreButtonWidth && this.$refs?.moreButton) {
-        this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 8;
-      }
-      this.parentWidth = this.$el.clientWidth - this.moreButtonWidth;
+    watch: {
+      async categories () {
+        this.initialized = false;
+        await this.$nextTick();
+        if (this.categories?.length) {
+          this.categories.forEach(c => c.visible = true);
+        }
+        this.invisibleIds = new Set();
+        this.remainingSize = 0;
+        this.setParentWidth();
+        this.initialized = true;
+      },
     },
-    openCategory(category) {
-      this.$emit('select', category);
+    mounted () {
+      window.setTimeout(() => {
+        this.resizeObserver = new ResizeObserver(this.setParentWidth).observe(this.$el);
+        this.initialized = true;
+      }, 50);
     },
-    setVisible(category, visible) {
-      if (visible) {
-        this.invisibleIds.delete(category.id);
-      } else {
-        this.invisibleIds.add(category.id);
-      }
-      if (this.timeout) {
-        window.clearTimeout(this.timeout);
-      }
-      this.timeout = window.setTimeout(() => this.remainingSize = this.invisibleIds.size, 50);
+    beforeUnmount () {
+      this.resizeObserver?.disconnect?.();
     },
-  },
-};
+    methods: {
+      setParentWidth () {
+        if (!this.$el) {
+          return;
+        }
+        if (!this.moreButtonWidth && this.$refs?.moreButton) {
+          this.moreButtonWidth = this.$refs.moreButton.$el.offsetWidth + 8;
+        }
+        this.parentWidth = this.$el.clientWidth - this.moreButtonWidth;
+      },
+      openCategory (category) {
+        this.$emit('select', category);
+      },
+      setVisible (category, visible) {
+        if (visible) {
+          this.invisibleIds.delete(category.id);
+        } else {
+          this.invisibleIds.add(category.id);
+        }
+        if (this.timeout) {
+          window.clearTimeout(this.timeout);
+        }
+        this.timeout = window.setTimeout(() => this.remainingSize = this.invisibleIds.size, 50);
+      },
+    },
+  };
 </script>

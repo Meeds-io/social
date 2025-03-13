@@ -23,13 +23,15 @@
   <v-navigation-drawer
     ref="secondLevelDrawer"
     v-model="drawer"
-    :width="drawerWidth"
-    :style="drawerOffsetStyle"
-    :right="$vuetify.rtl"
     class="HamburgerMenuSecondLevelParent layout-side-bar border-box-sizing z-index-drawer"
+    hide-overlay
     max-width="100%"
-    hide-overlay>
-    <v-hover v-if="drawer" v-model="$root.hoverSecondLevel">
+    :right="$vuetify.rtl"
+    :style="drawerOffsetStyle"
+    :width="drawerWidth">
+    <v-hover
+      v-if="drawer"
+      v-model="$root.hoverSecondLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-y-auto specific-scrollbar">
         <spaces-hamburger-navigation
           v-if="secondLevel === 'spaces'"
@@ -37,84 +39,84 @@
           @close="drawer = false" />
         <space-panel-hamburger-navigation
           v-else-if="secondLevel === 'spaceMenu'"
-          :space="openedSpace"
           :home-link="homeLink"
+          :space="openedSpace"
           @close="drawer = false" />
         <site-details
           v-else-if="secondLevel === 'site'"
-          :site="site"
-          :enable-change-home="$root.allowUserHome"
           :display-sequentially="$root.displaySequentially"
+          :enable-change-home="$root.allowUserHome"
+          :site="site"
           @close="drawer = false" />
       </div>
     </v-hover>
   </v-navigation-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
+      thirdLevelDrawer: {
+        type: Boolean,
+        default: false,
+      },
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
+      drawerWidth: {
+        type: Number,
+        default: null,
+      },
+      homeLink: {
+        type: String,
+        default: null,
+      },
+      secondLevel: {
+        type: String,
+        default: null,
+      },
+      site: {
+        type: Object,
+        default: null,
+      },
     },
-    thirdLevelDrawer: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      drawer: false,
+    }),
+    computed: {
+      drawerOffset () {
+        return this.$root.displaySequentially && this.drawerWidth || 0;
+      },
+      drawerOffsetStyle () {
+        return eXo.vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
+      },
+      expand () {
+        return this.$root.expand;
+      },
     },
-    openedSpace: {
-      type: Object,
-      default: null,
+    watch: {
+      expand () {
+        if (!this.expand) {
+          this.$nextTick().then(() => {
+            if (!this.expand && this.drawer) {
+              this.drawer = false;
+            }
+          });
+        }
+      },
+      drawer () {
+        this.$emit('input', this.drawer);
+      },
+      value () {
+        this.drawer = this.value;
+      },
     },
-    drawerWidth: {
-      type: Number,
-      default: null,
-    },
-    homeLink: {
-      type: String,
-      default: null,
-    },
-    secondLevel: {
-      type: String,
-      default: null,
-    },
-    site: {
-      type: Object,
-      default: null,
-    },
-  },
-  data: () => ({
-    drawer: false,
-  }),
-  computed: {
-    drawerOffset() {
-      return this.$root.displaySequentially && this.drawerWidth || 0;
-    },
-    drawerOffsetStyle() {
-      return this.$vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
-    },
-    expand() {
-      return this.$root.expand;
-    },
-  },
-  watch: {
-    expand() {
-      if (!this.expand) {
-        this.$nextTick().then(() => {
-          if (!this.expand && this.drawer) {
-            this.drawer = false;
-          }
-        });
-      }
-    },
-    drawer() {
-      this.$emit('input', this.drawer);
-    },
-    value() {
+    created () {
       this.drawer = this.value;
     },
-  },
-  created() {
-    this.drawer = this.value;
-  },
-};
+  };
 </script>

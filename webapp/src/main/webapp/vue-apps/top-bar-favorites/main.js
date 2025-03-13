@@ -15,15 +15,15 @@ const lang = eXo.env.portal.language;
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 //getting locale ressources
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url)
     .then(() => {
       // init Vue app when locale ressources are ready
       Vue.createApp({
         template: `<top-bar-favorites id="${appId}" />`,
-        vuetify: Vue.prototype.vuetifyOptions,
+        vuetify: eXo.vuetify,
         i18n: exoi18n.i18n,
-      }, `#${appId}`, 'Topbar Favorites');
+      }, `#${appId}`, 'Topbar Favorites', 'top-bar-favorites');
     })
-    .finally(() => Vue.prototype.$utils.includeExtensions('FavoriteDrawerExtension'));
+    .finally(() => eXo.$utils.includeExtensions('FavoriteDrawerExtension'));
 }

@@ -17,14 +17,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function saveAttachments(attachmentResource) {
+export function saveAttachments (attachmentResource) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     method: 'PUT',
     credentials: 'include',
-    body: JSON.stringify(attachmentResource)
+    body: JSON.stringify(attachmentResource),
   }).then(resp => {
     if (resp?.ok) {
       return resp.json();
@@ -34,7 +34,7 @@ export function saveAttachments(attachmentResource) {
   });
 }
 
-export function getAttachments(objectType, objectId, offset, limit) {
+export function getAttachments (objectType, objectId, offset, limit) {
   const formData = new FormData();
   if (offset || offset === 0) {
     formData.append('offset', offset);
@@ -55,14 +55,14 @@ export function getAttachments(objectType, objectId, offset, limit) {
   });
 }
 
-export function createAttachment(attachmentResource) {
+export function createAttachment (attachmentResource) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments`, {
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     method: 'POST',
     credentials: 'include',
-    body: JSON.stringify(attachmentResource)
+    body: JSON.stringify(attachmentResource),
   }).then(resp => {
     if (resp?.ok) {
       return resp.json();
@@ -72,7 +72,7 @@ export function createAttachment(attachmentResource) {
   });
 }
 
-export function deleteAttachment(objectType, objectId, fileId) {
+export function deleteAttachment (objectType, objectId, fileId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${objectType}/${objectId}/${fileId}`, {
     method: 'DELETE',
     credentials: 'include',

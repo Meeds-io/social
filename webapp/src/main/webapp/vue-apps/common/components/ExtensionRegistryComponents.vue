@@ -3,9 +3,8 @@
     <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
-    <template v-for="(component, index) in components">
+    <template v-for="(component, index) in components" :key="component.componentOptions.id || component.componentOptions.componentName">
       <extension-registry-component
-        :key="component.componentOptions.id || component.componentOptions.componentName"
         :component="component"
         :element="element"
         :element-class="elementClass"
@@ -22,9 +21,8 @@
     <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
-    <template v-for="(component, index) in components">
+    <template v-for="(component, index) in components" :key="component.componentOptions.id || component.componentOptions.componentName">
       <extension-registry-component
-        :key="component.componentOptions.id || component.componentOptions.componentName"
         :component="component"
         :element="element"
         :element-class="elementClass"
@@ -41,9 +39,8 @@
     <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
-    <template v-for="(component, index) in components">
+    <template v-for="(component, index) in components" :key="component.componentOptions.id || component.componentOptions.componentName">
       <extension-registry-component
-        :key="component.componentOptions.id || component.componentOptions.componentName"
         :component="component"
         :element="element"
         :element-class="elementClass"
@@ -60,9 +57,8 @@
     <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
-    <template v-for="(component, index) in components">
+    <template v-for="(component, index) in components" :key="component.componentOptions.id || component.componentOptions.componentName">
       <extension-registry-component
-        :key="component.componentOptions.id || component.componentOptions.componentName"
         :component="component"
         :element="element"
         :element-class="elementClass"
@@ -79,9 +75,8 @@
     <template v-if="$slots.header && components.length">
       <slot name="header"></slot>
     </template>
-    <template v-for="(component, index) in components">
+    <template v-for="(component, index) in components" :key="component.componentOptions.id || component.componentOptions.componentName">
       <extension-registry-component
-        :key="component.componentOptions.id || component.componentOptions.componentName"
         :component="component"
         :element="element"
         :element-class="elementClass"
@@ -97,98 +92,98 @@
 </template>
 
 <script>
-export default {
-  props: {
-    name: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      name: {
+        type: String,
+        default: null,
+      },
+      type: {
+        type: String,
+        default: null,
+      },
+      parentElement: {
+        type: Object,
+        default: () => null,
+      },
+      element: {
+        type: Object,
+        default: () => null,
+      },
+      elementClass: {
+        type: String,
+        default: () => '',
+      },
+      params: {
+        type: Object,
+        default: null,
+      },
+      strictType: {
+        type: Boolean,
+        default: false,
+      },
     },
-    type: {
-      type: String,
-      default: null,
+    data: () => ({
+      components: [],
+    }),
+    computed: {
+      isEnabled () {
+        return this.components.length;
+      },
     },
-    parentElement: {
-      type: Object,
-      default: () => null,
-    },
-    element: {
-      type: Object,
-      default: () => null,
-    },
-    elementClass: {
-      type: String,
-      default: () => '',
-    },
-    params: {
-      type: Object,
-      default: null,
-    },
-    strictType: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    components: [],
-  }),
-  computed: {
-    isEnabled() {
-      return this.components.length;
-    },
-  },
-  created() {
-    document.addEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
-    const registeredComponents = extensionRegistry.loadComponents(this.name);
-    const components = [];
-    if (this.strictType) {
-      registeredComponents.filter(comp => comp.componentName === this.type).forEach(component => {
-        this.registerComponent(component, components);
-      });
-    } else {
-      registeredComponents.forEach(component => {
-        this.registerComponent(component, components);
-      });
-    }
-    this.components = components;
-  },
-  beforeDestroy() {
-    document.removeEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
-  },
-  methods: {
-    updateComponents(event) {
-      const component = event && event.detail;
-      if (component) {
-        if (!this.strictType || component.componentName === this.type) {
-          const components = this.components.slice();
+    created () {
+      document.addEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
+      const registeredComponents = extensionRegistry.loadComponents(this.name);
+      const components = [];
+      if (this.strictType) {
+        registeredComponents.filter(comp => comp.componentName === this.type).forEach(component => {
           this.registerComponent(component, components);
-          this.components = components;
-        }
+        });
+      } else {
+        registeredComponents.forEach(component => {
+          this.registerComponent(component, components);
+        });
       }
+      this.components = components;
     },
-    registerComponent(component, components) {
-      if (component.componentOptions.init) {
-        const initResult = component.componentOptions.init(this.params);
-        if (initResult.then) {
-          return initResult
-            .then(() => this.addComponent(component, components));
+    beforeUnmount () {
+      document.removeEventListener(`component-${this.name}-${this.type}-updated`, this.updateComponents);
+    },
+    methods: {
+      updateComponents (event) {
+        const component = event && event.detail;
+        if (component) {
+          if (!this.strictType || component.componentName === this.type) {
+            const components = this.components.slice();
+            this.registerComponent(component, components);
+            this.components = components;
+          }
         }
-      }
-      this.addComponent(component, components);
-    },
-    addComponent(component, components) {
-      if (!component.componentOptions.isEnabled || component.componentOptions.isEnabled(this.params)) {
-        const existingComponentIndex = components.findIndex(cmp => cmp.componentOptions.id === component.componentOptions.id);
-        if (existingComponentIndex >= 0) {
-          components.splice(existingComponentIndex, 1, component);
-        } else {
-          components.push(component);
+      },
+      registerComponent (component, components) {
+        if (component.componentOptions.init) {
+          const initResult = component.componentOptions.init(this.params);
+          if (initResult.then) {
+            return initResult
+              .then(() => this.addComponent(component, components));
+          }
         }
-        components.sort(this.sort);
-      }
+        this.addComponent(component, components);
+      },
+      addComponent (component, components) {
+        if (!component.componentOptions.isEnabled || component.componentOptions.isEnabled(this.params)) {
+          const existingComponentIndex = components.findIndex(cmp => cmp.componentOptions.id === component.componentOptions.id);
+          if (existingComponentIndex >= 0) {
+            components.splice(existingComponentIndex, 1, component);
+          } else {
+            components.push(component);
+          }
+          components.sort(this.sort);
+        }
+      },
+      sort (comp1, comp2) {
+        return (comp1.componentOptions.rank || 0) - (comp2.componentOptions.rank || 0);
+      },
     },
-    sort(comp1, comp2) {
-      return (comp1.componentOptions.rank || 0) - (comp2.componentOptions.rank || 0);
-    },
-  },
-};
+  };
 </script>

@@ -25,8 +25,8 @@
       class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
       {{ getResolvedName(property) }}
       <profile-hidden-property-info
-        :property="property"
-        :hover="hover" />
+        :hover="hover"
+        :property="property" />
     </div>
     <div
       class="align-end flex-grow-1 text-truncate text-end">
@@ -40,20 +40,20 @@
           :class="property.hidden && 'opacity-5'">
           <exo-user-avatar
             v-if="canShowChild(property)"
-            :profile-id="property.value"
-            :show-disabled-user="false"
-            :size="28"
+            align-top
             class="my-auto"
             popover-left-position
-            align-top />
+            :profile-id="property.value"
+            :show-disabled-user="false"
+            :size="28" />
         </div>
       </div>
       <div
-        v-else
         v-for="(childProperty, i) in filteredChildren"
+        v-else
         :key="i"
-        :title="getPropertyDisplayValue(childProperty)"
-        class="text-no-wrap text-truncate">
+        class="text-no-wrap text-truncate"
+        :title="getPropertyDisplayValue(childProperty)">
         <v-hover v-slot="{hover}">
           <div
             v-if="canShowChild(childProperty)"
@@ -94,72 +94,72 @@
 </template>
 
 <script>
-export default {
-  props: {
-    property: {
-      type: Object,
-      default: () => null,
+  export default {
+    props: {
+      property: {
+        type: Object,
+        default: () => null,
+      },
+      searchable: {
+        type: Boolean,
+        default: false,
+      },
+      hover: {
+        type: Boolean,
+        default: false,
+      },
+      owner: {
+        type: Boolean,
+        default: false,
+      },
+      isAdmin: {
+        type: Boolean,
+        default: false,
+      },
+      isMobile: {
+        type: Boolean,
+        default: false,
+      },
     },
-    searchable: {
-      type: Boolean,
-      default: false,
+    computed: {
+      userProperty () {
+        return this.property.propertyType === 'user';
+      },
+      filteredChildren () {
+        return this.property.children.filter(property => !this.excludedDropdown(property));
+      },
     },
-    hover: {
-      type: Boolean,
-      default: false,
-    },
-    owner: {
-      type: Boolean,
-      default: false,
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false,
-    },
-    isMobile: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    userProperty() {
-      return this.property.propertyType === 'user';
-    },
-    filteredChildren() {
-      return this.property.children.filter(property => !this.excludedDropdown(property));
-    }
-  },
-  methods: {
-    quickSearch(childProperty) {
-      const child = {
-        ...childProperty,
-        value: this.property.dropDownList ?? this.getPropertyDisplayValue(childProperty)
-      };
-      this.$emit('quick-search', this.property, child);
-    },
-    getResolvedName(property) {
-      return property.labels?.find(label => label.language === this.lang)?.label
+    methods: {
+      quickSearch (childProperty) {
+        const child = {
+          ...childProperty,
+          value: this.property.dropDownList ?? this.getPropertyDisplayValue(childProperty),
+        };
+        this.$emit('quick-search', this.property, child);
+      },
+      getResolvedName (property) {
+        return property.labels?.find(label => label.language === this.lang)?.label
           || (this.$te?.(`profileContactInformation.${property.propertyName}`)
             ? this.$t(`profileContactInformation.${property.propertyName}`)
             : property.propertyName);
+      },
+      canShowHiddenChildProperty (property) {
+        return !property.hidden || (property.hidden && (this.isAdmin || this.owner));
+      },
+      canShowChild (childProperty) {
+        return (childProperty.value && childProperty.visible && childProperty.active && this.canShowHiddenChildProperty(childProperty))
+          || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
+      },
+      excludedDropdown (property) {
+        return this.property.dropdownList && !this.getPropertyOption(property);
+      },
+      getPropertyOption (property) {
+        return this.property.dropdownList ? this.property.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
+      },
+      getPropertyDisplayValue (property) {
+        const propertyOption = this.getPropertyOption(property);
+        return propertyOption?.translatedValue ?? propertyOption?.value ?? property.value;
+      },
     },
-    canShowHiddenChildProperty(property) {
-      return !property.hidden || (property.hidden && (this.isAdmin || this.owner));
-    },
-    canShowChild(childProperty) {
-      return (childProperty.value && childProperty.visible && childProperty.active && this.canShowHiddenChildProperty(childProperty))
-               || (this.property.multiValued && this.property.active && this.property.visible && childProperty.value);
-    },
-    excludedDropdown(property) {
-      return this.property.dropdownList && !this.getPropertyOption(property);
-    },
-    getPropertyOption(property) {
-      return this.property.dropdownList ? this.property.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
-    },
-    getPropertyDisplayValue(property) {
-      const propertyOption = this.getPropertyOption(property);
-      return propertyOption?.translatedValue ?? propertyOption?.value ?? property.value;
-    }
-  },
-};
+  };
 </script>

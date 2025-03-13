@@ -25,17 +25,17 @@
       <spaces-administration-toolbar
         :selected-template-id="$root.selectedTemplateId"
         @keyword-changed="$root.keyword = $event"
-        @template-changed="$root.selectedTemplateId = $event"
-        @loading="$root.loadingDisplay = $root.loadingDisplay || $event" />
+        @loading="$root.loadingDisplay = $root.loadingDisplay || $event"
+        @template-changed="$root.selectedTemplateId = $event" />
       <spaces-administration-list
         ref="spacesList"
         class="px-5" />
     </v-main>
     <div>
       <component
+        :is="extension.componentName"
         v-for="extension in $root.mainExtensions"
-        :key="extension.name"
-        :is="extension.componentName" />
+        :key="extension.name" />
     </div>
     <spaces-administration-filter-drawer />
     <spaces-administration-managers-drawer />
@@ -48,12 +48,12 @@
   </v-app>    
 </template>
 <script>
-export default {
-  data: () => ({
-    keyword: null,
-    loadingSpaces: false,
-    initialized: false,
-    selectedTemplateId: '0',
-  }),
-};
+  export default {
+    data: () => ({
+      keyword: null,
+      loadingSpaces: false,
+      initialized: false,
+      selectedTemplateId: '0',
+    }),
+  };
 </script>

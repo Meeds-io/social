@@ -32,8 +32,8 @@
           {{ $t('organizationalChart.noManager.label') }}
         </span>
         <chart-user-compact-card
-          v-else
           v-for="manager in listManagers"
+          v-else
           :key="manager.id"
           class="mt-5 ms-3 me-3"
           :user="manager"
@@ -48,11 +48,11 @@
     </div>
     <people-user-card
       id="chartCenterUser"
+      class="my-1 mx-auto"
       :ignored-navigation-extensions="['user-chart']"
+      :profile-action-extensions="profileActionExtensions"
       :user="user"
       :user-navigation-extensions="userNavigationExtensions"
-      :profile-action-extensions="profileActionExtensions"
-      class="my-1 mx-auto"
       width="268" />
     <div class="chartVerticalLine">
       <v-divider
@@ -64,16 +64,16 @@
       <div
         class="d-flex flex-wrap justify-center">
         <span
-          class="text-header"
-          v-if="!managedUsers?.length">
+          v-if="!managedUsers?.length"
+          class="text-header">
           <v-icon>
             fas fa-user-friends
           </v-icon>
           {{ $t('organizationalChart.noSubordinate.label') }}
         </span>
         <chart-user-compact-card
-          v-else
           v-for="managedUser in managedUsers"
+          v-else
           :key="managedUser.id"
           class="mb-6 ms-3 me-3"
           :user="managedUser"
@@ -81,12 +81,12 @@
       </div>
     </div>
     <div
-      class="mt-2 d-flex flex-column"
-      v-if="hasMore && !preview">
+      v-if="hasMore && !preview"
+      class="mt-2 d-flex flex-column">
       <v-btn
-        :loading="isLoading"
         class="btn"
         flat
+        :loading="isLoading"
         outlined
         @click="loadMoreMangedUsers">
         {{ $t('Search.button.loadMore') }}
@@ -97,61 +97,61 @@
 
 <script>
 
-export default {
-  props: {
-    user: {
-      type: Object,
-      default: null
+  export default {
+    props: {
+      user: {
+        type: Object,
+        default: null,
+      },
+      managedUsers: {
+        type: Array,
+        default: () => [],
+      },
+      profileActionExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      userNavigationExtensions: {
+        type: Array,
+        default: () => [],
+      },
+      isLoading: {
+        type: Boolean,
+        default: false,
+      },
+      hasMore: {
+        type: Boolean,
+        default: false,
+      },
+      preview: {
+        type: Boolean,
+        default: false,
+      },
+      previewCount: {
+        type: Number,
+        default: 2,
+      },
     },
-    managedUsers: {
-      type: Array,
-      default: () => []
+    computed: {
+      listManagers () {
+        return this.preview && this.managers?.length
+          && this.managers.slice(0, this.previewCount) || this.managers;
+      },
+      managers () {
+        return this.user?.managers?.filter(manager => manager.enabled)
+          ?.sort((a, b) => this.usersNaturalComparator(a,b));
+      },
     },
-    profileActionExtensions: {
-      type: Array,
-      default: () => []
+    methods: {
+      usersNaturalComparator (a, b) {
+        return this.$root.$children[0].usersNaturalComparator(a, b);
+      },
+      loadMoreMangedUsers () {
+        this.$emit('load-more-managed-users');
+      },
+      updateChart (user) {
+        this.$emit('update-chart', user.id);
+      },
     },
-    userNavigationExtensions: {
-      type: Array,
-      default: () => []
-    },
-    isLoading: {
-      type: Boolean,
-      default: false
-    },
-    hasMore: {
-      type: Boolean,
-      default: false
-    },
-    preview: {
-      type: Boolean,
-      default: false
-    },
-    previewCount: {
-      type: Number,
-      default: 2
-    }
-  },
-  computed: {
-    listManagers() {
-      return this.preview && this.managers?.length
-                          && this.managers.slice(0, this.previewCount) || this.managers;
-    },
-    managers() {
-      return this.user?.managers?.filter(manager => manager.enabled)
-        ?.sort((a, b) => this.usersNaturalComparator(a,b));
-    }
-  },
-  methods: {
-    usersNaturalComparator(a, b) {
-      return this.$root.$children[0].usersNaturalComparator(a, b);
-    },
-    loadMoreMangedUsers() {
-      this.$emit('load-more-managed-users');
-    },
-    updateChart(user) {
-      this.$emit('update-chart', user.id);
-    },
-  }
-};
+  };
 </script>

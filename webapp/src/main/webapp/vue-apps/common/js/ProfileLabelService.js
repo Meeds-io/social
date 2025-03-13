@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getLabel(objectType,objectId,language) {
+export function getLabel (objectType,objectId,language) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/${objectType}/${objectId}/${language}`, {
     method: 'GET',
     credentials: 'include',
@@ -31,7 +31,7 @@ export function getLabel(objectType,objectId,language) {
   });
 }
 
-export function getLabels(objectType,objectId) {
+export function getLabels (objectType,objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk/${objectType}/${objectId}`, {
     method: 'GET',
     credentials: 'include',
@@ -44,7 +44,7 @@ export function getLabels(objectType,objectId) {
   });
 }
 
-export function addLabels(labels) {
+export function addLabels (labels) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
     method: 'POST',
     credentials: 'include',
@@ -63,7 +63,7 @@ export function addLabels(labels) {
   });
 }
 
-export function updateLabels(labels) {
+export function updateLabels (labels) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
     method: 'PUT',
     credentials: 'include',
@@ -82,7 +82,7 @@ export function updateLabels(labels) {
   });
 }
 
-export function deleteLabels(labels) {
+export function deleteLabels (labels) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/label/bulk`, {
     method: 'DELETE',
     credentials: 'include',

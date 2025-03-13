@@ -18,12 +18,12 @@ const url = `/social/i18n/locale.portlet.social.PeopleOverview?lang=${lang}`;
 
 const appId = 'PeopleOverview';
 
-export function init() {
+export function init () {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
       template: `<people-overview id="${appId}" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, `#${appId}`, 'People Overview');
   });
 }

@@ -19,6 +19,6 @@
 import './initComponents.js';
 import * as translationService from './js/TranslationService.js';
 
-window.Object.defineProperty(Vue.prototype, '$translationService', {
+window.Object.defineProperty(eXo, '$translationService', {
   value: translationService,
 });

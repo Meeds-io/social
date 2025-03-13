@@ -22,30 +22,32 @@
 <template>
   <v-card
     class="d-none d-sm-flex flex-column overflow-hidden mb-2"
-    min-width="420"
-    min-height="700"
+    flat
     height="fit-content"
     max-height="900"
-    flat>
-    <v-list class="d-flex flex-column overflow-hidden pb-0 flex-grow-1 flex-shrink-1" dense>
+    min-height="700"
+    min-width="420">
+    <v-list
+      class="d-flex flex-column overflow-hidden pb-0 flex-grow-1 flex-shrink-1"
+      dense>
       <v-card
         class="no-border-radius"
-        min-height="57"
-        flat>
+        flat
+        min-height="57">
         <v-list-item class="d-flex">
           <v-list-item-avatar
+            class="my-auto mx-0"
             height="36"
             max-width="100"
             min-width="auto"
-            width="auto"
-            class="my-auto mx-0"
-            tile>
+            tile
+            width="auto">
             <img
-              src="/portal/rest/v1/platform/branding/logo"
               alt=""
+              class="object-fit-contain"
               height="36"
-              width="auto"
-              class="object-fit-contain">
+              src="/portal/rest/v1/platform/branding/logo"
+              width="auto">
           </v-list-item-avatar>
           <v-list-item-content>
             <v-list-item-title class="logoTitle font-weight-bold menu-text-color text-truncate ms-4">
@@ -58,13 +60,15 @@
         <portal-general-settings-navigation-settings-sidebar-preview-item
           v-for="(item, index) in menuItems"
           :key="`${item.name}_${item.icon}_${index}`"
-          :settings="settings"
+          :home-icon="homeItemIndex === index"
           :item="item"
           :mobile-preview="mobilePreview"
-          :home-icon="homeItemIndex === index" />
+          :settings="settings" />
       </div>
       <div class="flex-grow-0 flex-shrink-0">
-        <v-list-item class="d-flex" dense>
+        <v-list-item
+          class="d-flex"
+          dense>
           <v-list-item-action class="me-auto font-weight-bold">
             {{ productName }}
           </v-list-item-action>
@@ -72,17 +76,23 @@
             <v-avatar
               class="userAvatar mx-3"
               size="36">
-              <v-img :src="avatarUrl" contain />
+              <v-img
+                contain
+                :src="avatarUrl" />
             </v-avatar>
             <v-btn
               class="userSettingsLink me-3"
               icon>
-              <v-icon size="20">fa-sliders-h</v-icon>
+              <v-icon size="20">
+                fa-sliders-h
+              </v-icon>
             </v-btn>
             <v-btn
               class="logoutLink me-n3"
               icon>
-              <v-icon size="20">fa-power-off</v-icon>
+              <v-icon size="20">
+                fa-power-off
+              </v-icon>
             </v-btn>
           </v-list-item-action>
         </v-list-item>
@@ -91,30 +101,30 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
+      mobilePreview: {
+        type: Boolean,
+        default: false,
+      },
     },
-    mobilePreview: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      productName: eXo.env.portal.productName,
+    }),
+    computed: {
+      menuItems () {
+        return this.settings?.items || [];
+      },
+      homeItemIndex () {
+        return this.menuItems?.findIndex?.(item => item.type === 'SITE');
+      },
+      avatarUrl () {
+        return `/portal/rest/v1/social/users/${eXo.env.portal.userIdentityId}/avatar?byId=true`;
+      },
     },
-  },
-  data: () => ({
-    productName: eXo.env.portal.productName,
-  }),
-  computed: {
-    menuItems() {
-      return this.settings?.items || [];
-    },
-    homeItemIndex() {
-      return this.menuItems?.findIndex?.(item => item.type === 'SITE');
-    },
-    avatarUrl() {
-      return `/portal/rest/v1/social/users/${eXo.env.portal.userIdentityId}/avatar?byId=true`;
-    },
-  },
-};
+  };
 </script>

@@ -2,34 +2,38 @@
   <exo-drawer
     ref="drawer"
     v-model="drawer"
-    class="userNotificationDrawer"
     body-classes="hide-scroll decrease-z-index-more"
+    class="userNotificationDrawer"
     right>
-    <template slot="title">
+    <template #title>
       <span class="text-wrap">
         {{ pluginLabel }}
       </span>
     </template>
-    <template slot="content">
-      <div v-for="pluginOption in listChannelOptions" :key="pluginOption.channelId">
-        <v-row v-if="pluginOption.allowed" class="ma-0 d-flex">
+    <template #content>
+      <div
+        v-for="pluginOption in listChannelOptions"
+        :key="pluginOption.channelId">
+        <v-row
+          v-if="pluginOption.allowed"
+          class="ma-0 d-flex">
           <v-col class="flex-grow-1">
             <!-- eslint-disable-next-line -->
             <label :for="pluginOption.channelId" class="my-auto">{{ channelLabels[pluginOption.channelId] }}</label>
           </v-col>
           <v-col class="text-right flex-grow-0">
             <v-switch
-              v-model="channels[pluginOption.channelId]"
-              :name="pluginOption.channelId"
               :id="pluginOption.channelId"
-              hide-details
+              v-model="channels[pluginOption.channelId]"
+              class="mt-0"
               dense
-              class="mt-0" />
+              hide-details
+              :name="pluginOption.channelId" />
           </v-col>
         </v-row>
       </div>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -48,63 +52,63 @@
 </template>
 
 <script>
-export default {
-  props: {
-    settings: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      settings: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    channels: {},
-    listChannelOptions: [],
-    plugin: null,
-    group: null,
-  }),
-  computed: {
-    channelLabels() {
-      return this.settings?.channelLabels;
+    data: () => ({
+      drawer: false,
+      channels: {},
+      listChannelOptions: [],
+      plugin: null,
+      group: null,
+    }),
+    computed: {
+      channelLabels () {
+        return this.settings?.channelLabels;
+      },
+      groupLabel () {
+        return this.group && this.settings?.groupsLabels[this.group.groupId];
+      },
+      pluginLabel () {
+        const pluginId = this.plugin?.type;
+        return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
+      },
     },
-    groupLabel() {
-      return this.group && this.settings?.groupsLabels[this.group.groupId];
-    },
-    pluginLabel() {
-      const pluginId = this.plugin?.type;
-      return this.$te(`NotificationAdmin.${pluginId}`) && this.$t(`NotificationAdmin.${pluginId}`) || this.settings?.pluginLabels[pluginId];
-    },
-  },
-  methods: {
-    open(plugin, group) {
-      this.plugin = plugin;
-      this.group = group;
-      this.listChannelOptions = this.settings?.channelCheckBoxList?.filter(channelChoice => channelChoice.pluginId === this.plugin.type)
-        .map(channelChoice => JSON.parse(JSON.stringify(channelChoice))) || [];
+    methods: {
+      open (plugin, group) {
+        this.plugin = plugin;
+        this.group = group;
+        this.listChannelOptions = this.settings?.channelCheckBoxList?.filter(channelChoice => channelChoice.pluginId === this.plugin.type)
+          .map(channelChoice => JSON.parse(JSON.stringify(channelChoice))) || [];
 
-      this.channels = {};
-      this.listChannelOptions.forEach(option => {
-        this.channels[option.channelId] = option.channelActive;
-      });
-      this.listChannelOptions.sort((a, b) => a.channelId.localeCompare(b.channelId));
-
-      this.$refs.drawer.open();
-    },
-    save() {
-      this.$refs.drawer.startLoading();
-      const channels = Object.keys(this.channels).map(channelId => `${channelId}=${this.channels[channelId]}`).join(',');
-      return this.$notificationAdministration.savePluginSettings(this.plugin.type, channels)
-        .then(() => {
-          this.$root.$emit('refresh');
-          this.$refs.drawer.close();
-        })
-        .finally(() => {
-          this.$refs.drawer.endLoading();
+        this.channels = {};
+        this.listChannelOptions.forEach(option => {
+          this.channels[option.channelId] = option.channelActive;
         });
+        this.listChannelOptions.sort((a, b) => a.channelId.localeCompare(b.channelId));
+
+        this.$refs.drawer.open();
+      },
+      save () {
+        this.$refs.drawer.startLoading();
+        const channels = Object.keys(this.channels).map(channelId => `${channelId}=${this.channels[channelId]}`).join(',');
+        return eXo.$notificationAdministration.savePluginSettings(this.plugin.type, channels)
+          .then(() => {
+            this.$root.$emit('refresh');
+            this.$refs.drawer.close();
+          })
+          .finally(() => {
+            this.$refs.drawer.endLoading();
+          });
+      },
+      cancel () {
+        this.$refs.drawer.close();
+      },
     },
-    cancel() {
-      this.$refs.drawer.close();
-    },
-  },
-};
+  };
 </script>
 

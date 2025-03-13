@@ -22,28 +22,30 @@
 -->
 <template>
   <v-card
-    :width="iconOnly && 36 || 'auto'"
-    flat>
-    <v-tooltip :disabled="extension.title && ($root.isMobile || !iconOnly)" bottom>
+    flat
+    :width="iconOnly && 36 || 'auto'">
+    <v-tooltip
+      bottom
+      :disabled="extension.title && ($root.isMobile || !iconOnly)">
       <template #activator="{on, attrs}">
         <v-btn
-          v-on="on"
           v-bind="extension.href && {
             ...(attrs || {}),
             'href': extension.href,
           } || attrs"
           :aria-label="extension.title"
-          :icon="iconOnly"
-          :color="!iconOnly && 'primary'"
-          :outlined="!iconOnly"
-          :loading="extension.loading"
           class="absolute-vertical-align z-index-one"
+          :color="!iconOnly && 'primary'"
+          :icon="iconOnly"
+          :loading="extension.loading"
+          :outlined="!iconOnly"
           ripple
-          @touchstart.stop="0"
-          @touchend.stop="0"
+          v-on="on"
+          @click.stop.prevent="() => extension?.click?.(space)"
           @mousedown.stop="0"
           @mouseup.stop="0"
-          @click.stop.prevent="() => extension?.click?.(space)">
+          @touchend.stop="0"
+          @touchstart.stop="0">
           <div class="d-flex align-center justify-center">
             <v-icon
               v-if="extension.icon"
@@ -52,8 +54,8 @@
             </v-icon>
             <span
               v-if="!iconOnly"
-              :class="extension.icon && 'ms-2'"
-              class="text-body-font-size">
+              class="text-body-font-size"
+              :class="extension.icon && 'ms-2'">
               {{ extension.title }}
             </span>
           </div>
@@ -64,32 +66,32 @@
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    extension: {
-      type: Object,
-      default: () => ({
-        icon: null,
-        iconSize: null,
-        title: null,
-        loading: false,
-        click: null,
-      }),
+  export default {
+    props: {
+      extension: {
+        type: Object,
+        default: () => ({
+          icon: null,
+          iconSize: null,
+          title: null,
+          loading: false,
+          click: null,
+        }),
+      },
+      space: {
+        type: Object,
+        default: null,
+      },
+      icon: {
+        type: Boolean,
+        default: false,
+      },
     },
-    space: {
-      type: Object,
-      default: null,
+    computed: {
+      iconOnly () {
+        return this.icon || this.extension.iconOnly;
+      },
     },
-    icon: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  computed: {
-    iconOnly() {
-      return this.icon || this.extension.iconOnly;
-    },
-  }
-};
+  };
 </script>
 

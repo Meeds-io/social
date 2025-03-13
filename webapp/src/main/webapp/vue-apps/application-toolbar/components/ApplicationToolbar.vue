@@ -20,26 +20,30 @@
 
 -->
 <template>
-  <v-toolbar class="z-index-one" flat>
-    <div id="applicationToolbar" class="d-flex flex-grow-1 align-center content-box-sizing position-relative">
+  <v-toolbar
+    class="z-index-one"
+    flat>
+    <div
+      id="applicationToolbar"
+      class="d-flex flex-grow-1 align-center content-box-sizing position-relative">
       <!-- Left Content -->
       <div
         v-if="showLeftContent"
         id="applicationToolbarLeft"
-        :class="leftCols"
-        class="flex-grow-1 text-start pa-0">
+        class="flex-grow-1 text-start pa-0"
+        :class="leftCols">
         <v-btn
           v-if="showLeftButton"
           id="applicationToolbarLeftButton"
-          :href="leftButton.href"
-          :class="isCompact && 'px-0'"
           class="btn btn-primary text-truncate"
+          :class="isCompact && 'px-0'"
+          :href="leftButton.href"
           @click="$emit('left-button-click', $event)">
           <v-icon
             v-if="leftButton.icon"
             :class="!isCompact && 'me-2'"
-            size="18"
-            dark>
+            dark
+            size="18">
             {{ leftButton.icon }}
           </v-icon>
           <span
@@ -51,31 +55,33 @@
         <template v-if="leftText">
           {{ leftText }}
         </template>
-        <slot v-if="$slots.left" name="left"></slot>
+        <slot
+          v-if="$slots.left"
+          name="left"></slot>
         <v-spacer />
       </div>
 
       <!-- Center Content -->
       <div
         v-if="showCenterContent"
-        :class="centerCols"
         id="applicationToolbarCenter"
-        class="flex-grow-1 align-center justify-center text-truncate pa-0 mx-auto">
+        class="flex-grow-1 align-center justify-center text-truncate pa-0 mx-auto"
+        :class="centerCols">
         <v-btn-toggle
           v-if="hasCenterButtonToggle"
-          v-model="toggle"
           id="applicationToolbarToggle"
+          v-model="toggle"
           color="primary"
+          dense
           mandatory
-          outlined
-          dense>
+          outlined>
           <v-btn
             v-for="buttonToggle in centerButtonToggle.buttons"
-            :key="buttonToggle.value"
             :id="`applicationToolbar-${buttonToggle.value}`"
-            :value="buttonToggle.value"
+            :key="buttonToggle.value"
             :class="isCompact && 'width-auto px-4'"
             text
+            :value="buttonToggle.value"
             @click="emitToggle(buttonToggle.value)">
             <v-icon
               v-if="buttonToggle.icon"
@@ -83,16 +89,20 @@
               small>
               {{ buttonToggle.icon }}
             </v-icon>
-            <span v-if="!isCompact && buttonToggle.icon && buttonToggle.text" class="ms-2"></span>
+            <span
+              v-if="!isCompact && buttonToggle.icon && buttonToggle.text"
+              class="ms-2"></span>
             <span
               v-if="!isCompact && buttonToggle.text"
-              :class="buttonToggle.value === toggle && 'primary--text' || 'dark-grey-color'"
-              class="text-truncate text-none">
+              class="text-truncate text-none"
+              :class="buttonToggle.value === toggle && 'primary--text' || 'dark-grey-color'">
               {{ buttonToggle.text }}
             </span>
           </v-btn>
         </v-btn-toggle>
-        <slot v-if="$slots.center" name="center"></slot>
+        <slot
+          v-if="$slots.center"
+          name="center"></slot>
       </div>
 
       <v-scale-transition>
@@ -100,47 +110,53 @@
         <div
           v-if="showRightContent"
           id="applicationToolbarRight"
-          :class="rightCols"
-          class="d-flex flex-nowrap flex-grow-1 align-center justify-end text-truncate pa-0">
+          class="d-flex flex-nowrap flex-grow-1 align-center justify-end text-truncate pa-0"
+          :class="rightCols">
           <v-btn
             v-if="expandFilter"
             id="applicationToolbarBackButton"
             class="px-0 me-auto"
-            small
             icon
+            small
             @click="expandFilter = false">
-            <v-icon size="26" class="icon-default-color">fa-arrow-left</v-icon>
+            <v-icon
+              class="icon-default-color"
+              size="26">
+              fa-arrow-left
+            </v-icon>
           </v-btn>
           <div
             v-if="$slots.right"
-            :class="isCompact && 'flex-grow-1'"
-            class="d-flex width-auto">
+            class="d-flex width-auto"
+            :class="isCompact && 'flex-grow-1'">
             <slot name="right"></slot>
           </div>
           <v-card
             v-if="showTextFilter"
             id="applicationToolbarFilter"
-            :min-width="rightTextFilter.minWidth"
-            :width="rightTextFilter.width || 'auto'"
-            :max-width="rightTextFilter.maxWidth"
             :class="expandFilter && 'flex-grow-1'"
-            flat>
-            <v-tooltip :value="showTextTooltip" bottom>
+            flat
+            :max-width="rightTextFilter.maxWidth"
+            :min-width="rightTextFilter.minWidth"
+            :width="rightTextFilter.width || 'auto'">
+            <v-tooltip
+              bottom
+              :value="showTextTooltip">
               <template #activator="{on}">
                 <v-text-field
                   id="applicationToolbarFilterInput"
                   ref="applicationToolbarFilterInput"
                   v-model="term"
-                  :placeholder="rightTextFilter.placeholder"
-                  :disabled="rightTextFilter.disabled"
+                  autocomplete="off"
                   :autofocus="autofocusTextFilter"
-                  :height="isCompact && 24 || 36"
-                  :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
                   class="flex-grow-1 full-height pa-0 ms-4"
                   clear-icon="fa-times fa-1x primary--text position-absolute absolute-vertical-center"
-                  autocomplete="off"
-                  hide-details
                   clearable
+                  :disabled="rightTextFilter.disabled"
+                  :height="isCompact && 24 || 36"
+                  hide-details
+                  :placeholder="rightTextFilter.placeholder"
+                  :prepend-inner-icon="term && 'fa-filter primary--text' || 'fa-filter icon-default-color'"
                   v-on="on" />
               </template>
               <span>{{ rightTextFilter.tooltip }}</span>
@@ -150,8 +166,8 @@
             v-if="showSelectBoxFilter"
             id="applicationToolbarFilterSelect"
             v-model="select"
-            :disabled="rightSelectBox?.disabled"
             class="flex-grow-0 ignore-vuetify-classes py-2 height-auto width-auto text-truncate my-auto ms-4"
+            :disabled="rightSelectBox?.disabled"
             @change="$emit('filter-select-change', select)">
             <option
               v-for="item in rightSelectBox.items"
@@ -164,13 +180,13 @@
             v-if="showFilterButton"
             id="applicationToolbarAdvancedFilterButton"
             :class="filterButtonClass"
-            :small="!showRightFilterButtonText"
             :disabled="rightFilterButton?.disabled"
+            :small="!showRightFilterButtonText"
             text
             @click="$emit('filter-button-click', $event)">
             <v-icon
-              :size="showRightFilterButtonText && 16 || 24"
-              :class="filtersCount && 'primary--text' || 'icon-default-color'">
+              :class="filtersCount && 'primary--text' || 'icon-default-color'"
+              :size="showRightFilterButtonText && 16 || 24">
               fa-sliders-h
             </v-icon>
             <span
@@ -178,7 +194,9 @@
               class="ms-2">
               {{ rightFilterButton.text }}
             </span>
-            <span v-if="filtersCount" class="ps-1">
+            <span
+              v-if="filtersCount"
+              class="ps-1">
               ({{ filtersCount }})
             </span>
           </v-btn>
@@ -186,10 +204,12 @@
             v-if="showConeButton"
             id="applicationToolbarConeButton"
             class="px-0 ms-4"
-            small
             icon
+            small
             @click="expandFilter = true">
-            <v-icon :class="coneColor" size="20">
+            <v-icon
+              :class="coneColor"
+              size="20">
               fa-filter
             </v-icon>
           </v-btn>
@@ -218,345 +238,345 @@
    - @filter-button-click
       Right Filter Button click to open Advanced Filter Drawer
  */
-export default {
-  props: {
-    /* Left side, whether a '<template slot="left">' (to add specific elements), or a Primary Button or a Label */
-    leftButton: { // Clickable primary button in left side
-      type: Object,
-      default: () => ({
-        hide: true,
-        href: null,
-        icon: null,
-        text: null,
-      }),
-    },
-    leftText: { // Text label in left side
-      type: String,
-      default: null,
-    },
-    hideLeft: { // Force hide left side, but generally useless since it's handled
-      type: Boolean,
-      default: false,
-    },
-    /* Center side, whether a '<template slot="center">' (to add specific elements), or a Toggle Button with multiple choices */
-    centerButtonToggle: { // Toggle buttons attributes
-      type: Object,
-      default: () => ({
-        hide: true,
-        selected: 'example',
-        buttons: [{
-          value: 'example',
-          text: 'Item',
+  export default {
+    props: {
+      /* Left side, whether a '<template slot="left">' (to add specific elements), or a Primary Button or a Label */
+      leftButton: { // Clickable primary button in left side
+        type: Object,
+        default: () => ({
+          hide: true,
+          href: null,
           icon: null,
-        }],
-      }),
+          text: null,
+        }),
+      },
+      leftText: { // Text label in left side
+        type: String,
+        default: null,
+      },
+      hideLeft: { // Force hide left side, but generally useless since it's handled
+        type: Boolean,
+        default: false,
+      },
+      /* Center side, whether a '<template slot="center">' (to add specific elements), or a Toggle Button with multiple choices */
+      centerButtonToggle: { // Toggle buttons attributes
+        type: Object,
+        default: () => ({
+          hide: true,
+          selected: 'example',
+          buttons: [{
+            value: 'example',
+            text: 'Item',
+            icon: null,
+          }],
+        }),
+      },
+      hideCenter: { // Force hide center side, but generally useless since it's handled
+        type: Boolean,
+        default: false,
+      },
+      /* Right side, Can have multiple choices, Text filter and/or SelectBox and/or Filter Button and other custom elements in a '<template slot="right">' */
+      rightTextFilter: { // Text field attributes
+        type: Object,
+        default: () => ({
+          hide: true,
+          minWidth: 'unset',
+          width: 'auto',
+          maxWidth: 'unset',
+          minCharacters: 3,
+          placeholder: 'example',
+          tooltip: 'Item',
+        }),
+      },
+      rightSelectBox: { // Select box field attributes
+        type: Object,
+        default: () => ({
+          hide: true,
+          selected: 'example',
+          label: '',
+          items: [{
+            value: 'example',
+            text: 'Item',
+          }],
+        }),
+      },
+      rightFilterButton: { // Filter button field attributes
+        type: Object,
+        default: () => ({
+          hide: true,
+          text: null,
+          displayText: null, // Force to display text even in compact mode
+        }),
+      },
+      filtersCount: { // Filter button: applied filter count
+        type: Number,
+        default: () => 0,
+      },
+      hideRight: { // Force hide right side, but generally useless since it's handled
+        type: Boolean,
+        default: false,
+      },
+      hideConeButton: { // Force hide cone button, but generally useless since it's handled
+        type: Boolean,
+        default: false,
+      },
+      compact: { // Force the compact display
+        type: Boolean,
+        default: false,
+      },
+      noTextTruncate: { // Avoid using overflow-hidden/text-truncate on parent elements to allow overflow
+        type: Boolean,
+        default: false,
+      },
+      colsAuto: { // Allow columns to be arranged in automatic way, usefull only when no center section
+        type: Boolean,
+        default: false,
+      },
     },
-    hideCenter: { // Force hide center side, but generally useless since it's handled
-      type: Boolean,
-      default: false,
-    },
-    /* Right side, Can have multiple choices, Text filter and/or SelectBox and/or Filter Button and other custom elements in a '<template slot="right">' */
-    rightTextFilter: { // Text field attributes
-      type: Object,
-      default: () => ({
-        hide: true,
-        minWidth: 'unset',
-        width: 'auto',
-        maxWidth: 'unset',
-        minCharacters: 3,
-        placeholder: 'example',
-        tooltip: 'Item',
-      }),
-    },
-    rightSelectBox: { // Select box field attributes
-      type: Object,
-      default: () => ({
-        hide: true,
-        selected: 'example',
-        label: '',
-        items: [{
-          value: 'example',
-          text: 'Item',
-        }],
-      }),
-    },
-    rightFilterButton: { // Filter button field attributes
-      type: Object,
-      default: () => ({
-        hide: true,
-        text: null,
-        displayText: null, // Force to display text even in compact mode
-      }),
-    },
-    filtersCount: { // Filter button: applied filter count
-      type: Number,
-      default: () => 0,
-    },
-    hideRight: { // Force hide right side, but generally useless since it's handled
-      type: Boolean,
-      default: false,
-    },
-    hideConeButton: { // Force hide cone button, but generally useless since it's handled
-      type: Boolean,
-      default: false,
-    },
-    compact: { // Force the compact display
-      type: Boolean,
-      default: false,
-    },
-    noTextTruncate: { // Avoid using overflow-hidden/text-truncate on parent elements to allow overflow
-      type: Boolean,
-      default: false,
-    },
-    colsAuto: { // Allow columns to be arranged in automatic way, usefull only when no center section
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    expandFilter: false,
-    toggle: null,
-    select: null,
-    term: null,
-    typing: false,
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
-    maxRightElementsExpand: 2,
-  }),
-  computed: {
-    isCompact() {
-      return this.isMobile || this.compact;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.mobile;
-    },
-    showLeftButton() {
-      return !this.leftButton?.hide
+    data: () => ({
+      expandFilter: false,
+      toggle: null,
+      select: null,
+      term: null,
+      typing: false,
+      startSearchAfterInMilliseconds: 600,
+      endTypingKeywordTimeout: 50,
+      startTypingKeywordTimeout: 0,
+      maxRightElementsExpand: 2,
+    }),
+    computed: {
+      isCompact () {
+        return this.isMobile || this.compact;
+      },
+      isMobile () {
+        return eXo.vuetify.display.mobile.value;
+      },
+      showLeftButton () {
+        return !this.leftButton?.hide
           && (this.leftButton?.icon || this.leftText?.length);
-    },
-    hasLeftContent() {
-      return this.showLeftButton
-             || this.leftText?.length
-             || this.$slots.left;
-    },
-    showLeftContent() {
-      return !this.hideLeft && !this.expandFilter && (!this.isCompact || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
-    },
-    showRightFilterButtonText() {
-      return !this.isCompact || this.rightFilterButton?.displayText;
-    },
-    hasCenterButtonToggle() {
-      return this.centerButtonToggle
+      },
+      hasLeftContent () {
+        return this.showLeftButton
+          || this.leftText?.length
+          || this.$slots.left;
+      },
+      showLeftContent () {
+        return !this.hideLeft && !this.expandFilter && (!this.isCompact || this.hasLeftContent || (this.hasCenterContent && this.hasRightContent));
+      },
+      showRightFilterButtonText () {
+        return !this.isCompact || this.rightFilterButton?.displayText;
+      },
+      hasCenterButtonToggle () {
+        return this.centerButtonToggle
           && !this.centerButtonToggle?.hide
           && !!this.centerButtonToggle?.buttons?.length;
-    },
-    hasCenterContent() {
-      return this.hasCenterButtonToggle || this.$slots.center;
-    },
-    showCenterContent() {
-      return !this.hideCenter && !this.expandFilter && (!this.isCompact || this.hasCenterContent);
-    },
-    hasTextFilter() {
-      return this.rightTextFilter
+      },
+      hasCenterContent () {
+        return this.hasCenterButtonToggle || this.$slots.center;
+      },
+      showCenterContent () {
+        return !this.hideCenter && !this.expandFilter && (!this.isCompact || this.hasCenterContent);
+      },
+      hasTextFilter () {
+        return this.rightTextFilter
           && !this.rightTextFilter?.hide;
-    },
-    hasSelectBoxFilter() {
-      return this.rightSelectBox
+      },
+      hasSelectBoxFilter () {
+        return this.rightSelectBox
           && !this.rightSelectBox?.hide
           && this.rightSelectBox?.items?.length;
-    },
-    hasButtonFilter() {
-      return this.rightFilterButton
+      },
+      hasButtonFilter () {
+        return this.rightFilterButton
           && !this.rightFilterButton?.hide
           && this.rightFilterButton?.text;
-    },
-    rightInputsCount() {
-      return (this.hasTextFilter && 1 || 0)
+      },
+      rightInputsCount () {
+        return (this.hasTextFilter && 1 || 0)
           + (this.hasSelectBoxFilter && 1 || 0)
           + (this.hasButtonFilter && 1 || 0)
           + (this.$slots.right && 1 || 0);
-    },
-    hideRightInputs() {
-      return !this.hideConeButton && !this.expandFilter && (this.isCompact || this.rightInputsCount > this.maxRightElementsExpand);
-    },
-    showConeButton() {
-      return this.hasRightContent && this.hideRightInputs;
-    },
-    coneColor() {
-      return (this.filtersCount > 0 || this.term?.length) && 'primary--text' || 'icon-default-color';
-    },
-    showTextFilter() {
-      return this.hasTextFilter && !this.hideRightInputs;
-    },
-    isTermValid() {
-      return !this.term?.length
+      },
+      hideRightInputs () {
+        return !this.hideConeButton && !this.expandFilter && (this.isCompact || this.rightInputsCount > this.maxRightElementsExpand);
+      },
+      showConeButton () {
+        return this.hasRightContent && this.hideRightInputs;
+      },
+      coneColor () {
+        return (this.filtersCount > 0 || this.term?.length) && 'primary--text' || 'icon-default-color';
+      },
+      showTextFilter () {
+        return this.hasTextFilter && !this.hideRightInputs;
+      },
+      isTermValid () {
+        return !this.term?.length
           || !this.rightTextFilter.minCharcters
           || this.term.length >= this.rightTextFilter.minCharcters;
-    },
-    showTextTooltip() {
-      return this.rightTextFilter?.tooltip && !this.isTermValid;
-    },
-    autofocusTextFilter() {
-      return this.showTextFilter && (this.isCompact || this.expandFilter);
-    },
-    showSelectBoxFilter() {
-      return this.hasSelectBoxFilter && !this.hideRightInputs;
-    },
-    showFilterButton() {
-      return this.hasButtonFilter && !this.hideRightInputs;
-    },
-    filterButtonClass() {
-      return `${!this.showRightFilterButtonText && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || ''} ${this.showRightFilterButtonText && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
-    },
-    hasRightContent() {
-      return this.rightInputsCount > 0;
-    },
-    showRightContent() {
-      return !this.hideRight && (!this.isCompact || this.hasRightContent);
-    },
-    leftCols() {
-      return {
-        'd-none': this.expandFilter,
-        'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
-        'col-6': !this.expandFilter && !this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
-        'col-auto': !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
-        'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
-        'text-truncate': !this.noTextTruncate,
-      };
-    },
-    centerCols() {
-      return this.expandFilter && 'col-12'
-        || (!this.showLeftContent && !this.showRightContent
+      },
+      showTextTooltip () {
+        return this.rightTextFilter?.tooltip && !this.isTermValid;
+      },
+      autofocusTextFilter () {
+        return this.showTextFilter && (this.isCompact || this.expandFilter);
+      },
+      showSelectBoxFilter () {
+        return this.hasSelectBoxFilter && !this.hideRightInputs;
+      },
+      showFilterButton () {
+        return this.hasButtonFilter && !this.hideRightInputs;
+      },
+      filterButtonClass () {
+        return `${!this.showRightFilterButtonText && 'width-auto ms-4 px-0' || 'ms-4 px-2'} ${this.filtersCount && 'primary--text' || ''} ${this.showRightFilterButtonText && (this.filtersCount && 'primary-border-color' || 'border-color') || ''}`;
+      },
+      hasRightContent () {
+        return this.rightInputsCount > 0;
+      },
+      showRightContent () {
+        return !this.hideRight && (!this.isCompact || this.hasRightContent);
+      },
+      leftCols () {
+        return {
+          'd-none': this.expandFilter,
+          'col-12': !this.expandFilter && !this.showRightContent && !this.showCenterContent,
+          'col-6': !this.expandFilter && !this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+          'col-auto': !this.expandFilter && this.colsAuto && (this.showRightContent || this.showCenterContent) && (!this.showRightContent !== !this.showCenterContent),
+          'col-4': !this.expandFilter && (this.showRightContent || this.showCenterContent) && (!this.showRightContent === !this.showCenterContent),
+          'text-truncate': !this.noTextTruncate,
+        };
+      },
+      centerCols () {
+        return this.expandFilter && 'col-12'
+          || (!this.showLeftContent && !this.showRightContent
             && 'col-12'
             || ((!this.showLeftContent !== !this.showRightContent)
-                && 'col-6' || 'col-4'));
-    },
-    rightCols() {
-      return {
-        'col-12': this.expandFilter || (!this.showLeftContent && !this.showCenterContent),
-        'col-6': !this.expandFilter && !this.colsAuto && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent !== !this.showCenterContent),
-        'col-auto': !this.expandFilter && this.colsAuto && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent !== !this.showCenterContent),
-        'col-4': !this.expandFilter && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent === !this.showCenterContent),
-      };
-    },
-  },
-  watch: {
-    centerButtonToggle: {
-      immediate: true,
-      handler() {
-        if (this.hasCenterButtonToggle && this.centerButtonToggle.selected && this.centerButtonToggle.selected !== this.toggle) {
-          this.toggle = this.centerButtonToggle.selected;
-        }
+              && 'col-6' || 'col-4'));
+      },
+      rightCols () {
+        return {
+          'col-12': this.expandFilter || (!this.showLeftContent && !this.showCenterContent),
+          'col-6': !this.expandFilter && !this.colsAuto && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent !== !this.showCenterContent),
+          'col-auto': !this.expandFilter && this.colsAuto && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent !== !this.showCenterContent),
+          'col-4': !this.expandFilter && (this.showLeftContent || this.showCenterContent) && (!this.showLeftContent === !this.showCenterContent),
+        };
       },
     },
-    rightSelectBox: {
-      immediate: true,
-      handler() {
-        if (this.hasSelectBoxFilter && this.rightSelectBox.selected && this.rightSelectBox.selected !== this.select) {
-          this.select = this.rightSelectBox.selected;
-        }
+    watch: {
+      centerButtonToggle: {
+        immediate: true,
+        handler () {
+          if (this.hasCenterButtonToggle && this.centerButtonToggle.selected && this.centerButtonToggle.selected !== this.toggle) {
+            this.toggle = this.centerButtonToggle.selected;
+          }
+        },
       },
-    },
-    typing()  {
-      this.$emit('filter-text-typing', this.typing);
-      if (this.typing) {
-        this.startLoading();
-      } else {
-        this.endLoading();
-      }
-    },
-    expandFilter()  {
-      this.$emit('filter-expand', this.expandFilter);
-    },
-    term()  {
-      this.$emit('filter-text-input', this.term);
-      if (!this.term?.length) {
-        this.$emit('filter-text-input-end-typing', this.term);
-        return;
-      } else if (!this.isTermValid) {
-        return;
-      }
-      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
-      }
-    },
-  },
-  created() {
-    this.$root.$on('reset-filter', this.reset);
-    if (this.showTextFilter) {
-      document.addEventListener('keydown', this.clearSearch);
-    } else {
-      document.addEventListener('keydown', this.closeFilter);
-    }
-  },
-  beforeDestroy() {
-    this.$root.$off('reset-filter', this.reset);
-    document.removeEventListener('keydown', this.clearSearch);
-    document.removeEventListener('keydown', this.closeFilter);
-  },
-  methods: {
-    startLoading() {
-      if (this.$listeners.loading) {
-        this.$emit('loading', true);
-      } else {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));      
-      }
-    },
-    endLoading() {
-      if (this.$listeners.loading) {
-        this.$emit('loading', false);
-      } else {
-        this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
-      }
-    },
-    reset() {
-      this.term = null;
-      this.expandFilter = false;
-    },
-    clearSearch(event) {
-      if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
-        this.term = null;
-      }
-    },
-    closeFilter(event) {
-      if (this.expandFilter && event.key === 'Escape' && this.isOverlayVisible()) {
-        this.expandFilter = false;
-      }
-    },
-    isOverlayVisible() {
-      const elementsOverlays = document.querySelectorAll('.v-overlay--active');
-      for (const elementOverlay of elementsOverlays) {
-        if (getComputedStyle(elementOverlay).display !== 'none') {
-          return false;
-        }
-      }
-      return true;
-    },
-    setTerm(value) {
-      this.term = value;
-    },
-    selectToggle(value) {
-      this.toggle = value;
-    },
-    emitToggle(value) {
-      // Differ emitting event to not block button status change
-      window.setTimeout(
-        () => this.$nextTick().then(() => this.$emit('toggle-select', value))
-        ,50);
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() > this.startTypingKeywordTimeout) {
-          this.typing = false;
-          this.$emit('filter-text-input-end-typing', this.term);
+      rightSelectBox: {
+        immediate: true,
+        handler () {
+          if (this.hasSelectBoxFilter && this.rightSelectBox.selected && this.rightSelectBox.selected !== this.select) {
+            this.select = this.rightSelectBox.selected;
+          }
+        },
+      },
+      typing ()  {
+        this.$emit('filter-text-typing', this.typing);
+        if (this.typing) {
+          this.startLoading();
         } else {
+          this.endLoading();
+        }
+      },
+      expandFilter ()  {
+        this.$emit('filter-expand', this.expandFilter);
+      },
+      term ()  {
+        this.$emit('filter-text-input', this.term);
+        if (!this.term?.length) {
+          this.$emit('filter-text-input-end-typing', this.term);
+          return;
+        } else if (!this.isTermValid) {
+          return;
+        }
+        this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+        if (!this.typing) {
+          this.typing = true;
           this.waitForEndTyping();
         }
-      }, this.endTypingKeywordTimeout);
+      },
     },
-  },
-};
+    created () {
+      this.$root.$on('reset-filter', this.reset);
+      if (this.showTextFilter) {
+        document.addEventListener('keydown', this.clearSearch);
+      } else {
+        document.addEventListener('keydown', this.closeFilter);
+      }
+    },
+    beforeUnmount () {
+      this.$root.$off('reset-filter', this.reset);
+      document.removeEventListener('keydown', this.clearSearch);
+      document.removeEventListener('keydown', this.closeFilter);
+    },
+    methods: {
+      startLoading () {
+        if (this.$attrs.loading) {
+          this.$emit('loading', true);
+        } else {
+          document.dispatchEvent(new CustomEvent('displayTopBarLoading'));      
+        }
+      },
+      endLoading () {
+        if (this.$attrs.loading) {
+          this.$emit('loading', false);
+        } else {
+          this.$nextTick(() => document.dispatchEvent(new CustomEvent('hideTopBarLoading')));
+        }
+      },
+      reset () {
+        this.term = null;
+        this.expandFilter = false;
+      },
+      clearSearch (event) {
+        if (event?.key === 'Escape' && this.$refs?.applicationToolbarFilterInput?.isFocused) {
+          this.term = null;
+        }
+      },
+      closeFilter (event) {
+        if (this.expandFilter && event.key === 'Escape' && this.isOverlayVisible()) {
+          this.expandFilter = false;
+        }
+      },
+      isOverlayVisible () {
+        const elementsOverlays = document.querySelectorAll('.v-overlay--active');
+        for (const elementOverlay of elementsOverlays) {
+          if (getComputedStyle(elementOverlay).display !== 'none') {
+            return false;
+          }
+        }
+        return true;
+      },
+      setTerm (value) {
+        this.term = value;
+      },
+      selectToggle (value) {
+        this.toggle = value;
+      },
+      emitToggle (value) {
+        // Differ emitting event to not block button status change
+        window.setTimeout(
+          () => this.$nextTick().then(() => this.$emit('toggle-select', value))
+          ,50);
+      },
+      waitForEndTyping () {
+        window.setTimeout(() => {
+          if (Date.now() > this.startTypingKeywordTimeout) {
+            this.typing = false;
+            this.$emit('filter-text-input-end-typing', this.term);
+          } else {
+            this.waitForEndTyping();
+          }
+        }, this.endTypingKeywordTimeout);
+      },
+    },
+  };
 </script>

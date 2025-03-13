@@ -20,38 +20,52 @@
 
 -->
 <template>
-  <v-list-item v-if="!emailOnly || !invitation.hidden" class="pa-0">
+  <v-list-item
+    v-if="!emailOnly || !invitation.hidden"
+    class="pa-0">
     <v-badge
-      color="white d-flex align-center justify-center pa-0"
-      class="externalBadge pa-0"
-      bottom
       bordered
+      bottom
+      class="externalBadge pa-0"
+      color="white d-flex align-center justify-center pa-0"
       offset-x="33"
       offset-y="26">
       <v-list-item-avatar class="ms-0">
-        <v-img :src="defaultAvatar" class="border-color" />
+        <v-img
+          class="border-color"
+          :src="defaultAvatar" />
       </v-list-item-avatar>
-      <span slot="badge">
-        <v-icon class="icon-default-color">fa-question</v-icon>
-      </span>
+      <template #badge>
+        <span>
+          <v-icon class="icon-default-color">fa-question</v-icon>
+        </span>
+      </template>
     </v-badge>
     <v-list-item-content>
       <v-list-item-title
-        :title="email"
-        class="text-body text-truncate mb-1">
+        class="text-body text-truncate mb-1"
+        :title="email">
         {{ email }}
       </v-list-item-title>
       <v-list-item-subtitle class="d-flex text-wrap">
-        <span v-if="emailOnly && invitation.status === 'alreadySpaceMember'" class="error--text">
+        <span
+          v-if="emailOnly && invitation.status === 'alreadySpaceMember'"
+          class="error--text">
           {{ $t('SpaceSettings.invitation.alreadySpaceMember') }}
         </span>
-        <span v-else-if="emailOnly && invitation.status === 'alreadyInvited'" class="info--text">
+        <span
+          v-else-if="emailOnly && invitation.status === 'alreadyInvited'"
+          class="info--text">
           {{ $t('SpaceSettings.invitation.alreadyInvitedWillBeResent') }}
         </span>
-        <span v-else-if="emailOnly && invitation.status === 'invalidEmail'" class="error--text">
+        <span
+          v-else-if="emailOnly && invitation.status === 'invalidEmail'"
+          class="error--text">
           {{ $t('SpaceSettings.invitation.invalidEmail') }}
         </span>
-        <span v-else-if="emailOnly && invitation.status === 'alreadyAddedInList'" class="error--text">
+        <span
+          v-else-if="emailOnly && invitation.status === 'alreadyAddedInList'"
+          class="error--text">
           {{ $t('SpaceSettings.invitation.alreadyAddedInList') }}
         </span>
         <template v-else-if="emailOnly && invitation.status === 'pending'">
@@ -60,9 +74,9 @@
         <template v-else-if="!emailOnly && invitation.createdDate">
           {{ $t('peopleList.label.invitationSentOn') }}
           <date-format
-            :value="invitation.createdDate"
+            class="ms-1"
             :format="format"
-            class="ms-1" />
+            :value="invitation.createdDate" />
         </template>
         <template v-else-if="!emailOnly && !invitation.expired">
           {{ $t('peopleList.label.invitationSent') }}
@@ -70,8 +84,8 @@
         <template v-if="!emailOnly && invitation.expired">
           <span class="mx-1">-</span>
           <span
-            :title="$t('peopleList.label.invitationExpiredToolTip')"
-            class="error--text">
+            class="error--text"
+            :title="$t('peopleList.label.invitationExpiredToolTip')">
             {{ $t('peopleList.label.invitationExpired') }}
           </span>
         </template>
@@ -79,11 +93,13 @@
     </v-list-item-content>
     <v-list-item-action class="ms-2">
       <v-btn
-        :title="$t('SpaceSettings.roles.delete')"
-        small
         icon
+        small
+        :title="$t('SpaceSettings.roles.delete')"
         @click="$emit('remove')">
-        <v-icon size="18" color="error">
+        <v-icon
+          color="error"
+          size="18">
           fa-trash
         </v-icon>
       </v-btn>
@@ -91,31 +107,31 @@
   </v-list-item>
 </template>
 <script>
-export default {
-  props: {
-    invitation: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      invitation: {
+        type: Object,
+        default: null,
+      },
+      emailOnly: {
+        type: Boolean,
+        default: false,
+      },
     },
-    emailOnly: {
-      type: Boolean,
-      default: false,
+    data: () => ({
+      format: {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      },
+    }),
+    computed: {
+      defaultAvatar () {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
+      },
+      email () {
+        return this.invitation.userEmail;
+      },
     },
-  },
-  data: () => ({
-    format: {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    },
-  }),
-  computed: {
-    defaultAvatar() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-    },
-    email() {
-      return this.invitation.userEmail;
-    },
-  },
-};
+  };
 </script>

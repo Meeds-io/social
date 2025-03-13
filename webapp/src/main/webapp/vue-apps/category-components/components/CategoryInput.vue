@@ -26,18 +26,20 @@
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
       <div
-        :class="labelClass"
-        class="flex-grow-1 flex-shrink-1 text-truncate">
+        class="flex-grow-1 flex-shrink-1 text-truncate"
+        :class="labelClass">
         {{ $t(label) }}
       </div>
       <v-btn
         v-if="hasCategories"
-        :title="$t('categoryInput.drawer.editCategories')"
         class="flex-grow-0 flex-shrink-0"
-        small
         icon
+        small
+        :title="$t('categoryInput.drawer.editCategories')"
         @click="openCategoriesDrawer">
-        <v-icon size="16">fa-edit</v-icon>
+        <v-icon size="16">
+          fa-edit
+        </v-icon>
       </v-btn>
     </div>
     <v-progress-linear
@@ -51,14 +53,16 @@
       <v-list-item
         v-for="item in sortedCategories"
         :key="item.id"
-        :title="item.name"
-        class="pa-0">
+        class="pa-0"
+        :title="item.name">
         <v-list-item-icon class="ps-0 pe-3 mx-0 my-auto">
           <v-card
             color="transparent"
-            min-width="20"
-            flat>
-            <v-icon size="20">{{ item.icon }}</v-icon>
+            flat
+            min-width="20">
+            <v-icon size="20">
+              {{ item.icon }}
+            </v-icon>
           </v-card>
         </v-list-item-icon>
         <v-list-item-content>
@@ -69,26 +73,32 @@
         <v-list-item-action class="ps-3 mx-0 my-auto">
           <v-btn
             v-if="item.canLink"
-            :title="$t('categoryInput.deleteCategory')"
-            min-width="16"
             color="error"
             icon
+            min-width="16"
             small
+            :title="$t('categoryInput.deleteCategory')"
             @click="removeCategory(item)">
-            <v-icon size="16">fa-trash</v-icon>
+            <v-icon size="16">
+              fa-trash
+            </v-icon>
           </v-btn>
-          <v-tooltip v-else bottom>
+          <v-tooltip
+            v-else
+            bottom>
             <template #activator="{on, attrs}">
               <v-btn
-                v-on="on"
                 v-bind="attrs"
-                :ripple="false"
-                min-width="16"
-                tag="div"
-                plain
                 icon
-                small>
-                <v-icon size="16">fa-lock</v-icon>
+                min-width="16"
+                plain
+                :ripple="false"
+                small
+                tag="div"
+                v-on="on">
+                <v-icon size="16">
+                  fa-lock
+                </v-icon>
               </v-btn>
             </template>
             <span>{{ $t('categoryInput.restrictedCategoryLink') }}</span>
@@ -99,12 +109,14 @@
     <v-card
       v-else-if="!loading"
       class="d-flex justify-center align-center mt-2 mb-4"
-      width="100%"
-      flat>
+      flat
+      width="100%">
       <v-btn
         class="btn btn-primary flex-grow-0 flex-shrink-0"
         @click="openCategoriesDrawer">
-        <v-icon size="16">fa-plus</v-icon>
+        <v-icon size="16">
+          fa-plus
+        </v-icon>
         {{ $t('categoryInput.drawer.addCategories') }}
       </v-btn>
     </v-card>
@@ -112,105 +124,105 @@
       v-if="drawer"
       ref="drawer"
       v-model="categoryIds"
-      :selected-categories="categories"
       :access-permission="accessPermission"
+      :selected-categories="categories"
       @closed="drawer = false" />
   </v-card>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
-    },
-    label: {
-      type: String,
-      default: () => 'categoryInput.drawer.manageCategories',
-    },
-    labelClass: {
-      type: String,
-      default: () => 'text-header',
-    },
-    accessPermission: {
-      type: Boolean,
-      default: false,
-    },
-    single: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  data: () => ({
-    drawer: false,
-    loading: true,
-    lockedIds: [],
-    categoryIds: [],
-    categories: [],
-    collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
-  }),
-  computed: {
-    filteredCategories() {
-      return this.categories?.filter?.(cat => cat && !cat.locked) || [];
-    },
-    sortedCategories() {
-      return this.filteredCategories.slice().sort(this.comparator);
-    },
-    hasCategories() {
-      return !!this.filteredCategories.length;
-    },
-  },
-  watch: {
-    categoryIds: {
-      immediate: true,
-      handler() {
-        const categoryIds = this.categoryIds.slice();
-        this.lockedIds.forEach(id => {
-          if (categoryIds.indexOf(id) < 0) {
-            categoryIds.push(id);
-          }
-        });
-        this.$emit('input', categoryIds);
-        if (categoryIds.length !== this.categoryIds.length) {
-          this.categoryIds = categoryIds;
-        }
-        this.refreshCategories();
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
+      label: {
+        type: String,
+        default: () => 'categoryInput.drawer.manageCategories',
+      },
+      labelClass: {
+        type: String,
+        default: () => 'text-header',
+      },
+      accessPermission: {
+        type: Boolean,
+        default: false,
+      },
+      single: {
+        type: Boolean,
+        default: false,
       },
     },
-  },
-  created() {
-    this.categoryIds = this.value?.slice?.() || [];
-  },
-  methods: {
-    async openCategoriesDrawer() {
-      this.drawer = true;
-      await this.$nextTick();
-      this.$refs.drawer.openDrawer();
+    data: () => ({
+      drawer: false,
+      loading: true,
+      lockedIds: [],
+      categoryIds: [],
+      categories: [],
+      collator: new Intl.Collator(eXo.env.portal.language, { numeric: true, sensitivity: 'base' }),
+    }),
+    computed: {
+      filteredCategories () {
+        return this.categories?.filter?.(cat => cat && !cat.locked) || [];
+      },
+      sortedCategories () {
+        return this.filteredCategories.slice().sort(this.comparator);
+      },
+      hasCategories () {
+        return !!this.filteredCategories.length;
+      },
     },
-    async refreshCategories() {
-      this.loading = true;
-      try {
-        this.categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
-          .catch(() => {
-            this.lockedIds.push(id);
-            return {
-              id,
-              locked: true,
-            };
-          })));
-      } finally {
-        this.loading = false;
-      }
+    watch: {
+      categoryIds: {
+        immediate: true,
+        handler () {
+          const categoryIds = this.categoryIds.slice();
+          this.lockedIds.forEach(id => {
+            if (categoryIds.indexOf(id) < 0) {
+              categoryIds.push(id);
+            }
+          });
+          this.$emit('input', categoryIds);
+          if (categoryIds.length !== this.categoryIds.length) {
+            this.categoryIds = categoryIds;
+          }
+          this.refreshCategories();
+        },
+      },
     },
-    removeCategory(item) {
-      if (!item.locked) {
-        this.categoryIds.splice(this.categoryIds.indexOf(item.id), 1);
-        this.refreshCategories();
-      }
+    created () {
+      this.categoryIds = this.value?.slice?.() || [];
     },
-    comparator(a, b) {
-      return this.collator.compare(a.name, b.name);
+    methods: {
+      async openCategoriesDrawer () {
+        this.drawer = true;
+        await this.$nextTick();
+        this.$refs.drawer.openDrawer();
+      },
+      async refreshCategories () {
+        this.loading = true;
+        try {
+          this.categories = await Promise.all(this.categoryIds.map(id => eXo.$categoryService.getCategory(id)
+            .catch(() => {
+              this.lockedIds.push(id);
+              return {
+                id,
+                locked: true,
+              };
+            })));
+        } finally {
+          this.loading = false;
+        }
+      },
+      removeCategory (item) {
+        if (!item.locked) {
+          this.categoryIds.splice(this.categoryIds.indexOf(item.id), 1);
+          this.refreshCategories();
+        }
+      },
+      comparator (a, b) {
+        return this.collator.compare(a.name, b.name);
+      },
     },
-  },
-};
+  };
 </script>

@@ -21,19 +21,31 @@
 <template>
   <div class="d-flex flex-column align-center justify-center">
     <template v-if="filterType === 'unread'">
-      <v-icon class="tertiary-color" size="60">fa-envelope-open</v-icon>
+      <v-icon
+        class="tertiary-color"
+        size="60">
+        fa-envelope-open
+      </v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noUnreadSpaces') }}
       </div>
     </template>
     <template v-else-if="filterType === 'favorite'">
-      <v-icon class="tertiary-color" size="60">fa-star-half-alt</v-icon>
+      <v-icon
+        class="tertiary-color"
+        size="60">
+        fa-star-half-alt
+      </v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noFavoriteSpaces') }}
       </div>
     </template>
     <template v-else>
-      <v-icon class="tertiary-color" size="60">fa-people-arrows</v-icon>
+      <v-icon
+        class="tertiary-color"
+        size="60">
+        fa-people-arrows
+      </v-icon>
       <div class="my-6">
         {{ $t('menu.spaces.noSpacesFound') }}
       </div>
@@ -42,10 +54,10 @@
           {{ $t('menu.spaces.joinSpace') }}
         </div>
         <v-btn
-          :href="spacesLink"
-          :title="$t('menu.spaces.exploreSpaces')"
+          class="btn primary"
           :class="keyword && 'mb-6' || 'my-6'"
-          class="btn primary">
+          :href="spacesLink"
+          :title="$t('menu.spaces.exploreSpaces')">
           <span class="text-none">
             {{ $t('menu.spaces.exploreSpaces') }}
           </span>
@@ -55,20 +67,20 @@
   </div>
 </template>
 <script>
-export default {
-  props: {
-    keyword: {
-      type: String,
-      default: null,
+  export default {
+    props: {
+      keyword: {
+        type: String,
+        default: null,
+      },
+      filterType: {
+        type: String,
+        default: null,
+      },
     },
-    filterType: {
-      type: String,
-      default: null,
-    },
-  },
-  data: () => ({
-    spacesLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`,
-    isExternalUser: eXo.env.portal.isExternal,
-  }),
-};
+    data: () => ({
+      spacesLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`,
+      isExternalUser: eXo.env.portal.isExternal,
+    }),
+  };
 </script>

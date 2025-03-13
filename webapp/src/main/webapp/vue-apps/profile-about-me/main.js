@@ -20,21 +20,21 @@ const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 const url = `/social/i18n/locale.portlet.social.ProfileAboutMe?lang=${lang}`;
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-export function init(aboutMe) {
+export function init (aboutMe) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     Vue.createApp({
       data: {
-        aboutMe: aboutMe,
+        aboutMe,
       },
-      mounted() {
+      mounted () {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       template: `<profile-about-me v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" :about-me="aboutMe" />`,
       i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
+      vuetify: eXo.vuetify,
     }, appElement, 'Profile About Me');
   });
 }

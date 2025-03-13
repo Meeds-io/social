@@ -22,76 +22,78 @@
   <v-navigation-drawer
     ref="thirdLevelDrawer"
     v-model="drawer"
-    :width="drawerWidth"
-    :style="drawerOffsetStyle"
-    :right="$vuetify.rtl"
     class="HamburgerMenuThirdLevelParent layout-side-bar border-box-sizing z-index-drawer"
+    hide-overlay
     max-width="100%"
-    hide-overlay>
-    <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
+    :right="$vuetify.rtl"
+    :style="drawerOffsetStyle"
+    :width="drawerWidth">
+    <v-hover
+      v-if="drawer"
+      v-model="$root.hoverThirdLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
         <space-panel-hamburger-navigation
-          :space="openedSpace"
           :home-link="homeLink"
           :opened-space="openedSpace"
+          :space="openedSpace"
           @close="drawer = false" />
       </div>
     </v-hover>
   </v-navigation-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Boolean,
-      default: false,
+  export default {
+    props: {
+      value: {
+        type: Boolean,
+        default: false,
+      },
+      openedSpace: {
+        type: Object,
+        default: null,
+      },
+      drawerWidth: {
+        type: Number,
+        default: null,
+      },
+      homeLink: {
+        type: String,
+        default: null,
+      },
     },
-    openedSpace: {
-      type: Object,
-      default: null,
+    data: () => ({
+      drawer: false,
+    }),
+    computed: {
+      drawerOffset () {
+        return this.$root.displaySequentially && this.drawerWidth * 2 || 0;
+      },
+      drawerOffsetStyle () {
+        return eXo.vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
+      },
+      expand () {
+        return this.$root.expand;
+      },
     },
-    drawerWidth: {
-      type: Number,
-      default: null,
+    watch: {
+      expand () {
+        if (!this.expand) {
+          this.$nextTick().then(() => {
+            if (!this.expand && this.drawer) {
+              this.drawer = false;
+            }
+          });
+        }
+      },
+      drawer () {
+        this.$emit('input', this.drawer);
+      },
+      value () {
+        this.drawer = this.value;
+      },
     },
-    homeLink: {
-      type: String,
-      default: null,
-    },
-  },
-  data: () => ({
-    drawer: false,
-  }),
-  computed: {
-    drawerOffset() {
-      return this.$root.displaySequentially && this.drawerWidth * 2 || 0;
-    },
-    drawerOffsetStyle() {
-      return this.$vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
-    },
-    expand() {
-      return this.$root.expand;
-    },
-  },
-  watch: {
-    expand() {
-      if (!this.expand) {
-        this.$nextTick().then(() => {
-          if (!this.expand && this.drawer) {
-            this.drawer = false;
-          }
-        });
-      }
-    },
-    drawer() {
-      this.$emit('input', this.drawer);
-    },
-    value() {
+    created () {
       this.drawer = this.value;
     },
-  },
-  created() {
-    this.drawer = this.value;
-  },
-};
+  };
 </script>

@@ -23,23 +23,23 @@
     v-if="canView">
     <v-hover v-slot="{ hover }">
       <v-card
-        min-width="100%"
-        max-width="100%"
         class="d-flex flex-column align-center border-box-sizing pa-5 position-relative application-body"
-        flat>
+        flat
+        max-width="100%"
+        min-width="100%">
         <links-header
           v-if="$root.initialized"
-          :settings="$root.settings"
-          :has-links="$root.hasLinks"
           :can-edit="canEdit"
-          :hover="hover"
           class="full-width"
-          @edit="editSettings()"
-          @add="editSettings(true)" />
+          :has-links="$root.hasLinks"
+          :hover="hover"
+          :settings="$root.settings"
+          @add="editSettings(true)"
+          @edit="editSettings()" />
         <links-list
           v-if="hasLinks"
-          :settings="$root.settings"
           :links="$root.links"
+          :settings="$root.settings"
           @edit="editSettings()" />
       </v-card>
     </v-hover>
@@ -48,72 +48,72 @@
   </v-app>
 </template>
 <script>
-export default {
-  data: () => ({
-    loading: true,
-    edit: false,
-    previewMode: false,
-  }),
-  computed: {
-    hasLinks() {
-      return this.$root.links?.length;
+  export default {
+    data: () => ({
+      loading: true,
+      edit: false,
+      previewMode: false,
+    }),
+    computed: {
+      hasLinks () {
+        return this.$root.links?.length;
+      },
+      canView () {
+        return this.canEdit || (this.$root.initialized && this.$root.hasLinks);
+      },
+      canEdit () {
+        return !this.previewMode && this.$root.canEdit;
+      },
     },
-    canView() {
-      return this.canEdit || (this.$root.initialized && this.$root.hasLinks);
+    watch: {
+      canView () {
+        this.$root.$updateApplicationVisibility(this.canView);
+      },
     },
-    canEdit() {
-      return !this.previewMode && this.$root.canEdit;
+    created () {
+      document.addEventListener('cms-preview-mode', this.switchToPreview);
+      document.addEventListener('cms-edit-mode', this.switchToEdit);
+      this.$root.$on('links-refresh', this.retrieveSettings);
     },
-  },
-  watch: {
-    canView() {
-      this.$root.$updateApplicationVisibility(this.canView);
-    }
-  },
-  created() {
-    document.addEventListener('cms-preview-mode', this.switchToPreview);
-    document.addEventListener('cms-edit-mode', this.switchToEdit);
-    this.$root.$on('links-refresh', this.retrieveSettings);
-  },
-  beforeDestroy() {
-    this.$root.$off('links-refresh', this.retrieveSettings);
-    document.removeEventListener('cms-edit-mode', this.switchToEdit);
-    document.removeEventListener('cms-preview-mode', this.switchToPreview);
-  },
-  methods: {
-    retrieveSettings(settings) {
-      if (settings) {
-        this.$root.settings = settings;
-        return;
-      }
-      this.loading = true;
-      this.$linkService.getSettings(this.$root.name, this.$root.language)
-        .then(settings => {
-          if (!settings.vAlign) {
-            settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
-          }
-          if (!settings.hAlign) {
-            settings.hAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
-          }
+    beforeUnmount () {
+      this.$root.$off('links-refresh', this.retrieveSettings);
+      document.removeEventListener('cms-edit-mode', this.switchToEdit);
+      document.removeEventListener('cms-preview-mode', this.switchToPreview);
+    },
+    methods: {
+      retrieveSettings (settings) {
+        if (settings) {
           this.$root.settings = settings;
-        })
-        .then(() => this.loading = false);
-    },
-    editSettings(openForm) {
-      this.edit = false;
-      this.$nextTick().then(() => {
-        this.edit = true;
+          return;
+        }
+        this.loading = true;
+        eXo.$linkService.getSettings(this.$root.name, this.$root.language)
+          .then(settings => {
+            if (!settings.vAlign) {
+              settings.vAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+            }
+            if (!settings.hAlign) {
+              settings.hAlign = settings.type === 'COLUMN' ? 'START' : 'CENTER';
+            }
+            this.$root.settings = settings;
+          })
+          .then(() => this.loading = false);
+      },
+      editSettings (openForm) {
+        this.edit = false;
         this.$nextTick().then(() => {
-          this.$root.$emit('links-settings-drawer', openForm);
+          this.edit = true;
+          this.$nextTick().then(() => {
+            this.$root.$emit('links-settings-drawer', openForm);
+          });
         });
-      });
+      },
+      switchToPreview () {
+        this.previewMode = true;
+      },
+      switchToEdit () {
+        this.previewMode = false;
+      },
     },
-    switchToPreview() {
-      this.previewMode = true;
-    },
-    switchToEdit() {
-      this.previewMode = false;
-    },
-  },
-};
+  };
 </script>

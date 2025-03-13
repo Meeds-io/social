@@ -24,47 +24,55 @@
     id="spaceEmailInvitationDrawer"
     ref="drawer"
     v-model="drawer"
-    :right="!$vuetify.rtl"
+    allow-expand
     go-back-button
-    allow-expand>
-    <template slot="title">
+    :right="!$vuetify.rtl">
+    <template #title>
       {{ $t('spacesList.title.usersToInvite') }}
     </template>
-    <template v-if="drawer" slot="content">
+    <template
+      v-if="drawer"
+      #content>
       <div class="pa-4 d-flex flex-column">
         <v-card
           ref="emailInput"
-          :placeholder="$t('SpaceSettings.invitation.emailPlaceholder')"
-          contenteditable="true"
-          min-height="40px"
           class="input-placeholder pa-2 full-width text-wap v-card v-card--flat v-sheet theme--light border-color border-radius"
+          contenteditable="true"
           flat
+          min-height="40px"
+          :placeholder="$t('SpaceSettings.invitation.emailPlaceholder')"
           @keydown.enter.prevent.stop="addEmails"
           @keyup="updateInput" />
         <div class="d-flex">
           <div class="flex-grow-1 flex-shrink-1 text-subtitle text-wrap my-auto me-2 py-1">
             {{ hintMessage }}
           </div>
-          <div v-show="emailInput?.length" class="flex-grow-0 flex-shrink-0 me-n1">
+          <div
+            v-show="emailInput?.length"
+            class="flex-grow-0 flex-shrink-0 me-n1">
             <v-btn
-              :title="$t('SpaceSetting.invitation.addEmails')"
-              :disabled="!emailInput"
               color="success"
-              small
+              :disabled="!emailInput"
               icon
+              small
               tile
+              :title="$t('SpaceSetting.invitation.addEmails')"
               @click="addEmails">
-              <v-icon size="22">fa-check</v-icon>
+              <v-icon size="22">
+                fa-check
+              </v-icon>
             </v-btn>
             <v-btn
-              :title="$t('SpaceSetting.invitation.clearEmails')"
-              :disabled="!emailInput"
               color="error"
-              small
+              :disabled="!emailInput"
               icon
+              small
               tile
+              :title="$t('SpaceSetting.invitation.clearEmails')"
               @click="resetInput">
-              <v-icon size="22">fa-times</v-icon>
+              <v-icon size="22">
+                fa-times
+              </v-icon>
             </v-btn>
           </div>
         </div>
@@ -76,18 +84,18 @@
         <space-form-invite-email-list-item
           v-for="(u, index) in emailInvitations"
           :key="u.userEmail"
-          :invitation="u"
           email-only
+          :invitation="u"
           @remove="removeEmailInvitation(index)" />
         <space-form-invite-user-list-item
           v-for="(u, index) in invitedMembers"
           :key="u.id"
-          :user="u"
           email-subtitle
+          :user="u"
           @remove="removeMemberInvitation(index)" />
       </v-list>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -105,130 +113,130 @@
   </exo-drawer>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: null,
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    drawer: false,
-    emailInvitations: [],
-    invitedMembers: [],
-    emailInput: '',
-  }),
-  computed: {
-    emails() {
-      return this.emailInvitations.filter(u => u.status === 'pending' || u.status === 'alreadyInvited')
-        .map(u => u.userEmail);
+    data: () => ({
+      drawer: false,
+      emailInvitations: [],
+      invitedMembers: [],
+      emailInput: '',
+    }),
+    computed: {
+      emails () {
+        return this.emailInvitations.filter(u => u.status === 'pending' || u.status === 'alreadyInvited')
+          .map(u => u.userEmail);
+      },
+      alreadSentInvitations () {
+        return this.emailInvitations.filter(u => u.invitationId);
+      },
+      hintMessage () {
+        return this.emailInput?.length
+          && !this.$root.isMobile
+          && this.$t('SpaceSetting.invitation.hintToConfirm')
+          || '';
+      },
     },
-    alreadSentInvitations() {
-      return this.emailInvitations.filter(u => u.invitationId);
+    created () {
+      this.$root.$on('space-form-invite-email', this.open);
     },
-    hintMessage() {
-      return this.emailInput?.length
-        && !this.$root.isMobile
-        && this.$t('SpaceSetting.invitation.hintToConfirm')
-        || '';
+    beforeUnmount () {
+      this.$root.$off('space-form-invite-email', this.open);
     },
-  },
-  created() {
-    this.$root.$on('space-form-invite-email', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('space-form-invite-email', this.open);
-  },
-  methods: {
-    async open() {
-      this.emailInvitations = this.value?.map?.(e => ({
-        userEmail: e,
-        status: 'pending',
-      })) || [];
-      this.invitedMembers = [];
-      this.$refs.drawer.open();
-      await this.$nextTick();
-      window.setTimeout(() => {
-        this.$refs?.emailInput?.$el?.focus();
-      }, 500);
-    },
-    close() {
-      this.$refs.drawer.close();
-    },
-    apply() {
-      this.$emit('input', this.emails);
-      if (this.invitedMembers?.length) {
-        this.$emit('update-members', this.invitedMembers);
-      }
-      this.close();
-    },
-    addEmails() {
-      if (this.emailInput?.length) {
-        this.emailInput
-          .trim()
-          .split(/,/g)
-          .map(s => s.trim())
-          .forEach(this.addEmail);
-        this.resetInput();
-      }
-    },
-    async addEmail(email) {
-      if (!email?.length) {
-        return;
-      }
-      email = email.trim();
-      if (!(/^[^\s@]{1,100}@[^\s@]{1,100}\.[^\s@]{1,10}$/g).test(email)) {
-        this.emailInvitations.unshift({
-          userEmail: email,
-          status: 'invalidEmail',
-        });
-        return;
-      }
-      if (this.emailInvitations.find(em => em.userEmail.toLowerCase() === email.toLowerCase())) {
-        this.emailInvitations.unshift({
-          userEmail: email,
-          status: 'alreadyAddedInList',
-        });
-        return;
-      }
-      const user = await this.$userService.getUserByEmail(email);
-      if (user?.id && user?.id !== 'null') {
-        const data = await this.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
-        if (data.isMember === 'true') {
+    methods: {
+      async open () {
+        this.emailInvitations = this.value?.map?.(e => ({
+          userEmail: e,
+          status: 'pending',
+        })) || [];
+        this.invitedMembers = [];
+        this.$refs.drawer.open();
+        await this.$nextTick();
+        window.setTimeout(() => {
+          this.$refs?.emailInput?.$el?.focus();
+        }, 500);
+      },
+      close () {
+        this.$refs.drawer.close();
+      },
+      apply () {
+        this.$emit('input', this.emails);
+        if (this.invitedMembers?.length) {
+          this.$emit('update-members', this.invitedMembers);
+        }
+        this.close();
+      },
+      addEmails () {
+        if (this.emailInput?.length) {
+          this.emailInput
+            .trim()
+            .split(/,/g)
+            .map(s => s.trim())
+            .forEach(this.addEmail);
+          this.resetInput();
+        }
+      },
+      async addEmail (email) {
+        if (!email?.length) {
+          return;
+        }
+        email = email.trim();
+        if (!(/^[^\s@]{1,100}@[^\s@]{1,100}\.[^\s@]{1,10}$/g).test(email)) {
           this.emailInvitations.unshift({
             userEmail: email,
-            status: 'alreadySpaceMember',
+            status: 'invalidEmail',
           });
-        } else if (!this.invitedMembers.find(u => u.remoteId === user.remoteId)) {
-          user.email = email;
-          this.invitedMembers.unshift(user);
+          return;
         }
-      } else {
-        this.emailInvitations.unshift({
-          userEmail: email,
-          status: 'pending',
-        });
-      }
-    },
-    updateInput() {
-      this.emailInput = this.$refs.emailInput?.$el.innerText?.trim();
-    },
-    resetInput() {
-      this.$refs.emailInput.$el.innerText = '';
-      this.emailInput = '';
-    },
-    async removeEmailInvitation(index) {
-      const deletedEmail = this.emailInvitations.splice(index, 1)?.[0]?.userEmail;
-      await this.$nextTick();
-      if (!this.emails?.find(e => e?.toLowerCase?.() === deletedEmail?.toLowerCase?.()) // No valid emails with same entry
+        if (this.emailInvitations.find(em => em.userEmail.toLowerCase() === email.toLowerCase())) {
+          this.emailInvitations.unshift({
+            userEmail: email,
+            status: 'alreadyAddedInList',
+          });
+          return;
+        }
+        const user = await eXo.$userService.getUserByEmail(email);
+        if (user?.id && user?.id !== 'null') {
+          const data = await eXo.$spaceService.isSpaceMember(this.$root.spaceId, user.remoteId);
+          if (data.isMember === 'true') {
+            this.emailInvitations.unshift({
+              userEmail: email,
+              status: 'alreadySpaceMember',
+            });
+          } else if (!this.invitedMembers.find(u => u.remoteId === user.remoteId)) {
+            user.email = email;
+            this.invitedMembers.unshift(user);
+          }
+        } else {
+          this.emailInvitations.unshift({
+            userEmail: email,
+            status: 'pending',
+          });
+        }
+      },
+      updateInput () {
+        this.emailInput = this.$refs.emailInput?.$el.innerText?.trim();
+      },
+      resetInput () {
+        this.$refs.emailInput.$el.innerText = '';
+        this.emailInput = '';
+      },
+      async removeEmailInvitation (index) {
+        const deletedEmail = this.emailInvitations.splice(index, 1)?.[0]?.userEmail;
+        await this.$nextTick();
+        if (!this.emails?.find(e => e?.toLowerCase?.() === deletedEmail?.toLowerCase?.()) // No valid emails with same entry
           && this.emailInvitations.find(i => i.userEmail?.toLowerCase?.() === deletedEmail?.toLowerCase?.())) { // has invalid email inputs
-        // Delete all invalid email inputs
-        this.emailInvitations = this.emailInvitations.filter(i => i.userEmail?.toLowerCase?.() !== deletedEmail?.toLowerCase?.());
-      }
+          // Delete all invalid email inputs
+          this.emailInvitations = this.emailInvitations.filter(i => i.userEmail?.toLowerCase?.() !== deletedEmail?.toLowerCase?.());
+        }
+      },
+      removeMemberInvitation (index) {
+        this.invitedMembers.splice(index, 1);
+      },
     },
-    removeMemberInvitation(index) {
-      this.invitedMembers.splice(index, 1);
-    },
-  },
-};
+  };
 </script>

@@ -31,36 +31,38 @@
     <v-list-item class="px-2">
       <v-btn
         class="border-color grey-background"
+        max-height="120"
+        min-height="120"
         outlined
         width="120"
-        min-height="120"
-        max-height="120"
         @click="openFileExplorer">
-        <v-icon class="primary--text">fa-plus</v-icon>
+        <v-icon class="primary--text">
+          fa-plus
+        </v-icon>
       </v-btn>
     </v-list-item>
   </card-carousel>
 </template>
 <script>
-export default {
-  props: {
-    images: {
-      type: Array,
-      default: () => [],
+  export default {
+    props: {
+      images: {
+        type: Array,
+        default: () => [],
+      },
+      objectId: {
+        type: String,
+        default: null,
+      },
+      objectType: {
+        type: String,
+        default: null,
+      },
     },
-    objectId: {
-      type: String,
-      default: null,
+    methods: {
+      openFileExplorer () {
+        document.dispatchEvent(new CustomEvent('attachments-image-open-file-explorer'));
+      },
     },
-    objectType: {
-      type: String,
-      default: null,
-    },
-  },
-  methods: {
-    openFileExplorer() {
-      document.dispatchEvent(new CustomEvent('attachments-image-open-file-explorer'));
-    },
-  }
-};
+  };
 </script>

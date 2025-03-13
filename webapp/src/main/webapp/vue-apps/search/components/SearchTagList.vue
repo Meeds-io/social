@@ -2,16 +2,16 @@
   <v-menu
     v-model="open"
     :close-on-content-click="false"
-    :nudge-width="Width"
-    :nudge-left="isMobile && 300"
-    :nudge-bottom="30"
     content-class="tag-search-content"
+    :nudge-bottom="30"
+    :nudge-left="isMobile && 300"
+    :nudge-width="width"
     offset-x>
     <template #activator="{ on, attrs }">
       <v-chip
-        :outlined="!open"
-        :color="open && 'primary' || ''"
         class="border-color mx-1"
+        :color="open && 'primary' || ''"
+        :outlined="!open"
         v-bind="attrs"
         v-on="on">
         <span><span class="text-header">#</span> {{ $t('Tag.search.button') }}</span>
@@ -21,19 +21,21 @@
       <v-text-field
         ref="tagSearchInput"
         v-model="query"
-        :placeholder="$t('Tag.search.placeholder')"
-        class="px-4" />
+        class="px-4"
+        :placeholder="$t('Tag.search.placeholder')" />
       <div class="pa-3">
-        <span v-if="!searching" class="font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
+        <span
+          v-if="!searching"
+          class="font-weight-bold pl-1">{{ $t('Tag.last.added') }}</span>
         <v-chip-group
-          v-model="value"
+          v-model="tagValue"
           active-class="primary--text"
           class="pt-2"
           multiple>
           <v-chip
             v-for="tag in tags"
-            :color="`${isMobile ? 'blue lighten-4' : ''}`"
             :key="tag"
+            :color="`${isMobile ? 'blue lighten-4' : ''}`"
             :value="tag"
             @click="handleTag(tag)"
             @keyup.enter="handleTag(tag)">
@@ -45,93 +47,101 @@
   </v-menu>
 </template>
 <script>
-export default {
-  props: {
-    value: {
-      type: Array,
-      default: () => [],
+  export default {
+    props: {
+      value: {
+        type: Array,
+        default: () => [],
+      },
     },
-  },
-  data: () => ({
-    initialized: false,
-    tags: [],
-    selectedTags: [],
-    query: '',
-    searching: false,
-    searchLimit: 5,
-    open: false,
-  }),
-  computed: {
-    isMobile() {
-      return this.$vuetify && this.$vuetify.breakpoint && this.$vuetify.breakpoint.name === 'xs';
+    data: () => ({
+      initialized: false,
+      tags: [],
+      selectedTags: [],
+      query: '',
+      searching: false,
+      searchLimit: 5,
+      open: false,
+    }),
+    computed: {
+      isMobile () {
+        return eXo.vuetify && eXo.vuetify.display .value&& eXo.vuetify.display.name.value === 'xs';
+      },
+      width () {
+        return this.isMobile && '400' || '200';
+      },
+      tagValue: {
+        set (value) {
+          this.$emit('input', value);
+        },
+        get () {
+          return this.value;
+        },
+      },
     },
-    Width() {
-      return this.isMobile && '400' || '200';
-    },
-  },
-  watch: {
-    query() {
-      this.searching = this.query.length > 0;
-      this.search();
-    },
-    selectedTags() {
-      this.$emit('input', this.selectedTags);
-    },
-    open() {
-      if (this.open) {
-        this.query = '';
-        window.setTimeout(() => {
-          if (this.$refs.tagSearchInput) {
-            this.$refs.tagSearchInput.$el.querySelector('input').focus();
-          }
-        }, 200);
+    watch: {
+      query () {
+        this.searching = this.query.length > 0;
         this.search();
-      }
-    },
-  },
-  created() {
-    // Workaround to fix closing menu when clicking outside
-    document.onmousedown = event => {
-      if (this.open && event && event.target) {
-        if (!$('.tag-search-content').find(event.target).length) {
+      },
+      selectedTags () {
+        this.$emit('input', this.selectedTags);
+      },
+      open () {
+        if (this.open) {
+          this.query = '';
           window.setTimeout(() => {
-            this.open = false;
+            if (this.$refs.tagSearchInput) {
+              this.$refs.tagSearchInput.$el.querySelector('input').focus();
+            }
           }, 200);
+          this.search();
         }
-      }
-    };
-    this.selectedTags = this.value;
-  },
-  methods: {
-    search() {
-      return this.$tagService.searchTags(this.query , this.searchLimit)
-        .then(tagNames => {
-          this.tags = tagNames.map(tagName => tagName.name) || [];
-          if (this.selectedTags && this.selectedTags.length) {
-            this.selectedTags = this.selectedTags.map(tag => {
-              const tagsLowerCase = this.tags.map(t => t.toLowerCase());
-              const tagLowerCase = tag.toLowerCase();
-              const tagIndex = tagsLowerCase.indexOf(tagLowerCase);
-              if (tagIndex >= 0) {
-                return this.tags[tagIndex];
-              } else {
-                return tag;
-              }
-            });
-          }
-        });
+      },
     },
-    handleTag(tag) {
-      const selectedTagsLowerCase = this.selectedTags.map(t => t.toLowerCase());
-      const tagLowerCase = tag.toLowerCase();
-      if (selectedTagsLowerCase.includes(tagLowerCase)) {
-        const tagIndex = selectedTagsLowerCase.indexOf(tagLowerCase);
-        this.selectedTags.splice(tagIndex , 1);
-      } else {
-        this.selectedTags.push(tag);
-        document.dispatchEvent(new CustomEvent('search-tag'));
-      }
-    }
-  },
-};
+    created () {
+      // Workaround to fix closing menu when clicking outside
+      document.onmousedown = event => {
+        if (this.open && event && event.target) {
+          if (!$('.tag-search-content').find(event.target).length) {
+            window.setTimeout(() => {
+              this.open = false;
+            }, 200);
+          }
+        }
+      };
+      this.selectedTags = this.value;
+    },
+    methods: {
+      search () {
+        return eXo.$tagService.searchTags(this.query , this.searchLimit)
+          .then(tagNames => {
+            this.tags = tagNames.map(tagName => tagName.name) || [];
+            if (this.selectedTags && this.selectedTags.length) {
+              this.selectedTags = this.selectedTags.map(tag => {
+                const tagsLowerCase = this.tags.map(t => t.toLowerCase());
+                const tagLowerCase = tag.toLowerCase();
+                const tagIndex = tagsLowerCase.indexOf(tagLowerCase);
+                if (tagIndex >= 0) {
+                  return this.tags[tagIndex];
+                } else {
+                  return tag;
+                }
+              });
+            }
+          });
+      },
+      handleTag (tag) {
+        const selectedTagsLowerCase = this.selectedTags.map(t => t.toLowerCase());
+        const tagLowerCase = tag.toLowerCase();
+        if (selectedTagsLowerCase.includes(tagLowerCase)) {
+          const tagIndex = selectedTagsLowerCase.indexOf(tagLowerCase);
+          this.selectedTags.splice(tagIndex , 1);
+        } else {
+          this.selectedTags.push(tag);
+          document.dispatchEvent(new CustomEvent('search-tag'));
+        }
+      },
+    },
+  };
 </script>

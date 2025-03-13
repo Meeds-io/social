@@ -1,4 +1,4 @@
-export function getFavorites(offset, limit,returnSize) {
+export function getFavorites (offset, limit,returnSize) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites?offset=${offset || 0}&limit=${limit|| 10}&returnSize=${returnSize}`, {
     method: 'GET',
     credentials: 'include',
@@ -11,7 +11,7 @@ export function getFavorites(offset, limit,returnSize) {
   });
 }
 
-export function addFavorite(objectType, objectId, parentObjectId, spaceId) {
+export function addFavorite (objectType, objectId, parentObjectId, spaceId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?parentObjectId=${parentObjectId || ''}&spaceId=${spaceId || 0}&ignoreWhenExisting=true`, {
     method: 'POST',
     credentials: 'include',
@@ -22,7 +22,7 @@ export function addFavorite(objectType, objectId, parentObjectId, spaceId) {
   });
 }
 
-export function removeFavorite(objectType, objectId) {
+export function removeFavorite (objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?ignoreNotExisting=true`, {
     method: 'DELETE',
     credentials: 'include',

@@ -1,16 +1,16 @@
 <template>
   <user-notification-activity-base
-    :notification="notification"
+    icon="fa-comment"
     message-key="Notification.intranet.message.one.EditCommentPlugin"
-    icon="fa-comment" />
+    :notification="notification" />
 </template>
 <script>
-export default {
-  props: {
-    notification: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      notification: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-};
+  };
 </script>

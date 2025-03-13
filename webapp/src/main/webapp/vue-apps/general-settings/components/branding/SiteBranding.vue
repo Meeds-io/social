@@ -21,40 +21,40 @@
 <template>
   <v-row class="ma-0">
     <v-col
+      class="pa-0 mb-4"
       cols="12"
-      lg="7"
-      class="pa-0 mb-4">
+      lg="7">
       <div class="text-header mb-6">
         {{ $t('generalSettings.companyNameTitle') }}
       </div>
       <v-card
-        max-width="450px"
         class="me-2"
-        flat>
+        flat
+        max-width="450px">
         <v-text-field
           id="companyName"
           v-model="companyName"
-          :placeholder="$t('generalSettings.companyNamePlaceholder')"
-          class="setup-company-name border-box-sizing pt-0"
-          name="companyName"
-          type="text"
-          autofocus="autofocus"
           aria-required="true"
-          required="required"
+          autofocus="autofocus"
+          class="setup-company-name border-box-sizing pt-0"
+          dense
+          name="companyName"
           outlined
-          dense />
+          :placeholder="$t('generalSettings.companyNamePlaceholder')"
+          required="required"
+          type="text" />
       </v-card>
     </v-col>
     <v-col
+      class="pa-0 mb-4 d-flex flex-column"
       cols="12"
-      lg="2"
-      class="pa-0 mb-4 d-flex flex-column">
+      lg="2">
       <div class="mb-2 text-header">
         <help-label
           label="generalSettings.companyLogo.label"
           label-class="text-header"
           tooltip="generalSettings.companyLogo.tooltip">
-          <template slot="helpContent">
+          <template #helpContent>
             <p>
               {{ $t('generalSettings.companyLogo.help1') }}
             </p>
@@ -74,9 +74,9 @@
         class="my-auto" />
     </v-col>
     <v-col
+      class="pa-0 mb-4 d-flex flex-column"
       cols="12"
-      lg="3"
-      class="pa-0 mb-4 d-flex flex-column">
+      lg="3">
       <div class="mb-2 text-header">
         {{ $t('generalSettings.companyFaviconTitle') }}
       </div>
@@ -87,33 +87,33 @@
         class="my-auto" />
     </v-col>
     <v-col
+      class="pa-0"
       cols="12"
-      lg="8"
-      class="pa-0">
+      lg="8">
       <portal-general-settings-branding-site-preview />
     </v-col>
     <v-col
+      class="pa-0"
       cols="12"
-      lg="4"
-      class="pa-0">
+      lg="4">
       <portal-general-settings-branding-options />
     </v-col>
     <v-col
       v-if="customStylesheetEnabled"
-      cols="12"
-      class="pa-0">
+      class="pa-0"
+      cols="12">
       <portal-general-settings-custom-style-input
         v-model="customCss"
         class="mt-8" />
     </v-col>
     <v-col
-      cols="12"
-      class="pa-0">
+      class="pa-0"
+      cols="12">
       <div class="d-flex justify-end mt-4 pb-2">
         <v-btn
           :aria-label="$t('generalSettings.cancel')"
-          :disabled="loading"
           class="btn cancel-button me-4"
+          :disabled="loading"
           elevation="0"
           @click="$emit('close')">
           <span class="text-none">
@@ -122,11 +122,11 @@
         </v-btn>
         <v-btn
           :aria-label="$t('generalSettings.apply')"
-          :disabled="!validForm"
-          :loading="loading"
-          color="primary"
           class="btn btn-primary register-button"
+          color="primary"
+          :disabled="!validForm"
           elevation="0"
+          :loading="loading"
           @click="save">
           <span class="text-capitalize">
             {{ $t('generalSettings.apply') }}
@@ -147,521 +147,521 @@
   </v-row>
 </template>
 <script>
-export default {
-  props: {
-    branding: {
-      type: Object,
-      default: null,
+  export default {
+    props: {
+      branding: {
+        type: Object,
+        default: null,
+      },
     },
-  },
-  data: () => ({
-    companyName: null,
-    primaryColor: null,
-    secondaryColor: null,
-    tertiaryColor: null,
-    errorMessage: null,
-    logoUploadId: null,
-    faviconUploadId: null,
-    defaultCustomPageWidth: '1320px',
-    defaultPageBackground: '#F0F0F0',
-    customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
-    customCss: null,
-    topBarStylingProperties: null,
-    isTopBarStylingPropertiesChanged: false,
-    sideBarStylingProperties: null,
-    isSideBarStylingPropertiesChanged: false,
-    drawerStylingProperties: null,
-    isDrawerStylingPropertiesChanged: false,
-    pageStylingProperties: null,
-    isPageStylingPropertiesChanged: false,
-    isThemeColorsChanged: false,
-    brandingStylingType: Object.freeze({
-      TOP_BAR: 'topBar',
-      SIDE_BAR: 'sideBar',
-      DRAWER: 'drawer',
+    data: () => ({
+      companyName: null,
+      primaryColor: null,
+      secondaryColor: null,
+      tertiaryColor: null,
+      errorMessage: null,
+      logoUploadId: null,
+      faviconUploadId: null,
+      defaultCustomPageWidth: '1320px',
+      defaultPageBackground: '#F0F0F0',
+      customStylesheetEnabled: eXo.env.portal.customStylesheetEnabled,
+      customCss: null,
+      topBarStylingProperties: null,
+      isTopBarStylingPropertiesChanged: false,
+      sideBarStylingProperties: null,
+      isSideBarStylingPropertiesChanged: false,
+      drawerStylingProperties: null,
+      isDrawerStylingPropertiesChanged: false,
+      pageStylingProperties: null,
+      isPageStylingPropertiesChanged: false,
+      isThemeColorsChanged: false,
+      brandingStylingType: Object.freeze({
+        TOP_BAR: 'topBar',
+        SIDE_BAR: 'sideBar',
+        DRAWER: 'drawer',
+      }),
     }),
-  }),
-  computed: {
-    defaultCompanyName() {
-      return this.branding?.companyName;
-    },
-    defaultPrimaryColor() {
-      return this.branding?.themeStyle?.primaryColor;
-    },
-    defaultSecondaryColor() {
-      return this.branding?.themeStyle?.secondaryColor;
-    },
-    defaultTertiaryColor() {
-      return this.branding?.themeStyle?.tertiaryColor;
-    },
-    defaultBorderRadius() {
-      return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
-    },
-    oldCustomStyle() {
-      return this.branding?.customCss;
-    },
-    isCustomStyleChanged() {
-      return this.oldCustomStyle !== this.customCss;
-    },
-    validForm() {
-      return this.changed && this.isValidForm;
-    },
-    isValidForm() {
-      return this.companyName?.length
+    computed: {
+      defaultCompanyName () {
+        return this.branding?.companyName;
+      },
+      defaultPrimaryColor () {
+        return this.branding?.themeStyle?.primaryColor;
+      },
+      defaultSecondaryColor () {
+        return this.branding?.themeStyle?.secondaryColor;
+      },
+      defaultTertiaryColor () {
+        return this.branding?.themeStyle?.tertiaryColor;
+      },
+      defaultBorderRadius () {
+        return this.branding?.themeStyle?.borderRadius && Number(this.branding.themeStyle.borderRadius.split('px')[0]);
+      },
+      isMobile () {
+        return eXo.vuetify.display.name.value === 'sm' || eXo.vuetify.display.name.value === 'xs' || eXo.vuetify.display.name.value === 'md';
+      },
+      oldCustomStyle () {
+        return this.branding?.customCss;
+      },
+      isCustomStyleChanged () {
+        return this.oldCustomStyle !== this.customCss;
+      },
+      validForm () {
+        return this.changed && this.isValidForm;
+      },
+      isValidForm () {
+        return this.companyName?.length
           && this.primaryColor?.length
           && this.secondaryColor?.length
           && this.tertiaryColor?.length;
-    },
-    changed() {
-      return this.branding
+      },
+      changed () {
+        return this.branding
           && (this.logoUploadId
-          || this.faviconUploadId
-          || this.isTopBarStylingPropertiesChanged
-          || this.isSideBarStylingPropertiesChanged
-          || this.isDrawerStylingPropertiesChanged
-          || this.isPageStylingPropertiesChanged
-          || this.isThemeColorsChanged
-          || this.isCustomStyleChanged);
+            || this.faviconUploadId
+            || this.isTopBarStylingPropertiesChanged
+            || this.isSideBarStylingPropertiesChanged
+            || this.isDrawerStylingPropertiesChanged
+            || this.isPageStylingPropertiesChanged
+            || this.isThemeColorsChanged
+            || this.isCustomStyleChanged);
+      },
     },
-  },
-  watch: {
-    errorMessage() {
-      if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
-      } else {
-        this.$root.$emit('close-alert-message');
-      }
-    },
-    changed() {
-      this.$emit('changed', this.changed);
-    },
-    primaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesPrimaryColor',
-          propertyValue: this.primaryColor
+    watch: {
+      errorMessage () {
+        if (this.errorMessage) {
+          this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
+        } else {
+          this.$root.$emit('close-alert-message');
         }
-      });
+      },
+      changed () {
+        this.$emit('changed', this.changed);
+      },
+      primaryColor () {
+        this.$root.$emit('refresh-style-property', {
+          detail: {
+            propertyName: '--allPagesPrimaryColor',
+            propertyValue: this.primaryColor,
+          },
+        });
+      },
+      secondaryColor () {
+        this.$root.$emit('refresh-style-property', {
+          detail: {
+            propertyName: '--allPagesSecondaryColor',
+            propertyValue: this.secondaryColor,
+          },
+        });
+      },
+      tertiaryColor () {
+        this.$root.$emit('refresh-style-property', {
+          detail: {
+            propertyName: '--allPagesTertiaryColor',
+            propertyValue: this.tertiaryColor,
+          },
+        });
+      },
+      companyName () {
+        this.$root.$emit('refresh-company-name', this.companyName);
+      },
+      branding () {
+        this.init();
+      },
     },
-    secondaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesSecondaryColor',
-          propertyValue: this.secondaryColor
-        }
-      });
+    created () {
+      this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
+      this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
+      this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
+      this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
+      this.$root.$on('reset-theme-colors', this.resetThemeStyleColors);
+      this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
+      this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
+      this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
+      this.$root.$on('update-page-styling-properties', this.updatePageStylingProperties);
+      this.$root.$on('reset-page-styling', this.resetPageStyling);
     },
-    tertiaryColor() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesTertiaryColor',
-          propertyValue: this.tertiaryColor
-        }
-      });
-    },
-    companyName() {
-      this.$root.$emit('refresh-company-name', this.companyName);
-    },
-    branding() {
+    mounted () {
       this.init();
     },
-  },
-  created() {
-    this.$root.$on('update-branding-theme-colors', this.updateBrandingThemeColors);
-    this.$root.$on('update-top-bar-styling-properties', this.updateTopBarProperties);
-    this.$root.$on('update-sidebar-styling-properties', this.updateSideBarProperties);
-    this.$root.$on('update-drawer-styling-properties', this.updateDrawerProperties);
-    this.$root.$on('reset-theme-colors', this.resetThemeStyleColors);
-    this.$root.$on('reset-top-bar-styling', this.resetTopBarStylingProperties);
-    this.$root.$on('reset-sidebar-styling', this.resetSidebarStylingProperties);
-    this.$root.$on('reset-drawer-styling', this.resetDrawerStylingProperties);
-    this.$root.$on('update-page-styling-properties', this.updatePageStylingProperties);
-    this.$root.$on('reset-page-styling', this.resetPageStyling);
-  },
-  mounted() {
-    this.init();
-  },
-  beforeDestroy() {
-    this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
-    this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
-    this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
-    this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
-    this.$root.$off('reset-theme-colors', this.resetThemeStyleColors);
-    this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
-    this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
-    this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
-    this.$root.$off('update-page-styling-properties', this.updatePageStylingProperties);
-    this.$root.$off('reset-page-styling', this.resetPageStyling);
-  },
-  methods: {
-    init() {
-      this.$refs.companyLogo?.resetLogo();
-      this.$refs.companyFavicon?.resetFavicon();
-      this.companyName = this.defaultCompanyName;
-      this.primaryColor = this.defaultPrimaryColor;
-      this.secondaryColor = this.defaultSecondaryColor;
-      this.tertiaryColor = this.defaultTertiaryColor;
-      this.customCss = this.branding?.customCss;
-      this.pageStylingProperties = {
-        pageBackground: this.branding?.pageBackground || null,
-        pageBackgroundSize: this.branding?.pageBackgroundSize || null,
-        pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
-        pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
-        pageBackgroundColor: this.branding?.pageBackgroundColor || null,
-        pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
-        borderRadius: this.defaultBorderRadius,
-        pageWidth: this.branding.pageWidth
-      };
-      this.logoUploadId = null;
-      this.faviconUploadId = null;
-      this.errorMessage = null;
-      this.topBarStylingProperties = this.createStylingProperties(this.branding.themeStyle,this.branding.topBarBackground, this.brandingStylingType.TOP_BAR);
-      this.sideBarStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.sideBarBackground, this.brandingStylingType.SIDE_BAR);
-      this.drawerStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.drawerBackground, this.brandingStylingType.DRAWER);
+    beforeUnmount () {
+      this.$root.$off('update-branding-theme-colors', this.updateBrandingThemeColors);
+      this.$root.$off('update-top-bar-styling-properties', this.updateTopBarProperties);
+      this.$root.$off('update-sidebar-styling-properties', this.updateSideBarProperties);
+      this.$root.$off('update-drawer-styling-properties', this.updateDrawerProperties);
+      this.$root.$off('reset-theme-colors', this.resetThemeStyleColors);
+      this.$root.$off('reset-top-bar-styling', this.resetTopBarStylingProperties);
+      this.$root.$off('reset-sidebar-styling', this.resetSidebarStylingProperties);
+      this.$root.$off('reset-drawer-styling', this.resetDrawerStylingProperties);
+      this.$root.$off('update-page-styling-properties', this.updatePageStylingProperties);
+      this.$root.$off('reset-page-styling', this.resetPageStyling);
     },
-    save() {
-      this.errorMessage = null;
-      const topBarBackground = this.topBarStylingProperties.topBarBackground;
-      delete this.topBarStylingProperties.topBarBackground;
-      const sideBarBackground = this.sideBarStylingProperties.sideBarBackground;
-      delete this.sideBarStylingProperties.sideBarBackground;
-      const drawerBackground = this.drawerStylingProperties.drawerBackground;
-      delete this.drawerStylingProperties.drawerBackground;
-      let themeStyle = {
-        primaryColor: this.primaryColor,
-        secondaryColor: this.secondaryColor,
-        tertiaryColor: this.tertiaryColor,
-        borderRadius: `${this.pageStylingProperties.borderRadius}px`,
-      };
-      themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
-      themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
-      themeStyle = Object.assign(this.drawerStylingProperties, themeStyle);
-      const branding = Object.assign({}, this.branding);
-      Object.assign(branding, {
-        companyName: this.companyName,
-        logo: {
-          uploadId: this.logoUploadId,
-        },
-        favicon: {
-          uploadId: this.faviconUploadId,
-        },
-        themeStyle: themeStyle,
-        topBarBackground: topBarBackground,
-        sideBarBackground: sideBarBackground,
-        drawerBackground: drawerBackground,
-        pageBackground: {
-          uploadId: this.pageStylingProperties.pageBackground?.uploadId,
-        },
-        pageBackgroundSize: this.pageStylingProperties.pageBackgroundSize || null,
-        pageBackgroundRepeat: this.pageStylingProperties.pageBackgroundRepeat || null,
-        pageBackgroundPosition: this.pageStylingProperties.pageBackgroundPosition || null,
-        pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
-        pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
-        pageWidth: this.pageStylingProperties.pageWidth,
-        customCss: this.customCss,
-      });
-      this.$root.loading = true;
-      return this.$brandingService.updateBrandingInformation(branding)
-        .then(() => this.$emit('saved'))
-        .then(() => {
-          this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
-          this.$root.$emit('refresh-iframe');
-        })
-        .catch(e => this.errorMessage = String(e))
-        .finally(() => this.$root.loading = false);
-    },
-    updateBrandingThemeColors(primary, secondary, tertiary) {
-      this.primaryColor = primary;
-      this.secondaryColor = secondary;
-      this.tertiaryColor = tertiary;
-      this.isThemeColorsChanged = true;
-    },
-    updateTopBarProperties(topBarBackgroundProperties, topBarTextProperties) {
-      this.topBarStylingProperties = this.updateStylingProperties(topBarBackgroundProperties, topBarTextProperties, this.brandingStylingType.TOP_BAR);
-      this.isTopBarStylingPropertiesChanged = true;
-      this.refreshTopBarPreview();
-    },
-    refreshTopBarPreview() {
-      const properties = {
-        '--allPagesTopBarTextColor': this.topBarStylingProperties.topBarTextColor,
-        '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
-        '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
-        '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
-        '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
-        '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
-        '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
-        '--allPagesTopBarBackgroundSize': this.topBarStylingProperties.topBarBackgroundSize,
-      };
+    methods: {
+      init () {
+        this.$refs.companyLogo?.resetLogo();
+        this.$refs.companyFavicon?.resetFavicon();
+        this.companyName = this.defaultCompanyName;
+        this.primaryColor = this.defaultPrimaryColor;
+        this.secondaryColor = this.defaultSecondaryColor;
+        this.tertiaryColor = this.defaultTertiaryColor;
+        this.customCss = this.branding?.customCss;
+        this.pageStylingProperties = {
+          pageBackground: this.branding?.pageBackground || null,
+          pageBackgroundSize: this.branding?.pageBackgroundSize || null,
+          pageBackgroundRepeat: this.branding?.pageBackgroundRepeat || null,
+          pageBackgroundPosition: this.branding?.pageBackgroundPosition || null,
+          pageBackgroundColor: this.branding?.pageBackgroundColor || null,
+          pageBackgroundEffect: this.branding?.pageBackgroundEffect || null,
+          borderRadius: this.defaultBorderRadius,
+          pageWidth: this.branding.pageWidth,
+        };
+        this.logoUploadId = null;
+        this.faviconUploadId = null;
+        this.errorMessage = null;
+        this.topBarStylingProperties = this.createStylingProperties(this.branding.themeStyle,this.branding.topBarBackground, this.brandingStylingType.TOP_BAR);
+        this.sideBarStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.sideBarBackground, this.brandingStylingType.SIDE_BAR);
+        this.drawerStylingProperties = this.createStylingProperties(this.branding.themeStyle, this.branding.drawerBackground, this.brandingStylingType.DRAWER);
+      },
+      save () {
+        this.errorMessage = null;
+        const topBarBackground = this.topBarStylingProperties.topBarBackground;
+        delete this.topBarStylingProperties.topBarBackground;
+        const sideBarBackground = this.sideBarStylingProperties.sideBarBackground;
+        delete this.sideBarStylingProperties.sideBarBackground;
+        const drawerBackground = this.drawerStylingProperties.drawerBackground;
+        delete this.drawerStylingProperties.drawerBackground;
+        let themeStyle = {
+          primaryColor: this.primaryColor,
+          secondaryColor: this.secondaryColor,
+          tertiaryColor: this.tertiaryColor,
+          borderRadius: `${this.pageStylingProperties.borderRadius}px`,
+        };
+        themeStyle = Object.assign(this.topBarStylingProperties, themeStyle);
+        themeStyle = Object.assign(this.sideBarStylingProperties, themeStyle);
+        themeStyle = Object.assign(this.drawerStylingProperties, themeStyle);
+        const branding = Object.assign({}, this.branding);
+        Object.assign(branding, {
+          companyName: this.companyName,
+          logo: {
+            uploadId: this.logoUploadId,
+          },
+          favicon: {
+            uploadId: this.faviconUploadId,
+          },
+          themeStyle,
+          topBarBackground,
+          sideBarBackground,
+          drawerBackground,
+          pageBackground: {
+            uploadId: this.pageStylingProperties.pageBackground?.uploadId,
+          },
+          pageBackgroundSize: this.pageStylingProperties.pageBackgroundSize || null,
+          pageBackgroundRepeat: this.pageStylingProperties.pageBackgroundRepeat || null,
+          pageBackgroundPosition: this.pageStylingProperties.pageBackgroundPosition || null,
+          pageBackgroundColor: this.pageStylingProperties.pageBackgroundColor || null,
+          pageBackgroundEffect: this.pageStylingProperties.pageBackgroundEffect || null,
+          pageWidth: this.pageStylingProperties.pageWidth,
+          customCss: this.customCss,
+        });
+        this.$root.loading = true;
+        return eXo.$brandingService.updateBrandingInformation(branding)
+          .then(() => this.$emit('saved'))
+          .then(() => {
+            this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success');
+            this.$root.$emit('refresh-iframe');
+          })
+          .catch(e => this.errorMessage = String(e))
+          .finally(() => this.$root.loading = false);
+      },
+      updateBrandingThemeColors (primary, secondary, tertiary) {
+        this.primaryColor = primary;
+        this.secondaryColor = secondary;
+        this.tertiaryColor = tertiary;
+        this.isThemeColorsChanged = true;
+      },
+      updateTopBarProperties (topBarBackgroundProperties, topBarTextProperties) {
+        this.topBarStylingProperties = this.updateStylingProperties(topBarBackgroundProperties, topBarTextProperties, this.brandingStylingType.TOP_BAR);
+        this.isTopBarStylingPropertiesChanged = true;
+        this.refreshTopBarPreview();
+      },
+      refreshTopBarPreview () {
+        const properties = {
+          '--allPagesTopBarTextColor': this.topBarStylingProperties.topBarTextColor,
+          '--allPagesTopBarTextFontSize': this.topBarStylingProperties.topBarTextFontSize,
+          '--allPagesTopBarTextFontStyle': this.topBarStylingProperties.topBarTextFontStyle,
+          '--allPagesTopBarTextFontWeight': this.topBarStylingProperties.topBarTextFontWeight,
+          '--allPagesTopBarBackgroundColor': this.topBarStylingProperties.topBarBackgroundColor,
+          '--allPagesTopBarBackgroundPosition': this.topBarStylingProperties.topBarBackgroundPosition,
+          '--allPagesTopBarBackgroundRepeat': this.topBarStylingProperties.topBarBackgroundRepeat,
+          '--allPagesTopBarBackgroundSize': this.topBarStylingProperties.topBarBackgroundSize,
+        };
 
-      // Determine the background image property
-      if (this.topBarStylingProperties.topBarBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
-        if (this.topBarStylingProperties?.topBarBackgroundImage) {
-          url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
+        // Determine the background image property
+        if (this.topBarStylingProperties.topBarBackground?.data) {
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.topBarStylingProperties.topBarBackground?.data)})`;
+          if (this.topBarStylingProperties?.topBarBackgroundImage) {
+            url = `${url}, ${this.topBarStylingProperties.topBarBackgroundImage}`;
+          }
+          properties['--allPagesTopBarBackgroundImage'] = url;
+        } else if (this.topBarStylingProperties.topBarBackground?.fileId) {
+          properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v=") ${this.topBarStylingProperties?.topBarBackgroundImage || ''}`;
+        } else if (this.topBarStylingProperties?.topBarBackgroundImage) {
+          properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
+        } else {
+          properties['--allPagesTopBarBackgroundImage'] = 'none';
         }
-        properties['--allPagesTopBarBackgroundImage'] = url;
-      } else if (this.topBarStylingProperties.topBarBackground?.fileId) {
-        properties['--allPagesTopBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/topBarBackground?v=") ${', ' && this.topBarStylingProperties?.topBarBackgroundImage || ''}`;
-      } else if (this.topBarStylingProperties?.topBarBackgroundImage) {
-        properties['--allPagesTopBarBackgroundImage'] = this.topBarStylingProperties?.topBarBackgroundImage;
-      } else {
-        properties['--allPagesTopBarBackgroundImage'] = 'none';
-      }
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-    },
-    updateSideBarProperties(sideBarBackgroundProperties, sideBarTextProperties) {
-      this.sideBarStylingProperties = this.updateStylingProperties(sideBarBackgroundProperties, sideBarTextProperties, this.brandingStylingType.SIDE_BAR);
-      this.isSideBarStylingPropertiesChanged = true;
-      this.refreshSideBarPreview();
-    },
-    refreshSideBarPreview() {
-      const properties = {
-        '--allPagesSideBarTextColor': this.sideBarStylingProperties.sideBarTextColor,
-        '--allPagesSideBarTextFontSize': this.sideBarStylingProperties.sideBarTextFontSize,
-        '--allPagesSideBarTextFontStyle': this.sideBarStylingProperties.sideBarTextFontStyle,
-        '--allPagesSideBarTextFontWeight': this.sideBarStylingProperties.sideBarTextFontWeight,
-        '--allPagesSideBarTextSubtitleColor': this.sideBarStylingProperties.sideBarTextSubtitleColor,
-        '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
-        '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
-        '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
-        '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
-        '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
-        '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
-        '--allPagesSideBarBackgroundSize': this.sideBarStylingProperties.sideBarBackgroundSize,
-      };
+        this.$root.$emit('refresh-style-properties', { detail: properties });
+      },
+      updateSideBarProperties (sideBarBackgroundProperties, sideBarTextProperties) {
+        this.sideBarStylingProperties = this.updateStylingProperties(sideBarBackgroundProperties, sideBarTextProperties, this.brandingStylingType.SIDE_BAR);
+        this.isSideBarStylingPropertiesChanged = true;
+        this.refreshSideBarPreview();
+      },
+      refreshSideBarPreview () {
+        const properties = {
+          '--allPagesSideBarTextColor': this.sideBarStylingProperties.sideBarTextColor,
+          '--allPagesSideBarTextFontSize': this.sideBarStylingProperties.sideBarTextFontSize,
+          '--allPagesSideBarTextFontStyle': this.sideBarStylingProperties.sideBarTextFontStyle,
+          '--allPagesSideBarTextFontWeight': this.sideBarStylingProperties.sideBarTextFontWeight,
+          '--allPagesSideBarTextSubtitleColor': this.sideBarStylingProperties.sideBarTextSubtitleColor,
+          '--allPagesSideBarTextSubtitleFontSize': this.sideBarStylingProperties.sideBarTextSubtitleFontSize,
+          '--allPagesSideBarTextSubtitleFontStyle': this.sideBarStylingProperties.sideBarTextSubtitleFontStyle,
+          '--allPagesSideBarTextSubtitleFontWeight': this.sideBarStylingProperties.sideBarTextSubtitleFontWeight,
+          '--allPagesSideBarBackgroundColor': this.sideBarStylingProperties.sideBarBackgroundColor,
+          '--allPagesSideBarBackgroundPosition': this.sideBarStylingProperties.sideBarBackgroundPosition,
+          '--allPagesSideBarBackgroundRepeat': this.sideBarStylingProperties.sideBarBackgroundRepeat,
+          '--allPagesSideBarBackgroundSize': this.sideBarStylingProperties.sideBarBackgroundSize,
+        };
 
-      // Determine the background image property
-      if (this.sideBarStylingProperties.sideBarBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
-        if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
-          url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
+        // Determine the background image property
+        if (this.sideBarStylingProperties.sideBarBackground?.data) {
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.sideBarStylingProperties.sideBarBackground?.data)})`;
+          if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
+            url = `${url}, ${this.sideBarStylingProperties.sideBarBackgroundImage}`;
+          }
+          properties['--allPagesSideBarBackgroundImage'] = url;
+        } else if (this.sideBarStylingProperties.sideBarBackground?.fileId) {
+          properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v=") ${this.sideBarStylingProperties?.backgroundImage || ';'}`;
+        } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
+          properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
+        } else {
+          properties['--allPagesSideBarBackgroundImage'] = 'none';
         }
-        properties['--allPagesSideBarBackgroundImage'] = url;
-      } else if (this.sideBarStylingProperties.sideBarBackground?.fileId) {
-        properties['--allPagesSideBarBackgroundImage'] = `url(/portal/rest/v1/platform/branding/sideBarBackground?v=") ${', ' && this.sideBarStylingProperties?.backgroundImage || ';'}`;
-      } else if (this.sideBarStylingProperties?.sideBarBackgroundImage) {
-        properties['--allPagesSideBarBackgroundImage'] = this.sideBarStylingProperties?.sideBarBackgroundImage;
-      } else {
-        properties['--allPagesSideBarBackgroundImage'] = 'none';
-      }
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-    },
-    updateDrawerProperties(drawerBackgroundProperties, drawerTextProperties) {
-      this.drawerStylingProperties = this.updateStylingProperties(drawerBackgroundProperties, drawerTextProperties, this.brandingStylingType.DRAWER);
-      this.isDrawerStylingPropertiesChanged = true;
-      this.refreshDrawerPreview();
-    },
-    refreshDrawerPreview() {
-      const properties = {
-        '--allPagesDrawerTextColor': this.drawerStylingProperties.drawerTextColor,
-        '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
-        '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
-        '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
-        '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
-        '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
-        '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
-        '--allPagesDrawerTextSubtitleFontWeight': this.drawerStylingProperties.drawerTextSubtitleFontWeight,
-        '--allPagesDrawerTextTitleColor': this.drawerStylingProperties.drawerTextTitleColor,
-        '--allPagesDrawerTextTitleFontSize': this.drawerStylingProperties.drawerTextTitleFontSize,
-        '--allPagesDrawerTextTitleFontStyle': this.drawerStylingProperties.drawerTextTitleFontStyle,
-        '--allPagesDrawerTextTitleFontWeight': this.drawerStylingProperties.drawerTextTitleFontWeight,
-        '--allPagesDrawerTextHeaderColor': this.drawerStylingProperties.drawerTextHeaderColor,
-        '--allPagesDrawerTextHeaderFontSize': this.drawerStylingProperties.drawerTextHeaderFontSize,
-        '--allPagesDrawerTextHeaderFontStyle': this.drawerStylingProperties.drawerTextHeaderFontStyle,
-        '--allPagesDrawerTextHeaderFontWeight': this.drawerStylingProperties.drawerTextHeaderFontWeight,
-        '--allPagesDrawerBackgroundColor': this.drawerStylingProperties.drawerBackgroundColor,
-        '--allPagesDrawerBackgroundPosition': this.drawerStylingProperties.drawerBackgroundPosition,
-        '--allPagesDrawerBackgroundRepeat': this.drawerStylingProperties.drawerBackgroundRepeat,
-        '--allPagesDrawerBackgroundSize': this.drawerStylingProperties.drawerBackgroundSize,
-      };
+        this.$root.$emit('refresh-style-properties', { detail: properties });
+      },
+      updateDrawerProperties (drawerBackgroundProperties, drawerTextProperties) {
+        this.drawerStylingProperties = this.updateStylingProperties(drawerBackgroundProperties, drawerTextProperties, this.brandingStylingType.DRAWER);
+        this.isDrawerStylingPropertiesChanged = true;
+        this.refreshDrawerPreview();
+      },
+      refreshDrawerPreview () {
+        const properties = {
+          '--allPagesDrawerTextColor': this.drawerStylingProperties.drawerTextColor,
+          '--allPagesDrawerTextFontSize': this.drawerStylingProperties.drawerTextFontSize,
+          '--allPagesDrawerTextFontStyle': this.drawerStylingProperties.drawerTextFontStyle,
+          '--allPagesDrawerTextFontWeight': this.drawerStylingProperties.drawerTextFontWeight,
+          '--allPagesDrawerTextSubtitleColor': this.drawerStylingProperties.drawerTextSubtitleColor,
+          '--allPagesDrawerTextSubtitleFontSize': this.drawerStylingProperties.drawerTextSubtitleFontSize,
+          '--allPagesDrawerTextSubtitleFontStyle': this.drawerStylingProperties.drawerTextSubtitleFontStyle,
+          '--allPagesDrawerTextSubtitleFontWeight': this.drawerStylingProperties.drawerTextSubtitleFontWeight,
+          '--allPagesDrawerTextTitleColor': this.drawerStylingProperties.drawerTextTitleColor,
+          '--allPagesDrawerTextTitleFontSize': this.drawerStylingProperties.drawerTextTitleFontSize,
+          '--allPagesDrawerTextTitleFontStyle': this.drawerStylingProperties.drawerTextTitleFontStyle,
+          '--allPagesDrawerTextTitleFontWeight': this.drawerStylingProperties.drawerTextTitleFontWeight,
+          '--allPagesDrawerTextHeaderColor': this.drawerStylingProperties.drawerTextHeaderColor,
+          '--allPagesDrawerTextHeaderFontSize': this.drawerStylingProperties.drawerTextHeaderFontSize,
+          '--allPagesDrawerTextHeaderFontStyle': this.drawerStylingProperties.drawerTextHeaderFontStyle,
+          '--allPagesDrawerTextHeaderFontWeight': this.drawerStylingProperties.drawerTextHeaderFontWeight,
+          '--allPagesDrawerBackgroundColor': this.drawerStylingProperties.drawerBackgroundColor,
+          '--allPagesDrawerBackgroundPosition': this.drawerStylingProperties.drawerBackgroundPosition,
+          '--allPagesDrawerBackgroundRepeat': this.drawerStylingProperties.drawerBackgroundRepeat,
+          '--allPagesDrawerBackgroundSize': this.drawerStylingProperties.drawerBackgroundSize,
+        };
 
-      // Determine the background image property
-      if (this.drawerStylingProperties.drawerBackground?.data) {
-        let url = `url(${this.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
-        if (this.drawerStylingProperties?.drawerBackgroundImage) {
-          url = `${url}, ${this.drawerStylingProperties.drawerBackgroundImage}`;
+        // Determine the background image property
+        if (this.drawerStylingProperties.drawerBackground?.data) {
+          let url = `url(${eXo.$utils.convertImageDataAsSrc(this.drawerStylingProperties.drawerBackground?.data)})`;
+          if (this.drawerStylingProperties?.drawerBackgroundImage) {
+            url = `${url}, ${this.drawerStylingProperties.drawerBackgroundImage}`;
+          }
+          properties['--allPagesDrawerBackgroundImage'] = url;
+        } else if (this.drawerStylingProperties.drawerBackground?.fileId && this.drawerStylingProperties?.drawerBackgroundImage) {
+          properties['--allPagesDrawerBackgroundImage'] = `url(/portal/rest/v1/platform/branding/drawerBackground?v="), ${this.drawerStylingProperties?.drawerBackgroundImage}`;
+        } else if (this.drawerStylingProperties?.drawerBackgroundImage) {
+          properties['--allPagesDrawerBackgroundImage'] = this.drawerStylingProperties?.drawerBackgroundImage;
+        } else {
+          properties['--allPagesDrawerBackgroundImage'] = 'none';
         }
-        properties['--allPagesDrawerBackgroundImage'] = url;
-      } else if (this.drawerStylingProperties.drawerBackground?.fileId && this.drawerStylingProperties?.drawerBackgroundImage) {
-        properties['--allPagesDrawerBackgroundImage'] = `url(/portal/rest/v1/platform/branding/drawerBackground?v="), ${this.drawerStylingProperties?.drawerBackgroundImage}`;
-      } else if (this.drawerStylingProperties?.drawerBackgroundImage) {
-        properties['--allPagesDrawerBackgroundImage'] = this.drawerStylingProperties?.drawerBackgroundImage;
-      } else {
-        properties['--allPagesDrawerBackgroundImage'] = 'none';
-      }
-      this.$root.$emit('refresh-style-properties', { detail: properties });
-    },
-    createStylingProperties(themeStyle, background, type) {
-      const properties =  {
-        [`${type}BackgroundColor`]: themeStyle?.[`${type}BackgroundColor`] || null,
-        [`${type}BackgroundPosition`]: themeStyle?.[`${type}BackgroundPosition`] || null,
-        [`${type}BackgroundRepeat`]: themeStyle?.[`${type}BackgroundRepeat`] || null,
-        [`${type}BackgroundSize`]: themeStyle?.[`${type}BackgroundSize`] || null,
-        [`${type}BackgroundImage`]: themeStyle?.[`${type}BackgroundImage`] || null,
-        [`${type}Background`]: background || null,
-        [`${type}TextColor`]: themeStyle?.[`${type}TextColor`] || null,
-        [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
-        [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
-        [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
-      };
-      if (type !== 'topBar') {
-        properties[`${type}TextSubtitleColor`] = themeStyle?.[`${type}TextSubtitleColor`] || null;
-        properties[`${type}TextSubtitleFontSize`] = themeStyle?.[`${type}TextSubtitleFontSize`] || null;
-        properties[`${type}TextSubtitleFontStyle`] = themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
-        properties[`${type}TextSubtitleFontWeight`] = themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
-      }
-      if (type !== 'topBar' && type !== 'sideBar') {
-        properties[`${type}TextTitleColor`] = themeStyle?.[`${type}TextTitleColor`] || null;
-        properties[`${type}TextTitleFontSize`] = themeStyle?.[`${type}TextTitleFontSize`] || null;
-        properties[`${type}TextTitleFontStyle`] = themeStyle?.[`${type}TextTitleFontStyle`] || null;
-        properties[`${type}TextTitleFontWeight`] = themeStyle?.[`${type}TextTitleFontWeight`] || null;
-        properties[`${type}TextHeaderColor`] = themeStyle?.[`${type}TextHeaderColor`] || null;
-        properties[`${type}TextHeaderFontSize`] = themeStyle?.[`${type}TextHeaderFontSize`] || null;
-        properties[`${type}TextHeaderFontStyle`] = themeStyle?.[`${type}TextHeaderFontStyle`] || null;
-        properties[`${type}TextHeaderFontWeight`] = themeStyle?.[`${type}TextHeaderFontWeight`] || null;
-      }
-      return properties;
-    },
-    updateStylingProperties(backgroundProperties, textProperties, type) {
-      const properties =  {
-        [`${type}BackgroundColor`]: backgroundProperties.backgroundColor,
-        [`${type}BackgroundPosition`]: backgroundProperties.backgroundPosition,
-        [`${type}BackgroundRepeat`]: backgroundProperties.backgroundRepeat || 'unset',
-        [`${type}BackgroundSize`]: backgroundProperties.backgroundSize || 'unset',
-        [`${type}BackgroundImage`]: backgroundProperties.backgroundEffect || null,
-        [`${type}Background`]: backgroundProperties.background,
-        [`${type}TextColor`]: textProperties.textColor,
-        [`${type}TextFontSize`]: textProperties.textFontSize,
-        [`${type}TextFontStyle`]: textProperties.textFontStyle,
-        [`${type}TextFontWeight`]: textProperties.textFontWeight,
-      };
-      if (type !== this.brandingStylingType.TOP_BAR) {
-        properties[`${type}TextSubtitleColor`] = textProperties.textSubtitleColor;
-        properties[`${type}TextSubtitleFontSize`] = textProperties.textSubtitleFontSize;
-        properties[`${type}TextSubtitleFontStyle`] = textProperties.textSubtitleFontStyle;
-        properties[`${type}TextSubtitleFontWeight`] = textProperties.textSubtitleFontWeight;
-      }
-      // Add title and header properties if type is drawer
-      if (type !== this.brandingStylingType.TOP_BAR && type !== this.brandingStylingType.SIDE_BAR) {
-        properties[`${type}TextTitleColor`] = textProperties.textTitleColor;
-        properties[`${type}TextTitleFontSize`] = textProperties.textTitleFontSize;
-        properties[`${type}TextTitleFontStyle`] = textProperties.textTitleFontStyle;
-        properties[`${type}TextTitleFontWeight`] = textProperties.textTitleFontWeight;
-        properties[`${type}TextHeaderColor`] = textProperties.textHeaderColor;
-        properties[`${type}TextHeaderFontSize`] = textProperties.textHeaderFontSize;
-        properties[`${type}TextHeaderFontStyle`] = textProperties.textHeaderFontStyle;
-        properties[`${type}TextHeaderFontWeight`] = textProperties.textHeaderFontWeight;
-      }
-      return properties;
-    },
-    resetThemeStyleColors() {
-      this.primaryColor = this.$root.defaultBrandingThemeStyle?.primaryColor;
-      this.secondaryColor = this.$root.defaultBrandingThemeStyle?.secondaryColor;
-      this.tertiaryColor = this.$root.defaultBrandingThemeStyle?.tertiaryColor;
-    },
-    resetTopBarStylingProperties() {
-      this.topBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.TOP_BAR);
-      this.isTopBarStylingPropertiesChanged = true;
-      this.refreshTopBarPreview();
-    },
-    resetSidebarStylingProperties() {
-      this.sideBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.SIDE_BAR);
-      this.isSideBarStylingPropertiesChanged = true;
-      this.refreshSideBarPreview();
-    },
-    resetDrawerStylingProperties() {
-      this.drawerStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      }, this.brandingStylingType.DRAWER);
-      this.isDrawerStylingPropertiesChanged = true;
-      this.refreshDrawerPreview();
-    },
-    updatePageStylingProperties(backgroundProperties, borderRadius, pageWidth) {
-      this.pageStylingProperties = {
-        pageBackground: backgroundProperties?.background,
-        pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
-        pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
-        pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
-        pageBackgroundColor: backgroundProperties?.backgroundColor ,
-        pageBackgroundEffect: backgroundProperties?.backgroundEffect,
-        borderRadius: borderRadius,
-        pageWidth: pageWidth
-      };
-      this.isPageStylingPropertiesChanged = true;
-      this.updatePagePropertiesPreview();
-    },
-    updatePagePropertiesPreview() {
-      this.$root.$emit('refresh-style-property', {
-        detail: {
-          propertyName: '--allPagesBorderRadius',
-          propertyValue: `${this.pageStylingProperties.borderRadius}px`
+        this.$root.$emit('refresh-style-properties', { detail: properties });
+      },
+      createStylingProperties (themeStyle, background, type) {
+        const properties =  {
+          [`${type}BackgroundColor`]: themeStyle?.[`${type}BackgroundColor`] || null,
+          [`${type}BackgroundPosition`]: themeStyle?.[`${type}BackgroundPosition`] || null,
+          [`${type}BackgroundRepeat`]: themeStyle?.[`${type}BackgroundRepeat`] || null,
+          [`${type}BackgroundSize`]: themeStyle?.[`${type}BackgroundSize`] || null,
+          [`${type}BackgroundImage`]: themeStyle?.[`${type}BackgroundImage`] || null,
+          [`${type}Background`]: background || null,
+          [`${type}TextColor`]: themeStyle?.[`${type}TextColor`] || null,
+          [`${type}TextFontSize`]: themeStyle?.[`${type}TextFontSize`] || null,
+          [`${type}TextFontStyle`]: themeStyle?.[`${type}TextFontStyle`] || null,
+          [`${type}TextFontWeight`]: themeStyle?.[`${type}TextFontWeight`] || null,
+        };
+        if (type !== 'topBar') {
+          properties[`${type}TextSubtitleColor`] = themeStyle?.[`${type}TextSubtitleColor`] || null;
+          properties[`${type}TextSubtitleFontSize`] = themeStyle?.[`${type}TextSubtitleFontSize`] || null;
+          properties[`${type}TextSubtitleFontStyle`] = themeStyle?.[`${type}TextSubtitleFontStyle`] || null;
+          properties[`${type}TextSubtitleFontWeight`] = themeStyle?.[`${type}TextSubtitleFontWeight`] || null;
         }
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundColor',
-        value: this.pageStylingProperties.pageBackgroundColor || this.defaultBackgroundColor,
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundRepeat',
-        value: this.pageStylingProperties.pageBackgroundRepeat || 'no-repeat',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundSize',
-        value: this.pageStylingProperties.pageBackgroundSize || 'unset',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundPosition',
-        value: this.pageStylingProperties.pageBackgroundPosition || 'unset',
-      });
-      this.$root.$emit('refresh-body-style-property', {
-        name: 'background-image',
-        value: null,
-      });
-      let url = null;
-      if (this.pageStylingProperties.pageBackground?.data) {
-        url = `url(${this.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
-        if (this.pageStylingProperties?.pageBackgroundEffect) {
-          url = `${url}, ${this.pageStylingProperties.pageBackgroundEffect}`;
+        if (type !== 'topBar' && type !== 'sideBar') {
+          properties[`${type}TextTitleColor`] = themeStyle?.[`${type}TextTitleColor`] || null;
+          properties[`${type}TextTitleFontSize`] = themeStyle?.[`${type}TextTitleFontSize`] || null;
+          properties[`${type}TextTitleFontStyle`] = themeStyle?.[`${type}TextTitleFontStyle`] || null;
+          properties[`${type}TextTitleFontWeight`] = themeStyle?.[`${type}TextTitleFontWeight`] || null;
+          properties[`${type}TextHeaderColor`] = themeStyle?.[`${type}TextHeaderColor`] || null;
+          properties[`${type}TextHeaderFontSize`] = themeStyle?.[`${type}TextHeaderFontSize`] || null;
+          properties[`${type}TextHeaderFontStyle`] = themeStyle?.[`${type}TextHeaderFontStyle`] || null;
+          properties[`${type}TextHeaderFontWeight`] = themeStyle?.[`${type}TextHeaderFontWeight`] || null;
         }
-      } else if (this.pageStylingProperties.pageBackground?.fileId && this.pageStylingProperties?.pageBackgroundEffect) {
-        url = `url(/portal/rest/v1/platform/branding/pageBackground?v="), ${this.pageStylingProperties?.pageBackgroundEffect}`;
-      } else if (this.pageStylingProperties?.pageBackgroundEffect) {
-        url = this.pageStylingProperties?.pageBackgroundEffect;
-      }
-      this.$root.$emit('refresh-body-style-property', {
-        name: '--allPagesBackgroundImage',
-        value: url !== null && url || 'none',
-      });
+        return properties;
+      },
+      updateStylingProperties (backgroundProperties, textProperties, type) {
+        const properties =  {
+          [`${type}BackgroundColor`]: backgroundProperties.backgroundColor,
+          [`${type}BackgroundPosition`]: backgroundProperties.backgroundPosition,
+          [`${type}BackgroundRepeat`]: backgroundProperties.backgroundRepeat || 'unset',
+          [`${type}BackgroundSize`]: backgroundProperties.backgroundSize || 'unset',
+          [`${type}BackgroundImage`]: backgroundProperties.backgroundEffect || null,
+          [`${type}Background`]: backgroundProperties.background,
+          [`${type}TextColor`]: textProperties.textColor,
+          [`${type}TextFontSize`]: textProperties.textFontSize,
+          [`${type}TextFontStyle`]: textProperties.textFontStyle,
+          [`${type}TextFontWeight`]: textProperties.textFontWeight,
+        };
+        if (type !== this.brandingStylingType.TOP_BAR) {
+          properties[`${type}TextSubtitleColor`] = textProperties.textSubtitleColor;
+          properties[`${type}TextSubtitleFontSize`] = textProperties.textSubtitleFontSize;
+          properties[`${type}TextSubtitleFontStyle`] = textProperties.textSubtitleFontStyle;
+          properties[`${type}TextSubtitleFontWeight`] = textProperties.textSubtitleFontWeight;
+        }
+        // Add title and header properties if type is drawer
+        if (type !== this.brandingStylingType.TOP_BAR && type !== this.brandingStylingType.SIDE_BAR) {
+          properties[`${type}TextTitleColor`] = textProperties.textTitleColor;
+          properties[`${type}TextTitleFontSize`] = textProperties.textTitleFontSize;
+          properties[`${type}TextTitleFontStyle`] = textProperties.textTitleFontStyle;
+          properties[`${type}TextTitleFontWeight`] = textProperties.textTitleFontWeight;
+          properties[`${type}TextHeaderColor`] = textProperties.textHeaderColor;
+          properties[`${type}TextHeaderFontSize`] = textProperties.textHeaderFontSize;
+          properties[`${type}TextHeaderFontStyle`] = textProperties.textHeaderFontStyle;
+          properties[`${type}TextHeaderFontWeight`] = textProperties.textHeaderFontWeight;
+        }
+        return properties;
+      },
+      resetThemeStyleColors () {
+        this.primaryColor = this.$root.defaultBrandingThemeStyle?.primaryColor;
+        this.secondaryColor = this.$root.defaultBrandingThemeStyle?.secondaryColor;
+        this.tertiaryColor = this.$root.defaultBrandingThemeStyle?.tertiaryColor;
+      },
+      resetTopBarStylingProperties () {
+        this.topBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+          data: null,
+          fileId: 0,
+          updatedDate: 0,
+          uploadId: 0,
+        }, this.brandingStylingType.TOP_BAR);
+        this.isTopBarStylingPropertiesChanged = true;
+        this.refreshTopBarPreview();
+      },
+      resetSidebarStylingProperties () {
+        this.sideBarStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+          data: null,
+          fileId: 0,
+          updatedDate: 0,
+          uploadId: 0,
+        }, this.brandingStylingType.SIDE_BAR);
+        this.isSideBarStylingPropertiesChanged = true;
+        this.refreshSideBarPreview();
+      },
+      resetDrawerStylingProperties () {
+        this.drawerStylingProperties = this.createStylingProperties(this.$root.defaultBrandingThemeStyle, {
+          data: null,
+          fileId: 0,
+          updatedDate: 0,
+          uploadId: 0,
+        }, this.brandingStylingType.DRAWER);
+        this.isDrawerStylingPropertiesChanged = true;
+        this.refreshDrawerPreview();
+      },
+      updatePageStylingProperties (backgroundProperties, borderRadius, pageWidth) {
+        this.pageStylingProperties = {
+          pageBackground: backgroundProperties?.background,
+          pageBackgroundSize: backgroundProperties?.backgroundSize || 'unset',
+          pageBackgroundRepeat: backgroundProperties?.backgroundRepeat || 'no-repeat',
+          pageBackgroundPosition: backgroundProperties?.backgroundPosition || 'unset',
+          pageBackgroundColor: backgroundProperties?.backgroundColor ,
+          pageBackgroundEffect: backgroundProperties?.backgroundEffect,
+          borderRadius,
+          pageWidth,
+        };
+        this.isPageStylingPropertiesChanged = true;
+        this.updatePagePropertiesPreview();
+      },
+      updatePagePropertiesPreview () {
+        this.$root.$emit('refresh-style-property', {
+          detail: {
+            propertyName: '--allPagesBorderRadius',
+            propertyValue: `${this.pageStylingProperties.borderRadius}px`,
+          },
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundColor',
+          value: this.pageStylingProperties.pageBackgroundColor || this.defaultBackgroundColor,
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundRepeat',
+          value: this.pageStylingProperties.pageBackgroundRepeat || 'no-repeat',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundSize',
+          value: this.pageStylingProperties.pageBackgroundSize || 'unset',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundPosition',
+          value: this.pageStylingProperties.pageBackgroundPosition || 'unset',
+        });
+        this.$root.$emit('refresh-body-style-property', {
+          name: 'background-image',
+          value: null,
+        });
+        let url = null;
+        if (this.pageStylingProperties.pageBackground?.data) {
+          url = `url(${eXo.$utils.convertImageDataAsSrc(this.pageStylingProperties.pageBackground?.data)})`;
+          if (this.pageStylingProperties?.pageBackgroundEffect) {
+            url = `${url}, ${this.pageStylingProperties.pageBackgroundEffect}`;
+          }
+        } else if (this.pageStylingProperties.pageBackground?.fileId && this.pageStylingProperties?.pageBackgroundEffect) {
+          url = `url(/portal/rest/v1/platform/branding/pageBackground?v="), ${this.pageStylingProperties?.pageBackgroundEffect}`;
+        } else if (this.pageStylingProperties?.pageBackgroundEffect) {
+          url = this.pageStylingProperties?.pageBackgroundEffect;
+        }
+        this.$root.$emit('refresh-body-style-property', {
+          name: '--allPagesBackgroundImage',
+          value: url !== null && url || 'none',
+        });
+      },
+      resetPageStyling () {
+        this.pageStylingProperties.pageBackground = {
+          data: null,
+          fileId: 0,
+          updatedDate: 0,
+          uploadId: 0,
+        };
+        this.pageStylingProperties.pageWidth = this.defaultCustomPageWidth;
+        this.pageStylingProperties.borderRadius = this.$root.defaultBrandingThemeStyle.borderRadius.split('px')[0];
+        this.pageStylingProperties.pageBackgroundColor = this.defaultPageBackground;
+        this.pageStylingProperties.pageBackgroundEffect = null;
+        this.isPageStylingPropertiesChanged = true;
+      },
     },
-    resetPageStyling() {
-      this.pageStylingProperties.pageBackground = {
-        data: null,
-        fileId: 0,
-        updatedDate: 0,
-        uploadId: 0,
-      };
-      this.pageStylingProperties.pageWidth = this.defaultCustomPageWidth;
-      this.pageStylingProperties.borderRadius = this.$root.defaultBrandingThemeStyle.borderRadius.split('px')[0];
-      this.pageStylingProperties.pageBackgroundColor = this.defaultPageBackground;
-      this.pageStylingProperties.pageBackgroundEffect = null;
-      this.isPageStylingPropertiesChanged = true;
-    }
-  }
-};
+  };
 </script>
