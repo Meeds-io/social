@@ -38,7 +38,7 @@
         @click="checkLink"
         @change="updateNavigationState(navigation.uri)">
         <span
-          class="text-truncate-3 pt-2">
+          class="text-truncate-2 pt-2">
           {{ navigation.label }}
         </span>
         <v-btn
