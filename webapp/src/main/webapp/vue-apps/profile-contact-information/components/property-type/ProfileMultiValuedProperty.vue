@@ -121,6 +121,9 @@ export default {
       default: false,
     },
   },
+  data: () => ({
+    lang: eXo?.env.portal.language
+  }),
   computed: {
     userProperty() {
       return this.property.propertyType === 'user';
