@@ -86,6 +86,12 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
+    smallDevice() {
+      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
+    },
+    mediumDevice() {
+      return this.$vuetify.breakpoint.name === 'md';
+    },
     navigationsLength() {
       return this.mobileNavigations?.length || 0;
     },
@@ -120,6 +126,16 @@ export default {
         this.refreshMobileNavigations();
       } else {
         this.computeSiteBodyMargin();
+      }
+    },
+    smallDevice() {
+      if (this.smallDevice) {
+        this.refreshMobileNavigations();
+      }
+    },
+    mediumDevice() {
+      if (this.mediumDevice) {
+        this.refreshMobileNavigations();
       }
     },
     navigationsLength() {
@@ -186,10 +202,17 @@ export default {
       }
     },
     refreshMobileNavigations() {
-      if (this.navigations.length > 3) {
+      if ((this.$vuetify.breakpoint.name === 'md' && this.navigations.length > 3)
+          || ((this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs') && this.navigations.length > 2)) {
         this.mobileNavigations = [];
-        const children = this.navigations.slice(2, this.navigations.length);
-        this.mobileNavigations.push(...this.navigations.slice(0, 2));
+        let children = [];
+        if (this.$vuetify.breakpoint.name === 'md') {
+          children = this.navigations.slice(2, this.navigations.length);
+          this.mobileNavigations.push(...this.navigations.slice(0, 2));
+        } else {
+          children = this.navigations.slice(1, this.navigations.length);
+          this.mobileNavigations.push(...this.navigations.slice(0, 1));
+        }
         this.mobileNavigations.push({
           id: 0,
           name: 'more',
