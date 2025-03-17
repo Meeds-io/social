@@ -424,8 +424,17 @@ export default {
     showIcon() {
       return this.settings?.showIcon || false;
     },
-    header() {
-      return this.settings?.header || '';
+    header: {
+      get () {
+        return this.settings?.header || '';
+      },
+      set (value) {
+        if (value) {
+          this.$set(this.settings, 'header', value);
+        } else {
+          this.settings.header = null;
+        }
+      },
     }
   },
   watch: {
@@ -471,15 +480,6 @@ export default {
         this.stepper = 1;
       }
     },
-    header() {
-      if (this.header) {
-        if (this.$root.language) {
-          this.header[this.$root.language] = this.$t(this.settings?.header?.[this.$root.language]);
-        } else {
-          this.header[this.$root.defaultLanguage] = this.$t(this.settings?.header?.[this.$root.defaultLanguage]);
-        }
-      }
-    }
   },
   created() {
     this.$root.$on('links-settings-drawer', this.open);
@@ -514,6 +514,12 @@ export default {
             }
           });
           this.showHeader = !!this.settings?.header?.[this.$root.defaultLanguage]?.length;
+          if (this.showHeader) {
+            const defaultHeaderValue = this.settings.header[this.$root.defaultLanguage];
+            if (defaultHeaderValue.includes('.') && this.$te(defaultHeaderValue)) {
+              this.settings.header[this.$root.defaultLanguage] = this.$t(defaultHeaderValue);
+            }
+          }
           this.seeMore = !!this.settings?.seeMore?.length;
           if (!this.showHeader) {
             this.settings.header = null;
