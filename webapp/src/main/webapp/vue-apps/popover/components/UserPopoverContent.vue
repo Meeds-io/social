@@ -37,7 +37,7 @@
             bold-title
             link-style>
             <template v-if="primaryProperty" slot="subTitle">
-              <span class="caption text-bold">
+              <span>
                 {{ primaryProperty }}
               </span>
             </template>
