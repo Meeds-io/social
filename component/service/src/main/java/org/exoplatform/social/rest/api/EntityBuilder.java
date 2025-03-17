@@ -833,6 +833,10 @@ public class EntityBuilder {
     SpaceService spaceService = getSpaceService();
     setPublicSiteDetails(spaceEntity, space);
     populateGeneralFields(spaceEntity, space);
+    if (StringUtils.isNotBlank(space.getId()) && StringUtils.isBlank(userId)) {
+      Identity currentUserIdentity = RestUtils.getCurrentUserIdentity();
+      spaceEntity.setIsMember(spaceService.isMember(space, currentUserIdentity.getRemoteId()));
+    }
     if (getUserACL().isAnonymousUser(userId)) {
       return spaceEntity;
     }
@@ -946,9 +950,6 @@ public class EntityBuilder {
       spaceEntity.setIsManager(isManager);
       spaceEntity.setIsRedactor(spaceService.isRedactor(space, userId));
       spaceEntity.setIsPublisher(spaceService.isPublisher(space, userId));
-    } else if (StringUtils.isNotBlank(space.getId())) {
-      Identity currentUserIdentity = RestUtils.getCurrentUserIdentity();
-      spaceEntity.setIsMember(spaceService.isMember(space, currentUserIdentity.getRemoteId()));
     }
 
     PortalConfig portalConfig = getLayoutService().getPortalConfig(new SiteKey(PortalConfig.GROUP_TYPE, space.getGroupId()));
