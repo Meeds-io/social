@@ -20,16 +20,16 @@
 
 <template>
   <v-flex
-    class="d-flex">
+    class="d-flex flex-wrap">
     <div
-      class="align-start text-no-wrap font-weight-bold me-3 ma-auto">
+      class="align-start text-no-wrap font-weight-bold me-3 mt-2 text-truncate">
       {{ getResolvedName(property) }}
       <profile-hidden-property-info
         :property="property"
         :hover="hover" />
     </div>
     <div
-      class="align-end flex-grow-1 text-truncate text-end">
+      class="align-end flex-grow-1 text-truncate text-end mt-2">
       <div
         v-if="userProperty"
         class="ms-auto width-fit-content">
@@ -57,7 +57,8 @@
         <v-hover v-slot="{hover}">
           <div
             v-if="canShowChild(childProperty)"
-            :class="childProperty.hidden && 'opacity-5'">
+            :class="childProperty.hidden && 'opacity-5'"
+            class="text-truncate">
             <div
               v-if="childProperty.hidden"
               class="d-inline-block">
