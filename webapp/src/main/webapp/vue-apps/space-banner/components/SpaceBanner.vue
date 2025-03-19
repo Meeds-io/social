@@ -9,6 +9,7 @@
           v-if="admin"
           :hover="hover"
           :default-banner="defaultBanner"
+          class="z-index-one"
           @edit="$refs.imageCropDrawer.open()"
           @remove="removeBanner" />
         <div class="d-flex fill-height fill-width">
@@ -16,9 +17,10 @@
             v-if="bannerUrl"
             :src="bannerUrl"
             :alt="spaceDisplayName"
+            style="min-width: 100%;min-height: 100%;"
             width="100%"
             height="100%"
-            class="fill-height fill-width border-box-sizing">
+            class="border-box-sizing absolute-all-center">
         </div>
       </v-responsive>
     </v-hover>
