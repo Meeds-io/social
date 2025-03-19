@@ -33,8 +33,9 @@
       </div>
     </div>
     <div
-      class="changeBannerButtonIcon ms-2"
-      v-show="hover">
+      v-if="isAdmin"
+      v-show="hover"
+      class="changeBannerButtonIcon ms-2">
       <v-btn
         id="profileHeaderEditOptions"
         :title="$t('profileHeader.edit.tooltip')"
@@ -61,6 +62,10 @@ export default {
       default: () => null,
     },
     owner: {
+      type: Boolean,
+      default: false
+    },
+    isAdmin: {
       type: Boolean,
       default: false
     }
