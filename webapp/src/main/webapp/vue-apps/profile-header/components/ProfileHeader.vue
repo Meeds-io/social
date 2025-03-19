@@ -18,6 +18,7 @@
           <profile-header-banner-button
             :owner="owner"
             :user="user"
+            :is-admin="isAdmin"
             :hover="hover"
             class="justify-end full-width position-absolute t-0 r-3 pt-3"
             @edit="editBanner"
@@ -80,6 +81,7 @@
       :max-image-width="maxImageWidth"
       @input="uploadImage" />
     <profile-header-settings-drawer
+      v-if="isAdmin"
       :save-settings-url="$root.saveSettingsUrl"
       :saved-settings="{
         avatarMaxSize: this.avatarMaxSize,
@@ -152,6 +154,9 @@ export default {
     maxImageWidth() {
       return this.imageType === 'avatar' && 350 || 1280;
     },
+    isAdmin() {
+      return this.user?.isAdmin;
+    }
   },
   watch: {
     errorMessage() {

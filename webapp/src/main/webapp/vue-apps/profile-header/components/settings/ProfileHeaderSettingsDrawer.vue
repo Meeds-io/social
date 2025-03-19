@@ -108,7 +108,7 @@
         </v-btn>
         <v-btn
           class="btn btn-primary"
-          :disabled="disabled"
+          :disabled="!enableSave"
           :loading="isSaving"
           @click="save">
           {{ $t('profileHeader.settings.save.label') }}
@@ -127,7 +127,6 @@ export default {
       avatarMinSize: 44,
       avatarMaxSize: 160,
       bannerMaxHeight: 175,
-      disabled: false,
       isSaving: false
     };
   },
@@ -139,6 +138,13 @@ export default {
     saveSettingsUrl: {
       type: String,
       default: null
+    }
+  },
+  computed: {
+    enableSave() {
+      return this.savedSettings.avatarMinSize !== this.avatarMinSize || this.savedSettings.avatarMaxSize !== this.avatarMaxSize
+                                                                     || this.savedSettings.bannerMaxHeight !== this.bannerMaxHeight
+                                                                     || this.savedSettings.displayOption !== this.displayOption;
     }
   },
   methods: {

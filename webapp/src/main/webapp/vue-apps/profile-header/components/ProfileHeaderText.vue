@@ -21,8 +21,7 @@
     <div
       v-else
       class="d-flex text-title text-break text-wrap my-auto">
-      {{ $t('profileHeader.display.option.two.label') }}
-      {{ userFirstName }}
+      {{ $t('profileHeader.welcome.label', {0: userFirstName}) }}
     </div>
   </v-card>
 </template>
