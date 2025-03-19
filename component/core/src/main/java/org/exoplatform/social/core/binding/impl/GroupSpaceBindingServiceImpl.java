@@ -345,7 +345,6 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     long count, toBind;
     int limit, offset = 0;
     long startTime = System.currentTimeMillis();
-
     try {
       ListAccess<User> groupMembersAccess = organizationService.getUserHandler().findUsersByGroupId(groupSpaceBinding.getGroup());
       List<User> users;
@@ -360,8 +359,12 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                                  GroupSpaceBindingReportAction.ADD_ACTION);
         bindingReportAddAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
       }
-     
       do {
+        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getId()==gSBinding.getId())){
+          LOG.info("Binding process: Stopped since binding was removed");
+          offset = totalGroupMembersSize;
+          break;
+        }
         long startBunchTime = System.currentTimeMillis();
         toBind = totalGroupMembersSize - offset;
         limit = toBind < USERS_TO_BIND_PAGE_SIZE ? (int) toBind : USERS_TO_BIND_PAGE_SIZE;
