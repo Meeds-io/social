@@ -1,19 +1,20 @@
 <template>
-  <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
+  <v-app :class="{ 'profileHeaderOwner': owner, 'profileHeaderOther': !owner }">
     <v-hover>
       <div slot-scope="{ hover }" class="application-body">
         <v-card
-          max-height="175"
+          :max-height="bannerMaxHeight"
           class="d-flex position-relative overflow-hidden"
           tile
           flat>
-          <img
-            :src="user && user.banner"
-            alt=""
+          <v-img
+            :src="user?.banner"
+            :max-height="bannerMaxHeight"
+            :alt="$t('profileHeader.banner.alt')"
             width="100%"
             height="auto"
             class="profileBannerImg application-border-radius-top"
-            lazy>
+            lazy />
           <profile-header-banner-button
             v-if="owner"
             :user="user"
@@ -27,9 +28,9 @@
           flat
           tile>
           <v-card
-            :width="imageSize"
-            :max-width="165"
-            max-height="70"
+            :width="avatarSize"
+            :max-width="avatarMaxSize"
+            :max-height="avatarMaxSize/2"
             height="11vw"
             class="flex-shrink-0 position-relative me-2"
             flat
@@ -43,20 +44,21 @@
                 :user="user"
                 :owner="owner"
                 :hover="hover"
-                :size="imageSize"
+                :size="avatarSize"
+                :max-size="avatarMaxSize"
+                :min-size="avatarMinSize"
                 @edit="editAvatar" />
             </v-card>
           </v-card>
           <v-card
-            min-height="70"
-            class="d-flex flex-column flex-sm-row flex-grow-1"
+            class="d-flex flex-column flex-sm-row mb-2 flex-grow-1"
             flat
             tile>
             <profile-header-text
               :user="user"
               class="d-flex flex-grow-0 text-truncate" />
             <profile-header-actions
-              v-if="!owner"
+              v-if="useActions && !owner"
               :user="user"
               :hover="hover"
               class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
@@ -90,6 +92,7 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     errorMessage: null,
     imageType: null,
+    avatarSize: '15vw'
   }),
   computed: {
     small() {
@@ -98,14 +101,17 @@ export default {
     large() {
       return this.$vuetify.breakpoint.lgAndUp;
     },
-    xlarge() {
-      return this.$vuetify.breakpoint.xlAndUp;
+    avatarMaxSize() {
+      return this.$root?.avatarMaxSize;
     },
-    imageSize() {
-      return '15vw';
+    avatarMinSize() {
+      return this.$root?.avatarMinSize;
     },
-    maxImageViewHeight() {
-      return this.large && '175px' || 'calc(16.6vw - 40px)';
+    bannerMaxHeight() {
+      return this.$root?.bannerMaxHeight;
+    },
+    useActions() {
+      return this.$root?.useActions;
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
