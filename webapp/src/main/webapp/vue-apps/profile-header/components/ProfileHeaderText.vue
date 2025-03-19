@@ -3,7 +3,6 @@
     id="profileHeaderText"
     class="d-flex"
     color="transparent"
-    min-height="70"
     flat
     tile>
     <div class="d-flex flex-column my-auto">
