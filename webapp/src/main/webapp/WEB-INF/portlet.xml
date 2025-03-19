@@ -533,6 +533,20 @@
     <portlet-info>
       <title>Profile Header</title>
     </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>bannerMaxHeight</name>
+        <value>175</value>
+      </preference>
+      <preference>
+        <name>avatarMaxSize</name>
+        <value>160</value>
+      </preference>
+      <preference>
+        <name>avatarMinSize</name>
+        <value>40</value>
+      </preference>
+    </portlet-preferences>
   </portlet>
 
   <portlet>
