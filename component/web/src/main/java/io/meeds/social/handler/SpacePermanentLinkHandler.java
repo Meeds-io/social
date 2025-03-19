@@ -21,10 +21,13 @@ package io.meeds.social.handler;
 import static io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin.APPLICATION_URI;
 import static io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin.OBJECT_TYPE;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.social.core.space.model.Space;
@@ -37,6 +40,7 @@ import org.exoplatform.web.controller.QualifiedName;
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
 import jakarta.servlet.ServletConfig;
+import org.exoplatform.web.security.sso.SSOHelper;
 
 public class SpacePermanentLinkHandler extends WebRequestHandler {
 
@@ -80,8 +84,10 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       path = path + "?" + queryString;
     }
     Space space = spaceService.getSpaceById(spaceId);
-    if (StringUtils.isBlank(username)
-        || space == null
+    if (StringUtils.isBlank(username)) {
+      String loginPath = getAuthenticationUrl(controllerContext.getRequest().getRequestURI());
+      controllerContext.getResponse().sendRedirect(loginPath);
+    } else if (space == null
         || isHiddenSpace(space, username)) {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
@@ -105,6 +111,20 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     return new PermanentLinkObject(OBJECT_TYPE,
                                    spaceId,
                                    Collections.singletonMap(APPLICATION_URI, path));
+  }
+
+  private String getAuthenticationUrl(String permanentLink) {
+    StringBuilder loginPath = new StringBuilder();
+
+    // . Check SSO Enable
+    SSOHelper ssoHelper = ExoContainerContext.getService(SSOHelper.class);
+    if (ssoHelper != null && ssoHelper.isSSOEnabled() && ssoHelper.skipJSPRedirection()) {
+      loginPath.append("/portal").append(ssoHelper.getSSORedirectURLSuffix());
+    } else {
+      loginPath.append("/portal/login");
+    }
+    loginPath.append("?initialURI=").append(URLEncoder.encode(permanentLink, StandardCharsets.UTF_8));
+    return loginPath.toString();
   }
 
 }
