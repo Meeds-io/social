@@ -112,6 +112,7 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("OPENID_ACCESS_TOKEN")) {
           try {
+            saveInitialURI(request);
             openIdProcessor.processOAuthInteraction(request, response);
           } catch (OAuthException | ExecutionException | InterruptedException | IOException ex) {
             log.error("Error during OAuth flow with: " + ex.getMessage(), ex);
@@ -121,4 +122,11 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
       }
     }
   }
+  private void saveInitialURI(HttpServletRequest request) {
+    String initialURI = request.getParameter("initialURI");
+    if (initialURI != null) {
+      request.getSession().setAttribute(OAuthConstants.ATTRIBUTE_URL_TO_REDIRECT_AFTER_LINK_SOCIAL_ACCOUNT, initialURI);
+    }
+  }
+
 }
