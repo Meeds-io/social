@@ -520,7 +520,7 @@
 
   <portlet>
     <portlet-name>ProfileHeader</portlet-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.ProfileHeaderPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/profileHeader.jsp</value>

@@ -5,7 +5,9 @@
     color="transparent"
     flat
     tile>
-    <div class="d-flex flex-column my-auto">
+    <div
+      v-if="!isWelcomeDisplayOption"
+      class="d-flex flex-column my-auto">
       <div id="profileHeaderUserFullname" class="text-title text-break text-wrap">
         {{ userFullname }}
       </div>
@@ -15,6 +17,12 @@
         class="subtitle text-subtitle text-break text-wrap">
         {{ primaryProperty || '' }}
       </div>
+    </div>
+    <div
+      v-else
+      class="d-flex text-title text-break text-wrap my-auto">
+      {{ $t('profileHeader.display.option.two.label') }}
+      {{ userFirstName }}
     </div>
   </v-card>
 </template>
@@ -26,10 +34,20 @@ export default {
       type: Object,
       default: () => null,
     },
+    displayOption: {
+      String,
+      default: null
+    }
   },
   computed: {
+    isWelcomeDisplayOption() {
+      return this.displayOption === 'welcome';
+    },
     userFullname() {
       return this.user?.fullname && `${this.user.fullname}${this.external}${this.disabled}`;
+    },
+    userFirstName() {
+      return `${this.user?.firstname}${this.external}${this.disabled}`;
     },
     primaryProperty() {
       return this.user?.primaryProperty;
