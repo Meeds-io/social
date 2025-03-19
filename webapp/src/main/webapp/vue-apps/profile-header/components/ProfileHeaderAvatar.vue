@@ -1,25 +1,26 @@
 <template>
   <div class="d-flex">
     <v-avatar
-      :class="owner && hover && 'profileHeaderAvatarHoverEdit'"
-      :size="size"
       id="profileAvatar"
-      min-width="44"
-      min-height="44"
-      max-width="165"
-      max-height="165"
+      :class="{ 'profileHeaderAvatarHoverEdit': owner && hover }"
+      :size="size"
+      :min-width="minSize"
+      :min-height="minSize"
+      :max-width="maxSize"
+      :max-height="maxSize"
       class="align-start flex-grow-0 border-color profileHeaderAvatar">
       <v-img
         :lazy-src="userAvatarUrl"
         :src="userAvatarUrl"
+        :min-width="minSize"
+        :min-height="minSize"
+        :max-width="maxSize"
+        :max-height="maxSize"
+        :alt="$t('profileHeader.avatar.alt')"
         id="profileAvatarImg"
         transition="none"
-        min-width="44"
-        min-height="44"
-        max-width="165"
-        max-height="165"
-        eager
-        role="presentation" />
+        role="presentation"
+        eager />
       <v-btn
         v-if="owner"
         v-show="hover"
@@ -58,14 +59,37 @@ export default {
       default: () => false,
     },
     size: {
-      type: Number,
-      default: () => 165,
+      type: String,
+      default: () => '15vw',
     },
+    minSize: {
+      type: String,
+      default: null
+    },
+    maxSize: {
+      type: String,
+      default: null
+    }
   },
   computed: {
     userAvatarUrl() {
-      const defaultAvatarUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`;
-      return this.user?.enabled? (this.avatarData || `${this.user.avatar}${this.user.avatar.includes('?')? '&size=165x165' : '?size=165x165'}` || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.user.username}/avatar?size=165x165`) : `${defaultAvatarUrl}?size=165x165`;
+      const dimension = `${this.maxSize}x${this.maxSize}`;
+      const baseUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users`;
+      const defaultAvatarUrl = `${baseUrl}/default-image/avatar?size=${dimension}`;
+
+      if (!this.user?.enabled) {
+        return defaultAvatarUrl;
+      }
+      if (this.avatarData) {
+        return this.avatarData;
+      }
+
+      if (this.user.avatar) {
+        const separator = this.user.avatar.includes('?') ? '&' : '?';
+        return `${this.user.avatar}${separator}size=${dimension}`;
+      }
+
+      return `${baseUrl}/${this.user.username}/avatar?size=${dimension}`;
     }
   }
 };
