@@ -4,6 +4,7 @@
 <%@ page import="javax.portlet.PortletPreferences" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects/>
+<portlet:actionURL var="saveSettingsUrl" />
 <%
   IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
   int maxUploadSize = identityManager.getImageUploadLimit();
@@ -12,6 +13,7 @@
   String bannerMaxHeight = preferences.getValue("bannerMaxHeight", "175");
   String avatarMaxSize = preferences.getValue("avatarMaxSize", "160");
   String avatarMinSize = preferences.getValue("avatarMinSize", "44");
+  String displayOption = preferences.getValue("displayOption", "name");
   Boolean useActions = Boolean.parseBoolean(preferences.getValue("useActions", "false"));
 %>
 <div class="VuetifyApp">
@@ -21,7 +23,7 @@
     <v-cacheable-dom-app cache-id="ProfileHeader_<%=profileOwnerId%>"></v-cacheable-dom-app>
     <script type="text/javascript">
       require(['PORTLET/social/ProfileHeader'], app => app.init(<%=maxUploadSize%>, <%=bannerMaxHeight%>,
-              <%=avatarMaxSize%>, <%=avatarMinSize%>, <%=useActions%>));
+              <%=avatarMaxSize%>, <%=avatarMinSize%>, '<%=displayOption%>', <%=useActions%>, '<%=saveSettingsUrl%>'));
     </script>
   </div>
 </div>

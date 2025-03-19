@@ -16,12 +16,13 @@
             class="profileBannerImg application-border-radius-top"
             lazy />
           <profile-header-banner-button
-            v-if="owner"
+            :owner="owner"
             :user="user"
             :hover="hover"
             class="justify-end full-width position-absolute t-0 r-3 pt-3"
             @edit="editBanner"
-            @refresh="refresh" />
+            @refresh="refresh"
+            @open-settings="openHeaderSettings" />
         </v-card>
         <v-card
           class="d-flex flex-column flex-md-row border-color px-4" 
@@ -56,6 +57,7 @@
             tile>
             <profile-header-text
               :user="user"
+              :display-option="displayOption"
               class="d-flex flex-grow-0 text-truncate" />
             <profile-header-actions
               v-if="useActions && !owner"
@@ -77,6 +79,16 @@
       :max-file-size="maxUploadSizeInBytes"
       :max-image-width="maxImageWidth"
       @input="uploadImage" />
+    <profile-header-settings-drawer
+      :save-settings-url="$root.saveSettingsUrl"
+      :saved-settings="{
+        avatarMaxSize: this.avatarMaxSize,
+        avatarMinSize: this.avatarMinSize,
+        bannerMaxHeight: this.bannerMaxHeight,
+        displayOption: this.displayOption
+      }"
+      @updated="headerSettingsUpdated"
+      ref="headerSettingsDrawer" />
   </v-app>    
 </template>
 <script>
@@ -112,6 +124,9 @@ export default {
     },
     useActions() {
       return this.$root?.useActions;
+    },
+    displayOption() {
+      return this.$root.displayOption;
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
@@ -224,6 +239,16 @@ export default {
         }
       }
     },
+    openHeaderSettings() {
+      this.$refs.headerSettingsDrawer.open();
+    },
+    headerSettingsUpdated(settings) {
+      this.$root.displayOption = settings.displayOption;
+      this.$root.avatarMinSize = settings.avatarMinSize;
+      this.$root.avatarMaxSize = settings.avatarMaxSize;
+      this.$root.bannerMaxHeight = settings.bannerMaxHeight;
+      this.$refs.headerSettingsDrawer.close();
+    }
   },
 };
 </script>
