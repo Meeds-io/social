@@ -173,7 +173,7 @@
         v-if="isSpace"
         v-show="!toggleArrow"
         :space-id="spaceId"
-        :unread-badge="space?.unread"
+        :unread-badge="spaceUnreadCount"
         @refresh="retrieveSpace(true)" />
     </v-list-item>
   </v-hover>
