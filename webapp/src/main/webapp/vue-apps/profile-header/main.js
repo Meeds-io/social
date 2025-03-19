@@ -24,7 +24,7 @@ const urls = [
 const appId = 'ProfileHeader';
 const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
-export function init(maxUploadSize, bannerMaxHeight, avatarMaxSize, avatarMinSize, useActions) {
+export function init(maxUploadSize, bannerMaxHeight, avatarMaxSize, avatarMinSize, displayOption, useActions, saveSettingsUrl) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
@@ -35,7 +35,9 @@ export function init(maxUploadSize, bannerMaxHeight, avatarMaxSize, avatarMinSiz
           bannerMaxHeight,
           avatarMaxSize,
           avatarMinSize,
-          useActions
+          displayOption,
+          useActions,
+          saveSettingsUrl
         };
       },
       mounted() {
