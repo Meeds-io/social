@@ -194,12 +194,11 @@ export default {
     // To refresh menu when a new extension is ready to be used
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
-
-    $(document).on('mousedown', () => {
-      if (this.displaySecondButton) {
-        window.setTimeout(() => {
-          this.displaySecondButton = false;
-        }, this.waitTimeUntilCloseMenu);
+    document.addEventListener('mousedown', () => {
+      if (window.displaySecondButton) {
+        setTimeout(() => {
+          window.displaySecondButton = false;
+        }, window.waitTimeUntilCloseMenu);
       }
     });
 
