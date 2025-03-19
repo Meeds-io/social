@@ -59,7 +59,11 @@
 <% } else { %>
   <div id="OnlinePortlet">
     <script type="text/javascript">
-      require(['SHARED/vue'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet')));
+      document.onreadystatechange = () => {
+        if (document.readyState === 'complete') {
+          require(['SHARED/vue'], () => Vue.prototype.$updateApplicationVisibility(false, document.querySelector('#OnlinePortlet')));
+        }
+      };
     </script>
   </div>
 <% } %>
