@@ -31,6 +31,7 @@ import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
+import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
 import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
@@ -56,9 +57,18 @@ public class SpaceBindingMembershipGroupEventListener extends MembershipEventLis
         if (isActive(userName) && isUserNewMemberToGroup(userName, groupId)) {
           groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
           spaceService = CommonsUtils.getService(SpaceService.class);
-
+          // Retrieve all removed bindings ids.
+          List<Long> removedSpaceBindingsIds =
+                  groupSpaceBindingService.getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE)
+                          .stream()
+                          .map(groupSpaceBinding -> groupSpaceBinding.getId())
+                          .toList();
           // Retrieve all bindings of the group.
           List<GroupSpaceBinding> groupSpaceBindings = groupSpaceBindingService.findGroupSpaceBindingsByGroup(m.getGroupId());
+          // Get rid of removed bindings.
+          if (removedSpaceBindingsIds.size() > 0 && groupSpaceBindings.size() > 0) {
+            groupSpaceBindings.removeIf(spaceBinding -> removedSpaceBindingsIds.contains(Long.valueOf(spaceBinding.getId())));
+          }
           // For each bound space of the group add a user binding to it.
           for (GroupSpaceBinding groupSpaceBinding : groupSpaceBindings) {
             Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
