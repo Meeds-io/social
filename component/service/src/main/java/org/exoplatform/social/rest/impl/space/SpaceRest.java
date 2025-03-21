@@ -569,7 +569,7 @@ public class SpaceRest implements ResourceContainer {
       Space space = byId ? spaceService.getSpaceById(id) : spaceService.getSpaceByPrettyName(id);
       if (space == null
           || (Space.HIDDEN.equals(space.getVisibility())
-              && !spaceService.canViewSpace(space, authenticatedUser))) {
+              && !spaceService.canViewSpace(space, authenticatedUser) && !Arrays.asList(space.getInvitedUsers()).contains(authenticatedUser))) {
         return Response.status(Status.NOT_FOUND).build();
       }
       Identity identity = identityManager.getOrCreateIdentity(SpaceIdentityProvider.NAME, space.getPrettyName());
