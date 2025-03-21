@@ -62,7 +62,7 @@ public class NavigationConfigurationImportService implements ContainerStartableS
   @Value("${navigation.configuration.displayCompanyName:true}")
   private boolean                        displayCompanyName;
 
-  @Value("${navigation.configuration.displayMobileCompanyLogo:true}")
+  @Value("${navigation.configuration.displayMobileCompanyLogo:false}")
   private boolean                        displayMobileCompanyLogo;
 
   @Value("${navigation.configuration.displaySiteName:true}")
