@@ -26,10 +26,10 @@
       <v-tooltip bottom>
         <template #activator="{ on, attrs }">
           <span 
-          v-bind="attrs"
-          v-on="on"
-          class="my-auto text-truncate pe-2">
-          {{ displayedValue }}
+            v-bind="attrs"
+            v-on="on"
+            class="my-auto text-truncate pe-2">
+            {{ displayedValue }}
           </span>
         </template>
         <span class="tooltip-version py-12 text-break"> {{ displayedValue }} </span>
@@ -39,8 +39,8 @@
       cols="1"
       class="d-flex py-1 px-0">
       <span 
-      class="my-auto">
-      {{ displayedId }}
+        class="my-auto">
+        {{ displayedId }}
       </span>
     </v-col>
     <v-col

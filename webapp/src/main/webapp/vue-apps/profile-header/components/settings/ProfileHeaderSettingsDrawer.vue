@@ -90,11 +90,43 @@
             <div class="ms-auto">
               <number-input
                 v-model="bannerMaxHeight"
-                :min="50"
+                :min="60"
                 :max="400"
                 :step="1"
                 editable />
             </div>
+          </div>
+          <div class="mt-1 align-start">
+            <label class="v-label text-color">
+              {{ $t('profileHeader.height.label') }}
+            </label>
+            <v-radio-group
+              name="bannerHeight"
+              v-model="bannerHeightOption"
+              mandatory>
+              <v-radio
+                :label="$t('profileHeader.height.auto.label')"
+                value="auto"
+                class="my-auto" />
+              <div
+                  :class="{'mt-2': bannerAutoHeightOption}"
+                  class="d-flex align-center">
+                <v-radio
+                  :label="$t('profileHeader.height.fixed.label')"
+                  class="my-auto"
+                  value="fixed" />
+                <div
+                  v-if="!bannerAutoHeightOption"
+                  class="ms-auto">
+                  <number-input
+                    v-model="bannerHeight"
+                    :min="60"
+                    :max="bannerMaxHeight"
+                    :step="1"
+                    editable />
+                </div>
+              </div>
+            </v-radio-group>
           </div>
         </div>
       </v-form>
@@ -123,10 +155,13 @@
 export default {
   data() {
     return {
+      defaultBannerHeight: 'auto',
       displayOption: 'name',
       avatarMinSize: 44,
       avatarMaxSize: 160,
       bannerMaxHeight: 175,
+      bannerHeightOption: 'auto',
+      bannerHeight: 175,
       isSaving: false
     };
   },
@@ -140,11 +175,31 @@ export default {
       default: null
     }
   },
+  watch: {
+    bannerMaxHeight() {
+      if (this.bannerHeight > this.bannerMaxHeight) {
+        this.bannerHeight = this.bannerMaxHeight;
+      }
+    },
+    bannerHeightOption() {
+      if (!this.bannerAutoHeightOption && this.savedSettings.bannerHeight === this.defaultBannerHeight) {
+        this.bannerHeight = this.bannerMaxHeight;
+      } else if (this.bannerAutoHeightOption) {
+        this.bannerHeight = this.defaultBannerHeight;
+      } else {
+        this.bannerHeight = this.savedSettings.bannerHeight;
+      }
+    }
+  },
   computed: {
+    bannerAutoHeightOption() {
+      return this.bannerHeightOption === this.defaultBannerHeight;
+    },
     enableSave() {
       return this.savedSettings.avatarMinSize !== this.avatarMinSize || this.savedSettings.avatarMaxSize !== this.avatarMaxSize
                                                                      || this.savedSettings.bannerMaxHeight !== this.bannerMaxHeight
-                                                                     || this.savedSettings.displayOption !== this.displayOption;
+                                                                     || this.savedSettings.displayOption !== this.displayOption
+                                                                     || this.savedSettings.bannerHeight !== this.bannerHeight;
     }
   },
   methods: {
@@ -163,6 +218,8 @@ export default {
       this.avatarMaxSize = this.savedSettings.avatarMaxSize;
       this.avatarMinSize = this.savedSettings.avatarMinSize;
       this.bannerMaxHeight = this.savedSettings.bannerMaxHeight;
+      this.bannerHeightOption = (this.savedSettings.bannerHeight !== this.defaultBannerHeight) ? 'fixed' : this.defaultBannerHeight;
+      this.bannerHeight = this.savedSettings.bannerHeight;
     },
     save() {
       this.isSaving = true;
@@ -170,7 +227,8 @@ export default {
         displayOption: this.displayOption,
         avatarMaxSize: this.avatarMaxSize,
         avatarMinSize: this.avatarMinSize,
-        bannerMaxHeight: this.bannerMaxHeight
+        bannerMaxHeight: this.bannerMaxHeight,
+        bannerHeight: (this.bannerHeightOption === this.defaultBannerHeight) ? this.defaultBannerHeight : this.bannerHeight
       };
       this.$profileHeaderService.saveSettings(this.saveSettingsUrl , settings).then(() => {
         this.$emit('updated', settings);
