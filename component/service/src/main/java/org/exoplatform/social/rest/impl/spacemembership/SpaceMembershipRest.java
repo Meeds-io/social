@@ -184,7 +184,7 @@ public class SpaceMembershipRest implements ResourceContainer {
                                                              uriInfo,
                                                              expand);
       if (returnSize) {
-        size = spaceMemberships.size();
+        size = listAccess.getSize();
       }
     } else {
       SpaceFilter spaceFilter = new SpaceFilter();
