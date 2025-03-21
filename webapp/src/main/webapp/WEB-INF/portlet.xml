@@ -539,12 +539,20 @@
         <value>175</value>
       </preference>
       <preference>
+        <name>bannerHeight</name>
+        <value>auto</value>
+      </preference>
+      <preference>
         <name>avatarMaxSize</name>
         <value>160</value>
       </preference>
       <preference>
         <name>avatarMinSize</name>
         <value>40</value>
+      </preference>
+      <preference>
+        <name>containerBasedBreakpoints</name>
+        <value>true</value>
       </preference>
     </portlet-preferences>
   </portlet>
