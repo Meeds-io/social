@@ -30,7 +30,7 @@
             @open-settings="openHeaderSettings" />
         </v-card>
         <v-card
-          class="d-flex flex-column border-color px-4"
+          class="d-flex flex-column px-4"
           :class="{ 'flex-md-row': !containerMD && containerBasedBreakpoints || !containerBasedBreakpoints }"
           flat
           tile>
