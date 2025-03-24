@@ -24,16 +24,24 @@ const urls = [
 const appId = 'ProfileHeader';
 const cacheId = `${appId}_${eXo.env.portal.profileOwnerIdentityId}`;
 
-export function init(maxUploadSize) {
+export function init(settings) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     const appElement = document.createElement('div');
     appElement.id = appId;
 
     Vue.createApp({
+      data() {
+        return {
+          settings
+        };
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<profile-header v-cacheable="{cacheId: '${cacheId}'}" id="${appId}" max-upload-size="${maxUploadSize}" />`,
+      template: `<profile-header 
+                   v-cacheable="{cacheId: '${cacheId}'}" 
+                   id="${appId}" 
+                   max-upload-size="${settings.maxUploadSize}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
     }, appElement, 'Profile Header');

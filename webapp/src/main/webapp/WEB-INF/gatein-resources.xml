@@ -1298,10 +1298,6 @@
         <module>imageCropper</module>
       </depends>
       <depends>
-        <module>jquery</module>
-        <as>$</as>
-      </depends>
-      <depends>
         <module>extensionRegistry</module>
       </depends>
     </module>

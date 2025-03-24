@@ -1,35 +1,43 @@
 <template>
-  <v-app :class="owner && 'profileHeaderOwner' || 'profileHeaderOther'">
+  <v-app
+    :class="{ 'profileHeaderOwner': owner, 'profileHeaderOther': !owner }">
     <v-hover>
       <div slot-scope="{ hover }" class="application-body">
         <v-card
-          max-height="175"
+          :max-height="bannerMaxHeight"
+          :height="bannerHeight"
+          min-height="60"
           class="d-flex position-relative overflow-hidden"
           tile
           flat>
-          <img
-            :src="user && user.banner"
-            alt=""
+          <v-img
+            :src="user?.banner"
+            :max-height="bannerMaxHeight"
+            :height="bannerHeight"
+            min-height="60"
+            :alt="$t('profileHeader.banner.alt')"
             width="100%"
-            height="auto"
             class="profileBannerImg application-border-radius-top"
-            lazy>
+            lazy />
           <profile-header-banner-button
-            v-if="owner"
+            :owner="owner"
             :user="user"
+            :is-admin="isAdmin"
             :hover="hover"
             class="justify-end full-width position-absolute t-0 r-3 pt-3"
             @edit="editBanner"
-            @refresh="refresh" />
+            @refresh="refresh"
+            @open-settings="openHeaderSettings" />
         </v-card>
         <v-card
-          class="d-flex flex-column flex-md-row border-color px-4" 
+          class="d-flex flex-column px-4"
+          :class="{ 'flex-md-row': !containerMD && containerBasedBreakpoints || !containerBasedBreakpoints }"
           flat
           tile>
           <v-card
-            :width="imageSize"
-            :max-width="165"
-            max-height="70"
+            :width="avatarSize"
+            :max-width="avatarMaxSize"
+            :max-height="avatarMaxSize/2"
             height="11vw"
             class="flex-shrink-0 position-relative me-2"
             flat
@@ -43,20 +51,23 @@
                 :user="user"
                 :owner="owner"
                 :hover="hover"
-                :size="imageSize"
+                :size="avatarSize"
+                :max-size="avatarMaxSize"
+                :min-size="avatarMinSize"
                 @edit="editAvatar" />
             </v-card>
           </v-card>
           <v-card
-            min-height="70"
-            class="d-flex flex-column flex-sm-row flex-grow-1"
+            class="d-flex flex-column mb-2 flex-grow-1"
+            :class="{'flex-sm-row': !containerSM && containerBasedBreakpoints || !containerBasedBreakpoints}"
             flat
             tile>
             <profile-header-text
               :user="user"
+              :display-option="displayOption"
               class="d-flex flex-grow-0 text-truncate" />
             <profile-header-actions
-              v-if="!owner"
+              v-if="useActions && !owner"
               :user="user"
               :hover="hover"
               class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
@@ -75,6 +86,18 @@
       :max-file-size="maxUploadSizeInBytes"
       :max-image-width="maxImageWidth"
       @input="uploadImage" />
+    <profile-header-settings-drawer
+      v-if="isAdmin"
+      :save-settings-url="$root.settings.saveSettingsUrl"
+      :saved-settings="{
+        avatarMaxSize: this.avatarMaxSize,
+        avatarMinSize: this.avatarMinSize,
+        bannerMaxHeight: this.bannerMaxHeight,
+        displayOption: this.displayOption,
+        bannerHeight: this.bannerHeight
+      }"
+      @updated="headerSettingsUpdated"
+      ref="headerSettingsDrawer" />
   </v-app>    
 </template>
 <script>
@@ -90,22 +113,36 @@ export default {
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     errorMessage: null,
     imageType: null,
+    avatarSize: '15vw',
+    appWidth: null
   }),
   computed: {
-    small() {
-      return this.$vuetify.breakpoint.mdAndDown;
+    containerSM() {
+      return this.appWidth < this.$vuetify.breakpoint.thresholds.md;
     },
-    large() {
-      return this.$vuetify.breakpoint.lgAndUp;
+    containerMD() {
+      return this.appWidth < this.$vuetify.breakpoint.thresholds.sm;
     },
-    xlarge() {
-      return this.$vuetify.breakpoint.xlAndUp;
+    avatarMaxSize() {
+      return this.$root?.settings?.avatarMaxSize;
     },
-    imageSize() {
-      return '15vw';
+    avatarMinSize() {
+      return this.$root?.settings?.avatarMinSize;
     },
-    maxImageViewHeight() {
-      return this.large && '175px' || 'calc(16.6vw - 40px)';
+    bannerMaxHeight() {
+      return this.$root?.settings?.bannerMaxHeight;
+    },
+    bannerHeight() {
+      return this.$root?.settings?.bannerHeight;
+    },
+    useActions() {
+      return this.$root?.settings?.useActions;
+    },
+    containerBasedBreakpoints() {
+      return this.$root?.settings?.containerBasedBreakpoints;
+    },
+    displayOption() {
+      return this.$root?.settings?.displayOption;
     },
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
@@ -131,6 +168,9 @@ export default {
     maxImageWidth() {
       return this.imageType === 'avatar' && 350 || 1280;
     },
+    isAdmin() {
+      return this.user?.isAdmin;
+    }
   },
   watch: {
     errorMessage() {
@@ -139,7 +179,11 @@ export default {
       }
     },
   },
+  created() {
+    window.addEventListener('resize', this.calculateAppWidth);
+  },
   mounted() {
+    this.calculateAppWidth();
     this.refresh();
     document.addEventListener('userModified', event => {
       if (event && event.detail && event.detail !== this.user) {
@@ -218,6 +262,20 @@ export default {
         }
       }
     },
+    openHeaderSettings() {
+      this.$refs.headerSettingsDrawer.open();
+    },
+    headerSettingsUpdated(settings) {
+      this.$root.settings.displayOption = settings.displayOption;
+      this.$root.settings.avatarMinSize = settings.avatarMinSize;
+      this.$root.settings.avatarMaxSize = settings.avatarMaxSize;
+      this.$root.settings.bannerMaxHeight = settings.bannerMaxHeight;
+      this.$root.settings.bannerHeight = settings.bannerHeight;
+      this.$refs.headerSettingsDrawer.close();
+    },
+    calculateAppWidth() {
+      this.appWidth = document.getElementById('ProfileHeader')?.clientWidth;
+    }
   },
 };
 </script>
