@@ -88,6 +88,7 @@
     <css-priority>1</css-priority>
   </portlet-skin>
 
+
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>UserActivityStreamPortlet</portlet-name>
