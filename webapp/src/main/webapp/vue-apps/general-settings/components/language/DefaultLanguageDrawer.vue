@@ -82,10 +82,12 @@ export default {
   methods: {
     open() {
       this.language = this.branding?.defaultLanguage;
+      this.languages = this.languages.sort((a, b) => a.text.localeCompare(b.text));
+
       this.$refs.drawer.open();
     },
     saveLanguage() {
-      const lang = this.language.replace('-', '_');
+      const lang = this.language;
       this.loading = true;
       this.$languageSettingService.saveDefaultLanguage(lang)
         .then(() => {
