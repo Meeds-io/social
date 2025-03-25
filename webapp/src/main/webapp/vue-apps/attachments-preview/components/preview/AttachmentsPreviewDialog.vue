@@ -65,10 +65,10 @@
             :value="attachment.id"
             reverse-transition="fade-transition"
             transition="fade-transition">
-            <attachments-image-preview-item
-              :attachment="attachment"
-              :object-type="objectType"
-              :object-id="objectId" />
+            <extension-registry-component
+              :component="getExtension(attachment)"
+              :params="getParams(attachment)"
+              :element="div" />
           </v-carousel-item>
         </v-carousel>
       </v-card>
@@ -83,10 +83,13 @@ export default {
     filename: '',
     objectType: '',
     attachments: null,
+    previewExtensionApp: 'Preview',
+    previewExtensionType: 'previewExtensions',
+    previewExtensions: [],
   }),
   computed: {
     downloadURL() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+      return this.currentAttachmentUrl?`${eXo.env.portal.context}${this.currentAttachmentUrl}`:`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
     },
     attachmentFilename() {
       return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
@@ -112,7 +115,10 @@ export default {
     }
   },
   created() {
+    this.refreshPreviewExtensions();
     this.$root.$on('open-attachments-preview', this.open);
+    document.addEventListener(`extension-${this.previewExtensionApp}-${this.previewExtensionType}-updated`, this.refreshPreviewExtensions);
+    document.addEventListener('open-attachments-preview', this.openPreview);
     document.addEventListener('keydown', (event) => {
       if (this.$refs.attachmentsCarousel) {
         if (event.key === 'Escape') {
@@ -126,6 +132,24 @@ export default {
     });
   },
   methods: {
+    refreshPreviewExtensions() {
+      this.previewExtensions = extensionRegistry.loadExtensions(this.previewExtensionApp, this.previewExtensionType);
+    },
+    getParams(attachment) {
+      return {
+        attachment: attachment,
+        objectType: this.objectType,
+        objectId: this.objectId,
+      };
+    },
+    getExtension(attachment) {
+      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType));
+    },
+    openPreview(event) {
+      const attachment = event?.detail;
+      this.currentAttachmentUrl = attachment.downloadUrl;
+      this.open(attachment.objectType, attachment.objectId, attachment.attachments, attachment.id);
+    },
     open(objectType, objectId, attachments, id) {
       this.objectType = objectType;
       this.objectId = objectId;

@@ -423,7 +423,7 @@ extensionRegistry.registerComponent('ActivityCommentFooter', 'activity-comment-f
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'attachment-dialog',
-  vueComponent: Vue.options.components['attachments-image-preview-dialog'],
+  vueComponent: Vue.options.components['attachments-preview-dialog'],
   rank: 50,
 });
 
