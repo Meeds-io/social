@@ -45,7 +45,7 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    <attachments-image-preview-dialog
+    <attachments-preview-dialog
       ref="previewDialog" />
     <confirm-dialog
       ref="dialog"
