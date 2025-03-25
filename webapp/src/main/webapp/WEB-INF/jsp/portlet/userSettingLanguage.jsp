@@ -18,8 +18,9 @@
 				if (locale.toString().equals("ma")) {
 					continue;
 				} else {
-					object.put("value", locale.toString());
-					object.put("text", locale.getDisplayName(Locale.ENGLISH) + " / " + locale.getDisplayName(locale));
+					object.put("value", locale.toLanguageTag());
+					object.put("text", userLocale.equals(locale) ? locale.getDisplayName(locale) :
+                                                                               locale.getDisplayName(userLocale) + " / " + locale.getDisplayName(locale));
 				}
 				localesJSON.put(object);
 			}
