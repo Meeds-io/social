@@ -7,7 +7,7 @@
             <v-list-item-title class="text-title">
               {{ $t('UserSettings.language') }}
             </v-list-item-title>
-            <v-list-item-subtitle>
+            <v-list-item-subtitle class="text-capitalize">
               {{ languageLabel }}
             </v-list-item-subtitle>
           </v-list-item-content>
