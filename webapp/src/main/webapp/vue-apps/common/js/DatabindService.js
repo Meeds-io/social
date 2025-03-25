@@ -28,6 +28,8 @@ export function deserialize(databind) {
   }).then((resp) => {
     if (resp?.ok) {
       return resp.json();
+    } else if (resp.status === 406){
+      throw new Error('databind.notMatchType');
     } else {
       throw new Error('Error when importing template');
     }
