@@ -33,7 +33,7 @@
           <template #activator="{ on, attrs }">
             <a
               :href="productLink"
-              :aria-label="$t('menu.productName.seeProduct')"
+              :aria-label="productEdition"
               target="_blank"
               class="text-body font-weight-bold my-auto"
               v-bind="attrs"
@@ -120,6 +120,7 @@ export default {
     profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,
+    productEdition: eXo.env.portal.productEdition,
     userName: eXo.env.portal.userName,
   }),
   computed: {
