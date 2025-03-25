@@ -16,6 +16,8 @@
     return;
   }
 
+  rcontext.getJavascriptManager().require("SHARED/AttachmentPreviewListener", "AttachmentPreviewListener");
+
   String cssStyle = "";
   String uiComponentWidth = uicomponent.getWidth();
   String uiComponentHeight = uicomponent.getHeight();
