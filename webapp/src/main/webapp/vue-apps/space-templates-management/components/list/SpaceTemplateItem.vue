@@ -20,6 +20,14 @@
 -->
 <template>
   <tr>
+    <td align="center">
+      <v-checkbox
+        :value="selected || $root.allSpaceTemplatesSelected"
+        on-icon="fas fa-check-square fa-lg primary--text"
+        off-icon="far fa-square fa-lg"
+        class="my-auto pt-2"
+        @change="changeCheckboxStatus" />
+    </td>
     <!-- name -->
     <td
       :width="$root.isMobile && '100%' || 'auto'"
@@ -97,6 +105,14 @@ export default {
       type: Object,
       default: null,
     },
+    selected: {
+      type: Boolean,
+      default: false,
+    },
+    select: {
+      type: Object,
+      default: null,
+    },
   },
   data: () => ({
     menu: false,
@@ -160,6 +176,9 @@ export default {
         .catch(() => this.$root.$emit('alert-message', this.$t('spaceTemplate.status.update.error'), 'error'))
         .finally(() => this.loading = false);
     },
+    changeCheckboxStatus(status) {
+      this.select(status);
+    }
   },
 };
 </script>
