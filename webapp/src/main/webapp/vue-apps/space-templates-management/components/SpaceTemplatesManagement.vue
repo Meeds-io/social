@@ -35,6 +35,16 @@
     <space-templates-management-characteristics-drawer />
     <space-templates-management-list-by-template-drawer />
     <space-form-drawer />
+    <serialize-drawer ref="serializeDrawer" @export-start="handleExportStart">
+      <template #title>{{ $t('spaceTemplate.label.exportTemplate') }}</template>
+      <template #content>
+        <v-card-text class="pb-0">{{ $t('spaceTemplate.label.exportTemplate.part1') }}</v-card-text>
+        <v-card-text class="pb-0">{{ $t('spaceTemplate.label.exportTemplate.part2') }}</v-card-text>
+        <v-card-text class="pb-0">{{ $t('spaceTemplate.label.exportTemplate.part3') }}</v-card-text>
+        <v-card-text class="pb-0">{{ $t('spaceTemplate.label.exportTemplate.part4') }}</v-card-text>
+      </template>
+    </serialize-drawer>
+    <space-templates-deserialize-drawer />
     <extension-registry-components
       name="space-templates"
       type="space-templates-drawers" />
@@ -49,5 +59,11 @@ export default {
   data: () => ({
     keyword: null,
   }),
+  methods: {
+    handleExportStart() {
+      this.$refs.serializeDrawer.close();
+      this.$root.selectedSpaceTemplates = [];
+    }
+  }
 };
 </script>
