@@ -48,12 +48,8 @@ public class NotificationUpgradePlugin extends UpgradeProductPlugin {
 
   private static final String  NOTIFICATION_CHANNEL_IDS_PARAM      = "channelIds";
 
-  private static final String  COUNT_UPGRADED_USERS_QUERY          =
-                                                          "SELECT COUNT(DISTINCT s.context.id) FROM SettingsEntity s WHERE s.value LIKE :"
-                                                              + NOTIFICATION_PLUGIN_ID_LIKE_PARAM;
-
   private static final String  COUNT_NOT_UPGRADED_USERS_QUERY      =
-                                                              "SELECT COUNT(DISTINCT s.context.id) FROM SettingsEntity s WHERE s.name LIKE 'exo:%Channel' AND s.value NOT LIKE :"
+                                                              "SELECT COUNT(DISTINCT s.context.id) FROM SettingsEntity s WHERE s.name IN (:" + NOTIFICATION_CHANNEL_IDS_PARAM +") AND s.value NOT LIKE :"
                                                                   + NOTIFICATION_PLUGIN_ID_LIKE_PARAM;
 
   private static final String  UPGRADE_USERS_NOTIFICATIONS_QUERY   =
@@ -106,6 +102,7 @@ public class NotificationUpgradePlugin extends UpgradeProductPlugin {
 
   @Override
   public void processUpgrade(String oldVersion, String newVersion) {
+
     int usersToUpgradeCount = countUsersToUpgrade();
     if (usersToUpgradeCount == 0) {
       LOG.debug("Notification Plugin '{}' Setting upgrade will not proceed since no user has specific Notifications settings.",
@@ -113,20 +110,20 @@ public class NotificationUpgradePlugin extends UpgradeProductPlugin {
     } else {
       LOG.info("Start:: Upgrade Notification Plugin Setting '{}' for {} users.", notificationPluginId, usersToUpgradeCount);
       Set<String> activeChannels =
-                                 StringUtils.isBlank(notificationChannelId) ? userSettingService.getDefaultSettings()
-                                                                                                .getChannelActives()
-                                                                            : Collections.singleton(notificationChannelId);
+          StringUtils.isBlank(notificationChannelId) ? userSettingService.getDefaultSettings()
+                                                                         .getChannelActives()
+                                                     : Collections.singleton(notificationChannelId);
       upgradeUsersNotifications(activeChannels);
-      int upgradedUsers = countUpgradedUsers();
-      if (upgradedUsers < usersToUpgradeCount) {
+      int usersToUpgradeCountAfterUpdate = countUsersToUpgrade();
+      if (usersToUpgradeCountAfterUpdate > 0) {
         throw new IllegalStateException(String.format("End:: Upgrade Notification Plugin Setting '%s' didn't upgraded all users settings: %s/%s",
                                                       notificationPluginId,
-                                                      upgradedUsers,
+                                                      (usersToUpgradeCount - usersToUpgradeCountAfterUpdate),
                                                       usersToUpgradeCount));
       }
       LOG.info("End:: Upgrade Notification Plugin Setting '{}' for {}/{} users.",
                notificationPluginId,
-               upgradedUsers,
+               (usersToUpgradeCount - usersToUpgradeCountAfterUpdate),
                usersToUpgradeCount);
     }
   }
@@ -143,23 +140,18 @@ public class NotificationUpgradePlugin extends UpgradeProductPlugin {
   }
 
   @ExoTransactional
-  public int countUpgradedUsers() {
-    EntityManager entityManager = entityManagerService.getEntityManager();
-    TypedQuery<Long> query = entityManager.createQuery(COUNT_UPGRADED_USERS_QUERY, Long.class);
-    query.setParameter(NOTIFICATION_PLUGIN_ID_LIKE_PARAM, "%" + notificationPluginId + "%");
-    try {
-      Long queryResult = query.getSingleResult();
-      return queryResult == null ? 0 : queryResult.intValue();
-    } catch (NoResultException e) {
-      return 0;
-    }
-  }
-
-  @ExoTransactional
   public int countUsersToUpgrade() {
+    Set<String> channelIds =
+        StringUtils.isBlank(notificationChannelId) ? userSettingService.getDefaultSettings()
+                                                                       .getChannelActives()
+                                                   : Collections.singleton(notificationChannelId);
+    List<String> channelValues = channelIds.stream().map(channelId -> "exo:" + channelId + "Channel").toList();
+
     EntityManager entityManager = entityManagerService.getEntityManager();
     TypedQuery<Long> query = entityManager.createQuery(COUNT_NOT_UPGRADED_USERS_QUERY, Long.class);
     query.setParameter(NOTIFICATION_PLUGIN_ID_LIKE_PARAM, "%" + notificationPluginId + "%");
+    query.setParameter(NOTIFICATION_CHANNEL_IDS_PARAM, channelValues);
+
     try {
       Long queryResult = query.getSingleResult();
       return queryResult == null ? 0 : queryResult.intValue();
