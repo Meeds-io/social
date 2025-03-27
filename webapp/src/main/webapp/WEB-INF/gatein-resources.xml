@@ -342,6 +342,9 @@
         <module>attachImage</module>
       </depends>
       <depends>
+        <module>attachmentsPreview</module>
+      </depends>
+      <depends>
         <module>vue</module>
       </depends>
       <depends>
@@ -2129,6 +2132,9 @@
         <module>attachImage</module>
       </depends>
       <depends>
+        <module>attachmentsPreview</module>
+      </depends>
+      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -2601,6 +2607,9 @@
     </depends>
     <depends>
       <module>extensionRegistry</module>
+    </depends>
+    <depends>
+      <module>attachmentsPreview</module>
     </depends>
     <depends>
       <module>imageCropper</module>
