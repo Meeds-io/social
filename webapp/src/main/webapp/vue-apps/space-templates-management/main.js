@@ -39,11 +39,18 @@ export function init(isExternalFeatureEnabled) {
     .then(i18n =>
       Vue.createApp({
         data: {
+          spaceTemplates: [],
           isExternalFeatureEnabled,
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
           collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+          allSpaceTemplatesSelected: false,
+          selectedSpaceTemplates: [],
+          spaceTemplatesSize: 0,
+          processedSpaceTemplates: 0,
+          isBulkProcessing: false,
+          loading: 0,
           extensionApp: 'space-templates',
           menuItemExtensionType: 'space-templates-item-action',
           mainExtensionType: 'space-templates-main',
@@ -54,8 +61,19 @@ export function init(isExternalFeatureEnabled) {
           isMobile() {
             return this.$vuetify.breakpoint.mobile;
           },
+          systemSelectedSpaceTemplates() {
+            return this.selectedSpaceTemplates.every(template => template.system);
+          }
         },
         async created() {
+          this.$root.$on('space-templates-list-refresh', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-deleted', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-created', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-updated', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-enabled', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-disabled', this.refreshSpaceTemplates);
+          this.$root.$on('space-templates-saved', this.refreshSpaceTemplates);
+          this.refreshSpaceTemplates();
           document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
           document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
@@ -63,15 +81,85 @@ export function init(isExternalFeatureEnabled) {
           this.refreshMenuExtensions();
         },
         beforeDestroy() {
+          this.$root.$off('space-templates-list-refresh', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-deleted', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-created', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-updated', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-enabled', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-disabled', this.refreshSpaceTemplates);
+          this.$root.$off('space-templates-saved', this.refreshSpaceTemplates);
           document.removeEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           document.removeEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
         },
         methods: {
+          refreshSpaceTemplates() {
+            this.loading = true;
+            return this.$spaceTemplateService.getSpaceTemplates(true)
+              .then(spaceTemplates => this.spaceTemplates = spaceTemplates || [])
+              .finally(() => this.loading = false);
+          },
           refreshMenuExtensions() {
             this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
           },
           refreshMainExtensions() {
             this.mainExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.mainExtensionType);
+          },
+          async applyOperationInBulk(callback, params, onFinish, onCancel) {
+            this.processedSpaceTemplates = 0;
+            this.isBulkProcessing = true;
+            this.$emit('space-templates-bulk-operation-status', null, 'disabled');
+            try {
+              if (this.allSpaceTemplatesSelected) {
+                let index = 0;
+                do {
+                  while (index < this.spaceTemplates.length && this.isBulkProcessing) {
+                    // eslint-disable-next-line no-await-in-loop
+                    await this.applyOperationOnSpaceTemplate(this.spaceTemplates[index++], params, callback);
+                  }
+                  if (index >= this.spaceTemplates.length && this.isBulkProcessing) {
+                    // eslint-disable-next-line no-await-in-loop
+                    this.selectedSpaceTemplates = this.spaceTemplates;
+                  }
+                } while (index < this.spaceTemplates.length && this.isBulkProcessing);
+              } else {
+                for (const element of this.spaceTemplates) {
+                  if (!this.isBulkProcessing) {
+                    break;
+                  }
+                  const spaceTemplate = element;
+                  if (this.selectedSpaceTemplates.find(s => s.id === spaceTemplate.id)) {
+                    // eslint-disable-next-line no-await-in-loop
+                    await this.applyOperationOnSpaceTemplate(spaceTemplate, params, callback);
+                  }
+                }
+              }
+            } finally {
+              this.allSpaceTemplatesSelected = false;
+              this.selectedSpaceTemplates = [];
+              this.$emit('space-templates-bulk-operation-status', null, null);
+              if (this.isBulkProcessing) {
+                this.isBulkProcessing = false;
+                await this.$nextTick();
+                if (onFinish) {
+                  onFinish(params);
+                }
+              } else if (onCancel) {
+                onCancel(params);
+              }
+            }
+          },
+          async applyOperationOnSpaceTemplate(spaceTemplate, params, callback) {
+            this.$emit('space-templates-bulk-operation-status', spaceTemplate.id, 'processing');
+            try {
+              await callback(spaceTemplate, params);
+              this.$emit('space-templates-bulk-operation-status', spaceTemplate.id, 'done');
+            } catch (e) {
+              // eslint-disable-next-line no-console
+              console.error('Error processing space template ', spaceTemplate.id, '. Error: ', e);
+              this.$emit('space-templates-bulk-operation-status', spaceTemplate.id, 'error');
+            } finally {
+              this.processedSpaceTemplates++;
+            }
           },
         },
         template: `<space-templates-management id="${appId}"/>`,

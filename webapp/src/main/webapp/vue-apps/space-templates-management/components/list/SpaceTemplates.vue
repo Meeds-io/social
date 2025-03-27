@@ -21,19 +21,47 @@
 <template>
   <div>
     <v-data-table
+      v-model="$root.selectedSpaceTemplates"
       :headers="headers"
       :items="filteredSpaceTemplates"
       :loading="loading"
       :disable-sort="$root.isMobile"
       :hide-default-header="$root.isMobile"
+      :show-select="!$root.isMobile"
       must-sort
       disable-pagination
       hide-default-footer
       class="spaceTemplatesTable px-5">
+      <template slot="header.data-table-select" slot-scope="{on, props}">
+        <v-checkbox
+          v-on="on"
+          v-bind="props"
+          on-icon="fas fa-check-square fa-lg primary--text"
+          indeterminate-icon="fas fa-minus-square fa-lg"
+          off-icon="far fa-square fa-lg"
+          class="my-auto pt-2"
+          @change="on.input" />
+      </template>
+      <template v-if="$root.selectedSpaceTemplates.length" slot="body.prepend">
+        <tr>
+          <td :colspan="headers.length + 1" class="px-0">
+            <v-alert
+              :icon="false"
+              class="ma-0 ps-5 no-border-radius"
+              border="left"
+              type="info"
+              colored-border>
+              <div v-html="selectionLabel"></div>
+            </v-alert>
+          </td>
+        </tr>
+      </template>
       <template slot="item" slot-scope="props">
         <space-templates-management-item
           :key="props.item.id"
-          :space-template="props.item" />
+          :space-template="props.item"
+          :selected="props.isSelected"
+          :select="props.select" />
       </template>
     </v-data-table>
     <exo-confirm-dialog
@@ -55,9 +83,7 @@ export default {
     },
   },
   data: () => ({
-    spaceTemplates: [],
     spaceTemplateToDelete: null,
-    loading: false,
   }),
   computed: {
     headers() {
@@ -178,6 +204,9 @@ export default {
         },
       ];
     },
+    spaceTemplates() {
+      return this.$root.spaceTemplates;
+    },
     filteredSpaceTemplates() {
       const spaceTemplates = this.spaceTemplates
         ?.filter?.(t => t.name)
@@ -197,25 +226,30 @@ export default {
     nameToDelete() {
       return this.spaceTemplateToDelete && this.$te(this.spaceTemplateToDelete?.name) ? this.$t(this.spaceTemplateToDelete?.name) : this.spaceTemplateToDelete?.name;
     },
+    selectionLabel() {
+      if (this.$root.allSpaceTemplatesSelected) {
+        return this.$t('spaceTemplate.label.allSpaceTemplatesSelected', {
+          0: `<strong>${this.$root.spaceTemplatesSize}</strong>`,
+        });
+      } else {
+        return this.$t('spaceTemplate.label.selectedSpaceTemplatesCount', {
+          0: `<strong>${this.$root.selectedSpaceTemplates.length}</strong>`,
+        });
+      }
+    },
+  },
+  watch: {
+    keyword() {
+      this.$root.allSpaceTemplatesSelected = false;
+      this.$root.selectedSpaceTemplates = [];
+    },
   },
   created() {
-    this.$root.$on('space-templates-deleted', this.refreshSpaceTemplates);
-    this.$root.$on('space-templates-created', this.refreshSpaceTemplates);
-    this.$root.$on('space-templates-updated', this.refreshSpaceTemplates);
-    this.$root.$on('space-templates-enabled', this.refreshSpaceTemplates);
-    this.$root.$on('space-templates-disabled', this.refreshSpaceTemplates);
-    this.$root.$on('space-templates-saved', this.refreshSpaceTemplates);
     this.$root.$on('space-templates-delete', this.deleteSpaceTemplateConfirm);
-    this.refreshSpaceTemplates();
   },
   beforeDestroy() {
-    this.$root.$off('space-templates-deleted', this.refreshSpaceTemplates);
-    this.$root.$off('space-templates-created', this.refreshSpaceTemplates);
-    this.$root.$off('space-templates-updated', this.refreshSpaceTemplates);
-    this.$root.$off('space-templates-enabled', this.refreshSpaceTemplates);
-    this.$root.$off('space-templates-disabled', this.refreshSpaceTemplates);
-    this.$root.$off('space-templates-saved', this.refreshSpaceTemplates);
     this.$root.$off('space-templates-delete', this.deleteSpaceTemplateConfirm);
+
   },
   methods: {
     deleteSpaceTemplateConfirm(spaceTemplate) {
@@ -223,12 +257,6 @@ export default {
       if (this.spaceTemplateToDelete) {
         this.$refs.deleteConfirmDialog.open();
       }
-    },
-    refreshSpaceTemplates() {
-      this.loading = true;
-      return this.$spaceTemplateService.getSpaceTemplates(true)
-        .then(spaceTemplates => this.spaceTemplates = spaceTemplates || [])
-        .finally(() => this.loading = false);
     },
     deleteSpaceTemplate(spaceTemplate) {
       this.loading = true;
