@@ -19,10 +19,12 @@
 
 import AttachmentsPreviewDialog from './components/preview/AttachmentsPreviewDialog.vue';
 import AttachmentsImagePreview from './components/preview/AttachmentsImagePreview.vue';
+import AttachmentsDefaultPreview from './components/preview/AttachmentsDefaultPreview.vue';
 
 const components = {
   'attachments-preview-dialog': AttachmentsPreviewDialog,
   'attachments-image-preview': AttachmentsImagePreview,
+  'attachments-default-preview': AttachmentsDefaultPreview,
 };
 
 for (const key in components) {
