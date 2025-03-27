@@ -81,6 +81,7 @@ export default {
     dialog: false,
     currentAttachmentId: 0, 
     filename: '',
+    fileUrl: '',
     objectType: '',
     attachments: null,
     previewExtensionApp: 'Preview',
@@ -89,11 +90,11 @@ export default {
   }),
   computed: {
     downloadURL() {
-      return this.currentAttachmentUrl?`${eXo.env.portal.context}${this.currentAttachmentUrl}`:`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+      return `${eXo.env.portal.context}${ this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).downloadUrl}?size=0x0&download=true` || this.fileUrl;
     },
     attachmentFilename() {
-      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
-    }, 
+      return  this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).filename || this.filename;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
@@ -143,11 +144,10 @@ export default {
       };
     },
     getExtension(attachment) {
-      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType));
+      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType)) || this.previewExtensions.find((element) => element.default);
     },
     openPreview(event) {
       const attachment = event?.detail;
-      this.currentAttachmentUrl = attachment.downloadUrl;
       this.open(attachment.objectType, attachment.objectId, attachment.attachments, attachment.id);
     },
     open(objectType, objectId, attachments, id) {
@@ -156,6 +156,7 @@ export default {
       this.attachments = attachments;
       this.currentAttachmentId = id;
       this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
+      this.fileUrl = this.attachments.filter(attachment => attachment.id === id)[0].downloadUrl;
       this.dialog = true;
     },
     close() {
@@ -165,6 +166,7 @@ export default {
       this.attachments = null;
       this.currentAttachmentId = null;
       this.filename = null;
+      this.fileUrl = null;
     },
   }
 };

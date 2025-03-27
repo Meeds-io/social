@@ -93,6 +93,7 @@ export default {
         .then(data => this.updatedAttachments = data?.attachments || []);
     },
     openPreview(attachmentId) {
+      this.imageAttachments?.map((item) => item.downloadUrl=`/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${item.id}`);
       this.$root.$emit('open-attachments-preview', this.objectType, this.objectId, this.imageAttachments || [], attachmentId);
     },
   },
