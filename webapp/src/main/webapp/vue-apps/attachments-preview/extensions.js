@@ -25,3 +25,12 @@ extensionRegistry.registerExtension('Preview', 'previewExtensions', {
     vueComponent: Vue.options.components['attachments-image-preview'],
   },
 });
+
+extensionRegistry.registerExtension('Preview', 'previewExtensions', {
+  id: 'default-preview',
+  rank: 20,
+  default: true,
+  componentOptions: {
+    vueComponent: Vue.options.components['attachments-default-preview'],
+  },
+});
