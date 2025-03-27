@@ -38,6 +38,11 @@ extensionRegistry.registerExtension('space-templates', 'space-templates-item-act
 });
 extensionRegistry.registerExtension('space-templates', 'space-templates-item-action', {
   rank: 50,
+  name: 'serialize',
+  componentName: 'space-templates-management-menu-item-serialize',
+});
+extensionRegistry.registerExtension('space-templates', 'space-templates-item-action', {
+  rank: 60,
   name: 'delete',
   componentName: 'space-templates-management-menu-item-delete',
 });
