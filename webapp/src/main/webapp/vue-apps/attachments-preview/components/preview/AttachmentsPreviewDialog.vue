@@ -155,8 +155,8 @@ export default {
       this.objectId = objectId;
       this.attachments = attachments;
       this.currentAttachmentId = id;
-      this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
-      this.fileUrl = this.attachments.filter(attachment => attachment.id === id)[0].downloadUrl;
+      this.filename = this.attachments.find(attachment => attachment.id === id).filename;
+      this.fileUrl = this.attachments.find(attachment => attachment.id === id).downloadUrl;
       this.dialog = true;
     },
     close() {
