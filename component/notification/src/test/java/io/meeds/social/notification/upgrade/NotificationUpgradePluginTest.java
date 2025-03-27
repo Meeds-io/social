@@ -18,7 +18,9 @@
 package io.meeds.social.notification.upgrade;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
+import org.exoplatform.commons.api.notification.channel.ChannelManager;
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.api.settings.SettingService;
@@ -27,13 +29,17 @@ import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.social.notification.AbstractNotificationCoreTest;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 public class NotificationUpgradePluginTest extends AbstractNotificationCoreTest {// NOSONAR
 
   private static final String DEFAULT_NOTIFICATION_PLUGIN_ID = "DefaultNotificationPluginId";
 
   private static final String UPGRADE_NOTIFICATION_PLUGIN    = "UpgradeNotificationPlugin";
 
-  private UserSettingService  userSettingService;
+  private UserSettingService userSettingService;
 
   @Override
   protected void setUp() throws Exception {
@@ -80,6 +86,82 @@ public class NotificationUpgradePluginTest extends AbstractNotificationCoreTest 
 
     rootUserSettings = userSettingService.get(userSettings.getUserId());
     assertTrue(rootUserSettings.getPlugins(channelId).contains(UPGRADE_NOTIFICATION_PLUGIN));
+  }
+
+  public void testNotificationUpgradeWithOneChannel() {
+
+    //john have default notification plugin id for first channel (MAIL_CHANNEL)
+    //he does not have the default notification plugin id for the second channel (WEB_CHANNEL)
+
+    UserSetting userSettings = userSettingService.get("john");
+    String channelId = userSettings.getChannelActives().iterator().next();
+    userSettings.setChannelPlugins(channelId, Arrays.asList(DEFAULT_NOTIFICATION_PLUGIN_ID));
+    userSettingService.save(userSettings);
+    UserSetting johnUserSettings = userSettingService.get(userSettings.getUserId());
+    Iterator channels = userSettings.getChannelActives().iterator();
+    boolean firstChannel = true;
+    while (channels.hasNext()) {
+      String channel = (String) channels.next();
+      if (firstChannel) {
+        assertTrue(johnUserSettings.getPlugins(channel).contains(DEFAULT_NOTIFICATION_PLUGIN_ID));
+      } else {
+        assertFalse(johnUserSettings.getPlugins(channel).contains(DEFAULT_NOTIFICATION_PLUGIN_ID));
+      }
+      firstChannel=false;
+    }
+
+
+    //The plugin upgrade only ONE CHANNEL : SPACE_WEB_CHANNEL for which john have no configuration
+    //because of old data for example
+
+    InitParams initParams = new InitParams();
+
+    ValueParam valueParam = new ValueParam();
+    valueParam.setName("product.group.id");
+    valueParam.setValue("org.exoplatform.social");
+    initParams.addParam(valueParam);
+
+    valueParam = new ValueParam();
+    valueParam.setName("plugin.execution.order");
+    valueParam.setValue("5");
+    initParams.addParam(valueParam);
+
+    valueParam = new ValueParam();
+    valueParam.setName("notificationPluginId");
+    valueParam.setValue(UPGRADE_NOTIFICATION_PLUGIN);
+    initParams.addParam(valueParam);
+
+    valueParam = new ValueParam();
+    valueParam.setName("notificationChannelId");
+    valueParam.setValue("SPACE_WEB_CHANNEL");
+    initParams.addParam(valueParam);
+
+    EntityManagerService entityManagerService = getContainer().getComponentInstanceOfType(EntityManagerService.class);
+    SettingService settingService = getContainer().getComponentInstanceOfType(SettingService.class);
+    NotificationUpgradePlugin upgradePlugin = new NotificationUpgradePlugin(entityManagerService,
+                                                                            userSettingService,
+                                                                            settingService,
+                                                                            initParams);
+    upgradePlugin.setName(UPGRADE_NOTIFICATION_PLUGIN);
+    assertTrue(upgradePlugin.isEnabled());
+
+    try {
+      //the upgrade should not generate an exception
+      upgradePlugin.processUpgrade(null, null);
+    } catch (RuntimeException e) {
+      fail("Upgrade plugin should not throw an exception");
+      throw e;
+    }
+    restartTransaction();
+
+    //both channel for john should not have the new upgrade plugin
+    johnUserSettings = userSettingService.get(userSettings.getUserId());
+    channels = userSettings.getChannelActives().iterator();
+    while (channels.hasNext()) {
+      String channel = (String) channels.next();
+      assertFalse(johnUserSettings.getPlugins(channel).contains(UPGRADE_NOTIFICATION_PLUGIN));
+    }
+
   }
 
 }
