@@ -181,13 +181,6 @@ export default {
   created() {
     this.init();
   },
-  beforeDestroy() {
-    this.$root.openedSpaceTemplateId = null;
-    this.$root.openedSpaceCategoryId = null;
-    this.$root.openedItem = null;
-    this.$root.openedSpaces = false;
-    this.$root.spacesSortBy = null;
-  },
   methods: {
     async init() {
       if (!this.$root.spaceTemplates) {
