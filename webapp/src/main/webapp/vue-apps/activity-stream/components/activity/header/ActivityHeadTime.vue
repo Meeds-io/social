@@ -27,13 +27,13 @@
             :short="isMobile"
             :class="truncateText"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
+            class="text-subtitle relativeDateFormatClass" />
           <relative-date-format
             v-else
             :value="activity.createDate"
             :short="isMobile"
             :class="truncateText"
-            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
+            class="text-subtitle relativeDateFormatClass" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
