@@ -117,7 +117,6 @@ export default {
   },
   created() {
     this.refreshPreviewExtensions();
-    this.$root.$on('open-attachments-preview', this.open);
     document.addEventListener(`extension-${this.previewExtensionApp}-${this.previewExtensionType}-updated`, this.refreshPreviewExtensions);
     document.addEventListener('open-attachments-preview', this.openPreview);
     document.addEventListener('keydown', (event) => {
@@ -148,15 +147,12 @@ export default {
     },
     openPreview(event) {
       const attachment = event?.detail;
-      this.open(attachment.objectType, attachment.objectId, attachment.attachments, attachment.id);
-    },
-    open(objectType, objectId, attachments, id) {
-      this.objectType = objectType;
-      this.objectId = objectId;
-      this.attachments = attachments;
-      this.currentAttachmentId = id;
-      this.filename = this.attachments.find(attachment => attachment.id === id).filename;
-      this.fileUrl = this.attachments.find(attachment => attachment.id === id).downloadUrl;
+      this.objectType = attachment.objectType;
+      this.objectId = attachment.objectType;
+      this.attachments = attachment.attachments;
+      this.currentAttachmentId = attachment.id;
+      this.filename = this.attachments.find(file => file.id === attachment.id).filename;
+      this.fileUrl = this.attachments.find(file => file.id === attachment.id).downloadUrl;
       this.dialog = true;
     },
     close() {
