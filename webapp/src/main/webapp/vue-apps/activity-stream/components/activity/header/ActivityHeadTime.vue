@@ -15,7 +15,7 @@
           :height="btnHeight"
           :x-small="btnXSmall"
           :class="btnClass"
-          class="hover-underline width-auto text-capitalize-first-letter px-0 "
+          class="hover-underline width-auto px-0 "
           link
           text
           plain
@@ -27,13 +27,13 @@
             :short="isMobile"
             :class="truncateText"
             label="UIActivity.label.EditedFrom"
-            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
+            class="text-subtitle relativeDateFormatClass text-none" />
           <relative-date-format
             v-else
             :value="activity.createDate"
             :short="isMobile"
             :class="truncateText"
-            class="text-capitalize-first-letter text-subtitle relativeDateFormatClass" />
+            class="text-subtitle relativeDateFormatClass text-none" />
         </v-btn>
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
