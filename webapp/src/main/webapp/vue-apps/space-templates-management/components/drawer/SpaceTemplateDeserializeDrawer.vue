@@ -147,7 +147,7 @@ export default {
           uploadId: this.uploadId,
         });
         this.importFinished = true;
-        this.$root.$emit('space-template-saved');
+        this.$root.$emit('space-templates-created');
       } catch (error) {
         if (error.message === 'databind.notMatchType') {
           this.$root.$emit('alert-message', this.$t('spaceTemplate.label.exception.notMatchType'), 'error');
