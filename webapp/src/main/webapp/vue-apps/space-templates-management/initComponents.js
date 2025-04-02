@@ -37,6 +37,7 @@ import SpaceTemplateBulkDelete from './components/action/BulkDelete.vue';
 import SpaceTemplateNameDrawer from './components/drawer/SpaceTemplateNameDrawer.vue';
 import SpaceTemplateCharacteristicsDrawer from './components/drawer/SpaceTemplateCharacteristicsDrawer.vue';
 import SpaceListByTemplateDrawer from './components/drawer/SpaceListByTemplateDrawer.vue';
+import SpaceTemplateDeserializeDrawer from './components/drawer/SpaceTemplateDeserializeDrawer.vue';
 
 import SpaceTemplateBanner from './components/form/SpaceTemplateBanner.vue';
 import SpaceTemplateVisibility from './components/form/SpaceTemplateVisibility.vue';
@@ -60,6 +61,7 @@ const components = {
   'space-templates-management-name-drawer': SpaceTemplateNameDrawer,
   'space-templates-management-characteristics-drawer': SpaceTemplateCharacteristicsDrawer,
   'space-templates-management-list-by-template-drawer': SpaceListByTemplateDrawer,
+  'space-templates-deserialize-drawer': SpaceTemplateDeserializeDrawer,
   'space-templates-management-banner': SpaceTemplateBanner,
   'space-templates-management-visibility': SpaceTemplateVisibility,
   'space-templates-management-access': SpaceTemplateAccess,
