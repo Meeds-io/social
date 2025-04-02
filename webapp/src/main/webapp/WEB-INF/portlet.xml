@@ -1147,4 +1147,26 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>AttachmentPreview</portlet-name>
+    <display-name>Platform Attachment Preview</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/html/attachmentPreview.html</value>
+    </init-param>
+    <expiration-cache>-1</expiration-cache>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.attachmentPreview</resource-bundle>
+    <portlet-info>
+      <title>Attachment Preview</title>
+    </portlet-info>
+  </portlet>
+
+
+
 </portlet-app>

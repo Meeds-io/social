@@ -2126,9 +2126,6 @@
         <module>attachImage</module>
       </depends>
       <depends>
-        <module>attachmentsPreview</module>
-      </depends>
-      <depends>
         <module>eXoVueI18n</module>
       </depends>
       <depends>
@@ -2158,6 +2155,35 @@
       </depends>
       <depends>
         <module>extensionRegistry</module>
+      </depends>
+    </module>
+  </portlet>
+
+  <portlet>
+    <name>AttachmentPreview</name>
+    <module>
+      <script>
+        <minify>false</minify>
+        <path>/js/attachmentsPreview.bundle.js</path>
+      </script>
+      <depends>
+        <module>vue</module>
+      </depends>
+      <depends>
+        <module>eXoVueI18n</module>
+      </depends>
+      <depends>
+        <module>vuetify</module>
+      </depends>
+      <depends>
+        <module>jquery</module>
+        <as>$</as>
+      </depends>
+      <depends>
+        <module>extensionRegistry</module>
+      </depends>
+      <depends>
+        <module>commonVueComponents</module>
       </depends>
     </module>
   </portlet>
@@ -2547,9 +2573,6 @@
       <module>attachImage</module>
     </depends>
     <depends>
-      <module>attachmentsPreview</module>
-    </depends>
-    <depends>
       <module>commons-cometd3</module>
       <as>cCometd</as>
     </depends>
@@ -2604,31 +2627,6 @@
     </depends>
     <depends>
       <module>imageCropper</module>
-    </depends>
-    <depends>
-      <module>vuetify</module>
-    </depends>
-    <depends>
-      <module>jquery</module>
-      <as>jQuery</as>
-    </depends>
-  </module>
-  <module>
-    <name>attachmentsPreview</name>
-    <script>
-      <path>/js/attachmentsPreview.bundle.js</path>
-    </script>
-    <depends>
-      <module>vue</module>
-    </depends>
-    <depends>
-      <module>eXoVueI18n</module>
-    </depends>
-    <depends>
-      <module>commonVueComponents</module>
-    </depends>
-    <depends>
-      <module>extensionRegistry</module>
     </depends>
     <depends>
       <module>vuetify</module>
