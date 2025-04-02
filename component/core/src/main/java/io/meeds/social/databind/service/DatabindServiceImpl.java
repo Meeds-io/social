@@ -28,7 +28,6 @@ import org.exoplatform.upload.UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.NotAcceptableStatusException;
 
 import java.io.*;
 import java.util.*;
@@ -93,11 +92,11 @@ public class DatabindServiceImpl implements DatabindService {
 
     String zipType = getZipType(zipFile);
     if (zipType == null) {
-      throw new NotAcceptableStatusException("databind.missingMetadata");
+      throw new IllegalStateException("databind.missingMetadata");
     }
 
     if (!objectType.equals(zipType)) {
-      throw new NotAcceptableStatusException("databind.notMatchType");
+      throw new IllegalStateException("databind.notMatchType");
     }
 
     CompletableFuture<DatabindReport> databindReportCompletableFuture = null;
