@@ -33,7 +33,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.NotAcceptableStatusException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
@@ -82,7 +81,7 @@ public class DatabindRest {
   @Secured("administrators")
   @Operation(summary = "Import Multiple Objects", method = "POST", description = "Imports multiple objects from a ZIP file")
   @ApiResponses(value = {
-          @ApiResponse(responseCode = "406", description = "Not Acceptable")
+          @ApiResponse(responseCode = "400", description = "Bad Request")
   })
   public CompletableFuture<ResponseEntity<DatabindReport>> deserialize(HttpServletRequest request,
                                                                        @RequestBody DatabindRestEntity databindRestEntity) {
@@ -92,8 +91,8 @@ public class DatabindRest {
                                          databindRestEntity.getParams(),
                                          request.getRemoteUser())
                             .thenApply(ResponseEntity::ok);
-    } catch (NotAcceptableStatusException e) {
-      throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, e.getMessage());
+    } catch (IllegalStateException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
     }
   }
 }
