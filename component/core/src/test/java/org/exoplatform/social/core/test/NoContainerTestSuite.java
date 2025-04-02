@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.space.template.plugin.databind.SpaceTemplateDatabindPluginTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -47,6 +48,7 @@ import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslatio
 import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
+import io.meeds.social.databind.service.DatabindServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -70,12 +72,14 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     SpaceSearchConnectorTest.class,
     SpaceTemplateBannerAttachmentPluginTest.class,
     SpaceTemplateTranslationPluginTest.class,
+    SpaceTemplateDatabindPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,
     CategoryServiceUnitTest.class,
     CoeditingServiceTest.class,
     SpaceDirectoryServiceTest.class,
     SpaceDirectoryStorageTest.class,
+    DatabindServiceTest.class,
 })
 public class NoContainerTestSuite {
 
