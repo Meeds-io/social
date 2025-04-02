@@ -36,7 +36,7 @@
           outlined
           @click="$root.$emit('serialize-drawer-open', 'SpaceTemplate', selectedSpaceTemplatesIds)">
           <v-icon size="16" class="me-2">fa-download</v-icon>
-          {{ $t('spaceTemplates.label.export') }}
+          {{ $t('spaceTemplate.label.export') }}
         </v-btn>
         <space-templates-management-bulk-delete />
       </div>
