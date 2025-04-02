@@ -33,6 +33,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Service
@@ -63,6 +65,7 @@ public class DatabindServiceImpl implements DatabindService {
           }
         }
       }
+      addMetadataFile(zipOutputStream, objectType);
     } catch (IOException e) {
       throw new IllegalStateException("Error exporting template", e);
     }
@@ -86,6 +89,16 @@ public class DatabindServiceImpl implements DatabindService {
     if (!zipFile.exists()) {
       throw new IllegalArgumentException("ZIP file missing in upload folder.");
     }
+
+    String zipType = getZipType(zipFile);
+    if (zipType == null) {
+      throw new IllegalStateException("databind.missingMetadata");
+    }
+
+    if (!objectType.equals(zipType)) {
+      throw new IllegalStateException("databind.notMatchType");
+    }
+
     CompletableFuture<DatabindReport> databindReportCompletableFuture = null;
     for (DatabindPlugin plugin : dataPreferencePlugins.values()) {
       if (plugin.canHandleDatabind(objectType, null)) {
@@ -93,5 +106,31 @@ public class DatabindServiceImpl implements DatabindService {
       }
     }
     return databindReportCompletableFuture;
+  }
+
+  private static void addMetadataFile(ZipOutputStream zipOut, String type) throws IOException {
+    ZipEntry zipEntry = new ZipEntry("metadata.txt");
+    zipOut.putNextEntry(zipEntry);
+    zipOut.write(("type=" + type).getBytes());
+    zipOut.closeEntry();
+  }
+
+  @SneakyThrows
+  private String getZipType(File zipFile) {
+    try (ZipInputStream zipInputStream = new ZipInputStream(new FileInputStream(zipFile))) {
+      ZipEntry entry;
+      while ((entry = zipInputStream.getNextEntry()) != null) {
+        if ("metadata.txt".equals(entry.getName())) {
+          BufferedReader reader = new BufferedReader(new InputStreamReader(zipInputStream));
+          String line;
+          while ((line = reader.readLine()) != null) {
+            if (line.startsWith("type=")) {
+              return line.split("=")[1].trim();
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 }
