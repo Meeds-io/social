@@ -159,6 +159,10 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
       databind.setBannerFile(Base64.encodeBase64String(file.getAsByte()));
     }
     databind.setIcon(spaceTemplate.getIcon());
+    databind.setSpaceFields(spaceTemplate.getSpaceFields());
+    databind.setSpaceDefaultVisibility(spaceTemplate.getSpaceDefaultVisibility());
+    databind.setSpaceDefaultRegistration(spaceTemplate.getSpaceDefaultRegistration());
+    databind.setSpaceAllowContentCreation(spaceTemplate.isSpaceAllowContentCreation());
     String jsonData = JsonUtils.toJsonString(databind);
     writeContent(zipOutputStream, objectId, jsonData);
   }
@@ -278,10 +282,10 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     spaceTemplate.setName(spaceTemplateDatabind.getName());
     spaceTemplate.setDescription(spaceTemplateDatabind.getDescription());
     spaceTemplate.setIcon(spaceTemplateDatabind.getIcon());
-    spaceTemplate.setSpaceDefaultVisibility(SpaceVisibility.HIDDEN);
-    spaceTemplate.setSpaceFields(Arrays.asList("name", "invitation", "properties", "access"));
-    spaceTemplate.setSpaceDefaultRegistration(SpaceRegistration.CLOSED);
-    spaceTemplate.setSpaceAllowContentCreation(false);
+    spaceTemplate.setSpaceDefaultVisibility(spaceTemplateDatabind.getSpaceDefaultVisibility());
+    spaceTemplate.setSpaceFields(spaceTemplateDatabind.getSpaceFields());
+    spaceTemplate.setSpaceDefaultRegistration(spaceTemplateDatabind.getSpaceDefaultRegistration());
+    spaceTemplate.setSpaceAllowContentCreation(spaceTemplateDatabind.isSpaceAllowContentCreation());
     spaceTemplate.setAdminPermissions(ADMINISTRATORS_GROUP);
     spaceTemplate.setPermissions(ADMINISTRATORS_GROUP);
     spaceTemplate.setSpaceLayoutPermissions(ADMINISTRATORS_GROUP);
