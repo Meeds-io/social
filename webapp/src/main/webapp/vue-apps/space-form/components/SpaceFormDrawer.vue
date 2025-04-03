@@ -254,7 +254,7 @@ export default {
         || (this.space.description?.length || 0) > this.maxDescriptionLength;
     },
     sortedTemplates() {
-      const spaceTemplates = this.templates?.filter?.(t => t.name) || [];
+      const spaceTemplates = this.templates?.filter?.(t => t.name && t.enabled) || [];
       spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
       return this.keyword?.length && spaceTemplates.filter(t => {
         const name = this.$te(t.name) ? this.$t(t.name) : t.name;
