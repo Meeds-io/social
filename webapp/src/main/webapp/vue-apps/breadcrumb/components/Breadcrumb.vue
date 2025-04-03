@@ -64,8 +64,8 @@ export default {
     userNodeBreadcrumbItemList: null,
     scope: 'SINGLE',
     visibility: ['displayed', 'temporal'],
-    siteType: 'PORTAL',
-    spaceType: 'GROUP',
+    siteType: eXo.env.portal.siteKeyType?.toUpperCase(),
+    siteName: eXo.env.portal.siteKeyName,
     ellipsis: '...',
   }),
   computed: {
@@ -103,7 +103,14 @@ export default {
   },
   methods: {
     getCurrentNavigations() {
-      this.$navigationService.getNavigations((!!eXo.env.portal.spaceId && `/spaces/${eXo.env.portal.spaceGroup}`) || eXo.env.portal.portalName, (!!eXo.env.portal.spaceId && this.spaceType) || this.siteType, this.scope, this.visibility, null,  eXo.env.portal.selectedNodeId, true)
+      this.$navigationService.getNavigations(
+        this.siteName,
+        this.siteType,
+        this.scope, 
+        this.visibility,
+        null,
+        eXo.env.portal.selectedNodeId,
+        true)
         .then(navigations => {
           this.navigation = navigations &&  navigations[0] || {};
           this.userNodeBreadcrumbItemList = navigations &&  navigations[0].userNodeBreadcrumbItemList || [];
