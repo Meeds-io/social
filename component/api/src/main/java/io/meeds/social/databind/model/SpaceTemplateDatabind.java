@@ -18,8 +18,11 @@
  */
 package io.meeds.social.databind.model;
 
+import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.space.constant.SpaceRegistration;
+import io.meeds.social.space.constant.SpaceVisibility;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -42,4 +45,12 @@ public class SpaceTemplateDatabind {
   private String              icon;
 
   private String              layout;
+
+  private List<String>        spaceFields;
+
+  private SpaceVisibility     spaceDefaultVisibility;
+
+  private SpaceRegistration   spaceDefaultRegistration;
+
+  private boolean             spaceAllowContentCreation;
 }
