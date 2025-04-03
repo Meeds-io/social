@@ -32,10 +32,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SpaceTemplateDatabind {
 
-  private String              name;
-
-  private String              description;
-
   private Map<String, String> names;
 
   private Map<String, String> descriptions;

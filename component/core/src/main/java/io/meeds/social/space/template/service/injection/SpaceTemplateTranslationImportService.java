@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -83,14 +82,10 @@ public class SpaceTemplateTranslationImportService {
                                                                         getI18NLabel(labels.get("en"), Locale.ENGLISH)));
   }
 
-  public CompletableFuture<Void> postImport(String objectType) {
-    List<Runnable> tasks = postImportProcessors.remove(objectType);
-    if (tasks == null || tasks.isEmpty()) {
-      return CompletableFuture.completedFuture(null);
-    }
-    List<CompletableFuture<Void>> futures =
-                                          tasks.stream().map(task -> CompletableFuture.runAsync(task, executorService)).toList();
-    return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).thenRun(bundles::clear);
+  public void postImport(String objectType) {
+    postImportProcessors.computeIfAbsent(objectType, k -> new ArrayList<>()).forEach(executorService::execute);
+    postImportProcessors.remove(objectType);
+    bundles.clear();
   }
 
   @SneakyThrows

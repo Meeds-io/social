@@ -52,13 +52,10 @@ import io.meeds.social.databind.model.DatabindReport;
 import io.meeds.social.databind.model.SpaceTemplateDatabind;
 import io.meeds.social.databind.plugin.DatabindPlugin;
 import io.meeds.social.databind.service.DatabindService;
-import io.meeds.social.space.constant.SpaceRegistration;
-import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPlugin;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPlugin;
 import io.meeds.social.space.template.service.SpaceTemplateService;
-import io.meeds.social.space.template.service.injection.SpaceTemplateTranslationImportService;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
 import io.meeds.social.util.JsonUtils;
@@ -69,37 +66,34 @@ import lombok.SneakyThrows;
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
 
-  public static final String                      OBJECT_TYPE          = "SpaceTemplate";
+  public static final String        OBJECT_TYPE          = "SpaceTemplate";
 
-  private static final List<String>               ADMINISTRATORS_GROUP = Collections.singletonList("*:/platform/administrators");
+  private static final List<String> ADMINISTRATORS_GROUP = Collections.singletonList("*:/platform/administrators");
 
-  private static final Random                     RANDOM               = new Random();
+  private static final Random       RANDOM               = new Random();
 
-  private long                                    superUserIdentityId;
-
-  @Autowired
-  protected DatabindService                       databindService;
+  private long                      superUserIdentityId;
 
   @Autowired
-  protected FileService                           fileService;
+  protected DatabindService         databindService;
 
   @Autowired
-  protected TranslationService                    translationService;
+  protected FileService             fileService;
 
   @Autowired
-  protected SpaceTemplateTranslationImportService layoutTranslationService;
+  protected TranslationService      translationService;
 
   @Autowired
-  protected SpaceTemplateService                  spaceTemplateService;
+  protected SpaceTemplateService    spaceTemplateService;
 
   @Autowired
-  protected AttachmentService                     attachmentService;
+  protected AttachmentService       attachmentService;
 
   @Autowired
-  protected UserACL                               userAcl;
+  protected UserACL                 userAcl;
 
   @Autowired
-  protected IdentityManager                       identityManager;
+  protected IdentityManager         identityManager;
 
   @PostConstruct
   public void init() {
@@ -125,8 +119,6 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
                                                                         true);
 
     SpaceTemplateDatabind databind = new SpaceTemplateDatabind();
-    databind.setName(spaceTemplate.getName());
-    databind.setDescription(spaceTemplate.getDescription());
     TranslationField translationNameField = translationService.getTranslationField(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                                                                    Long.parseLong(objectId),
                                                                                    SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
@@ -168,28 +160,24 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
   }
 
   public CompletableFuture<DatabindReport> deserialize(File zipFile, Map<String, String> params, String username) {
-    return CompletableFuture.supplyAsync(() -> importPageTemplates(zipFile))
-                            .thenCompose(processedTemplates -> layoutTranslationService.postImport(SpaceTemplateTranslationPlugin.OBJECT_TYPE)
-                                                                                       .thenApply(v -> {
-                                                                                         DatabindReport report =
-                                                                                                               new DatabindReport();
-                                                                                         report.setSuccess(!processedTemplates.isEmpty());
-                                                                                         report.setProcessedItems(processedTemplates);
-                                                                                         return report;
-                                                                                       }));
-
+    return CompletableFuture.supplyAsync(() -> importSpaceTemplates(zipFile)).thenApply(processedTemplates -> {
+      DatabindReport report = new DatabindReport();
+      report.setSuccess(!processedTemplates.isEmpty());
+      report.setProcessedItems(processedTemplates);
+      return report;
+    });
   }
 
   @ContainerTransactional
-  public List<String> importPageTemplates(File zipFile) {
+  public List<String> importSpaceTemplates(File zipFile) {
     Map<String, SpaceTemplateDatabind> instances = extractTemplates(zipFile);
-    List<String> processedPageTemplates = new ArrayList<>();
+    List<String> processedSpaceTemplates = new ArrayList<>();
     for (Map.Entry<String, SpaceTemplateDatabind> entry : instances.entrySet()) {
       SpaceTemplateDatabind spaceTemplate = entry.getValue();
-      processPageTemplate(spaceTemplate);
-      processedPageTemplates.add(spaceTemplate.getName());
+      processSpaceTemplate(spaceTemplate);
+      processedSpaceTemplates.add(spaceTemplate.getLayout());
     }
-    return processedPageTemplates;
+    return processedSpaceTemplates;
   }
 
   private Map<String, SpaceTemplateDatabind> extractTemplates(File zipFile) {
@@ -207,7 +195,7 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
           }
           String jsonContent = baos.toString(StandardCharsets.UTF_8);
 
-          // Deserialize JSON into a Page templates
+          // Deserialize JSON into a Space templates
           SpaceTemplateDatabind databind = JsonUtils.fromJsonString(jsonContent, SpaceTemplateDatabind.class);
           if (databind != null) {
             templateDatabindMap.put(entry.getName(), databind);
@@ -220,7 +208,7 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     return templateDatabindMap;
   }
 
-  private void saveBanner(long pageTemplateId, byte[] bannerBytes) {
+  private void saveBanner(long spaceTemplateId, byte[] bannerBytes) {
     File tempFile = null;
     try {
       tempFile = getBannerFile(bannerBytes);
@@ -230,16 +218,16 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
       uploadResource.setMimeType("image/png");
       uploadResource.setStatus(UploadResource.UPLOADED_STATUS);
       uploadResource.setStoreLocation(tempFile.getPath());
-      attachmentService.deleteAttachments(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE, String.valueOf(pageTemplateId));
+      attachmentService.deleteAttachments(SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE, String.valueOf(spaceTemplateId));
       UploadedAttachmentDetail uploadedAttachmentDetail = new UploadedAttachmentDetail(uploadResource);
       attachmentService.saveAttachment(uploadedAttachmentDetail,
                                        SpaceTemplateBannerAttachmentPlugin.OBJECT_TYPE,
-                                       String.valueOf(pageTemplateId),
+                                       String.valueOf(spaceTemplateId),
                                        null,
                                        getSuperUserIdentityId());
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Error while saving banner file as attachment for space template '%s'",
-                                                    pageTemplateId),
+                                                    spaceTemplateId),
                                       e);
     } finally {
       if (tempFile != null) {
@@ -252,22 +240,24 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     }
   }
 
+  @SneakyThrows
   private void saveNames(SpaceTemplateDatabind spaceTemplateDatabind, SpaceTemplate spaceTemplate) {
-    layoutTranslationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
-                                                   spaceTemplate.getId(),
-                                                   SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
-                                                   spaceTemplateDatabind.getNames());
-  }
-
-  private void saveDescriptions(SpaceTemplateDatabind spaceTemplateDatabind, SpaceTemplate spaceTemplate) {
-    layoutTranslationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
-                                                   spaceTemplate.getId(),
-                                                   SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
-                                                   spaceTemplateDatabind.getDescriptions());
+    translationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
+                                             spaceTemplate.getId(),
+                                             SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
+                                             convertToLocaleMap(spaceTemplateDatabind.getNames()));
   }
 
   @SneakyThrows
-  private void processPageTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
+  private void saveDescriptions(SpaceTemplateDatabind spaceTemplateDatabind, SpaceTemplate spaceTemplate) {
+    translationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
+                                             spaceTemplate.getId(),
+                                             SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
+                                             convertToLocaleMap(spaceTemplateDatabind.getDescriptions()));
+  }
+
+  @SneakyThrows
+  private void processSpaceTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(spaceTemplateDatabind);
     SpaceTemplate createdSpaceTemplate = spaceTemplateService.createSpaceTemplate(spaceTemplate);
     saveNames(spaceTemplateDatabind, createdSpaceTemplate);
@@ -279,8 +269,6 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
 
   private static SpaceTemplate getSpaceTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
     SpaceTemplate spaceTemplate = new SpaceTemplate();
-    spaceTemplate.setName(spaceTemplateDatabind.getName());
-    spaceTemplate.setDescription(spaceTemplateDatabind.getDescription());
     spaceTemplate.setIcon(spaceTemplateDatabind.getIcon());
     spaceTemplate.setSpaceDefaultVisibility(spaceTemplateDatabind.getSpaceDefaultVisibility());
     spaceTemplate.setSpaceFields(spaceTemplateDatabind.getSpaceFields());
@@ -317,5 +305,11 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
       superUserIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(userAcl.getSuperUser()).getId());
     }
     return superUserIdentityId;
+  }
+
+  public static Map<Locale, String> convertToLocaleMap(Map<String, String> inputMap) {
+    return inputMap.entrySet()
+                   .stream()
+                   .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()), Map.Entry::getValue));
   }
 }

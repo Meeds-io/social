@@ -49,7 +49,6 @@ import io.meeds.social.databind.model.DatabindReport;
 import io.meeds.social.databind.service.DatabindService;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
-import io.meeds.social.space.template.service.injection.SpaceTemplateTranslationImportService;
 import io.meeds.social.translation.service.TranslationService;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,9 +65,6 @@ public class SpaceTemplateDatabindPluginTest {
 
   @Mock
   private FileService                           fileService;
-
-  @Mock
-  private SpaceTemplateTranslationImportService layoutTranslationService;
 
   @Mock
   private TranslationService                    translationService;
@@ -89,7 +85,6 @@ public class SpaceTemplateDatabindPluginTest {
     spaceTemplateDatabindPlugin = new SpaceTemplateDatabindPlugin();
     spaceTemplateDatabindPlugin.spaceTemplateService = spaceTemplateService;
     spaceTemplateDatabindPlugin.translationService = translationService;
-    spaceTemplateDatabindPlugin.layoutTranslationService = layoutTranslationService;
     spaceTemplateDatabindPlugin.fileService = fileService;
   }
 
@@ -113,8 +108,6 @@ public class SpaceTemplateDatabindPluginTest {
                                                anyString(),
                                                any(Locale.class),
                                                anyBoolean())).thenReturn(spaceTemplate);
-    when(spaceTemplate.getName()).thenReturn("spaceTemplate1");
-
     when(translationService.getTranslationField(anyString(), anyLong(), anyString(), anyString())).thenReturn(translationField);
     Map<Locale, String> labels = new HashMap<>();
     labels.put(Locale.getDefault(), "test");
@@ -132,8 +125,6 @@ public class SpaceTemplateDatabindPluginTest {
 
     when(spaceTemplateService.createSpaceTemplate(any())).thenReturn(new SpaceTemplate());
 
-    when(layoutTranslationService.postImport(any())).thenReturn(CompletableFuture.completedFuture(null));
-
     // When
     CompletableFuture<DatabindReport> futureReport = spaceTemplateDatabindPlugin.deserialize(zipFile, null, "admin");
 
@@ -143,8 +134,8 @@ public class SpaceTemplateDatabindPluginTest {
     assertNotNull(report);
     assertTrue(report.isSuccess());
     assertEquals(2, report.getProcessedItems().size());
-    assertTrue(report.getProcessedItems().contains("12345"));
-    assertTrue(report.getProcessedItems().contains("67890"));
+    assertTrue(report.getProcessedItems().contains("layout1"));
+    assertTrue(report.getProcessedItems().contains("layout2"));
 
     verify(spaceTemplateService, times(2)).createSpaceTemplate(any());
   }
@@ -154,10 +145,10 @@ public class SpaceTemplateDatabindPluginTest {
     try (FileOutputStream fos = new FileOutputStream(tempFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
       addJsonToZip(zos,
                    "SpaceTemplate_1.json",
-                   "{\"name\":\"12345\",\"names\":{\"en\":\"Test Page 1\"},\"descriptions\":{\"en\":\"Desc 1\"}}");
+                   "{\"name\":\"12345\",\"layout\":\"layout1\",\"names\":{\"en\":\"Test Page 1\"},\"descriptions\":{\"en\":\"Desc 1\"}}");
       addJsonToZip(zos,
                    "SpaceTemplate_2.json",
-                   "{\"name\":\"67890\",\"names\":{\"en\":\"Test Page 2\"},\"descriptions\":{\"en\":\"Desc 2\"}}");
+                   "{\"name\":\"67890\",\"layout\":\"layout2\",\"names\":{\"en\":\"Test Page 2\"},\"descriptions\":{\"en\":\"Desc 2\"}}");
     }
     return tempFile;
   }
