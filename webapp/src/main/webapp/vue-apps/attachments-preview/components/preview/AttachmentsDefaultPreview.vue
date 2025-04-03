@@ -18,14 +18,14 @@
 -->
 <template>
   <v-card flat class="transparent absolute-all-center align-center">
-    <v-icon :size="isMobile && 56 || 36" :color="fileIconColor">
+    <v-icon size="60" :color="fileIconColor">
       {{ fileIconClass }}
     </v-icon>
-    <div class="my-2 text-body">
+    <div class="my-3 text-body">
       {{ attachment.filename }}
     </div>
-    <div class="my-2 text-body font-weight-bold"> {{$t('attachment.fileNotPreviewed')}} </div>
-    <v-btn class="btn btn-primary my-2" :href="downloadURL" :download="attachment.filename"> {{$t('attachment.downloadFile')}} </v-btn>
+    <div class="my-3 text-body font-weight-bold"> {{$t('attachment.fileNotPreviewed')}} </div>
+    <v-btn color="primary"  text :href="downloadURL" :download="attachment.filename"> {{$t('attachment.downloadFile')}} </v-btn>
   </v-card>
 </template>
 <script>
