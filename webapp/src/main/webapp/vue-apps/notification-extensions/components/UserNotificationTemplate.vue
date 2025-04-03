@@ -177,6 +177,7 @@ export default {
     minWidth: 0,
     movingLeft: false,
     moving: false,
+    movingMouseDown: false,
     markedAsRead: false,
     markedAsReadMuted: false,
     showMenu: false,
@@ -307,12 +308,18 @@ export default {
         return;
       }
       await this.reset();
+      this.movingMouseDown = true;
       this.minHeight = Math.max(this.minHeight, this.$refs?.content?.$el?.offsetHeight);
       this.minWidth = Math.max(this.minWidth, this.$refs?.content?.$el?.offsetWidth);
       await this.$nextTick();
-      window.setTimeout(() => this.absolute = true, 50);
+      window.setTimeout(() => {
+        if (this.movingMouseDown) {
+          this.absolute = true;
+        }
+      }, 50);
     },
     moveEnd() {
+      this.movingMouseDown = false;
       const deleteNotification = this.left > 0;
       const confirm = Math.abs(this.left) > (this.minWidth / 2);
       if (confirm) {
