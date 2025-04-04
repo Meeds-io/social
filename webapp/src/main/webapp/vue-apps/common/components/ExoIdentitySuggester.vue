@@ -18,9 +18,10 @@
       :prepend-inner-icon="prependInnerIcon"
       :item-text="itemText"
       :cache-items="!ignoreCache"
+      :hide-details="!rules?.length"
       append-icon=""
       menu-props="closeOnClick, closeOnContentClick, maxHeight = 100"
-      class="identitySuggester"
+      class="identitySuggester no-box-shadow no-border"
       content-class="identitySuggesterContent"
       width="100%"
       max-width="100%"
@@ -28,11 +29,11 @@
       return-object
       persistent-hint
       hide-selected
+      outlined
       chips
       dense
-      flat
       @update:search-input="searchTerm = $event">
-      <template slot="no-data">
+      <template #no-data>
         <v-list-item class="pa-0">
           <v-list-item-title
             v-if="displaySearchPlaceHolder"
@@ -54,8 +55,7 @@
           </v-list-item-title>
         </v-list-item>
       </template>
-
-      <template slot="selection" slot-scope="{item, selected}">
+      <template #selection="{item, selected}">
         <v-chip
           v-if="item.profile"
           :input-value="selected"
@@ -85,8 +85,7 @@
           </span>
         </v-chip>
       </template>
-
-      <template slot="item" slot-scope="{item}">
+      <template #item="{item}">
         <v-list-item-icon
           v-if="item?.providerId === 'group'"
           class="me-4">
@@ -109,7 +108,6 @@
     </v-autocomplete>
   </v-flex>
 </template>
-
 <script>
 export default {
   props: {
@@ -144,21 +142,15 @@ export default {
     },
     includeUsers: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     includeSpaces: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     includeGroups: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     ignoreCache: {
       type: Boolean,
@@ -166,39 +158,27 @@ export default {
     },
     noRedactorSpace: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     onlyRedactor: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     onlyManager: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     disabled: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     multiple: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     required: {
       type: Boolean,
-      default: function() {
-        return false;
-      },
+      default: false,
     },
     ignoreItems: {
       type: Array,
@@ -284,8 +264,8 @@ export default {
     },
     autocompleteClass() {
       const requiredClass = this.required && !this.value && 'required-field invalid' || this.required && 'required-field' || '';
-      const sugesterStyleClass = this.filterStyle && 'identitySuggesterFilterStyle' || 'identitySuggesterInputStyle';
-      return `${requiredClass} ${sugesterStyleClass} ${this.sugesterClass || ''}`;
+      const suggesterStyleClass = this.filterStyle && 'identitySuggesterFilterStyle' || 'identitySuggesterInputStyle';
+      return `${requiredClass} ${suggesterStyleClass} ${this.sugesterClass || ''}`;
     },
     displaySearchPlaceHolder() {
       return this.labels.searchPlaceholder && !this.searchStarted;
