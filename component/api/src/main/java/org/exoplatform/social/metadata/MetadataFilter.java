@@ -47,7 +47,7 @@ public class MetadataFilter {
 
   /**
    * To be used when we need to combine list of properties using or condition:
-   * ((in spacesIds and metadataProperties equal condition)
+   * ((metadataProperties equal condition)
    * or (combinedMetadataProperties equal condition))
    */
   private Map<String, String> combinedMetadataProperties;
