@@ -498,10 +498,16 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       spaceIdsQuery.append(spaceIds);
       spaceIdsQuery.append(")");
     }
+    if (StringUtils.isNotBlank(spaceIdsQuery)) {
+      query.append(" AND ");
+      query.append(spaceIdsQuery);
+    } else {
+      query.append(" AND (");
+    }
     StringBuilder propertiesQuery = new StringBuilder();
     if (!MapUtils.isEmpty(filter.getMetadataProperties())) {
       if (StringUtils.isNotBlank(spaceIdsQuery)) {
-        propertiesQuery.append(" AND ");
+        propertiesQuery.append(" AND (");
         buildPropertiesQuery(propertiesQuery, filter.getMetadataProperties());
       }
       StringBuilder combinedPropertiesQuery = new StringBuilder();
@@ -511,14 +517,9 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
         }
         buildPropertiesQuery(combinedPropertiesQuery, filter.getCombinedMetadataProperties());
       }
-      query.append(" AND (");
-      query.append(spaceIdsQuery);
       query.append(propertiesQuery);
       query.append(combinedPropertiesQuery);
       query.append(") )");
-    } else if (StringUtils.isNotBlank(spaceIdsQuery)) {
-      query.append(" AND ");
-      query.append(spaceIdsQuery);
     }
     query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
     if (filter.getSortField() != null && Arrays.asList(allowedSortFields).contains(filter.getSortField())) {
