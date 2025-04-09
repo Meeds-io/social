@@ -437,6 +437,7 @@
               <includes>
                 <include>portlet/ActivitySearch/Style.less</include>
                 <include>portlet/ActivityStream/Style.less</include>
+                <include>portlet/AttachmentPreview/Style.less</include>
                 <include>portlet/GettingStarted/Style.less</include>
                 <include>portlet/Sidebar/Style.less</include>
                 <include>portlet/IDMGroupsManagement/Style.less</include>

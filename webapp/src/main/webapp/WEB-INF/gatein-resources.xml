@@ -90,6 +90,14 @@
 
   <portlet-skin>
     <application-name>social</application-name>
+    <portlet-name>AttachmentPreview</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <css-path>/skin/css/portlet/AttachmentPreview/Style.css</css-path>
+    <css-priority>1</css-priority>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>social</application-name>
     <portlet-name>UserActivityStreamPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
