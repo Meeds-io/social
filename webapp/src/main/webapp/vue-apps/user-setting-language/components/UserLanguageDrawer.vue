@@ -53,7 +53,10 @@ export default {
     },
     saveLanguage() {
       const lang = this.value.replace('_', '-');
-      window.location.replace(`${eXo.env.portal.context}/${lang}/${eXo.env.portal.metaPortalName}/settings`);
+      const url = window.location.href
+        .replace(`${eXo.env.portal.context}/${eXo.env.portal.language}`, eXo.env.portal.context)
+        .replace(eXo.env.portal.context, `${eXo.env.portal.context}/${lang}`);
+      window.location.replace(url);
     },
     cancel() {
       this.$refs.userLanguageDrawer.close();
