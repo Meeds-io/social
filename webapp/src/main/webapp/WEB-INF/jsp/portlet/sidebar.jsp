@@ -88,6 +88,7 @@ PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getC
     <script type="text/javascript">
       document.querySelector('#ParentSiteStickyMenu')?.parentElement?.classList.add('layout-side-bar');
       require(['PORTLET/social/Sidebar'], app => app.init('<%=mode%>', '<%=defaultUserPath%>', <%=unreadPerSpace == null ? "{}" : JsonUtils.toJsonString(unreadPerSpace)%>, '<%=avatarUrl == null ? "" : avatarUrl%>', <%=isExternalFeatureEnabled%>, <%=allowUserHome%>));
+      eXo.env.portal.isExternalFeatureEnabled = <%=isExternalFeatureEnabled%>;
     </script>
   </div>
 </div>
