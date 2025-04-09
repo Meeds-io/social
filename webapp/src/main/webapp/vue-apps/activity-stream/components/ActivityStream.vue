@@ -71,7 +71,7 @@ export default {
     this.refreshActivityTypes();
     this.refreshActivityActions();
     this.refreshCommentActions();
-    const queryParamId = this.getQueryParam('id');
+    const queryParamId = this.$utils.getQueryParam('id');
     if (queryParamId && queryParamId.includes('comment')) {
       this.$root.selectedCommentId = queryParamId;
     }
@@ -154,11 +154,6 @@ export default {
           this.$root.displayCommentActionTypes.push(extension.id);
         }
       });
-    },
-    getQueryParam(paramName) {
-      const uri = window.location.search.substring(1);
-      const params = new URLSearchParams(uri);
-      return params.get(paramName);
     },
     canPostLoaded(canPost) {
       this.$root.canPost = !!canPost;
