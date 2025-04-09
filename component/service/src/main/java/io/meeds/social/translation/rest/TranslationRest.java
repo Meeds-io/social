@@ -26,7 +26,15 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.EntityTag;
@@ -45,12 +53,14 @@ import org.exoplatform.social.rest.api.RestUtils;
 import io.meeds.social.translation.model.TranslationConfiguration;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Path("social/translations")
 @Tag(name = "translations", description = "Manages User Translations of stored fields for all type of persisted entities")
@@ -75,9 +85,11 @@ public class TranslationRest implements ResourceContainer {
       @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
       @ApiResponse(responseCode = "500", description = "Internal server error"),
   })
-  public Response getTranslationConfiguration() {
+  public Response getTranslationConfiguration(
+                                              @Context
+                                              HttpServletRequest request) {
     Locale defaultLocale = localeConfigService.getDefaultLocaleConfig().getLocale();
-    Map<String, String> supportedLocales = getSupportedLocales(defaultLocale);
+    Map<String, String> supportedLocales = getSupportedLocales(defaultLocale, request.getLocale());
     TranslationConfiguration translationConfiguration = new TranslationConfiguration(defaultLocale.toLanguageTag(),
                                                                                      supportedLocales);
     return Response.ok(translationConfiguration).build();
@@ -223,8 +235,7 @@ public class TranslationRest implements ResourceContainer {
     }
   }
   
-  
-  private Map<String, String> getSupportedLocales(Locale defaultLocale) {
+  private Map<String, String> getSupportedLocales(Locale defaultLocale, Locale userLocale) {
     return localeConfigService.getLocalConfigs() == null ? Collections.singletonMap(defaultLocale.toLanguageTag(),
                                                                                     getLocaleDisplayName(defaultLocale,
                                                                                                          defaultLocale))
@@ -233,13 +244,12 @@ public class TranslationRest implements ResourceContainer {
                                                                               .filter(localeConfig -> !StringUtils.equals(localeConfig.getLocaleName(),
                                                                                                                           "ma"))
                                                                               .collect(Collectors.toMap(LocaleConfig::getLocaleName,
-                                                                                                        localeConfig -> getLocaleDisplayName(defaultLocale,
-                                                                                                                                             localeConfig.getLocale())));
+                                                                                                        localeConfig -> getLocaleDisplayName(userLocale, localeConfig.getLocale())));
   }
 
-  private String getLocaleDisplayName(Locale defaultLocale, Locale locale) {
-    return defaultLocale.equals(locale) ? defaultLocale.getDisplayName(defaultLocale)
-                                        : locale.getDisplayName(defaultLocale) + " / " + locale.getDisplayName(locale);
+  private String getLocaleDisplayName(Locale userLocale, Locale locale) {
+    return userLocale.equals(locale) ? userLocale.getDisplayName(userLocale)
+                                        : locale.getDisplayName(userLocale) + " / " + locale.getDisplayName(locale);
   }
 
 }
