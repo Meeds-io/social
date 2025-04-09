@@ -29,7 +29,7 @@ export default {
     document.onkeydown = this.closeDisplayedDrawer;
     document.querySelector('#drawers-overlay').onclick = this.closeDisplayedDrawerNoEvent;
     this.uiPortalApplicationElement = document.querySelector('#UIPortalApplication');
-    if (this.getQueryParam('mask') === 'true') {
+    if (this.$utils.getQueryParam('mask') === 'true') {
       document.addEventListener('mouseover', this.showOverlay);
       document.addEventListener('mouseout', this.forceHideOverlay);
     }
@@ -84,11 +84,6 @@ export default {
       if (this.openedModals > 0) {
         this.openedModals -= 1;
       }
-    },
-    getQueryParam(paramName) {
-      const uri = window.location.search.substring(1);
-      const params = new URLSearchParams(uri);
-      return params.get(paramName);
     },
   },
 };
