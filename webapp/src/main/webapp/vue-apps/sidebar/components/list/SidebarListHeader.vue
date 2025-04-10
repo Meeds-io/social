@@ -38,7 +38,7 @@
         tile>
         <img
           :src="companyLogo"
-          :alt="' '"
+          alt=""
           height="36"
           width="auto"
           class="object-fit-contain">
