@@ -18,11 +18,18 @@
 -->
 <template>
   <v-img
+    v-if="supported"
     :lazy-src="thumbnailUrl"
     :src="thumbnailUrl"
     :aspect-ratio="2"
     :height="!isMobile && '80vh' || '75vh'"
+    loading="lazy"
+    @error="supported = false"
     contain />
+    <attachments-default-preview
+      v-else
+      :attachment="attachment"
+    />
 </template>
 <script>
 export default {
@@ -40,6 +47,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    supported: true,
+  }),
   computed: {
     thumbnailUrl() {
       return `${eXo.env.portal.context}${this.attachment.downloadUrl}`;
