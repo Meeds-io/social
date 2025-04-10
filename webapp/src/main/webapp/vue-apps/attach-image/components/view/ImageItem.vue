@@ -33,9 +33,12 @@
     @mouseleave="hover = false">
     <v-card-text class="attachment-card-item-thumbnail d-flex flex-grow-1 pa-0">
       <img
+        v-if="supported"
         :src="thumbnailUrl"
         :alt="attachmentAlt"
+        @error="supported=false"
         class="ma-auto full-width">
+      <v-icon size="60" color="secondary" class="ma-auto">fas fa-file-image</v-icon>
     </v-card-text>
     <div v-if="isGifImage" class="position-absolute white border-radius r-3 mt-2">
       <v-chip
@@ -131,6 +134,7 @@ export default {
     invalid: false,
     hover: false,
     defaultSize: false,
+    supported: true,
   }),
   methods: {
     closeErrorBox(event) {
