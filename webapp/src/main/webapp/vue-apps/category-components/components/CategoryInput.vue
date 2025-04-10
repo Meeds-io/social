@@ -102,9 +102,11 @@
       width="100%"
       flat>
       <v-btn
-        class="btn btn-primary flex-grow-0 flex-shrink-0"
+        class="flex-grow-0 flex-shrink-0"
+        color="primary"
+        outlined
         @click="openCategoriesDrawer">
-        <v-icon size="16">fa-plus</v-icon>
+        <v-icon size="16" class="me-2">fa-plus</v-icon>
         {{ $t('categoryInput.drawer.addCategories') }}
       </v-btn>
     </v-card>
