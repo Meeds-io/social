@@ -1,3 +1,22 @@
+<!--
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+-->
 <template>
   <v-app
     v-if="displayApp"
@@ -28,40 +47,10 @@
         {{ $t('profileAboutMe.emptyOwner') }}
       </div>
     </widget-wrapper> 
-    <exo-drawer
+    <profile-about-me-drawer
       v-if="owner && initialized"
       ref="aboutMeDrawer"
-      v-model="drawer"
-      class="aboutMeDrawer"
-      allow-expand
-      right>
-      <template slot="title">
-        {{ title }}
-      </template>
-      <template v-if="drawer" slot="content">
-        <v-card flat>
-          <v-card-text>
-            <rich-editor
-              id="aboutMeRichEditor"
-              v-model="modifyingAboutMe"
-              :placeholder="$t('profileAboutMe.placeholder')"
-              :max-length="maxLength"
-              :tag-enabled="false"
-              ck-editor-type="abountMe" />
-          </v-card-text>
-          <v-card-actions class="px-4">
-            <v-spacer />
-            <v-btn
-              :loading="saving"
-              :disabled="saving || !valid"
-              class="btn btn-primary"
-              @click="saveAboutMe">
-              {{ $t('profileAboutMe.save') }}
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </template>
-    </exo-drawer>
+      v-model="aboutMe" />
   </v-app>
 </template>
 <script>
@@ -69,16 +58,10 @@ export default {
   data: () => ({
     owner: eXo.env.portal.profileOwner === eXo.env.portal.userName,
     aboutMe: null,
-    saving: null,
-    modifyingAboutMe: null,
-    maxLength: 1300,
     initialized: false,
     drawer: false,
   }),
   computed: {
-    valid() {
-      return !this.modifyingAboutMe || this.$utils.htmlToText(this.modifyingAboutMe).length <= this.maxLength;
-    },
     title() {
       return this.owner && this.$t('profileAboutYouself.title') || this.$t('profileAboutMe.title');
     },
@@ -89,7 +72,7 @@ export default {
       return this.aboutMeText?.trim?.()?.length;
     },
     displayApp() {
-      return this.owner || !this.initialized || this.hasAboutMe;
+      return !this.initialized || this.owner || this.hasAboutMe;
     },
   },
   watch: {
@@ -99,7 +82,11 @@ export default {
   },
   created() {
     this.$userService.getUser(eXo.env.portal.profileOwner)
-      .then(user => this.refresh(user && user.aboutMe || ''))
+      .then(user => {
+        this.aboutMe = user && user.aboutMe || '';
+        return this.$nextTick();
+      })
+      .then(() => this.$root.$emit('application-loaded'))
       .finally(() => {
         this.$root.$applicationLoaded();
         this.initialized = true;
@@ -111,27 +98,8 @@ export default {
     }
   },
   methods: {
-    refresh(aboutMe) {
-      this.aboutMe = aboutMe;
-      if (this.$refs.aboutMeDrawer) {
-        this.$refs.aboutMeDrawer.close();
-      }
-      return this.$nextTick().then(() => this.$root.$emit('application-loaded'));
-    },
     editAboutMe() {
-      this.modifyingAboutMe = this.aboutMe;
       this.$refs.aboutMeDrawer.open();
-    },
-    saveAboutMe() {
-      this.saving = true;
-      this.$refs.aboutMeDrawer.startLoading();
-      return this.$userService.updateProfileField(eXo.env.portal.profileOwner, 'aboutMe', this.modifyingAboutMe)
-        .then(() => this.refresh(this.modifyingAboutMe))
-        .catch(() => this.$root.$emit('alert-message', this.$t('profileAboutMe.savingError'), 'error'))
-        .finally(() => {
-          this.saving = false;
-          this.$refs.aboutMeDrawer.endLoading();
-        });
     },
   },
 };
