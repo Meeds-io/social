@@ -38,7 +38,7 @@
         tile>
         <img
           :src="companyLogo"
-          :alt="$t('menu.companyNameTooltip',{0: companyName})"
+          :alt="' '"
           height="36"
           width="auto"
           class="object-fit-contain">
