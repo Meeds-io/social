@@ -21,7 +21,10 @@ package io.meeds.social.space.service;
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -67,9 +70,24 @@ public class SpaceAdministrationServiceImpl implements SpaceAdministrationServic
     if (space == null) {
       throw new ObjectNotFoundException(String.format(SPACE_NOT_FOUND_MESSAGE, spaceId));
     }
-    return new SpacePermissions(space.getLayoutPermissions(),
-                                space.getPublicSitePermissions(),
-                                space.getDeletePermissions());
+    List<String> layoutPermissions = space.getLayoutPermissions();
+    List<String> publicSitePermissions = space.getPublicSitePermissions();
+    List<String> deletePermissions = space.getDeletePermissions();
+    if (space.getTemplateId() == 0) {
+      List<String> spaceAdminsPermission = Collections.singletonList(String.format("manager:%s", space.getGroupId()));
+      if (CollectionUtils.isEmpty(layoutPermissions)) {
+        layoutPermissions = spaceAdminsPermission;
+      }
+      if (CollectionUtils.isEmpty(publicSitePermissions)) {
+        publicSitePermissions = spaceAdminsPermission;
+      }
+      if (CollectionUtils.isEmpty(deletePermissions)) {
+        deletePermissions = spaceAdminsPermission;
+      }
+    }
+    return new SpacePermissions(layoutPermissions,
+                                publicSitePermissions,
+                                deletePermissions);
   }
 
   @Override
