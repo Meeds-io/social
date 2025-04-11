@@ -18,12 +18,10 @@
  */
 package io.meeds.social.space.template.plugin.databind;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
@@ -31,9 +29,14 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.exoplatform.portal.mop.SiteKey;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -67,6 +70,8 @@ import lombok.SneakyThrows;
 public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
 
   public static final String        OBJECT_TYPE          = "SpaceTemplate";
+
+  public static final String        CONFIG_JSON          = "config.json";
 
   private static final List<String> ADMINISTRATORS_GROUP = Collections.singletonList("*:/platform/administrators");
 
@@ -156,27 +161,37 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     databind.setSpaceDefaultRegistration(spaceTemplate.getSpaceDefaultRegistration());
     databind.setSpaceAllowContentCreation(spaceTemplate.isSpaceAllowContentCreation());
     String jsonData = JsonUtils.toJsonString(databind);
-    writeContent(zipOutputStream, objectId, jsonData);
+
+    SiteKey siteKey = SiteKey.groupTemplate(spaceTemplate.getLayout());
+    String folderPath = siteKey.getType() + "-" + siteKey.getName();
+
+    writeToZip(zipOutputStream, folderPath + "/" + CONFIG_JSON, jsonData);
   }
 
-  public CompletableFuture<DatabindReport> deserialize(File zipFile, Map<String, String> params, String username) {
+  public CompletableFuture<Pair<DatabindReport, File>> deserialize(File zipFile, Map<String, String> params, String username) {
     return CompletableFuture.supplyAsync(() -> importSpaceTemplates(zipFile)).thenApply(processedTemplates -> {
       DatabindReport report = new DatabindReport();
       report.setSuccess(!processedTemplates.isEmpty());
       report.setProcessedItems(processedTemplates);
-      return report;
+      return Pair.of(report, zipFile);
     });
   }
 
   @ContainerTransactional
   public List<String> importSpaceTemplates(File zipFile) {
     Map<String, SpaceTemplateDatabind> instances = extractTemplates(zipFile);
+    Map<String, String> spaceTemplateIds = new HashMap<>();
     List<String> processedSpaceTemplates = new ArrayList<>();
+
     for (Map.Entry<String, SpaceTemplateDatabind> entry : instances.entrySet()) {
+      String folderName = entry.getKey();
       SpaceTemplateDatabind spaceTemplate = entry.getValue();
-      processSpaceTemplate(spaceTemplate);
+
+      String createdId = processSpaceTemplate(spaceTemplate);
       processedSpaceTemplates.add(spaceTemplate.getLayout());
+      spaceTemplateIds.put(folderName, createdId);
     }
+    createUpdatedZipWithSpaceTemplateIds(zipFile, spaceTemplateIds);
     return processedSpaceTemplates;
   }
 
@@ -186,19 +201,24 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     try (ZipInputStream zis = new ZipInputStream(new FileInputStream(zipFile), StandardCharsets.UTF_8)) {
       ZipEntry entry;
       while ((entry = zis.getNextEntry()) != null) {
-        if (!entry.isDirectory() && entry.getName().endsWith(".json")) {
-          ByteArrayOutputStream baos = new ByteArrayOutputStream();
-          byte[] buffer = new byte[1024];
-          int bytesRead;
-          while ((bytesRead = zis.read(buffer)) != -1) {
-            baos.write(buffer, 0, bytesRead);
-          }
-          String jsonContent = baos.toString(StandardCharsets.UTF_8);
+        if (entry.isDirectory()) {
+          continue;
+        }
 
-          // Deserialize JSON into a Space templates
-          SpaceTemplateDatabind databind = JsonUtils.fromJsonString(jsonContent, SpaceTemplateDatabind.class);
-          if (databind != null) {
-            templateDatabindMap.put(entry.getName(), databind);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = zis.read(buffer)) != -1) {
+          baos.write(buffer, 0, bytesRead);
+        }
+        String jsonContent = baos.toString(StandardCharsets.UTF_8);
+        String entryName = entry.getName();
+
+        if (entryName.endsWith(CONFIG_JSON)) {
+          SpaceTemplateDatabind databindFromJson = JsonUtils.fromJsonString(jsonContent, SpaceTemplateDatabind.class);
+          if (databindFromJson != null) {
+            String key = entryName.substring(0, entryName.lastIndexOf('/'));
+            templateDatabindMap.put(key, databindFromJson);
           }
         }
       }
@@ -257,7 +277,7 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
   }
 
   @SneakyThrows
-  private void processSpaceTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
+  private String processSpaceTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(spaceTemplateDatabind);
     SpaceTemplate createdSpaceTemplate = spaceTemplateService.createSpaceTemplate(spaceTemplate);
     saveNames(spaceTemplateDatabind, createdSpaceTemplate);
@@ -265,6 +285,7 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     if (spaceTemplateDatabind.getBannerFile() != null) {
       saveBanner(createdSpaceTemplate.getId(), Base64.decodeBase64(spaceTemplateDatabind.getBannerFile()));
     }
+    return String.valueOf(createdSpaceTemplate.getId());
   }
 
   private static SpaceTemplate getSpaceTemplate(SpaceTemplateDatabind spaceTemplateDatabind) {
@@ -293,8 +314,8 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     return tempFile;
   }
 
-  private void writeContent(ZipOutputStream zipOutputStream, String objectId, String content) throws IOException {
-    ZipEntry entry = new ZipEntry(String.format("%s_%s.json", OBJECT_TYPE, objectId));
+  private void writeToZip(ZipOutputStream zipOutputStream, String filePath, String content) throws IOException {
+    ZipEntry entry = new ZipEntry(filePath);
     zipOutputStream.putNextEntry(entry);
     zipOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
     zipOutputStream.closeEntry();
@@ -307,9 +328,51 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     return superUserIdentityId;
   }
 
-  public static Map<Locale, String> convertToLocaleMap(Map<String, String> inputMap) {
+  private static Map<Locale, String> convertToLocaleMap(Map<String, String> inputMap) {
     return inputMap.entrySet()
                    .stream()
                    .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()), Map.Entry::getValue));
+  }
+
+  @SneakyThrows
+  private void createUpdatedZipWithSpaceTemplateIds(File originalZip, Map<String, String> spaceTemplateIds) {
+    File tempZipFile = File.createTempFile("updated_", ".zip");
+    try (ZipInputStream zis = new ZipInputStream(new FileInputStream(originalZip), StandardCharsets.UTF_8);
+        FileOutputStream fos = new FileOutputStream(tempZipFile);
+        ZipOutputStream zos = new ZipOutputStream(fos)) {
+      ZipEntry entry;
+      while ((entry = zis.getNextEntry()) != null) {
+        zos.putNextEntry(new ZipEntry(entry.getName()));
+        if (entry.getName().endsWith(CONFIG_JSON)) {
+          ByteArrayOutputStream baos = new ByteArrayOutputStream();
+          byte[] buffer = new byte[1024];
+          int bytesRead;
+          while ((bytesRead = zis.read(buffer)) != -1) {
+            baos.write(buffer, 0, bytesRead);
+          }
+          String jsonContent = baos.toString(StandardCharsets.UTF_8);
+          String folderName = entry.getName().substring(0, entry.getName().lastIndexOf('/'));
+          String spaceTemplateId = spaceTemplateIds.get(folderName);
+          if (spaceTemplateId != null) {
+            jsonContent = updateConfigJsonWithSpaceTemplateId(jsonContent, spaceTemplateId);
+          }
+          zos.write(jsonContent.getBytes(StandardCharsets.UTF_8));
+        } else {
+          zos.write(zis.readAllBytes());
+        }
+        zos.closeEntry();
+      }
+    }
+
+    Files.move(tempZipFile.toPath(), originalZip.toPath(), StandardCopyOption.REPLACE_EXISTING);
+  }
+
+  @SneakyThrows
+  private String updateConfigJsonWithSpaceTemplateId(String jsonContent, String spaceTemplateId) {
+    ObjectMapper objectMapper = new ObjectMapper();
+    JsonNode configJsonNode = objectMapper.readTree(jsonContent);
+    // Add or update the spaceTemplateId field
+    ((ObjectNode) configJsonNode).put("spaceTemplateId", spaceTemplateId);
+    return objectMapper.writeValueAsString(configJsonNode);
   }
 }
