@@ -22,6 +22,7 @@ import io.meeds.social.databind.model.DatabindReport;
 import io.meeds.social.databind.plugin.DatabindPlugin;
 import lombok.SneakyThrows;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
@@ -98,14 +99,19 @@ public class DatabindServiceImpl implements DatabindService {
     if (!objectType.equals(zipType)) {
       throw new IllegalStateException("databind.notMatchType");
     }
+    CompletableFuture<Pair<DatabindReport, File>> databindReportCompletableFuture =
+                                                                                  CompletableFuture.completedFuture(Pair.of(null,
+                                                                                                                            zipFile));
 
-    CompletableFuture<DatabindReport> databindReportCompletableFuture = null;
     for (DatabindPlugin plugin : dataPreferencePlugins.values()) {
       if (plugin.canHandleDatabind(objectType, null)) {
-        databindReportCompletableFuture = plugin.deserialize(zipFile, params, username);
+        databindReportCompletableFuture = databindReportCompletableFuture.thenCompose(previousResult -> {
+          File updatedZip = previousResult.getRight();
+          return plugin.deserialize(updatedZip, params, username);
+        });
       }
     }
-    return databindReportCompletableFuture;
+    return databindReportCompletableFuture.thenApply(Pair::getLeft);
   }
 
   private static void addMetadataFile(ZipOutputStream zipOut, String type) throws IOException {

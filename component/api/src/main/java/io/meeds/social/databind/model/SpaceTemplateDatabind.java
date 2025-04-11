@@ -49,4 +49,6 @@ public class SpaceTemplateDatabind {
   private SpaceRegistration   spaceDefaultRegistration;
 
   private boolean             spaceAllowContentCreation;
+
+  private String              spaceTemplateId;
 }
