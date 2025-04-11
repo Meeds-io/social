@@ -67,7 +67,7 @@
                 size="24">
                 <img
                   :src="avatarUrl"
-                  alt=" "
+                  alt=""
                   height="24"
                   width="24"
                   contain>
