@@ -1,29 +1,31 @@
 <template>
-  <v-flex
-    v-show="dialog || standalone"
+  <exo-drawer
     id="searchDialog"
-    transition="fade-transition"
-    hide-overlay>
-    <v-fade-transition>
-      <v-card v-show="dialog || standalone" flat>
-        <template v-if="!loading">
-          <search-toolbar
-            ref="toolbar"
-            :standalone="standalone"
-            @search="term = $event"
-            @close-search="dialog = false" />
-          <search-results
-            ref="results"
-            :connectors="connectors"
-            :term="term"
-            :standalone="standalone"
-            @favorites-changed="favorites = $event"
-            @tags-changed="selectedTags = $event"
-            @filter-changed="changeURI" />
-        </template>
+    v-model="drawer"
+    :loading="loading"
+    expanded
+    right>
+    <template v-if="drawer" #content>
+      <v-card
+        :loading="loading"
+        flat>
+        <search-toolbar
+          ref="toolbar"
+          v-model="term"
+          :standalone="standalone"
+          @close="drawer = false" />
+        <search-results
+          ref="results"
+          :connectors="connectors"
+          :term="term"
+          :standalone="standalone"
+          @loading="loading = $event"
+          @favorites-changed="favorites = $event"
+          @tags-changed="selectedTags = $event"
+          @filter-changed="changeURI" />
       </v-card>
-    </v-fade-transition>
-  </v-flex>
+    </template>
+  </exo-drawer>
 </template>
 <script>
 export default {
@@ -38,8 +40,8 @@ export default {
     },
   },
   data: () => ({
-    dialog: false,
-    loading: true,
+    drawer: false,
+    loading: false,
     term: null,
     favorites: false,
     selectedTags: [],
@@ -56,6 +58,14 @@ export default {
     },
   },
   watch: {
+    standalone: {
+      immediate: true,
+      handler() {
+        if (this.standalone) {
+          this.drawer = this.standalone;
+        }
+      },
+    },
     term() {
       this.changeURI();
     },
@@ -67,12 +77,11 @@ export default {
     },
     loading() {
       if (!this.loading) {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         this.$root.$applicationLoaded();
       }
     },
-    dialog() {
-      if (this.dialog) {
+    drawer() {
+      if (this.drawer) {
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
@@ -106,6 +115,7 @@ export default {
         }
       });
     }
+    this.loading = true;
     exoi18n.loadLanguageAsync(lang, urls)
       .then(() => this.$nextTick())
       .finally(() => this.loading = false);
@@ -136,25 +146,24 @@ export default {
     } else {
       $(document).on('keydown', (event) => {
         if (event.key === 'Escape') {
-          this.dialog = false;
+          this.drawer = false;
         }
         if (event.ctrlKey && event.altKey && event.key === 'f') {
-          this.dialog = !this.dialog;
+          this.drawer = !this.drawer;
         }
       });
     }
     document.addEventListener('search-metadata-tag', this.open);
   },
   mounted() {
-    document.querySelector('#vuetify-apps').appendChild(this.$el);
-    this.dialog = true;
+    this.drawer = true;
   },
   methods: {
     toogle() {
-      this.dialog = !this.dialog;
+      this.drawer = !this.drawer;
     },
     open() {
-      this.dialog = true;
+      this.drawer = true;
     },
     changeURI() {
       const term = window.encodeURIComponent(this.term || '');
@@ -171,7 +180,7 @@ export default {
         pageUri += `&tags=${this.selectedTags.join(',')}`;
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
-    }
+    },
   },
 };
 </script>

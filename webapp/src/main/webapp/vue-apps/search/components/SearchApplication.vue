@@ -4,11 +4,11 @@
       :title="buttonTooltip"
       icon
       class="transparent"
-      @click="$refs.dialog.toogle()">
+      @click="$refs.drawer.toogle()">
       <v-icon size="20">fa-search</v-icon>
     </v-btn>
-    <search-dialog
-      ref="dialog"
+    <search-drawer
+      ref="drawer"
       :connectors="connectors"
       :skin-urls="skinUrls" />
   </v-app>
@@ -25,8 +25,5 @@ export default {
       default: () => [],
     },
   },
-  data: () => ({
-    dialog: false,
-  }),
 };
 </script>
