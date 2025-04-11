@@ -1,5 +1,8 @@
 <template>
-  <v-flex>
+  <v-flex
+    :loading="loading"
+    class="transparent"
+    flat>
     <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
       <v-chip
         :outlined="!favorites"
@@ -103,8 +106,8 @@
     </v-flex>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
       <v-btn
-        :loading="searching > 0"
-        :disabled="searching > 0"
+        :loading="loading"
+        :disabled="loading"
         class="btn mx-auto"
         @click="loadMore">
         {{ $t('Search.button.loadMore') }}
@@ -112,7 +115,6 @@
     </v-flex>
   </v-flex>
 </template>
-
 <script>
 export default {
   props: {
@@ -146,6 +148,9 @@ export default {
   computed: {
     hasMore() {
       return this.totalSize && this.enabledConnectors && this.enabledConnectors.filter(connector => connector.hasMore).length;
+    },
+    loading() {
+      return this.searching > 0;
     },
     hasResults() {
       return this.resultsArray && this.resultsArray.length;
@@ -196,11 +201,10 @@ export default {
     },
   },
   watch: {
-    searching(newValue, oldValue) {
-      if (newValue && !oldValue) {
-        document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-      } else if (oldValue && !newValue) {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+    loading: {
+      immediate: true,
+      handler() {
+        this.$emit('loading', this.loading);
       }
     },
     selectedTags() {
