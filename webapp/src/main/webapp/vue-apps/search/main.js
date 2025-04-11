@@ -37,7 +37,6 @@ export function init(tagName) {
     return;
   }
   initialized = true;
-  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
   const connectors = JSON.parse(document.getElementById('searchConnectorsDefaultValue').value);
   const skinUrls = JSON.parse(document.getElementById('searchSkinUrlsDefaultValue').value);
   Vue.createApp({
