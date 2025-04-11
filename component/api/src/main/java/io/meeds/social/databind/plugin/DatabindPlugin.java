@@ -19,6 +19,7 @@
 package io.meeds.social.databind.plugin;
 
 import io.meeds.social.databind.model.DatabindReport;
+import org.apache.commons.lang3.tuple.Pair;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 
 import java.io.File;
@@ -35,5 +36,5 @@ public interface DatabindPlugin {
   void serialize(String objectId, ZipOutputStream zipOutputStream, String username) throws ObjectNotFoundException,
                                                                                     IllegalAccessException;
 
-  CompletableFuture<DatabindReport> deserialize(File zipFile, Map<String, String> params, String username);
+  CompletableFuture<Pair<DatabindReport, File>> deserialize(File zipFile, Map<String, String> params, String username);
 }
