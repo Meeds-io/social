@@ -27,14 +27,14 @@
     allow-expand
     right>
     <template #title>
-      {{ $t('spacesList.categories.drawer.select.title') }}
+      {{ $t('categories.drawer.select.title') }}
     </template>
     <template v-if="drawer && categories" #content>
       <div class="d-flex flex-column ma-5">
         <div
           v-for="category in categories"
           :key="category.id">
-          <spaces-category-chip
+          <category-chip
             :category="category"
             max-width="100%"
             class="mb-4"
@@ -50,12 +50,6 @@ export default {
     drawer: false,
     categories: null,
   }),
-  created() {
-    this.$root.$on('spaces-list-category-open', this.open);
-  },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-category-open', this.open);
-  },
   methods: {
     open(categories) {
       this.categories = categories;
@@ -65,7 +59,7 @@ export default {
       this.$refs.drawer.close();
     },
     select(category) {
-      this.$root.$emit('spaces-list-select-category', category);
+      this.$emit('select', category);
       this.close();
     },
   },

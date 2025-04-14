@@ -48,7 +48,7 @@
         </v-list-item>
       </v-list>
     </v-card>
-    <space-categories-drawer ref="categoriesDrawer" />
+    <categories-drawer ref="categoriesDrawer" />
   </div>
 </template>
 <script>

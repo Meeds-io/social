@@ -233,7 +233,7 @@ export default {
       this.$emit('loading-spaces', true);
       try {
         const data = await this.$spaceService.getSpacesByFilter({
-          categoryId: this.selectedCategoryIds || this.$root.categoryIds,
+          categoryId: this.selectedCategoryIds,
           templateId: this.$root.templateIds,
           sortBy: this.$root.sortBy,
           query: this.keyword,

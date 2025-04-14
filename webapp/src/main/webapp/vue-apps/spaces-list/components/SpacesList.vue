@@ -31,9 +31,15 @@
           compact-display
           @keyword-changed="keyword = $event"
           @loading="loadingSpaces = loadingSpaces || $event" />
-        <spaces-categories-toolbar
+        <categories-filter
           v-if="$root.allowFilteringPerCategory"
-          v-show="spacesExists" />
+          v-show="spacesExists"
+          v-model="$root.selectedCategoryId"
+          :setting-name="$root.settingName"
+          :category-depth="$root.categoryDepth"
+          :filter-type="$root.filterType"
+          :category-ids="$root.categoryIds"
+          class="full-width border-box-sizing px-5" />
         <spaces-card-list
           ref="spacesList"
           :keyword="keyword"
