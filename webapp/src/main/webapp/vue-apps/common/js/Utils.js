@@ -109,3 +109,19 @@ export function getQueryParam(paramName) {
   const params = new URLSearchParams(uri);
   return params.get(paramName);
 }
+
+export function addShortcutsListener(chars, listener) {
+  chars = chars.filter(c => c?.length).map(c => c.toLowerCase());
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key) {
+      const c = e.key;
+      if (chars?.includes?.(c.toLowerCase())) {
+        e.stopPropagation();
+        e.preventDefault();
+        window.setTimeout(() => {
+          listener(c);
+        }, 10);
+      }
+    }
+  });
+}
