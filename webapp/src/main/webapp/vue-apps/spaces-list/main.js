@@ -65,12 +65,12 @@ export function init(
     } else if (!settings.templateIds) {
       settings.templateIds = [];
     }
-    let settingsSubcategories;
+    let settingsSubcategoryIds;
     if (settings.filterType === 'category') {
       if (!settings.categoryIds) {
         settings.categoryIds = [];
       }
-      settingsSubcategories = await getSubcategoryIds(settings.categoryIds, settingName);
+      settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1, settingName);
     } else {
       settings.categoryIds = null;
     }
@@ -82,7 +82,7 @@ export function init(
         filter: filter || 'all',
         canEdit,
         settings,
-        settingsSubcategories,
+        settingsSubcategoryIds,
         settingsSaveUrl,
         settingNameUrl,
         settingName,
@@ -106,14 +106,17 @@ export function init(
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
         },
-        categoryIds() {
-          return this.settings.filterType === 'category' ? (this.settingsSubcategories || this.settings.categoryIds) : null;
-        },
-        templateIds() {
-          return this.settings.filterType === 'template' ? this.settings.templateIds : null;
+        filterType() {
+          return this.settings.filterType;
         },
         categoryDepth() {
           return this.settings.categoryDepth || 4;
+        },
+        categoryIds() {
+          return this.filterType === 'category' ? (this.settingsSubcategoryIds || this.settings.categoryIds) : null;
+        },
+        templateIds() {
+          return this.filterType === 'template' ? this.settings.templateIds : null;
         },
         hideQuickActions() {
           return this.settings.hideQuickActions;
@@ -141,9 +144,9 @@ export function init(
         },
         async selectedCategoryId() {
           if (this.selectedCategoryId) {
-            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], this.settingName);
-          } else {
-            this.selectedCategoryIds = null;
+            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1, this.settingName);
+          } else if (this.filterType === 'category') {
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1, this.settingName);
           }
         },
       },
@@ -163,7 +166,14 @@ export function init(
           this.filter = filter;
         },
         async handleSettingsUpdate() {
-          this.settingsSubcategories = await getSubcategoryIds(this.settings.categoryIds, this.settingName);
+          this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
+          if (this.filterType === 'category') {
+            this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1, this.settingName);
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1, this.settingName);
+          } else {
+            this.settingsSubcategoryIds = [];
+            this.selectedCategoryIds = [];
+          }
           this.$root.$emit('spaces-list-refresh');
         },
       },
@@ -174,14 +184,14 @@ export function init(
   });
 }
 
-async function getSubcategoryIds(categoryIds, token) {
+async function getSubcategoryIds(categoryIds, depth, token) {
   if (!categoryIds?.length) {
     return [];
   }
   const subcategoyIds = await Promise.all(categoryIds.map(id => Vue.prototype.$categoryService.getSubcategoryIds(id, {
     offset: 0,
     limit: -1,
-    depth: -1,
+    depth,
     token,
   })));
   const subcategoyIdsFlat = subcategoyIds.flatMap(s => s);

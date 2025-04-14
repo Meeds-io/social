@@ -17,15 +17,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import CategoryInput from './components/CategoryInput.vue';
-import CategoryInputDrawer from './components/CategoryInputDrawer.vue';
-import SpaceCategoriesDrawer from './components/SpaceCategoriesDrawer.vue';
 import CategorySuggester from './components/CategorySuggester.vue';
+
+import CategoriesDrawer from './components/drawer/CategoriesDrawer.vue';
+import CategoryListDrawer from './components/drawer/CategoryListDrawer.vue';
+import CategoryInputDrawer from './components/drawer/CategoryInputDrawer.vue';
+
+import CategoriesFilter from './components/CategoriesFilter.vue';
+import CategoriesBreadcrumb from './components/filter/CategoriesBreadcrumb.vue';
+import CategoryChipsGroup from './components/filter/CategoryChipsGroup.vue';
+import CategoryChip from './components/filter/CategoryChip.vue';
+import CategoryTabsGroup from './components/filter/CategoryTabsGroup.vue';
+import CategoryTab from './components/filter/CategoryTab.vue';
 
 const components = {
   'category-input': CategoryInput,
+
   'category-input-drawer': CategoryInputDrawer,
-  'space-categories-drawer': SpaceCategoriesDrawer,
+  'categories-drawer': CategoriesDrawer,
+  'categories-list-drawer': CategoryListDrawer,
+
   'category-suggester': CategorySuggester,
+  'categories-filter': CategoriesFilter,
+  'categories-breadcrumb': CategoriesBreadcrumb,
+  'category-chips-group': CategoryChipsGroup,
+  'category-chip': CategoryChip,
+  'category-tabs-group': CategoryTabsGroup,
+  'category-tab': CategoryTab,
 };
 
 for (const key in components) {
