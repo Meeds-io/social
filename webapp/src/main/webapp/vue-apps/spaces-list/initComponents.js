@@ -22,18 +22,10 @@ import SpacesToolbar from './components/toolbar/SpacesToolbar.vue';
 import SpacePendingButton from './components/toolbar/SpacePendingButton.vue';
 import SpacesPublicAccessWarning from './components/toolbar/SpacesPublicAccessWarning.vue';
 
-import SpacesCategoriesToolbar from './components/space-categories/SpacesCategoriesToolbar.vue';
-import SpacesCategoriesBreadcrumb from './components/space-categories/SpacesCategoriesBreadcrumb.vue';
-import SpacesCategoryChipsGroup from './components/space-categories/SpacesCategoryChipsGroup.vue';
-import SpacesCategoryChip from './components/space-categories/SpacesCategoryChip.vue';
-import SpacesCategoryTabsGroup from './components/space-categories/SpacesCategoryTabsGroup.vue';
-import SpacesCategoryTab from './components/space-categories/SpacesCategoryTab.vue';
-
 import SpacesCardList from './components/list/SpacesCardList.vue';
 
 import SpacesListFilterDrawer from './components/drawer/SpacesListFilterDrawer.vue';
 import SpacePendingDrawer from './components/drawer/SpacePendingDrawer.vue';
-import SpacesCategoryListDrawer from './components/drawer/SpacesCategoryListDrawer.vue';
 import SpacesListSettingsDrawer from './components/drawer/SpacesListSettingsDrawer.vue';
 
 import SpaceCard from './components/space-card/SpaceCard.vue';
@@ -49,19 +41,12 @@ import SpaceFavoriteAction from './components/common/SpaceFavoriteAction.vue';
 const components = {
   'spaces-list': SpacesList,
   'spaces-toolbar': SpacesToolbar,
-  'spaces-categories-toolbar': SpacesCategoriesToolbar,
-  'spaces-categories-breadcrumb': SpacesCategoriesBreadcrumb,
-  'spaces-category-chip': SpacesCategoryChip,
-  'spaces-category-chips-group': SpacesCategoryChipsGroup,
-  'spaces-category-tabs-group': SpacesCategoryTabsGroup,
-  'spaces-category-tab': SpacesCategoryTab,
   'spaces-card-list': SpacesCardList,
   'spaces-pending-drawer': SpacePendingDrawer,
   'spaces-role-list-item': SpaceRoleListItem,
   'spaces-role-list': SpaceRoleList,
   'spaces-list-filter-drawer': SpacesListFilterDrawer,
   'spaces-list-settings-drawer': SpacesListSettingsDrawer,
-  'spaces-categories-list-drawer': SpacesCategoryListDrawer,
   'space-card': SpaceCard,
   'space-card-button': SpaceCardButton,
   'space-card-menu': SpaceCardMenu,
