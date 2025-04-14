@@ -345,6 +345,10 @@ export default {
       });
     },
     postMessage() {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
       const message = this.ckEditorInstance.getMessage();
@@ -355,7 +359,6 @@ export default {
         } else if (this.templateParams && this.templateParams.link === '-') {
           activityType = null;
         }
-        this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
           .then(this.postUpdateMessage)
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
@@ -375,13 +378,13 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
+          this.loading = false;
           if (this.activityToolbarAction) {
             document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
           } else {
             document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
           }
         } else {
-          this.loading = true;
           if (!this.spaceId && !!eXo.env.portal.spaceId) {
             this.spaceId = eXo.env.portal.spaceId;
           }
