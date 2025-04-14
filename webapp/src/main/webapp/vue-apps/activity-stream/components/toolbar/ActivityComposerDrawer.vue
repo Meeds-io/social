@@ -379,6 +379,7 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
+          this.loading = false;
           if (this.activityToolbarAction) {
             document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
           } else {
