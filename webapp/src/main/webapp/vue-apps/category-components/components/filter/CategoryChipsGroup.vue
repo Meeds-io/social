@@ -23,11 +23,12 @@
 <template>
   <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
     <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
-      <spaces-category-chip
+      <category-chip
         v-for="category in categories"
         :key="category.id"
         :category="category"
         :parent-width="parentWidth"
+        :selected-id="selectedId"
         chip-class="flex-shrink-0 me-2"
         breadcrumb
         @initialized="setVisible(category, $event)"
@@ -41,14 +42,14 @@
       class="flex-shrink-0 flex-grow-0 ms-2"
       color="grey"
       dark
-      @click="$root.$emit('spaces-list-category-open', categories)">
+      @click="$emit('open-more', categories)">
       <v-card
         :min-width="85"
         :max-width="85"
         color="transparent"
         class="text-truncate"
         flat>
-        {{ $t('spacesList.categories.more', {
+        {{ $t('categories.more', {
           0: remainingSize,
         }) }}
       </v-card>
@@ -61,7 +62,11 @@ export default {
     categories: {
       type: Array,
       default: null,
-    }
+    },
+    selectedId: {
+      type: Number,
+      default: () => 0,
+    },
   },
   data: () => ({
     resizeObserver: null,
