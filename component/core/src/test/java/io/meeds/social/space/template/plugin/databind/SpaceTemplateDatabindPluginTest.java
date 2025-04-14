@@ -24,8 +24,6 @@ import static org.mockito.Mockito.*;
 
 import io.meeds.social.translation.model.TranslationField;
 import org.apache.commons.lang3.tuple.Pair;
-import org.exoplatform.portal.config.model.PortalConfig;
-import org.exoplatform.portal.config.serialize.model.SiteLayout;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
