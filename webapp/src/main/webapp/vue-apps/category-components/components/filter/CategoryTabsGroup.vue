@@ -30,13 +30,13 @@
       <v-tab
         :value="0"
         @click="$emit('select', selectedCategory)">
-        {{ $t('spacesList.categories.all') }}
+        {{ $t('categories.all') }}
       </v-tab>
-      <spaces-category-tab
+      <category-tab
         v-for="item in categories"
         :key="item.id"
         :category="item"
-        :selected-category="selectedCategory"
+        :selected-id="selectedCategory?.id"
         @click="$emit('select', $event)" />
     </v-tabs>
     <v-divider class="full-width position-absolute b-0" />
@@ -45,6 +45,10 @@
 <script>
 export default {
   props: {
+    value: {
+      type: String,
+      default: null,
+    },
     selectedCategory: {
       type: Object,
       default: null,
@@ -60,12 +64,9 @@ export default {
     categoriesSize() {
       return this.categories?.length || 0;
     },
-    selectedCategoryId() {
-      return this.$root.selectedCategoryId;
-    },
   },
   watch: {
-    selectedCategoryId() {
+    value() {
       this.updateSelectedIndex();
     },
     categories() {
@@ -77,7 +78,7 @@ export default {
   },
   methods: {
     async updateSelectedIndex() {
-      const index = this.categories.findIndex(cat => cat.id === this.selectedCategoryId || cat?.categories?.find(subCat => subCat.id === this.selectedCategoryId)) + 1;
+      const index = this.categories.findIndex(cat => cat.id === this.value || cat?.categories?.find(subCat => subCat.id === this.value)) + 1;
       if (index > 0) {
         this.selectedIndex = 0;
         await this.$nextTick();

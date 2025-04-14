@@ -66,7 +66,7 @@
           },
         }"
         :key="subItem.id"
-        :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
+        :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
         dense>
         <v-card
           :title="subItem.name"
@@ -99,9 +99,9 @@
 <script>
 export default {
   props: {
-    selectedCategory: {
-      type: Object,
-      default: null,
+    selectedId: {
+      type: Number,
+      default: () => 0,
     },
     category: {
       type: Object,
