@@ -27,7 +27,7 @@
       height="32"
       width="32"
       icon
-      @click="$root.selectedCategoryId = null">
+      @click="$emit('select', null)">
       <v-icon size="24">fa-home</v-icon>
     </v-btn>
     <div
@@ -40,9 +40,10 @@
           size="16">
           {{ chevronIcon }}
         </v-icon>
-        <spaces-category-chip
+        <category-chip
           :category="category"
           :breadcrumb="index > 1"
+          :selected-id="selectedId"
           class="flex-shrink-0"
           selected
           @select="$emit('select', $event)" />
@@ -56,7 +57,11 @@ export default {
     breadcrumb: {
       type: Array,
       default: null,
-    }
+    },
+    selectedId: {
+      type: Number,
+      default: () => 0,
+    },
   },
   computed: {
     chevronIcon() {

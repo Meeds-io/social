@@ -20,7 +20,7 @@
 
 -->
 <template>
-  <space-categories-drawer
+  <categories-drawer
     id="SpacesAdministrationCategoriesDrawer"
     ref="drawer"
     :form-modified="dropExisting"
@@ -46,7 +46,7 @@
         <v-switch v-model="dropExisting" class="ms-auto my-0 me-n2" />
       </div>
     </div>
-  </space-categories-drawer>
+  </categories-drawer>
 </template>
 <script>
 export default {
