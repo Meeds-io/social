@@ -71,7 +71,7 @@
       <v-list-item
         v-for="subItem in category.categories"
         :key="subItem.id"
-        :color="$root.selectedCategoryId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
+        :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
         class="text-truncate"
         dense
         @click.prevent.stop="openCategory(subItem)">
@@ -114,6 +114,10 @@ export default {
     category: {
       type: Object,
       default: null,
+    },
+    selectedId: {
+      type: Boolean,
+      default: false,
     },
     selected: {
       type: Boolean,
