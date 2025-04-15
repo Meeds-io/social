@@ -153,7 +153,7 @@
       </template>
       <template slot="item.enabled" slot-scope="{item}">
         <div class="d-flex justify-center">
-          <v-switch v-model="item.enabled" class="ma-auto" />
+          <v-switch v-model="item.enabled" :disabled="item.id.includes('mandatory-')" class="ma-auto" />
         </div>
       </template>
       <template slot="item.mobile" slot-scope="{item}">
