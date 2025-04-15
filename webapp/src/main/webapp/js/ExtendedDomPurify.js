@@ -22,7 +22,7 @@
   ExtendedDomPurify.prototype.purify = function(content) {
     content = content.replace(/<div> <\/div>/g, '<div><br><\/div>');
     content = content.trim().replace(/>[ \n]+</g, '> <').replace(/  /g, '&nbsp;&nbsp;');
-    const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
+    let outputHtml = /<a\s/i.test(content) ? content : Autolinker.link(content, {
       email: false,
       replaceFn : function (match) {
         switch(match.getType()) {
@@ -39,7 +39,8 @@
             return true;
         }
       }
-    }), {
+    });
+    let pureHtml = DOMPurify.sanitize(outputHtml, {
       USE_PROFILES: {
         html: true,
         SAFE_FOR_TEMPLATES: true,
