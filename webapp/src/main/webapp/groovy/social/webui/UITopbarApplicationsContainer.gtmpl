@@ -38,7 +38,7 @@
         <div id="${uicomponent.id}Children" class="UIRowContainer v-application">
         <%
           for (application in topbarConfiguration.getApplications()) {
-            if (application.isEnabled()) {
+            if (application.isEnabled() || application.getId().contains("mandatory-")) {
               def child = uicomponent.getChildById(application.getId());
               if (child != null && child.isRendered()) {
                 %>
