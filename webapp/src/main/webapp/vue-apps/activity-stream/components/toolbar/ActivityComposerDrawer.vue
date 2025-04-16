@@ -331,6 +331,7 @@ export default {
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
         this.messageEdited = false;
+        this.loading = false;
         this.$refs.activityComposerDrawer.open();
         document.dispatchEvent(new CustomEvent('message-composer-opened'));
       });
@@ -345,6 +346,10 @@ export default {
       });
     },
     postMessage() {
+      if (this.loading) {
+        return;
+      }
+      this.loading = true;
       // Using a ref to the editor component and the getMessage method is mandatory to
       // be sure to get the most up to date value of the message
       const message = this.ckEditorInstance.getMessage();
@@ -355,7 +360,6 @@ export default {
         } else if (this.templateParams && this.templateParams.link === '-') {
           activityType = null;
         }
-        this.loading = true;
         this.$activityService.updateActivity(this.activityId, message, activityType, this.files, this.templateParams)
           .then(this.postUpdateMessage)
           .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
@@ -381,7 +385,6 @@ export default {
             document.dispatchEvent(new CustomEvent('post-activity', {detail: message}));
           }
         } else {
-          this.loading = true;
           if (!this.spaceId && !!eXo.env.portal.spaceId) {
             this.spaceId = eXo.env.portal.spaceId;
           }
