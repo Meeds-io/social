@@ -1,11 +1,14 @@
-<%import java.util.Locale;
+<%
+  import java.util.Locale;
 
+  import io.meeds.portal.navigation.constant.TopbarItemType;
   import io.meeds.portal.navigation.model.TopbarConfiguration;
   import io.meeds.portal.navigation.service.NavigationConfigurationService;
+  import io.meeds.social.util.JsonUtils;
 
   import org.exoplatform.portal.webui.workspace.UIPortalApplication;
   import org.exoplatform.commons.utils.HTMLEntityEncoder;
-  
+
   def rcontext = _ctx.getRequestContext();
   UIPortalApplication uiPortalApp = rcontext.getUIApplication();
 
@@ -25,7 +28,7 @@
 
   /** Trim the prefix UIContainer- if any, this hardcoded part is needed to update nested container via Ajax */
   String componentId = uicomponent.getId();
-  if(componentId.startsWith("UIContainer-")){
+  if(componentId.startsWith("UIContainer-")) {
     uicomponent.setId(componentId.substring("UIContainer-".length()));
   }
 
@@ -39,12 +42,38 @@
         <%
           for (application in topbarConfiguration.getApplications()) {
             if (application.isEnabled() || application.getId().contains("mandatory-")) {
-              def child = uicomponent.getChildById(application.getId());
-              if (child != null && child.isRendered()) {
+              if (application.getType() == TopbarItemType.APP) {
+                def child = uicomponent.getChildById(application.getId());
+                if (child != null && child.isRendered()) {
+                  %>
+            <div class="<%=application.isMobile() ? "ms-2" : "ms-2 hidden-xs-only"%>">
+                  <% child.processRender(rcontext);%>
+            </div>
+                  <%
+                }
+              } else if (application.getType() == TopbarItemType.EXTENSION) {
                 %>
-          <div class="<%=application.isMobile() ? "ms-2" : "ms-2 hidden-xs-only"%>">
-                <% child.processRender(rcontext);%>
-          </div>
+            <div class="<%=application.isMobile() ? "ms-2" : "ms-2 hidden-xs-only"%>">
+              <div
+                data-app="true"
+                class="v-application v-application--is-ltr theme--light"
+                id="<%=application.getId()%>">
+                <div class="v-application--wrap">
+                  <a class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    rel="nofollow noreferrer noopener">
+                    <span class="v-btn__content">
+                      <div
+                        class="v-card v-card--flat v-sheet theme--light transparent"
+                        style="height: 20px; width: 20px;">
+                      </div>
+                    </span>
+                  </a>
+                </div>
+              </div>
+              <script type="text/javascript">
+                window.require(["<%=application.getProperties().get("jsModule")%>"], app => app.init("<%=application.getId()%>", <%=JsonUtils.toJsonString(application)%>));
+              </script>
+            </div>
                 <%
               }
             }
