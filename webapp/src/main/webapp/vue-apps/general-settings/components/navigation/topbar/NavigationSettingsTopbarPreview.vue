@@ -71,7 +71,17 @@
         }"
         icon
         class="ms-2">
-        <v-icon size="22">{{ app.icon }}</v-icon>
+        <v-img
+          v-if="app.imageUrl"
+          :src="app.imageUrl"
+          max-height="22"
+          max-width="22"
+          contain />
+        <v-icon
+          v-else-if="app.icon"
+          size="22">
+          {{ app.icon }}
+        </v-icon>
       </v-btn>
     </div>
   </v-card>
