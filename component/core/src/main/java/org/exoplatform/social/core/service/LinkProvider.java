@@ -195,7 +195,7 @@ public class LinkProvider {
                .append(identity.getRemoteId())
                .append("',")
                .append("fullName: '")
-               .append(identity.getProfile().getFullName().replace("'", "\\\\'"))
+               .append(identity.getProfile().getFullName().replace("'", "\\\\'").replace("\"", "\\\\\""))
                .append("',")
                .append("avatar: '")
                .append(identity.getProfile().getAvatarUrl())
