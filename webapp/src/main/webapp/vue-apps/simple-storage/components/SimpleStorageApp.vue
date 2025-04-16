@@ -82,7 +82,11 @@ export default {
   },
   methods: {
     openImagePreview(image) {
-      this.$refs.previewDialog.open(this.objectType, this.objectId, this.images, image.id);
+      this.images.forEach(image => {
+        image.thumbnailUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${image.id}`;
+        image.downloadUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${image.id}?size=0x0&download=true`;
+      });
+      this.$refs.previewDialog.open(this.images, image.id);
     },
     handleImagesUploaded(images) {
       this.images.unshift(...images);

@@ -51,7 +51,7 @@
         :max-height="!isMobile && '80vh' || '75vh'"
         class="transparent">
         <v-carousel
-          :id="`previewCarousel-${objectType}`"
+          :id="`previewCarousel`"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
           :show-arrows-on-hover="!isMobile"
@@ -66,9 +66,7 @@
             reverse-transition="fade-transition"
             transition="fade-transition">
             <attachments-image-preview-item
-              :attachment="attachment"
-              :object-type="objectType"
-              :object-id="objectId" />
+              :thumbnailUrl="attachment.thumbnailUrl" />
           </v-carousel-item>
         </v-carousel>
       </v-card>
@@ -86,10 +84,10 @@ export default {
   }),
   computed: {
     downloadURL() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+      return this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId)[0].downloadUrl || '#';
     },
     attachmentFilename() {
-      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
+      return this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId)[0].filename || this.filename;
     }, 
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
@@ -126,9 +124,7 @@ export default {
     });
   },
   methods: {
-    open(objectType, objectId, attachments, id) {
-      this.objectType = objectType;
-      this.objectId = objectId;
+    open(attachments, id) {
       this.attachments = attachments;
       this.currentAttachmentId = id;
       this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
@@ -136,8 +132,6 @@ export default {
     },
     close() {
       this.dialog = false;
-      this.objectType = null;
-      this.objectId = null;
       this.attachments = null;
       this.currentAttachmentId = null;
       this.filename = null;

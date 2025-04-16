@@ -27,23 +27,12 @@
 <script>
 export default {
   props: {
-    attachment: {
-      type: Object,
-      default: null,
-    },
-    objectType: {
-      type: String,
-      default: null,
-    },
-    objectId: {
+    thumbnailUrl: {
       type: String,
       default: null,
     },
   },
   computed: {
-    thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}`;
-    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }

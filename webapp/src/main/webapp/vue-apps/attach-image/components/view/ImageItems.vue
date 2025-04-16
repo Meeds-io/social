@@ -90,10 +90,16 @@ export default {
     },
     retrieveAttachments() {
       return this.$fileAttachmentService.getAttachments(this.objectType, this.objectId)
-        .then(data => this.updatedAttachments = data?.attachments || []);
+        .then(data => {
+          this.updatedAttachments = data?.attachments || [];
+          this.updatedAttachments.forEach(updatedAttachment => {
+            updatedAttachment.thumbnailUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${updatedAttachment.id}`;
+            updatedAttachment.downloadUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${updatedAttachment.id}?size=0x0&download=true`;
+          });
+        });
     },
     openPreview(attachmentId) {
-      this.$root.$emit('open-attachments-preview', this.objectType, this.objectId, this.imageAttachments || [], attachmentId);
+      this.$root.$emit('open-attachments-preview', this.imageAttachments || [], attachmentId);
     },
   },
 };
