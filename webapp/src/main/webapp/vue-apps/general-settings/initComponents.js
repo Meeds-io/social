@@ -41,15 +41,16 @@ import NavigationSettings from './components/navigation/NavigationSettings.vue';
 
 import NavigationSettingsTopbar from './components/navigation/topbar/NavigationSettingsTopbar.vue';
 import NavigationSettingsTopbarPreview from './components/navigation/topbar/NavigationSettingsTopbarPreview.vue';
+import NavigationSettingsTopbarApplicationDrawer from './components/navigation/topbar/NavigationSettingsTopbarApplicationDrawer.vue';
 
 import NavigationSettingsSidebar from './components/navigation/sidebar/NavigationSettingsSidebar.vue';
 import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
 import NavigationSettingsSidebarPreviewItem from './components/navigation/sidebar/NavigationSettingsSidebarPreviewItem.vue';
 import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/NavigationSettingsSidebarAddButton.vue';
-
 import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
 import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
 import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
+
 import SiteBrandingOptions from './components/branding/options/SiteBrandingOptions.vue';
 import SiteBrandingOptionsItem from './components/branding/options/SiteBrandingOptionsItem.vue';
 import UpdateColorsDrawer from './components/branding/drawers/UpdateColorsDrawer.vue';
@@ -86,6 +87,7 @@ const components = {
   'portal-general-settings-navigation-settings': NavigationSettings,
   'portal-general-settings-navigation-settings-topbar': NavigationSettingsTopbar,
   'portal-general-settings-navigation-settings-topbar-preview': NavigationSettingsTopbarPreview,
+  'portal-general-settings-navigation-settings-application-drawer': NavigationSettingsTopbarApplicationDrawer,
   'portal-general-settings-navigation-settings-sidebar': NavigationSettingsSidebar,
   'portal-general-settings-navigation-settings-sidebar-preview': NavigationSettingsSidebarPreview,
   'portal-general-settings-navigation-settings-sidebar-preview-item': NavigationSettingsSidebarPreviewItem,
