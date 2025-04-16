@@ -21,6 +21,7 @@
 <template>
   <exo-drawer
     ref="serializeDrawer"
+    :loading="loading"
     body-classes="hide-scroll decrease-z-index-more"
     allow-expand
     right>
@@ -32,14 +33,15 @@
       <div class="d-flex justify-center pt-5">
         <v-btn
           class="btn btn-primary"
-          :href="exportLink"
-          @click="$emit('export-start')">
+          :disabled="loading"
+          @click="startExport">
           {{ $t('databind.export') }}
         </v-btn>
       </div>
     </template>
   </exo-drawer>
 </template>
+
 <script>
 export default {
   data: () => ({
@@ -47,11 +49,6 @@ export default {
     type: '',
     id: '',
   }),
-  computed: {
-    exportLink() {
-      return this.serialize();
-    },
-  },
   created() {
     this.$root.$on('serialize-drawer-open', this.open);
   },
@@ -73,7 +70,28 @@ export default {
       }
       const params = new URLSearchParams(formData).toString();
       return `/social/rest/databind/serialize?${params}`;
-    }
+    },
+    async startExport() {
+      try {
+        this.loading = true;
+        const url = this.serialize();
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const downloadUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = `${this.type}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(downloadUrl);
+      } catch (e) {
+        this.$root.$emit('alert-message', this.$te(e.message) ? this.$t(e.message) : this.$t('databind.exportError'), 'error');
+      } finally {
+        this.loading = false;
+        this.$emit('export-start');
+      }
+    },
   },
 };
 </script>
