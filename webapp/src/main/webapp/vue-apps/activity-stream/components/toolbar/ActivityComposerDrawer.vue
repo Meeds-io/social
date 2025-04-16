@@ -281,9 +281,6 @@ export default {
         document.dispatchEvent(new CustomEvent('activity-composer-opened'));
       } else {
         document.dispatchEvent(new CustomEvent('activity-composer-closed'));
-        if (this.loading) {
-          this.loading = false;
-        } 
       }
     },
     spaceIdentity() {
@@ -334,6 +331,7 @@ export default {
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
         this.messageEdited = false;
+        this.loading = false;
         this.$refs.activityComposerDrawer.open();
         document.dispatchEvent(new CustomEvent('message-composer-opened'));
       });
