@@ -198,6 +198,7 @@ public class NavigationConfigurationServiceImpl implements NavigationConfigurati
                                  applicationTitle,
                                  applicationDescription,
                                  applicationIcon,
+                                 null,
                                  TopbarItemType.APP,
                                  !StringUtils.equals(environment.getProperty(String.format(TOPBAR_APPLICATION_ENABLED_PATTERN,
                                                                                            app.getId()),
