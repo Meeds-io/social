@@ -281,6 +281,9 @@ export default {
         document.dispatchEvent(new CustomEvent('activity-composer-opened'));
       } else {
         document.dispatchEvent(new CustomEvent('activity-composer-closed'));
+        if (this.loading) {
+          this.loading = false;
+        } 
       }
     },
     spaceIdentity() {
@@ -378,7 +381,6 @@ export default {
           activityType = 'LINK_ACTIVITY';
         }
         if (this.activityType && this.activityType.length !== 0) {
-          this.loading = false;
           if (this.activityToolbarAction) {
             document.dispatchEvent(new CustomEvent('post-activity-toolbar-action', {detail: message}));
           } else {
