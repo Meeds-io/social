@@ -213,7 +213,7 @@ public class LinkProvider {
                .append(">")
                .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
-      profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
+      profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
   }
