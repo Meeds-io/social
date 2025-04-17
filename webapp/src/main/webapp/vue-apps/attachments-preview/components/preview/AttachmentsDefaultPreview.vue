@@ -24,8 +24,14 @@
     <div class="my-3 text-body">
       {{ attachment.filename }}
     </div>
-    <div class="my-3 text-body font-weight-bold"> {{$t('attachment.fileNotPreviewed')}} </div>
-    <v-btn color="primary"  text :href="downloadURL" :download="attachment.filename"> {{$t('attachment.downloadFile')}} </v-btn>
+    <div class="my-3 text-body font-weight-bold"> {{ $t('attachment.fileNotPreviewed') }} </div>
+    <v-btn
+      color="primary"
+      text
+      :href="downloadURL"
+      :download="attachment.filename">
+      {{ $t('attachment.downloadFile') }}
+    </v-btn>
   </v-card>
 </template>
 <script>

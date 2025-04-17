@@ -38,7 +38,12 @@
         :alt="attachmentAlt"
         @error="supported=false"
         class="ma-auto full-width">
-      <v-icon size="60" color="secondary" class="ma-auto">fas fa-file-image</v-icon>
+      <v-icon
+        size="60"
+        color="secondary"
+        class="ma-auto">
+        fas fa-file-image
+      </v-icon>
     </v-card-text>
     <div v-if="isGifImage" class="position-absolute white border-radius r-3 mt-2">
       <v-chip

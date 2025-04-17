@@ -30,13 +30,24 @@ const lang = eXo?.env?.portal?.language || 'en';
 //should expose the locale ressources as REST API
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+export function init(event) {
+  if (!document.querySelector(`#${appId}`)) {
+    const parent = document.createElement('div');
+    parent.id = appId;
+    document.querySelector('#vuetify-apps').appendChild(parent);
+    exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
-    Vue.createApp({
-      template: `<attachments-preview-dialog id="${appId}"/>`,
-      vuetify,
-      i18n
-    }, `#${appId}`, 'Attachments Preview application');
-  });
+      Vue.createApp({
+        template: `<attachments-preview-dialog id="${appId}"/>`,
+        vuetify,
+        i18n,
+        mounted() {
+          document.dispatchEvent(new CustomEvent('open-preview-dialog', event));
+        },
+      }, `#${appId}`, 'Attachments Preview application');
+
+    });
+  } else {
+    document.dispatchEvent(new CustomEvent('open-preview-dialog', event));
+  }
 }

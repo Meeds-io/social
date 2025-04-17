@@ -118,7 +118,7 @@ export default {
   created() {
     this.refreshPreviewExtensions();
     document.addEventListener(`extension-${this.previewExtensionApp}-${this.previewExtensionType}-updated`, this.refreshPreviewExtensions);
-    document.addEventListener('open-attachments-preview', this.openPreview);
+    document.addEventListener('open-preview-dialog', this.openPreview);
     document.addEventListener('keydown', (event) => {
       if (this.$refs.attachmentsCarousel) {
         if (event.key === 'Escape') {

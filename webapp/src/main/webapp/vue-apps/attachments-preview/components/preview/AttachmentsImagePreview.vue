@@ -26,10 +26,9 @@
     loading="lazy"
     @error="supported = false"
     contain />
-    <attachments-default-preview
-      v-else
-      :attachment="attachment"
-    />
+  <attachments-default-preview
+    v-else
+    :attachment="attachment" />
 </template>
 <script>
 export default {
