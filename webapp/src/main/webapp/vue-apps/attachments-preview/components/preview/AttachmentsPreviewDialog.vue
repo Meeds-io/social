@@ -51,7 +51,7 @@
         :max-height="!isMobile && '80vh' || '75vh'"
         class="transparent">
         <v-carousel
-          :id="`previewCarousel-${objectType}`"
+          :id="`previewCarousel`"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
           :show-arrows-on-hover="!isMobile"
@@ -147,8 +147,6 @@ export default {
     },
     openPreview(event) {
       const attachment = event?.detail;
-      this.objectType = attachment.objectType;
-      this.objectId = attachment.objectType;
       this.attachments = attachment.attachments;
       this.currentAttachmentId = attachment.id;
       this.filename = this.attachments.find(file => file.id === attachment.id).filename;
@@ -157,8 +155,6 @@ export default {
     },
     close() {
       this.dialog = false;
-      this.objectType = null;
-      this.objectId = null;
       this.attachments = null;
       this.currentAttachmentId = null;
       this.filename = null;

@@ -33,15 +33,7 @@
 <script>
 export default {
   props: {
-    attachment: {
-      type: Object,
-      default: null,
-    },
-    objectType: {
-      type: String,
-      default: null,
-    },
-    objectId: {
+    thumbnailUrl: {
       type: String,
       default: null,
     },
@@ -50,9 +42,6 @@ export default {
     supported: true,
   }),
   computed: {
-    thumbnailUrl() {
-      return `${eXo.env.portal.context}${this.attachment.downloadUrl}`;
-    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }
