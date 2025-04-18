@@ -2160,6 +2160,37 @@
   </portlet>
 
   <module>
+    <name>AttachmentPreviewListener</name>
+    <load-group>baseGRP</load-group>
+    <script>
+      <path>/js/AttachmentPreviewListener.js</path>
+    </script>
+  </module>
+
+  <module>
+    <name>AttachmentPreview</name>
+    <script>
+      <path>/js/attachmentsPreview.bundle.js</path>
+    </script>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+
+  <module>
     <name>siteDetailsComponent</name>
     <load-group>vueGRP</load-group>
     <script>

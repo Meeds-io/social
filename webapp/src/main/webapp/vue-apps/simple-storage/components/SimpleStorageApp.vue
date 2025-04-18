@@ -45,8 +45,6 @@
         </v-btn>
       </v-card-actions>
     </v-card>
-    <attachments-image-preview-dialog
-      ref="previewDialog" />
     <confirm-dialog
       ref="dialog"
       :title="$t('simpleStorage.dialog.deleteOption.title')"

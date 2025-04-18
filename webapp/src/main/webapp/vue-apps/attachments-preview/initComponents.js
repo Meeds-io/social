@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  * 
- * Copyright (C) 2020 - 2023 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,24 +16,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ImageInput from './components/form/ImageInput.vue';
-import ImageInputMultiUpload from './components/form/ImageInputMultiUpload.vue';
-import ImageInputItems from './components/form/ImageInputItems.vue';
-import ImageInputItem from './components/form/ImageInputItem.vue';
-import ImageAttachmentCropDrawer from './components/form/ImageAttachmentCropDrawer.vue';
 
-import ImageItems from './components/view/ImageItems.vue';
-import ImageItem from './components/view/ImageItem.vue';
-
+import AttachmentsPreviewDialog from './components/preview/AttachmentsPreviewDialog.vue';
+import AttachmentsImagePreview from './components/preview/AttachmentsImagePreview.vue';
+import AttachmentsDefaultPreview from './components/preview/AttachmentsDefaultPreview.vue';
 
 const components = {
-  'attachments-image-input': ImageInput,
-  'attachments-image-input-multi-upload': ImageInputMultiUpload,
-  'attachments-image-input-items': ImageInputItems,
-  'attachments-image-input-item': ImageInputItem,
-  'attachments-image-crop-drawer': ImageAttachmentCropDrawer,
-  'attachments-image-items': ImageItems,
-  'attachments-image-item': ImageItem
+  'attachments-preview-dialog': AttachmentsPreviewDialog,
+  'attachments-image-preview': AttachmentsImagePreview,
+  'attachments-default-preview': AttachmentsDefaultPreview,
 };
 
 for (const key in components) {
