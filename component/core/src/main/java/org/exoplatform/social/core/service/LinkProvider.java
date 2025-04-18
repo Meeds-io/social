@@ -195,13 +195,13 @@ public class LinkProvider {
                .append(identity.getRemoteId())
                .append("',")
                .append("fullName: '")
-               .append(identity.getProfile().getFullName().replace("'", "\\\\'"))
+               .append(identity.getProfile().getFullName().replace("'", "\\\\'").replace("\"", "&quot;"))
                .append("',")
                .append("avatar: '")
                .append(identity.getProfile().getAvatarUrl())
                .append("',")
                .append("position: '")
-               .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'"))
+               .append(identity.getProfile().getPosition() == null ? "" : identity.getProfile().getPosition().replace("'", "\\\\'").replace("\"", "&quot;"))
                .append("',")
                .append("external: '")
                .append(identity.getProfile().getProperty(Profile.EXTERNAL) != null && StringUtils.equals("true", String.valueOf(identity.getProfile().getProperty(Profile.EXTERNAL))))
@@ -213,7 +213,7 @@ public class LinkProvider {
                .append(">")
                .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
     if(identity.getProfile().getProperty("external") != null && identity.getProfile().getProperty("external").equals("true")){
-      profileLink = profileLink.append("<span \" class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
+      profileLink = profileLink.append("<span class=\"externalFlagClass\">").append(" (").append(getResourceBundleLabel(Locale.forLanguageTag(lang), "external.label.tag")).append(")").append("</span>");
     }
     return profileLink.append("</a>").toString();
   }
