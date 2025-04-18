@@ -80,20 +80,20 @@ export default {
     },
   },
   created() {
+    document.addEventListener('favorites-open', this.openDrawer);
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
     this.$root.$on('open-favorite-drawer', () => {
-      document.addEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
       this.refreshActivityIcon();
       this.openDrawer();
     });
     this.$root.$on('close-favorite-drawer', () => {
       this.$refs.favoritesDrawer.close();
     });
-    this.$root.$on('refresh-favorite-list', () => {
-      this.retrieveFavoritesList();
-    });
+    this.$root.$on('refresh-favorite-list', this.retrieveFavoritesList);
 
   },
   beforeDestroy() {
+    document.removeEventListener('favorites-open', this.openDrawer);
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
   },
   methods: {
