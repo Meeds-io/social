@@ -9,21 +9,23 @@
   import="org.exoplatform.portal.localization.LocaleContextInfoUtils"%>
 <%
   Locale userLocale = RequestContext.getCurrentInstance().getLocale();
-
-			Set<Locale> locales = LocaleContextInfoUtils.getSupportedLocales();
-			List<Locale> localesList = new ArrayList(locales);
-			JSONArray localesJSON = new JSONArray();
-			for (Locale locale : localesList) {
-				JSONObject object = new JSONObject();
-				if (locale.toString().equals("ma")) {
-					continue;
-				} else {
-					object.put("value", locale.toLanguageTag());
-					object.put("text", userLocale.equals(locale) ? locale.getDisplayName(locale) :
-                                                                               locale.getDisplayName(userLocale) + " / " + locale.getDisplayName(locale));
-				}
-				localesJSON.put(object);
-			}
+	Set<Locale> locales = LocaleContextInfoUtils.getSupportedLocales();
+	List<Locale> localesList = new ArrayList(locales);
+	JSONArray localesJSON = new JSONArray();
+  for (Locale locale : localesList) {
+    if (locale != null) {
+      JSONObject object = new JSONObject();
+      if (locale.toString().equals("ma")) {
+        continue;
+      } else {
+        object.put("value", locale.toLanguageTag());
+        object.put("text", userLocale.equals(locale) ?
+          locale.getDisplayName(locale) :
+          locale.getDisplayName(userLocale) + " / " + locale.getDisplayName(locale));
+      }
+      localesJSON.put(object);
+    }
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
