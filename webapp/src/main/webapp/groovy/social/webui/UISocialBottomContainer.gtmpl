@@ -1,4 +1,4 @@
-<%import java.util.Locale;
+<%
   def rcontext = _ctx.getRequestContext();
   rcontext.getJavascriptManager().require("SHARED/AttachmentPreviewListener", "AttachmentPreviewListener");
 %>
