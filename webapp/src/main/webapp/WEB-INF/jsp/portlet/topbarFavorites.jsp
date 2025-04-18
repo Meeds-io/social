@@ -32,5 +32,16 @@
         </span>
       </button>
     </div>
+    <script type="text/javascript">
+      if (window.location.pathname?.endsWith?.('/search')) {
+        window.require(['PORTLET/social/Search'], app => app.init());
+      }
+      window.require(['SHARED/commonVueComponents'], () => Vue.prototype.$utils.addShortcutsListener(['b'], () => {
+        window.require(['PORTLET/social/TopBarFavorites'], app => {
+          app.init();
+          document.dispatchEvent(new CustomEvent('favorites-open'));
+        });
+      }));
+    </script>
   </div>
 </div>
