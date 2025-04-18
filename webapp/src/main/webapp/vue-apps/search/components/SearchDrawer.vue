@@ -164,7 +164,11 @@ export default {
     toogle() {
       this.drawer = !this.drawer;
     },
-    open() {
+    open(event) {
+      if (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
       this.drawer = true;
     },
     changeURI() {
