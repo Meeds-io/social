@@ -63,8 +63,14 @@
       <textarea id="searchSkinUrlsDefaultValue" aria-hidden="true" class="d-none"><%= skinUrlsString%></textarea>
       <script type="text/javascript">
         if (window.location.pathname?.endsWith?.('/search')) {
-          require(['PORTLET/social/Search'], app => app.init());
+          window.require(['PORTLET/social/Search'], app => app.init());
         }
+        window.require(['SHARED/commonVueComponents'], () => Vue.prototype.$utils.addShortcutsListener(['f'], () => {
+          window.require(['PORTLET/social/Search'], app => {
+            app.init();
+            document.dispatchEvent(new CustomEvent('search-open'));
+          });
+        }));
       </script>
     </div>
   </div>
