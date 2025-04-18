@@ -113,6 +113,18 @@
         </values-param>
       </init-params>
     </component-plugin>
+    <component-plugin>
+      <name>UIPortalApplication-End-Body</name>
+      <set-method>addTemplateExtension</set-method>
+      <type>org.exoplatform.groovyscript.text.TemplateExtensionPlugin</type>
+      <init-params>
+        <values-param>
+          <name>templates</name>
+          <description>A template that will be imported at the end of page</description>
+          <value>war:/groovy/social/webui/UISocialBottomContainer.gtmpl</value>
+        </values-param>
+      </init-params>
+    </component-plugin>
   </external-component-plugins>
 
 </configuration>

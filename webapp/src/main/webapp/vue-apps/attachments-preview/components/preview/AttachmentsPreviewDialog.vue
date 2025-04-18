@@ -65,10 +65,10 @@
             :value="attachment.id"
             reverse-transition="fade-transition"
             transition="fade-transition">
-            <attachments-image-preview-item
-              :attachment="attachment"
-              :object-type="objectType"
-              :object-id="objectId" />
+            <extension-registry-component
+              :component="getExtension(attachment)"
+              :params="getParams(attachment)"
+              :element="div" />
           </v-carousel-item>
         </v-carousel>
       </v-card>
@@ -81,16 +81,20 @@ export default {
     dialog: false,
     currentAttachmentId: 0, 
     filename: '',
+    fileUrl: '',
     objectType: '',
     attachments: null,
+    previewExtensionApp: 'Preview',
+    previewExtensionType: 'previewExtensions',
+    previewExtensions: [],
   }),
   computed: {
     downloadURL() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.currentAttachmentId}?size=0x0&download=true`;
+      return `${eXo.env.portal.context}${ this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).downloadUrl}?size=0x0&download=true` || this.fileUrl;
     },
     attachmentFilename() {
-      return  this.attachments?.length && this.attachments.filter(attachment => attachment.id === this.currentAttachmentId).finename || this.filename;
-    }, 
+      return  this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).filename || this.filename;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
@@ -112,7 +116,9 @@ export default {
     }
   },
   created() {
-    this.$root.$on('open-attachments-preview', this.open);
+    this.refreshPreviewExtensions();
+    document.addEventListener(`extension-${this.previewExtensionApp}-${this.previewExtensionType}-updated`, this.refreshPreviewExtensions);
+    document.addEventListener('open-preview-dialog', this.openPreview);
     document.addEventListener('keydown', (event) => {
       if (this.$refs.attachmentsCarousel) {
         if (event.key === 'Escape') {
@@ -126,12 +132,27 @@ export default {
     });
   },
   methods: {
-    open(objectType, objectId, attachments, id) {
-      this.objectType = objectType;
-      this.objectId = objectId;
-      this.attachments = attachments;
-      this.currentAttachmentId = id;
-      this.filename = this.attachments.filter(attachment => attachment.id === id)[0].filename;
+    refreshPreviewExtensions() {
+      this.previewExtensions = extensionRegistry.loadExtensions(this.previewExtensionApp, this.previewExtensionType);
+    },
+    getParams(attachment) {
+      return {
+        attachment: attachment,
+        objectType: this.objectType,
+        objectId: this.objectId,
+      };
+    },
+    getExtension(attachment) {
+      return this.previewExtensions.find((element) => attachment.mimetype.includes(element.fileType)) || this.previewExtensions.find((element) => element.default);
+    },
+    openPreview(event) {
+      const attachment = event?.detail;
+      this.objectType = attachment.objectType;
+      this.objectId = attachment.objectType;
+      this.attachments = attachment.attachments;
+      this.currentAttachmentId = attachment.id;
+      this.filename = this.attachments.find(file => file.id === attachment.id).filename;
+      this.fileUrl = this.attachments.find(file => file.id === attachment.id).downloadUrl;
       this.dialog = true;
     },
     close() {
@@ -141,6 +162,7 @@ export default {
       this.attachments = null;
       this.currentAttachmentId = null;
       this.filename = null;
+      this.fileUrl = null;
     },
   }
 };
