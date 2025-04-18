@@ -148,15 +148,17 @@ export default {
         if (event.key === 'Escape') {
           this.drawer = false;
         }
-        if (event.ctrlKey && event.altKey && event.key === 'f') {
-          this.drawer = !this.drawer;
-        }
       });
     }
+    document.addEventListener('search-open', this.open);
     document.addEventListener('search-metadata-tag', this.open);
   },
   mounted() {
     this.drawer = true;
+  },
+  beforeDestroy() {
+    document.removeEventListener('search-open', this.open);
+    document.removeEventListener('search-metadata-tag', this.open);
   },
   methods: {
     toogle() {
