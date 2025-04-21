@@ -66,7 +66,7 @@
             v-for="item in spaceTemplateItems"
             :key="item.value"
             :value="item.value">
-            {{ item.text }}{{ item.deleted && ` ${$t('social.spaces.administration.manageSpaces.deletedSpaceTemplate')}` || (!item.enabled && ` ${$t('social.spaces.administration.manageSpaces.disabledSpaceTemplate')}`) || '' }}
+            {{ item.text }}
           </option>
         </select>
         <template v-if="spaceTemplate">
@@ -254,7 +254,7 @@ export default {
           value: t.id,
           enabled: t.enabled,
           deleted: t.deleted,
-        })));
+        })).filter(item => item.enabled && !item.deleted));
       }
       return spaceTemplateItems;
     },
