@@ -24,7 +24,8 @@
   <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
     <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
       <category-chip
-        v-for="category in categories"
+        v-for="(category, index) in categories"
+        :ref="`category${index}`"
         :key="category.id"
         :category="category"
         :parent-width="parentWidth"
@@ -34,26 +35,19 @@
         @initialized="setVisible(category, $event)"
         @select="openCategory" />
     </div>
-    <v-chip
+    <v-btn
       ref="moreButton"
       :class="{
         'invisible' : !hasInvisibleItems,
       }"
-      class="flex-shrink-0 flex-grow-0 ms-2"
-      color="grey"
-      dark
+      :style="moreButtonStyle"
+      class="flex-shrink-0 flex-grow-0 px-0"
+      color="primary"
+      height="30"
+      text
       @click="$emit('open-more', categories)">
-      <v-card
-        :min-width="85"
-        :max-width="85"
-        color="transparent"
-        class="text-truncate"
-        flat>
-        {{ $t('categories.more', {
-          0: remainingSize,
-        }) }}
-      </v-card>
-    </v-chip>
+      {{ $t('categories.seeAll') }}
+    </v-btn>
   </div>
 </template>
 <script>
@@ -79,6 +73,39 @@ export default {
   computed: {
     hasInvisibleItems() {
       return this.remainingSize > 0;
+    },
+    firstInvisibleElement() {
+      if (this.hasInvisibleItems && this.invisibleIds?.size) {
+        const firstInvisibleIndex = this.categories.findIndex(cat => this.invisibleIds.has(cat.id));
+        return this.$refs?.[`category${firstInvisibleIndex}`]?.[0]?.$refs?.chip?.$el;
+      }
+      return null;
+    },
+    firstInvisibleElementX() {
+      if (this.firstInvisibleElement) {
+        if (this.$vuetify.rtl) {
+          return this.firstInvisibleElement.offsetRight;
+        } else {
+          return this.firstInvisibleElement.offsetLeft;
+        }
+      }
+      return null;
+    },
+    moreButtonStyle() {
+      if (this.firstInvisibleElement) {
+        if (this.$vuetify.rtl) {
+          return {
+            position: 'absolute',
+            right: `${this.firstInvisibleElementX}px`,
+          };
+        } else {
+          return {
+            position: 'absolute',
+            left: `${this.firstInvisibleElementX}px`,
+          };
+        }
+      }
+      return null;
     },
   },
   watch: {
