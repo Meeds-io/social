@@ -90,7 +90,7 @@ export default {
   }),
   computed: {
     downloadURL() {
-      return `${eXo.env.portal.context}${ this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).downloadUrl}?size=0x0&download=true` || this.fileUrl;
+      return this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).downloadUrl || this.fileUrl;
     },
     attachmentFilename() {
       return  this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).filename || this.filename;

@@ -33,7 +33,15 @@
 <script>
 export default {
   props: {
-    thumbnailUrl: {
+    attachment: {
+      type: Object,
+      default: null,
+    },
+    objectType: {
+      type: String,
+      default: null,
+    },
+    objectId: {
       type: String,
       default: null,
     },
@@ -42,6 +50,9 @@ export default {
     supported: true,
   }),
   computed: {
+    thumbnailUrl() {
+      return this.attachment.thumbnailUrl || this.attachment.downloadUrl;
+    },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     }
