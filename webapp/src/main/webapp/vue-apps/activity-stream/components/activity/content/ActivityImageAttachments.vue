@@ -61,6 +61,9 @@ export default {
         mimetype: metadata.properties.fileMimeType,
         updated: metadata.properties.fileUpdateDate,
         alt: metadata.properties.alt || '',
+        external: false, // when the image to preview is loaded from an external source other than the attachmentService
+        thumbnailUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.metadataObjectType}/${this.metadataObjectId}/${metadata.name}`,
+        downloadUrl: `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.metadataObjectType}/${this.metadataObjectId}/${metadata.name}?size=0x0&download=true`,
       })) || [];
     },
   },
