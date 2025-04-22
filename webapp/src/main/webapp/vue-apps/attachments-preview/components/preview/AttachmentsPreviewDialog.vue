@@ -31,7 +31,7 @@
         :max-height="!isMobile && '80vh' || '75vh'"
         class="transparent">
         <v-carousel
-          :id="previewCarousel"
+          :id="`previewCarousel`"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
           :show-arrows-on-hover="!isMobile"
