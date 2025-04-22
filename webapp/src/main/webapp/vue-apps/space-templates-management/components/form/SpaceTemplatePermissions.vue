@@ -54,6 +54,16 @@
       </template>
     </v-checkbox>
     <v-checkbox
+      v-if="any"
+      v-model="isAnyPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepAny') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
       v-if="spaceAdmin"
       v-model="isSpaceAdminPermissions"
       class="mt-0">
@@ -120,12 +130,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    any: {
+      type: Boolean,
+      default: false,
+    }
   },
   data: () => ({
     isAdministrationPermissions: true,
     isUserPermissions: false,
     isSpaceAdminPermissions: false,
     isCustomPermissions: false,
+    isAnyPermissions: false,
     specificGroupEntries: null,
   }),
   computed: {
@@ -134,6 +149,9 @@ export default {
     },
     permissions() {
       const permissions = [];
+      if (this.isAnyPermissions) {
+        permissions.push(this.$root.everyonePermission);
+      }
       if (this.isUserPermissions) {
         permissions.push(this.$root.usersPermission);
       }
@@ -165,12 +183,14 @@ export default {
     const permissions = this.value?.slice?.();
     this.isUserPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
     this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin') && true || false;
+    this.isAnyPermissions = this.any && permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
     this.specificGroupEntries = [];
 
     const specificGroupEntries = permissions?.filter?.(p =>
       p !== this.$root.administratorsPermission
       && (!p.includes(':') || p.split(':')[1] !== this.$root.administratorsPermission)
       && (!this.users || p !== this.$root.usersPermission)
+      && (!this.any || p !== this.$root.everyonePermission)
       && (!this.spaceAdmin || p !== 'spaceAdmin')
     ) || null;
     this.isCustomPermissions = !!specificGroupEntries?.length;
