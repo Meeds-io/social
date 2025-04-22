@@ -190,53 +190,6 @@
         </object-param>
       </init-params>
     </component-plugin>
-    <component-plugin>
-      <name>addPlugin</name>
-      <set-method>addPlugin</set-method>
-      <type>org.exoplatform.commons.addons.AddOnPluginImpl</type>
-      <description></description>
-      <init-params>
-        <value-param>
-          <name>priority</name>
-          <value>15</value>
-        </value-param>
-        <value-param>
-          <name>containerName</name>
-          <value>middle-topNavigation-container</value>
-        </value-param>
-        <object-param>
-          <name>FavoritesTopBar</name>
-          <description></description>
-          <object type="org.exoplatform.commons.addons.PortletModel">
-            <field name="id">
-              <string>topbarFavorite</string>
-            </field>
-            <field name="title">
-              <string>generalSettings.favorite.name</string>
-            </field>
-            <field name="description">
-              <string>generalSettings.favorite.description</string>
-            </field>
-            <field name="icon">
-              <string>fa-star</string>
-            </field>
-            <field name="contentId">
-              <string>social/TopBarFavorites</string>
-            </field>
-            <field name="permissions">
-              <collection type="java.util.ArrayList">
-                <value>
-                  <string>*:/platform/users</string>
-                </value>
-                <value>
-                  <string>*:/platform/externals</string>
-                </value>
-              </collection>
-            </field>
-          </object>
-        </object-param>
-      </init-params>
-    </component-plugin>
     <!-- Legacy to cleanup once all portals upgraded to use new Site Layout -->
     <component-plugin>
       <name>addPlugin</name>
