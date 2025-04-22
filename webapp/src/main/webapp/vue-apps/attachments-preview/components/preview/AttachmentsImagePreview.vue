@@ -51,7 +51,7 @@ export default {
   }),
   computed: {
     thumbnailUrl() {
-      return `${eXo.env.portal.context}${this.attachment.downloadUrl}`;
+      return this.attachment.thumbnailUrl || this.attachment.downloadUrl;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
