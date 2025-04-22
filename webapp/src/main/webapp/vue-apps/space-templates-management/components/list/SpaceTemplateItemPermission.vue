@@ -78,6 +78,8 @@ export default {
         }
       } else if (this.groupId === 'spaceAdmin') {
         this.name = this.$t('spaceTemplate.permissionsStepSpaceAdmins');
+      } else if (this.groupId === this.$root.everyonePermission) {
+        this.name = this.$t('spaceTemplate.permissionsStepAny');
       } else {
         const group = await this.$identityService.getIdentityByProviderIdAndRemoteId('group', this.groupId);
         if (group) {
