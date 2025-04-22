@@ -80,7 +80,11 @@ export default {
   },
   methods: {
     openImagePreview(image) {
-      this.$refs.previewDialog.open(this.objectType, this.objectId, this.images, image.id);
+      this.images.forEach(image => {
+        image.thumbnailUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${image.id}`;
+        image.downloadUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${image.id}?size=0x0&download=true`;
+      });
+      document.dispatchEvent(new CustomEvent('open-attachments-preview', {detail: {'attachments': this.images || [],'id': image.id }}));
     },
     handleImagesUploaded(images) {
       this.images.unshift(...images);
@@ -108,6 +112,8 @@ export default {
         name: attachment.name,
         creationDate: attachment.updated,
         size: attachment.size,
+        mimetype: attachment.mimetype,
+        alt: attachment.altText,
       };
     },
     copyImageAttachmentLink(fileId) {
