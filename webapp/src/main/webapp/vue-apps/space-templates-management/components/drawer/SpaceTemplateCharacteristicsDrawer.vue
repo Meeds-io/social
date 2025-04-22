@@ -132,7 +132,8 @@
             label="spaceTemplate.permissionsStepCreateSpacePermissionLabel"
             class="mb-4"
             users
-            admins />
+            admins
+            any />
           <space-templates-management-permissions
             v-model="spaceTemplate.adminPermissions"
             help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
