@@ -56,6 +56,7 @@ export function init(badge) {
         created() {
           document.addEventListener('extension-WebNotification-notification-content-extension-updated', this.refreshNotificationExtensions);
           this.refreshNotificationExtensions();
+          this.$utils.addShortcutsListener(['°'], () => document.dispatchEvent(new CustomEvent('notifications-drawer-open')));
           window.setInterval(() => this.now = Date.now(), 60000);
         },
         methods: {
