@@ -44,6 +44,7 @@ export function init(isExternalFeatureEnabled) {
           spacesCountByTemplates: null,
           usersPermission: '*:/platform/users',
           administratorsPermission: '*:/platform/administrators',
+          everyonePermission: 'Everyone',
           collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
           allSpaceTemplatesSelected: false,
           selectedSpaceTemplates: [],
