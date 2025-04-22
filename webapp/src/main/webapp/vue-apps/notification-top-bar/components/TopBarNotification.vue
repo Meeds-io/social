@@ -61,11 +61,13 @@ export default {
   },
   created() {
     document.addEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    document.addEventListener('notifications-drawer-open', this.openDrawer);
     this.$root.$on('notification-badge-updated', this.updateBadge);
     this.badge = this.$root.badge;
   },
   beforeDestroy() {
     document.removeEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    document.removeEventListener('notifications-drawer-open', this.openDrawer);
     this.$root.$off('notification-badge-updated', this.updateBadge);
   },
   mounted() {
