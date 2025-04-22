@@ -107,7 +107,7 @@ export default {
   },
   computed: {
     thumbnailUrl() {
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${this.attachment.id}?lastModified=${this.attachment.updated}&size=${this.attachmentPreveiwHeight}x${this.attachmentPreveiwWidth}`;
+      return this.attachment.external && this.attachment.thumbnailUrl || `${this.attachment.thumbnailUrl}?lastModified=${this.attachment.updated}&size=${this.attachmentPreviewHeight}x${this.attachmentPreviewWidth}`;
     },
     attachmentAlt() {
       return this.attachment?.alt || 'attached image';
@@ -118,11 +118,11 @@ export default {
     isSmallImage() {
       return this.attachment?.size < 1000000;
     },
-    attachmentPreveiwHeight() {
+    attachmentPreviewHeight() {
       return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
     },
-    attachmentPreveiwWidth() {
-      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewHeight;
+    attachmentPreviewWidth() {
+      return this.defaultSize || this.isSmallImage && !this.isGifImage ? 0 : this.previewWidth;
     },
   },
   watch: {
