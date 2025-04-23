@@ -106,12 +106,13 @@
     <!-- Topbar Options -->
     <div class="d-flex mb-2 mt-4">
       <div class="d-flex align-center font-weight-bold">
-        {{ $t('generalSettings.topbarOptions') }}
+        {{ $t('generalSettings.topbarOptionsWithMax', {0: maxApps}) }}
       </div>
       <v-spacer />
       <v-btn
         v-if="applicationExtension"
         :title="$t('generalSettings.addTopBarItem')"
+        :disabled="applications?.length >= maxApps"
         class="btn btn-primary border-radius"
         elevation="0"
         tile
@@ -221,6 +222,7 @@ export default {
     },
   },
   data: () => ({
+    maxApps: 10,
     topbarSettings: null,
     applicationExtension: null,
     mobilePreview: false,
