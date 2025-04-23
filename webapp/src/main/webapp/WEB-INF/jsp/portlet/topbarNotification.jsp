@@ -11,7 +11,7 @@
     <div class="v-application--wrap">
       <div class="flex">
         <div class="layout">
-          <button type="button" class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default" title="Notifications">
+          <button type="button" class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default">
             <span class="v-btn__content">
               <span class="v-badge v-badge--overlap theme--light">
                 <i

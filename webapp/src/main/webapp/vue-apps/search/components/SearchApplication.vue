@@ -1,7 +1,7 @@
 <template>
   <v-app role="search">
     <v-btn
-      :title="buttonTooltip"
+      :title="tooltip"
       icon
       class="transparent"
       @click="$refs.drawer.toogle()">
@@ -23,6 +23,11 @@ export default {
     skinUrls: {
       type: Array,
       default: () => [],
+    },
+  },
+  computed: {
+    tooltip() {
+      return `${this.$t('Search.button.tooltip')} ${this.$t('Search.button.tooltip.shortcut')}`;
     },
   },
 };
