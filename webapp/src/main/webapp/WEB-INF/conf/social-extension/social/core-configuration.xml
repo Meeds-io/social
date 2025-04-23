@@ -907,4 +907,13 @@
     </component-plugin>
   </external-component-plugins>
 
+<external-component-plugins>
+    <target-component>org.exoplatform.services.thumbnail.ImageThumbnailService</target-component>
+    <component-plugin>
+        <name>files</name>
+        <set-method>addPlugin</set-method>
+        <type>org.exoplatform.social.core.plugin.FilesThumbnailPlugin</type>
+    </component-plugin>
+</external-component-plugins>
+
 </configuration>

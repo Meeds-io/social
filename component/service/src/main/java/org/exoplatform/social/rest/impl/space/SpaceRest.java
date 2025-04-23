@@ -53,6 +53,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -588,7 +589,10 @@ public class SpaceRest implements ResourceContainer {
         try {
           byte[] avatarContent = null;
           if (identityManager.getAvatarFile(identity) != null) {
-            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+            FileInfo fileInfo = identityManager.getAvatarFile(identity).getFileInfo();
+            avatarContent = imageThumbnailService.getOrCreateThumbnail(Long.toString(fileInfo.getId()),
+                                                                       "files",
+                                                                       fileInfo.getUpdater(),
                                                                        dimension[0],
                                                                        dimension[1])
                                                  .getAsByte();

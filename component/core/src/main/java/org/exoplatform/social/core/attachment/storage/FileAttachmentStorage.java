@@ -108,7 +108,9 @@ public class FileAttachmentStorage {
     if (StringUtils.contains(fileInfo.getMimetype(), "image/") && StringUtils.isNotBlank(imageDimensions)) {
       int[] dimension = Utils.parseDimension(imageDimensions);
       try {
-        FileItem imageFileItem = imageThumbnailService.getOrCreateThumbnail(fileItem,
+        FileItem imageFileItem = imageThumbnailService.getOrCreateThumbnail(Long.toString(fileId),
+                                                                            "files",
+                                                                            fileInfo.getUpdater(),
                                                                             dimension[0],
                                                                             dimension[1]);
         return imageFileItem.getAsStream();

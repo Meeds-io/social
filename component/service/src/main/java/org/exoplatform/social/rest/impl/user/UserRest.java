@@ -69,6 +69,7 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.file.model.FileInfo;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -755,7 +756,10 @@ public class UserRest implements ResourceContainer, Startable {
           byte[] avatarContent = null;
           try {
             if(identityManager.getAvatarFile(identity) != null) {
-              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
+              FileInfo fileInfo = identityManager.getAvatarFile(identity).getFileInfo();
+              avatarContent = imageThumbnailService.getOrCreateThumbnail(Long.toString(fileInfo.getId()),
+                              "files",
+                              fileInfo.getUpdater(),
                               dimension[0],
                               dimension[1])
                       .getAsByte();
