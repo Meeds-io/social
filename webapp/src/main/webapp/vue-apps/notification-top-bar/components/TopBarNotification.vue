@@ -23,7 +23,7 @@
     <v-flex>
       <v-layout>
         <v-btn
-          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
+          :title="tooltip"
           :loading="loading"
           icon
           @click="openDrawer">
@@ -52,6 +52,11 @@ export default {
     open: false,
     loading: false,
   }),
+  computed: {
+    tooltip() {
+      return `${this.$t('UIIntranetNotificationsPortlet.title.notifications')} ${this.$t('UIIntranetNotificationsPortlet.title.notifications.shortcut')}`;
+    },
+  },
   watch: {
     open() {
       if (this.open) {
