@@ -115,11 +115,10 @@ const shortcutChars = new Set();
 export function addShortcutsListener(chars, listener) {
   chars = chars.filter(c => c?.length).map(c => c.toLowerCase()).filter(c => !shortcutChars.has(c));
   chars.forEach(c => shortcutChars.add(c));
-  document.addEventListener('keydown', e => {
+  window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key) {
       const c = e?.key?.toLowerCase?.();
-      if (chars?.includes?.(c.toLowerCase())
-        && shortcutChars.has(c)) {
+      if (chars?.includes?.(c) && shortcutChars.has(c)) {
         e.stopPropagation();
         e.preventDefault();
         window.setTimeout(() => {
