@@ -42,7 +42,13 @@
   } catch (Exception e) {
     bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
-  String tooltip = bundle.getString("Search.button.tooltip");
+  String tooltip;
+  try {
+    tooltip = bundle.getString("Search.button.tooltip") + " " + bundle.getString("Search.button.tooltip.shortcut");
+  } catch (Exception e) {
+
+    tooltip = bundle.getString("Search.button.tooltip");
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
