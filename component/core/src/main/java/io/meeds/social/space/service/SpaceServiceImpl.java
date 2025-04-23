@@ -448,11 +448,7 @@ public class SpaceServiceImpl implements SpaceService {
 
       space.setDisplayName(newDisplayName);
       space.setPrettyName(newPrettyName);
-      if (oldPrettyName.equals(space.getUrl())) {
-        // Update URL only if legacy
-        // navigation tree which uses pretty name
-        space.setUrl(newPrettyName);
-      } else if (StringUtils.isBlank(space.getUrl())) {
+      if (StringUtils.isBlank(space.getUrl())) {
         space.setUrl(Space.HOME_URL);
       }
 
