@@ -28,12 +28,16 @@ import SpaceTemplateItemPermission from './components/list/SpaceTemplateItemPerm
 import SpaceTemplateCreateSpaceMenuItem from './components/menu-action/SpaceTemplateCreateSpaceMenuItem.vue';
 import SpaceTemplateDeleteMenuItem from './components/menu-action/SpaceTemplateDeleteMenuItem.vue';
 import SpaceTemplateDuplicateMenuItem from './components/menu-action/SpaceTemplateDuplicateMenuItem.vue';
+import SpaceTemplateSerializeMenuItem from './components/menu-action/SpaceTemplateSerializeMenuItem.vue';
 import SpaceTemplateEditMenuItem from './components/menu-action/SpaceTemplateEditMenuItem.vue';
 import SpaceTemplateListSpacesMenuItem from './components/menu-action/SpaceTemplateListSpacesMenuItem.vue';
+
+import SpaceTemplateBulkDelete from './components/action/BulkDelete.vue';
 
 import SpaceTemplateNameDrawer from './components/drawer/SpaceTemplateNameDrawer.vue';
 import SpaceTemplateCharacteristicsDrawer from './components/drawer/SpaceTemplateCharacteristicsDrawer.vue';
 import SpaceListByTemplateDrawer from './components/drawer/SpaceListByTemplateDrawer.vue';
+import SpaceTemplateDeserializeDrawer from './components/drawer/SpaceTemplateDeserializeDrawer.vue';
 
 import SpaceTemplateBanner from './components/form/SpaceTemplateBanner.vue';
 import SpaceTemplateVisibility from './components/form/SpaceTemplateVisibility.vue';
@@ -52,15 +56,18 @@ const components = {
   'space-templates-management-menu-item-list-spaces': SpaceTemplateListSpacesMenuItem,
   'space-templates-management-menu-item-edit': SpaceTemplateEditMenuItem,
   'space-templates-management-menu-item-duplicate': SpaceTemplateDuplicateMenuItem,
+  'space-templates-management-menu-item-serialize': SpaceTemplateSerializeMenuItem,
   'space-templates-management-menu-item-delete': SpaceTemplateDeleteMenuItem,
   'space-templates-management-name-drawer': SpaceTemplateNameDrawer,
   'space-templates-management-characteristics-drawer': SpaceTemplateCharacteristicsDrawer,
   'space-templates-management-list-by-template-drawer': SpaceListByTemplateDrawer,
+  'space-templates-deserialize-drawer': SpaceTemplateDeserializeDrawer,
   'space-templates-management-banner': SpaceTemplateBanner,
   'space-templates-management-visibility': SpaceTemplateVisibility,
   'space-templates-management-access': SpaceTemplateAccess,
   'space-templates-management-permissions': SpaceTemplatePermissions,
   'space-templates-management-permissions-editorial': SpaceTemplatePermissionsEditorial,
+  'space-templates-management-bulk-delete': SpaceTemplateBulkDelete,
 };
 
 for (const key in components) {
