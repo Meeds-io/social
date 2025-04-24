@@ -18,6 +18,7 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -34,7 +35,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.core.storage.cache.SocialStorageCacheService;
 
-public abstract class SpaceStorageTest extends AbstractCoreTest {
+public class SpaceStorageTest extends AbstractCoreTest {
 
   private SpaceStorage              spaceStorage;
 
@@ -1597,6 +1598,33 @@ public abstract class SpaceStorageTest extends AbstractCoreTest {
     assertEquals(5, spaceFromCache.getMembers().length);
     assertNotNull(spaceFromCache.getManagers());
     assertEquals(2, spaceFromCache.getManagers().length);
+  }
+
+  public void testGetLastAccessedSpaceWithCategoryIds() {
+    Space space1 = getSpaceInstance(1);
+    space1.setCategoryIds(Collections.singletonList(2l));
+    spaceStorage.saveSpace(space1, true);
+    spaceStorage.updateSpaceAccessed("raul", space1);
+
+    Space space2 = getSpaceInstance(2);
+    spaceStorage.saveSpace(space2, true);
+    spaceStorage.updateSpaceAccessed("raul", space2);
+
+    SpaceFilter filter = new SpaceFilter();
+    filter.setRemoteId("raul");
+    List<Space> spaces = spaceStorage.getLastAccessedSpace(filter, 0, 10);
+    assertNotNull(spaces);
+    assertEquals(2, spaces.size());
+
+    filter.setCategoryIds(Collections.singletonList(3l));
+    spaces = spaceStorage.getLastAccessedSpace(filter, 0, 10);
+    assertNotNull(spaces);
+    assertEquals(0, spaces.size());
+
+    filter.setCategoryIds(Collections.singletonList(2l));
+    spaces = spaceStorage.getLastAccessedSpace(filter, 0, 10);
+    assertNotNull(spaces);
+    assertEquals(1, spaces.size());
   }
 
   public void testGetLastAccessedPagination() throws Exception {
