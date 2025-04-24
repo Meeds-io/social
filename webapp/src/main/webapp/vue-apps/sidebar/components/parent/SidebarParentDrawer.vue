@@ -53,6 +53,7 @@ export default {
   },
   data: () => ({
     drawer: false,
+    hideOverlay: true,
   }),
   computed: {
     width() {
@@ -61,8 +62,12 @@ export default {
     stickyAllowed() {
       return this.$root.stickyAllowed;
     },
+    isMobile() {
+      return this.$root.isMobile;
+    },
     showOverlay() {
-      return !this.$root.icon || this.$root.expand;
+      const isMobile = this.$root.isMobile || window.innerWidth < this.$vuetify.breakpoint.thresholds.md;
+      return (!isMobile || !this.hideOverlay) && (!this.$root.icon || this.$root.expand);
     },
     permanent() {
       return this.$root.icon;
@@ -75,6 +80,23 @@ export default {
       } else if (this.$root.icon && !this.drawer) {
         this.drawer = true;
       }
+    },
+    isMobile: {
+      immediate: true,
+      handler(newVal, oldVal) {
+        if (newVal !== oldVal) {
+          this.hideOverlay = true;
+          if (this.timeout) {
+            window.clearTimeout(this.timeout);
+          }
+          if (this.isMobile) {
+            this.timeout = window.setTimeout(() => {
+              this.timeout = null;
+              this.hideOverlay = false;
+            }, 500);
+          }
+        }
+      },
     },
     drawer() {
       if (!this.drawer && this.$root.icon) {
