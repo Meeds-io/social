@@ -75,21 +75,6 @@ public class LastAccessedSpacesCacheSelector extends CacheSelector<ListSpacesKey
             ((ExoCache<ListSpacesKey, ListSpacesData>) exoCache).put(listSpacesKey, listSpacesData);
             // Cache enry updated, so no need to clear it
             return;
-          } else if (ids.size() == listSpacesKey.getLimit()) {
-            ids.remove(ids.size() - 1);
-            ids.add(0, spaceKey);
-            listSpacesData.setIds(ids);
-            cacheService.getSpacesCountCache().remove(listSpacesKey);
-            ((ExoCache<ListSpacesKey, ListSpacesData>) exoCache).put(listSpacesKey, listSpacesData);
-            // Cache enry updated, so no need to clear it
-            return;
-          } else {
-            ids.add(0, spaceKey);
-            listSpacesData.setIds(ids);
-            cacheService.getSpacesCountCache().remove(listSpacesKey);
-            ((ExoCache<ListSpacesKey, ListSpacesData>) exoCache).put(listSpacesKey, listSpacesData);
-            // Cache enry updated, so no need to clear it
-            return;
           }
         }
       }
