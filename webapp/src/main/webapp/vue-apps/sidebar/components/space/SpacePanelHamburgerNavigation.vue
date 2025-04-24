@@ -195,9 +195,6 @@ export default {
     enabledExtensionComponents() {
       return this.externalExtensions.filter(extension => extension.enabled);
     },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
-    },
     spaceGroupId() {
       return this.space?.groupId;
     },
@@ -212,10 +209,10 @@ export default {
       }
     },
     avatarWidth() {
-      return this.isMobile && '45' || '60';
+      return this.$root.isMobile && '45' || '60';
     },
     avatarHeight() {
-      return this.isMobile && '45' || '60';
+      return this.$root.isMobile && '45' || '60';
     },
     hasUnreadItems() {
       return this.$root?.unreadPerSpace?.[this.space?.id];
