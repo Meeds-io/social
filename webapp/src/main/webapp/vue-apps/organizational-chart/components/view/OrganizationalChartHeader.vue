@@ -24,7 +24,6 @@
     class="d-flex">
     <v-btn
       class="btn ma-auto btn-primary"
-      flat
       outlined
       @click="openChartSettingsDrawer">
       <v-icon
