@@ -75,6 +75,12 @@ import lombok.Setter;
                   WHERE s.templateId > 0
                   GROUP BY s.templateId
                 """)
+@NamedQuery(
+            name = "SpaceEntity.getSpaceCategoryIds",
+            query = """
+                  SELECT DISTINCT c.categoryId FROM SocSpaceEntity s
+                  INNER JOIN s.categories c
+                """)
 public class SpaceEntity implements Serializable {
 
   private static final long                        serialVersionUID           = 3223615477747436986L;

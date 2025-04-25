@@ -357,6 +357,19 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  public List<MetadataItem> getMetadataItemsByMetadataTypeAndObjectType(String metadataTypeName, String objectType) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
+    List<MetadataItemEntity> metadataItemEntities =
+                                                  metadataItemDAO.getMetadataItemsByMetadataTypeAndObjectType(metadataType.getId(),
+                                                                                                              objectType,
+                                                                                                              0,
+                                                                                                              0);
+    if (CollectionUtils.isEmpty(metadataItemEntities)) {
+      return Collections.emptyList();
+    }
+    return metadataItemEntities.stream().map(this::fromEntity).toList();
+  }
+
   public Set<String> getMetadataNamesByObject(MetadataObject object) {
     return metadataItemDAO.getMetadataNamesByObject(object.getType(), object.getId());
   }
@@ -465,7 +478,7 @@ public class MetadataStorage {
   }
 
   public long countMetadataIdsByProperty(String propertyKey,
-                                               String propertyValue) {
+                                         String propertyValue) {
     return metadataDAO.countMetadataIdsByProperty(propertyKey, propertyValue);
   }
 

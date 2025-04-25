@@ -60,10 +60,10 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
   @Test
   @SneakyThrows
   public void testLink() {
-    assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.link(12254689l, new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), ROOT_USER));
+    assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.link(12254689l, new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), MARY_USER));
 
     Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
-    assertThrows(IllegalAccessException.class, () -> categoryLinkService.link(rootCategory.getId(), new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), ROOT_USER));
+    assertThrows(IllegalAccessException.class, () -> categoryLinkService.link(rootCategory.getId(), new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), MARY_USER));
 
     Space space = new Space();
     space.setRegistration(Space.OPEN);
@@ -77,7 +77,7 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     assertThrows(ObjectAlreadyExistsException.class, () -> categoryLinkService.link(rootCategory.getId(), object, ROOT_USER));
 
     buildCategoryTree();
-    CategoryFilter filter = new CategoryFilter(0, 0, 1, 0, 1, false, false);
+    CategoryFilter filter = new CategoryFilter(null, 0, 0, 1, 0, 1, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     CategoryTree category = categoryTree.getCategories().get(0);
     category.setLinkPermissionIds(Collections.singletonList(getUsersGroupIdentityId()));
@@ -96,10 +96,10 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
   @Test
   @SneakyThrows
   public void testUnLink() {
-    assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.unlink(12254689l, new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), ROOT_USER));
+    assertThrows(ObjectNotFoundException.class, () -> categoryLinkService.unlink(12254689l, new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), MARY_USER));
 
     Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
-    assertThrows(IllegalAccessException.class, () -> categoryLinkService.unlink(rootCategory.getId(), new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), ROOT_USER));
+    assertThrows(IllegalAccessException.class, () -> categoryLinkService.unlink(rootCategory.getId(), new CategoryObject(SpaceCategoryPlugin.OBJECT_TYPE, "5566", 0l), MARY_USER));
 
     Space space = new Space();
     space.setRegistration(Space.OPEN);
