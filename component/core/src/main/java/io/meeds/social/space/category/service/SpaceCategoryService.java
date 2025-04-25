@@ -50,4 +50,9 @@ public interface SpaceCategoryService {
    */
   List<Long> getSpaceCategoryIds(long spaceId);
 
+  /**
+   * @return {@link List} of linked category identifiers to spaces
+   */
+  List<Long> getSpaceCategoryIds();
+
 }

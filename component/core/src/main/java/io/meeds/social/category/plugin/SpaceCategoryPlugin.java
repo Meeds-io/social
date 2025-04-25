@@ -18,6 +18,8 @@
  */
 package io.meeds.social.category.plugin;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +46,11 @@ public class SpaceCategoryPlugin implements CategoryPlugin {
   @Override
   public boolean canEdit(String spaceId, String username) {
     return spaceService.canManageSpace(spaceService.getSpaceById(Long.parseLong(spaceId)), username);
+  }
+
+  @Override
+  public List<Long> getCategoryIds() {
+    return spaceService.getSpaceCategoryIds();
   }
 
 }

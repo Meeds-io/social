@@ -64,7 +64,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     long depth = 1;
     long offset = 0;
     long limit = 1;
-    CategoryFilter filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    CategoryFilter filter = new CategoryFilter(null, ownerId, parentId, depth, offset, limit, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertNotNull(categoryTree);
     assertNotNull(categoryTree.getCategories());
@@ -72,7 +72,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     assertEquals(1, categoryTree.getCategories().size());
 
     limit = 10;
-    filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    filter = new CategoryFilter(null, ownerId, parentId, depth, offset, limit, false, false);
     categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertNotNull(categoryTree);
     assertNotNull(categoryTree.getCategories());
@@ -90,7 +90,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
 
     parentId = categoryTree1.getId();
     depth = 10;
-    filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    filter = new CategoryFilter(null, ownerId, parentId, depth, offset, limit, false, false);
     categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertEquals(categoryTree1.getId(), categoryTree.getId());
     assertEquals(categoryTree1.getName(), categoryTree.getName());
@@ -132,7 +132,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     long depth = 5;
     long offset = 0;
     long limit = 1;
-    CategoryFilter filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    CategoryFilter filter = new CategoryFilter(null, ownerId, parentId, depth, offset, limit, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, ROOT_USER, Locale.FRENCH);
     assertNotNull(categoryTree);
     assertNotNull(categoryTree.getCategories());
@@ -309,7 +309,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     long depth = 10;
     long offset = 0;
     long limit = 10;
-    CategoryFilter filter = new CategoryFilter(ownerId, parentId, depth, offset, limit, false, false);
+    CategoryFilter filter = new CategoryFilter(null, ownerId, parentId, depth, offset, limit, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertEquals(2,
                  categoryTree.getCategories()
