@@ -42,7 +42,13 @@
   } catch (Exception e) {
     bundle = ExoContainerContext.getService(ResourceBundleService.class).getResourceBundle("locale.portlet.Portlets", Locale.ENGLISH);
   }
-  String tooltip = bundle.getString("Search.button.tooltip");
+  String tooltip;
+  try {
+    tooltip = bundle.getString("Search.button.tooltip") + " " + bundle.getString("Search.button.tooltip.shortcut");
+  } catch (Exception e) {
+
+    tooltip = bundle.getString("Search.button.tooltip");
+  }
 %>
 <div class="VuetifyApp">
   <div data-app="true"
@@ -63,8 +69,14 @@
       <textarea id="searchSkinUrlsDefaultValue" aria-hidden="true" class="d-none"><%= skinUrlsString%></textarea>
       <script type="text/javascript">
         if (window.location.pathname?.endsWith?.('/search')) {
-          require(['PORTLET/social/Search'], app => app.init());
+          window.require(['PORTLET/social/Search'], app => app.init());
         }
+        window.require(['SHARED/commonVueComponents'], () => Vue.prototype.$utils.addShortcutsListener(['f'], () => {
+          window.require(['PORTLET/social/Search'], app => {
+            app.init();
+            document.dispatchEvent(new CustomEvent('search-open'));
+          });
+        }));
       </script>
     </div>
   </div>

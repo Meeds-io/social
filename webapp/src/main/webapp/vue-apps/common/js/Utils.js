@@ -66,6 +66,22 @@ export function convertImageDataAsSrc(imageData) {
   }
 }
 
+export async function importSkin(skinType, skinName) {
+  const id = skinType === 'portal' ? skinName : `${skinType}_${skinName}`;
+  if (!document.querySelector(`link#${id}`)) {
+    await new Promise((resolve, reject) => {
+      const link = document.createElement('link');
+      link.id = id;
+      link.type = 'text/css';
+      link.rel = 'stylesheet';
+      link.href = `/social/rest/skins/${skinType}/${skinName}?orientation=${eXo.env.portal.orientation === 'ltr' ? 'LT' : 'RT'}`;
+      document.head.appendChild(link);
+      link.onload = resolve;
+      link.onerror = reject;
+    });
+  }
+}
+
 export function toLinkUrl(url, options) {
   if (url?.indexOf?.('./') === 0) {
     url = `${window.location.pathname.replace(/\/$/g, '')}${url.replace(/\.\//g, '/')}`;
@@ -86,4 +102,33 @@ export function toLinkUrl(url, options) {
   } else {
     return url?.replace?.('http://', 'https://');
   }
+}
+
+export function getQueryParam(paramName) {
+  const uri = window.location.search.substring(1);
+  const params = new URLSearchParams(uri);
+  return params.get(paramName);
+}
+
+const shortcutChars = new Set();
+
+export function addShortcutsListener(chars, listener) {
+  chars = chars.filter(c => c?.length).map(c => c.toLowerCase()).filter(c => !shortcutChars.has(c));
+  chars.forEach(c => shortcutChars.add(c));
+  window.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key) {
+      const c = e?.key?.toLowerCase?.();
+      if (chars?.includes?.(c) && shortcutChars.has(c)) {
+        e.stopPropagation();
+        e.preventDefault();
+        window.setTimeout(() => {
+          listener(e.key);
+        }, 10);
+      }
+    }
+  });
+}
+
+export function removeShortcutsListener(chars) {
+  chars.forEach(c => c && shortcutChars.delete(c));
 }

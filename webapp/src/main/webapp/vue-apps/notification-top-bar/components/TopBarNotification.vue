@@ -23,7 +23,7 @@
     <v-flex>
       <v-layout>
         <v-btn
-          :title="$t('UIIntranetNotificationsPortlet.title.notifications')"
+          :title="tooltip"
           :loading="loading"
           icon
           @click="openDrawer">
@@ -52,6 +52,11 @@ export default {
     open: false,
     loading: false,
   }),
+  computed: {
+    tooltip() {
+      return `${this.$t('UIIntranetNotificationsPortlet.title.notifications')} ${this.$t('UIIntranetNotificationsPortlet.title.notifications.shortcut')}`;
+    },
+  },
   watch: {
     open() {
       if (this.open) {
@@ -61,11 +66,13 @@ export default {
   },
   created() {
     document.addEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    document.addEventListener('notifications-drawer-open', this.openDrawer);
     this.$root.$on('notification-badge-updated', this.updateBadge);
     this.badge = this.$root.badge;
   },
   beforeDestroy() {
     document.removeEventListener('cometdNotifEvent', this.updateBadgeByEvent);
+    document.removeEventListener('notifications-drawer-open', this.openDrawer);
     this.$root.$off('notification-badge-updated', this.updateBadge);
   },
   mounted() {

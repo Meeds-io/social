@@ -6,6 +6,7 @@
         ref="searchInput"
         v-model="term"
         :placeholder="$t('Search.label.inputPlaceHolder')"
+        height="44"
         type="text"
         autocomplete="off"
         class="fill-width my-auto pt-0 px-4 searchInputParent" />
@@ -19,20 +20,22 @@
         {{ $t('search.connector.label.clear') }}
       </v-btn>
       <v-btn
-        v-if="!standalone"
         :aria-label="$t('Search.button.close.label')"
         icon
         class="searchCloseIcon transparent"
-        @click="$emit('close-search')">
-        <v-icon>mdi-close</v-icon>
+        @click="$emit('close')">
+        <v-icon>fa-times</v-icon>
       </v-btn>
     </v-list-item-action>
   </v-list-item>
 </template>
-
 <script>
 export default {
   props: {
+    value: {
+      type: String,
+      default: null,
+    },
     standalone: {
       type: Boolean,
       default: false,
@@ -46,9 +49,14 @@ export default {
     typing: false,
   }),
   watch: {
+    value() {
+      if (this.term !== this.value) {
+        this.term = this.value;
+      }
+    },
     term() {
       if (!this.term) {
-        this.$emit('search');
+        this.$emit('input', this.term);
         return;
       }
       this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
@@ -61,7 +69,7 @@ export default {
   created() {
     this.$root.$on('search-opened', () => {
       window.setTimeout(() => {
-        this.$refs.searchInput.$el.querySelector('input').focus();
+        this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
       }, 200);
     });
     if (this.standalone) {
@@ -73,28 +81,28 @@ export default {
             .replace(/&/g, '","')
             .replace(/=/g, '":"')}"}`
         );
-        this.term = window.decodeURIComponent(parameters['q']);
+        this.term = window.decodeURIComponent(parameters['q']) || this.value || '';
         this.dialog = true;
       }
     }
   },
   mounted() {
     window.setTimeout(() => {
-      this.$refs.searchInput.$el.querySelector('input').focus();
+      this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
     }, 200);
   },
   methods: {
     clearSearchTerm() {
       this.term = '';
       window.setTimeout(() => {
-        this.$refs.searchInput.$el.querySelector('input').focus();
+        this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
       }, 200);
     },
     waitForEndTyping() {
       window.setTimeout(() => {
         if (Date.now() > this.startTypingKeywordTimeout) {
           this.typing = false;
-          this.$emit('search', this.term);
+          this.$emit('input', this.term);
         } else {
           this.waitForEndTyping();
         }

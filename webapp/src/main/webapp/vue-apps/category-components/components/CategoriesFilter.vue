@@ -24,36 +24,63 @@
   <div class="d-flex flex-column justify-center full-width">
     <v-card
       v-if="display"
-      class="d-flex align-center mx-5 mt-1"
+      class="d-flex align-center"
       min-height="34"
       flat>
-      <spaces-categories-breadcrumb
+      <categories-breadcrumb
         v-if="displayBreadcrumb"
         :breadcrumb="breadcrumb"
+        :selected-id="value"
         class="text-start"
         @select="selectCategory" />
       <v-divider
         v-if="displayDivider"
         class="mx-4"
         vertical />
-      <spaces-category-chips-group
+      <category-chips-group
         v-if="displayChipsSelection"
         :categories="selectedSubcategories"
+        :selected-id="value"
         class="flex-grow-1 flex-shrink-1 text-start"
-        @select="selectCategory" />
+        @select="selectCategory"
+        @open-more="openMore" />
     </v-card>
-    <spaces-category-tabs-group
+    <category-tabs-group
       v-if="selectedCategoryForTabs"
       :selected-category="selectedCategoryForTabs"
       @select="selectCategory" />
-    <spaces-categories-list-drawer
-      ref="drawer" />
+    <categories-list-drawer
+      ref="moreCategoriesDrawer"
+      @select="selectCategory" />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    value: {
+      type: String,
+      default: null,
+    },
+    settingName: {
+      type: String,
+      default: null,
+    },
+    filterType: {
+      type: String,
+      default: () => 'category',
+    },
+    categoryIds: {
+      type: Array,
+      default: null,
+    },
+    categoryDepth: {
+      type: Number,
+      default: () => 4,
+    },
+  },
   data: () => ({
     categoryTree: null,
+    initialize: false,
     loading: false,
     pageSize: 10,
     refresh: 1,
@@ -68,7 +95,7 @@ export default {
       return categories;
     },
     displayBreadcrumb() {
-      return this.$root.selectedCategoryId;
+      return this.value;
     },
     displayChipsSelection() {
       return this.level < 2 && this.selectedSubcategories?.length;
@@ -92,32 +119,45 @@ export default {
       return this.selectedCategory?.categories;
     },
     selectedCategory() {
-      return this.categories?.find?.(c => c.id === this.$root.selectedCategoryId) || this.categoryTree;
+      return this.categories?.find?.(c => c.id === this.value) || this.categoryTree;
     },
     chevronIcon() {
       return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
     },
   },
-  created() {
-    this.$root.$on('spaces-list-settings-updated', this.init);
-    this.$root.$on('spaces-list-select-category', this.selectCategory);
-    this.init();
+  watch: {
+    settingName() {
+      this.initialize = true; 
+    },
+    filterType() {
+      this.initialize = true; 
+    },
+    categoryIds() {
+      this.initialize = true; 
+    },
+    categoryDepth() {
+      this.initialize = true; 
+    },
+    initialize() {
+      if (this.initialize) {
+        this.init();
+      }
+    },
   },
-  beforeDestroy() {
-    this.$root.$off('spaces-list-select-category', this.selectCategory);
-    this.$root.$off('spaces-list-settings-updated', this.init);
+  created() {
+    this.init();
   },
   methods: {
     async init() {
       this.loading = true;
       try {
-        if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
-          const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
+        if (this.filterType === 'category' && this.categoryIds?.length) {
+          const subCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategoryTree({
             parentId: id,
-            depth: this.$root.categoryDepth,
+            depth: this.categoryDepth,
             offset: 0,
             limit: -1,
-            token: this.$root.settingName,
+            token: this.settingName,
           })));
           this.categoryTree = {
             id: -1,
@@ -127,14 +167,15 @@ export default {
           };
         } else {
           this.categoryTree = await this.$categoryService.getCategoryTree({
-            depth: this.$root.categoryDepth,
+            depth: this.categoryDepth,
             offset: 0,
             limit: -1,
-            token: this.$root.settingName,
+            token: this.settingName,
           });
         }
       } finally {
         this.loading = false;
+        window.setTimeout(() => this.initialize = false, 100);
       }
     },
     addSubcategories(item, result, depth) {
@@ -159,12 +200,15 @@ export default {
     getCategory(id) {
       return this.categories?.find?.(c => c.id === id);
     },
+    openMore(categories) {
+      this.$refs.moreCategoriesDrawer.open(categories);
+    },
     selectCategory(category) {
-      if (this.$root.selectedCategoryId === category?.id) {
+      if (this.value === category?.id) {
         const categoryIndex = this.breadcrumb.findIndex(c => c.id === category.id);
-        this.$root.selectedCategoryId = categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null;
+        this.$emit('input', categoryIndex > 0 ? this.breadcrumb[categoryIndex - 1]?.id : null);
       } else {
-        this.$root.selectedCategoryId = category?.id;
+        this.$emit('input', category?.id);
       }
     },
   },
