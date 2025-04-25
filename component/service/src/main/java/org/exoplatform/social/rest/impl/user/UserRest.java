@@ -16,57 +16,20 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
-import static org.exoplatform.social.rest.api.RestUtils.getCurrentUserIdentityId;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
-import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
-import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
+import static org.exoplatform.social.rest.api.RestUtils.*;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.io.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -78,6 +41,8 @@ import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.api.settings.SettingValue;
 import org.exoplatform.commons.api.settings.data.Scope;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
@@ -88,14 +53,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
-import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipType;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
-import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.*;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -127,17 +85,7 @@ import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
-import org.exoplatform.social.rest.entity.ActivityEntity;
-import org.exoplatform.social.rest.entity.CollectionEntity;
-import org.exoplatform.social.rest.entity.DataEntity;
-import org.exoplatform.social.rest.entity.ExperienceEntity;
-import org.exoplatform.social.rest.entity.IMEntity;
-import org.exoplatform.social.rest.entity.PhoneEntity;
-import org.exoplatform.social.rest.entity.ProfileEntity;
-import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
-import org.exoplatform.social.rest.entity.SpaceEntity;
-import org.exoplatform.social.rest.entity.URLEntity;
-import org.exoplatform.social.rest.entity.UserEntity;
+import org.exoplatform.social.rest.entity.*;
 import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
@@ -145,6 +93,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -754,11 +703,19 @@ public class UserRest implements ResourceContainer, Startable {
           int[] dimension = Utils.parseDimension(size);
           byte[] avatarContent = null;
           try {
-            if(identityManager.getAvatarFile(identity) != null) {
-              avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                              dimension[0],
-                              dimension[1])
-                      .getAsByte();
+            FileItem avatarFile = identityManager.getAvatarFile(identity);
+            if (identityManager.getAvatarFile(identity) != null) {
+              if (dimension[0] == 0 || dimension[1] == 0) {
+                avatarContent = avatarFile.getAsByte();
+              } else {
+                FileInfo fileInfo = avatarFile.getFileInfo();
+                FileItem file = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                        Long.toString(fileInfo.getId()),
+                        fileInfo.getUpdater(),
+                        dimension[0],
+                        dimension[1]);
+                avatarContent = file != null ? file.getAsByte() : avatarFile.getAsByte();
+              }
             }
           } catch (Exception e) {
             LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned", identity.getId(), e);
