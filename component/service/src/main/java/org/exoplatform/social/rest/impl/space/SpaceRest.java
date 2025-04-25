@@ -245,7 +245,7 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Tag names used to search spaces", required = true)
                             @QueryParam("tags")
                             List<String> tagNames,
-                            @Parameter(description = "Category Identifier used to filter spaces", required = true)
+                            @Parameter(description = "Category Identifier used to filter spaces", required = false)
                             @QueryParam("categoryId")
                             List<Long> categoryIds,
                             @Parameter(description = "Excluded space ids", required = false)

@@ -155,7 +155,7 @@ export function getSpacesByFilter(options) {
       formData.append('templateId', options.templateId);
     }
   }
-  if (options.categoryId) {
+  if (options.categoryId?.length) {
     if (typeof options.categoryId === 'object' && options.categoryId.length) {
       options.categoryId.forEach(id => formData.append('categoryId', id));
     } else {

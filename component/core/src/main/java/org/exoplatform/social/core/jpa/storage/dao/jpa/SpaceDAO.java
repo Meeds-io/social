@@ -199,6 +199,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     return query.getSingleResult().intValue();
   }
 
+  public List<Long> getSpaceCategoryIds() {
+    return getEntityManager().createNamedQuery("SpaceEntity.getSpaceCategoryIds", Long.class)
+                             .getResultList();
+  }
+
   private <T> TypedQuery<T> buildQueryFromFilter(XSpaceFilter filter, Class<T> clazz, boolean count) {
     List<String> suffixes = new ArrayList<>();
     List<String> predicates = new ArrayList<>();

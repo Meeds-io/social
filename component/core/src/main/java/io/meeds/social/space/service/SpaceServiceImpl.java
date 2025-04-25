@@ -975,6 +975,11 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public List<Long> getSpaceCategoryIds() {
+    return spaceStorage.getSpaceCategoryIds();
+  }
+
+  @Override
   public void deleteSpaceExternalInvitation(String invitationId) {
     SpaceExternalInvitation spaceExternalInvitation = spaceStorage.findSpaceExternalInvitationById(invitationId);
     spaceStorage.deleteSpaceExternalInvitation(spaceExternalInvitation);
