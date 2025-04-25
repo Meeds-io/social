@@ -107,7 +107,7 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
     List<MetadataItem> metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
             thumbnailObject);
     assertEquals(0, metadataItemList.size());
-    FileItem thumbnail = imageThumbnailService.getOrCreateThumbnail("files", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
+    FileItem thumbnail = imageThumbnailService.getOrCreateThumbnail("file", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
 
     assertNotNull(thumbnail);
 
@@ -115,7 +115,7 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
             thumbnailObject);
     assertEquals(1, metadataItemList.size());
 
-    thumbnail = imageThumbnailService.getOrCreateThumbnail("files", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
+    thumbnail = imageThumbnailService.getOrCreateThumbnail("file", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
     assertNotNull(thumbnail);
     metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
             thumbnailObject);
