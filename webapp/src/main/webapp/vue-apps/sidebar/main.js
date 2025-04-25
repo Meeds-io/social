@@ -80,6 +80,9 @@ export function init(
           hoverDeferred: false,
         },
         computed: {
+          isMobile() {
+            return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.md;
+          },
           autoSwitchToIcon() {
             return this.mode === 'STICKY'
               && this.allowIcon
