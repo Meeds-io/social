@@ -20,7 +20,7 @@
 -->
 <template>
   <v-list-item
-    v-if="isMobile"
+    v-if="$root.isMobile"
     :class="homeIcon && (homeLink === spaceLink && 'UserPageLinkHome' || 'UserPageLink')"
     class="px-2 spaceItem text-truncate"
     role="button"
@@ -156,9 +156,6 @@ export default {
     },
     toggleArrow() {
       return this.showItemActions || this.drawerOpened;
-    },
-    isMobile() {
-      return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs';
     },
     drawerOpened() {
       return this.openedSpace?.id === this.space?.id;
