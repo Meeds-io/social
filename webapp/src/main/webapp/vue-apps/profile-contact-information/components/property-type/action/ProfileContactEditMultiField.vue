@@ -13,7 +13,6 @@
         <v-btn
           color="primary"
           class="px-0"
-          outlined
           link
           text
           @click="addNewItem">
