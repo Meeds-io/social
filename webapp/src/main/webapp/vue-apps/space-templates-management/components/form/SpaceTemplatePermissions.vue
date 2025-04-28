@@ -44,22 +44,22 @@
       </template>
     </v-checkbox>
     <v-checkbox
-      v-if="any"
-      v-model="isAnyPermissions"
-      class="mt-0">
-      <template #label>
-        <div class="text-body">
-          {{ $t('spaceTemplate.permissionsStepAny') }}
-        </div>
-      </template>
-    </v-checkbox>
-    <v-checkbox
       v-if="users"
       v-model="isUserPermissions"
       class="mt-0">
       <template #label>
         <div class="text-body">
           {{ $t('spaceTemplate.permissionsStepUsers') }}
+        </div>
+      </template>
+    </v-checkbox>
+    <v-checkbox
+      v-if="any"
+      v-model="isAnyPermissions"
+      class="mt-0">
+      <template #label>
+        <div class="text-body">
+          {{ $t('spaceTemplate.permissionsStepAny') }}
         </div>
       </template>
     </v-checkbox>
