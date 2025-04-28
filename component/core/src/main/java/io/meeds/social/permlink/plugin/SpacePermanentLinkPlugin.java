@@ -83,9 +83,11 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
     spaceUrl.append(Arrays.stream(space.getGroupId().split("/"))
                           .map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8))
                           .collect(Collectors.joining(":")))
-            .append("/")
-            .append(URLEncoder.encode(space.getUrl(), StandardCharsets.UTF_8))
             .append("/");
+    if (space.getUrl() != null) {
+      spaceUrl.append(URLEncoder.encode(space.getUrl(), StandardCharsets.UTF_8))
+              .append("/");
+    }
     if (object.getParameters() != null) {
       if (object.getParameters().containsKey(APPLICATION_URI)) {
         spaceUrl.append(object.getParameters().get(APPLICATION_URI));
