@@ -28,7 +28,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import java.io.IOException;
 
-public class organizationalChartPortlet extends CMSPortlet {
+public class OrganizationalChartPortlet extends CMSPortlet {
 
   private static final String OBJECT_TYPE    = "organizationalChart";
 
