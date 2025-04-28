@@ -40,6 +40,12 @@ public interface CategoryLinkService {
   List<Long> getLinkedIds(CategoryObject object);
 
   /**
+   * @param objectType {@link CategoryObject} type, example: Space, Activity ...
+   * @return {@link List} of linked {@link Category} identifiers
+   */
+  List<Long> getLinkedIds(String objectType);
+
+  /**
    * @param categoryId {@link Category} identifier
    * @param object {@link CategoryObject} using type/id to designate any object
    *          in the platform (Space, Activity ...)

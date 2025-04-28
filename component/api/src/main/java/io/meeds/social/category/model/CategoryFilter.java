@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CategoryFilter {
 
+  private String  objectType;
+
   private long    ownerId;
 
   private long    parentId;

@@ -52,6 +52,32 @@
 </template>
 <script>
 export default {
+  props: {
+    value: {
+      type: String,
+      default: null,
+    },
+    settingName: {
+      type: String,
+      default: null,
+    },
+    filterType: {
+      type: String,
+      default: () => 'category',
+    },
+    objectType: {
+      type: String,
+      default: null,
+    },
+    categoryIds: {
+      type: Array,
+      default: null,
+    },
+    categoryDepth: {
+      type: Number,
+      default: () => 4,
+    },
+  },
   data: () => ({
     categoryTree: null,
     loading: false,
@@ -114,7 +140,8 @@ export default {
         if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
           const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
             parentId: id,
-            depth: this.$root.categoryDepth,
+            objectType: this.objectType,
+            depth: this.categoryDepth,
             offset: 0,
             limit: -1,
             token: this.$root.settingName,
@@ -127,7 +154,8 @@ export default {
           };
         } else {
           this.categoryTree = await this.$categoryService.getCategoryTree({
-            depth: this.$root.categoryDepth,
+            objectType: this.objectType,
+            depth: this.categoryDepth,
             offset: 0,
             limit: -1,
             token: this.$root.settingName,
