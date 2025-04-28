@@ -130,9 +130,9 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="category_alias" />
-          <property name="index_previous" value="${meeds.social.index.category.previous:}" />
-          <property name="index_current" value="${meeds.social.index.category.current:category_v1}" />
-          <property name="reindexOnUpgrade" value="${meeds.social.index.category.reindexOnUpgrade:false}" />
+          <property name="index_previous" value="${meeds.social.index.category.previous:category_v1}" />
+          <property name="index_current" value="${meeds.social.index.category.current:category_v2}" />
+          <property name="reindexOnUpgrade" value="${meeds.social.index.category.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>
     </component-plugin>

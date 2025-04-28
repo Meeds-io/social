@@ -140,7 +140,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
 
   @Override
   public List<String> getAllIds(int offset, int limit) {
-    throw new UnsupportedOperationException();
+    return getCategoryStorage().getAllCategoryIds(offset, limit).stream().map(String::valueOf).toList();
   }
 
   @Override
@@ -218,6 +218,9 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
       return;
     }
     Category parentCategory = getCategoryStorage().getCategory(parentId);
+    if (parentCategory.getParentId() == 0) {
+      return;
+    }
     accessPermissionIds.retainAll(parentCategory.getAccessPermissionIds());
     deleteNonParentPermissions(parentCategory.getParentId(), accessPermissionIds);
   }

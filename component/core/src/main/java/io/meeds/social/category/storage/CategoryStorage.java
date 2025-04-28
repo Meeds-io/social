@@ -196,6 +196,20 @@ public class CategoryStorage {
     }
   }
 
+  public MetadataItem getMetadataItem(long categoryId, CategoryObject object) {
+    Metadata metadata = metadataService.getMetadataById(categoryId);
+    if (metadata == null) {
+      return null;
+    } else {
+      List<MetadataItem> items = metadataService.getMetadataItemsByMetadataAndObject(metadata.key(), object);
+      return CollectionUtils.isNotEmpty(items) ? items.get(0) : null;
+    }
+  }
+
+  public List<Long> getAllCategoryIds(int offset, int limit) {
+    return metadataService.getMetadataIds(METADATA_TYPE.getName(), offset, limit);
+  }
+
   private Category toCategory(Metadata metadata) {
     if (metadata == null) {
       return null;
@@ -227,16 +241,6 @@ public class CategoryStorage {
                         category.getCreatorId(),
                         System.currentTimeMillis(),
                         properties);
-  }
-
-  public MetadataItem getMetadataItem(long categoryId, CategoryObject object) {
-    Metadata metadata = metadataService.getMetadataById(categoryId);
-    if (metadata == null) {
-      return null;
-    } else {
-      List<MetadataItem> items = metadataService.getMetadataItemsByMetadataAndObject(metadata.key(), object);
-      return CollectionUtils.isNotEmpty(items) ? items.get(0) : null;
-    }
   }
 
   private String toString(List<Long> ids) {
