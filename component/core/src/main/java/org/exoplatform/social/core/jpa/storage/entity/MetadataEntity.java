@@ -97,6 +97,12 @@ import jakarta.persistence.Table;
       + " ORDER BY sm.name ASC"
 )
 @NamedQuery(
+  name = "SocMetadataEntity.getMetadataIds",
+  query = "SELECT sm.id FROM SocMetadataEntity sm WHERE"
+      + " sm.type = :type"
+      + " ORDER BY sm.id ASC"
+)
+@NamedQuery(
   name = "SocMetadataEntity.getMetadatasByPropertyOrderByName",
   query = """
     SELECT sm.id FROM SocMetadataEntity sm
