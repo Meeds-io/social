@@ -633,6 +633,14 @@ public interface MetadataService {
   List<Metadata> getMetadatas(String metadataTypeName, long limit);
 
   /**
+   * @param metadataTypeName metadata name {@link Metadata} name
+   * @param offset offset of results to retrieve
+   * @param limit limit of results to retrieve
+   * @return {@link List} of Managed {@link Metadata}
+   */
+  List<Long> getMetadataIds(String metadataTypeName, int offset, int limit);
+
+  /**
    * Deletes Metadata items for a given {@link MetadataItem} parentObjectId and
    * objectType. This is generally called when the associated parent object has
    * been removed (activity removed bu example, its comments metadata items has
