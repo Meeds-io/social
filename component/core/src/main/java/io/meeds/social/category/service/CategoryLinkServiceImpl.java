@@ -20,7 +20,6 @@ package io.meeds.social.category.service;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,35 +31,39 @@ import org.exoplatform.social.core.manager.IdentityManager;
 
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryObject;
-import io.meeds.social.category.plugin.CategoryPlugin;
 import io.meeds.social.category.storage.CategoryStorage;
 
 @Service
 public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   @Autowired
-  private IdentityManager      identityManager;
+  private IdentityManager       identityManager;
 
   @Autowired
-  private CategoryStorage      categoryStorage;
+  private CategoryStorage       categoryStorage;
 
   @Autowired
-  private CategoryService      categoryService;
+  private CategoryService       categoryService;
 
   @Autowired
-  private UserACL              userAcl;
+  private CategoryPluginService categoryPluginService;
 
   @Autowired
-  private ListenerService      listenerService;
+  private UserACL               userAcl;
 
   @Autowired
-  private List<CategoryPlugin> categoryPlugins;
+  private ListenerService       listenerService;
 
-  private long                 superUserIdentityId;
+  private long                  superUserIdentityId;
 
   @Override
   public List<Long> getLinkedIds(CategoryObject object) {
     return categoryStorage.getLinkedIds(object);
+  }
+
+  @Override
+  public List<Long> getLinkedIds(String objectType) {
+    return categoryStorage.getLinkedIds(objectType);
   }
 
   @Override
@@ -103,17 +106,14 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
     Category category = categoryStorage.getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exist", categoryId));
-    }
-    if (!categoryService.canManageLink(category, username)) {
-      throw new IllegalAccessException(String.format("Category with id %s doesn't exist", categoryId));
-    }
-    if (categoryPlugins == null
-        || categoryPlugins.stream()
-                          .noneMatch(p -> StringUtils.equals(p.getType(), object.getType())
-                                          && p.canEdit(object.getId(), username))) {
-      throw new IllegalAccessException(String.format("Object with type %s and id %s isn't editable by user",
-                                                     object.getType(),
-                                                     object.getId()));
+    } else if (!isAdministrator(username)) {
+      if (!categoryService.canManageLink(category, username)) {
+        throw new IllegalAccessException(String.format("Category with id %s doesn't exist", categoryId));
+      } else if (!categoryPluginService.canEdit(object.getType(), object.getId(), username)) {
+        throw new IllegalAccessException(String.format("Object with type %s and id %s isn't editable by user",
+                                                       object.getType(),
+                                                       object.getId()));
+      }
     }
   }
 
@@ -128,4 +128,9 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
     }
     return superUserIdentityId;
   }
+
+  private boolean isAdministrator(String username) {
+    return userAcl.isAdministrator(userAcl.getUserIdentity(username));
+  }
+
 }

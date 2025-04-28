@@ -824,7 +824,7 @@ public interface SpaceService {
    * Deletes a space by its Id.
    *
    * @param spaceId Id of the deleted space.
-   * @throws SpaceException 
+   * @throws SpaceException
    */
   default void deleteSpace(String spaceId) throws SpaceException {
     deleteSpace(getSpaceById(spaceId));
@@ -1180,6 +1180,14 @@ public interface SpaceService {
    * @return the count of spaces by Space Template identifier
    */
   default Map<Long, Long> countSpacesByTemplate() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @return {@link List} of category identifiers associated to a set of space
+   *         identifiers
+   */
+  default List<Long> getSpaceCategoryIds() {
     throw new UnsupportedOperationException();
   }
 

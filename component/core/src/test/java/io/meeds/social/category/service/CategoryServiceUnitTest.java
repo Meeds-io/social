@@ -54,59 +54,63 @@ import io.meeds.social.translation.service.TranslationService;
 @RunWith(SpringRunner.class)
 public class CategoryServiceUnitTest {
 
-  private static final long CATEGORY_ID = 7l;
+  private static final long     CATEGORY_ID             = 7l;
 
-  private static final String  SPACE_PRETTY_NAME       = "prettyName";
+  private static final String   SPACE_PRETTY_NAME       = "prettyName";
 
-  private static final String  SPACE_GROUP_ID_1        = "/spaces/space1";
+  private static final String   SPACE_GROUP_ID_1        = "/spaces/space1";
 
-  private static final String  SPACE_GROUP_ID_2        = "/spaces/space2";
+  private static final String   SPACE_GROUP_ID_2        = "/spaces/space2";
 
-  private static final String  A_GROUP_ID              = "/group1";
+  private static final String   A_GROUP_ID              = "/group1";
 
-  private static final long    ADMIN_GROUP_IDENTITY_ID = 54456l;
+  private static final long     ADMIN_GROUP_IDENTITY_ID = 54456l;
 
-  private static final long    SPACE_IDENTITY_ID       = 74456l;
+  private static final long     SPACE_IDENTITY_ID       = 74456l;
 
-  private static final long    GROUP_IDENTITY_ID       = 34456l;
+  private static final long     GROUP_IDENTITY_ID       = 34456l;
 
-  private static final boolean SORT_BY_NAME            = false;
+  private static final boolean  SORT_BY_NAME            = false;
 
-  private static final boolean LINK_PERMISSION         = true;
+  private static final boolean  LINK_PERMISSION         = true;
 
-  private static final int     LIMIT                   = 30;
+  private static final int      LIMIT                   = 30;
 
-  private static final int     OFFSET                  = 10;
+  private static final int      OFFSET                  = 10;
 
-  private static final long    PARENT_ID               = 5l;
+  private static final long     PARENT_ID               = 5l;
 
-  private static final long    OWNER_ID                = 2l;
+  private static final long     OWNER_ID                = 2l;
 
-  private static final String  TERM                    = "term";
+  private static final String   TERM                    = "term";
 
-  private static final String  TEST_USER               = "testuser";
-
-  @MockBean
-  private IdentityManager      identityManager;
+  private static final String   TEST_USER               = "testuser";
 
   @MockBean
-  private TranslationService   translationService;
+  private IdentityManager       identityManager;
 
   @MockBean
-  private CategoryStorage      categoryStorage;
+  private TranslationService    translationService;
 
   @MockBean
-  private SpaceService         spaceService;
+  private CategoryStorage       categoryStorage;
 
   @MockBean
-  private UserACL              userAcl;
+  private SpaceService          spaceService;
+
+  @MockBean
+  private UserACL               userAcl;
+
+  @MockBean
+  private CategoryPluginService categoryPluginService;
 
   @Autowired
-  private CategoryServiceImpl  categoryService;
+  private CategoryServiceImpl   categoryService;
 
   @Test
   public void testFindCategories() {
     List<CategorySearchResult> categories = categoryService.findCategories(new CategorySearchFilter(TERM,
+                                                                                                    null,
                                                                                                     OWNER_ID,
                                                                                                     PARENT_ID,
                                                                                                     OFFSET,
@@ -124,6 +128,7 @@ public class CategoryServiceUnitTest {
     when(adminGroupIdentity.getId()).thenReturn(String.valueOf(ADMIN_GROUP_IDENTITY_ID));
     when(identityManager.getOrCreateGroupIdentity(CategoryServiceImpl.ADMINISTRATORS_GROUP)).thenReturn(adminGroupIdentity);
     CategorySearchFilter filter = new CategorySearchFilter(TERM,
+                                                           null,
                                                            ADMIN_GROUP_IDENTITY_ID,
                                                            PARENT_ID,
                                                            OFFSET,

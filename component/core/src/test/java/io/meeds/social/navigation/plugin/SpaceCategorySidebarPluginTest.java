@@ -66,7 +66,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     assertFalse(spaceCategorySidebarPlugin.itemExists(item, ROOT_USER));
 
     buildCategoryTree();
-    CategoryFilter filter = new CategoryFilter(0, 0, 5, 0, 2, false, false);
+    CategoryFilter filter = new CategoryFilter(null, 0, 0, 5, 0, 2, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, JOHN_USER, Locale.ENGLISH);
     CategoryTree subCategory1 = categoryTree.getCategories().get(0);
     item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, String.valueOf(subCategory1.getId())));
@@ -82,7 +82,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
   @Test
   public void testResolveProperties() {
     buildCategoryTree();
-    CategoryFilter filter = new CategoryFilter(0, 0, 5, 0, 2, false, false);
+    CategoryFilter filter = new CategoryFilter(null, 0, 0, 5, 0, 2, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, JOHN_USER, Locale.ENGLISH);
     CategoryTree subCategory1 = categoryTree.getCategories().get(0);
     CategoryTree subCategory2 = categoryTree.getCategories().get(1);
@@ -114,7 +114,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     item = new SidebarItem(SidebarItemType.SPACE_CATEGORY);
     item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, String.valueOf(categoryTree.getId())));
     spaceCategorySidebarPlugin.resolveProperties(item, ROOT_USER, Locale.ENGLISH);
-    
+
     assertNotNull(item.getItems());
     assertEquals(AbstractSpaceSidebarPlugin.SPACES_LIMIT_DEFAULT, item.getItems().size());
 
