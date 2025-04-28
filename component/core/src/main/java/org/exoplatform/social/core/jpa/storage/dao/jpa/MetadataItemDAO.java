@@ -132,11 +132,29 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                           int offset,
                                                                           int limit) {
     TypedQuery<MetadataItemEntity> query =
-                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
-                                                                             MetadataItemEntity.class);
+        getEntityManager().createNamedQuery("SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
+                                            MetadataItemEntity.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
+    if (offset > 0) {
+      query.setFirstResult(offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  public List<MetadataItemEntity> getMetadataItemsByMetadataTypeAndObjectType(long metadataType,
+                                                                              String objectType,
+                                                                              int offset,
+                                                                              int limit) {
+    TypedQuery<MetadataItemEntity> query =
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndObjectType",
+                                                                             MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
     if (offset > 0) {
       query.setFirstResult(offset);
     }

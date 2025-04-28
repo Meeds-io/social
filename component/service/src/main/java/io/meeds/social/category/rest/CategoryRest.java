@@ -72,6 +72,9 @@ public class CategoryRest {
     @ApiResponse(responseCode = "404", description = "Not found"),
   })
   public CategoryTree getCategoryTree(HttpServletRequest request,
+                                      @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                      @RequestParam(name = "objectType", required = false)
+                                      String objectType,
                                       @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
                                       @RequestParam(name = "parentId", required = false, defaultValue = "0")
                                       long parentId,
@@ -96,7 +99,8 @@ public class CategoryRest {
     if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
-    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(ownerId,
+    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(objectType,
+                                                                                   ownerId,
                                                                                    parentId,
                                                                                    depth,
                                                                                    offset,
@@ -127,7 +131,8 @@ public class CategoryRest {
     if (StringUtils.isBlank(request.getRemoteUser()) && !RestUtils.canAccessAnonymousResources(spaceDirectoryService, token)) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
-    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(0,
+    CategoryTree categoryTree = categoryService.getCategoryTree(new CategoryFilter(null,
+                                                                                   0,
                                                                                    id,
                                                                                    0,
                                                                                    0,
@@ -148,9 +153,12 @@ public class CategoryRest {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
   })
   public List<CategorySearchResult> findCategories(HttpServletRequest request,
-                                                   @Parameter(description = "Whether the retrieved categories if for linking or access permission check")
-                                                   @RequestParam(name = "query", required = false, defaultValue = "0")
+                                                   @Parameter(description = "Category Name search keyword")
+                                                   @RequestParam(name = "query", required = false)
                                                    String query,
+                                                   @Parameter(description = "Whether to filter the category tree or not switch accessible linked objects only. The empty categories will not be retrieved.")
+                                                   @RequestParam(name = "objectType", required = false)
+                                                   String objectType,
                                                    @Parameter(description = "Parent Category Id. Can be 0 to retrieve the Tree from its root element.")
                                                    @RequestParam(name = "parentId", required = false, defaultValue = "0")
                                                    long parentId,
@@ -176,6 +184,7 @@ public class CategoryRest {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
     return categoryService.findCategories(new CategorySearchFilter(query,
+                                                                   objectType,
                                                                    ownerId,
                                                                    parentId,
                                                                    offset,

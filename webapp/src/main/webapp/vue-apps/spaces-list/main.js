@@ -141,9 +141,11 @@ export function init(
         },
         async selectedCategoryId() {
           if (this.selectedCategoryId) {
-            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], this.settingName);
+            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1, this.settingName);
+          } else if (this.filterType === 'category') {
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1, this.settingName);
           } else {
-            this.selectedCategoryIds = null;
+            this.selectedCategoryIds = [];
           }
         },
       },

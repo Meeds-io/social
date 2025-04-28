@@ -18,6 +18,10 @@
  */
 package io.meeds.social.category.plugin;
 
+import java.util.List;
+
+import io.meeds.social.category.model.Category;
+
 public interface CategoryPlugin {
 
   /**
@@ -51,5 +55,11 @@ public interface CategoryPlugin {
    *         Type identified by its Id
    **/
   boolean canEdit(String objectId, String username);
+
+  /**
+   * @return {@link List} of {@link Category} Ids associated to
+   *         objects
+   */
+  List<Long> getCategoryIds();
 
 }

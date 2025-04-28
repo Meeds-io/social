@@ -29,6 +29,8 @@ public class CategorySearchFilter implements Cloneable {
 
   private String  term;
 
+  private String  objectType;
+
   private long    ownerId;
 
   private long    parentId;
@@ -48,6 +50,7 @@ public class CategorySearchFilter implements Cloneable {
   @Override
   public CategorySearchFilter clone() { // NOSONAR
     return new CategorySearchFilter(term,
+                                    objectType,
                                     ownerId,
                                     parentId,
                                     offset,
