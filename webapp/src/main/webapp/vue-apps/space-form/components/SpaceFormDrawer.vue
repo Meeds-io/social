@@ -422,7 +422,6 @@ export default {
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
-      console.warn('templates', this.templates);
       this.setSpaceTemplateProperties();
       this.$refs.spaceFormDrawer.open();
     },

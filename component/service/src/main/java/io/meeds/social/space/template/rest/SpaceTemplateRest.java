@@ -57,7 +57,7 @@ public class SpaceTemplateRest {
   private SpaceTemplateService spaceTemplateService;
 
   @GetMapping
-  //@Secured("users")
+  @Secured("users")
   @Operation(summary = "Retrieve space templates", method = "GET", description = "This retrieves space templates")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"), })
   public List<SpaceTemplate> getSpaceTemplates(HttpServletRequest request,

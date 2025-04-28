@@ -33,7 +33,6 @@ const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
 export function open(templateId, isExternalFeatureEnabled) {
-  console.warn('test', templateId, isExternalFeatureEnabled);
   if (window.spaceFormAdded) {
     document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
   } else {

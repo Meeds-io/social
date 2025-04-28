@@ -118,6 +118,12 @@ public class SpaceTemplateService {
                              if (spaceTemplateFilter != null
                                  && !canViewTemplate(spaceTemplate.getId(), spaceTemplateFilter.getUsername())) {
                                return null;
+                             } else if (spaceTemplateFilter == null) {
+                               if (canViewPublicTemplate(spaceTemplate.getId(), null)) {
+                                 return spaceTemplate;
+                               } else {
+                                 return null;
+                               }
                              } else if (expand) {
                                computeSpaceTemplateAttributes(spaceTemplate,
                                                               spaceTemplateFilter == null ? null :
@@ -204,6 +210,14 @@ public class SpaceTemplateService {
   public boolean canViewTemplate(long templateId, String username) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
     return canViewTemplate(spaceTemplate, username);
+  }
+
+  private boolean canViewPublicTemplate(long templateId, String username) {
+    SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
+    if (userAcl.isAnonymousUser(username) && spaceTemplate.getPermissions().contains("Everyone")) {
+      return true;
+    }
+    return false;
   }
 
   public boolean canCreateSpace(long templateId, String username) {
