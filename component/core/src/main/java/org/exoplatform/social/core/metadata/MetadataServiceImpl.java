@@ -590,6 +590,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public List<Long> getMetadataIds(String metadataTypeName, int offset, int limit) {
+    return metadataStorage.getMetadataIds(metadataTypeName, offset, limit);
+  }
+
+  @Override
   public List<Metadata> getMetadatasByProperty(String propertyKey, String propertyValue, long limit) {
     List<Long> ids = metadataStorage.getMetadataIdsByProperty(propertyKey, propertyValue, 0l, limit, true);
     return ids.stream().map(this::getMetadataById).toList();
