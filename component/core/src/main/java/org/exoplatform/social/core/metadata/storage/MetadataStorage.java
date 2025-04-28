@@ -462,11 +462,16 @@ public class MetadataStorage {
   public void addMetadataType(MetadataType metadataType) {
     metadataTypes.add(metadataType);
   }
-
+  
   public List<Metadata> getMetadatas(String metadataTypeName, long limit) {
     MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
     List<MetadataEntity> metadatasEntities = metadataDAO.getMetadatas(metadataType.getId(), limit);
     return metadatasEntities.stream().map(this::fromEntity).toList();
+  }
+
+  public List<Long> getMetadataIds(String metadataTypeName, int offset, int limit) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataTypeName);
+    return metadataDAO.getMetadataIds(metadataType.getId(), offset, limit);
   }
 
   public List<Long> getMetadataIdsByProperty(String propertyKey,

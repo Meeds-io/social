@@ -190,6 +190,22 @@ public class MetadataDAO extends GenericDAOJPAImpl<MetadataEntity, Long> {
     }
   }
 
+  public List<Long> getMetadataIds(long type, int offset, int limit) {
+    TypedQuery<Long> query = getEntityManager().createNamedQuery("SocMetadataEntity.getMetadataIds", Long.class);
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    if (offset > 0) {
+      query.setFirstResult(offset);
+    }
+    query.setParameter("type", type);
+    try {
+      return query.getResultList();
+    } catch (NoResultException e) {
+      return Collections.emptyList();
+    }
+  }
+
   public List<Long> getMetadataIdsByProperty(String propertyKey,
                                              String propertyValue,
                                              long offset,
