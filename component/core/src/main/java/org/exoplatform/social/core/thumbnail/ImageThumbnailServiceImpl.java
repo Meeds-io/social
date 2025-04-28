@@ -207,12 +207,13 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
 
   @Override
   public void deleteThumbnails(Long fileId) {
-    deleteThumbnails(Long.toString(fileId));
+    deleteThumbnails(FileThumbnailPlugin.FILE_TYPE, Long.toString(fileId));
   }
 
   @Override
-  public void deleteThumbnails(String fileId) {
-    ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, fileId);
+  public void deleteThumbnails(String fileType, String fileId) {
+    String thumnailId = fileType.equals(FileThumbnailPlugin.FILE_TYPE) ? fileId : fileType + fileId;
+    ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, thumnailId);
     metadataService.deleteMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_TYPE.getName(), thumbnailObject);
   }
 }
