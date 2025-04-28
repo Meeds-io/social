@@ -24,6 +24,7 @@ import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATE
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_ITEM_UNLINKED;
 import static io.meeds.social.category.service.CategoryService.EVENT_SOCIAL_CATEGORY_UPDATED;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -160,6 +162,15 @@ public class CategoryStorage {
                               .map(MetadataItem::getMetadata)
                               .map(Metadata::getId)
                               .toList();
+  }
+
+  public List<Long> getLinkedIds(String objectType) {
+    List<MetadataItem> items = metadataService.getMetadataItemsByMetadataTypeAndObjectType(METADATA_TYPE.getName(), objectType);
+    return items == null ? Collections.emptyList() :
+                         new ArrayList<>(items.stream()
+                                              .map(MetadataItem::getMetadata)
+                                              .map(Metadata::getId)
+                                              .collect(Collectors.toSet()));
   }
 
   public boolean isLinked(long categoryId, CategoryObject object) {

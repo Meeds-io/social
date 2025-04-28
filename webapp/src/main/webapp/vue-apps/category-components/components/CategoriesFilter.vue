@@ -69,6 +69,10 @@ export default {
       type: String,
       default: () => 'category',
     },
+    objectType: {
+      type: String,
+      default: null,
+    },
     categoryIds: {
       type: Array,
       default: null,
@@ -154,6 +158,7 @@ export default {
         if (this.filterType === 'category' && this.categoryIds?.length) {
           const subCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategoryTree({
             parentId: id,
+            objectType: this.objectType,
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,
@@ -167,6 +172,7 @@ export default {
           };
         } else {
           this.categoryTree = await this.$categoryService.getCategoryTree({
+            objectType: this.objectType,
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,

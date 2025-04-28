@@ -545,6 +545,10 @@ public class SpaceStorage {
     return spaceDAO.countSpacesByTemplate();
   }
 
+  public List<Long> getSpaceCategoryIds() {
+    return spaceDAO.getSpaceCategoryIds();
+  }
+
   private String[] getSpaceMembers(long spaceId, SpaceMembershipStatus status) {
     int countSpaceMembers = spaceMemberDAO.countSpaceMembers(spaceId, status);
     if (countSpaceMembers == 0) {

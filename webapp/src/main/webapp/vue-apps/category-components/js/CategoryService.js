@@ -20,6 +20,9 @@
 
 export function getCategoryTree(options) {
   const formData = new FormData();
+  if (options.objectType) {
+    formData.append('objectType', options.objectType);
+  }
   if (options.parentId) {
     formData.append('parentId', options.parentId);
   }

@@ -53,6 +53,11 @@ public class SpaceCategoryServiceImpl implements SpaceCategoryService {
   }
 
   @Override
+  public List<Long> getSpaceCategoryIds() {
+    return spaceService.getSpaceCategoryIds();
+  }
+
+  @Override
   public void updateSpaceCategories(long spaceId, // NOSONAR
                                     List<Long> categoryIds,
                                     boolean removeExisting) {
