@@ -121,13 +121,16 @@ export default {
       return this.iconSize >= 20 ? this.iconSize * 5 : (this.iconSize < 20 && this.iconSize > 15 ? this.iconSize * 7 : this.iconSize * 8);
     },
     itemWidth() {
-      return this.showName && this.itemSize || parseInt(this.itemSize / 2);
+      return this.isColumn ? (this.showName && this.itemSize || parseInt(this.itemSize / 2)) : 168;
     },
     itemHeight() {
-      return this.showName && this.itemSize || parseInt(this.itemSize / 2);
+      return this.isColumn ? (this.showName && this.itemSize || parseInt(this.itemSize / 2)) : 168;
     },
     isCard() {
       return this.type === 'CARD';
+    },
+    isColumn() {
+      return this.type === 'COLUMN';
     },
   },
 };
