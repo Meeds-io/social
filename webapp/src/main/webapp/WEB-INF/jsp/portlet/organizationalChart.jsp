@@ -25,8 +25,14 @@
     ProfilePropertyService profilePropertyService = CommonsUtils.getService(ProfilePropertyService.class);
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName("manager");
     String appObjectType = "organizationalChart";
-    String id = UIPortlet.getCurrentUIPortlet().getStorageId();
-    String applicationId =  appObjectType + id;
+    Object applicationIdParam =  request.getAttribute("applicationId");
+    String applicationId;
+    if (applicationIdParam instanceof String[]) {
+        applicationId = ((String[]) applicationIdParam)[0];
+    } else {
+        applicationId = (String) applicationIdParam;
+    }
+    String id = applicationId.substring(appObjectType.length());
     SettingService settingsService = CommonsUtils.getService(SettingService.class);
     SettingValue<?> centerUserSettingValue = settingsService
             .get(Context.GLOBAL, Scope.APPLICATION.id(applicationId), "organizationalChartCenterUser");
