@@ -41,7 +41,6 @@ import org.exoplatform.social.service.rest.notification.IntranetNotificationsRes
 
 import io.meeds.social.category.rest.CategoryLinkRestTest;
 import io.meeds.social.category.rest.CategoryRestTest;
-import io.meeds.social.link.rest.LinkRestTest;
 import io.meeds.social.observer.rest.ObserverRestTest;
 import io.meeds.social.resource.rest.SkinRestTest;
 import io.meeds.social.translation.rest.TranslationRestResourcesTest;
@@ -64,7 +63,6 @@ import io.meeds.social.translation.rest.TranslationRestResourcesTest;
   TranslationRestResourcesTest.class,
   ObserverRestTest.class,
   SkinRestTest.class,
-  LinkRestTest.class,
   SiteRestTest.class,
   CategoryRestTest.class,
   CategoryLinkRestTest.class,
