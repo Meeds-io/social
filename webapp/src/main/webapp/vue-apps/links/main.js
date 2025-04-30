@@ -54,6 +54,9 @@ export function init(appId, name, canEdit) {
           isMobile() {
             return this.$vuetify?.breakpoint?.smAndDown;
           },
+          isCard() {
+            return this.settings?.type === 'CARD' && this.hasLinks;
+          },
         },
         created() {
           this.init().finally(() => this.initialized = true);
