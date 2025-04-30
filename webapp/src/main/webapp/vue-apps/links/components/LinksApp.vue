@@ -23,9 +23,10 @@
     v-if="canView">
     <v-hover v-slot="{ hover }">
       <v-card
+        :class="$root.isCard ? 'px-5 pt-5' : 'pa-5'"
         min-width="100%"
         max-width="100%"
-        class="d-flex flex-column align-center border-box-sizing pa-5 position-relative application-body"
+        class="d-flex flex-column align-center border-box-sizing position-relative application-body"
         flat>
         <links-header
           v-if="$root.initialized"
