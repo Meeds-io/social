@@ -23,6 +23,7 @@
     v-bind="isCard && {
       hover: true,
       outlined: true,
+      class: 'mt-2 mb-5'
     } || {
       text: true,
       class: 'transparent',
@@ -89,9 +90,6 @@ export default {
       default: () => 0,
     },
   },
-  data: () => ({
-    hover: false,
-  }),
   computed: {
     name() {
       return this.$t(this.link?.name?.[this.$root.language] || this.link?.name?.[this.$root.defaultLanguage]);
