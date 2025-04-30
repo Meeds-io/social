@@ -12,12 +12,10 @@ org.exoplatform.social.core.jpa.storage.entity.StreamItemEntity
 org.exoplatform.social.core.jpa.storage.entity.SpaceMemberEntity
 org.exoplatform.social.core.jpa.storage.entity.SpaceEntity
 org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity
-io.meeds.social.link.entity.LinkEntity
 org.exoplatform.social.core.jpa.storage.entity.ProfileExperienceEntity
 org.exoplatform.social.core.jpa.storage.entity.IdentityEntity
 org.exoplatform.social.core.jpa.storage.entity.AppEntity
 org.exoplatform.social.core.jpa.storage.entity.ProfileLabelEntity
-io.meeds.social.link.entity.LinkSettingEntity
 org.exoplatform.social.core.jpa.storage.entity.SpaceExternalInvitationEntity
 org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity
 io.meeds.social.space.template.entity.SpaceTemplateEntity

@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.core.test;
 
-import io.meeds.social.space.template.plugin.databind.SpaceTemplateDatabindPluginTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -38,17 +37,17 @@ import org.exoplatform.social.core.storage.StorageUtilsTest;
 import io.meeds.social.authorization.AuthorizationManagerTest;
 import io.meeds.social.category.service.CategoryServiceUnitTest;
 import io.meeds.social.coediting.service.CoeditingServiceTest;
-import io.meeds.social.image.plugin.ImageAttachmentPluginTest;
+import io.meeds.social.databind.service.DatabindServiceTest;
 import io.meeds.social.search.SpaceSearchConnectorTest;
 import io.meeds.social.space.administration.service.SpaceAdministrationServiceTest;
 import io.meeds.social.space.service.SpaceDirectoryServiceTest;
 import io.meeds.social.space.storage.SpaceDirectoryStorageTest;
 import io.meeds.social.space.template.plugin.attachment.SpaceTemplateBannerAttachmentPluginTest;
+import io.meeds.social.space.template.plugin.databind.SpaceTemplateDatabindPluginTest;
 import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslationPluginTest;
 import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
-import io.meeds.social.databind.service.DatabindServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -62,7 +61,6 @@ import io.meeds.social.databind.service.DatabindServiceTest;
     IdentityResultTest.class,
     GettingStartedServiceTest.class,
     ActivityAttachmentPluginTest.class,
-    ImageAttachmentPluginTest.class,
     UserProfileComparatorTest.class,
     ActivityIndexingServiceConnectorTest.class,
     ActivitySearchConnectorTest.class,
