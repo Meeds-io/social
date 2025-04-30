@@ -27,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.exoplatform.social.core.identity.model.Identity;
 
-import io.meeds.kernel.test.AbstractSpringTest;
 import io.meeds.social.AbstractSpringConfigurationTest;
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.plugin.CategoryTranslationPlugin;
@@ -58,10 +57,6 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   protected TranslationService  translationService;
 
   protected long                usersGroupIdentityId;
-
-  protected AbstractCategoryConfigurationTest() {
-    AbstractSpringTest.setTestClass(this.getClass());
-  }
 
   @Before
   public void beforeEach() throws Exception {
