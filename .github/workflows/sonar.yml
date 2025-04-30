@@ -17,4 +17,5 @@ jobs:
         uses: exo-actions/sonarcloud-action@v1
         with:
           jdk_major_version: 21
+          maven_version: 4.0.0-rc3
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
