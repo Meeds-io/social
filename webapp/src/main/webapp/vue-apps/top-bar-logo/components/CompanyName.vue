@@ -3,7 +3,7 @@
     <a
       v-if="$root.displayCompanyLogo"
       :href="$root.portalPath"
-      :aria-label="$t('menu.companyNameTooltip',{0: $root.logoTitle})">
+      :aria-label="$t('menu.userHomepage')">
       <v-list-item-avatar 
         v-if="$root.logoPath"
         id="UserHomePortalLink"
@@ -15,7 +15,7 @@
         tile>
         <img
           :src="$root.logoPath"
-          :alt="$t('menu.companyLogoTooltip')"
+          alt=""
           height="36"
           width="auto"
           class="object-fit-contain">
