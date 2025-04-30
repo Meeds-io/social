@@ -25,6 +25,7 @@
       {{ attachment.filename }}
     </div>
     <div class="my-3 text-body font-weight-bold"> {{ $t('attachment.fileNotPreviewed') }} </div>
+    <div class="my-3 text-body font-weight-medium error-color"> {{ errorMessage }} </div>
     <v-btn
       color="primary"
       text
@@ -40,6 +41,10 @@ export default {
   props: {
     attachment: {
       type: Object,
+      default: null,
+    },
+    errorMessage: {
+      type: String,
       default: null,
     }
   },
