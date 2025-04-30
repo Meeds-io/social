@@ -3,7 +3,7 @@
     <a
       v-if="$root.displayCompanyLogo"
       :href="$root.portalPath"
-      :aria-label="$t('menu.userHomeLink')">
+      :aria-label="$t('menu.userHomepage')">
       <v-list-item-avatar 
         v-if="$root.logoPath"
         id="UserHomePortalLink"
