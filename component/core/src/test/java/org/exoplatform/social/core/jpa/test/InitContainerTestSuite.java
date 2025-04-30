@@ -16,8 +16,6 @@
  */
 package org.exoplatform.social.core.jpa.test;
 
-import org.exoplatform.social.core.listeners.ProfilePropertySettingOptionTranslationListenerTest;
-import org.exoplatform.social.core.plugin.ProfilePropertySettingOptionTranslationTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runners.Suite.SuiteClasses;
@@ -48,10 +46,12 @@ import org.exoplatform.social.core.jpa.storage.dao.StreamItemDAOTest;
 import org.exoplatform.social.core.listeners.ActivityMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ActivityTagMetadataListenerTest;
 import org.exoplatform.social.core.listeners.ManagerPropertySettingUpdatedListenerTest;
+import org.exoplatform.social.core.listeners.ProfilePropertySettingOptionTranslationListenerTest;
 import org.exoplatform.social.core.manager.ActivityManagerTest;
 import org.exoplatform.social.core.manager.IdentityManagerTest;
 import org.exoplatform.social.core.manager.RelationshipManagerTest;
 import org.exoplatform.social.core.plugin.OrganizationalChartHeaderTranslationTest;
+import org.exoplatform.social.core.plugin.ProfilePropertySettingOptionTranslationTest;
 import org.exoplatform.social.core.processor.AttachmentActivityProcessorTest;
 import org.exoplatform.social.core.processor.I18NActivityProcessorTest;
 import org.exoplatform.social.core.processor.MetadataActivityProcessorTest;
@@ -72,9 +72,6 @@ import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
 
 import io.meeds.social.cms.service.CMSServiceTest;
-import io.meeds.social.link.plugin.LinkSettingTranslationPluginTest;
-import io.meeds.social.link.plugin.LinkTranslationPluginTest;
-import io.meeds.social.link.service.LinkServiceTest;
 import io.meeds.social.observer.plugin.ActivityOberverPluginTest;
 import io.meeds.social.observer.service.ObserverServiceTest;
 import io.meeds.social.richeditor.RichEditorConfigurationServiceTest;
@@ -118,9 +115,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   MetadataActivityProcessorTest.class,
   ObserverServiceTest.class,
   CMSServiceTest.class,
-  LinkServiceTest.class,
-  LinkSettingTranslationPluginTest.class,
-  LinkTranslationPluginTest.class,
   ImageThumbnailServiceImplTest.class,
   RichEditorConfigurationServiceTest.class,
   TranslationServiceTest.class,
