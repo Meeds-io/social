@@ -36,8 +36,8 @@ public class OrganizationalChartPortlet extends CMSPortlet {
 
   @Override
   public void init(PortletConfig config) throws PortletException {
-    this.contentType = OBJECT_TYPE;
     super.init(config);
+    this.contentType = OBJECT_TYPE;
   }
 
   @Override
