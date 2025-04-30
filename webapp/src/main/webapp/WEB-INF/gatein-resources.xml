@@ -74,14 +74,6 @@
 
   <portlet-skin>
     <application-name>social</application-name>
-    <portlet-name>Image</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-priority>1</css-priority>
-    <additional-module>ImageCropper</additional-module>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social</application-name>
     <portlet-name>SpaceActivityStreamPortlet</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/ActivityStream/Style.css</css-path>
@@ -327,65 +319,6 @@
       <path>/js/lib/require.js</path>
     </script>
   </scripts>
-
-  <portlet>
-    <name>Image</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/image.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>attachImage</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-    </module>
-  </portlet>
-
-  <portlet>
-    <name>Links</name>
-    <module>
-      <script>
-        <minify>false</minify>
-        <path>/js/links.bundle.js</path>
-      </script>
-      <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>translationField</module>
-      </depends>
-      <depends>
-        <module>vue</module>
-      </depends>
-      <depends>
-        <module>vuetify</module>
-      </depends>
-      <depends>
-        <module>eXoVueI18n</module>
-      </depends>
-      <depends>
-        <module>extensionRegistry</module>
-      </depends>
-      <depends>
-        <module>fontIcons</module>
-      </depends>
-    </module>
-  </portlet>
 
   <portlet>
     <name>SpaceAccessPortlet</name>
