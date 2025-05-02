@@ -148,7 +148,8 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
     return null;
   }
 
-  private FileItem getThumbnail(String id, int width, int height) throws Exception {
+  @Override
+  public FileItem getThumbnail(String id, int width, int height) throws Exception {
     ThumbnailObject thumbnailObject = new ThumbnailObject(THUMBNAIL_OBJECT_TYPE, id);
     List<MetadataItem> metadataItemList =
                                         metadataService.getMetadataItemsByMetadataTypeAndObject(THUMBNAIL_METADATA_TYPE.getName(),
@@ -174,6 +175,11 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
       }
     }
     return null;
+  }
+
+  @Override
+  public FileItem createThumbnail(String id, FileContent fileContent, String userName, int width, int height) throws Exception {
+    return createThumbnail(imageResizeService, id, fileContent, userName, width, height);
   }
 
   private FileItem createThumbnail(ImageResizeService resizeSupplier,
