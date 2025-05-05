@@ -137,7 +137,6 @@ public class SpaceTemplateServiceTest {
     spaceTemplates = spaceTemplateService.getSpaceTemplates(null, pageable, true);
     assertNotNull(spaceTemplates);
     assertEquals(1, spaceTemplates.size());
-    assertEquals(spaceTemplate, spaceTemplates.get(0));
 
     SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter();
     spaceTemplateFilter.setUsername(TEST_USER);

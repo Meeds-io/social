@@ -121,7 +121,9 @@ public class SpaceTemplateService {
                              } else if (spaceTemplateFilter == null) {
                                if (canViewPublicTemplate(spaceTemplate.getId(), null)) {
                                  return spaceTemplate;
-                               } else {
+                               } else if (expand) {
+                                computeSpaceTemplateAttributes(spaceTemplate, null);
+                              } else {
                                  return null;
                                }
                              } else if (expand) {
@@ -212,7 +214,7 @@ public class SpaceTemplateService {
     return canViewTemplate(spaceTemplate, username);
   }
 
-  private boolean canViewPublicTemplate(long templateId, String username) {
+  public boolean canViewPublicTemplate(long templateId, String username) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
     if (userAcl.isAnonymousUser(username) && spaceTemplate.getPermissions().contains("Everyone")) {
       return true;

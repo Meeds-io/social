@@ -29,7 +29,7 @@ if (extensionRegistry) {
 }
 
 //getting language of user
-const lang = eXo && eXo.env.portal.language || 'en';
+const lang = eXo?.env?.portal?.language || 'en';
 
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.SpaceCreation?lang=${lang}`;
