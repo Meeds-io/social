@@ -36,7 +36,7 @@
         flat>
         <img
           :src="bannerUrl"
-          :alt="$t('peopleList.userBanner.alt')"
+          alt=""
           style="max-width: 1000%; min-width: 100%; max-height: 100%; min-height: 100%;"
           class="position-absolute"
           height="100%"
@@ -58,7 +58,7 @@
           flat>
           <img
             :src="`${avatarUrl}&size=65x65`"
-            :alt="$t('peopleList.userAvatar.alt')"
+            alt=""
             style="max-width: 1000%; max-height: 100%;"
             height="100%"
             width="auto"
