@@ -119,6 +119,7 @@ export default {
       return this.disabledSynchronizedField(property) && this.$t('profileContactInformation.synchronizedUser.tooltip')
                                                       || this.disabledField(property)
                                                       && this.$t('profileContactInformation.nonEditable.field')
+                                                      || property?.labels?.find(label => label.language === this.lang)?.label
                                                       || this.$t(`profileContactInformation.${property.propertyName}`);
     },
     save() {
