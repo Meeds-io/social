@@ -19,6 +19,9 @@
 package io.meeds.social.navigation.listener;
 
 import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.NODE_ID_PROP_NAME;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
