@@ -1,11 +1,14 @@
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.social.space.template.service.SpaceTemplateService"%>
 <%@page import="io.meeds.social.space.template.model.SpaceTemplate"%>
+<%@page import="io.meeds.social.space.template.model.SpaceTemplateFilter"%>
 <%@page import="io.meeds.social.util.JsonUtils"%>
+<%@page import="org.springframework.data.domain.Pageable"%>
 <%@page import="java.util.List"%>
 <%
 SpaceTemplateService spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
-List <SpaceTemplate> spaceTemplates = spaceTemplateService.getSpaceTemplates();
+SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter(request.getRemoteUser(), request.getLocale(), false);
+List<SpaceTemplate> spaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), false);
 %>
 <div class="VuetifyApp">
     <div data-app="true"

@@ -19,7 +19,6 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -106,36 +105,23 @@ public class SpaceTemplateService {
   }
 
   public List<SpaceTemplate> getSpaceTemplates(SpaceTemplateFilter spaceTemplateFilter, Pageable pageable, boolean expand) {
-    if (spaceTemplateFilter != null
-        && StringUtils.isBlank(spaceTemplateFilter.getUsername())) {
-      return Collections.emptyList();
-    } else {
-      boolean includeDisabled = spaceTemplateFilter == null || spaceTemplateFilter.isIncludeDisabled();
-      List<SpaceTemplate> spaceTemplates = includeDisabled ? spaceTemplateStorage.getSpaceTemplates(pageable) :
-                                                           spaceTemplateStorage.getEnabledSpaceTemplates(pageable);
-      return spaceTemplates.stream()
-                           .map(spaceTemplate -> {
-                             if (spaceTemplateFilter != null
-                                 && !canViewTemplate(spaceTemplate.getId(), spaceTemplateFilter.getUsername())) {
-                               return null;
-                             } else if (spaceTemplateFilter == null) {
-                               if (canViewPublicTemplate(spaceTemplate.getId(), null)) {
-                                 return spaceTemplate;
-                               } else if (expand) {
-                                computeSpaceTemplateAttributes(spaceTemplate, null);
-                              } else {
-                                 return null;
-                               }
-                             } else if (expand) {
-                               computeSpaceTemplateAttributes(spaceTemplate,
-                                                              spaceTemplateFilter == null ? null :
-                                                                                          spaceTemplateFilter.getLocale());
-                             }
-                             return spaceTemplate;
-                           })
-                           .filter(Objects::nonNull)
-                           .toList();
-    }
+    boolean includeDisabled = spaceTemplateFilter == null || spaceTemplateFilter.isIncludeDisabled();
+    List<SpaceTemplate> spaceTemplates = includeDisabled ? spaceTemplateStorage.getSpaceTemplates(pageable)
+                                                         : spaceTemplateStorage.getEnabledSpaceTemplates(pageable);
+    return spaceTemplates.stream()
+                         .map(spaceTemplate -> {
+                           if (spaceTemplateFilter != null
+                               && !canViewTemplate(spaceTemplate.getId(), spaceTemplateFilter.getUsername())) {
+                             return null;
+                           } else if (expand) {
+                             computeSpaceTemplateAttributes(spaceTemplate,
+                                                            spaceTemplateFilter == null ? null :
+                                                                                        spaceTemplateFilter.getLocale());
+                           }
+                           return spaceTemplate;
+                         })
+                         .filter(Objects::nonNull)
+                         .toList();
   }
 
   public List<Long> getManagingSpaceTemplates(String username) {
@@ -212,14 +198,6 @@ public class SpaceTemplateService {
   public boolean canViewTemplate(long templateId, String username) {
     SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
     return canViewTemplate(spaceTemplate, username);
-  }
-
-  public boolean canViewPublicTemplate(long templateId, String username) {
-    SpaceTemplate spaceTemplate = getSpaceTemplate(templateId);
-    if (userAcl.isAnonymousUser(username) && spaceTemplate.getPermissions().contains("Everyone")) {
-      return true;
-    }
-    return false;
   }
 
   public boolean canCreateSpace(long templateId, String username) {
@@ -349,10 +327,10 @@ public class SpaceTemplateService {
   }
 
   private boolean canViewTemplate(SpaceTemplate spaceTemplate, String username) {
-    if (spaceTemplate == null
-        || spaceTemplate.isDeleted()
-        || userAcl.isAnonymousUser(username)) {
+    if (spaceTemplate == null || spaceTemplate.isDeleted()) {
       return false;
+    } else if (userAcl.isAnonymousUser(username)) {
+      return CollectionUtils.containsAny(spaceTemplate.getPermissions(), UserACL.EVERYONE);
     } else if (canManageTemplates(username)) {
       return true;
     } else if (!spaceTemplate.isEnabled()) {
