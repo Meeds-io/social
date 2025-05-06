@@ -21,9 +21,9 @@
         class="ma-0 flex-shrink-0">
         <img
           :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
+          class="object-fit-cover ma-auto"  
           loading="lazy"
-          alt="">
+          :alt="alt">
       </v-avatar>
     </component>
     <component
@@ -78,7 +78,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          alt="">
+          :alt="alt">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
         <p
@@ -132,7 +132,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          alt="">
+          :alt="alt">
       </v-avatar>
     </component>
     <component
@@ -187,7 +187,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          alt="">
+          :alt="alt">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
@@ -329,6 +329,10 @@ export default {
     displayPosition: {
       type: Boolean,
       default: false
+    },
+    alt: {
+      type: String,
+      default: () => '',
     },
   },
   data() {

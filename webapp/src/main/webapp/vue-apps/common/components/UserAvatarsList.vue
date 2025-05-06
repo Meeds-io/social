@@ -19,6 +19,7 @@
             :compact="compact"
             :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
+            :alt="user?.alt"
             avatar />
         </v-hover>
       </div>
@@ -38,6 +39,7 @@
             :compact="compact"
             :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
+            :alt="user?.alt"
             avatar />
         </v-hover>
       </div>
