@@ -90,14 +90,14 @@ public abstract class AbstractNavigationConfigurationTest extends AbstractSpring
   protected SpaceTemplate                        spaceTemplate;
 
   @Before
-  public void beforeEach() throws Exception {
+  public void beforeEach() {
     setUp();
     begin();
     navigationConfigurationImportService.start();
   }
 
   @After
-  public void afterEach() throws Exception {
+  public void afterEach() {
     end();
     tearDown();
   }
