@@ -28,11 +28,13 @@ import org.exoplatform.container.PortalContainer;
 
 import io.meeds.social.category.service.CategoryLinkServiceTest;
 import io.meeds.social.category.service.CategoryServiceTest;
+import io.meeds.social.cms.service.ContentLinkServiceTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
   CategoryServiceTest.class,
   CategoryLinkServiceTest.class,
+  ContentLinkServiceTest.class,
 })
 public class SpringContainerTestSuite {
 
