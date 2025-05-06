@@ -184,6 +184,32 @@ import jakarta.persistence.Table;
     """
 )
 @NamedQuery(
+    name = "SocMetadataItemEntity.getMetadataItemsByMetadata",
+    query = """
+  SELECT item FROM SocMetadataItemEntity item
+  WHERE item.metadata.id IN
+  (
+    SELECT DISTINCT(m.id)
+    FROM SocMetadataEntity m
+    WHERE m.type = :metadataType
+    AND m.name = :metadataName
+  )
+    """
+)
+@NamedQuery(
+    name = "SocMetadataItemEntity.deleteMetadataItemsByMetadata",
+    query = """
+  DELETE FROM SocMetadataItemEntity item
+  WHERE item.metadata.id IN
+  (
+    SELECT DISTINCT(m.id)
+    FROM SocMetadataEntity m
+    WHERE m.type = :metadataType
+    AND m.name = :metadataName
+  )
+"""
+)
+@NamedQuery(
     name = "SocMetadataItemEntity.deleteByMetadataItemsTypeAndUntilCreationDate",
     query = """
       DELETE FROM SocMetadataItemEntity item
