@@ -7,6 +7,7 @@
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
           class="pa-0 mt-0"
+          :aria-label="$t('UIActivity.aria.Comment')"
           text
           link
           small

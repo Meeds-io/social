@@ -7,6 +7,7 @@
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
           :class="likeTextColorClass"
+          :aria-label="$t('UIActivity.aria.Like')"
           class="pa-0 mt-0"
           text
           link
