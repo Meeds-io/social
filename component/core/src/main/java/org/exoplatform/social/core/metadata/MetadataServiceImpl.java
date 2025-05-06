@@ -28,11 +28,14 @@ import org.picocontainer.Startable;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
+import org.exoplatform.social.core.storage.api.IdentityStorage;
 import org.exoplatform.social.metadata.MetadataFilter;
 import org.exoplatform.social.metadata.MetadataInitPlugin;
 import org.exoplatform.social.metadata.MetadataService;
@@ -50,6 +53,10 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   private static final Log                LOG                                = ExoLogger.getLogger(MetadataServiceImpl.class);
 
+  private UserACL                         userAcl;
+
+  private IdentityStorage                 identityStorage;
+
   private MetadataStorage                 metadataStorage;
 
   private ListenerService                 listenerService;
@@ -58,7 +65,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
   private List<MetadataInitPlugin>        metadataPlugins                    = new ArrayList<>();
 
-  public MetadataServiceImpl(MetadataStorage metadataStorage, ListenerService listenerService) {
+  private long                            superUserIdentityId;
+
+  public MetadataServiceImpl(UserACL userAcl,
+                             IdentityStorage identityStorage,
+                             MetadataStorage metadataStorage,
+                             ListenerService listenerService) {
+    this.userAcl = userAcl;
+    this.identityStorage = identityStorage;
     this.metadataStorage = metadataStorage;
     this.listenerService = listenerService;
   }
@@ -71,6 +85,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
 
     metadata.setCreatorId(userIdentityId);
     return createMetadataAndBroadcast(metadata, userIdentityId);
+  }
+
+  @Override
+  public Metadata createMetadata(Metadata metadata) {
+    return createMetadata(metadata, getSuperUserIdentityId());
   }
 
   @Override
@@ -248,6 +267,12 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public void deleteMetadataItemsByMetadata(String metadataTypeName, String metadataName) {
+    this.metadataStorage.deleteMetadataItemsByMetadata(getMetadataTypeByName(metadataTypeName).getId(),
+                                                       metadataName);
+  }
+
+  @Override
   public void deleteByMetadataTypeAndSpaceIdAndCreatorId(String metadataTypeName, long spaceId, long userIdentityId) {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateSpaceId(spaceId);
@@ -407,6 +432,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
                                                                                           spaceIds,
                                                                                           offset,
                                                                                           limit);
+  }
+
+  @Override
+  public List<MetadataItem> getMetadataItemsByMetadata(MetadataKey metadataKey, int offset, int limit) {
+    return this.metadataStorage.getMetadataItemsByMetadata(metadataKey, offset, limit);
   }
 
   @Override
@@ -773,6 +803,14 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     } catch (Exception e) {
       LOG.warn("Error while broadcasting event for metadata item deleted", e);
     }
+  }
+
+  private long getSuperUserIdentityId() {
+    if (superUserIdentityId == 0) {
+      superUserIdentityId = Long.parseLong(identityStorage.findIdentity(OrganizationIdentityProvider.NAME, userAcl.getSuperUser())
+                                                          .getId());
+    }
+    return superUserIdentityId;
   }
 
 }
