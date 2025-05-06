@@ -5,24 +5,32 @@
     :loading="loading"
     expanded
     right>
+    <template #title>
+      {{ $t("Search.page.title") }}
+    </template>
     <template v-if="drawer" #content>
       <v-card
-        :loading="loading"
+        class="pa-4 d-flex flex-column light-grey-background-color"
+        min-height="100%"
         flat>
-        <search-toolbar
-          ref="toolbar"
-          v-model="term"
-          :standalone="standalone"
-          @close="drawer = false" />
-        <search-results
-          ref="results"
-          :connectors="connectors"
-          :term="term"
-          :standalone="standalone"
-          @loading="loading = $event"
-          @favorites-changed="favorites = $event"
-          @tags-changed="selectedTags = $event"
-          @filter-changed="changeURI" />
+        <v-card
+          class="singlePageApplication card-border-radius pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
+          :loading="loading"
+          flat>
+          <search-toolbar
+            ref="toolbar"
+            v-model="term"
+            :standalone="standalone" />
+          <search-results
+            ref="results"
+            :connectors="connectors"
+            :term="term"
+            :standalone="standalone"
+            @loading="loading = $event"
+            @favorites-changed="favorites = $event"
+            @tags-changed="selectedTags = $event"
+            @filter-changed="changeURI" />
+        </v-card>
       </v-card>
     </template>
   </exo-drawer>
