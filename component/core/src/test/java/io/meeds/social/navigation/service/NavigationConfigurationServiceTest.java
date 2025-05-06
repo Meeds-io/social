@@ -18,6 +18,11 @@
  */
 package io.meeds.social.navigation.service;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.util.Locale;
 
 import org.junit.Before;
@@ -36,7 +41,7 @@ public class NavigationConfigurationServiceTest extends AbstractNavigationConfig
 
   @Before
   @Override
-  public void beforeEach() throws Exception {
+  public void beforeEach() {
     super.beforeEach();
     if (spaceTemplate == null) {
       mockSpaceTemplate();
