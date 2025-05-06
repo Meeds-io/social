@@ -24,6 +24,11 @@ import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.SITE
 import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.SITE_ID_PROP_NAME;
 import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.SITE_NAME_PROP_NAME;
 import static io.meeds.social.navigation.plugin.AbstractLayoutSidebarPlugin.SITE_TYPE_PROP_NAME;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
