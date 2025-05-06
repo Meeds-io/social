@@ -1,33 +1,18 @@
 <template>
-  <v-list-item class="px-0 my-2">
-    <v-list-item-content class="align-start">
-      <v-text-field
-        id="searchInput"
-        ref="searchInput"
-        v-model="term"
-        :placeholder="$t('Search.label.inputPlaceHolder')"
-        height="44"
-        type="text"
-        autocomplete="off"
-        class="fill-width my-auto pt-0 px-4 searchInputParent" />
-    </v-list-item-content>
-    <v-list-item-action class="align-end d-flex flex-row ms-0 me-4">
-      <v-btn
-        v-if="term"
-        text
-        color="error"
-        @click="clearSearchTerm">
-        {{ $t('search.connector.label.clear') }}
-      </v-btn>
-      <v-btn
-        :aria-label="$t('Search.button.close.label')"
-        icon
-        class="searchCloseIcon transparent"
-        @click="$emit('close')">
-        <v-icon>fa-times</v-icon>
-      </v-btn>
-    </v-list-item-action>
-  </v-list-item>
+  <div class="d-flex align-center mx-4 mb-2">
+    <v-text-field
+      ref="searchInput"
+      v-model="term"
+      :placeholder="searchInputPlaceholder"
+      rounded
+      clearable
+      dense
+      outlined
+      prepend-inner-icon="fas fa-search"
+      type="text"
+      autofocus
+      class="border-box-sizing" />
+  </div>
 </template>
 <script>
 export default {
@@ -48,6 +33,11 @@ export default {
     term: null,
     typing: false,
   }),
+  computed: {
+    searchInputPlaceholder() {
+      return this.$t('Search.label.inputPlaceHolder', {0: eXo.env?.portal?.productName});
+    }
+  },
   watch: {
     value() {
       if (this.term !== this.value) {
@@ -67,11 +57,6 @@ export default {
     },
   },
   created() {
-    this.$root.$on('search-opened', () => {
-      window.setTimeout(() => {
-        this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
-      }, 200);
-    });
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
       if (search) {
@@ -82,22 +67,10 @@ export default {
             .replace(/=/g, '":"')}"}`
         );
         this.term = window.decodeURIComponent(parameters['q']) || this.value || '';
-        this.dialog = true;
       }
     }
   },
-  mounted() {
-    window.setTimeout(() => {
-      this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
-    }, 200);
-  },
   methods: {
-    clearSearchTerm() {
-      this.term = '';
-      window.setTimeout(() => {
-        this.$refs.searchInput?.$el?.querySelector?.('input')?.focus?.();
-      }, 200);
-    },
     waitForEndTyping() {
       window.setTimeout(() => {
         if (Date.now() > this.startTypingKeywordTimeout) {
