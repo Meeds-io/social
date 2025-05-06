@@ -18,7 +18,9 @@
  */
 package io.meeds.social.category.service;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.Locale;

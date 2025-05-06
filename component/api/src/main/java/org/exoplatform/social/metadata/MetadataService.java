@@ -50,6 +50,14 @@ public interface MetadataService {
   Metadata createMetadata(Metadata metadata, long userIdentityId);
 
   /**
+   * Creates a new {@link Metadata} object
+   * 
+   * @param metadata {@link Metadata}
+   * @return created {@link Metadata}
+   */
+  Metadata createMetadata(Metadata metadata);
+
+  /**
    * Updates a {@link Metadata} object
    *
    * @param metadata {@link Metadata}
@@ -712,6 +720,28 @@ public interface MetadataService {
    * @return {@link List} of linked {@link MetadataItem}}
    */
   default List<MetadataItem> getMetadataItemsByFilter(MetadataFilter filter, long offset, long limit) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Delete associated Metadata items to a {@link Metadata} identified by its
+   * type/name
+   * 
+   * @param metadataTypeName {@link MetadataType} name
+   * @param metadataName {@link Metadata} name
+   */
+  default void deleteMetadataItemsByMetadata(String metadataTypeName, String metadataName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param metadataKey {@link MetadataKey} that contains {@link MetadataType}
+   *          name {@link Metadata} name and {@link Metadata} audience
+   * @param offset offset of items to retrieve
+   * @param limit limit of items to retrieve
+   * @return {@link List} of {@link MetadataItem}
+   */
+  default List<MetadataItem> getMetadataItemsByMetadata(MetadataKey metadataKey, int offset, int limit) {
     throw new UnsupportedOperationException();
   }
 
