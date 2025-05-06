@@ -34,6 +34,7 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataFilter;
+import org.exoplatform.social.metadata.model.MetadataKey;
 
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.NoResultException;
@@ -132,8 +133,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
                                                                           int offset,
                                                                           int limit) {
     TypedQuery<MetadataItemEntity> query =
-        getEntityManager().createNamedQuery("SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
-                                            MetadataItemEntity.class);
+                                         getEntityManager().createNamedQuery("SocMetadataItemEntity.getSortedMetadataItemsByMetadataTypeAndObject",
+                                                                             MetadataItemEntity.class);
     query.setParameter(METADATA_TYPE, metadataType);
     query.setParameter(OBJECT_TYPE, objectType);
     query.setParameter(OBJECT_ID, objectId);
@@ -319,6 +320,29 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return query.getResultList();
   }
 
+  public List<MetadataItemEntity> getMetadataItemsByMetadata(long metadataType, String metadataName, int offset, int limit) {
+    TypedQuery<MetadataItemEntity> query = getEntityManager().createNamedQuery("SocMetadataItemEntity.getMetadataItemsByMetadata",
+                                                                               MetadataItemEntity.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(METADATA_NAME, metadataName);
+    if (offset > 0) {
+      query.setFirstResult(offset);
+    }
+    if (limit > 0) {
+      query.setMaxResults(limit);
+    }
+    return query.getResultList();
+  }
+
+  @ExoTransactional
+  public void deleteMetadataItemsByMetadata(long metadataType, String metadataName) {
+    Query query = getEntityManager().createNamedQuery("SocMetadataItemEntity.deleteMetadataItemsByMetadata");
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(METADATA_NAME, metadataName);
+    query.setFlushMode(FlushModeType.AUTO);
+    query.executeUpdate();
+  }
+
   public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
     TypedQuery<Long> query =
                            getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",
@@ -436,8 +460,8 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   @ExoTransactional
   public int deleteByMetadataItemsTypeAndUntilCreationDate(long metadataType, long untilDate) {
     TypedQuery<Tuple> minMaxIdQuery =
-                                getEntityManager().createNamedQuery("SocMetadataItemEntity.getMinMaxIdByMetadataItemsTypeAndUntilCreationDate",
-                                                                    Tuple.class);
+                                    getEntityManager().createNamedQuery("SocMetadataItemEntity.getMinMaxIdByMetadataItemsTypeAndUntilCreationDate",
+                                                                        Tuple.class);
     minMaxIdQuery.setParameter(CREATED_DATE, untilDate);
     minMaxIdQuery.setParameter(METADATA_TYPE, metadataType);
     long maxId;
