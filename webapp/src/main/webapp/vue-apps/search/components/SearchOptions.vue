@@ -19,11 +19,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <template>
-  <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
+  <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
     <v-chip
       :outlined="!favorites"
       :color="favorites ? 'primary' : ''"
-      class="ms-1 me-2 border-color"
+      class="ms-1 me-2 border-color flex-shrink-0"
       @click="$emit('select-favorites')">
       <v-icon size="16" class="pe-2 yellow--text text--darken-2">
         fas fa-star
@@ -35,7 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       v-model="connectorsListOpened"
       :close-on-content-click="false"
       content-class="connectors-list"
-      attach
+      :attach="!$root.isMobile"
       bottom
       right
       offset-y>
@@ -45,7 +45,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           :color="allEnabled ? 'primary' : ''"
           v-bind="attrs"
           v-on="on"
-          class="text-header-color ms-2">
+          class="text-header-color ms-2 flex-shrink-0">
           <v-icon size="16" class="pe-2">
             fas fa-paste
           </v-icon>

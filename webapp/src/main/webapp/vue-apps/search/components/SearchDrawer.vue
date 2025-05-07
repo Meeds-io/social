@@ -10,11 +10,13 @@
     </template>
     <template v-if="drawer" #content>
       <v-card
-        class="pa-4 d-flex flex-column light-grey-background-color"
+        :class="!$root.isMobile && 'pa-4' || ''"
+        class="d-flex flex-column light-grey-background-color"
         min-height="100%"
         flat>
         <v-card
-          class="singlePageApplication card-border-radius pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
+          :class="!$root.isMobile && 'singlePageApplication card-border-radius' || ''"
+          class="pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
           flat>
           <search-toolbar
             ref="toolbar"
