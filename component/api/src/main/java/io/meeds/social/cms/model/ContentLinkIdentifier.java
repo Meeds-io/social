@@ -31,20 +31,13 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ContentLink extends ContentLinkIdentifier {
+public class ContentLinkIdentifier extends ContentObjectIdentifier {
 
-  private String title;
+  private Locale locale;
 
-  private String uri;
-
-  public ContentLink(ContentLinkIdentifier link) {
-    super(link.getObjectType(), link.getObjectId(), link.getLocale());
-  }
-
-  public ContentLink(String objectType, String objectId, Locale locale, String title, String uri) {
-    super(objectType, objectId, locale);
-    this.title = title;
-    this.uri = uri;
+  public ContentLinkIdentifier(String objectType, String objectId, Locale locale) {
+    super(objectType, objectId);
+    this.locale = locale;
   }
 
 }

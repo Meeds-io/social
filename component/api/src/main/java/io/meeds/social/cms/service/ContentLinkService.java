@@ -19,8 +19,12 @@
 package io.meeds.social.cms.service;
 
 import java.util.List;
+import java.util.Locale;
 
 import io.meeds.social.cms.model.ContentLink;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
 
@@ -47,11 +51,31 @@ public interface ContentLinkService {
 
   /**
    * @param contentObject {@link ContentObject}
+   * @param locale user {@link Locale}
+   * @param username User login identifier
    * @return the {@link List} of Links attached to the designated Object
    * @throws IllegalAccessException when user doesn't have view permission on
    *           Content Object
    */
-  List<ContentLink> getLinks(ContentObject contentObject, String username) throws IllegalAccessException;
+  List<ContentLink> getLinks(ContentObject contentObject,
+                             Locale locale,
+                             String username) throws IllegalAccessException;
+
+  /**
+   * @param objectType object type (notes, activity, space ...)
+   * @param keyword Searched keyword
+   * @param offset Search results offset
+   * @param limit Search results limit
+   * @param username user name
+   * @param locale {@link Locale} user Locale
+   * @return {@link List} of {@link ContentLinkSearchResult}
+   */
+  List<ContentLinkSearchResult> searchLinks(String objectType,
+                                            String keyword,
+                                            String username,
+                                            Locale locale,
+                                            int offset,
+                                            int limit);
 
   /**
    * @param contentObject {@link ContentObject}
@@ -60,22 +84,22 @@ public interface ContentLinkService {
   List<ContentObjectIdentifier> getLinkIdentifiers(ContentObject contentObject);
 
   /**
-   * @param link {@link ContentObjectIdentifier} with object type/id
+   * @param link {@link ContentLinkIdentifier} with object type, id and locale
    * @param username User willing to access to the linked content
    * @return {@link ContentLink} with associated title and uri
    * @throws IllegalAccessException when user doesn't have edit permission on
    *           Content Object
    */
-  ContentLink getLink(ContentObjectIdentifier link, String username) throws IllegalAccessException;
+  ContentLink getLink(ContentLinkIdentifier link, String username) throws IllegalAccessException;
 
   /**
-   * @param link {@link ContentObjectIdentifier} with object type/id
+   * @param link {@link ContentLinkIdentifier} with object type, id and locale
    * @return {@link ContentLink} with associated title and uri
    */
-  ContentLink getLink(ContentObjectIdentifier link);
+  ContentLink getLink(ContentLinkIdentifier link);
 
   /**
-   * @param link {@link ContentObjectIdentifier} with object type/id
+   * @param link {@link ContentObjectIdentifier} with object type and id
    * @param username User willing to access to the linked content
    * @return true if the user can view the object title
    */
@@ -87,5 +111,10 @@ public interface ContentLinkService {
    * @return true if the user can edit the object title
    */
   boolean canEdit(ContentObjectIdentifier contentObject, String username);
+
+  /**
+   * @return {@link List} of managed {@link ContentLinkExtension}
+   */
+  List<ContentLinkExtension> getExtensions();
 
 }

@@ -18,33 +18,23 @@
  */
 package io.meeds.social.cms.model;
 
-import java.util.Locale;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ContentLink extends ContentLinkIdentifier {
+public class ContentLinkSearchResult extends ContentLink {
 
-  private String title;
-
-  private String uri;
-
-  public ContentLink(ContentLinkIdentifier link) {
-    super(link.getObjectType(), link.getObjectId(), link.getLocale());
+  public ContentLinkSearchResult(ContentLink link) {
+    super(link.getObjectType(), link.getObjectId(), link.getLocale(), link.getTitle(), link.getUri());
   }
 
-  public ContentLink(String objectType, String objectId, Locale locale, String title, String uri) {
-    super(objectType, objectId, locale);
-    this.title = title;
-    this.uri = uri;
+  public ContentLinkSearchResult(ContentObjectIdentifier link) {
+    super(link.getObjectType(), link.getObjectId());
+  }
+
+  public ContentLinkSearchResult(String objectType, String objectId, String title) {
+    super(objectType, objectId, null, title, null);
   }
 
 }
