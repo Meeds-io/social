@@ -99,6 +99,9 @@
             <field name="uiComponent">
               <string>people-search-result-card</string>
             </field>
+            <field name="icon">
+              <string>fas fa-users</string>
+            </field>
           </object>
         </object-param>
       </init-params>
@@ -137,6 +140,9 @@
             <field name="uiComponent">
               <string>space-search-result-card</string>
             </field>
+            <field name="icon">
+              <string>fas fa-layer-group</string>
+            </field>
           </object>
         </object-param>
       </init-params>
@@ -174,6 +180,9 @@
             </field>
             <field name="uiComponent">
               <string>activity-search-result-card</string>
+            </field>
+            <field name="icon">
+              <string>fas fa-stream</string>
             </field>
           </object>
         </object-param>
