@@ -1,0 +1,5 @@
+              2025-05-07 eXo Support <support@exoplatform.org> 
+
+   # 7.0.1-exo-RC02 Patches changelog: 
+
+
