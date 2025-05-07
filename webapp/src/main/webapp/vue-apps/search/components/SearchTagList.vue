@@ -11,10 +11,13 @@
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"
-        class="border-color mx-1"
+        class="text-header-color mx-1"
         v-bind="attrs"
         v-on="on">
-        <span><span class="text-header">#</span> {{ $t('Tag.search.button') }}</span>
+        <v-icon size="16" class="pe-2">
+          fas fa-hashtag
+        </v-icon>
+        <span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
     <v-card>
