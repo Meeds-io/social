@@ -6,6 +6,7 @@
       :placeholder="searchInputPlaceholder"
       rounded
       clearable
+      clear-icon="fas fa-times fa-1x"
       dense
       outlined
       prepend-inner-icon="fas fa-search"
