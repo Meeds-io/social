@@ -7,6 +7,7 @@
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
           :class="shareTextColorClass"
+          :aria-label="$t('UIActivity.aria.Share')"
           class="pa-0 mt-0"
           text
           link
