@@ -45,6 +45,11 @@ export function init(tagName) {
       connectors,
       skinUrls,
     },
+    computed: {
+      isMobile() {
+        return this.$vuetify.breakpoint.smAndDown;
+      }
+    },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
     vuetify: Vue.prototype.vuetifyOptions,
     i18n: exoi18n.i18n,
