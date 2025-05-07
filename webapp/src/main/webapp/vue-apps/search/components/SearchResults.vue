@@ -1,86 +1,17 @@
 <template>
   <v-flex
-    :loading="loading"
     class="transparent"
     flat>
-    <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
-      <v-chip
-        :outlined="!favorites"
-        :color="favorites ? 'primary' : ''"
-        class="ms-1 me-2 border-color"
-        @click="selectFavorites">
-        <v-icon
-          size="16"
-          class="pb-1 pe-2 yellow--text text--darken-2">
-          fas fa-star
-        </v-icon>
-        <span class="text-header">{{ $t('search.connector.label.favorites') }}</span>
-      </v-chip>
-      <search-tag-selector @tags-changed="selectTags" />
-      <v-menu
-        v-model="connectorsListOpened"
-        :close-on-content-click="false"
-        content-class="connectors-list"
-        bottom
-        right
-        offset-y>
-        <template #activator="{ on, attrs }">
-          <v-chip
-            :outlined="!allEnabled"
-            :color="allEnabled ? 'primary' : ''"
-            class="border-color mx-1"
-            v-bind="attrs"
-            v-on="on">
-            <span class="me-8">{{ $t('search.connector.label.all') }}</span>
-            <i class="fas fa-chevron-down"></i>
-          </v-chip>
-        </template>
-        <v-list dense class="pa-0">
-          <v-list-item @click="selectAllConnector()">
-            <v-list-item-title class="d-flex align-center">
-              <v-checkbox
-                :input-value="allEnabled"
-                :ripple="false"
-                readonly
-                dense
-                class="ma-0" />
-              <span>{{ $t('search.connector.label.all') }}</span>
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            v-for="connector in sortedConnectors"
-            :key="connector.name"
-            class="clickable"
-            dense
-            @click="selectConnector(connector)">
-            <v-list-item-title class="d-flex align-center">
-              <v-checkbox
-                :input-value="!allEnabled && connector.enabled"
-                :ripple="false"
-                dense
-                class="ma-0" />
-              <span>{{ connector.label }}</span>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <div v-if="!allEnabled" class="selected-connectors">
-        <v-chip
-          v-for="connector in enabledConnectors"
-          :key="connector.name"
-          color="primary"
-          class="mx-1 border-color">
-          <span class="text-capitalize-first-letter">{{ connector.label }}</span>
-          <v-icon
-            size="10"
-            class="ms-2"
-            right
-            @click="selectConnector(connector)">
-            fas fa-times
-          </v-icon>
-        </v-chip>
-      </div>
-    </div>
+    <search-options
+      :favorites="favorites"
+      :all-enabled="allEnabled"
+      :connectors-list-opened.sync="connectorsListOpened"
+      :sorted-connectors="sortedConnectors"
+      :enabled-connectors="enabledConnectors"
+      @select-favorites="selectFavorites"
+      @select-tags="selectTags"
+      @select-all-connector="selectAllConnector"
+      @select-connector="selectConnector" />
     <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
       <v-col
         v-for="result in resultsArray"
