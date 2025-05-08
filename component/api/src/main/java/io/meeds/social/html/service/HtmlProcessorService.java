@@ -43,4 +43,11 @@ public interface HtmlProcessorService {
    */
   void addPlugin(HtmlProcessorPlugin processorPlugin);
 
+  /**
+   * Removes a plugin that was previously added
+   * 
+   * @param processorPlugin {@link HtmlProcessorPlugin}
+   */
+  void removePlugin(HtmlProcessorPlugin processorPlugin);
+
 }

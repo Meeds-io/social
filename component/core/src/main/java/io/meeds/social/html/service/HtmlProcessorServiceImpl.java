@@ -40,6 +40,11 @@ public class HtmlProcessorServiceImpl implements HtmlProcessorService {
   }
 
   @Override
+  public void removePlugin(HtmlProcessorPlugin plugin) {
+    processors.remove(plugin);
+  }
+
+  @Override
   public String process(String html, HtmlProcessorContext context) {
     if (context == null) {
       context = new HtmlProcessorContext();

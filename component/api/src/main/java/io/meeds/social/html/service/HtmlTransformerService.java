@@ -30,17 +30,25 @@ public interface HtmlTransformerService {
    * Transforms the HTML input into content ready to display
    * 
    * @param html HTML input
-   * @param context HTML transformation context of type {@link HtmlTransformerContext}
+   * @param context HTML transformation context of type
+   *          {@link HtmlTransformerContext}
    * @return transformed HTML output
    */
   String transform(String html, HtmlTransformerContext context);
 
-  /** 
+  /**
    * Add new Transformer Plugin to consider while transforming the html to
    * disaply in UI
    * 
    * @param transformerPlugin {@link HtmlTransformerPlugin}
    */
   void addPlugin(HtmlTransformerPlugin transformerPlugin);
+
+  /**
+   * Removes a plugin that was previously added
+   * 
+   * @param transformerPlugin {@link HtmlTransformerPlugin}
+   */
+  void removePlugin(HtmlTransformerPlugin transformerPlugin);
 
 }

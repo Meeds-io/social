@@ -37,7 +37,7 @@ import org.exoplatform.services.resources.LocaleConfigService;
 
 import io.meeds.social.html.model.HtmlProcessorContext;
 import io.meeds.social.html.model.HtmlTransformerContext;
-import io.meeds.social.html.model.HtmlUtils;
+import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.translation.model.TranslationEvent;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.plugin.TranslationPlugin;

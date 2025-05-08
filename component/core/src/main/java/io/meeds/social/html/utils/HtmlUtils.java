@@ -16,12 +16,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.html.model;
+package io.meeds.social.html.utils;
 
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 
+import io.meeds.social.html.model.HtmlProcessorContext;
+import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.service.HtmlProcessorService;
 import io.meeds.social.html.service.HtmlTransformerService;
 

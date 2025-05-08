@@ -20,6 +20,7 @@ package io.meeds.social.cms.plugin;
 
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -82,25 +83,33 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
         try {
           ContentLink contentLink = context.isSystem() ? contentLinkService.getLink(contentLinkIdentifier) :
                                                        contentLinkService.getLink(contentLinkIdentifier, context.getUsername());
-          html = html.replace(contentLinkTag,
-                              String.format(CONTENT_LINK_HTML_TAG,
-                                            contentLink.getUri(),
-                                            contentLink.getObjectType(),
-                                            contentLink.getObjectId(),
-                                            contentLink.getIcon(),
-                                            contentLink.getTitle()));
+          if (contentLink != null && StringUtils.isNotBlank(contentLink.getTitle())) {
+            html = html.replace(contentLinkTag,
+                                String.format(CONTENT_LINK_HTML_TAG,
+                                              StringUtils.defaultIfBlank(contentLink.getUri(), ""),
+                                              contentLink.getObjectType(),
+                                              contentLink.getObjectId(),
+                                              StringUtils.defaultIfBlank(contentLink.getIcon(), ""),
+                                              contentLink.getTitle()));
+          } else {
+            html = getContentNotFoundHtml(html, contentLinkTag, contentLinkIdentifier);
+          }
         } catch (Exception e) {
           LOG.warn("Error while transforming Link '{}'. Remove document reference",
                    contentLinkIdentifier,
                    e);
-          html = html.replace(contentLinkTag,
-                              String.format(CONTENT_LINK_NOT_FOUND_HTML_TAG,
-                                            contentLinkIdentifier.getObjectType(),
-                                            contentLinkIdentifier.getObjectId()));
+          html = getContentNotFoundHtml(html, contentLinkTag, contentLinkIdentifier);
         }
       }
     }
     return html;
+  }
+
+  private String getContentNotFoundHtml(String html, String contentLinkTag, ContentLinkIdentifier contentLinkIdentifier) {
+    return html.replace(contentLinkTag,
+                        String.format(CONTENT_LINK_NOT_FOUND_HTML_TAG,
+                                      contentLinkIdentifier.getObjectType(),
+                                      contentLinkIdentifier.getObjectId()));
   }
 
   private ContentLinkIdentifier getContentLinkIdentifier(String contentLinkTag, Locale locale) {

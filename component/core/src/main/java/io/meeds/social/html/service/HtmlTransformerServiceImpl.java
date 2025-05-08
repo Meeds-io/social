@@ -32,11 +32,16 @@ import io.meeds.social.html.plugin.HtmlTransformerPlugin;
 @Service
 public class HtmlTransformerServiceImpl implements HtmlTransformerService {
 
-  private List<HtmlTransformerPlugin> processors = Collections.synchronizedList(new ArrayList<>());
+  private List<HtmlTransformerPlugin> transformers = Collections.synchronizedList(new ArrayList<>());
 
   @Override
   public void addPlugin(HtmlTransformerPlugin plugin) {
-    processors.add(plugin);
+    transformers.add(plugin);
+  }
+
+  @Override
+  public void removePlugin(HtmlTransformerPlugin plugin) {
+    transformers.remove(plugin);
   }
 
   @Override
@@ -45,7 +50,7 @@ public class HtmlTransformerServiceImpl implements HtmlTransformerService {
       context = new HtmlTransformerContext();
     }
     setUserIdentity(context);
-    for (HtmlTransformerPlugin plugin : processors) {
+    for (HtmlTransformerPlugin plugin : transformers) {
       html = plugin.transform(html, context);
     }
     return html;
