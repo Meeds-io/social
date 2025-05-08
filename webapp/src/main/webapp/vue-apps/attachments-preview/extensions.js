@@ -34,3 +34,15 @@ extensionRegistry.registerExtension('Preview', 'previewExtensions', {
     vueComponent: Vue.options.components['attachments-default-preview'],
   },
 });
+
+extensionRegistry.registerComponent('PreviewAction', 'previewActionExtensions', {
+  id: 'preview-close-action',
+  vueComponent: Vue.options.components['attachment-preview-close-action'],
+  rank: 100,
+});
+
+extensionRegistry.registerComponent('PreviewAction', 'previewActionExtensions', {
+  id: 'preview-download-action',
+  vueComponent: Vue.options.components['attachment-preview-download-action'],
+  rank: 50,
+});
