@@ -30,6 +30,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -102,6 +103,7 @@ public class ContentLinkRestTest {
   @SneakyThrows
   public void getLinksWhenForbidden() {
     when(contentLinkService.getLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID, FIELD_NAME),
+                                     Locale.ENGLISH,
                                      TEST_USER)).thenThrow(IllegalAccessException.class);
     ResultActions response = mockMvc.perform(get(String.format(REST_PATH,
                                                                CONTENT_TYPE,
@@ -113,9 +115,10 @@ public class ContentLinkRestTest {
   @Test
   @SneakyThrows
   public void getLinks() {
-    ContentLink link = new ContentLink(CONTENT_TYPE, CONTENT_ID, "title", "uri");
+    ContentLink link = new ContentLink(CONTENT_TYPE, CONTENT_ID, Locale.ENGLISH, "title", "uri");
     List<ContentLink> links = Collections.singletonList(link);
     when(contentLinkService.getLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID, FIELD_NAME),
+                                     Locale.ENGLISH,
                                      TEST_USER)).thenReturn(links);
     ResultActions response = mockMvc.perform(get(String.format(REST_PATH,
                                                                CONTENT_TYPE,
