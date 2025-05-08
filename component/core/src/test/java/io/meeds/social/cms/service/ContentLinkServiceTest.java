@@ -25,17 +25,25 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.security.Identity;
 
+import io.meeds.portal.permlink.model.PermanentLinkObject;
+import io.meeds.portal.permlink.plugin.PermanentLinkPlugin;
+import io.meeds.portal.permlink.service.PermanentLinkService;
 import io.meeds.portal.plugin.AclPlugin;
 import io.meeds.social.AbstractSpringConfigurationTest;
 import io.meeds.social.cms.model.ContentLink;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
 import io.meeds.social.cms.plugin.ContentLinkPlugin;
@@ -44,36 +52,44 @@ import lombok.SneakyThrows;
 
 public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
 
-  private static final String      TEST_USER        = "user";
+  private static final String               TEST_USER        = "user";
 
-  private static final String      LINK_OBJECT_TYPE = "linkTest";
+  private static final String               LINK_OBJECT_TYPE = "linkTest";
 
-  private static final String      LINK_OBJECT_ID   = "linkId";
+  private static final ContentLinkExtension EXTENSION        = new ContentLinkExtension(LINK_OBJECT_TYPE,
+                                                                                        "test.link.title",
+                                                                                        "fa-icon",
+                                                                                        "command");
 
-  private static final String      CONTENT_TYPE     = "contentTest";
+  private static final String               LINK_OBJECT_ID   = "linkId";
 
-  private static final String      CONTENT_ID1      = "contentId1";
+  private static final String               CONTENT_TYPE     = "contentTest";
 
-  private static final String      CONTENT_ID2      = "contentId2";
+  private static final String               CONTENT_ID1      = "contentId1";
 
-  private static final String      FIELD_NAME1      = "fieldName1";
+  private static final String               CONTENT_ID2      = "contentId2";
 
-  private static final String      FIELD_NAME2      = "fieldName2";
+  private static final String               FIELD_NAME1      = "fieldName1";
+
+  private static final String               FIELD_NAME2      = "fieldName2";
 
   @Autowired
-  private ContentLinkPluginService contentLinkPluginService;
+  private ContentLinkPluginService          contentLinkPluginService;
 
   @Autowired
-  private ContentLinkService       contentLinkService;
+  private ContentLinkService                contentLinkService;
 
   @Autowired
-  private UserACL                  userAcl;
+  private PermanentLinkService              permanentLinkService;
 
-  private ContentLinkPlugin        contentLinkPlugin;
+  @Autowired
+  private UserACL                           userAcl;
 
-  private boolean                  hasLinkPermission;
+  private ContentLinkPlugin                 contentLinkPlugin;
 
-  private boolean                  hasContentPermission;
+  private boolean                           hasLinkPermission;
+
+  private boolean                           hasContentPermission;
 
   @Override
   @Before
@@ -81,21 +97,42 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
     super.setUp();
     if (contentLinkPlugin == null) {
       contentLinkPlugin = new ContentLinkPlugin() {
+        @Override
+        public ContentLinkExtension getExtension() {
+          return EXTENSION;
+        }
+
+        @Override
+        public String getContentTitle(String objectId, Locale locale) {
+          return "Title" + objectId;
+        }
+
+        @Override
+        public List<ContentLinkSearchResult> search(String keyword, Identity identity, Locale locale, int offset, int limit) {
+          return Collections.emptyList();
+        }
+
+      };
+      contentLinkPluginService.addPlugin(contentLinkPlugin);
+
+      permanentLinkService.addPlugin(new PermanentLinkPlugin() {
 
         @Override
         public String getObjectType() {
-          return LINK_OBJECT_TYPE;
+          return EXTENSION.getObjectType();
         }
 
         @Override
-        public ContentLink getContentLink(String objectId) {
-          return new ContentLink(LINK_OBJECT_TYPE,
-                                 objectId,
-                                 "Title" + objectId,
-                                 "/uri/" + objectId);
+        public String getDirectAccessUrl(PermanentLinkObject object) throws ObjectNotFoundException {
+          return "/uri/" + object.getObjectId();
         }
-      };
-      contentLinkPluginService.addPlugin(contentLinkPlugin);
+
+        @Override
+        public boolean canAccess(PermanentLinkObject object, Identity identity) throws ObjectNotFoundException {
+          return hasLinkPermission;
+        }
+
+      });
 
       userAcl.addAclPlugin(new AclPlugin() {
 
@@ -123,7 +160,7 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
         }
       });
     }
-    contentLinkService.deleteLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null));
+    contentLinkService.deleteLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1));
   }
 
   @Test
@@ -131,20 +168,20 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
   public void testSaveLinks() {
     this.hasContentPermission = false;
     assertThrows(IllegalAccessException.class,
-                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null),
+                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1),
                                                     Collections.emptyList(),
                                                     TEST_USER));
     this.hasContentPermission = true;
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), Collections.emptyList(), TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), Collections.emptyList(), TEST_USER);
 
     this.hasLinkPermission = false;
     List<ContentObjectIdentifier> links = Collections.singletonList(new ContentObjectIdentifier(LINK_OBJECT_TYPE,
                                                                                                 LINK_OBJECT_ID));
     assertThrows(IllegalAccessException.class,
-                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), links, TEST_USER));
+                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), links, TEST_USER));
 
     this.hasLinkPermission = true;
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), links, TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), links, TEST_USER);
   }
 
   @Test
@@ -153,8 +190,8 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
     this.hasContentPermission = false;
     assertThrows(IllegalAccessException.class,
                  () -> contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                     CONTENT_ID1,
-                                                                     null),
+                                                                     CONTENT_ID1),
+                                                   Locale.ENGLISH,
                                                    TEST_USER));
 
     this.hasContentPermission = true;
@@ -163,25 +200,25 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
                                                                                                 LINK_OBJECT_ID));
     contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, FIELD_NAME1), links, TEST_USER);
     contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, FIELD_NAME2), links, TEST_USER);
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID2, null), links, TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID2), links, TEST_USER);
 
     List<ContentLink> contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                                   CONTENT_ID1,
-                                                                                   null),
+                                                                                   CONTENT_ID1),
+                                                                 Locale.ENGLISH,
                                                                  TEST_USER);
     assertNotNull(contentLinks);
     assertEquals(2, contentLinks.size());
 
     contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                 CONTENT_ID2,
-                                                                 null),
+                                                                 CONTENT_ID2),
+                                               Locale.ENGLISH,
                                                TEST_USER);
     assertNotNull(contentLinks);
     assertEquals(1, contentLinks.size());
 
     contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                 "NotExisting",
-                                                                 null),
+                                                                 "NotExisting"),
+                                               Locale.ENGLISH,
                                                TEST_USER);
     assertNotNull(contentLinks);
     assertTrue(contentLinks.isEmpty());
@@ -192,13 +229,15 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
   public void testGetLink() {
     this.hasContentPermission = false;
     assertThrows(IllegalAccessException.class,
-                 () -> contentLinkService.getLink(new ContentObjectIdentifier(LINK_OBJECT_TYPE,
-                                                                              CONTENT_ID1),
+                 () -> contentLinkService.getLink(new ContentLinkIdentifier(LINK_OBJECT_TYPE,
+                                                                            CONTENT_ID1,
+                                                                            Locale.ENGLISH),
                                                   TEST_USER));
 
     this.hasLinkPermission = true;
-    ContentLink link = contentLinkService.getLink(new ContentObjectIdentifier(LINK_OBJECT_TYPE,
-                                                                              CONTENT_ID1),
+    ContentLink link = contentLinkService.getLink(new ContentLinkIdentifier(LINK_OBJECT_TYPE,
+                                                                            CONTENT_ID1,
+                                                                            Locale.ENGLISH),
                                                   TEST_USER);
     assertNotNull(link);
     assertEquals("Title" + CONTENT_ID1, link.getTitle());

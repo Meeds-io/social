@@ -18,14 +18,20 @@
  */
 package io.meeds.social.cms.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.portal.config.UserACL;
 
 import io.meeds.social.cms.model.ContentLink;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
 import io.meeds.social.cms.storage.ContentLinkStorage;
@@ -43,7 +49,12 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   private ContentLinkStorage       contentLinkStorage;
 
   @Override
-  public List<ContentLink> getLinks(ContentObject contentObject, String username) throws IllegalAccessException {
+  public List<ContentLinkExtension> getExtensions() {
+    return contentLinkPluginService.getExtensions();
+  }
+
+  @Override
+  public List<ContentLink> getLinks(ContentObject contentObject, Locale locale, String username) throws IllegalAccessException {
     if (!canView(contentObject, username)) {
       throw new IllegalAccessException(String.format("User %s can't view object of type %s with id %s",
                                                      username,
@@ -51,10 +62,35 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      contentObject.getObjectId()));
     }
     return getLinkIdentifiers(contentObject).stream()
-                                            .filter(link -> canView(link, username))
-                                            .map(contentLinkPluginService::getContentLink)
+                                            .filter(linkIdentifier -> canView(linkIdentifier, username))
+                                            .map(linkIdentifier -> contentLinkPluginService.getLink(linkIdentifier))
                                             .filter(Objects::nonNull)
                                             .toList();
+  }
+
+  @Override
+  public List<ContentLinkSearchResult> searchLinks(String objectType,
+                                                   String keyword,
+                                                   String username,
+                                                   Locale locale,
+                                                   int offset,
+                                                   int limit) {
+    keyword = StringUtils.trim(keyword);
+    if (StringUtils.isNumeric(keyword)) {
+      try {
+        ContentLink link = getLink(new ContentLinkIdentifier(objectType, keyword, locale), username);
+        return Collections.singletonList(new ContentLinkSearchResult(link));
+      } catch (IllegalAccessException e) {
+        return Collections.emptyList();
+      }
+    } else {
+      return contentLinkPluginService.searchLinks(objectType,
+                                                  keyword,
+                                                  userAcl.getUserIdentity(username),
+                                                  locale,
+                                                  offset,
+                                                  limit);
+    }
   }
 
   @Override
@@ -72,6 +108,11 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      username,
                                                      links));
     }
+    saveLinks(contentObject, links);
+  }
+
+  @Override
+  public void saveLinks(ContentObject contentObject, List<? extends ContentObjectIdentifier> links) {
     contentLinkStorage.saveLinks(contentObject, links);
   }
 
@@ -81,12 +122,12 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   }
 
   @Override
-  public List<ContentObjectIdentifier> getLinkIdentifiers(ContentObject contentObject) {
+  public List<ContentLinkIdentifier> getLinkIdentifiers(ContentObject contentObject) {
     return contentLinkStorage.getLinkIdentifiers(contentObject);
   }
 
   @Override
-  public ContentLink getLink(ContentObjectIdentifier link, String username) throws IllegalAccessException {
+  public ContentLink getLink(ContentLinkIdentifier link, String username) throws IllegalAccessException {
     if (!canView(link, username)) {
       throw new IllegalAccessException(String.format("User %s can't view object of type %s with id %s",
                                                      username,
@@ -97,8 +138,8 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   }
 
   @Override
-  public ContentLink getLink(ContentObjectIdentifier link) {
-    return contentLinkPluginService.getContentLink(link);
+  public ContentLink getLink(ContentLinkIdentifier link) {
+    return contentLinkPluginService.getLink(link);
   }
 
   @Override
