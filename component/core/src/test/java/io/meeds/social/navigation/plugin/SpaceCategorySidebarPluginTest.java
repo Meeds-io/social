@@ -67,7 +67,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     assertFalse(spaceCategorySidebarPlugin.itemExists(new SidebarItem(), ROOT_USER));
 
     SidebarItem item = new SidebarItem(SidebarItemType.SPACE_CATEGORY);
-    item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, "12"));
+    item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, "1265488"));
     assertFalse(spaceCategorySidebarPlugin.itemExists(item, ROOT_USER));
 
     buildCategoryTree();

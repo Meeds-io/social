@@ -35,6 +35,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -218,10 +219,12 @@ public class CategoryStorage {
     category.setId(metadata.getId());
     category.setOwnerId(metadata.getAudienceId());
     category.setCreatorId(metadata.getCreatorId());
-    category.setIcon(metadata.getProperties().get(PROP_ICON));
-    category.setParentId(Long.parseLong(metadata.getProperties().get(PROP_PARENT_ID)));
-    category.setAccessPermissionIds(toList(metadata.getProperties().get(PROP_ACCESS_PERMISSIONS)));
-    category.setLinkPermissionIds(toList(metadata.getProperties().get(PROP_LINK_PERMISSIONS)));
+    if (MapUtils.isNotEmpty(metadata.getProperties())) {
+      category.setIcon(MapUtils.getString(metadata.getProperties(), PROP_ICON));
+      category.setParentId(MapUtils.getLong(metadata.getProperties(), PROP_PARENT_ID));
+      category.setAccessPermissionIds(toList(MapUtils.getString(metadata.getProperties(), PROP_ACCESS_PERMISSIONS)));
+      category.setLinkPermissionIds(toList(MapUtils.getString(metadata.getProperties(), PROP_LINK_PERMISSIONS)));
+    }
     return category;
   }
 
