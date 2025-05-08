@@ -24,7 +24,7 @@
       <v-btn
         class="btn btn-primary"
         outlined
-        @click="$refs.imageCropDrawer.open()">
+        @click="$refs.imageCropDrawer.open(loginBackgroundItem)">
         {{ hasImage && $t('generalSettings.changeLoginBackground.button') || $t('generalSettings.addLoginBackground.button') }}
       </v-btn>
       <portal-general-settings-color-picker
@@ -38,8 +38,10 @@
       :crop-options="cropOptions"
       :max-file-size="maxFileSize"
       :src="loginBackgroundPreviewSrc"
+      alt
       drawer-title="generalSettings.changeLoginBackground.drawerTitle"
-      @data="loginBackgroundData = $event" />
+      @data="loginBackgroundData = $event"
+      @alt-text="loginBackgroundAltText = $event" />
   </div>
 </template>
 <script>
@@ -57,15 +59,21 @@ export default {
       type: String,
       default: null,
     },
+    altText: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     loginBackgroundData: null,
     loginBackgroundUploadId: null,
     loginBackgroundTextColor: '#FFFFFF',
+    loginBackgroundAltText: '',
     uploadInProgress: false,
     uploadProgress: 0,
     maxFileSize: 2097152,
     resetInput: false,
+    loginBackgroundItem: {},
   }),
   computed: {
     cropOptions() {
@@ -91,10 +99,14 @@ export default {
       this.$emit('input', this.loginBackgroundUploadId || '');
     },
     loginBackgroundData() {
+      this.$emit('text-alt-updated', this.loginBackgroundAltText);
       this.$emit('data-updated', this.loginBackgroundData);
     },
     loginBackgroundTextColor() {
       this.$emit('text-color-updated', this.loginBackgroundTextColor);
+    },
+    altText() {
+      this.loginBackgroundItem.altText = this.altText;
     },
   },
   methods: {
@@ -102,6 +114,8 @@ export default {
       this.loginBackgroundUploadId = defaultUploadId || null;
       this.loginBackgroundData = defaultData;
       this.loginBackgroundTextColor = defaultTextColor || '#FFFFFF';
+      this.loginBackgroundAltText = this.altText;
+      this.loginBackgroundItem.altText = this.loginBackgroundAltText;
       if (this.$refs.imageCropDrawer) {
         this.$refs.imageCropDrawer.init();
       }
@@ -117,6 +131,15 @@ export default {
       if (this.defaultData || this.loginBackgroundUploadId) {
         Object.assign(branding, {
           loginBackgroundTextColor: this.loginBackgroundTextColor,
+        });
+      } else {
+        Object.assign(branding, {
+          loginBackgroundTextColor: null,
+        });
+      }
+      if (this.altText || this.loginBackgroundAltText) {
+        Object.assign(branding, {
+          loginBackgroundAltText: this.loginBackgroundAltText,
         });
       } else {
         Object.assign(branding, {
