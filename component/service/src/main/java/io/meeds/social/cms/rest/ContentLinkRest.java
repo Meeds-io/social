@@ -20,6 +20,7 @@ package io.meeds.social.cms.rest;
 
 import java.util.List;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -80,9 +81,12 @@ public class ContentLinkRest {
                                     String objectId,
                                     @Parameter(description = "Field Name")
                                     @RequestParam(name = "fieldName", required = false)
-                                    String fieldName) {
+                                    String fieldName,
+                                    @Parameter(description = "Language")
+                                    @RequestParam(name = "lang", required = false)
+                                    String lang) {
     try {
-      return contentLinkService.getLinks(new ContentObject(objectType, objectId, fieldName),
+      return contentLinkService.getLinks(new ContentObject(objectType, objectId, fieldName, LocaleUtils.toLocale(lang)),
                                          request.getLocale(),
                                          request.getRemoteUser());
     } catch (IllegalAccessException e) {
@@ -159,10 +163,13 @@ public class ContentLinkRest {
                         @Parameter(description = "Field Name")
                         @RequestParam(name = "fieldName", required = false)
                         String fieldName,
+                        @Parameter(description = "Language")
+                        @RequestParam(name = "lang", required = false)
+                        String lang,
                         @RequestBody
                         ContentLinkList linkList) {
     try {
-      contentLinkService.saveLinks(new ContentObject(objectType, objectId, fieldName),
+      contentLinkService.saveLinks(new ContentObject(objectType, objectId, fieldName, LocaleUtils.toLocale(lang)),
                                    linkList.getLinks(),
                                    request.getRemoteUser());
     } catch (IllegalAccessException e) {

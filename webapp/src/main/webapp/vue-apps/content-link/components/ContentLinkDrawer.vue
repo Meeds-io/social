@@ -72,7 +72,7 @@ export default {
       this.$root.editor.focus();
       range.collapse();
       this.$root.editor.getSelection().selectRanges([range]);
-      this.$root.editor.insertHtml('&nbsp;');
+      this.$root.editor.insertHtml(' ');
     },
   },
 };

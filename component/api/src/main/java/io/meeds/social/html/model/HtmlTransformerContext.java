@@ -16,40 +16,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.cms.model;
+package io.meeds.social.html.model;
 
 import java.util.Locale;
 
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.services.security.IdentityConstants;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class ContentObject extends ContentObjectIdentifier {
+public class HtmlTransformerContext {
 
-  private String fieldName;
+  private Identity userIdentity;
 
-  private Locale locale;
+  private boolean  system;
 
-  public ContentObject(String objectType, String objectId) {
-    super(objectType, objectId);
-  }
+  private Locale   locale;
 
-  public ContentObject(String objectType, String objectId, String fieldName) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
-  }
-
-  public ContentObject(String objectType, String objectId, String fieldName, Locale locale) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
+  public HtmlTransformerContext(Locale locale) {
     this.locale = locale;
+  }
+
+  public HtmlTransformerContext(Identity userIdentity, Locale locale) {
+    this.userIdentity = userIdentity;
+    this.locale = locale;
+  }
+
+  public HtmlTransformerContext(boolean system, Locale locale) {
+    this.system = system;
+    this.locale = locale;
+  }
+
+  public String getUsername() {
+    return userIdentity == null || IdentityConstants.ANONIM.equals(userIdentity.getUserId()) ? null : userIdentity.getUserId();
   }
 
 }

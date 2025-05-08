@@ -37,8 +37,16 @@ public class ContentLink extends ContentLinkIdentifier {
 
   private String uri;
 
+  private String icon;
+
   public ContentLink(ContentLinkIdentifier link) {
-    super(link.getObjectType(), link.getObjectId(), link.getLocale());
+    super(link.getObjectType(), link.getObjectId(), link.getFieldName(), link.getLocale());
+  }
+
+  public ContentLink(String objectType, String objectId, String fieldName, Locale locale, String title, String uri) {
+    super(objectType, objectId, fieldName, locale);
+    this.title = title;
+    this.uri = uri;
   }
 
   public ContentLink(String objectType, String objectId, Locale locale, String title, String uri) {

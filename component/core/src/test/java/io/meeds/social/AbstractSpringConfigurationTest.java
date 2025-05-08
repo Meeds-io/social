@@ -43,6 +43,7 @@ import io.meeds.spring.AvailableIntegration;
   "io.meeds.social.space.storage",
   "io.meeds.social.space.service",
   "io.meeds.social.cms",
+  "io.meeds.social.html",
   AvailableIntegration.KERNEL_TEST_MODULE,
   AvailableIntegration.JPA_MODULE,
 }, exclude = {

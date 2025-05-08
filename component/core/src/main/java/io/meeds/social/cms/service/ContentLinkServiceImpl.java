@@ -62,10 +62,8 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      contentObject.getObjectId()));
     }
     return getLinkIdentifiers(contentObject).stream()
-                                            .filter(link -> canView(link, username))
-                                            .map(link -> contentLinkPluginService.getLink(new ContentLinkIdentifier(link.getObjectType(),
-                                                                                                                    link.getObjectId(),
-                                                                                                                    locale)))
+                                            .filter(linkIdentifier -> canView(linkIdentifier, username))
+                                            .map(linkIdentifier -> contentLinkPluginService.getLink(linkIdentifier))
                                             .filter(Objects::nonNull)
                                             .toList();
   }
@@ -110,6 +108,11 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                      username,
                                                      links));
     }
+    saveLinks(contentObject, links);
+  }
+
+  @Override
+  public void saveLinks(ContentObject contentObject, List<? extends ContentObjectIdentifier> links) {
     contentLinkStorage.saveLinks(contentObject, links);
   }
 
@@ -119,7 +122,7 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   }
 
   @Override
-  public List<ContentObjectIdentifier> getLinkIdentifiers(ContentObject contentObject) {
+  public List<ContentLinkIdentifier> getLinkIdentifiers(ContentObject contentObject) {
     return contentLinkStorage.getLinkIdentifiers(contentObject);
   }
 

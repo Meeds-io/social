@@ -16,40 +16,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.cms.model;
+package io.meeds.social.html.plugin;
 
-import java.util.Locale;
+import io.meeds.social.html.model.HtmlProcessorContext;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+public interface HtmlProcessorPlugin {
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class ContentObject extends ContentObjectIdentifier {
-
-  private String fieldName;
-
-  private Locale locale;
-
-  public ContentObject(String objectType, String objectId) {
-    super(objectType, objectId);
-  }
-
-  public ContentObject(String objectType, String objectId, String fieldName) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
-  }
-
-  public ContentObject(String objectType, String objectId, String fieldName, Locale locale) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
-    this.locale = locale;
-  }
+  /**
+   * Process the HTML input into content before storing in database
+   * 
+   * @param html HTML input
+   * @param context HTML processor context of type {@link HtmlProcessorContext}
+   * @return processed HTML output
+   */
+  String process(String html, HtmlProcessorContext context);
 
 }

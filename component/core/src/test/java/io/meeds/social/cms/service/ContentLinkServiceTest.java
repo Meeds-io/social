@@ -160,7 +160,7 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
         }
       });
     }
-    contentLinkService.deleteLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null));
+    contentLinkService.deleteLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1));
   }
 
   @Test
@@ -168,20 +168,20 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
   public void testSaveLinks() {
     this.hasContentPermission = false;
     assertThrows(IllegalAccessException.class,
-                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null),
+                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1),
                                                     Collections.emptyList(),
                                                     TEST_USER));
     this.hasContentPermission = true;
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), Collections.emptyList(), TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), Collections.emptyList(), TEST_USER);
 
     this.hasLinkPermission = false;
     List<ContentObjectIdentifier> links = Collections.singletonList(new ContentObjectIdentifier(LINK_OBJECT_TYPE,
                                                                                                 LINK_OBJECT_ID));
     assertThrows(IllegalAccessException.class,
-                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), links, TEST_USER));
+                 () -> contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), links, TEST_USER));
 
     this.hasLinkPermission = true;
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, null), links, TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1), links, TEST_USER);
   }
 
   @Test
@@ -190,8 +190,7 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
     this.hasContentPermission = false;
     assertThrows(IllegalAccessException.class,
                  () -> contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                     CONTENT_ID1,
-                                                                     null),
+                                                                     CONTENT_ID1),
                                                    Locale.ENGLISH,
                                                    TEST_USER));
 
@@ -201,27 +200,24 @@ public class ContentLinkServiceTest extends AbstractSpringConfigurationTest {
                                                                                                 LINK_OBJECT_ID));
     contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, FIELD_NAME1), links, TEST_USER);
     contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID1, FIELD_NAME2), links, TEST_USER);
-    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID2, null), links, TEST_USER);
+    contentLinkService.saveLinks(new ContentObject(CONTENT_TYPE, CONTENT_ID2), links, TEST_USER);
 
     List<ContentLink> contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                                   CONTENT_ID1,
-                                                                                   null),
+                                                                                   CONTENT_ID1),
                                                                  Locale.ENGLISH,
                                                                  TEST_USER);
     assertNotNull(contentLinks);
     assertEquals(2, contentLinks.size());
 
     contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                 CONTENT_ID2,
-                                                                 null),
+                                                                 CONTENT_ID2),
                                                Locale.ENGLISH,
                                                TEST_USER);
     assertNotNull(contentLinks);
     assertEquals(1, contentLinks.size());
 
     contentLinks = contentLinkService.getLinks(new ContentObject(CONTENT_TYPE,
-                                                                 "NotExisting",
-                                                                 null),
+                                                                 "NotExisting"),
                                                Locale.ENGLISH,
                                                TEST_USER);
     assertNotNull(contentLinks);

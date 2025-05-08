@@ -42,32 +42,42 @@ CKEDITOR.plugins.add( 'insertContent', {
 
       const contentLinks = element.querySelectorAll('a.content-link');
       contentLinks.forEach(linkElement => {
-        textData = textData.replace(linkElement.outerHTML, `<span class="content-link hidden" contenteditable="false"> /${linkElement.getAttribute('data-object')} </span>`);
+        textData = textData.replace(linkElement.outerHTML, `<content-link contenteditable="false" style="display: none;">/${linkElement.getAttribute('data-object')}</content-link>`);
       });
       evt.data.dataValue = textData;
     });
 
     editor.on('setData', function(evt) {
       const editor = evt.editor;
+      if (editor.setDataInProgress) {
+        return;
+      }
       let textData = evt.data.dataValue;
 
       const element = document.createElement('div');
       element.innerHTML = textData;
 
-      const contentLinks = element.querySelectorAll('span.content-link');
+      const contentLinks = element.querySelectorAll('content-link');
       if (contentLinks?.length) {
         Promise.all([...contentLinks.values()].map(linkElement => {
           const objectParts = linkElement?.innerText?.trim?.()?.replace?.('/', '')?.split?.(':');
-          return fetch(`/social/rest/contentLinks/link/${objectParts[0]}/${objectParts[1]}`, {
-            method: 'GET',
-            credentials: 'include',
-          }).then(resp => resp?.ok && resp.json()).then(link => {
-            if (link) {
-              textData = textData.replace(linkElement.outerHTML, `<a data-object="${link.objectType}:${link.objectId}" data-content-link="true" contenteditable="false" class="content-link" href="${link.uri}" target="_blank"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`);
-            }
-          });
+          if (objectParts?.length === 2) {
+            return fetch(`/social/rest/contentLinks/link/${objectParts[0]}/${objectParts[1]}`, {
+              method: 'GET',
+              credentials: 'include',
+            }).then(resp => resp?.ok && resp.json()).then(link => {
+              if (link) {
+                textData = textData.replace(linkElement.outerHTML, `<a href="${link.uri}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`);
+              }
+            });
+          }
         })).finally(() => {
-          window.setTimeout(() => editor.setData(textData), 5000);
+          editor.setDataInProgress = true;
+          try {
+            editor.setData(textData);
+          } finally {
+            delete editor.setDataInProgress;
+          }
         });
       }
     });

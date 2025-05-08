@@ -16,40 +16,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.cms.model;
+package io.meeds.social.html.service;
 
-import java.util.Locale;
+import io.meeds.social.html.model.HtmlTransformerContext;
+import io.meeds.social.html.plugin.HtmlTransformerPlugin;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+/**
+ * A service used to transform a HTML content for display
+ */
+public interface HtmlTransformerService {
 
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class ContentObject extends ContentObjectIdentifier {
+  /**
+   * Transforms the HTML input into content ready to display
+   * 
+   * @param html HTML input
+   * @param context HTML transformation context of type {@link HtmlTransformerContext}
+   * @return transformed HTML output
+   */
+  String transform(String html, HtmlTransformerContext context);
 
-  private String fieldName;
-
-  private Locale locale;
-
-  public ContentObject(String objectType, String objectId) {
-    super(objectType, objectId);
-  }
-
-  public ContentObject(String objectType, String objectId, String fieldName) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
-  }
-
-  public ContentObject(String objectType, String objectId, String fieldName, Locale locale) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
-    this.locale = locale;
-  }
+  /** 
+   * Add new Transformer Plugin to consider while transforming the html to
+   * disaply in UI
+   * 
+   * @param transformerPlugin {@link HtmlTransformerPlugin}
+   */
+  void addPlugin(HtmlTransformerPlugin transformerPlugin);
 
 }

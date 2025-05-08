@@ -77,6 +77,7 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
     ContentLink contentLink = new ContentLink(linkIdentifier);
     computeTitle(contentLink);
     computeUri(contentLink);
+    computeIcon(contentLink);
     return contentLink;
   }
 
@@ -96,6 +97,11 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
     String title = getPlugin(contentLink.getObjectType()).getContentTitle(contentLink.getObjectId(),
                                                                           contentLink.getLocale());
     contentLink.setTitle(title);
+  }
+
+  private void computeIcon(ContentLink contentLink) {
+    String icon = getPlugin(contentLink.getObjectType()).getExtension().getIcon();
+    contentLink.setIcon(icon);
   }
 
   @SneakyThrows

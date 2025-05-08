@@ -26,15 +26,13 @@ import lombok.ToString;
 public class ContentLinkSearchResult extends ContentLink {
 
   public ContentLinkSearchResult(ContentLink link) {
-    super(link.getObjectType(), link.getObjectId(), link.getLocale(), link.getTitle(), link.getUri());
+    super(link.getObjectType(), link.getObjectId(), link.getFieldName(), link.getLocale(), link.getTitle(), link.getUri());
+    setIcon(link.getIcon());
   }
 
-  public ContentLinkSearchResult(ContentObjectIdentifier link) {
-    super(link.getObjectType(), link.getObjectId());
-  }
-
-  public ContentLinkSearchResult(String objectType, String objectId, String title) {
+  public ContentLinkSearchResult(String objectType, String objectId, String title, String icon) {
     super(objectType, objectId, null, title, null);
+    setIcon(icon);
   }
 
 }

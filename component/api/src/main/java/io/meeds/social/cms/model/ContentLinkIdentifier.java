@@ -33,10 +33,18 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class ContentLinkIdentifier extends ContentObjectIdentifier {
 
+  private String fieldName;
+
   private Locale locale;
 
   public ContentLinkIdentifier(String objectType, String objectId, Locale locale) {
     super(objectType, objectId);
+    this.locale = locale;
+  }
+
+  public ContentLinkIdentifier(String objectType, String objectId, String fieldName, Locale locale) {
+    super(objectType, objectId);
+    this.fieldName = fieldName;
     this.locale = locale;
   }
 

@@ -16,38 +16,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.cms.model;
+package io.meeds.social.html.model;
 
 import java.util.Locale;
 
+import org.exoplatform.services.security.Identity;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
-public class ContentObject extends ContentObjectIdentifier {
+public class HtmlProcessorContext {
 
-  private String fieldName;
+  private String   objectType;
 
-  private Locale locale;
+  private String   objectId;
 
-  public ContentObject(String objectType, String objectId) {
-    super(objectType, objectId);
+  private String   fieldName;
+
+  private Locale   locale;
+
+  private Identity userIdentity;
+
+  public HtmlProcessorContext(Identity userIdentity, Locale locale) {
+    this.userIdentity = userIdentity;
+    this.locale = locale;
   }
 
-  public ContentObject(String objectType, String objectId, String fieldName) {
-    super(objectType, objectId);
-    this.fieldName = fieldName;
+  public HtmlProcessorContext(String objectType, String objectId, Locale locale) {
+    this.objectType = objectType;
+    this.objectId = objectId;
+    this.locale = locale;
   }
 
-  public ContentObject(String objectType, String objectId, String fieldName, Locale locale) {
-    super(objectType, objectId);
+  public HtmlProcessorContext(String objectType, String objectId, String fieldName, Locale locale) {
+    this.objectType = objectType;
+    this.objectId = objectId;
     this.fieldName = fieldName;
     this.locale = locale;
   }

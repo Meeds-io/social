@@ -43,6 +43,15 @@ public interface ContentLinkService {
                  String username) throws IllegalAccessException;
 
   /**
+   * Saves the {@link List} of Links attached to the designated Object
+   * 
+   * @param contentObject {@link ContentObject}
+   * @param links {@link List} of {@link ContentObjectIdentifier} to attach
+   */
+  void saveLinks(ContentObject contentObject,
+                 List<? extends ContentObjectIdentifier> links);
+
+  /**
    * Delete the {@link List} of Links attached to the designated Object
    * 
    * @param contentObject {@link ContentObjectIdentifier}
@@ -81,7 +90,7 @@ public interface ContentLinkService {
    * @param contentObject {@link ContentObject}
    * @return the {@link List} of Links attached to the designated Object
    */
-  List<ContentObjectIdentifier> getLinkIdentifiers(ContentObject contentObject);
+  List<ContentLinkIdentifier> getLinkIdentifiers(ContentObject contentObject);
 
   /**
    * @param link {@link ContentLinkIdentifier} with object type, id and locale

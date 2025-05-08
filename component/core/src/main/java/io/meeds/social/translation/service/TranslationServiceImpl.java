@@ -17,12 +17,17 @@
  */
 package io.meeds.social.translation.service;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
@@ -30,6 +35,9 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.resources.LocaleConfigService;
 
+import io.meeds.social.html.model.HtmlProcessorContext;
+import io.meeds.social.html.model.HtmlTransformerContext;
+import io.meeds.social.html.model.HtmlUtils;
 import io.meeds.social.translation.model.TranslationEvent;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.plugin.TranslationPlugin;
@@ -89,7 +97,18 @@ public class TranslationServiceImpl implements TranslationService {
   public TranslationField getTranslationField(String objectType,
                                               long objectId,
                                               String fieldName) {
-    return translationStorage.getTranslationField(objectType, objectId, fieldName);
+    TranslationField translationField = translationStorage.getTranslationField(objectType, objectId, fieldName);
+    if (translationField != null && translationField.getLabels() != null) {
+      Map<Locale, String> labels = translationField.getLabels();
+      labels = labels.entrySet()
+                     .stream()
+                     .map(entry -> Pair.of(entry.getKey(),
+                                           HtmlUtils.transform(entry.getValue(),
+                                                               new HtmlTransformerContext(entry.getKey()))))
+                     .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+      translationField.setLabels(labels);
+    }
+    return translationField;
   }
 
   @Override
@@ -97,7 +116,12 @@ public class TranslationServiceImpl implements TranslationService {
                                     long objectId,
                                     String fieldName,
                                     Locale locale) {
-    return translationStorage.getTranslationLabel(objectType, objectId, fieldName, locale);
+    String translationLabel = translationStorage.getTranslationLabel(objectType, objectId, fieldName, locale);
+    if (StringUtils.isNotBlank(translationLabel)) {
+      translationLabel = HtmlUtils.transform(translationLabel,
+                                             new HtmlTransformerContext(locale));
+    }
+    return translationLabel;
   }
 
   @Override
@@ -158,6 +182,7 @@ public class TranslationServiceImpl implements TranslationService {
     TranslationPlugin translationPlugin = translationPlugins.get(objectType);
     long audienceId = translationPlugin.getAudienceId(objectId);
     long spaceId = translationPlugin.getSpaceId(objectId);
+    label = processLabelLocale(objectType, objectId, fieldName, locale, label);
     translationStorage.saveTranslationLabel(objectType, objectId, fieldName, locale, label, audienceId, spaceId);
     broadcastEvent(TRANSLATION_SAVED_EVENT_NAME, objectType, objectId, fieldName, locale, null);
   }
@@ -186,6 +211,7 @@ public class TranslationServiceImpl implements TranslationService {
                                      Locale locale) throws ObjectNotFoundException {
     checkParameters(objectType, objectId, fieldName, locale);
     translationStorage.deleteTranslationLabel(objectType, objectId, fieldName, locale);
+    processLabelLocale(objectType, objectId, fieldName, locale, StringUtils.EMPTY);
     broadcastEvent(TRANSLATION_DELETED_EVENT_NAME, objectType, objectId, fieldName, locale, null);
   }
 
@@ -199,11 +225,53 @@ public class TranslationServiceImpl implements TranslationService {
     TranslationPlugin translationPlugin = translationPlugins.get(objectType);
     long audienceId = translationPlugin.getAudienceId(objectId);
     long spaceId = translationPlugin.getSpaceId(objectId);
+    labels = labels.entrySet()
+                   .stream()
+                   .map(entry -> Pair.of(entry.getKey(),
+                                         processLabelLocale(objectType,
+                                                            objectId,
+                                                            fieldName,
+                                                            entry.getKey(),
+                                                            entry.getValue())))
+                   .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+
+    Set<Locale> labelLocales = labels.keySet();
+
     translationStorage.saveTranslationLabels(objectType, objectId, fieldName, labels, audienceId, spaceId);
+    processLabelLocalesDeletion(objectType, objectId, fieldName, labelLocales);
   }
 
   private void deleteTranslationLabelsNoBroadcast(String objectType, long objectId) {
     translationStorage.deleteTranslationLabels(objectType, objectId);
+    processLabelLocalesDeletion(objectType, objectId, null, Collections.emptySet());
+  }
+
+  private void processLabelLocalesDeletion(String objectType, long objectId, String fieldName, Set<Locale> labelLocales) {
+    // Process deletion of Field Translations
+    TranslationField translationField = getTranslationField(objectType, objectId, fieldName);
+    if (translationField != null && MapUtils.isNotEmpty(translationField.getLabels())) {
+      translationField.getLabels()
+                      .keySet()
+                      .stream()
+                      .filter(locale -> !labelLocales.contains(locale))
+                      .forEach(locale -> processLabelLocale(objectType,
+                                                            objectId,
+                                                            fieldName,
+                                                            locale,
+                                                            StringUtils.EMPTY));
+    }
+  }
+
+  private String processLabelLocale(String objectType,
+                                    long objectId,
+                                    String fieldName,
+                                    Locale locale,
+                                    String label) {
+    return HtmlUtils.process(label,
+                             new HtmlProcessorContext(objectType,
+                                                      String.valueOf(objectId),
+                                                      fieldName,
+                                                      locale));
   }
 
   private void broadcastEvent(String eventName,

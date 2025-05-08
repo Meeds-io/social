@@ -44,7 +44,6 @@ public interface ContentLinkPluginService {
 
   /**
    * @param link {@link ContentLinkIdentifier}
-   * @param locale {@link Locale} to retrieve the title
    * @return Computed {@link ContentLink} with title and uri if found, else,
    *         null
    */
