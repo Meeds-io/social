@@ -34,7 +34,6 @@ CKEDITOR.plugins.add( 'insertContent', {
     });
 
     editor.on('getData', function(evt) {
-      const editor = evt.editor;
       let textData = evt.data.dataValue;
 
       const element = document.createElement('div');
