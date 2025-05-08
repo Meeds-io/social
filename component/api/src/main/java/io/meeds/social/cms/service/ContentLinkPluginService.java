@@ -18,8 +18,15 @@
  */
 package io.meeds.social.cms.service;
 
+import java.util.List;
+import java.util.Locale;
+
+import org.exoplatform.services.security.Identity;
+
 import io.meeds.social.cms.model.ContentLink;
-import io.meeds.social.cms.model.ContentObjectIdentifier;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.plugin.ContentLinkPlugin;
 
 public interface ContentLinkPluginService {
@@ -30,10 +37,37 @@ public interface ContentLinkPluginService {
   void addPlugin(ContentLinkPlugin plugin);
 
   /**
-   * @param link {@link ContentObjectIdentifier}
+   * @param objectType
+   * @return corresponding {@link ContentLinkPlugin}
+   */
+  ContentLinkPlugin getPlugin(String objectType);
+
+  /**
+   * @param link {@link ContentLinkIdentifier}
    * @return Computed {@link ContentLink} with title and uri if found, else,
    *         null
    */
-  ContentLink getContentLink(ContentObjectIdentifier link);
+  ContentLink getLink(ContentLinkIdentifier link);
+
+  /**
+   * @param objectType object type (notes, activity, space ...)
+   * @param keyword Searched keyword
+   * @param offset Search results offset
+   * @param limit Search results limit
+   * @param identity user ACL {@link Identity}
+   * @param locale {@link Locale} user Locale
+   * @return {@link List} of {@link ContentLinkSearchResult}
+   */
+  List<ContentLinkSearchResult> searchLinks(String objectType,
+                                            String keyword,
+                                            Identity identity,
+                                            Locale locale,
+                                            int offset,
+                                            int limit);
+
+  /**
+   * @return {@link List} of managed {@link ContentLinkExtension}
+   */
+  List<ContentLinkExtension> getExtensions();
 
 }
