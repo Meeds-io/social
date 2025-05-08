@@ -18,13 +18,15 @@
  */
 package io.meeds.social.cms.storage;
 
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,6 +38,7 @@ import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
 import org.exoplatform.social.metadata.model.MetadataType;
 
+import io.meeds.social.cms.model.ContentLinkIdentifier;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.model.ContentObjectIdentifier;
 
@@ -45,6 +48,8 @@ import lombok.SneakyThrows;
 public class ContentLinkStorage {
 
   private static final String       FIELD_NAME    = "fieldName";
+
+  private static final String       FIELD_LOCALE  = "fieldLocale";
 
   private static final MetadataType METADATA_TYPE = new MetadataType(579645l, "contentLink");
 
@@ -71,8 +76,13 @@ public class ContentLinkStorage {
       List<MetadataItem> items = metadataService.getMetadataItemsByMetadata(getMetadataKey(contentObject), 0, 0);
       if (CollectionUtils.isNotEmpty(items)) {
         String fieldName = contentObject.getFieldName();
+        boolean noLocaleFiltering = contentObject.getLocale() == null;
+        boolean noFieldNameFiltering = StringUtils.isBlank(fieldName);
         for (MetadataItem item : items) {
-          if (StringUtils.equals(fieldName, MapUtils.getString(item.getProperties(), FIELD_NAME))) {
+          if ((noFieldNameFiltering
+               || StringUtils.equals(fieldName, MapUtils.getString(item.getProperties(), FIELD_NAME)))
+              && (noLocaleFiltering
+                  || contentObject.getLocale().toLanguageTag().equals(MapUtils.getString(item.getProperties(), FIELD_LOCALE)))) {
             metadataService.deleteMetadataItem(item.getId(), false);
           }
         }
@@ -83,26 +93,39 @@ public class ContentLinkStorage {
     }
   }
 
-  public List<ContentObjectIdentifier> getLinkIdentifiers(ContentObject contentObject) {
+  public List<ContentLinkIdentifier> getLinkIdentifiers(ContentObject contentObject) {
     List<MetadataItem> items = metadataService.getMetadataItemsByMetadata(getMetadataKey(contentObject), 0, 0);
     Stream<MetadataItem> itemsStream = items.stream();
     String fieldName = contentObject.getFieldName();
-    if (StringUtils.isBlank(fieldName)) {
-      return itemsStream.map(item -> new ContentObjectIdentifier(item.getObjectType(), item.getObjectId()))
-                        .toList();
-    } else {
-      return itemsStream.filter(item -> StringUtils.equals(MapUtils.getString(item.getProperties(), FIELD_NAME), fieldName))
-                        .map(item -> new ContentObjectIdentifier(item.getObjectType(), item.getObjectId()))
-                        .toList();
+    if (StringUtils.isNotBlank(fieldName)) {
+      itemsStream = itemsStream.filter(item -> StringUtils.equals(MapUtils.getString(item.getProperties(), FIELD_NAME),
+                                                                  fieldName));
     }
+    Locale locale = contentObject.getLocale();
+    if (locale != null) {
+      String lang = locale.toLanguageTag();
+      itemsStream = itemsStream.filter(item -> {
+        String linkLocale = MapUtils.getString(item.getProperties(), FIELD_LOCALE);
+        return StringUtils.isBlank(linkLocale) || StringUtils.equals(linkLocale, lang);
+      });
+    }
+    return itemsStream.map(item -> new ContentLinkIdentifier(item.getObjectType(),
+                                                             item.getObjectId(),
+                                                             MapUtils.getString(item.getProperties(), FIELD_NAME),
+                                                             LocaleUtils.toLocale(MapUtils.getString(item.getProperties(), FIELD_LOCALE))))
+                      .toList();
   }
 
   @SneakyThrows
   private void createMetadataItem(ContentObject contentObject, ContentObjectIdentifier link) {
     MetadataObject metadataObject = getMetadataObject(link);
-    Map<String, String> properties = StringUtils.isBlank(contentObject.getFieldName()) ? Collections.emptyMap() :
-                                                                                       Collections.singletonMap(FIELD_NAME,
-                                                                                                                contentObject.getFieldName());
+    Map<String, String> properties = new HashMap<>();
+    if (StringUtils.isNotBlank(contentObject.getFieldName())) {
+      properties.put(FIELD_NAME, contentObject.getFieldName());
+    }
+    if (contentObject.getLocale() != null) {
+      properties.put(FIELD_LOCALE, contentObject.getLocale().toLanguageTag());
+    }
     metadataService.createMetadataItem(metadataObject, getMetadataKey(contentObject), properties);
   }
 
