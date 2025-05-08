@@ -45,7 +45,7 @@
           class
           :src="background"
           style="height: 100%;"
-          alt="">
+          :alt="params.loginBackgroundAltText">
         <v-card
           :class="background && 'position-absolute t-0'"
           min-width="100%"
