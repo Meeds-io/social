@@ -101,6 +101,7 @@ let config = {
     simpleStorage: './src/main/webapp/vue-apps/simple-storage/main.js',
     admins: './src/main/webapp/vue-apps/platformAdminsWidget/main.js',
     platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
+    spaceCreation: './src/main/webapp/vue-apps/space-creation/main.js',
   },
   module: {
     rules: [
