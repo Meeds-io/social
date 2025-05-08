@@ -32,9 +32,9 @@ const appId = 'spaceFormDrawer';
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export async function open(templateId) {
+export async function open(templateId, spaceTemplates) {
   if (!window.spaceFormAdded) {
-    await initApp();
+    await initApp(spaceTemplates);
   }
   document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
 }
@@ -47,7 +47,7 @@ export async function edit(spaceId) {
   document.dispatchEvent(new CustomEvent('editSpace', {detail: space}));
 }
 
-function initApp() {
+function initApp(spaceTemplates) {
   const spaceFormElement = document.createElement('div');
   spaceFormElement.setAttribute('id', appId);
   document.querySelector('#vuetify-apps').append(spaceFormElement);
@@ -56,6 +56,7 @@ function initApp() {
       Vue.createApp({
         data: {
           isExternalFeatureEnabled: eXo.env.portal.isExternalFeatureEnabled,
+          spaceTemplates,
           collator: new Intl.Collator(eXo.env.portal.language, {
             numeric: true,
             sensitivity: 'base'
