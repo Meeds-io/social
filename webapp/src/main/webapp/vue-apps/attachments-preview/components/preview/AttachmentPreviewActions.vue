@@ -45,7 +45,6 @@ export default {
         isMobile: this.isMobile,
       };
     },
-  
   }
 };
 </script>
