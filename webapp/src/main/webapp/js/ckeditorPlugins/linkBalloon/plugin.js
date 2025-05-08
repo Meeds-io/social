@@ -96,8 +96,10 @@
         }
       }
         const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
-        if (!(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
-            && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query"))) && !isVisible) {
+        if (!isVisible
+            && !(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
+            && !(selectedElement?.parentElement?.classList?.contains?.("metadata-tag") || selectedElement?.classList?.contains?.("metadata-tag"))
+            && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query"))) {
           balloonToolbar.attach( selection );
         }
     } else {
@@ -119,8 +121,9 @@
     const ranges = editor.getSelection().getRanges(),
           selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
     return editor.elementPath( ranges[0].getCommonAncestor() ).contains( 'a', 1 )
-        && !(selectedElement.parentElement.classList.contains("metadata-tag") || (selectedElement.classList && selectedElement.classList.contains("metadata-tag")))
-        && !(selectedElement.parentElement.classList.contains("atwho-query") || (selectedElement.classList && selectedElement.classList.contains("atwho-query"))) ;
+        && !(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
+        && !(selectedElement?.parentElement?.classList?.contains?.("metadata-tag") || selectedElement?.classList?.contains?.("metadata-tag"))
+        && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query")) ;
   }
 
   function addUnlinkItem(editor) {

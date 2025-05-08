@@ -18,6 +18,8 @@
  */
 package io.meeds.social.cms.model;
 
+import java.util.Locale;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,18 +31,26 @@ import lombok.ToString;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class ContentLink extends ContentObjectIdentifier {
+public class ContentLink extends ContentLinkIdentifier {
 
   private String title;
 
   private String uri;
 
-  public ContentLink(ContentObjectIdentifier link) {
-    super(link.getObjectType(), link.getObjectId());
+  private String icon;
+
+  public ContentLink(ContentLinkIdentifier link) {
+    super(link.getObjectType(), link.getObjectId(), link.getFieldName(), link.getLocale());
   }
 
-  public ContentLink(String objectType, String objectId, String title, String uri) {
-    super(objectType, objectId);
+  public ContentLink(String objectType, String objectId, String fieldName, Locale locale, String title, String uri) {
+    super(objectType, objectId, fieldName, locale);
+    this.title = title;
+    this.uri = uri;
+  }
+
+  public ContentLink(String objectType, String objectId, Locale locale, String title, String uri) {
+    super(objectType, objectId, locale);
     this.title = title;
     this.uri = uri;
   }
