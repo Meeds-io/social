@@ -51,6 +51,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import io.meeds.social.html.model.HtmlTransformerContext;
+import io.meeds.social.html.utils.HtmlUtils;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -1189,7 +1191,7 @@ public class EntityBuilder {
       commentEntity.setActivityStream(as);
       return commentEntity;
     }
-    Locale userLocale = LocalizationFilter.getCurrentLocale();
+    Locale userLocale = getLocale();
     MentionUtils.substituteRoleWithLocale(activity, userLocale);
     List<String> expandFields;
     if (StringUtils.isBlank(expand)) {
@@ -1213,6 +1215,9 @@ public class EntityBuilder {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     }
     activityEntity.setIdentity(identityLink);
+    HtmlTransformerContext htmlContext = new HtmlTransformerContext(getCurrentUserIdentity(), getLocale());
+    activityEntity.setBody(HtmlUtils.transform(activityEntity.getBody(), htmlContext));
+    activityEntity.setTitle(HtmlUtils.transform(activityEntity.getTitle(), htmlContext));
     activityEntity.setOwner(getActivityOwner(poster, restPath, activity.getSpaceId()));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<>());
@@ -1400,7 +1405,7 @@ public class EntityBuilder {
                                                      String expand,
                                                      boolean isBuildList) {
     Identity poster = getIdentityManager().getIdentity(comment.getPosterId());
-    Locale userLocale = LocalizationFilter.getCurrentLocale();
+    Locale userLocale = getLocale();
     if (comment.getTitleId() != null) {
       I18NActivityProcessor i18NActivityProcessor = ExoContainerContext.getService(I18NActivityProcessor.class);
       comment = i18NActivityProcessor.process(comment, userLocale);
@@ -1430,6 +1435,9 @@ public class EntityBuilder {
       commentEntity.setBody(comment.getTitle());
     }
     commentEntity.setParentCommentId(comment.getParentCommentId());
+    HtmlTransformerContext htmlContext = new HtmlTransformerContext(getCurrentUserIdentity(), getLocale());
+    commentEntity.setBody(HtmlUtils.transform(commentEntity.getBody(), htmlContext));
+    commentEntity.setTitle(HtmlUtils.transform(commentEntity.getTitle(), htmlContext));
     commentEntity.setMentions(getActivityMentions(comment, restPath));
     if (expandFields.contains(RestProperties.LIKES)) {
       commentEntity.setLikes(new LinkEntity(buildEntityFromLike(comment,
@@ -2445,6 +2453,10 @@ public class EntityBuilder {
     return profilePropertySetting != null
            && (profilePropertySetting.isVisible()
                || !getProfilePropertyService().isPropertySettingHiddenable(profilePropertySetting.getId()));
+  }
+
+  private static Locale getLocale() {
+    return LocalizationFilter.getCurrentLocale();
   }
 
   private static org.exoplatform.services.security.Identity getCurrentUserIdentity() {
