@@ -19,16 +19,32 @@
 package io.meeds.social.cms.service;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.services.security.Identity;
+
+import io.meeds.portal.permlink.model.PermanentLinkObject;
+import io.meeds.portal.permlink.service.PermanentLinkService;
 import io.meeds.social.cms.model.ContentLink;
-import io.meeds.social.cms.model.ContentObjectIdentifier;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.plugin.ContentLinkPlugin;
+
+import lombok.SneakyThrows;
 
 @Service
 public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
+
+  private PermanentLinkService permanentLinkService;
+
+  public ContentLinkPluginServiceImpl(PermanentLinkService permanentLinkService) {
+    this.permanentLinkService = permanentLinkService;
+  }
 
   private Map<String, ContentLinkPlugin> plugins = new HashMap<>();
 
@@ -38,17 +54,61 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
   }
 
   @Override
-  public ContentLink getContentLink(ContentObjectIdentifier link) {
-    return getContentLinkPlugin(link.getObjectType()).getContentLink(link.getObjectId());
-  }
-
-  public ContentLinkPlugin getContentLinkPlugin(String objectType) {
+  public ContentLinkPlugin getPlugin(String objectType) {
     ContentLinkPlugin contentLinkPlugin = plugins.get(objectType);
     if (contentLinkPlugin == null) {
       throw new IllegalStateException(String.format("Content Link Plugin %s wasn't found",
                                                     objectType));
     }
     return contentLinkPlugin;
+  }
+
+  @Override
+  public List<ContentLinkExtension> getExtensions() {
+    return plugins.values()
+                  .stream()
+                  .map(ContentLinkPlugin::getExtension)
+                  .toList();
+  }
+
+  @Override
+  @SneakyThrows
+  public ContentLink getLink(ContentLinkIdentifier linkIdentifier) {
+    ContentLink contentLink = new ContentLink(linkIdentifier);
+    computeTitle(contentLink);
+    computeUri(contentLink);
+    computeIcon(contentLink);
+    return contentLink;
+  }
+
+  @Override
+  public List<ContentLinkSearchResult> searchLinks(String objectType,
+                                                   String keyword,
+                                                   Identity identity,
+                                                   Locale locale,
+                                                   int offset,
+                                                   int limit) {
+    List<ContentLinkSearchResult> links = getPlugin(objectType).search(keyword, identity, locale, offset, limit);
+    links.forEach(this::computeUri);
+    return links;
+  }
+
+  private void computeTitle(ContentLink contentLink) {
+    String title = getPlugin(contentLink.getObjectType()).getContentTitle(contentLink.getObjectId(),
+                                                                          contentLink.getLocale());
+    contentLink.setTitle(title);
+  }
+
+  private void computeIcon(ContentLink contentLink) {
+    String icon = getPlugin(contentLink.getObjectType()).getExtension().getIcon();
+    contentLink.setIcon(icon);
+  }
+
+  @SneakyThrows
+  private void computeUri(ContentLink contentLink) {
+    String url = permanentLinkService.getLink(new PermanentLinkObject(contentLink.getObjectType(),
+                                                                      contentLink.getObjectId()));
+    contentLink.setUri(url);
   }
 
 }

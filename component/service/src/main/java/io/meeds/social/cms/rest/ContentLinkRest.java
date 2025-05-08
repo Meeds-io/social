@@ -20,6 +20,7 @@ package io.meeds.social.cms.rest;
 
 import java.util.List;
 
+import org.apache.commons.lang3.LocaleUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,7 +35,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import io.meeds.social.cms.model.ContentLink;
+import io.meeds.social.cms.model.ContentLinkExtension;
+import io.meeds.social.cms.model.ContentLinkIdentifier;
 import io.meeds.social.cms.model.ContentLinkList;
+import io.meeds.social.cms.model.ContentLinkSearchResult;
 import io.meeds.social.cms.model.ContentObject;
 import io.meeds.social.cms.service.ContentLinkService;
 
@@ -53,6 +57,15 @@ public class ContentLinkRest {
   @Autowired
   private ContentLinkService contentLinkService;
 
+  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Retrieves Content Link managed extensions", method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public List<ContentLinkExtension> getExtensions() {
+    return contentLinkService.getExtensions();
+  }
+
   @GetMapping(value = "{objectType}/{objectId}", produces = MediaType.APPLICATION_JSON_VALUE)
   @Operation(summary = "Retrieves Linked objects to a content", method = "GET")
   @ApiResponses(value = {
@@ -68,13 +81,69 @@ public class ContentLinkRest {
                                     String objectId,
                                     @Parameter(description = "Field Name")
                                     @RequestParam(name = "fieldName", required = false)
-                                    String fieldName) {
+                                    String fieldName,
+                                    @Parameter(description = "Language")
+                                    @RequestParam(name = "lang", required = false)
+                                    String lang) {
     try {
-      return contentLinkService.getLinks(new ContentObject(objectType, objectId, fieldName),
+      return contentLinkService.getLinks(new ContentObject(objectType, objectId, fieldName, LocaleUtils.toLocale(lang)),
+                                         request.getLocale(),
                                          request.getRemoteUser());
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     }
+  }
+
+  @GetMapping(value = "link/{objectType}/{objectId}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Retrieve a single Content Link", method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "403", description = "Forbidden"),
+    @ApiResponse(responseCode = "404", description = "Not found"),
+  })
+  public ContentLink getLink(HttpServletRequest request,
+                             @Parameter(description = "Object Type")
+                             @PathVariable(name = "objectType")
+                             String objectType,
+                             @Parameter(description = "Object Id")
+                             @PathVariable(name = "objectId")
+                             String objectId) {
+    try {
+      ContentLink link = contentLinkService.getLink(new ContentLinkIdentifier(objectType, objectId, request.getLocale()),
+                                                    request.getRemoteUser());
+      if (link == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+      }
+      return link;
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+    }
+  }
+
+  @GetMapping(value = "{objectType}/search", produces = MediaType.APPLICATION_JSON_VALUE)
+  @Operation(summary = "Searches for Links of a specific object type", method = "GET")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+  })
+  public List<ContentLinkSearchResult> searchLinks(HttpServletRequest request,
+                                                   @Parameter(description = "Object Type")
+                                                   @PathVariable(name = "objectType")
+                                                   String objectType,
+                                                   @Parameter(description = "Search query")
+                                                   @RequestParam("query")
+                                                   String query,
+                                                   @Parameter(description = "Search result offset")
+                                                   @RequestParam(name = "fieldName", required = false, defaultValue = "0")
+                                                   int offset,
+                                                   @Parameter(description = "Search result limit")
+                                                   @RequestParam(name = "fieldName", required = false, defaultValue = "10")
+                                                   int limit) {
+    return contentLinkService.searchLinks(objectType,
+                                          query,
+                                          request.getRemoteUser(),
+                                          request.getLocale(),
+                                          offset,
+                                          limit);
   }
 
   @PutMapping(value = "{objectType}/{objectId}", consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -94,10 +163,13 @@ public class ContentLinkRest {
                         @Parameter(description = "Field Name")
                         @RequestParam(name = "fieldName", required = false)
                         String fieldName,
+                        @Parameter(description = "Language")
+                        @RequestParam(name = "lang", required = false)
+                        String lang,
                         @RequestBody
                         ContentLinkList linkList) {
     try {
-      contentLinkService.saveLinks(new ContentObject(objectType, objectId, fieldName),
+      contentLinkService.saveLinks(new ContentObject(objectType, objectId, fieldName, LocaleUtils.toLocale(lang)),
                                    linkList.getLinks(),
                                    request.getRemoteUser());
     } catch (IllegalAccessException e) {

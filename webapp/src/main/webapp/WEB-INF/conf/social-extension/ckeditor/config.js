@@ -25,6 +25,8 @@ CKEDITOR.editorConfig = function(config) {
   CKEDITOR.plugins.addExternal('formatOption', '/commons-extension/eXoPlugins/formatOption/', 'plugin.js');
   CKEDITOR.plugins.addExternal('googleDocPastePlugin', '/commons-extension/eXoPlugins/googleDocPastePlugin/', 'plugin.js');
   CKEDITOR.plugins.addExternal('linkBalloon', '/social/js/ckeditorPlugins/linkBalloon/', 'plugin.js');
+  CKEDITOR.plugins.addExternal('insertContent', '/social/js/ckeditorPlugins/insertContent/', 'plugin.js');
+  CKEDITOR.plugins.addExternal('vuetifyStyle', '/social/js/ckeditorPlugins/vuetifyStyle/', 'plugin.js');
 
   const embedBaseApiEndpoint = '@JVMProp{io.meeds.iframely.url://ckeditor.iframe.ly/api/oembed?omit_script=1}';
   CKEDITOR.config.embed_provider = embedBaseApiEndpoint + (embedBaseApiEndpoint.includes('?') ? '&' : '?') + 'url={url}&callback={callback}';
@@ -34,7 +36,7 @@ CKEDITOR.editorConfig = function(config) {
     CKEDITOR.config.embed_provider += '&api_key=' + iframelyApiKey;
   }
 
-  config.extraPlugins = 'simpleLink,suggester,hideBottomToolbar';
+  config.extraPlugins = 'simpleLink,suggester,hideBottomToolbar,vuetifyStyle';
   config.skin = 'moono-exo,/commons-extension/ckeditor/skins/moono-exo/';
 
   // Define changes to default configuration here.
