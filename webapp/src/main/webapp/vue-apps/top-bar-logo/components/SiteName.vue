@@ -4,7 +4,7 @@
     <a
       v-if="$root.displaySiteLogo"
       :href="$root.siteHomePath"
-      :arial-label="tooltip">
+      :aria-label="tooltip">
       <v-tooltip :disabled="$root.displaySiteTitle" bottom>
         <template #activator="{on, attrs}">
           <v-list-item-avatar
