@@ -143,7 +143,7 @@ export default {
         });
       } else {
         Object.assign(branding, {
-          loginBackgroundTextColor: null,
+          loginBackgroundAltText: null,
         });
       }
     },
