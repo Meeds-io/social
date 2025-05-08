@@ -59,14 +59,15 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   protected long                usersGroupIdentityId;
 
   @Before
-  public void beforeEach() throws Exception {
+  public void beforeEach() {
     setUp();
     begin();
     usersGroupIdentityId = Long.parseLong(identityManager.getOrCreateGroupIdentity("/platform/users").getId());
   }
 
   @After
-  public void afterEach() throws Exception {
+  @SneakyThrows
+  public void afterEach() {
     Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
     categoryService.deleteCategory(rootCategory.getId(), ROOT_USER);
     end();
