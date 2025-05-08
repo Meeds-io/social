@@ -26,10 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
 import java.util.List;
@@ -184,6 +181,16 @@ public class SpaceTemplateServiceTest {
     assertFalse(spaceTemplateService.canViewTemplate(2l, TEST_USER));
     when(spaceTemplateStorage.getSpaceTemplate(2l)).thenReturn(newSpaceTemplate(2l));
     assertTrue(spaceTemplateService.canViewTemplate(2l, TEST_USER));
+  }
+
+  @Test
+  public void testCanViewTemplateWhenAnonymous() {
+    SpaceTemplate template = newSpaceTemplate(2l);
+    template.setPermissions(List.of(UserACL.EVERYONE));
+    lenient().when(userAcl.isAnonymousUser((String) null)).thenReturn(true);
+    lenient().when(userAcl.isAnonymousUser((Identity) null)).thenReturn(true);
+    when(spaceTemplateStorage.getSpaceTemplate(2l)).thenReturn(template);
+    assertTrue(spaceTemplateService.canViewTemplate(2l, null));
   }
 
   @Test
