@@ -18,6 +18,8 @@
  */
 package io.meeds.social.cms.model;
 
+import java.util.Locale;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -33,9 +35,21 @@ public class ContentObject extends ContentObjectIdentifier {
 
   private String fieldName;
 
+  private Locale locale;
+
+  public ContentObject(String objectType, String objectId) {
+    super(objectType, objectId);
+  }
+
   public ContentObject(String objectType, String objectId, String fieldName) {
     super(objectType, objectId);
     this.fieldName = fieldName;
+  }
+
+  public ContentObject(String objectType, String objectId, String fieldName, Locale locale) {
+    super(objectType, objectId);
+    this.fieldName = fieldName;
+    this.locale = locale;
   }
 
 }
