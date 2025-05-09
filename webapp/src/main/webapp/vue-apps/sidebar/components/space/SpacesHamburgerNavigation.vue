@@ -213,7 +213,7 @@ export default {
       this.leftNavigationActionEvent('filterBySpaces');
     },
     addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId, this.$root.isExternalFeatureEnabled));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId, this.$root.isExternalFeatureEnabled, null));
     },
   }
 };
