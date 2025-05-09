@@ -16,6 +16,8 @@
  */
 package org.exoplatform.social.common.xmlprocessor.filters;
 
+import org.jsoup.Jsoup;
+
 import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -38,9 +40,9 @@ public class SanitizeFilterPlugin extends BaseXMLFilterPlugin {
    */
   @Override
   public Object doFilter(Object input) {
-    if (input instanceof String) {
+    if (input instanceof String string) {
       try {
-        return HTMLSanitizer.sanitize((String) input);
+        return HTMLSanitizer.sanitize(Jsoup.parseBodyFragment(string).body().html());
       } catch (Exception e) {
         LOG.error("Error while sanitizing input : " + e.getMessage(), e);
       }
