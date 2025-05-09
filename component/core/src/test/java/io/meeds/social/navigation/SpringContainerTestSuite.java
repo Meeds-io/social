@@ -26,6 +26,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 
+import io.meeds.social.activity.plugin.ActivityContentLinkPluginTest;
 import io.meeds.social.cms.plugin.ContentLinkHtmlProcessorPluginTest;
 import io.meeds.social.cms.plugin.ContentLinkHtmlTransformerPluginTest;
 import io.meeds.social.html.service.HtmlProcessorServiceTest;
@@ -53,6 +54,7 @@ import io.meeds.social.navigation.service.NavigationConfigurationServiceTest;
   HtmlTransformerServiceTest.class,
   ContentLinkHtmlProcessorPluginTest.class,
   ContentLinkHtmlTransformerPluginTest.class,
+  ActivityContentLinkPluginTest.class,
 })
 public class SpringContainerTestSuite {
 

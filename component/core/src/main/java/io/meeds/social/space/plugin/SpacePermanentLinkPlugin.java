@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.permlink.plugin;
+package io.meeds.social.space.plugin;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -24,19 +24,26 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.plugin.PermanentLinkPlugin;
+import io.meeds.portal.permlink.service.PermanentLinkService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * A plugin to generate a permanent link for a given space and to parse an url
  * to generate the an object represented by Type and Id
  */
+@Component
 public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
 
   public static final String OBJECT_TYPE     = "space";
@@ -45,10 +52,15 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
 
   public static final String APPLICATION_URI = "applicationUri";
 
+  @Autowired
   private SpaceService       spaceService;
 
-  public SpacePermanentLinkPlugin(SpaceService spaceService) {
-    this.spaceService = spaceService;
+  @Autowired
+  private PortalContainer    portalContainer;
+
+  @PostConstruct
+  public void init() {
+    portalContainer.getComponentInstanceOfType(PermanentLinkService.class).addPlugin(this);
   }
 
   @Override
@@ -78,7 +90,8 @@ public class SpacePermanentLinkPlugin implements PermanentLinkPlugin {
   @Override
   public String getDirectAccessUrl(PermanentLinkObject object) throws ObjectNotFoundException {
     String spaceId = object.getObjectId();
-    Space space = StringUtils.isNumeric(spaceId) ? spaceService.getSpaceById(spaceId) : spaceService.getSpaceByPrettyName(spaceId);
+    Space space =
+                StringUtils.isNumeric(spaceId) ? spaceService.getSpaceById(spaceId) : spaceService.getSpaceByPrettyName(spaceId);
     StringBuilder spaceUrl = new StringBuilder("/portal/g/");
     spaceUrl.append(Arrays.stream(space.getGroupId().split("/"))
                           .map(s -> URLEncoder.encode(s, StandardCharsets.UTF_8))

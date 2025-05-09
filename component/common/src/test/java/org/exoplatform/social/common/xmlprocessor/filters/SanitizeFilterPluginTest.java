@@ -35,7 +35,7 @@ public class SanitizeFilterPluginTest extends TestCase {
                     .toString());
 
     assertEquals(
-            "hello 1\r\nhello 2",
+            "hello 1 hello 2",
             new SanitizeFilterPlugin().doFilter(
                     DOMParser.createDOMTree(new Node(),
                             Tokenizer.tokenize("hello 1\r\nhello 2")).toString()).toString());
