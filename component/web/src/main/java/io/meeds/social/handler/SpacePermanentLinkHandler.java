@@ -18,8 +18,8 @@
  */
 package io.meeds.social.handler;
 
-import static io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin.APPLICATION_URI;
-import static io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin.OBJECT_TYPE;
+import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.APPLICATION_URI;
+import static io.meeds.social.space.plugin.SpacePermanentLinkPlugin.OBJECT_TYPE;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -36,11 +36,12 @@ import org.exoplatform.web.ControllerContext;
 import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.WebRequestHandler;
 import org.exoplatform.web.controller.QualifiedName;
+import org.exoplatform.web.security.sso.SSOHelper;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
+
 import jakarta.servlet.ServletConfig;
-import org.exoplatform.web.security.sso.SSOHelper;
 
 public class SpacePermanentLinkHandler extends WebRequestHandler {
 

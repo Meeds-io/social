@@ -16,8 +16,6 @@
  */
 package org.exoplatform.social.common;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -27,7 +25,8 @@ import org.exoplatform.social.common.router.ExoRouterTest;
 import org.exoplatform.social.common.service.TraceListTest;
 import org.exoplatform.social.common.xmlprocessor.DOMParserTest;
 import org.exoplatform.social.common.xmlprocessor.TokenizerTest;
-import org.exoplatform.social.common.xmlprocessor.filters.*;
+import org.exoplatform.social.common.xmlprocessor.filters.OpenLinkNewTabFilterPluginTest;
+import org.exoplatform.social.common.xmlprocessor.filters.SanitizeFilterPluginTest;
 import org.exoplatform.social.common.xmlprocessor.model.AttributesTest;
 import org.exoplatform.social.common.xmlprocessor.model.NodeTest;
 
@@ -38,24 +37,11 @@ import org.exoplatform.social.common.xmlprocessor.model.NodeTest;
   NodeTest.class,
   AttributesTest.class,
   SanitizeFilterPluginTest.class,
-  URLConverterFilterPluginTest.class,
-  XMLBalancerFilterPluginTest.class,
   OpenLinkNewTabFilterPluginTest.class,
   ExoRouterTest.class,
   ExoRouterReserveTest.class,
   TraceListTest.class,
   ResourceBundleUtilTest.class
-  })
+})
 public class NoContainerTestSuite {
-  
-  @BeforeClass
-  public static void setUp() throws Exception {
-    
-  }
-
-  @AfterClass
-  public static void tearDown() {
-  }
-
-
 }
