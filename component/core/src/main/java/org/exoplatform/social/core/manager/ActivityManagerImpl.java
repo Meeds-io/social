@@ -620,14 +620,16 @@ public class ActivityManagerImpl implements ActivityManager {
 
   @Override
   public void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin) {
-    registerActivityListener(activityListenerPlugin);
+    addActivityListener(activityListenerPlugin);
   }
 
-  public void registerActivityListener(ActivityListener listener) {
+  @Override
+  public void addActivityListener(ActivityListener listener) {
     activityLifeCycle.addListener(listener);
   }
 
-  public void unregisterActivityListener(ActivityListener listener) {
+  @Override
+  public void removeActivityListener(ActivityListener listener) {
     activityLifeCycle.removeListener(listener);
   }
 

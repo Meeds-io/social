@@ -113,6 +113,10 @@ export default {
       type: Boolean,
       default: true
     },
+    contentLinkEnabled: {
+      type: Boolean,
+      default: true
+    },
     oembed: {
       type: Boolean,
       default: false
@@ -359,6 +363,10 @@ export default {
       if (this.attachmentEnabled) {
         extraPlugins = `${extraPlugins},attachImage`;
         toolbar[0].push('attachImage');
+      }
+      if (this.contentLinkEnabled) {
+        extraPlugins = `${extraPlugins},insertContent`;
+        toolbar[0].push('InsertContent');
       }
       toolbar[0].unshift('formatOption');
 

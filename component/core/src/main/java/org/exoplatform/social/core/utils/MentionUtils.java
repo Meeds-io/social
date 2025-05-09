@@ -161,7 +161,7 @@ public class MentionUtils {
       if (role.endsWith("<")) {
         role = role.length() > 1 ? role.substring(0, role.length() - 1) : "";
       }
-      Identity identity = identityManager.getIdentity(identityId);
+      Identity identity = identityManager.getIdentity(Long.parseLong(identityId));
       if (StringUtils.isBlank(role)
           || !isIdentityEnabled(identity)) {
         continue;

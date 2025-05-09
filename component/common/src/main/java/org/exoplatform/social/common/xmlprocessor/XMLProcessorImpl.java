@@ -19,9 +19,6 @@ package org.exoplatform.social.common.xmlprocessor;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-
 /**
  * Implementation of {@link XMLProcessor}.
  *
@@ -38,7 +35,7 @@ public class XMLProcessorImpl implements XMLProcessor {
    * Constructor
    */
   public XMLProcessorImpl() {
-    filters = new LinkedList<Filter>();
+    filters = new LinkedList<>();
   }
 
   /**
