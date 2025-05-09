@@ -131,6 +131,7 @@
             context-name="activityComposer"
             use-extra-plugins
             use-draft-management
+            content-link-enabled
             autofocus
             @attachments-edited="attachmentsEdit" />
         </v-card-text>

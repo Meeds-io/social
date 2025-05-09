@@ -53,7 +53,7 @@ import org.exoplatform.web.url.navigation.NodeURL;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.service.PermanentLinkService;
-import io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin;
+import io.meeds.social.space.plugin.SpacePermanentLinkPlugin;
 
 import lombok.SneakyThrows;
 
@@ -219,7 +219,7 @@ public class LinkProvider {
   }
 
   public static String getGroupRoleLink(String role, String identityId, Locale locale) {
-    Identity identity = getIdentityManager().getIdentity(identityId);
+    Identity identity = getIdentityManager().getIdentity(Long.parseLong(identityId));
 
     StringBuilder profileLink = new StringBuilder("<a class=\"user-suggester group-role-mention\" ");
     return profileLink.append("href=\"")
