@@ -16,9 +16,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.permlink.plugin;
+package io.meeds.social.activity.plugin;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
@@ -26,24 +30,32 @@ import org.exoplatform.social.core.manager.ActivityManager;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.plugin.PermanentLinkPlugin;
+import io.meeds.portal.permlink.service.PermanentLinkService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * A plugin to generate a permanent link to a given activity/comment/reply
  */
+@Component
 public class ActivityPermanentLinkPlugin implements PermanentLinkPlugin {
 
   public static final String      OBJECT_TYPE = "activity";
 
   public static final String      URL_FORMAT  = "/portal/%s/activity?id=%s";
 
+  @Autowired
   private ActivityManager         activityManager;
 
+  @Autowired
   private UserPortalConfigService portalConfigService;
 
-  public ActivityPermanentLinkPlugin(ActivityManager activityManager,
-                                     UserPortalConfigService portalConfigService) {
-    this.activityManager = activityManager;
-    this.portalConfigService = portalConfigService;
+  @Autowired
+  private PortalContainer         portalContainer;
+
+  @PostConstruct
+  public void init() {
+    portalContainer.getComponentInstanceOfType(PermanentLinkService.class).addPlugin(this);
   }
 
   @Override
