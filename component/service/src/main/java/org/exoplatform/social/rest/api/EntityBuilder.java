@@ -138,8 +138,6 @@ import org.exoplatform.ws.frameworks.json.impl.ObjectBuilder;
 
 public class EntityBuilder {
 
-  private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
-
   private static final Log                LOG                                        = ExoLogger.getLogger(EntityBuilder.class);
 
   /** Group Space Binding */
@@ -221,6 +219,12 @@ public class EntityBuilder {
   private static final String             PROFILE_PROPERTY_FIELD_NAME                = "optionValue";
 
   private static final String             PROFILE_PROPERTY_OBJECT_TYPE               = "propertySettingOption";
+
+  private static final String             DEFAULT_TITLE_PARAM                        = "default_title";
+
+  private static final String             COMMENT_PARAM                              = "comment";
+
+  private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
   private static UserPortalConfigService  userPortalConfigService;
 
@@ -1229,9 +1233,7 @@ public class EntityBuilder {
       identityLink = new LinkEntity(RestUtils.getRestUrl(IDENTITIES_TYPE, activity.getPosterId(), restPath));
     }
     activityEntity.setIdentity(identityLink);
-    HtmlTransformerContext htmlContext = new HtmlTransformerContext(getCurrentUserIdentity(), getLocale());
-    activityEntity.setBody(HtmlUtils.transform(activityEntity.getBody(), htmlContext));
-    activityEntity.setTitle(HtmlUtils.transform(activityEntity.getTitle(), htmlContext));
+    transformHtmlContent(activityEntity);
     activityEntity.setOwner(getActivityOwner(poster, restPath, activity.getSpaceId()));
     activityEntity.setMentions(getActivityMentions(activity, restPath));
     activityEntity.setAttachments(new ArrayList<>());
@@ -1449,9 +1451,7 @@ public class EntityBuilder {
       commentEntity.setBody(comment.getTitle());
     }
     commentEntity.setParentCommentId(comment.getParentCommentId());
-    HtmlTransformerContext htmlContext = new HtmlTransformerContext(getCurrentUserIdentity(), getLocale());
-    commentEntity.setBody(HtmlUtils.transform(commentEntity.getBody(), htmlContext));
-    commentEntity.setTitle(HtmlUtils.transform(commentEntity.getTitle(), htmlContext));
+    transformHtmlContent(commentEntity);
     commentEntity.setMentions(getActivityMentions(comment, restPath));
     if (expandFields.contains(RestProperties.LIKES)) {
       commentEntity.setLikes(new LinkEntity(buildEntityFromLike(comment,
@@ -2533,4 +2533,19 @@ public class EntityBuilder {
       spaceEntity.setPublicSiteId(0L);
     }
   }
+
+  private static void transformHtmlContent(ActivityEntity activityEntity) {
+    HtmlTransformerContext htmlContext = new HtmlTransformerContext(getCurrentUserIdentity(), getLocale());
+    activityEntity.setBody(HtmlUtils.transform(activityEntity.getBody(), htmlContext));
+    activityEntity.setTitle(HtmlUtils.transform(activityEntity.getTitle(), htmlContext));
+    String defaultTitle = MapUtils.getString(activityEntity.getTemplateParams(), DEFAULT_TITLE_PARAM);
+    if (StringUtils.isNotBlank(defaultTitle)) {
+      activityEntity.getTemplateParams().put(DEFAULT_TITLE_PARAM, HtmlUtils.transform(defaultTitle, htmlContext));
+    }
+    String comment = MapUtils.getString(activityEntity.getTemplateParams(), COMMENT_PARAM);
+    if (StringUtils.isNotBlank(defaultTitle)) {
+      activityEntity.getTemplateParams().put(COMMENT_PARAM, HtmlUtils.transform(comment, htmlContext));
+    }
+  }
+
 }
