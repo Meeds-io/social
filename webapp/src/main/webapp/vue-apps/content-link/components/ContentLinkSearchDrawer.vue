@@ -47,7 +47,7 @@
             dense
             @click="select(link)">
             <v-list-item-content class="text-truncate">
-              <v-list-item-title class="text-truncate">{{ link.title }}</v-list-item-title>
+              <v-list-item-title :title="link.title" class="text-truncate">{{ link.title }}</v-list-item-title>
             </v-list-item-content>
             <v-list-item-action>
               <v-tooltip bottom>
