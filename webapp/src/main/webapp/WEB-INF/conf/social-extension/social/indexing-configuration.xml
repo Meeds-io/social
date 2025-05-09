@@ -67,7 +67,7 @@
     <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
     <component-plugin>
       <name>ActivityESListener</name>
-      <set-method>registerActivityListener</set-method>
+      <set-method>addActivityListener</set-method>
       <type>org.exoplatform.social.core.jpa.search.listener.ActivityESListener</type>
     </component-plugin>
   </external-component-plugins>

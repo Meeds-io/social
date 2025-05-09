@@ -24,6 +24,7 @@ import org.exoplatform.social.core.ActivityProcessor;
 import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
+import org.exoplatform.social.core.activity.ActivityListener;
 import org.exoplatform.social.core.activity.ActivityListenerPlugin;
 import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
@@ -393,6 +394,18 @@ public interface ActivityManager {
   }
 
   void addActivityEventListener(ActivityListenerPlugin activityListenerPlugin);
+
+  /**
+   * @param listener {@link ActivityListener}
+   */
+  default void addActivityListener(ActivityListener listener) {
+  }
+
+  /**
+   * @param listener {@link ActivityListener}
+   */
+  default void removeActivityListener(ActivityListener listener) {
+  }
 
   /**
    * Add a new Type(s) or Title(s) definition marked as system to not allow to
