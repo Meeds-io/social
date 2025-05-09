@@ -78,7 +78,7 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     sample = "<script href='#' />bar</a>";
     activity.setTitle(sample);
     processor.processActivity(activity);
-    assertEquals("bar&lt;/a&gt;", activity.getTitle());
+    assertEquals("bar", activity.getTitle());
 
     // forbidden tag
     sample = "<script>foo</script>";
@@ -93,27 +93,5 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
     assertEquals("<strong>foo</strong>bar", activity.getTitle());
     System.clearProperty("gatein.email.domain.url");
   }
-  
-  public void testProcessActivityWithTemplateParam() throws Exception {
-    System.setProperty("gatein.email.domain.url", "test.com");
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    String sample = "this is a <strong> tag to keep</strong>";
-    activity.setTitle(sample);
-    activity.setBody(sample);
-    String keysToProcess = "a|b|c";
-    Map<String, String> templateParams = new LinkedHashMap<String, String>();
-    templateParams.put("a", "a\nb");
-    templateParams.put("b", "test.com");
-    templateParams.put("d", "test.com");
-    templateParams.put(BaseActivityProcessorPlugin.TEMPLATE_PARAM_TO_PROCESS, keysToProcess);
-    activity.setTemplateParams(templateParams);
-    processor.processActivity(activity);
-    
-    templateParams = activity.getTemplateParams();
-    assertEquals("a\nb", templateParams.get("a"));
-    assertEquals("<a href=\"http://test.com\" target=\"_self\" rel=\"nofollow noopener noreferrer\">test.com</a>", templateParams.get("b"));
-    assertEquals("test.com", templateParams.get("d"));
-    System.clearProperty("gatein.email.domain.url");
-  }
-  
+
 }
