@@ -12,18 +12,15 @@
       @select-tags="selectTags"
       @select-all-connector="selectAllConnector"
       @select-connector="selectConnector" />
-    <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
-      <v-col
+    <v-divider />
+    <div v-if="hasResults" class="d-flex flex-column border-box-sizing">
+      <div
         v-for="result in resultsArray"
         :key="result.domId"
-        cols="12"
-        md="6"
-        lg="4"
-        xl="3"
-        class="searchCard pa-0">
+        class="pa-0 searchCard">
         <search-result-card :result="result" :term="term" />
-      </v-col>
-    </v-row>
+      </div>
+    </div>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto text-center text-subtitle">
         <div class="position-relative">
