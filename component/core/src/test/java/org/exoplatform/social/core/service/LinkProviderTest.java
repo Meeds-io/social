@@ -38,7 +38,7 @@ public class LinkProviderTest extends AbstractCoreTest { // NOSONAR
     // but when we have the identity we generate a link
     String actualLink = LinkProvider.getProfileLink(rootIdentity.getRemoteId(), portalOwner);
     Object external = rootIdentity.getProfile().getProperty(Profile.EXTERNAL);
-    String expected = "<a class=\"user-suggester\" href=\"" + CommonsUtils.DEFAULT_DOMAIN_URL + "/portal/" + portalOwner
+    String expected = "<a class=\"user-suggester\" href=\"http://localhost:8080/portal/" + portalOwner
         + "/profile/" +
         rootIdentity.getRemoteId() + "\" "
         + "target=\"_parent\" v-identity-popover=\"{id: '" + rootIdentity.getId() + "',username: '" + rootIdentity.getRemoteId()

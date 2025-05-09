@@ -16,17 +16,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.permlink.plugin;
+package io.meeds.social.user.plugin;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserPortalConfigService;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
 
 import io.meeds.portal.permlink.model.PermanentLinkObject;
 import io.meeds.portal.permlink.plugin.PermanentLinkPlugin;
+import io.meeds.portal.permlink.service.PermanentLinkService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * A plugin to generate a permanent link to a given user profile
@@ -37,14 +42,18 @@ public class UserProfilePermanentLinkPlugin implements PermanentLinkPlugin {
 
   public static final String      URL_FORMAT  = "/portal/%s/profile/%s";
 
+  @Autowired
   private IdentityManager         identityManager;
 
+  @Autowired
   private UserPortalConfigService portalConfigService;
 
-  public UserProfilePermanentLinkPlugin(IdentityManager identityManager,
-                                        UserPortalConfigService portalConfigService) {
-    this.identityManager = identityManager;
-    this.portalConfigService = portalConfigService;
+  @Autowired
+  private PortalContainer         portalContainer;
+
+  @PostConstruct
+  public void init() {
+    portalContainer.getComponentInstanceOfType(PermanentLinkService.class).addPlugin(this);
   }
 
   @Override
@@ -61,7 +70,7 @@ public class UserProfilePermanentLinkPlugin implements PermanentLinkPlugin {
   public String getDirectAccessUrl(PermanentLinkObject object) throws ObjectNotFoundException {
     String userId = object.getObjectId();
     if (StringUtils.isNumeric(userId)) {
-      org.exoplatform.social.core.identity.model.Identity identity = identityManager.getIdentity(userId);
+      org.exoplatform.social.core.identity.model.Identity identity = identityManager.getIdentity(Long.parseLong(userId));
       if (identity == null) {
         throw new ObjectNotFoundException(String.format("User profile with id %s doesn't exists", userId));
       } else if (!identity.isUser()) {
