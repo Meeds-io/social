@@ -4,12 +4,14 @@
     <a
       v-if="$root.displaySiteLogo"
       :href="$root.siteHomePath"
-      :title="tooltip">
+      :aria-label="tooltip">
       <v-tooltip :disabled="$root.displaySiteTitle" bottom>
         <template #activator="{on, attrs}">
           <v-list-item-avatar
             v-on="on"
-            v-bind="attrs"
+            v-bind="{
+              ...attrs,
+              role: null}"
             id="UserHomePortalLink"
             size="36"
             class="ma-0"
