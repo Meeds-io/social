@@ -23,6 +23,7 @@
           :suggester-space-id="spaceId"
           context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
+          content-link-enabled
           use-extra-plugins
           autofocus
           oembed-only-video
