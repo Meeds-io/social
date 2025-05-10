@@ -84,28 +84,20 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
 
   private static final String               CONTENT_NO_LINK          = "Content";
 
-  private static final String               CONTENT_LINK             = """
-      Content1
-      <content-link contenteditable="false" style="display: none;">/testContentLink:5874</content-link>
-      """;
+  private static final String               CONTENT_LINK             =
+                                                         "Content1<content-link contenteditable=\"false\" style=\"display: none;\">/testContentLink:5874</content-link>";
 
   private static final String               CONTENT_LINK_RESULT      =
-                                                                """
-                                                                    Content1
-                                                                    <a href="linkToContent" target="_blank" data-object="testContentLink:5874" contenteditable="false" class="content-link">
-                                                                    <i aria-hidden="true" class="pluginIcon v-icon notranslate theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>contentTitle
-                                                                    </a>
-                                                                    """;
+                                                                "Content1" +
+                                                                    "<a href=\"linkToContent\" target=\"_blank\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                    "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>contentTitle" +
+                                                                    "</a>";
 
-  private static final String               CONTENT_LINK_NOT_FOUND   = """
-      Content1
-      <content-link contenteditable="false" style="display: none;">/testContentLink:89665</content-link>
-      """;
+  private static final String               CONTENT_LINK_NOT_FOUND   =
+                                                                   "Content1<content-link contenteditable=\"false\" style=\"display: none;\">/testContentLink:89665</content-link>";
 
-  private static final String               CONTENT_LINK_NO_PLUGIN   = """
-      Content1
-      <content-link contenteditable="false" style="display: none;">/noPlugin:89665</content-link>
-      """;
+  private static final String               CONTENT_LINK_NO_PLUGIN   =
+                                                                   "Content1<content-link contenteditable=\"false\" style=\"display: none;\">/noPlugin:89665</content-link>";
 
   @Autowired
   private ContentLinkPluginService          contentLinkPluginService;
