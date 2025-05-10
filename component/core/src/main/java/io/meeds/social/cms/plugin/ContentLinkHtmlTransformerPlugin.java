@@ -58,18 +58,14 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
   private static final String DATA_OBJECT_ATTRIBUTE           = "data-object=";
 
   private static final String CONTENT_LINK_HTML_TAG           =
-                                                    """
-                                                        <a href="%s" target="_blank" data-object="%s:%s" contenteditable="false" class="content-link">
-                                                        <i aria-hidden="true" class="%s v-icon notranslate theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>%s
-                                                        </a>
-                                                        """;
+                                                    "<a href=\"%s\" target=\"_blank\" data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                        "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
+                                                        "</a>";
 
   private static final String CONTENT_LINK_NOT_FOUND_HTML_TAG =
-                                                              """
-                                                                  <a data-object="%s:%s" contenteditable="false" class="content-link">
-                                                                  <i aria-hidden="true" class="v-icon notranslate fa fa-times theme--light error--text" style="font-size: 16px; margin: 0 4px;"></i>
-                                                                  </a>
-                                                                  """;
+                                                              "<a data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                  "<i aria-hidden=\"true\" class=\"v-icon notranslate fa fa-times theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>" +
+                                                                  "</a>";
 
   @Autowired
   private ContentLinkService  contentLinkService;
