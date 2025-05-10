@@ -46,12 +46,23 @@ CKEDITOR.plugins.add( 'insertContent', {
       evt.data.dataValue = textData;
     });
 
+    editor.on('instanceReady', function(evt) {
+      setData(evt);
+    });
+
     editor.on('setData', function(evt) {
+      setData(evt);
+    });
+
+    function setData(evt) {
       const editor = evt.editor;
       if (editor.setDataInProgress) {
         return;
       }
-      let textData = evt.data.dataValue;
+      let textData = evt?.data?.dataValue || editor?.document?.getBody?.()?.$?.innerHTML;
+      if (!textData?.length) {
+        return;
+      }
 
       const element = document.createElement('div');
       element.innerHTML = textData;
@@ -79,6 +90,6 @@ CKEDITOR.plugins.add( 'insertContent', {
           }
         });
       }
-    });
+    }
   }
 });
