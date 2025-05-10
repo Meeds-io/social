@@ -32,7 +32,7 @@
           v-for="p in $root.plugins"
           :key="p.command"
           :plugin="p"
-          class="mx-2" />
+          class="mx-2 mb-4" />
       </div>
       <content-link-search-drawer
         @select="selectLink" />
@@ -56,7 +56,6 @@ export default {
     },
     async selectLink(link) {
       const selection = this.$root.editor.getSelection();
-      this.$root.editor.insertText(' ');
       const range = selection.getRanges()[0];
       const element = new CKEDITOR.dom.element('a'); // eslint-disable-line new-cap
       element.setAttribute('data-object', `${link.objectType}:${link.objectId}`);
