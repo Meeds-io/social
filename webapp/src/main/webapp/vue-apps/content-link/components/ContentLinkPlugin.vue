@@ -27,7 +27,7 @@
     width="116"
     flat
     @click="$root.$emit('content-link-search-drawer', plugin)">
-    <v-icon size="48" class="mt-3 mb-4">{{ plugin.icon }}</v-icon>
+    <v-icon size="48" class="my-3">{{ plugin.icon }}</v-icon>
     <div class="text-truncate-2">{{ $t(plugin.titleKey) }}</div>
     <div class="text-truncate">(/{{ $t(plugin.command) }})</div>
   </v-card>

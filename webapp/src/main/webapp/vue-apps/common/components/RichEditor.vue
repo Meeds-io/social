@@ -326,7 +326,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon,vuetifyStyle';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -336,36 +336,36 @@ export default {
       const windowHeight = $(window).height();
       if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
-        extraPlugins = `${extraPlugins},suggester`;
+        extraPlugins += ',suggester';
       }
 
       if (this.supportsOembed) {
         if (this.oembedOnlyVideo) {
-          extraPlugins = `${extraPlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
-          removePlugins = `${removePlugins},embedsemantic,embedbase`;
+          extraPlugins += ',embedsemanticOnlyVideo,embedbaseOnlyVideo';
+          removePlugins += ',embedsemantic,embedbase';
         } else {
-          extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
-          removePlugins = `${removePlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+          extraPlugins += ',embedsemantic,embedbase';
+          removePlugins += ',embedsemanticOnlyVideo,embedbaseOnlyVideo';
         }
       } else {
-        removePlugins = `${removePlugins},embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+        removePlugins += ',embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo';
       }
 
       if (this.tagEnabled) {
-        extraPlugins = `${extraPlugins},tagSuggester`;
+        extraPlugins += ',tagSuggester';
         toolbar[0].push('tagSuggester');
       } else {
-        removePlugins = `${removePlugins},tagSuggester`;
+        removePlugins += ',tagSuggester';
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
       }
       if (this.attachmentEnabled) {
-        extraPlugins = `${extraPlugins},attachImage`;
+        extraPlugins += ',attachImage';
         toolbar[0].push('attachImage');
       }
       if (this.contentLinkEnabled) {
-        extraPlugins = `${extraPlugins},insertContent`;
+        extraPlugins += ',insertContent';
         toolbar[0].push('InsertContent');
       }
       toolbar[0].unshift('formatOption');
@@ -374,10 +374,10 @@ export default {
       if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
-            extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
+            extraPlugins += `,${ckEditorExtension.extraPlugin}`;
           }
           if (ckEditorExtension.removePlugin) {
-            removePlugins = `${extraPlugins},${ckEditorExtension.removePlugin}`;
+            removePlugins += `,${ckEditorExtension.removePlugin}`;
           }
           if (ckEditorExtension.extraToolbarItem) {
             toolbar[0].push(ckEditorExtension.extraToolbarItem);
