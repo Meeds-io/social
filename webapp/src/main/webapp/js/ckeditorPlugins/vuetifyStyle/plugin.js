@@ -30,12 +30,14 @@ CKEDITOR.plugins.add( 'vuetifyStyle', {
         if (!editor.document.getDocumentElement().hasClass('VuetifyApp')) {
           editor.document.getDocumentElement().addClass('VuetifyApp');
         }
-        if (!editor.document.getBody().hasClass('v-application')) {
-          editor.document.getBody().addClass('v-application');
+        const body = editor.document.getBody();
+        if (!body.hasClass('v-application')) {
+          body.addClass('v-application');
+          body.setStyle('display', 'block');
           if (eXo.env.portal.orientation === 'ltr') {
-            editor.document.getBody().addClass('v-application--is-ltr');
+            body.addClass('v-application--is-ltr');
           } else if (eXo.env.portal.orientation === 'rtl') {
-            editor.document.getBody().addClass('v-application--is-rtl');
+            body.addClass('v-application--is-rtl');
           }
         }
       }

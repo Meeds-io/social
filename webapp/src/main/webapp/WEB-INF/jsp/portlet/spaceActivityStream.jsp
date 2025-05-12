@@ -1,30 +1,12 @@
 <%@page import="org.exoplatform.social.core.manager.IdentityManager"%>
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
-<%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
-<%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
-<%@ page import="org.exoplatform.container.PortalContainer" %>
 <%
   Space space = SpaceUtils.getSpaceByContext();
   if (space != null) {
-    PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
-    PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
     IdentityManager identityManager = ExoContainerContext.getService(IdentityManager.class);
     int maxUploadSize = identityManager.getImageUploadLimit();
-    String activityId = rcontext.getRequest().getParameter("id");
-    long limitToDisplay = 10;
-    long initialLimit = limitToDisplay * 2;
-    String activitiesLoadingURL;
-    String streamType = "&streamType=ALL_STREAM";
-    if (activityId != null) {
-      activitiesLoadingURL = "/portal/rest/v1/social/activities/" + activityId + "?expand=identity,likes,shared,commentsPreview,subComments,favorite";
-    } else if (space == null) {
-      activitiesLoadingURL = "/portal/rest/v1/social/activities?limit=" + initialLimit + streamType  + "&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
-    } else {
-      activitiesLoadingURL = "/portal/rest/v1/social/activities?spaceId=" + space.getId() + "&limit=" + initialLimit + "&streamType=ALL_STREAM&expand=ids,identity,likes,shared,commentsPreview,subComments,favorite";
-    }
-    responseWrapper.addHeader("Link", "<" + activitiesLoadingURL + ">; rel=preload; as=fetch; crossorigin=use-credentials", false);
 %>
 <div class="VuetifyApp">
   <div id="ActivityStream"
