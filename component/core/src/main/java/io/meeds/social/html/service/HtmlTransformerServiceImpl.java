@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import org.exoplatform.services.security.ConversationState;
-
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.plugin.HtmlTransformerPlugin;
 
@@ -46,24 +44,10 @@ public class HtmlTransformerServiceImpl implements HtmlTransformerService {
 
   @Override
   public String transform(String html, HtmlTransformerContext context) {
-    if (context == null) {
-      context = new HtmlTransformerContext();
-    }
-    setUserIdentity(context);
     for (HtmlTransformerPlugin plugin : transformers) {
       html = plugin.transform(html, context);
     }
     return html;
-  }
-
-  private void setUserIdentity(HtmlTransformerContext context) {
-    if (context.getUserIdentity() == null) {
-      if (ConversationState.getCurrent() == null) {
-        context.setSystem(true);
-      } else {
-        context.setUserIdentity(ConversationState.getCurrent().getIdentity());
-      }
-    }
   }
 
 }
