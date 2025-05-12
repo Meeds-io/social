@@ -19,7 +19,7 @@
             :compact="compact"
             :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
-            :alt="user?.alt"
+            :aria-label="user?.ariaLabel"
             avatar />
         </v-hover>
       </div>
@@ -39,7 +39,7 @@
             :compact="compact"
             :margin-left="index > 0 && marginLeft || ''"
             :class="{ 'mt-n1 z-index-two': hover && compact }"
-            :alt="user?.alt"
+            :aria-label="user?.ariaLabel"
             avatar />
         </v-hover>
       </div>
@@ -49,6 +49,7 @@
       :height="iconSize"
       :width="iconSize"
       :class="{ 'mt-n1 z-index-two': compact && showAnimation, 'ml-n4': compact }"
+      :aria-label="usersToDisplay[usersToDisplay.length -1]?.ariaLabel"
       fab
       depressed
       @click="$emit('open-detail')"
