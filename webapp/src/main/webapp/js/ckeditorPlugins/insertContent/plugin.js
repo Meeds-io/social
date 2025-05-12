@@ -20,10 +20,11 @@
 CKEDITOR.plugins.add( 'insertContent', {
   icons: 'insertContent',
   extraAllowedContent: 'a[data-*]',
+  requires: 'textwatcher',
   init: function( editor ) {
     editor.addCommand( 'insertContent', {
-      exec: function( editor ) {
-        window.require(["SHARED/ContentLink"], app => app.openDrawer(editor));
+      exec: function(editor) {
+        window.require(['SHARED/ContentLink'], app => app.openDrawer(editor));
       }
     });
 
@@ -91,5 +92,122 @@ CKEDITOR.plugins.add( 'insertContent', {
         });
       }
     }
-  }
+
+
+    let menuOpen = false;
+    let range;
+    let text;
+    let textWatcher;
+
+    function textTestCallback(range) {
+      if (!range.collapsed) {
+        return null;
+      }
+      return CKEDITOR.plugins.textMatch.match(range, matchCallback);
+    }
+
+    function matchCallback(text, offset) {
+      const left = text.slice(0, offset);
+      const match = left?.match?.(/\/([a-z]*)(:[^>^<^.]*)?$/);
+      if (match?.length) {
+        return {
+          start: match.index + 1,
+          end: offset,
+        };
+      } else if (menuOpen) {
+        textWatcher.unmatch();
+        return null;
+      }
+    }
+
+    function onTextMatched(evt) {
+      editor.removeListener('blur', textWatcher.unmatch, textWatcher);
+      if (!menuOpen) {
+        getWindow().document.addEventListener('parent-element-scrolled', openCommandMenu);
+        editor.on('key', onKeyShortcut);
+        menuOpen = true;
+      }
+      range = evt.data.range;
+      text = evt.data.text;
+      openCommandMenu();
+    }
+
+    function onTextUnmatched() {
+      if (menuOpen) {
+        menuOpen = false;
+        editor.removeListener('key', onKeyShortcut);
+        getWindow().document.removeEventListener('parent-element-scrolled', openCommandMenu);
+        closeCommandMenu();
+      }
+    }
+
+    function openCommandMenu() {
+      getWindow().require(['SHARED/ContentLink'], app => app.openCommandMenu({
+        editor,
+        textWatcher,
+        command: text,
+        range,
+        position: getViewPosition(range),
+      }));
+    }
+
+    function closeCommandMenu() {
+      getWindow().require(['SHARED/ContentLink'], app => app.closeMenu(editor));
+    }
+
+    function onKeyShortcut(evt) {
+      if (evt.data.keyCode == 27 // Escape
+        || evt.data.keyCode == 40 // down
+        || evt.data.keyCode == 38 // up
+        || evt.data.keyCode == 13) { // enter
+        evt.cancel();
+        evt.stop();
+        if (evt.data.keyCode == 40) {
+          getWindow().document.dispatchEvent(new CustomEvent('custom-link-item-select-down'));
+        } else if (evt.data.keyCode == 38) {
+          getWindow().document.dispatchEvent(new CustomEvent('custom-link-item-select-up'));
+        } else if (evt.data.keyCode == 13) {
+          getWindow().document.dispatchEvent(new CustomEvent('custom-link-item-select'));
+        }
+      }
+    }
+
+    function getWindow() {
+      const editable = editor.editable();
+      return editable.isInline() ? window : window.parent;
+    }
+
+    function getViewPosition(range) {
+      const rects = range.getClientRects();
+      const viewPositionRect = rects[ rects.length - 1 ];
+      const editable = editor.editable();
+      const offset = editable.isInline() ? CKEDITOR.document.getWindow().getScrollPosition() : editable.getParent().getDocumentPosition(CKEDITOR.document);
+
+      let hostElement = CKEDITOR.document.getBody();
+      if (hostElement.getComputedStyle('position') === 'static') {
+        hostElement = hostElement.getParent();
+      }
+
+      const offsetCorrection = hostElement.getDocumentPosition();
+      offset.x -= offsetCorrection.x;
+      offset.y -= offsetCorrection.y;
+
+      return {
+        top: viewPositionRect.top + offset.y,
+        bottom: viewPositionRect.top + viewPositionRect.height + offset.y,
+        left: viewPositionRect.left + offset.x
+      };
+    }
+
+    textWatcher = new CKEDITOR.plugins.textWatcher(editor, textTestCallback, 20);
+    textWatcher.attach();
+    textWatcher.on('matched', onTextMatched);
+    textWatcher.on('unmatched', onTextUnmatched);
+  },
+
+  destroy: function() {
+    onTextUnmatched();
+    textWatcher.destroy();
+    textWatcher = null;
+  },
 });
