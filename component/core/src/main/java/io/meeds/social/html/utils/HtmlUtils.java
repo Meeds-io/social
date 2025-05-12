@@ -21,8 +21,10 @@ package io.meeds.social.html.utils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.security.ConversationState;
 
 import io.meeds.social.html.model.HtmlProcessorContext;
 import io.meeds.social.html.model.HtmlTransformerContext;
@@ -54,9 +56,17 @@ public class HtmlUtils {
       return html;
     } else {
       try {
+        if (context == null) {
+          context = new HtmlProcessorContext();
+        }
+        if (context.getUserIdentity() == null && ConversationState.getCurrent() != null) {
+          context.setUserIdentity(ConversationState.getCurrent().getIdentity());
+        }
         return service.process(html, context);
       } catch (Exception e) {
-        LOG.warn("Error while processing html content: {}. The error is considered as non-blocker, thus continue processing", html, e);
+        LOG.warn("Error while processing html content: {}. The error is considered as non-blocker, thus continue processing",
+                 html,
+                 e);
         return html;
       }
     }
@@ -79,11 +89,34 @@ public class HtmlUtils {
       return html;
     } else {
       try {
+        if (context == null) {
+          context = new HtmlTransformerContext();
+        }
+        setUserIdentity(context);
+        setUserLocale(context);
         return service.transform(html, context);
       } catch (Exception e) {
-        LOG.warn("Error while transforming html content: {}. The error is considered as non-blocker, thus continue transformation", html, e);
+        LOG.warn("Error while transforming html content: {}. The error is considered as non-blocker, thus continue transformation",
+                 html,
+                 e);
         return html;
       }
+    }
+  }
+
+  private static void setUserIdentity(HtmlTransformerContext context) {
+    if (context.getUserIdentity() == null) {
+      if (ConversationState.getCurrent() == null) {
+        context.setSystem(true);
+      } else if (!context.isSystem()) {
+        context.setUserIdentity(ConversationState.getCurrent().getIdentity());
+      }
+    }
+  }
+
+  private static void setUserLocale(HtmlTransformerContext context) {
+    if (context.getLocale() == null) {
+      context.setLocale(LocalizationFilter.getCurrentLocale());
     }
   }
 
