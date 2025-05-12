@@ -7,12 +7,16 @@
           v-if="isShareable"
           :id="`ShareActivity${activityId}`"
           :class="shareTextColorClass"
-          :aria-label="$t('UIActivity.aria.Share')"
+          :aria-label="hasShared ? $t('UIActivity.aria.Share') : $t('UIActivity.share')"
           class="pa-0 mt-0"
           text
           link
           small
-          v-bind="attrs"
+          v-bind="{
+              ...attrs,
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null}"
           v-on="on"
           @click="openShareDrawer()">
           <div class="d-flex flex-lg-row flex-column">
