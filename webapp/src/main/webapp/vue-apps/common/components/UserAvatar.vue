@@ -11,7 +11,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -21,9 +21,9 @@
         class="ma-0 flex-shrink-0">
         <img
           :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"  
+          class="object-fit-cover ma-auto"
           loading="lazy"
-          :alt="alt">
+          alt="">
       </v-avatar>
     </component>
     <component
@@ -66,7 +66,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -78,7 +78,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          :alt="alt">
+          alt="">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 my-auto overflow-hidden">
         <p
@@ -120,7 +120,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -132,7 +132,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          :alt="alt">
+          alt="">
       </v-avatar>
     </component>
     <component
@@ -175,7 +175,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -187,7 +187,7 @@
           :src="userAvatarUrl"
           class="object-fit-cover ma-auto"
           loading="lazy"
-          :alt="alt">
+          alt="">
       </v-avatar>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
@@ -330,7 +330,7 @@ export default {
       type: Boolean,
       default: false
     },
-    alt: {
+    ariaLabel: {
       type: String,
       default: () => '',
     },
