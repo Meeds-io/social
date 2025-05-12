@@ -153,7 +153,7 @@
       if (phase === "onDisplay") {
         return $(`<li class="option"><span>#${item.name}<span></li>`);
       } else if (phase == "onInsert") {
-        return $(`<a class="metadata-tag">#${item.name}</a>`);
+        return $(`<a class="metadata-tag" href="#">#${item.name}</a>`);
       } else {
         return atWhoCallback.tplEval(tpl, item);
       }
