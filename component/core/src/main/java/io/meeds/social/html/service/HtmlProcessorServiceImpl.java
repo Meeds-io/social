@@ -24,8 +24,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import org.exoplatform.services.security.ConversationState;
-
 import io.meeds.social.html.model.HtmlProcessorContext;
 import io.meeds.social.html.plugin.HtmlProcessorPlugin;
 
@@ -46,12 +44,6 @@ public class HtmlProcessorServiceImpl implements HtmlProcessorService {
 
   @Override
   public String process(String html, HtmlProcessorContext context) {
-    if (context == null) {
-      context = new HtmlProcessorContext();
-    }
-    if (context.getUserIdentity() == null && ConversationState.getCurrent() != null) {
-      context.setUserIdentity(ConversationState.getCurrent().getIdentity());
-    }
     for (HtmlProcessorPlugin plugin : processors) {
       html = plugin.process(html, context);
     }

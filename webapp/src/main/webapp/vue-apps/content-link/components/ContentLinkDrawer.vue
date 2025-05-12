@@ -34,8 +34,6 @@
           :plugin="p"
           class="mx-2 mb-4" />
       </div>
-      <content-link-search-drawer
-        @select="selectLink" />
     </template>
   </exo-drawer>
 </template>
@@ -53,25 +51,6 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
-    },
-    async selectLink(link) {
-      const selection = this.$root.editor.getSelection();
-      const range = selection.getRanges()[0];
-      const element = new CKEDITOR.dom.element('a'); // eslint-disable-line new-cap
-      element.setAttribute('data-object', `${link.objectType}:${link.objectId}`);
-      element.setAttribute('data-content-link', 'true');
-      element.setAttribute('contenteditable', 'false');
-      element.setAttribute('class', 'content-link');
-      element.setAttribute('href', link.uri);
-      element.setAttribute('target', '_blank');
-      element.appendHtml(`<i aria-hidden="true" class="v-icon notranslate fa ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}`);
-      range.insertNode(element);
-      await this.$nextTick();
-      this.close();
-      this.$root.editor.focus();
-      range.collapse();
-      this.$root.editor.getSelection().selectRanges([range]);
-      this.$root.editor.insertHtml(' ');
     },
   },
 };
