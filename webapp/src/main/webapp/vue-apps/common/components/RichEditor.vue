@@ -115,7 +115,7 @@ export default {
     },
     contentLinkEnabled: {
       type: Boolean,
-      default: true
+      default: false
     },
     oembed: {
       type: Boolean,
@@ -410,6 +410,7 @@ export default {
         options.autoGrow_onStartup = false;
         options.autoGrow_maxHeight = 300;
       }
+      let firstScrollableParent;
       $(this.$refs.editor).ckeditor({...options,
         on: {
           instanceReady: function () {
@@ -426,10 +427,8 @@ export default {
             if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
-            const firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
-            firstScrollableParent.addEventListener('scroll', () => {
-              document.dispatchEvent(new CustomEvent ('parent-element-scrolled'));
-            }, false);
+            firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
+            firstScrollableParent.addEventListener('scroll', self.controlParentScroll);
           },
           embedHandleResponse: function (embedResponse) {
             self.installOembed(embedResponse);
@@ -451,10 +450,10 @@ export default {
             }
           },
           destroy: function () {
-            if (!self) {
-              return;
+            if (self) {
+              self.editor = null;
+              firstScrollableParent?.removeEventListener?.('scroll', self.controlParentScroll);
             }
-            self.editor = null;
           }
         }
       });
@@ -851,6 +850,9 @@ export default {
         }
       }
       return document.body;
+    },
+    controlParentScroll() {
+      document.dispatchEvent(new CustomEvent ('parent-element-scrolled'));
     },
     emitChanges(attachements, changed){
       this.$emit('attachments-edited', attachements, changed);
