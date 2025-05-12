@@ -114,6 +114,7 @@
       :max-length="maxlength"
       :rich-editor="richEditor"
       :rich-editor-oembed="richEditorOembed"
+      :content-link-enabled="contentLinkEnabled"
       :no-expand-icon="noExpandIcon"
       :rules="rules || []"
       @input="emitUpdateValues" />
@@ -201,7 +202,11 @@ export default {
     button: {
       type: Boolean,
       default: false
-    }
+    },
+    contentLinkEnabled: {
+      type: Boolean,
+      default: false
+    },
   },
   data: () => ({
     initialized: false,

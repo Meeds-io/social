@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.security.ConversationState;
 
 import io.meeds.social.html.model.HtmlTransformerContext;
@@ -50,6 +51,7 @@ public class HtmlTransformerServiceImpl implements HtmlTransformerService {
       context = new HtmlTransformerContext();
     }
     setUserIdentity(context);
+    setUserLocale(context);
     for (HtmlTransformerPlugin plugin : transformers) {
       html = plugin.transform(html, context);
     }
@@ -63,6 +65,12 @@ public class HtmlTransformerServiceImpl implements HtmlTransformerService {
       } else {
         context.setUserIdentity(ConversationState.getCurrent().getIdentity());
       }
+    }
+  }
+
+  private void setUserLocale(HtmlTransformerContext context) {
+    if (context.getLocale() == null) {
+      context.setLocale(LocalizationFilter.getCurrentLocale());
     }
   }
 
