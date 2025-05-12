@@ -29,11 +29,17 @@
         class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
         flat
         tile>
-        <img
-          v-if="background"
-          :src="background"
-          style="height: 100%;"
-          alt="">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <img
+              v-on="on"
+              :src="background"
+              style="height: 100%;"
+              tabindex="0"
+              :alt="params.loginBackgroundAltText">
+          </template>
+          <span>{{ params.loginBackgroundAltText || $t('UILoginForm.tooltip.backgroundImage')}}</span>
+        </v-tooltip>
         <v-card
           :class="background && 'position-absolute t-0'"
           min-width="100%"
