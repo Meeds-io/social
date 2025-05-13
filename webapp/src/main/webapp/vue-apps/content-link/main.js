@@ -58,6 +58,7 @@ export async function init() {
         editor: null,
         plugins: null,
         initPhase: 0,
+        collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
       },
       watch: {
         initPhase(val) {
@@ -68,7 +69,8 @@ export async function init() {
       },
       async created() {
         document.addEventListener('content-link-drawer', this.openDrawer);
-        this.plugins = await this.$contentLinkService.getExtensions();
+        const plugins = await this.$contentLinkService.getExtensions();
+        this.plugins = plugins.sort(this.comparator);
         this.initPhase++;
       },
       beforeDestroy() {
@@ -108,6 +110,9 @@ export async function init() {
             newRange.select();
           }
           this.editor.insertHtml(''); // On purpose empty to force loading CKEditor content
+        },
+        comparator(a, b) {
+          return this.collator.compare(this.$t(a.titleKey), this.$t(b.titleKey));
         },
       },
       template: `
