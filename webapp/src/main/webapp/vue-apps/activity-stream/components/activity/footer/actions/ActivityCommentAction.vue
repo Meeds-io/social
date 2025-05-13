@@ -7,10 +7,15 @@
           :id="`CommentLink${activityId}`"
           :class="commentTextColorClass"
           class="pa-0 mt-0"
+          :aria-label="hasCommented ? $t('UIActivity.aria.Comment') : $t('UIActivity.label.Comment')"
           text
           link
           small
-          v-bind="attrs"
+          v-bind="{
+              ...attrs,
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null}"
           v-on="on"
           @click="openCommentsDrawer">
           <div class="d-flex flex-lg-row flex-column">

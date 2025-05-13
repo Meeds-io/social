@@ -7,11 +7,17 @@
           :id="`LikeLink${activityId}`"
           :loading="changingLike"
           :class="likeTextColorClass"
+          :aria-label="hasLiked ? $t('UIActivity.aria.Like') : $t('UIActivity.msg.LikeActivity')"
           class="pa-0 mt-0"
           text
           link
           small
-          v-bind="attrs"
+          v-bind="{
+              ...attrs,
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null,
+              'aria-pressed': hasLiked}"
           v-on="on"
           @click="changeLike">
           <div class="d-flex flex-lg-row flex-column">
