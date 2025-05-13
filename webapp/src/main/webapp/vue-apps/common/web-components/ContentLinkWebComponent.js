@@ -14,7 +14,7 @@ class ContentLink extends HTMLElement {
       }).then(resp => resp?.ok && resp.json()).then(link => {
         if (link) {
           const template = document.createElement('template');
-          template.innerHTML = `<a href="${link.uri}" target="_blank" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`;
+          template.innerHTML = `<a href="${link.uri}" data-object="${link.objectType}:${link.objectId}" contenteditable="false" class="content-link"><i aria-hidden="true" class="v-icon notranslate ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}</a>`;
           const node = template.content.firstElementChild;
           this.replaceWith(node);
         }
