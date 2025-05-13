@@ -11,7 +11,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -66,7 +66,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -120,7 +120,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -175,7 +175,7 @@
       :fab="clickable"
       :depressed="clickable"
       :href="profileUrl"
-      :aria-label="$t('popover.userAvatar.title',{0:userFullname})"
+      :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
@@ -329,6 +329,10 @@ export default {
     displayPosition: {
       type: Boolean,
       default: false
+    },
+    ariaLabel: {
+      type: String,
+      default: () => '',
     },
   },
   data() {
