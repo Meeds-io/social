@@ -40,7 +40,7 @@ import org.exoplatform.social.metadata.tag.model.TagObject;
 
 public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
 
-  private final Log               LOG = ExoLogger.getLogger(ActivityTagMetadataListenerTest.class);
+  private static final Log        LOG = ExoLogger.getLogger(ActivityTagMetadataListenerTest.class);
 
   private Identity                rootIdentity;
 
@@ -49,8 +49,6 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
   private Identity                maryIdentity;
 
   private ActivityManager         activityManager;
-
-  private IdentityManager         identityManager;
 
   private MetadataService         metadataService;
 
@@ -96,8 +94,8 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
 
   public void testSaveActivity() {
     String activityTitle =
-                         "<div>Test tag #NoTagHere test test"
-                             + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>&nbsp;.</div>";
+                         "<div>Test tag #NoTagHere test test" +
+                             " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>&nbsp;.</div>";
     String userId = johnIdentity.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
@@ -124,8 +122,8 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
 
   public void testUpdateActivity() {
     String activityTitle =
-                         "<div>Test tag #NoTagHere test test"
-                             + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>&nbsp;.</div>";
+                         "<div>Test tag #NoTagHere test test" +
+                             " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>&nbsp;.</div>";
     String userId = johnIdentity.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle(activityTitle);
@@ -143,8 +141,8 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
     activity = activityManager.getActivity(activity.getId());
 
     String activityTitle2 =
-                          "<div>Test tag #NoTagHere test test"
-                              + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere2</a>&nbsp;.</div>";
+                          "<div>Test tag #NoTagHere test test" +
+                              " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere2</a>&nbsp;.</div>";
     activity.setTitle(activityTitle2);
     activityManager.updateActivity(activity);
     tagNames = tagService.getTagNames(metadataObjectKey);
@@ -159,10 +157,9 @@ public class ActivityTagMetadataListenerTest extends AbstractCoreTest {
                  tagNames);
 
     String activityTitle3 =
-                          "<div>Test tag #NoTagHere test test"
-                              + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>"
-                              + " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere2</a>"
-                              + "&nbsp;.</div>";
+                          "<div>Test tag #NoTagHere test test" +
+                              " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere</a>" +
+                              " <a target=\"_blank\" class=\"metadata-tag\" rel=\"noopener\">#ANewTagHere2</a>" + "&nbsp;.</div>";
     activity.setTitle(activityTitle3);
     activityManager.updateActivity(activity);
 
