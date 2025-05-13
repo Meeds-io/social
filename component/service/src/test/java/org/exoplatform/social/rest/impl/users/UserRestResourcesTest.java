@@ -1278,6 +1278,46 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
+  public void testUpdateUserPropertiesAsAdmin() throws Exception {
+    startSessionAs("root",true);
+    ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
+    ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
+    profilePropertySettingEntity.setPropertyName("email");
+    profilePropertySettingEntity.setValue("johnsmith@acme.com");
+    profilePropertySettingEntity.setId(emailSetting.getId());
+    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    profilePropertySettingEntityList.add(profilePropertySettingEntity);
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    assertEquals(identity.getProfile().getEmail(),"johnsmith@acme.com");
+  }
+
+  public void testHideUserPropertiesAsAdmin() throws Exception {
+    startSessionAs("root",true);
+    ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
+    ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
+    profilePropertySettingEntity.setPropertyName("email");
+    profilePropertySettingEntity.setValue("johnsmith@acme.com");
+    profilePropertySettingEntity.setId(emailSetting.getId());
+    profilePropertySettingEntity.setToHide(true);
+    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    profilePropertySettingEntityList.add(profilePropertySettingEntity);
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+
+
+
+
+    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
+    List<Long> hiddenPropertiesId = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(identity.getId()));
+    assertTrue(hiddenPropertiesId.contains(emailSetting.getId()));
+  }
+
   private Space getSpaceInstance(int number, String creator) throws Exception {
     Space space = new Space();
     space.setDisplayName("my space " + number);
