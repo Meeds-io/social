@@ -45,7 +45,7 @@ import lombok.SneakyThrows;
 public class ActivityContentLinkPluginTest extends AbstractSpringConfigurationTest {
 
   private static final String EXPECTED_RESULT =
-                                              "<a href=\"/portal/classic/activity?id=1\" target=\"_blank\" data-object=\"activity:1\" contenteditable=\"false\" class=\"content-link\">" +
+                                              "<a href=\"/portal/classic/activity?id=1\" data-object=\"activity:1\" contenteditable=\"false\" class=\"content-link\">" +
                                                   "<i aria-hidden=\"true\" class=\"fa fa-stream v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>Test Content" +
                                                   "</a>";
 
@@ -114,8 +114,7 @@ public class ActivityContentLinkPluginTest extends AbstractSpringConfigurationTe
     assertEquals(1, links.size());
 
     String transformedActivityContent = HtmlUtils.transform(activity.getTitle(), new HtmlTransformerContext(true, null));
-    assertEquals(transformedActivityContent.trim(),
-                 EXPECTED_RESULT.trim());
+    assertEquals(EXPECTED_RESULT.trim(), transformedActivityContent.trim());
   }
 
   private ExoSocialActivity createActivity(String title, Identity identity) {
