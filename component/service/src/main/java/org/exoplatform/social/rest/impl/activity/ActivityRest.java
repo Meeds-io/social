@@ -49,6 +49,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -363,7 +364,7 @@ public class ActivityRest implements ResourceContainer {
     }
 
     long cacheTime = computeCacheTime(activity);
-    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand));
+    String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expand, LocalizationFilter.getCurrentLocale()));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {

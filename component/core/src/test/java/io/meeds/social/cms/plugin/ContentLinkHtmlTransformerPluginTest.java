@@ -69,26 +69,20 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
 
   private static final String                 CONTENT_LINK_OLD              =
                                                                ADDITIONAL_CONTENT +
-                                                                   "<a href=\"linkToContent\" target=\"_blank\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                   "<a href=\"linkToContent\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
                                                                    "<i aria-hidden=\"true\" class=\"v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>Wrong Title" +
                                                                    "</a>";
 
   private static final String                 CONTENT_LINK_RESULT           =
                                                                   ADDITIONAL_CONTENT +
-                                                                      "<a href=\"linkToContent\" target=\"_blank\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                      "<a href=\"linkToContent\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
                                                                       "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>contentTitle" +
                                                                       "</a>";
-
-  private static final String                 CONTENT_LINK_RESULT_NOT_FOUND =
-                                                                            ADDITIONAL_CONTENT +
-                                                                                "<a data-object=\"noPlugin:89665\" contenteditable=\"false\" class=\"content-link\">" +
-                                                                                "<i aria-hidden=\"true\" class=\"v-icon notranslate fa fa-times theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>" +
-                                                                                "</a>";
 
   private static final String                 CONTENT_LINK_OBJECT_NOT_FOUND =
                                                                             ADDITIONAL_CONTENT +
                                                                                 "<a data-object=\"testContentLink:89665\" contenteditable=\"false\" class=\"content-link\">" +
-                                                                                "<i aria-hidden=\"true\" class=\"v-icon notranslate fa fa-times theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>" +
+                                                                                "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>(Access Restricted)" +
                                                                                 "</a>";
 
   private static final String                 CONTENT_LINK_NOT_FOUND        =
@@ -120,13 +114,14 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
   @Test
   @SneakyThrows
   public void testNotContentLinkPlugin() {
-    assertEquals(CONTENT_LINK_RESULT_NOT_FOUND.trim(), HtmlUtils.transform(CONTENT_LINK_NO_PLUGIN, null).trim());
+    assertEquals(CONTENT_LINK_NO_PLUGIN, HtmlUtils.transform(CONTENT_LINK_NO_PLUGIN, null).trim());
   }
 
   @Test
   @SneakyThrows
   public void testContentLinkPluginNotFound() {
-    assertEquals(CONTENT_LINK_OBJECT_NOT_FOUND.trim(), HtmlUtils.transform(CONTENT_LINK_NOT_FOUND, CONTENT_LINK_CONTEXT).trim());
+    assertEquals(String.format(CONTENT_LINK_OBJECT_NOT_FOUND, PLUGIN_ICON).trim(),
+                 HtmlUtils.transform(CONTENT_LINK_NOT_FOUND, CONTENT_LINK_CONTEXT).trim());
   }
 
   @Test

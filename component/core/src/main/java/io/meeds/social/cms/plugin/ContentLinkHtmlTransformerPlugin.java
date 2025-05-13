@@ -19,7 +19,9 @@
 package io.meeds.social.cms.plugin;
 
 import java.util.Locale;
+import java.util.ResourceBundle;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,9 +29,11 @@ import org.springframework.stereotype.Component;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.resources.ResourceBundleService;
 
 import io.meeds.social.cms.model.ContentLink;
 import io.meeds.social.cms.model.ContentLinkIdentifier;
+import io.meeds.social.cms.service.ContentLinkPluginService;
 import io.meeds.social.cms.service.ContentLinkService;
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.plugin.HtmlTransformerPlugin;
@@ -40,38 +44,50 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
-  private static final Log    LOG                             = ExoLogger.getLogger(ContentLinkHtmlTransformerPlugin.class);
+  private static final Log         LOG                             = ExoLogger.getLogger(ContentLinkHtmlTransformerPlugin.class);
 
-  private static final String CONTENT_LINK_TAG                =
-                                               """
-                                                   <content-link contenteditable="false" style="display: none;">/%s</content-link>
-                                                   """;
+  private static final String      CONTENT_LINK_RESOURCE_BUNDLE    = "locale.portlet.Portlets";
 
-  private static final String CONTENT_LINK_START_TAG          = "<content-link";
+  private static final String      RESTRICTED_ACCESS_KEY           = "contentLink.restrictedAccess";
 
-  private static final String CONTENT_LINK_END_TAG            = "</content-link>";
+  private static final String      RESTRICTED_ACCESS_LABEL         = "(Access Restricted)";
 
-  private static final String DATA_OBJECT_END_TAG             = "</a>";
+  private static final String      CONTENT_LINK_TAG                =
+                                                    """
+                                                        <content-link contenteditable="false" style="display: none;">/%s</content-link>
+                                                        """;
 
-  private static final String DATA_OBJECT_START_TAG           = "<a";
+  private static final String      CONTENT_LINK_START_TAG          = "<content-link";
 
-  private static final String DATA_OBJECT_ATTRIBUTE           = "data-object=";
+  private static final String      CONTENT_LINK_END_TAG            = "</content-link>";
 
-  private static final String CONTENT_LINK_HTML_TAG           =
-                                                    "<a href=\"%s\" data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
-                                                        "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
-                                                        "</a>";
+  private static final String      DATA_OBJECT_END_TAG             = "</a>";
 
-  private static final String CONTENT_LINK_NOT_FOUND_HTML_TAG =
-                                                              "<a data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
-                                                                  "<i aria-hidden=\"true\" class=\"v-icon notranslate fa fa-times theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>" +
-                                                                  "</a>";
+  private static final String      DATA_OBJECT_START_TAG           = "<a";
+
+  private static final String      DATA_OBJECT_ATTRIBUTE           = "data-object=";
+
+  private static final String      CONTENT_LINK_HTML_TAG           =
+                                                         "<a href=\"%s\" data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                             "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
+                                                             "</a>";
+
+  private static final String      CONTENT_LINK_NOT_FOUND_HTML_TAG =
+                                                                   "<a data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                       "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
+                                                                       "</a>";
 
   @Autowired
-  private ContentLinkService  contentLinkService;
+  private ContentLinkService       contentLinkService;
 
   @Autowired
-  private PortalContainer     portalContainer;
+  private ContentLinkPluginService contentLinkPluginService;
+
+  @Autowired
+  private ResourceBundleService    resourceBundleService;
+
+  @Autowired
+  private PortalContainer          portalContainer;
 
   @PostConstruct
   public void init() {
@@ -104,13 +120,18 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                                               StringUtils.defaultIfBlank(contentLink.getIcon(), ""),
                                               contentLink.getTitle()));
           } else {
-            html = getContentNotFoundHtml(html, contentLinkTag, contentLinkIdentifier);
+            Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
+            html = getContentNotFoundHtml(html, contentLinkTag, locale, contentLinkIdentifier);
           }
         } catch (Exception e) {
           LOG.warn("Error while transforming Link '{}'. Remove document reference",
                    contentLinkIdentifier,
                    e);
-          html = getContentNotFoundHtml(html, contentLinkTag, contentLinkIdentifier);
+          Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
+          html = getContentNotFoundHtml(html,
+                                        contentLinkTag,
+                                        locale,
+                                        contentLinkIdentifier);
         }
       }
     }
@@ -133,11 +154,18 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
     return html;
   }
 
-  private String getContentNotFoundHtml(String html, String contentLinkTag, ContentLinkIdentifier contentLinkIdentifier) {
+  private String getContentNotFoundHtml(String html,
+                                        String contentLinkTag,
+                                        Locale locale,
+                                        ContentLinkIdentifier contentLinkIdentifier) {
+    ContentLinkPlugin plugin = contentLinkPluginService.getPlugin(contentLinkIdentifier.getObjectType());
+    String icon = plugin == null ? "fa-times" : plugin.getExtension().getIcon();
     return html.replace(contentLinkTag,
                         String.format(CONTENT_LINK_NOT_FOUND_HTML_TAG,
                                       contentLinkIdentifier.getObjectType(),
-                                      contentLinkIdentifier.getObjectId()));
+                                      contentLinkIdentifier.getObjectId(),
+                                      icon,
+                                      getRestrictedAccessLabel(locale)));
   }
 
   private ContentLinkIdentifier getContentLinkIdentifier(String contentLinkTag, Locale locale) {
@@ -184,6 +212,23 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
       }
     }
     return null;
+  }
+
+  private String getRestrictedAccessLabel(Locale locale) {
+    try {
+      return StringUtils.firstNonBlank(getResourceBundle(locale).getString(RESTRICTED_ACCESS_KEY),
+                                       RESTRICTED_ACCESS_LABEL);
+    } catch (Exception e) {
+      return RESTRICTED_ACCESS_LABEL;
+    }
+  }
+
+  private ResourceBundle getResourceBundle(Locale locale) {
+    try {
+      return resourceBundleService.getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, locale);
+    } catch (Exception e) {
+      return resourceBundleService.getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
+    }
   }
 
 }
