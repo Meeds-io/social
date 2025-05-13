@@ -93,7 +93,6 @@ export async function init() {
           element.setAttribute('contenteditable', 'false');
           element.setAttribute('class', 'content-link');
           element.setAttribute('href', link.uri);
-          element.setAttribute('target', '_blank');
           element.appendHtml(`<i aria-hidden="true" class="v-icon notranslate fa ${link.icon} theme--light icon-default-color" style="font-size: 16px; margin: 0 4px;"></i>${link.title}`);
           range.insertNode(element);
           range.moveToElementEditablePosition(element);
