@@ -89,7 +89,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
 
   private static final String               CONTENT_LINK_RESULT      =
                                                                 "Content1" +
-                                                                    "<a href=\"linkToContent\" target=\"_blank\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                    "<a href=\"linkToContent\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
                                                                     "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>contentTitle" +
                                                                     "</a>";
 
