@@ -43,6 +43,7 @@
               :placeholder="$t('UIActivity.share.sharedActivityPlaceholder')"
               ck-editor-type="activityShare"
               class="flex"
+              content-link-enabled
               @validity-updated="validInput = $event" />
           </div>
           <div class="d-flex flex-row mt-4">
