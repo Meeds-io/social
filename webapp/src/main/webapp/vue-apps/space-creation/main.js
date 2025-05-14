@@ -36,12 +36,16 @@ const url = `/social/i18n/locale.portlet.social.SpaceCreation?lang=${lang}`;
 
 const appId = 'SpaceCreation';
 
-export function init(spaceTemplates) {
+export function init(spaceTemplates, isAdministrator, saveSettingsUrl, spaceCreationTemplateChoice) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
+    spaceTemplates =JSON.parse(spaceTemplates);
     Vue.createApp({
       data: {
-        spaceTemplates  
+        spaceTemplates,
+        isAdministrator,
+        saveSettingsUrl,
+        spaceCreationTemplateChoice
       },
       template: `<space-creation id="${appId}" />`,
       i18n,

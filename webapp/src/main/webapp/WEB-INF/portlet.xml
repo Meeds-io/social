@@ -1151,7 +1151,7 @@
     <description>Add CTA and select space templates for creation</description>
     <portlet-name>SpaceCreation</portlet-name>
     <display-name>Space Creation</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.SpaceCreationPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/spaceCreation.jsp</value>
