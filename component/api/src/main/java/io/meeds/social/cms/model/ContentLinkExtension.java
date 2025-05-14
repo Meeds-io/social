@@ -27,12 +27,24 @@ import lombok.NoArgsConstructor;
 @Data
 public class ContentLinkExtension {
 
-  private String objectType;
+  private String  objectType;
 
-  private String titleKey;
+  private String  titleKey;
 
-  private String icon;
+  private String  icon;
 
-  private String command;
+  private String  command;
+
+  private boolean drawer;
+
+  public ContentLinkExtension(String objectType,
+                              String titleKey,
+                              String icon,
+                              String command) {
+    this.objectType = objectType;
+    this.titleKey = titleKey;
+    this.icon = icon;
+    this.command = command;
+  }
 
 }

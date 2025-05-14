@@ -33,11 +33,13 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class ContentLink extends ContentLinkIdentifier {
 
-  private String title;
+  private String  title;
 
-  private String uri;
+  private String  uri;
 
-  private String icon;
+  private String  icon;
+
+  private boolean drawer;
 
   public ContentLink(ContentLinkIdentifier link) {
     super(link.getObjectType(), link.getObjectId(), link.getFieldName(), link.getLocale());
