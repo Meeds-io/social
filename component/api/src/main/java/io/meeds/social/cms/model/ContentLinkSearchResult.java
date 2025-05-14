@@ -30,9 +30,21 @@ public class ContentLinkSearchResult extends ContentLink {
     setIcon(link.getIcon());
   }
 
-  public ContentLinkSearchResult(String objectType, String objectId, String title, String icon) {
+  public ContentLinkSearchResult(String objectType,
+                                 String objectId,
+                                 String title,
+                                 String icon) {
     super(objectType, objectId, null, title, null);
     setIcon(icon);
+  }
+
+  public ContentLinkSearchResult(String objectType,
+                                 String objectId,
+                                 String title,
+                                 String icon,
+                                 boolean drawer) {
+    this(objectType, objectId, title, icon);
+    setDrawer(drawer);
   }
 
 }
