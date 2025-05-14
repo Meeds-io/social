@@ -68,7 +68,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
   private static final String      DATA_OBJECT_ATTRIBUTE           = "data-object=";
 
   private static final String      CONTENT_LINK_HTML_TAG           =
-                                                         "<a href=\"%s\" data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
+                                                         "<a href=\"%s\"%s data-object=\"%s:%s\" contenteditable=\"false\" class=\"content-link\">" +
                                                              "<i aria-hidden=\"true\" class=\"%s v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>%s" +
                                                              "</a>";
 
@@ -115,6 +115,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
             html = html.replace(contentLinkTag,
                                 String.format(CONTENT_LINK_HTML_TAG,
                                               StringUtils.defaultIfBlank(contentLink.getUri(), ""),
+                                              contentLink.isDrawer() ? " is=\"content-link-drawer\"" : "",
                                               contentLink.getObjectType(),
                                               contentLink.getObjectId(),
                                               StringUtils.defaultIfBlank(contentLink.getIcon(), ""),
