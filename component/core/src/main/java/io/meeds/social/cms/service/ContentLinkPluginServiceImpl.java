@@ -77,7 +77,7 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
     ContentLink contentLink = new ContentLink(linkIdentifier);
     computeTitle(contentLink);
     computeUri(contentLink);
-    computeIcon(contentLink);
+    computePluginProperties(contentLink);
     return contentLink;
   }
 
@@ -99,9 +99,10 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
     contentLink.setTitle(title);
   }
 
-  private void computeIcon(ContentLink contentLink) {
-    String icon = getPlugin(contentLink.getObjectType()).getExtension().getIcon();
-    contentLink.setIcon(icon);
+  private void computePluginProperties(ContentLink contentLink) {
+    ContentLinkExtension extension = getPlugin(contentLink.getObjectType()).getExtension();
+    contentLink.setIcon(extension.getIcon());
+    contentLink.setDrawer(extension.isDrawer());
   }
 
   @SneakyThrows
