@@ -13,11 +13,11 @@
           link
           small
           v-bind="{
-              ...attrs,
-              role: null,
-              'aria-haspopup': null,
-              'aria-expanded': null,
-              'aria-pressed': hasLiked}"
+            ...attrs,
+            role: null,
+            'aria-haspopup': null,
+            'aria-expanded': null,
+            'aria-pressed': hasLiked}"
           v-on="on"
           @click="changeLike">
           <div class="d-flex flex-lg-row flex-column">
