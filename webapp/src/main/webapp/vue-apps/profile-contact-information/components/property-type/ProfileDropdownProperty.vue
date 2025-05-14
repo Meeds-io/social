@@ -102,7 +102,7 @@ export default {
       this.clonePropertyObject();
     },
     selectedOption() {
-      this.propertyObject.value = this.selectedOption?.id;
+      this.propertyObject.value = this.selectedOption?.value;
       this.$emit('property-updated', this.propertyObject);
     }
   },
@@ -119,7 +119,7 @@ export default {
     clonePropertyObject() {
       this.propertyObject = this.parentProperty && this.property || structuredClone(this.property);
       this.selectedOption = this.mappedOptions?.find(
-        option => `${option.id}` === `${this.propertyObject.value}`
+        option => `${option.id}` === `${this.propertyObject.id}`
       );
     }
   }
