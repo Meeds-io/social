@@ -31,6 +31,13 @@ export async function openDrawer(editor) {
   }));
 }
 
+export async function openPluginDrawer(objectType, objectId) {
+  await init();
+  document.dispatchEvent(new CustomEvent(`content-link-${objectType}-drawer`, {
+    detail: objectId,
+  }));
+}
+
 export async function openCommandMenu(eventDetail) {
   await init();
   document.dispatchEvent(new CustomEvent('content-link-menu-open', {
@@ -71,6 +78,7 @@ export async function init() {
         document.addEventListener('content-link-drawer', this.openDrawer);
         const plugins = await this.$contentLinkService.getExtensions();
         this.plugins = plugins.sort(this.comparator);
+        await this.$utils.includeExtensions('ContentLinkExtension');
         this.initPhase++;
       },
       beforeDestroy() {
@@ -116,7 +124,7 @@ export async function init() {
       },
       template: `
       <div id="${appId}">
-        <content-link-drawer
+        <content-link-command-drawer
           ref="drawer" />
         <content-link-search-drawer
           @select="selectLink" />
