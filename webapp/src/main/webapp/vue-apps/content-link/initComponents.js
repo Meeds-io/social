@@ -17,14 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
+import ContentLinkCommandDrawer from './components/ContentLinkCommandDrawer.vue';
 import ContentLinkSearchDrawer from './components/ContentLinkSearchDrawer.vue';
 
 import ContentLinkPlugin from './components/ContentLinkPlugin.vue';
 import ContentLinkCommandMenu from './components/ContentLinkCommandMenu.vue';
 
 const components = {
-  'content-link-drawer': ContentLinkDrawer,
+  'content-link-command-drawer': ContentLinkCommandDrawer,
   'content-link-search-drawer': ContentLinkSearchDrawer,
   'content-link-plugin': ContentLinkPlugin,
   'content-link-command-menu': ContentLinkCommandMenu,
