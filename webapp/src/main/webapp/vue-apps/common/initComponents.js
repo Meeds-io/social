@@ -51,6 +51,7 @@ import NumberInput from './components/NumberInput.vue';
 import NumberFormat from './components/NumberFormat.vue';
 import PublicWidgetHiddenWarning from './components/PublicWidgetHiddenWarning.vue';
 import SerializeDrawer from './components/SerializeDrawer.vue';
+import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -97,6 +98,7 @@ const components = {
   'number-format': NumberFormat,
   'public-widget-hidden-warning': PublicWidgetHiddenWarning,
   'serialize-drawer': SerializeDrawer,
+  'content-link-drawer': ContentLinkDrawer,
 };
 
 for (const key in components) {
