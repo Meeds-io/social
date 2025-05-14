@@ -151,7 +151,7 @@ export default {
       return this.cardWidth > 280;
     },
     selectedCategoryIds() {
-      return this.$root.selectedCategoryIds;
+      return this.$root.selectedCategoryIds || this.$root.categoryIds;
     },
     displayNoSpaceOptions() {
       return !this.hasSpaces

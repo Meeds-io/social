@@ -137,20 +137,20 @@ export default {
     async init() {
       this.loading = true;
       try {
-        if (this.$root.settings.filterType === 'category' && this.$root.settings.categoryIds?.length) {
-          const subCategories = await Promise.all(this.$root.settings.categoryIds.map(id => this.$categoryService.getCategoryTree({
+        if (this.filterType === 'category' && this.categoryIds?.length) {
+          const subCategories = (await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategoryTree({
             parentId: id,
             objectType: this.objectType,
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,
-            token: this.$root.settingName,
-          })));
+            token: this.settingName,
+          }).catch(() => null)))).filter(c => c);
           this.categoryTree = {
             id: -1,
             parentId: 0,
             ownerId: subCategories?.[0]?.ownerId,
-            categories: subCategories,
+            categories: subCategories || [],
           };
         } else {
           this.categoryTree = await this.$categoryService.getCategoryTree({
@@ -158,8 +158,13 @@ export default {
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,
-            token: this.$root.settingName,
-          });
+            token: this.settingName,
+          }).catch(() => ({
+            id: -1,
+            parentId: 0,
+            ownerId: 0,
+            categories: [],
+          }));
         }
       } finally {
         this.loading = false;
