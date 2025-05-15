@@ -143,6 +143,9 @@
             <field name="icon">
               <string>fas fa-layer-group</string>
             </field>
+            <field name="groupingEnabled">
+              <boolean>true</boolean>
+            </field>
           </object>
         </object-param>
       </init-params>
