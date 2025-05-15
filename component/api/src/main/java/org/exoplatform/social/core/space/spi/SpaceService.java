@@ -1130,6 +1130,17 @@ public interface SpaceService {
   }
 
   /**
+   * Count Spaces where the user has the "manager" role.
+   *
+   * @param username The remote user Id
+   * @return @return the count of spaces
+   */
+  default int getManagerSpacesCount(String username) {
+    throw new UnsupportedOperationException();
+  }
+
+
+  /**
    * Retrieves the Space Membership date
    * 
    * @param spaceId {@link Space} technical id
