@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+
 import io.meeds.social.cms.model.ContentLink;
 import io.meeds.social.cms.model.ContentLinkExtension;
 import io.meeds.social.cms.model.ContentLinkIdentifier;
@@ -109,12 +111,10 @@ public class ContentLinkRest {
                              @PathVariable(name = "objectId")
                              String objectId) {
     try {
-      ContentLink link = contentLinkService.getLink(new ContentLinkIdentifier(objectType, objectId, request.getLocale()),
-                                                    request.getRemoteUser());
-      if (link == null) {
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-      }
-      return link;
+      return contentLinkService.getLink(new ContentLinkIdentifier(objectType, objectId, request.getLocale()),
+                                        request.getRemoteUser());
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
     } catch (IllegalAccessException e) {
       throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
     }
