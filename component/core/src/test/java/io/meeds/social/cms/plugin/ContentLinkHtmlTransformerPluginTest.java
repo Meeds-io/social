@@ -47,49 +47,64 @@ import lombok.SneakyThrows;
 
 public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigurationTest {
 
-  private static final String                 ADDITIONAL_CONTENT            = "Content1";
+  private static final String                 ADDITIONAL_CONTENT             = "Content1";
 
-  private static final String                 PLUGIN_TITLE_KEY              = "pluginTitleKey";
+  private static final String                 PLUGIN_TITLE_KEY               = "pluginTitleKey";
 
-  private static final String                 PLUGIN_COMMAND                = "pluginCommand";
+  private static final String                 PLUGIN_COMMAND                 = "pluginCommand";
 
-  private static final String                 PLUGIN_ICON                   = "pluginIcon";
+  private static final String                 PLUGIN_ICON                    = "pluginIcon";
 
-  private static final String                 CONTENT_LINK_TITLE            = "contentTitle";
+  private static final String                 CONTENT_LINK_TITLE             = "contentTitle";
 
-  private static final HtmlTransformerContext CONTENT_LINK_CONTEXT          = new HtmlTransformerContext(Locale.ENGLISH);
+  private static final HtmlTransformerContext CONTENT_LINK_CONTEXT           = new HtmlTransformerContext(Locale.ENGLISH);
 
-  private static final String                 CONTENT_LINK_TYPE             = "testContentLink";
+  private static final HtmlTransformerContext CONTENT_LINK_USER_CONTEXT      = new HtmlTransformerContext(new Identity("test"),
+                                                                                                          Locale.ENGLISH);
 
-  private static final String                 CONTENT_LINK_ID               = "5874";
+  private static final String                 CONTENT_LINK_TYPE              = "testContentLink";
 
-  private static final String                 CONTENT_LINK                  =
+  private static final String                 CONTENT_LINK_ID                = "5874";
+
+  private static final String                 CONTENT_LINK_RESTRICTED_ID     = "5875";
+
+  private static final String                 CONTENT_LINK                   =
                                                            ADDITIONAL_CONTENT +
                                                                "<content-link contenteditable=\"false\" style=\"display:none;\">/testContentLink:5874</content-link>";
 
-  private static final String                 CONTENT_LINK_OLD              =
+  private static final String                 CONTENT_LINK_OLD               =
                                                                ADDITIONAL_CONTENT +
                                                                    "<a href=\"linkToContent\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
                                                                    "<i aria-hidden=\"true\" class=\"v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>Wrong Title" +
                                                                    "</a>";
 
-  private static final String                 CONTENT_LINK_RESULT           =
+  private static final String                 CONTENT_LINK_RESULT            =
                                                                   ADDITIONAL_CONTENT +
                                                                       "<a href=\"linkToContent\" data-object=\"testContentLink:5874\" contenteditable=\"false\" class=\"content-link\">" +
                                                                       "<i aria-hidden=\"true\" class=\"pluginIcon v-icon notranslate theme--light icon-default-color\" style=\"font-size: 16px; margin: 0 4px;\"></i>contentTitle" +
                                                                       "</a>";
 
-  private static final String                 CONTENT_LINK_OBJECT_NOT_FOUND =
+  private static final String                 CONTENT_LINK_OBJECT_RESTRICTED =
+                                                                             ADDITIONAL_CONTENT +
+                                                                                 "<a data-object=\"testContentLink:5875\" contenteditable=\"false\" class=\"content-link\">" +
+                                                                                 "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>(Access is restricted)" +
+                                                                                 "</a>";
+
+  private static final String                 CONTENT_LINK_OBJECT_NOT_FOUND  =
                                                                             ADDITIONAL_CONTENT +
                                                                                 "<a data-object=\"testContentLink:89665\" contenteditable=\"false\" class=\"content-link\">" +
-                                                                                "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>(Access Restricted)" +
+                                                                                "<i aria-hidden=\"true\" class=\"v-icon notranslate fa %s theme--light error--text\" style=\"font-size: 16px; margin: 0 4px;\"></i>(Content has been deleted)" +
                                                                                 "</a>";
 
-  private static final String                 CONTENT_LINK_NOT_FOUND        =
+  private static final String                 CONTENT_LINK_RESTRICTED        =
+                                                                      ADDITIONAL_CONTENT +
+                                                                          "<content-link contenteditable=\"false\" style=\"display: none;\">/testContentLink:5875</content-link>";
+
+  private static final String                 CONTENT_LINK_NOT_FOUND         =
                                                                      ADDITIONAL_CONTENT +
                                                                          "<content-link contenteditable=\"false\" style=\"display: none;\">/testContentLink:89665</content-link>";
 
-  private static final String                 CONTENT_LINK_NO_PLUGIN        =
+  private static final String                 CONTENT_LINK_NO_PLUGIN         =
                                                                      ADDITIONAL_CONTENT +
                                                                          "<content-link contenteditable=\"false\" style=\"display: none;\">/noPlugin:89665</content-link>";
 
@@ -115,6 +130,13 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
   @SneakyThrows
   public void testNotContentLinkPlugin() {
     assertEquals(CONTENT_LINK_NO_PLUGIN, HtmlUtils.transform(CONTENT_LINK_NO_PLUGIN, null).trim());
+  }
+
+  @Test
+  @SneakyThrows
+  public void testContentLinkPluginRestricted() {
+    assertEquals(String.format(CONTENT_LINK_OBJECT_RESTRICTED, PLUGIN_ICON).trim(),
+                 HtmlUtils.transform(CONTENT_LINK_RESTRICTED, CONTENT_LINK_USER_CONTEXT).trim());
   }
 
   @Test
@@ -165,7 +187,7 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
 
       @Override
       public boolean canAccess(PermanentLinkObject object, Identity identity) throws ObjectNotFoundException {
-        return true;
+        return CONTENT_LINK_ID.equals(object.getObjectId());
       }
     });
   }
@@ -188,7 +210,7 @@ public class ContentLinkHtmlTransformerPluginTest extends AbstractSpringConfigur
 
       @Override
       public String getContentTitle(String objectId, Locale locale) {
-        if (CONTENT_LINK_ID.equals(objectId)) {
+        if (CONTENT_LINK_ID.equals(objectId) || CONTENT_LINK_RESTRICTED_ID.equals(objectId)) {
           return CONTENT_LINK_TITLE;
         } else {
           return null;
