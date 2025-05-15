@@ -61,7 +61,7 @@
             class="flex-shrink-0 text-truncate-2 max-height-2lh font-weight-bold line-height-normal full-width"></div>
         </div>
       </v-card>
-      <div v-if="!$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
+      <div v-if="!hideSpaceDescription && !$root.isMobile" class="flex-grow-1 flex-shrink-1 px-4 mt-4">
         <div
           v-sanitized-html="spaceDescriptionText"
           class="text-truncate-3 max-height-3lh full-width flex-shrink-1"></div>
@@ -107,6 +107,10 @@ export default {
       default: () => (366 - 18),
     },
     displayMembersCount: {
+      type: Boolean,
+      default: false,
+    },
+    hideSpaceDescription: {
       type: Boolean,
       default: false,
     },
