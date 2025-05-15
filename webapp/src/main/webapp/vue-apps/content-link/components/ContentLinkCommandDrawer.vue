@@ -32,7 +32,8 @@
           v-for="p in $root.plugins"
           :key="p.command"
           :plugin="p"
-          class="mx-2 mb-4" />
+          class="mx-2 mb-4"
+          @close="close" />
       </div>
     </template>
   </exo-drawer>
