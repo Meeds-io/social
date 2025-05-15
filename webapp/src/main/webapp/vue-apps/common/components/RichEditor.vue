@@ -365,8 +365,8 @@ export default {
         toolbar[0].push('attachImage');
       }
       if (this.contentLinkEnabled) {
-        extraPlugins += ',insertContent';
-        toolbar[0].push('InsertContent');
+        extraPlugins += ',insertContentLink';
+        toolbar[0].push('InsertContentLink');
       }
       toolbar[0].unshift('formatOption');
 
