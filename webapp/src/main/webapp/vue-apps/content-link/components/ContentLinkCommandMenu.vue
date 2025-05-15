@@ -45,10 +45,17 @@
           v-for="(p, index) of filteredPlugins"
           :key="index"
           :value="index"
+          class="ps-0"
           dense
           @click.stop.prevent="selectCommand(p)">
-          <v-list-item-icon class="ps-0 me-4 my-auto">
-            <v-icon size="24">{{ $t(p.icon) }}</v-icon>
+          <v-list-item-icon class="my-auto mx-2">
+            <v-card
+              class="d-flex align-center justify-center"
+              color="transparent"
+              min-width="40"
+              flat>
+              <v-icon size="24">{{ $t(p.icon) }}</v-icon>
+            </v-card>
           </v-list-item-icon>
           <v-list-item-content class="pa-0 my-2 border-box-sizing">
             <v-list-item-title class="pa-0 tex-truncate my-auto line-height-normal">{{ $t(p.titleKey) }}</v-list-item-title>
@@ -226,7 +233,10 @@ export default {
   },
   methods: {
     selectCommand(plugin) {
-      if (this.menu && plugin) {
+      if (plugin?.insert) {
+        plugin.insert(this.$root.editor, this.range, this.textWatcher);
+        this.closeMenu();
+      } else if (this.menu && plugin) {
         const query = this.query || '';
         const textToInsert = query?.length ? plugin.command.replace(query, '') : plugin.command;
         this.$root.editor.insertText(`${textToInsert}:`);
@@ -309,7 +319,12 @@ export default {
         if (this.isItemFiltering) {
           const commandParts = command.split(':');
           this.keyword = commandParts[1];
-          this.plugin = this.$root.plugins.find(p => p.command === commandParts[0]);
+          const plugin = this.$root.plugins.find(p => p.command === commandParts[0]);
+          if (plugin?.insert) {
+            this.selectCommand(plugin);
+          } else {
+            this.plugin = plugin;
+          }
         }
       } else {
         this.unWatch();
