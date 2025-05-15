@@ -26,7 +26,7 @@
     height="116"
     width="116"
     flat
-    @click="$root.$emit('content-link-search-drawer', plugin)">
+    @click="selectCommand">
     <v-icon size="48" class="my-3">{{ plugin.icon }}</v-icon>
     <div class="text-truncate-2">{{ $t(plugin.titleKey) }}</div>
     <div class="text-truncate">(/{{ $t(plugin.command) }})</div>
@@ -38,6 +38,16 @@ export default {
     plugin: {
       type: Object,
       default: null,
+    },
+  },
+  methods: {
+    selectCommand() {
+      if (this.plugin.insert) {
+        this.plugin.insert(this.$root.editor);
+        this.$emit('close');
+      } else {
+        this.$root.$emit('content-link-search-drawer', this.plugin);
+      }
     },
   },
 };
