@@ -145,6 +145,17 @@ public class SpaceTemplateService {
     return spaceTemplateIds;
   }
 
+  public long countManagingSpaceTemplates(String username) {
+    List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
+    long count = spaceTemplates.stream().filter(t -> canManageSpacesWithTemplate(t, username)).count();
+    if (canManageTemplates(username)) {
+      // Include spaces not having an associated template Id
+      // which should be visible to an administrator
+      count++;
+    }
+    return count;
+  }
+
   public SpaceTemplate getSpaceTemplate(long templateId) {
     return getSpaceTemplate(templateId, null, false);
   }
