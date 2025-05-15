@@ -31,7 +31,7 @@
         :max-height="!isMobile && '80vh' || '75vh'"
         class="transparent">
         <v-carousel
-          :id="`previewCarousel`"
+          :id="previewCarousel"
           ref="attachmentsCarousel"
           v-model="currentAttachmentId"
           :show-arrows-on-hover="!isMobile"
@@ -62,7 +62,6 @@ export default {
     currentAttachmentId: 0, 
     filename: '',
     fileUrl: '',
-    objectType: '',
     attachments: null,
     previewExtensionApp: 'Preview',
     previewExtensionType: 'previewExtensions',
@@ -119,8 +118,6 @@ export default {
     getParams(attachment) {
       return {
         attachment: attachment,
-        objectType: this.objectType,
-        objectId: this.objectId,
       };
     },
     getExtension(attachment) {
