@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -50,7 +51,11 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   private static final String      RESTRICTED_ACCESS_KEY           = "contentLink.restrictedAccess";
 
-  private static final String      RESTRICTED_ACCESS_LABEL         = "(Access Restricted)";
+  private static final String      NOT_FOUND_ACCESS_KEY            = "contentLink.notFound";
+
+  private static final String      RESTRICTED_ACCESS_LABEL         = "(Access is restricted)";
+
+  private static final String      NOT_FOUND_LABEL                 = "(Content has been deleted)";
 
   private static final String      CONTENT_LINK_TAG                =
                                                     """
@@ -111,7 +116,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
         try {
           ContentLink contentLink = context.isSystem() ? contentLinkService.getLink(contentLinkIdentifier) :
                                                        contentLinkService.getLink(contentLinkIdentifier, context.getUsername());
-          if (contentLink != null && StringUtils.isNotBlank(contentLink.getTitle())) {
+          if (contentLink != null) {
             html = html.replace(contentLinkTag,
                                 String.format(CONTENT_LINK_HTML_TAG,
                                               StringUtils.defaultIfBlank(contentLink.getUri(), ""),
@@ -122,19 +127,28 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                                               contentLink.getTitle()));
           } else {
             Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
-            html = getContentNotFoundHtml(html, contentLinkTag, locale, contentLinkIdentifier);
+            html = getContentNotFoundHtml(html,
+                                          contentLinkTag,
+                                          contentLinkIdentifier,
+                                          getNotFoundLabel(locale));
           }
         } catch (Exception e) {
-          if (!(e instanceof IllegalAccessException)) {
-            LOG.warn("Error while transforming Link '{}'. Remove document reference",
-                     contentLinkIdentifier,
-                     e);
-          }
           Locale locale = ObjectUtils.firstNonNull(context.getLocale(), ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
+          String label;
+          if (e instanceof IllegalAccessException) {
+            label = getRestrictedAccessLabel(locale);
+          } else {
+            label = getNotFoundLabel(locale);
+            if (!(e instanceof ObjectNotFoundException)) {
+              LOG.warn("Error while transforming Link '{}'. Remove document reference",
+                       contentLinkIdentifier,
+                       e);
+            }
+          }
           html = getContentNotFoundHtml(html,
                                         contentLinkTag,
-                                        locale,
-                                        contentLinkIdentifier);
+                                        contentLinkIdentifier,
+                                        label);
         }
       }
     }
@@ -159,8 +173,8 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   private String getContentNotFoundHtml(String html,
                                         String contentLinkTag,
-                                        Locale locale,
-                                        ContentLinkIdentifier contentLinkIdentifier) {
+                                        ContentLinkIdentifier contentLinkIdentifier,
+                                        String label) {
     ContentLinkPlugin plugin = contentLinkPluginService.getPlugin(contentLinkIdentifier.getObjectType());
     String icon = plugin == null ? "fa-times" : plugin.getExtension().getIcon();
     return html.replace(contentLinkTag,
@@ -168,7 +182,7 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                                       contentLinkIdentifier.getObjectType(),
                                       contentLinkIdentifier.getObjectId(),
                                       icon,
-                                      getRestrictedAccessLabel(locale)));
+                                      label));
   }
 
   private ContentLinkIdentifier getContentLinkIdentifier(String contentLinkTag, Locale locale) {
@@ -223,6 +237,15 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
                                        RESTRICTED_ACCESS_LABEL);
     } catch (Exception e) {
       return RESTRICTED_ACCESS_LABEL;
+    }
+  }
+
+  private String getNotFoundLabel(Locale locale) {
+    try {
+      return StringUtils.firstNonBlank(getResourceBundle(locale).getString(NOT_FOUND_ACCESS_KEY),
+                                       NOT_FOUND_LABEL);
+    } catch (Exception e) {
+      return NOT_FOUND_LABEL;
     }
   }
 
