@@ -29,17 +29,23 @@
         class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
         flat
         tile>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="tooltipMessage">
           <template v-slot:activator="{ on }">
             <img
               v-on="on"
               :src="background"
               style="height: 100%;"
               tabindex="0"
-              :alt="params.loginBackgroundAltText">
+              :alt="tooltipMessage">
           </template>
-          <span>{{ params.loginBackgroundAltText || $t('UILoginForm.tooltip.backgroundImage')}}</span>
+          <span>{{ tooltipMessage }}</span>
         </v-tooltip>
+        <img
+          v-else
+          class
+          :src="background"
+          style="height: 100%;"
+          alt="">
         <v-card
           :class="background && 'position-absolute t-0'"
           min-width="100%"
@@ -121,6 +127,9 @@ export default {
     },
   },
   computed: {
+    tooltipMessage() {
+      return this.params?.loginBackgroundAltText;
+    },
     companyName() {
       return this.params?.companyName;
     },
