@@ -21,6 +21,8 @@ package io.meeds.social.cms.service;
 import java.util.List;
 import java.util.Locale;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+
 import io.meeds.social.cms.model.ContentLink;
 import io.meeds.social.cms.model.ContentLinkExtension;
 import io.meeds.social.cms.model.ContentLinkIdentifier;
@@ -98,8 +100,9 @@ public interface ContentLinkService {
    * @return {@link ContentLink} with associated title and uri
    * @throws IllegalAccessException when user doesn't have edit permission on
    *           Content Object
+   * @throws ObjectNotFoundException when {@link ContentLink} not found
    */
-  ContentLink getLink(ContentLinkIdentifier link, String username) throws IllegalAccessException;
+  ContentLink getLink(ContentLinkIdentifier link, String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * @param link {@link ContentLinkIdentifier} with object type, id and locale
