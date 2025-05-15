@@ -19,20 +19,20 @@
 */
 ( function() {
   let textWatcher;
-  CKEDITOR.plugins.add( 'insertContent', {
-    icons: 'insertContent',
+  CKEDITOR.plugins.add( 'insertContentLink', {
+    icons: 'insertContentLink',
     extraAllowedContent: 'a[data-*]',
     requires: 'textwatcher',
     init: function( editor ) {
-      editor.addCommand( 'insertContent', {
+      editor.addCommand( 'insertContentLink', {
         exec: function(editor) {
           window.require(['SHARED/ContentLink'], app => app.openDrawer(editor));
         }
       });
   
-      editor.ui.addButton( 'InsertContent', {
+      editor.ui.addButton( 'InsertContentLink', {
         label: window.vueI18nMessages?.['richeditor.insertContent.tooltip'] || '',
-        command: 'insertContent',
+        command: 'insertContentLink',
         toolbar: 'insert'
       });
   
