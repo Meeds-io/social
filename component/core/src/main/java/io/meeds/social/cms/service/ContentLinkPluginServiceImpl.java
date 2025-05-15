@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import org.exoplatform.services.security.Identity;
@@ -74,11 +75,17 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
   @Override
   @SneakyThrows
   public ContentLink getLink(ContentLinkIdentifier linkIdentifier) {
-    ContentLink contentLink = new ContentLink(linkIdentifier);
-    computeTitle(contentLink);
-    computeUri(contentLink);
-    computePluginProperties(contentLink);
-    return contentLink;
+    String title = getPlugin(linkIdentifier.getObjectType()).getContentTitle(linkIdentifier.getObjectId(),
+                                                                             linkIdentifier.getLocale());
+    if (StringUtils.isBlank(title)) {
+      return null;
+    } else {
+      ContentLink contentLink = new ContentLink(linkIdentifier);
+      contentLink.setTitle(title);
+      computeUri(contentLink);
+      computePluginProperties(contentLink);
+      return contentLink;
+    }
   }
 
   @Override
@@ -91,12 +98,6 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
     List<ContentLinkSearchResult> links = getPlugin(objectType).search(keyword, identity, locale, offset, limit);
     links.forEach(this::computeUri);
     return links;
-  }
-
-  private void computeTitle(ContentLink contentLink) {
-    String title = getPlugin(contentLink.getObjectType()).getContentTitle(contentLink.getObjectId(),
-                                                                          contentLink.getLocale());
-    contentLink.setTitle(title);
   }
 
   private void computePluginProperties(ContentLink contentLink) {
