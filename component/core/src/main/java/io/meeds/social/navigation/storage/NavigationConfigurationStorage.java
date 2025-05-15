@@ -101,7 +101,7 @@ public class NavigationConfigurationStorage {
       }
       addMissingTopbarApplication(configuration, defaultApplications);
       removeDroppedApplications(configuration, defaultApplications);
-      updateApplicationIds(configuration, defaultApplications);
+      updateApplications(configuration, defaultApplications);
       return configuration;
     }
   }
@@ -110,7 +110,6 @@ public class NavigationConfigurationStorage {
    * Remove applications which aren't available in addon container anymore
    * 
    * @param configuration
-   * @param topbarApplications
    * @param addonContainerApplications
    */
   private void removeDroppedApplications(NavigationConfiguration configuration,
@@ -134,7 +133,6 @@ public class NavigationConfigurationStorage {
    * Add applications which are newly made available in addon container
    * 
    * @param configuration
-   * @param topbarApplications
    * @param addonContainerApplications
    */
   private void addMissingTopbarApplication(NavigationConfiguration configuration,
@@ -159,7 +157,7 @@ public class NavigationConfigurationStorage {
    * @param configuration
    * @param defaultApplications
    */
-  private void updateApplicationIds(NavigationConfiguration configuration, List<TopbarApplication> defaultApplications) {
+  private void updateApplications(NavigationConfiguration configuration, List<TopbarApplication> defaultApplications) {
     defaultApplications.forEach(defaultApp -> {
       List<TopbarApplication> topbarApplications = configuration.getTopbar().getApplications();
       TopbarApplication application = topbarApplications.stream()
@@ -169,6 +167,9 @@ public class NavigationConfigurationStorage {
                                                         .orElse(null);
       if (application != null) {
         application.setId(defaultApp.getId());
+        application.setName(defaultApp.getName());
+        application.setDescription(defaultApp.getDescription());
+        application.setIcon(defaultApp.getIcon());
       }
     });
   }
