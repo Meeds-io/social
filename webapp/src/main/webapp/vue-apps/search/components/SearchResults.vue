@@ -18,7 +18,14 @@
         v-for="result in resultsArray"
         :key="result.domId"
         class="pa-0 searchCard">
-        <search-result-card :result="result" :term="term" />
+        <search-result-card
+          v-if="!isGroupingResult(result)"
+          :result="result"
+          :term="term" />
+        <search-result-card-group
+          v-else
+          :results="result"
+          :term="term" />
       </div>
     </div>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
@@ -103,6 +110,9 @@ export default {
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
     },
+    enabledGroupingConnectorNames() {
+      return this.enabledConnectors.filter(connector => connector.groupingEnabled).map(connector => connector.name);
+    },
     searchEnabledConnectors() {
       return this.enabledConnectors.filter(connector => {
         return (connector.favoritesEnabled || !this.favorites)
@@ -114,18 +124,37 @@ export default {
         return;
       }
       const connectorNames = Object.keys(this.results);
-      let results = {};
+      const finalResults = [];
+
       connectorNames.forEach(connectorName => {
         if (this.enabledConnectorNames.includes(connectorName)) {
-          results[connectorName] = this.results[connectorName];
+          let connectorResults = this.results[connectorName];
+
+          if (this.favorites) {
+            connectorResults = connectorResults.filter(
+              result =>
+                (result.metadatas && result.metadatas.favorites) ||
+                    result.favorite ||
+                    result.isFavorite
+            );
+          }
+
+          if (this.enabledGroupingConnectorNames.includes(connectorName)) {
+            // Keep as grouped sublist
+            finalResults.push(connectorResults);
+          } else {
+            // Flatten into list
+            finalResults.push(...connectorResults);
+          }
         }
       });
-
-      results = Object.values(results).flat();
-      if (this.favorites) {
-        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite || result.isFavorite);
-      }
-      return results.sort((a, b) => a.index - b.index);
+      // Sort by index
+      finalResults.sort((a, b) => {
+        const indexA = Array.isArray(a) ? a[0]?.index ?? Infinity : a.index;
+        const indexB = Array.isArray(b) ? b[0]?.index ?? Infinity : b.index;
+        return indexA - indexB;
+      });
+      return finalResults;
     },
   },
   watch: {
@@ -355,6 +384,9 @@ export default {
           });
       });
     },
+    isGroupingResult(result) {
+      return Array.isArray(result);
+    }
   },
 };
 </script>
