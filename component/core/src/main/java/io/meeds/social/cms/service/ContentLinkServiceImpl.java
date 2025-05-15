@@ -26,6 +26,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 
 import io.meeds.social.cms.model.ContentLink;
@@ -63,7 +64,7 @@ public class ContentLinkServiceImpl implements ContentLinkService {
     }
     return getLinkIdentifiers(contentObject).stream()
                                             .filter(linkIdentifier -> canView(linkIdentifier, username))
-                                            .map(linkIdentifier -> contentLinkPluginService.getLink(linkIdentifier))
+                                            .map(this::getLink)
                                             .filter(Objects::nonNull)
                                             .toList();
   }
@@ -80,7 +81,7 @@ public class ContentLinkServiceImpl implements ContentLinkService {
       try {
         ContentLink link = getLink(new ContentLinkIdentifier(objectType, keyword, locale), username);
         return Collections.singletonList(new ContentLinkSearchResult(link));
-      } catch (IllegalAccessException e) {
+      } catch (IllegalAccessException | ObjectNotFoundException e) {
         return Collections.emptyList();
       }
     } else {
@@ -127,14 +128,20 @@ public class ContentLinkServiceImpl implements ContentLinkService {
   }
 
   @Override
-  public ContentLink getLink(ContentLinkIdentifier link, String username) throws IllegalAccessException {
-    if (!canView(link, username)) {
+  public ContentLink getLink(ContentLinkIdentifier linkIdentifier, String username) throws IllegalAccessException,
+                                                                                    ObjectNotFoundException {
+    ContentLink link = getLink(linkIdentifier);
+    if (link == null) {
+      throw new ObjectNotFoundException(String.format("Content %s:%s doesn't exist",
+                                                      linkIdentifier.getObjectType(),
+                                                      linkIdentifier.getObjectId()));
+    } else if (!canView(linkIdentifier, username)) {
       throw new IllegalAccessException(String.format("User %s can't view object of type %s with id %s",
                                                      username,
-                                                     link.getObjectType(),
-                                                     link.getObjectId()));
+                                                     linkIdentifier.getObjectType(),
+                                                     linkIdentifier.getObjectId()));
     }
-    return getLink(link);
+    return link;
   }
 
   @Override

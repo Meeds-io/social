@@ -172,7 +172,7 @@ public class ContentLinkHtmlProcessorPluginTest extends AbstractSpringConfigurat
                                         Locale.ENGLISH,
                                         userAcl.getSuperUser());
     assertNotNull(links);
-    assertEquals(1, links.size());
+    assertTrue(links.isEmpty());
   }
 
   @Test
