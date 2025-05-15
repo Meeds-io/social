@@ -703,7 +703,7 @@
     <portlet-info>
       <title>Spaces List</title>
     </portlet-info>
-     <portlet-preferences>
+    <portlet-preferences>
       <preference>
         <name>settings</name>
         <value>
@@ -1164,6 +1164,17 @@
     <portlet-info>
       <title>Space Creation</title>
     </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+            "spaceCreationTemplateChoice":"anyTemplate",
+            "spaceTemplates": null
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
   </portlet>
 
 </portlet-app>

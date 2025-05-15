@@ -37,8 +37,8 @@
       <space-creation-settings-drawer 
         :save-settings-url="$root.saveSettingsUrl"
         :saved-settings="{
-          spaceTemplates: $root.spaceTemplates,
-          spaceCreationTemplateChoice: $root.spaceCreationTemplateChoice
+          spaceTemplates: $root.settings.spaceTemplates,
+          spaceCreationTemplateChoice: $root.settings.spaceCreationTemplateChoice
         }"
         @updated="spaceCreationSettingsUpdated"
         ref="spaceCreationSettingsDrawer" />
@@ -48,19 +48,16 @@
 
 <script>
 export default {
-  data: () => ({
-  }),
   methods: {
     addNewSpace() {
-      console.warn('$root', this.$root.spaceTemplates, this.$root.spaceCreationTemplateChoice);
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, true, this.$root.spaceTemplates));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, true, typeof this.$root.settings.spaceTemplates === 'string' ? JSON.parse(this.$root.settings?.spaceTemplates) : this.$root.settings?.spaceTemplates));
     },
     openDrawerSettings() {
       this.$root.$emit('space-creation-settings-open');
     },
     spaceCreationSettingsUpdated(settings) {
-      this.$root.spaceTemplates = settings.spaceTemplates;
-      this.$root.spaceCreationTemplateChoice = settings.spaceCreationTemplateChoice;
+      this.$root.settings.spaceTemplates = settings.spaceTemplates;
+      this.$root.settings.spaceCreationTemplateChoice = settings.spaceCreationTemplateChoice;
       this.$refs.spaceCreationSettingsDrawer.close();
     }
   }

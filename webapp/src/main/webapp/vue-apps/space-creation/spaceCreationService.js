@@ -20,21 +20,19 @@
 
 export function saveSettings(saveSettingsURL, settings) {
   const formData = new FormData();
-  if (settings) {
-    Object.keys(settings).forEach(name => {
-      formData.append(name, settings[name]);
-    });
-  }
-  return fetch(saveSettingsURL.replaceAll('&amp;', '&'), {
+  formData.append('settings', JSON.stringify(settings));
+  const urlParams = new URLSearchParams(formData).toString();
+
+  return fetch(saveSettingsURL, {
     method: 'POST',
     credentials: 'include',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: new URLSearchParams(formData).toString(),
+    body: urlParams,
   }).then(resp => {
     if (!resp.ok) {
-      throw new Error('Error while saving profile header settings');
+      throw new Error('Error while saving space creation settings');
     }
   });
 }

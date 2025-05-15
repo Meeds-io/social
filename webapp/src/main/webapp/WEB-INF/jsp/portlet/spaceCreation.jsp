@@ -12,22 +12,31 @@
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
 <%
+
 UserACL userAcl = ExoContainerContext.getService(UserACL.class);
 boolean isAdministrator = ConversationState.getCurrent() != null && userAcl.isAdministrator(ConversationState.getCurrent().getIdentity());
 SpaceTemplateService spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
 SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter(request.getRemoteUser(), request.getLocale(), false);
 List<SpaceTemplate> defaultSpaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
 String defaultJson = JsonUtils.toJsonString(defaultSpaceTemplates);
-PortletPreferences preferences = renderRequest.getPreferences();
-String spaceCreationTemplateChoice = preferences.getValue("spaceCreationTemplateChoice", "anyTemplate");
-String spaceTemplates = preferences.getValue("spaceTemplates", defaultJson);
-%>
+
+Object settings = (String[]) request.getAttribute("settings");
+if (settings != null) {
+  settings = ((String[]) settings)[0];
+}
+
+String portletId = (String) request.getAttribute("portletStorageId");
+String domId = "spaceCreationApplication" + portletId;
+String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
+
+ %>
 <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
-      id="SpaceCreation">
+      id="<%=domId%>">
+      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : settings%></textarea>
       <script type="text/javascript">
-        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=spaceTemplates%>', <%=isAdministrator%>, '<%=saveSettingsUrl%>', '<%=spaceCreationTemplateChoice%>'));
+        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', '<%=defaultJson%>'));
       </script>
     </div>
   </div>

@@ -62,7 +62,7 @@
       <v-autocomplete
         v-if="spaceCreationTemplateChoice === 'fewTemplates'"
         v-model="selectedTemplates"
-        :items="$root.spaceTemplates"
+        :items="spaceTemplates"
         :placeholder="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
         item-text="name"
         item-value="id"
@@ -110,7 +110,7 @@ export default {
     drawer: false,
     savedLabelTranslations: null,
     language: eXo.env.portal.language,
-    spaceCreationTemplateChoice: 'anyTemplate',
+    spaceCreationTemplateChoice: null,
     selectedTemplates: [],
     disabled: false,
     loading: false
@@ -148,8 +148,8 @@ export default {
       this.$refs.drawer.close();
     },
     restoreSavedSettings() {
-      this.spaceTemplates = this.savedSettings?.spaceTemplates;
-      this.spaceCreationTemplateChoice = this.savedSettings.spaceCreationTemplateChoice;
+      this.spaceTemplates = typeof this.savedSettings?.spaceTemplates === 'string' ? JSON.parse(this.savedSettings?.spaceTemplates) : this.savedSettings?.spaceTemplates;
+      this.spaceCreationTemplateChoice = this.savedSettings?.spaceCreationTemplateChoice;
       if (this.spaceCreationTemplateChoice === 'fewTemplates') {
         this.selectedTemplates = this.spaceTemplates;
       }
@@ -165,7 +165,7 @@ export default {
     save() {
       this.loading = true;
       const settings = {
-        spaceTemplates: this.spaceTemplates,
+        spaceTemplates: this.selectedTemplates,
         spaceCreationTemplateChoice: this.spaceCreationTemplateChoice
       };
       this.$spaceCreationService.saveSettings(this.saveSettingsUrl , settings).then(() => {

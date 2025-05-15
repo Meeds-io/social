@@ -1,6 +1,5 @@
 package io.meeds.social.portlet;
 
-import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.application.PortalRequestContext;
@@ -11,7 +10,6 @@ import org.exoplatform.services.security.Identity;
 
 import javax.portlet.*;
 import java.io.IOException;
-import java.util.Enumeration;
 
 public class SpaceCreationPortlet extends GenericDispatchedViewPortlet {
 
@@ -24,15 +22,8 @@ public class SpaceCreationPortlet extends GenericDispatchedViewPortlet {
     }
 
     PortletPreferences preferences = request.getPreferences();
-    Enumeration<String> parameterNames = request.getParameterNames();
-    while (parameterNames.hasMoreElements()) {
-      String name = parameterNames.nextElement();
-      if (StringUtils.equals(name, "action") || StringUtils.contains(name, "portal:")) {
-        continue;
-      }
-      String value = request.getParameter(name);
-      preferences.setValue(name, value);
-    }
+    String settings = request.getParameter("settings");
+    preferences.setValue("settings", settings);
     preferences.store();
   }
 
