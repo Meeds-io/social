@@ -63,9 +63,18 @@ export async function init() {
     contentLinkApp = Vue.createApp({
       data: {
         editor: null,
-        plugins: null,
+        linkPlugins: null,
+        extensionPlugins: null,
         initPhase: 0,
         collator: new Intl.Collator(eXo.env.portal.language, {numeric: true, sensitivity: 'base'}),
+      },
+      computed: {
+        plugins() {
+          return [
+            ...(this.linkPlugins || []),
+            ...(this.extensionPlugins?.filter?.(ext => !ext.isValid || ext.isValid(this.editor)) || []),
+          ].sort(this.comparator);
+        },
       },
       watch: {
         initPhase(val) {
@@ -76,13 +85,15 @@ export async function init() {
       },
       async created() {
         document.addEventListener('content-link-drawer', this.openDrawer);
-        const plugins = await this.$contentLinkService.getExtensions();
-        this.plugins = plugins.sort(this.comparator);
+        document.addEventListener('extension-ContentLink-InsertContentExtension-updated', this.refreshExtensions);
+        this.linkPlugins = await this.$contentLinkService.getExtensions();
         await this.$utils.includeExtensions('ContentLinkExtension');
+        this.refreshExtensions();
         this.initPhase++;
       },
       beforeDestroy() {
         document.removeEventListener('content-link-drawer', this.openDrawer);
+        document.removeEventListener('extension-ContentLink-InsertContentExtension-updated', this.refreshExtensions);
       },
       mounted() {
         this.initPhase++;
@@ -117,6 +128,10 @@ export async function init() {
             newRange.select();
           }
           this.editor.insertHtml(''); // On purpose empty to force loading CKEditor content
+        },
+        refreshExtensions() {
+          this.extensionPlugins = extensionRegistry.loadExtensions('ContentLink', 'InsertContentExtension');
+          this.extensionPlugins.forEach(ext => ext.extension = true);
         },
         comparator(a, b) {
           return this.collator.compare(this.$t(a.titleKey), this.$t(b.titleKey));
