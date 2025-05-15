@@ -296,7 +296,6 @@ export default {
       return this.spaceTemplate?.spaceFields?.includes?.('access');
     },
     includeInvitation() {
-      console.warn('eXo.env.portal.userName', !!eXo.env.portal.userName, this.spaceTemplate?.spaceFields?.includes?.('invitation'));
       return !!eXo.env.portal.userName && this.spaceTemplate?.spaceFields?.includes?.('invitation');
     },
     propertiesStep() {
