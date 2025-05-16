@@ -319,7 +319,7 @@ export default {
       return !!this.activityTypeExtension?.addMargin;
     },
     mainClass() {
-      return `${!this.useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box light-grey-background-color overflow-hidden hover-elevation border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap'} ${this.addMargin && 'my-4' || ''}`;
+      return `${!this.useEmbeddedLinkView && 'd-flex flex-no-wrap' || 'activity-thumbnail-box overflow-hidden hover-elevation border-radius border-color mb-4 d-block d-sm-flex flex-sm-nowrap activity-comment-background'} ${this.addMargin && 'my-4' || ''}`;
     },
     imageMobileStyle() {
       return {
