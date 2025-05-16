@@ -34,7 +34,10 @@ const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lan
 
 export function open(templateId, isExternalFeatureEnabled, spaceTemplates) {
   if (window.spaceFormAdded) {
-    document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
+    document.dispatchEvent(new CustomEvent('addNewSpace', {detail: {
+      templateId: templateId,
+      spaceTemplates: spaceTemplates
+    }}));
   } else {
     const spaceFormElement = document.createElement('div');
     spaceFormElement.setAttribute('id', appId);
