@@ -402,23 +402,27 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates);
     },
-    openByRootEvent(templateId) {
+    openByRootEvent(templateId, spaceTemplates) {
       this.goBackButton = !templateId;
-      this.open(templateId);
+      this.open(templateId, spaceTemplates);
     },
-    async open(templateId) {
+    async open(templateId, spaceTemplates) {
       this.templateId = templateId && Number(templateId);
       this.space = {
         templateId: templateId,
         subscription: 'open',
         visibility: 'private',
       };
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      if (spaceTemplates) {
+        this.templates = spaceTemplates;
+      } else {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+        this.templates = this.$root.spaceTemplates;
       }
-      this.templates = this.$root.spaceTemplates;
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
