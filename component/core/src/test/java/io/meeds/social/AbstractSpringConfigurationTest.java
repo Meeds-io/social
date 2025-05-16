@@ -28,6 +28,7 @@ import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
 import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
 
+import io.meeds.kernel.test.AbstractSpringTest;
 import io.meeds.spring.AvailableIntegration;
 
 @SpringBootApplication(scanBasePackages = {
@@ -51,5 +52,9 @@ import io.meeds.spring.AvailableIntegration;
 })
 @RunWith(SpringRunner.class)
 public abstract class AbstractSpringConfigurationTest extends AbstractCoreTest {
+
+  protected AbstractSpringConfigurationTest() {
+    AbstractSpringTest.setTestClass(AbstractSpringConfigurationTest.class);
+  }
 
 }
