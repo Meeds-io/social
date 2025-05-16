@@ -76,11 +76,5 @@
         dependant test-jar modules
       -->
     </dependency>
-
-    <!-- Used by social-component-notification -->
-    <dependency>
-      <groupId>org.jsoup</groupId>
-      <artifactId>jsoup</artifactId>
-    </dependency>
   </dependencies>
 </project>
