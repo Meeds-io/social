@@ -56,9 +56,7 @@ export default {
       this.$root.$emit('space-creation-settings-open');
     },
     spaceCreationSettingsUpdated(settings) {
-      this.$root.settings.spaceTemplates = settings.spaceTemplates;
-      this.$root.settings.spaceCreationTemplateChoice = settings.spaceCreationTemplateChoice;
-      this.$refs.spaceCreationSettingsDrawer.close();
+      this.$root.settings = settings;
     }
   }
 };

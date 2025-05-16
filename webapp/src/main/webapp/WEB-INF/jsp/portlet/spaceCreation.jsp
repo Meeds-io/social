@@ -23,21 +23,11 @@ List<SpaceTemplate> defaultSpaceTemplates = spaceTemplateService.getSpaceTemplat
 String defaultJson = JsonUtils.toJsonString(defaultSpaceTemplates);
 
 Object rawSettings = request.getAttribute("settings");
-String settingsJson = null;
+String settings = null;
 if (rawSettings instanceof String[]) {
-  settingsJson = ((String[]) rawSettings)[0];
+  settings = ((String[]) rawSettings)[0];
 }
 
-String settings = "{}";
-if (settingsJson != null) {
-  try {
-    ObjectMapper mapper = new ObjectMapper();
-    Map<String, Object> parsedSettings = mapper.readValue(settingsJson, Map.class);
-    settings = mapper.writeValueAsString(parsedSettings);
-  } catch (Exception e) {
-    System.out.println("Error parsing settings: " + e.getMessage());
-  }
-}
 
 String portletId = (String) request.getAttribute("portletStorageId");
 String domId = "spaceCreationApplication" + portletId;
@@ -48,7 +38,7 @@ String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
-      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings%></textarea>
+      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : settings%></textarea>
       <script type="text/javascript">
         require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', <%=defaultJson%>));
       </script>

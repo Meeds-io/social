@@ -418,10 +418,10 @@ export default {
       if (spaceTemplates) {
         this.templates = spaceTemplates;
       } else {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
         this.templates = this.$root.spaceTemplates;
-      }
-      if (!this.$root.spaceTemplates) {
-        this.templates = await this.$spaceTemplateService.getSpaceTemplates();
       }
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;

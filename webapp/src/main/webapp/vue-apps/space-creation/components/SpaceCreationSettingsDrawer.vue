@@ -112,7 +112,6 @@ export default {
     language: eXo.env.portal.language,
     spaceCreationTemplateChoice: null,
     selectedTemplates: [],
-    disabled: false,
     loading: false
   }),
   props: {
@@ -132,6 +131,9 @@ export default {
     defaultLabel() {
       return {[this.language]: this.$t('space.creation.instantiation.create.button')};
     },
+    disabled() {
+      return this.savedSettings?.spaceTemplates === this.selectedTemplates && this.savedSettings.spaceCreationTemplateChoice === this.spaceCreationTemplateChoice;
+    }
   },
   created() {
     this.$root.$on('space-creation-settings-open', this.open);
@@ -165,12 +167,13 @@ export default {
     save() {
       this.loading = true;
       const settings = {
-        spaceTemplates: this.selectedTemplates,
+        spaceTemplates: this.spaceCreationTemplateChoice === 'fewTemplates' ? this.selectedTemplates : this.spaceTemplates,
         spaceCreationTemplateChoice: this.spaceCreationTemplateChoice
       };
       this.$spaceCreationService.saveSettings(this.saveSettingsUrl , settings).then(() => {
         this.$emit('updated', settings);
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.success.message'), 'success');
+        this.close();
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.error.message'), 'error');
       }).finally(() => this.loading = false);
