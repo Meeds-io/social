@@ -44,6 +44,11 @@
     <type>org.exoplatform.social.notification.mock.MockResourceBundleService</type>
   </component>
 
+  <component>
+    <key>org.exoplatform.commons.notification.template.TemplateContentTransformer</key>
+    <type>io.meeds.social.notification.service.MailTemplateContentTransformerService</type>
+  </component>
+
   <!-- template channel register -->
   <external-component-plugins>
     <target-component>org.exoplatform.commons.api.notification.channel.ChannelManager</target-component>
