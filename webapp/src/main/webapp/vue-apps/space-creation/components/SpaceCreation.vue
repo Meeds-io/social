@@ -50,7 +50,7 @@
 export default {
   methods: {
     addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, true, typeof this.$root.settings.spaceTemplates === 'string' ? JSON.parse(this.$root.settings?.spaceTemplates) : this.$root.settings?.spaceTemplates));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, true, this.$root.settings.spaceTemplates));
     },
     openDrawerSettings() {
       this.$root.$emit('space-creation-settings-open');

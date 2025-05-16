@@ -148,7 +148,7 @@ export default {
       this.$refs.drawer.close();
     },
     restoreSavedSettings() {
-      this.spaceTemplates = typeof this.savedSettings?.spaceTemplates === 'string' ? JSON.parse(this.savedSettings?.spaceTemplates) : this.savedSettings?.spaceTemplates;
+      this.spaceTemplates = this.savedSettings?.spaceTemplates;
       this.spaceCreationTemplateChoice = this.savedSettings?.spaceCreationTemplateChoice;
       if (this.spaceCreationTemplateChoice === 'fewTemplates') {
         this.selectedTemplates = this.spaceTemplates;

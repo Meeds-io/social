@@ -43,8 +43,6 @@ export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTem
     if (!settings.spaceCreationTemplateChoice) {
       settings.spaceCreationTemplateChoice = 'anyTemplate';
     }
-    settings= JSON.parse(JSON.stringify(settings));
-    
     Vue.createApp({
       data: {
         settings,
