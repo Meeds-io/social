@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,18 +48,20 @@ import lombok.SneakyThrows;
 @Component
 public class ActivityContentLinkPlugin implements ContentLinkPlugin {
 
-  public static final String                OBJECT_TYPE = ActivityPermanentLinkPlugin.OBJECT_TYPE;
+  public static final String                OBJECT_TYPE      = ActivityPermanentLinkPlugin.OBJECT_TYPE;
 
-  private static final String               TITLE_KEY   = "contentLink.activity";
+  private static final String               TITLE_KEY        = "contentLink.activity";
 
-  private static final String               ICON        = "fa fa-stream";
+  private static final String               ICON             = "fa fa-stream";
 
-  private static final String               COMMAND     = "post";
+  private static final String               COMMAND          = "post";
 
-  private static final ContentLinkExtension EXTENSION   = new ContentLinkExtension(OBJECT_TYPE,
-                                                                                   TITLE_KEY,
-                                                                                   ICON,
-                                                                                   COMMAND);
+  private static final int                  MAX_TITLE_LENGTH = 50;
+
+  private static final ContentLinkExtension EXTENSION        = new ContentLinkExtension(OBJECT_TYPE,
+                                                                                        TITLE_KEY,
+                                                                                        ICON,
+                                                                                        COMMAND);
 
   @Autowired
   private ContentLinkPluginService          contentLinkPluginService;
@@ -106,27 +107,7 @@ public class ActivityContentLinkPlugin implements ContentLinkPlugin {
   @SneakyThrows
   public String getContentTitle(String objectId, Locale locale) {
     ExoSocialActivity activity = activityManager.getActivity(objectId);
-    return activity == null ? null : getActivityTitleToDisplay(activity);
-  }
-
-  public static String getActivityTitleToDisplay(ExoSocialActivity activity) {
-    String content = getActivityTitle(activity);
-    if (!StringUtils.contains(content, String.format("%s:%s", OBJECT_TYPE, activity.getId()))) {
-      content = HtmlUtils.transform(content, null);
-    }
-    return content == null ? "" : Jsoup.parse(content).text();
-  }
-
-  public static String getActivityTitle(ExoSocialActivity activity) {
-    return StringUtils.firstNonBlank(MapUtils.getString(activity.getTemplateParams(), "title"),
-                                     MapUtils.getString(activity.getTemplateParams(), "summary"),
-                                     MapUtils.getString(activity.getTemplateParams(), "description"),
-                                     MapUtils.getString(activity.getTemplateParams(), "defaultTitle"),
-                                     MapUtils.getString(activity.getTemplateParams(), "default_title"),
-                                     MapUtils.getString(activity.getTemplateParams(), "comment"),
-                                     activity.getTitle(),
-                                     activity.getSummary(),
-                                     activity.getBody());
+    return activity == null ? null : getActivityTitle(activity);
   }
 
   @SneakyThrows
@@ -137,9 +118,22 @@ public class ActivityContentLinkPlugin implements ContentLinkPlugin {
     } else {
       return new ContentLinkSearchResult(OBJECT_TYPE,
                                          String.valueOf(searchResult.getId()),
-                                         getActivityTitleToDisplay(activity),
+                                         getActivityTitle(activity),
                                          EXTENSION.getIcon());
     }
+  }
+
+  private String getActivityTitle(ExoSocialActivity activity) {
+    String content = activityManager.getActivityTitle(activity);
+    // Avoid cyclic transformation on
+    // self object
+    if (!StringUtils.contains(content,
+                              String.format("%s:%s",
+                                            OBJECT_TYPE,
+                                            activity.getId()))) {
+      content = HtmlUtils.transform(content, null);
+    }
+    return content == null ? "" : StringUtils.abbreviate(Jsoup.parse(content).text(), MAX_TITLE_LENGTH);
   }
 
 }
