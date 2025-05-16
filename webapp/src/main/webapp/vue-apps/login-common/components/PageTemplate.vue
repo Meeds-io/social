@@ -29,8 +29,20 @@
         class="d-none d-sm-flex flex-shrink-0 full-height position-relative"
         flat
         tile>
+        <v-tooltip bottom v-if="tooltipMessage">
+          <template v-slot:activator="{ on }">
+            <img
+              v-on="on"
+              :src="background"
+              style="height: 100%;"
+              tabindex="0"
+              :alt="tooltipMessage">
+          </template>
+          <span>{{ tooltipMessage }}</span>
+        </v-tooltip>
         <img
-          v-if="background"
+          v-else
+          class
           :src="background"
           style="height: 100%;"
           alt="">
@@ -115,6 +127,9 @@ export default {
     },
   },
   computed: {
+    tooltipMessage() {
+      return this.params?.loginBackgroundAltText;
+    },
     companyName() {
       return this.params?.companyName;
     },
