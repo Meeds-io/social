@@ -27,7 +27,6 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.mop.service.NavigationService;
 
-import io.meeds.kernel.test.AbstractSpringTest;
 import io.meeds.portal.navigation.service.NavigationConfigurationService;
 import io.meeds.social.AbstractSpringConfigurationTest;
 import io.meeds.social.navigation.plugin.LinkSidebarPlugin;
@@ -89,10 +88,6 @@ public abstract class AbstractNavigationConfigurationTest extends AbstractSpring
   protected NavigationConfigurationImportService navigationConfigurationImportService;
 
   protected SpaceTemplate                        spaceTemplate;
-
-  protected AbstractNavigationConfigurationTest() {
-    AbstractSpringTest.setTestClass(this.getClass());
-  }
 
   @Before
   public void beforeEach() throws Exception {
