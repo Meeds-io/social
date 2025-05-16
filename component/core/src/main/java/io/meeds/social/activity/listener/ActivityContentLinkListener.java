@@ -38,32 +38,35 @@ public class ActivityContentLinkListener implements ActivityListener {
   @Autowired
   private PortalContainer container;
 
+  private ActivityManager activityManager;
+
   @PostConstruct
   public void init() {
-    container.getComponentInstanceOfType(ActivityManager.class).addActivityListener(this);
+    activityManager = container.getComponentInstanceOfType(ActivityManager.class);
+    activityManager.addActivityListener(this);
   }
 
   @Override
   public void saveActivity(ActivityLifeCycleEvent event) {
-    HtmlUtils.process(ActivityContentLinkPlugin.getActivityTitle(event.getActivity()),
+    HtmlUtils.process(activityManager.getActivityTitle(event.getActivity()),
                       new HtmlProcessorContext(ActivityContentLinkPlugin.OBJECT_TYPE, event.getActivityId(), null));
   }
 
   @Override
   public void updateActivity(ActivityLifeCycleEvent event) {
-    HtmlUtils.process(ActivityContentLinkPlugin.getActivityTitle(event.getActivity()),
+    HtmlUtils.process(activityManager.getActivityTitle(event.getActivity()),
                       new HtmlProcessorContext(ActivityContentLinkPlugin.OBJECT_TYPE, event.getActivityId(), null));
   }
 
   @Override
   public void saveComment(ActivityLifeCycleEvent event) {
-    HtmlUtils.process(ActivityContentLinkPlugin.getActivityTitle(event.getActivity()),
+    HtmlUtils.process(activityManager.getActivityTitle(event.getActivity()),
                       new HtmlProcessorContext(ActivityContentLinkPlugin.OBJECT_TYPE, event.getActivityId(), null));
   }
 
   @Override
   public void updateComment(ActivityLifeCycleEvent event) {
-    HtmlUtils.process(ActivityContentLinkPlugin.getActivityTitle(event.getActivity()),
+    HtmlUtils.process(activityManager.getActivityTitle(event.getActivity()),
                       new HtmlProcessorContext(ActivityContentLinkPlugin.OBJECT_TYPE, event.getActivityId(), null));
   }
 
