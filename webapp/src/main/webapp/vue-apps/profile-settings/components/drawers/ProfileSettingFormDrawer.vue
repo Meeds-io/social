@@ -505,6 +505,7 @@ export default {
       this.initialSetting = structuredClone(setting);
       this.initialLabels = JSON.parse(JSON.stringify(setting.labels));
       this.setting = { ...setting};
+      this.setting.propertyType = this.propertyTypes[0];
       this.newSetting = false;
       this.labels = JSON.parse(JSON.stringify(this.setting.labels));
       this.changes= false;
