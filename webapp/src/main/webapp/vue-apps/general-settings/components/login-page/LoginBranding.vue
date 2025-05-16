@@ -126,8 +126,10 @@
             v-model="loginBackgroundUploadId"
             :default-data="defaultLoginBackgroundSrc"
             :aspect-ratio="aspectRatio"
+            :alt-text="defaultLoginBackgroundAltText"
             @data-updated="updateLoginBackgroundData"
-            @text-color-updated="loginBackgroundTextColor = $event" />
+            @text-color-updated="loginBackgroundTextColor = $event" 
+            @text-alt-updated="loginBackgroundAltText = $event"/>
         </v-card>
       </div>
     </v-col>
@@ -172,6 +174,7 @@ export default {
   data: () => ({
     loginTitle: {},
     loginSubtitle: {},
+    loginBackgroundAltText: {},
     loginBackgroundUploadId: null,
     loginBackgroundData: null,
     loginBackgroundTextColor: null,
@@ -208,6 +211,9 @@ export default {
     },
     defaultLoginSubtitle() {
       return this.branding?.loginSubtitle || {};
+    },
+    defaultLoginBackgroundAltText() {
+      return this.branding?.loginBackgroundAltText || '';
     },
     defaultLoginBackgroundSrc() {
       return this.hasDefaultBackground && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${this.refreshImageIndex}` || null;
@@ -247,6 +253,7 @@ export default {
       const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
         loginTitle: this.loginTitle,
         loginSubtitle: this.loginSubtitle,
+        loginBackgroundAltText: this.loginBackgroundAltText,
       });
       return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
     },
@@ -262,6 +269,9 @@ export default {
     changed() {
       this.$emit('changed', this.changed);
     },
+    loginBackgroundAltText() {
+      this.branding.loginBackgroundAltText = this.loginBackgroundAltText;
+    }
   },  
   mounted() {
     this.init();
@@ -272,6 +282,7 @@ export default {
       this.refreshImageIndex = Date.now();
       this.loginTitle = this.defaultLoginTitle && JSON.parse(JSON.stringify(this.defaultLoginTitle)) || {};
       this.loginSubtitle = this.defaultLoginSubtitle && JSON.parse(JSON.stringify(this.defaultLoginSubtitle)) || {};
+      this.loginBackgroundAltText = this.branding.loginBackgroundAltText;
       this.loginBackgroundTextColor = this.branding?.loginBackgroundTextColor;
       this.loginBackgroundData = this.defaultLoginBackgroundSrc;
       this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
@@ -283,6 +294,7 @@ export default {
       this.$refs.loginBackground.preSave(branding);
       branding.loginTitle = this.loginTitle;
       branding.loginSubtitle = this.loginSubtitle;
+      branding.loginBackgroundAltText = this.loginBackgroundAltText;
 
       this.$root.loading = true;
       return this.$brandingService.updateBrandingInformation(branding)
