@@ -36,6 +36,7 @@ import org.exoplatform.commons.api.notification.plugin.BaseNotificationPlugin;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.notification.channel.MailChannel;
 import org.exoplatform.commons.notification.channel.WebChannel;
+import org.exoplatform.commons.notification.template.TemplateContentTransformerService;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -55,6 +56,8 @@ import org.exoplatform.social.notification.plugin.PostActivitySpaceStreamPlugin;
 import org.exoplatform.social.notification.plugin.RelationshipReceivedRequestPlugin;
 import org.exoplatform.social.notification.plugin.RequestJoinSpacePlugin;
 import org.exoplatform.social.notification.plugin.SpaceInvitationPlugin;
+
+import io.meeds.social.notification.service.MailTemplateContentTransformerService;
 
 /**
  * Created by The eXo Platform SAS Author : eXoPlatform thanhvc@exoplatform.com
@@ -89,6 +92,12 @@ public abstract class AbstractPluginTest extends AbstractCoreTest {
     super.setUp();
 
     userSettingService = Utils.getService(UserSettingService.class);
+    TemplateContentTransformerService contentTransformerService = Utils.getService(TemplateContentTransformerService.class);
+    if (!(contentTransformerService instanceof MailTemplateContentTransformerService)) {
+      getContainer().unregisterComponent(TemplateContentTransformerService.class);
+      getContainer().registerComponentImplementation(TemplateContentTransformerService.class,
+                                                     MailTemplateContentTransformerService.class);
+    }
 
     // set default locale to en (used for notification wording) to have
     // deterministic tests
