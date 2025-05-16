@@ -68,7 +68,6 @@ public class RichEditorConfigurationRest implements ResourceContainer {
   }
 
   @GET
-  @RolesAllowed("users")
   @Operation(summary = "Retrieves rich editor configuration Javascript file", method = "GET", description = "Returns list of tags")
   @Produces("text/javascript")
   @ApiResponses(value = {
