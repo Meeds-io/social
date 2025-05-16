@@ -30,6 +30,7 @@
       :elevation="hoverCard && 3 || 0"
       :min-width="minWidth"
       :max-width="maxWidth"
+      :aria-label="$t('spaceList.spaceCard.ariaLabel', {0: spaceDisplayName})"
       width="auto"
       class="d-flex flex-column application-border-radius border-color">
       <space-card-unread-badge :space="space" />
@@ -49,7 +50,7 @@
           flat>
           <img
             :src="space.avatarUrl"
-            :alt="$t('spaceList.spaceAvatar.alt')"
+            alt=""
             style="max-width: 1000%; max-height: 100%;"
             height="100%"
             width="auto"
