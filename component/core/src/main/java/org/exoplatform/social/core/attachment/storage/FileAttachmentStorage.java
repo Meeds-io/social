@@ -34,6 +34,8 @@ import org.exoplatform.social.attachment.model.ObjectAttachmentDetail;
 import org.exoplatform.social.attachment.model.ObjectAttachmentId;
 import org.exoplatform.social.common.Utils;
 
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
+
 public class FileAttachmentStorage {
 
   private static final Log      LOG                = ExoLogger.getLogger(FileAttachmentStorage.class);
@@ -107,11 +109,14 @@ public class FileAttachmentStorage {
     }
     if (StringUtils.contains(fileInfo.getMimetype(), "image/") && StringUtils.isNotBlank(imageDimensions)) {
       int[] dimension = Utils.parseDimension(imageDimensions);
+      if (dimension[0] == 0 || dimension[1] == 0) return fileItem.getAsStream();
       try {
-        FileItem imageFileItem = imageThumbnailService.getOrCreateThumbnail(fileItem,
+        FileItem imageFileItem = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                Long.toString(fileId),
+                fileInfo.getUpdater(),
                                                                             dimension[0],
                                                                             dimension[1]);
-        return imageFileItem.getAsStream();
+        return imageFileItem != null ? imageFileItem.getAsStream() : fileItem.getAsStream();
       } catch (Exception e) {
         LOG.warn("Error while resizing attachment with Id {}, original Image will be returned",
                  fileId,
