@@ -87,4 +87,38 @@ public class ImageThumbnailServiceImplTest extends AbstractCoreTest {
             thumbnailObject);
     assertEquals(1, metadataItemList.size());
   }
+
+  public void testGetOrCreateThumbnailByFiletype() throws Exception {
+    MetadataType metadataType = new MetadataType(5, "thumbnail");
+    File file = new File(getClass().getClassLoader().getResource("test.png").getFile());
+    byte[] content = Files.readAllBytes(file.toPath());
+    FileItem fileThumbnail = new FileItem(null,
+            "testAvatar",
+            "image/png",
+            "social",
+            content.length,
+            new Date(),
+            userIdentity.getRemoteId(),
+            false,
+            new ByteArrayInputStream(content));
+    fileThumbnail = fileService.writeFile(fileThumbnail);
+    FileInfo fileInfo = fileThumbnail.getFileInfo();
+    ThumbnailObject thumbnailObject = new ThumbnailObject("file", Long.toString(fileInfo.getId()));
+    List<MetadataItem> metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
+            thumbnailObject);
+    assertEquals(0, metadataItemList.size());
+    FileItem thumbnail = imageThumbnailService.getOrCreateThumbnail("file", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
+
+    assertNotNull(thumbnail);
+
+    metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
+            thumbnailObject);
+    assertEquals(1, metadataItemList.size());
+
+    thumbnail = imageThumbnailService.getOrCreateThumbnail("file", String.valueOf(fileInfo.getId()), fileInfo.getUpdater(), 45, 45);
+    assertNotNull(thumbnail);
+    metadataItemList = metadataService.getMetadataItemsByMetadataTypeAndObject(metadataType.getName(),
+            thumbnailObject);
+    assertEquals(1, metadataItemList.size());
+  }
 }

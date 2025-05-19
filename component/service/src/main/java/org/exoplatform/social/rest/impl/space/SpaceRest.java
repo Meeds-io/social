@@ -22,37 +22,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.EntityTag;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Request;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.file.model.FileInfo;
+import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -96,12 +79,12 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.category.service.CategoryService;
+import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 import io.meeds.social.util.JsonUtils;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -587,11 +570,19 @@ public class SpaceRest implements ResourceContainer {
         int[] dimension = Utils.parseDimension(size);
         try {
           byte[] avatarContent = null;
+            FileItem avatarFile = identityManager.getAvatarFile(identity);
           if (identityManager.getAvatarFile(identity) != null) {
-            avatarContent = imageThumbnailService.getOrCreateThumbnail(identityManager.getAvatarFile(identity),
-                                                                       dimension[0],
-                                                                       dimension[1])
-                                                 .getAsByte();
+              if (dimension[0] == 0 || dimension[1] == 0) {
+                  avatarContent = avatarFile.getAsByte();
+              } else {
+                  FileInfo fileInfo = avatarFile.getFileInfo();
+                  FileItem file = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
+                          Long.toString(fileInfo.getId()),
+                          fileInfo.getUpdater(),
+                          dimension[0],
+                          dimension[1]);
+                  avatarContent = file != null ? file.getAsByte() : avatarFile.getAsByte();
+              }
           }
           if (avatarContent != null) {
             builder = Response.ok(avatarContent, "image/png");

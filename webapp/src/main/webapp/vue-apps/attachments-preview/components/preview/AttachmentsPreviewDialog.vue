@@ -25,27 +25,7 @@
     content-class="overflow-y-initial"
     max-width="80vw">
     <template v-if="dialog">
-      <div class="ignore-vuetify-classes ClearFix preview-attachment-action d-flex justify-end">
-        <v-btn
-          id="preview-attachment-download"
-          :href="downloadURL"
-          :download="attachmentFilename"
-          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-          :title="$t('attachment.imageDownload')"
-          icon
-          class="white--text">
-          <i class="fas fa-download"></i>
-        </v-btn>
-        <v-btn
-          id="preview-attachment-close"
-          :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-          :title="$t('attachment.closePreview')"
-          icon
-          class="white--text ml-4"
-          @click="close">
-          <i class="fas fa-times"></i>
-        </v-btn>
-      </div>
+      <attachment-preview-actions :attachment="attachment" :is-mobile="isMobile"/>
       <v-card 
         flat
         :max-height="!isMobile && '80vh' || '75vh'"
@@ -89,11 +69,8 @@ export default {
     previewExtensions: [],
   }),
   computed: {
-    downloadURL() {
-      return `${eXo.env.portal.context}${ this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).downloadUrl}?size=0x0&download=true` || this.fileUrl;
-    },
-    attachmentFilename() {
-      return  this.attachments?.length && this.attachments.find(attachment => attachment.id === this.currentAttachmentId).filename || this.filename;
+    attachment() {
+      return this.attachments?.length && this.attachments.find(attach => attach.id === this.currentAttachmentId) || null;
     },
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
@@ -119,6 +96,7 @@ export default {
     this.refreshPreviewExtensions();
     document.addEventListener(`extension-${this.previewExtensionApp}-${this.previewExtensionType}-updated`, this.refreshPreviewExtensions);
     document.addEventListener('open-preview-dialog', this.openPreview);
+    this.$root.$on('close-preview-dialog', this.close);
     document.addEventListener('keydown', (event) => {
       if (this.$refs.attachmentsCarousel) {
         if (event.key === 'Escape') {
@@ -130,6 +108,9 @@ export default {
         }
       }
     });
+  },
+  beforeDestroy() {
+    this.$root.$off('close-preview-dialog', this.close);
   },
   methods: {
     refreshPreviewExtensions() {
