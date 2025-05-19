@@ -13,7 +13,7 @@
       @select-all-connector="selectAllConnector"
       @select-connector="selectConnector" />
     <v-divider />
-    <div v-if="hasResults" class="d-flex flex-column border-box-sizing">
+    <div v-if="hasResults" class="searchResultsParent d-flex flex-column border-box-sizing">
       <div
         v-for="result in resultsArray"
         :key="result.domId"
