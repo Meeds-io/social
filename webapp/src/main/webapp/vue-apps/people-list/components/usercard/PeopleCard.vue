@@ -17,6 +17,8 @@
       :space-members-extensions="spaceMembersExtensions"
       :url="url"
       :user-avatar-url="userAvatarUrl"
+      :display-compact-menu-button="displayCompactMenuButton"
+      :attach-menu="attachMenu"
       :is-updating-status="sendingAction || sendingSecondAction" />
   </v-flex>
 </template>
@@ -51,6 +53,14 @@ export default {
       type: Boolean,
       default: false,
     },
+    displayCompactMenuButton: {
+      type: Boolean,
+      default: false
+    },
+    attachMenu: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     sendingAction: false,
