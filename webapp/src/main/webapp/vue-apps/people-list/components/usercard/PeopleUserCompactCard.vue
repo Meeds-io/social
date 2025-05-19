@@ -39,10 +39,10 @@
           :user-navigation-extensions="userNavigationExtensions"
           :space-members-extensions="spaceMembersExtensions"
           :profile-action-extensions="profileActionExtensions"
-          :display-menu-button="$root.isMobile || hover"
+          :display-menu-button="displayCompactMenuButton || $root.isMobile || hover"
           :bottom-menu="$root.isMobile"
-          menu-button-class="me-1"
-          attach-menu />
+          :attach-menu="attachMenu"
+          menu-button-class="me-1" />
       </div>
       <div class="peopleAvatar">
         <a :href="url" :aria-label="$t('profileSettings.label.profile')">
@@ -130,6 +130,14 @@ export default {
     isUpdatingStatus: {
       type: Boolean,
       default: false
+    },
+    displayCompactMenuButton: {
+      type: Boolean,
+      default: false
+    },
+    attachMenu: {
+      type: Boolean,
+      default: true
     }
   },
   data: () => ({
