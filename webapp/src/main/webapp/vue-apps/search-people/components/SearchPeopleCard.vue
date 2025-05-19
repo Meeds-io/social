@@ -1,10 +1,29 @@
 <template>
-  <people-card
-    :user="result"
-    :profile-action-extensions="profileActionExtensions"
-    :mobile-display="isMobile"
-    embedded
-    @refresh="$emit('refresh')" />
+  <v-hover v-slot="{ hover }">
+    <v-card
+      @click="openUserProfile()"
+      class="border-box-sizing fill-height"
+      :class="{
+        'full-width': isMobile
+      }"
+      width="350"
+      :height="100"
+      :min-height="100"
+      :max-height="100"
+      :elevation="hover && 3 || 0"
+      outlined
+      flat
+      rounded>
+      <people-card
+        class="d-flex fill-height"
+        :user="result"
+        :profile-action-extensions="profileActionExtensions"
+        :mobile-display="isMobile"
+        :attach-menu="false"
+        display-compact-menu-button
+        compact-display />
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
@@ -30,5 +49,12 @@ export default {
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
   },
+  methods: {
+    openUserProfile() {
+      if (this.result?.username) {
+        window.location.href = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile/${this.result.username}`;
+      }
+    }
+  }
 };
 </script>
