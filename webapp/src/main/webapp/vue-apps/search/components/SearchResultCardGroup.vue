@@ -26,8 +26,10 @@
     class="pa-0">
     <v-list class="pa-0">
       <v-list-item>
-        <v-list-item-icon class="ms-n1 me-2">
-          <v-icon size="32" class="icon-default-color mt-2">{{ connectorIcon }}</v-icon>
+        <v-list-item-icon class="me-2">
+          <v-sheet class="d-flex align-center justify-center" width="32">
+            <v-icon size="32" class=" icon-default-color mt-2">{{ connectorIcon }}</v-icon>
+          </v-sheet>
         </v-list-item-icon>
 
         <v-list-item-content>
