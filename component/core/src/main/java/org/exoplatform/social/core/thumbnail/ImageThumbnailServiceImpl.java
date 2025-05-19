@@ -97,8 +97,7 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
       return getOrCreateThumbnail(null, file, width, height);
     } catch (FileStorageException e) {
       LOG.warn("Error while getting thumbnail for image with file Id {}, original Image will be returned",
-              fileInfo.getId(),
-              e.getMessage());
+              fileInfo.getId(), e);
       return file;
     }
   }
