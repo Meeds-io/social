@@ -7,9 +7,9 @@
         'full-width': isMobile
       }"
       width="350"
-      :height="100"
-      :min-height="100"
-      :max-height="100"
+      :height="80"
+      :min-height="80"
+      :max-height="80"
       :elevation="hover && 3 || 0"
       outlined
       flat
