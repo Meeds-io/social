@@ -30,7 +30,7 @@
         flat
         tile>
         <v-tooltip bottom v-if="tooltipMessage">
-          <template v-slot:activator="{ on }">
+          <template #activator="{ on }">
             <img
               v-on="on"
               :src="background"
