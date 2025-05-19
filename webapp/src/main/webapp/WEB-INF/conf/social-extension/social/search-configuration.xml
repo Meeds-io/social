@@ -102,6 +102,9 @@
             <field name="icon">
               <string>fas fa-users</string>
             </field>
+            <field name="groupingEnabled">
+              <boolean>true</boolean>
+            </field>
           </object>
         </object-param>
       </init-params>
