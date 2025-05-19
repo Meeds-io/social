@@ -542,8 +542,8 @@ export default {
         this.replaceSuggestedUsers(content, mentionedUsers, this.spaceId);
       }
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1]);
+        content = content.replace(/\n* *<oembed>(.*)\n*<\/oembed>/g, '');
         if (this.supportsOembed) {
           content = `${content}<oembed>${oembedUrl}</oembed>`;
         }
@@ -570,12 +570,12 @@ export default {
       if (!content.includes('<oembed>') && cleanOembedParams && this.oembedParams) {
         this.clearOembedParams();
       } else if (!this.templateParams && (this.oembedParams?.url || this.oembedParams?.link)) {
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, '');
         const link = this.oembedParams?.url || this.oembedParams?.link;
-        content = `${content}<oembed>${window.encodeURIComponent(link)}</oembed>`;
+        content = `${content}<oembed>${window.encodeURIComponent(link?.trim?.())}</oembed>`;
       } else if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = content.match(/<oembed>(.*)<\/oembed>/i)[1];
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+        const oembedUrl = content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1];
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, `<oembed>${oembedUrl?.trim?.()}</oembed>`);
       }
       return this.getContentWithOembedHtml(content);
     },
@@ -622,9 +622,8 @@ export default {
         return '';
       }
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1]);
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
       if (content.includes('<a') && content.includes('</a>')) {
         const tempdiv = document.createElement('div');

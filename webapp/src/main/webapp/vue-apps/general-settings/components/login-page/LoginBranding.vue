@@ -129,7 +129,7 @@
             :alt-text="defaultLoginBackgroundAltText"
             @data-updated="updateLoginBackgroundData"
             @text-color-updated="loginBackgroundTextColor = $event" 
-            @text-alt-updated="loginBackgroundAltText = $event"/>
+            @text-alt-updated="loginBackgroundAltText = $event" />
         </v-card>
       </div>
     </v-col>
