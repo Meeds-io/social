@@ -7,7 +7,8 @@
     :class="{
       'd-none d-sm-flex': !drawer,
       'v-navigation-drawer--is-mobile snippet-mobile-menu rounded-tr-xl rounded-tl-xl pt-5': bottom,
-      'layout-drawer': isBrandingLayout
+      'layout-drawer': isBrandingLayout,
+      'z-index-snackbar': increaseZindex,
     }"
     :absolute="!fixed"
     :fixed="fixed"
@@ -203,6 +204,7 @@ export default {
     drawerLoading: false,
     expand: false,
     modalOpened: false,
+    increaseZindex: false,
   }),
   computed: {
     rightDrawer() {
@@ -276,6 +278,9 @@ export default {
         }
       } else if (!this.initialized) {
         this.initialized = true;
+      }
+      if (this.drawer) {
+        this.increaseZindex = !!document.querySelector('.v-dialog--active');
       }
 
       this.$emit('input', this.drawer);
