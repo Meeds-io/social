@@ -32,22 +32,17 @@
         {{ $t('space.creation.instantiation.settingsDrawer.content.updateBtnTitle') }}
       </div>
       <translation-text-field
-        :object-id="applicationId"
-        object-type="spaceCreation"
-        field-name="label"
-        :field-value="displayedValue"
-        :drawer-title="$t('space.creation.instantiation.settingsDrawer.translateLabel')"
+        v-model="settings.labelTranslations"
+        :maxlength="maxLabelLength"
+        :rules="rules.label"
+        drawer-title="space.creation.instantiation.settingsDrawer.translateLabel"
         class="width-auto flex-grow-1 px-5"
-        no-expand-icon
-        back-icon
-        required
-        @update:field-value="updateFieldValue"
-        @input="translationUpdated" />
+        back-icon />
       <div class="text-header py-4 px-5">
         {{ $t('space.creation.instantiation.settingsDrawer.content.chooseTemplateTitle') }}
       </div>
       <v-radio-group
-        v-model="spaceCreationTemplateChoice"
+        v-model="settings.spaceCreationTemplateChoice"
         class="mt-0 px-5"
         mandatory>
         <v-radio value="anyTemplate">
@@ -62,9 +57,9 @@
         </v-radio>
       </v-radio-group>
       <v-autocomplete
-        v-if="spaceCreationTemplateChoice === 'fewTemplates'"
+        v-if="settings.spaceCreationTemplateChoice === 'fewTemplates'"
         v-model="selectedTemplates"
-        :items="spaceTemplates"
+        :items="settings.spaceTemplates"
         :placeholder="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
         item-text="name"
         item-value="id"
@@ -76,7 +71,7 @@
         multiple
         return-object
         dense />
-      <div v-if="spaceCreationTemplateChoice === 'fewTemplates'" class="px-4">
+      <div v-if="settings.spaceCreationTemplateChoice === 'fewTemplates'" class="px-4">
         <v-chip
           v-for="template in selectedTemplates"
           :key="template.id"
@@ -108,47 +103,48 @@
 </template>
 <script>
 export default {
-  data() {
-    return {
-      drawer: false,
-      labelTranslations: [],
-      language: eXo.env.portal.language,
-      spaceCreationTemplateChoice: null,
-      selectedTemplates: [],
-      loading: false,
-      defaultLangValue: this.$t('space.creation.instantiation.create.button'),
-      translationsInitialized: false,
-      currentLabelTranslations: []
-    };
-  },
-  props: {
-    savedSettings: {
-      type: Object,
-      default: null
-    },
-    saveSettingsUrl: {
-      type: String,
-      default: null
-    }
-  },
+  data: () => ({
+    drawer: false,
+    labelTranslations: [],
+    selectedTemplates: [],
+    loading: false,
+    maxLabelLength: 150,
+    settings: {},
+    originalSettings: {}
+  }),
   computed: {
+    modified() {
+      return (this.settings.spaceCreationTemplateChoice !== this.originalSettings.spaceCreationTemplateChoice
+           && JSON.stringify(this.settings.spaceTemplates) !== JSON.stringify(this.originalSettings.spaceTemplates))
+          || JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
+    },
     disabled() {
-      return (this.savedSettings?.spaceTemplates === this.selectedTemplates && this.savedSettings.spaceCreationTemplateChoice === this.spaceCreationTemplateChoice)
-          || JSON.stringify(this.currentLabelTranslations) !== JSON.stringify(this.labelTranslations);
+      return !this.modified || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
+      || (this.settings.spaceCreationTemplateChoice === 'fewTemplates' && !this.selectedTemplates.length);
     },
-    applicationId() {
-      return this.$root.appId;
-    },
-    displayedValue() {
-      return this.labelTranslations?.[this.language] || this.defaultLangValue;
+    rules() {
+      return {
+        label: [
+          v => !!v?.length || ' ',
+          v => !v?.length || v.length <= this.maxLabelLength || this.$t('space.creation.instantiation.settingsDrawer.labelExceedsMaxLength', {
+            0: this.maxLabelLength,
+          }),
+        ],
+      };
     },
   },
   watch: {
     selectedTemplates() {
       if (!this.selectedTemplates.length) {
-        this.spaceTemplates = this.$root.spaceTemplates;
+        this.settings.spaceTemplates = this.$root.spaceTemplates;
       }
-    }
+    },
+    settings() {
+      if (Object.keys(this.settings.labelTranslations).length === 0) {
+        this.settings.labelTranslations = {[eXo.env.portal.defaultLanguage]: this.$t('space.creation.instantiation.create.button')};
+        this.originalSettings.labelTranslations = {[eXo.env.portal.defaultLanguage]: this.$t('space.creation.instantiation.create.button')};
+      }
+    },
   },
   created() {
     this.$root.$on('space-creation-settings-open', this.open);
@@ -157,16 +153,6 @@ export default {
     this.$root.$off('space-creation-settings-open', this.open);
   },
   methods: {
-    translationUpdated(translations) {
-      this.labelTranslations = translations;
-      if (!this.translationsInitialized) {
-        this.currentLabelTranslations = structuredClone(this.labelTranslations);
-        this.translationsInitialized = true;
-      }
-    },
-    updateFieldValue(value) {
-      this.defaultLangValue = value;
-    },
     open() {
       this.restoreSavedSettings();
       this.$refs.drawer.open();
@@ -175,13 +161,14 @@ export default {
       this.$refs.drawer.close();
     },
     restoreSavedSettings() {
-      this.spaceTemplates = this.savedSettings?.spaceTemplates;
-      this.spaceCreationTemplateChoice = this.savedSettings?.spaceCreationTemplateChoice;
-      if (this.spaceCreationTemplateChoice === 'fewTemplates') {
-        this.selectedTemplates = this.spaceTemplates;
+      this.settings = JSON.parse(JSON.stringify(this.$root.settings));
+      this.originalSettings = JSON.parse(JSON.stringify(this.settings));
+      if (this.settings.spaceCreationTemplateChoice === 'fewTemplates') {
+        this.selectedTemplates = this.settings.spaceTemplates;
       }
     },
     reset() {
+      this.close();
       this.restoreSavedSettings();
     },
     removeTemplate(template) {
@@ -191,22 +178,15 @@ export default {
     },
     save() {
       this.loading = true;
-      const settings = {
-        spaceTemplates: this.spaceCreationTemplateChoice === 'fewTemplates' ? this.selectedTemplates : this.spaceTemplates,
-        spaceCreationTemplateChoice: this.spaceCreationTemplateChoice
-      };
-      this.$spaceCreationService.saveSettings(this.saveSettingsUrl , settings).then(() => {
-        this.saveLabelTranslations();
-        this.$emit('updated', settings);
+      this.settings.spaceTemplates = this.selectedTemplates;
+      this.$spaceCreationService.saveSettings(this.$root.saveSettingsUrl , this.settings).then(() => {
+        this.$emit('updated', this.settings);
+        this.$root.settings = this.settings;
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.success.message'), 'success');
         this.close();
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.error.message'), 'error');
       }).finally(() => this.loading = false);
-    },
-    async saveLabelTranslations() {
-      await this.$translationService.saveTranslations('spaceCreation', this.applicationId, 'label', this.labelTranslations);
-      this.currentLabelTranslations = structuredClone(this.labelTranslations);
     },
   },
 };
