@@ -159,4 +159,12 @@ public interface ProfilePropertyService {
    * @return {@link List} of {@link String}
    */
   List<String> getExcludedAnalyticsIndexProperties();
+
+  /**
+   * Retrieves the list of all {@link ProfilePropertySetting}
+   * objects without excluded properties
+   *
+   * @return {@link List} of {@link ProfilePropertySetting}
+   */
+  List<ProfilePropertySetting> getFilteredPropertySettings();
 }

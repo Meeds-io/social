@@ -35,6 +35,9 @@ import org.hibernate.annotations.BatchSize;
 @NamedQuery(name = "SocProfileSettingEntity.findSynchronizedSettings", query = "SELECT c FROM SocProfileSettingEntity c WHERE c.isGroupSynchronized = true")
 @NamedQuery(name = "SocProfileSettingEntity.findOrderedSettings", query = "SELECT c FROM SocProfileSettingEntity c order by c.order")
 @NamedQuery(name = "SocProfileSettingEntity.countChildProperties", query = "SELECT COUNT(c) FROM SocProfileSettingEntity c WHERE c.parentId = :id")
+@NamedQuery(name = "SocProfileSettingEntity.findOrderedFilteredSettings",
+            query = "SELECT c FROM SocProfileSettingEntity c WHERE c.propertyName NOT IN :excludedProperties ORDER BY c.order")
+
 
 @NoArgsConstructor
 @AllArgsConstructor

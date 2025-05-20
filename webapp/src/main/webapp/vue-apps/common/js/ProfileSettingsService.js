@@ -19,8 +19,8 @@
  */
 
 
-export function getSettings() {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings`, {
+export function getSettings(filtered) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/profile/settings?filtered=${filtered || false}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

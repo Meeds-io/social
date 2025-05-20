@@ -48,10 +48,16 @@ public class ProfilePropertySettingDAO extends GenericDAOJPAImpl<ProfileProperty
     return query.getResultList();
   }
 
-  public List<ProfilePropertySettingEntity> findOrderedSettings() {
-    TypedQuery<ProfilePropertySettingEntity> query =
-                                                   getEntityManager().createNamedQuery("SocProfileSettingEntity.findOrderedSettings",
-                                                                                       ProfilePropertySettingEntity.class);
+  public List<ProfilePropertySettingEntity> findOrderedSettings(List<String> excludedProperties) {
+    TypedQuery<ProfilePropertySettingEntity> query;
+    if (excludedProperties.isEmpty()) {
+      query = getEntityManager().createNamedQuery("SocProfileSettingEntity.findOrderedSettings",
+                                                  ProfilePropertySettingEntity.class);
+    } else {
+      query = getEntityManager().createNamedQuery("SocProfileSettingEntity.findOrderedFilteredSettings",
+                                                  ProfilePropertySettingEntity.class);
+      query.setParameter("excludedProperties", excludedProperties);
+    }
     return query.getResultList();
   }
 

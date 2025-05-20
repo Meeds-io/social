@@ -179,7 +179,7 @@ export default {
       }
     },
     getSettings() {
-      return this.$profileSettingsService.getSettings()
+      return this.$profileSettingsService.getSettings(true)
         .then(settings => {
           this.settings = settings?.settings || [];
           this.unHiddenableProperties = settings?.unHiddenableProperties;

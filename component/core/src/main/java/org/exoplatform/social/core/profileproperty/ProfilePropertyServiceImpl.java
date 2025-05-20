@@ -75,6 +75,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
   private static final String                        EXCLUDED_ANALYTICS_INDEX_PROPERTIES    = "excludedAnalyticsIndexProperties";
 
+  private static final String                        EXCLUDED_PROFILE_PROPERTIES            = "excludedProfileProperties";
+
   private static final Scope                         HIDDEN_PROFILE_PROPERTY_SETTINGS_SCOPE =
                                                                                             Scope.APPLICATION.id("ProfilePropertySettings");
 
@@ -93,6 +95,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private List<String>                               excludedQuickSearchProps               = new ArrayList<>();
 
   private List<String>                               excludedAnalyticsIndexProps            = new ArrayList<>();
+
+  private List<String>                               excludedProfileProperties              = new ArrayList<>();
 
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
@@ -117,6 +121,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
         excludedAnalyticsIndexProps = Arrays.asList(params.getValueParam(EXCLUDED_ANALYTICS_INDEX_PROPERTIES)
                                                           .getValue()
                                                           .split(","));
+        excludedProfileProperties = Arrays.asList(params.getValueParam(EXCLUDED_PROFILE_PROPERTIES).getValue().split(","));
       } catch (Exception e) {
         LOG.warn("List of disabled properties for synchronization not provided, all properties can be synchronized! ");
       }
@@ -126,6 +131,11 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   @Override
   public List<ProfilePropertySetting> getPropertySettings() {
     return profileSettingStorage.getPropertySettings();
+  }
+
+  @Override
+  public List<ProfilePropertySetting> getFilteredPropertySettings() {
+    return profileSettingStorage.getFilteredPropertySettings(excludedProfileProperties);
   }
 
   @Override

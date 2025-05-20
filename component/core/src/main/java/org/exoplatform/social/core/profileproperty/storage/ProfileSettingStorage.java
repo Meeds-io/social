@@ -45,7 +45,11 @@ public class ProfileSettingStorage {
   }
 
   public List<ProfilePropertySetting> getPropertySettings() {
-    return profilePropertySettingDAO.findOrderedSettings().stream().map(this::convertFromEntity).toList();
+    return profilePropertySettingDAO.findOrderedSettings(new ArrayList<>()).stream().map(this::convertFromEntity).toList();
+  }
+
+  public List<ProfilePropertySetting> getFilteredPropertySettings(List<String> excludedProperties) {
+    return profilePropertySettingDAO.findOrderedSettings(excludedProperties).stream().map(this::convertFromEntity).toList();
   }
 
   public List<ProfilePropertySetting> getSynchronizedPropertySettings() {

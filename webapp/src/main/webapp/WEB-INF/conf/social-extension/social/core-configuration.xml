@@ -598,6 +598,10 @@
                 <name>excludedAnalyticsIndexProperties</name>
                 <value>${social.profile.excludedAnalyticsIndex.properties:fullName,firstName,lastName,email}</value>
             </value-param>
+            <value-param>
+                <name>excludedProfileProperties</name>
+                <value>${social.profile.excluded.properties:}</value>
+            </value-param>
         </init-params>
     </component>
 

@@ -79,15 +79,19 @@ public class ProfileSettingsRest implements ResourceContainer {
     @ApiResponse(responseCode = "200", description = "Request fulfilled"),
     @ApiResponse(responseCode = "500", description = "Internal server error"),
     @ApiResponse(responseCode = "401", description = "Unauthorized operation") })
-  public Response getPropertySettings(@Context
-  UriInfo uriInfo, @Context
-  Request request) {
+  public Response getPropertySettings(@Context UriInfo uriInfo, @Context Request request,
+                                      @QueryParam("filtered") @DefaultValue("false") boolean filtered) {
     long currentIdentityId = RestUtils.getCurrentUserIdentityId();
     if (currentIdentityId == 0) {
       return Response.status(Response.Status.UNAUTHORIZED).build();
     }
     try {
-      List<ProfilePropertySetting> properties = profilePropertyService.getPropertySettings();
+      List<ProfilePropertySetting> properties;
+      if(filtered) {
+        properties = profilePropertyService.getFilteredPropertySettings();
+      } else {
+        properties = profilePropertyService.getPropertySettings();
+      }
       if (!ConversationState.getCurrent().getIdentity().isMemberOf(GROUP_ADMINISTRATORS)) {
         properties = properties.stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList();
       }
