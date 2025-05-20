@@ -18,14 +18,14 @@
 -->
 <template>
   <v-btn
-      id="preview-attachment-close"
-      :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
-      :title="$t('attachment.closePreview')"
-      icon
-      class="white--text ml-1"
-      @click="$root.$emit('close-preview-dialog');">
-      <i class="fas fa-times"></i>
-    </v-btn>
+    id="preview-attachment-close"
+    :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
+    :title="$t('attachment.closePreview')"
+    icon
+    class="white--text ml-1"
+    @click="$root.$emit('close-preview-dialog');">
+    <i class="fas fa-times"></i>
+  </v-btn>
 </template>
 <script>
 export default {
