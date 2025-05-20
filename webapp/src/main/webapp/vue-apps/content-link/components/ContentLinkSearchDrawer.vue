@@ -25,6 +25,7 @@
     v-model="drawer"
     :right="!$vuetify.rtl"
     :loading="loading"
+    class="z-index-snackbar"
     go-back-button>
     <template v-if="drawer" #title>
       {{ $t('contentLink.drawer.search.title', {0: $t(plugin.titleKey)}) }}
