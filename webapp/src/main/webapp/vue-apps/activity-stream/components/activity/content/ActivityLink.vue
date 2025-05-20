@@ -111,7 +111,7 @@
           :child="summaryElement"
           :title="summaryTooltip"
           :class="bodyClass"
-          class="text-wrap text-break reset-style-box rich-editor-content"
+          class="text-wrap text-break reset-style-box rich-editor-content text-color"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
@@ -131,7 +131,7 @@
             class="icon-default-color">
             fas fa-eye
           </v-icon>
-          <span class="ms-1 text-subtitle">
+          <span class="ms-1 text-subtitle text-color">
             {{ activityViewsCount }}
           </span>
         </div>
@@ -298,7 +298,7 @@ export default {
       };
     },
     bodyClass() {
-      return `${this.textTruncate || ''} ${this.useEllipsisOnSummary && 'text-light-color' || 'text-color'} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
+      return `${this.textTruncate || ''} ${!this.useEllipsisOnSummary && this.collapsed && !this.fullContent && 'text-truncate-4' || ''} ${this.regularFontSizeOnSummary && 'text-font-size' || 'caption'}`;
     },
     textTruncate() {
       return this.useEllipsisOnSummary && `text-truncate-${this.summaryLinesToDisplay}`;
