@@ -22,7 +22,8 @@
     ref="drawer"
     v-model="drawer"
     :right="!$vuetify.rtl"
-    :loading="loading">
+    :loading="loading"
+    class="z-index-snackbar">
     <template #title>
       {{ $t('contentLink.drawer.title') }}
     </template>
