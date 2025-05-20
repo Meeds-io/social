@@ -23,17 +23,28 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.portal.config.UserACL;
 
 import io.meeds.social.translation.plugin.TranslationPlugin;
+import io.meeds.social.translation.service.TranslationService;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+
+@Component
 public class SpaceCreationLabelTranslation extends TranslationPlugin {
-    
-  public static final String SPACE_CREATION_OBJECT_TYPE = "spaceCreation";
-  
-  private final UserACL      userACL;
 
-  public SpaceCreationLabelTranslation(UserACL userACL) {
-    this.userACL = userACL;
+  public static final String SPACE_CREATION_OBJECT_TYPE = "spaceCreation";
+
+  @Autowired
+  private TranslationService  translationService;
+
+  @Autowired
+  private UserACL            userACL;
+
+  @PostConstruct
+  public void init() {
+    translationService.addPlugin(this);
   }
- 
+
   @Override
   public String getObjectType() {
     return SPACE_CREATION_OBJECT_TYPE;
@@ -41,7 +52,7 @@ public class SpaceCreationLabelTranslation extends TranslationPlugin {
 
   @Override
   public boolean hasAccessPermission(long objectId, String username) throws ObjectNotFoundException {
-    return userACL.isAdministrator(userACL.getUserIdentity(username));
+    return true;
   }
 
   @Override

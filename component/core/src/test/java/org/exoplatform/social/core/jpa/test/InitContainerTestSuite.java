@@ -67,7 +67,6 @@ import org.exoplatform.social.core.space.SpaceUtilsTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceTest;
 import org.exoplatform.social.core.thumbnail.ImageThumbnailServiceImplTest;
 import org.exoplatform.social.core.utils.MentionUtilsTest;
-import org.exoplatform.social.core.plugin.SpaceCreationLabelTranslationTest;
 import org.exoplatform.social.metadata.MetadataServiceTest;
 import org.exoplatform.social.metadata.favorite.FavoriteServiceTest;
 import org.exoplatform.social.metadata.tag.TagServiceTest;
@@ -130,7 +129,6 @@ import io.meeds.social.translation.service.TranslationServiceTest;
   ManagerPropertySettingUpdatedListenerTest.class,
   ProfilePropertySettingOptionTranslationTest.class,
   ProfilePropertySettingOptionTranslationListenerTest.class,
-  SpaceCreationLabelTranslationTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

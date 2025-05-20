@@ -19,34 +19,27 @@
  */
 package org.exoplatform.social.core.plugin;
 
+import io.meeds.social.AbstractSpringConfigurationTest;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.component.test.AbstractKernelTest;
-import org.exoplatform.component.test.ConfigurationUnit;
-import org.exoplatform.component.test.ConfiguredBy;
-import org.exoplatform.component.test.ContainerScope;
 
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.service.TranslationService;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-@ConfiguredBy({ @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/portal/configuration.xml"),
-    @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/exo.social.component.core-local-configuration.xml") })
-public class SpaceCreationLabelTranslationTest  extends AbstractKernelTest {
-  
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
+
+public class SpaceCreationLabelTranslationTest  extends AbstractSpringConfigurationTest {
+
+  @Autowired
   private TranslationService translationService;
 
-  @Override
-  public void setUp() throws Exception {
-    super.setUp();
-    translationService = getContainer().getComponentInstanceOfType(TranslationService.class);
-    begin();
-  }
-
+  @Test
   public void testTranslateLabel() throws ObjectNotFoundException {
 
     Map<Locale, String> labels = new HashMap<>();

@@ -33,8 +33,8 @@
       </div>
       <translation-text-field
         :object-id="applicationId"
-        :object-type="objectType"
-        :field-name="fieldName"
+        object-type="spaceCreation"
+        field-name="label"
         :field-value="displayedValue"
         :drawer-title="$t('space.creation.instantiation.settingsDrawer.translateLabel')"
         class="width-auto flex-grow-1 px-5"
@@ -116,8 +116,6 @@ export default {
       spaceCreationTemplateChoice: null,
       selectedTemplates: [],
       loading: false,
-      objectType: 'spaceCreation',
-      fieldName: 'label',
       defaultLangValue: this.$t('space.creation.instantiation.create.button'),
       translationsInitialized: false,
       currentLabelTranslations: []
@@ -207,7 +205,7 @@ export default {
       }).finally(() => this.loading = false);
     },
     async saveLabelTranslations() {
-      await this.$translationService.saveTranslations(this.objectType, this.applicationId, this.fieldName, this.labelTranslations);
+      await this.$translationService.saveTranslations('spaceCreation', this.applicationId, 'label', this.labelTranslations);
       this.currentLabelTranslations = structuredClone(this.labelTranslations);
     },
   },
