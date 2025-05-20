@@ -45,9 +45,11 @@ export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTem
     }
     Vue.createApp({
       data: {
+        appId,
         settings,
         isAdministrator,
         saveSettingsUrl,
+        spaceTemplates
       },
       template: `<space-creation id="${appId}" />`,
       i18n,

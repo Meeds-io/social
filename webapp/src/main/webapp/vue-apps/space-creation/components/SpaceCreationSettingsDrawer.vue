@@ -32,15 +32,17 @@
         {{ $t('space.creation.instantiation.settingsDrawer.content.updateBtnTitle') }}
       </div>
       <translation-text-field
-        ref="buttonName"
-        id="buttonName"
-        v-model="buttonLabel"
-        drawer-title="space.creation.instantiation.translateTitle"
+        :object-id="applicationId"
+        :object-type="objectType"
+        :field-name="fieldName"
+        :field-value="displayedValue"
+        :drawer-title="$t('space.creation.instantiation.settingsDrawer.translateLabel')"
         class="width-auto flex-grow-1 px-5"
         no-expand-icon
         back-icon
-        autofocus
-        required />
+        required
+        @update:field-value="updateFieldValue"
+        @input="translationUpdated" />
       <div class="text-header py-4 px-5">
         {{ $t('space.creation.instantiation.settingsDrawer.content.chooseTemplateTitle') }}
       </div>
@@ -106,14 +108,21 @@
 </template>
 <script>
 export default {
-  data: () => ({
-    drawer: false,
-    savedLabelTranslations: null,
-    language: eXo.env.portal.language,
-    spaceCreationTemplateChoice: null,
-    selectedTemplates: [],
-    loading: false
-  }),
+  data() {
+    return {
+      drawer: false,
+      labelTranslations: [],
+      language: eXo.env.portal.language,
+      spaceCreationTemplateChoice: null,
+      selectedTemplates: [],
+      loading: false,
+      objectType: 'spaceCreation',
+      fieldName: 'label',
+      defaultLangValue: this.$t('space.creation.instantiation.create.button'),
+      translationsInitialized: false,
+      currentLabelTranslations: []
+    };
+  },
   props: {
     savedSettings: {
       type: Object,
@@ -125,14 +134,22 @@ export default {
     }
   },
   computed: {
-    buttonLabel() {
-      return this.savedLabelTranslations || this.defaultLabel;
-    },
-    defaultLabel() {
-      return {[this.language]: this.$t('space.creation.instantiation.create.button')};
-    },
     disabled() {
-      return this.savedSettings?.spaceTemplates === this.selectedTemplates && this.savedSettings.spaceCreationTemplateChoice === this.spaceCreationTemplateChoice;
+      return (this.savedSettings?.spaceTemplates === this.selectedTemplates && this.savedSettings.spaceCreationTemplateChoice === this.spaceCreationTemplateChoice)
+          || JSON.stringify(this.currentLabelTranslations) !== JSON.stringify(this.labelTranslations);
+    },
+    applicationId() {
+      return this.$root.appId;
+    },
+    displayedValue() {
+      return this.labelTranslations?.[this.language] || this.defaultLangValue;
+    },
+  },
+  watch: {
+    selectedTemplates() {
+      if (!this.selectedTemplates.length) {
+        this.spaceTemplates = this.$root.spaceTemplates;
+      }
     }
   },
   created() {
@@ -142,6 +159,16 @@ export default {
     this.$root.$off('space-creation-settings-open', this.open);
   },
   methods: {
+    translationUpdated(translations) {
+      this.labelTranslations = translations;
+      if (!this.translationsInitialized) {
+        this.currentLabelTranslations = structuredClone(this.labelTranslations);
+        this.translationsInitialized = true;
+      }
+    },
+    updateFieldValue(value) {
+      this.defaultLangValue = value;
+    },
     open() {
       this.restoreSavedSettings();
       this.$refs.drawer.open();
@@ -171,13 +198,18 @@ export default {
         spaceCreationTemplateChoice: this.spaceCreationTemplateChoice
       };
       this.$spaceCreationService.saveSettings(this.saveSettingsUrl , settings).then(() => {
+        this.saveLabelTranslations();
         this.$emit('updated', settings);
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.success.message'), 'success');
         this.close();
       }).catch(() => {
         this.$root.$emit('alert-message', this.$t('space.creation.instantiation.settingsDrawer.save.error.message'), 'error');
       }).finally(() => this.loading = false);
-    }
+    },
+    async saveLabelTranslations() {
+      await this.$translationService.saveTranslations(this.objectType, this.applicationId, this.fieldName, this.labelTranslations);
+      this.currentLabelTranslations = structuredClone(this.labelTranslations);
+    },
   },
 };
 </script>

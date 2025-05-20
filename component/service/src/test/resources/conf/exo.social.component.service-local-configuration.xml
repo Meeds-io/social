@@ -41,6 +41,11 @@
       <set-method>addPlugin</set-method>
       <type>org.exoplatform.social.core.plugin.ProfilePropertySettingOptionTranslation</type>
     </component-plugin>
+    <component-plugin>
+      <name>spaceCreation</name>
+      <set-method>addPlugin</set-method>
+      <type>org.exoplatform.social.core.plugin.SpaceCreationLabelTranslation</type>
+    </component-plugin>
   </external-component-plugins>
 
   <!-- Notifications plugins required for IntranetNotificationsRestServiceTest -->
