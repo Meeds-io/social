@@ -1123,6 +1123,7 @@
         <name>settings</name>
         <value>
           {
+            "labelTranslations":{},
             "spaceCreationTemplateChoice":"anyTemplate",
             "spaceTemplates": null
           }
