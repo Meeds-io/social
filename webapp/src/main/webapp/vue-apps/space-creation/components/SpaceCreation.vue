@@ -24,7 +24,7 @@
       <v-btn
         color="primary"
         @click="addNewSpace">
-        {{ $t('space.creation.instantiation.create.button') }}
+        {{ $root.label }}
         <v-icon
           v-if="$root.isAdministrator && hover"
           color="white"
@@ -34,12 +34,7 @@
           fa-cog
         </v-icon>
       </v-btn>
-      <space-creation-settings-drawer 
-        :save-settings-url="$root.saveSettingsUrl"
-        :saved-settings="{
-          spaceTemplates: $root.settings.spaceTemplates,
-          spaceCreationTemplateChoice: $root.settings.spaceCreationTemplateChoice
-        }"
+      <space-creation-settings-drawer
         @updated="spaceCreationSettingsUpdated"
         ref="spaceCreationSettingsDrawer" />
     </v-app>
