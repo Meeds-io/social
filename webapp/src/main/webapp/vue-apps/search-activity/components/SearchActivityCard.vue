@@ -1,50 +1,87 @@
 <template>
-  <v-card
-    class="d-flex flex-column border-radius box-shadow"
-    flat
-    min-height="227">
-    <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
-      <exo-user-avatar
-        :identity="poster"
-        popover>
-        <template slot="subTitle">
-          <date-format :value="postedTime" />
-        </template>
-        <template slot="actions">
-          <activity-favorite-action
-            :activity="result"
-            class="ms-3"
-            absolute
-            top="0"
-            right="0"
-            @removed="$emit('refresh-favorite')" />
-        </template>
-      </exo-user-avatar>
-    </v-card-text>
-    <div class="mx-auto flex-grow-1 px-3 py-0">
-      <div
-        ref="excerptNode"
-        :title="excerptText"
-        class="text-wrap text-break caption text-truncate-4"
-        v-sanitized-html="excerptHtml">
-      </div>
-    </div>
-    <v-list class="light-grey-background flex-grow-0 border-top-color no-border-radius pa-0">
-      <v-list-item :href="link" class="px-0 pt-1 pb-2">
-        <v-list-item-icon class="mx-0 my-auto">
-          <span :class="activityIcon" class="tertiary--text ps-1 pe-2 display-1"></span>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title :title="activityReactions">
-            {{ activityReactions }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            {{ activityStreamOwner }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-  </v-card>
+  <v-hover v-slot="{ hover }">
+    <v-card
+      flat
+      class="pa-0"
+      @click="openActivity">
+      <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
+        <v-list-item>
+          <v-list-item-icon class="me-2">
+            <span class="d-flex align-center justify-center">
+              <v-icon size="32" class="icon-default-color mt-2">fas fa-stream</v-icon>
+            </span>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title class="d-flex flex-row full-width align-center">
+              <p
+                :title="excerptText || activityTitle"
+                class="flex-grow-1 title font-weight-bold pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
+                v-sanitized-html="activityTitle"></p>
+              <div class="ml-2 pt-1">
+                <span v-if="hover || isMobile" class="d-flex d-inline-flex">
+                  <activity-favorite-action
+                    :activity="result"
+                    class="ms-4"
+                    @removed="$emit('refresh-favorite')" />
+                </span>
+              </div>
+            </v-list-item-title>
+
+            <v-list-item-subtitle class="d-flex flex-column">
+              <span class="d-flex flex-row align-center mx-auto full-width">
+                <span class="d-flex flex-row align-center" v-if="isSpaceStreamOwner">
+                  <exo-space-avatar
+                    :space-id="streamOwner.id"
+                    size="18"
+                    text-truncate-class="text-truncate text-sub-title"
+                    small-font-size
+                    subtitle-new-line-class
+                    :avatar="isMobile"
+                    popover />
+                  <v-icon size="3" class="icon-default-color mx-3">fas fa-circle</v-icon>
+                </span>
+                <exo-user-avatar
+                  :profile-id="posterUsername"
+                  :size="18"
+                  small-font-size
+                  :avatar="isMobile"
+                  :popover="!isMobile" />
+                <span class="d-flex flex-row align-center" v-if="postedTime">
+                  <v-icon
+                    size="3"
+                    class="icon-default-color mx-3">fas fa-circle</v-icon>
+                  <v-icon
+                    size="12"
+                    class="icon-default-color">fas fa-clock</v-icon>
+                  <date-format class="ms-1 my-auto" :value="postedTime" />
+                </span>
+              </span>
+              <div
+                v-if="excerptHtml"
+                class="pt-2 text-wrap text-body text-break"
+                :title="excerptText"
+                :class="{
+                  'text-truncate-2': isMobile,
+                  'text-truncate-3': !isMobile,
+                }"
+                v-sanitized-html="excerptHtml">
+              </div>
+              <extension-registry-components
+                v-else
+                :params="extendedComponentParams"
+                :class="'activitySearchResultContent'"
+                name="ActivityContent"
+                type="activity-content-extensions"
+                parent-element="div"
+                element="div"
+                class="d-flex flex-column" />
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
@@ -60,37 +97,32 @@ export default {
     },
   },
   data: () => ({
-    maxEllipsisHeight: 90,
-    lineHeight: 22,
     profileActionExtensions: [],
+    extensionApp: 'activity',
+    activityTypeExtensionName: 'type',
+    activityTypes: {},
   }),
   computed: {
     isComment() {
-      return this.result && this.result.comment;
+      return this.result?.comment;
     },
     activity() {
-      return this.isComment && this.result.comment || this.result;
+      return this.isComment && this.result?.comment || this.result;
     },
     poster() {
-      return this.activity && this.activity.poster.profile;
+      return this.activity?.poster?.profile;
     },
     body() {
-      return this.activity && this.activity.body;
-    },
-    posterFullname() {
-      return this.poster && this.poster.fullname;
+      return this.activity?.body;
     },
     posterUsername() {
-      return this.poster && this.poster.username;
-    },
-    posterIsExternal() {
-      return this.poster && (this.poster.isExternal || this.poster.external);
+      return this.poster?.username;
     },
     streamOwner() {
-      return this.activity && this.activity.streamOwner.space || this.activity.streamOwner.profile;
+      return this.activity?.streamOwner?.space || this.activity?.streamOwner?.profile;
     },
-    spaceDisplayName() {
-      return this.streamOwner && this.streamOwner.displayName;
+    isSpaceStreamOwner() {
+      return this.activity?.streamOwner?.space || false;
     },
     excerpts() {
       return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
@@ -107,34 +139,6 @@ export default {
       }
       return this.result.comment && this.result.comment.type || this.result.type;
     },
-    activityIcon() {
-      if (!this.result) {
-        return '';
-      }
-      let typeIcon = this.activityType && this.activityType.replace(':', '_') || '';
-      typeIcon = `uiIcon${typeIcon.charAt(0).toUpperCase()}${typeIcon.substring(1)}`;
-      return `uiIconActivity ${typeIcon}`;
-    },
-    activityLikes() {
-      if (!this.result) {
-        return '';
-      }
-      const likesCount = this.result.likesCount || 0;
-      return this.$t('Search.activity.likesCount', {0: likesCount});
-    },
-    activityComments() {
-      const commentsCount = this.result.commentsCount || 0;
-      return this.$t('Search.activity.commentsCount', {0: commentsCount});
-    },
-    activityReactions() {
-      return `${this.activityLikes}, ${this.activityComments}`;
-    },
-    activityStreamOwner() {
-      if (!this.result) {
-        return '';
-      }
-      return this.result.streamOwner.profile && this.result.streamOwner.profile.fullname || this.result.streamOwner.space && this.result.streamOwner.space.displayName || '';
-    },
     postedTime() {
       if (!this.result) {
         return '';
@@ -148,9 +152,53 @@ export default {
         return `/${eXo.env.portal.containerName}/${eXo.env.portal.metaPortalName}/activity?id=${this.activity.id}`;
       }
     },
+    activityTitle() {
+      return this.excerptHtml || this.$t('search.activity.no.title.label');
+    },
+    isMobile() {
+      return this.$vuetify?.breakpoint?.smAndDown;
+    },
+    activityTypeExtension() {
+      if (!this.activity || !this.activityTypes) {
+        return {};
+      }
+      return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
+    },
+    extendedComponentParams() {
+      return {
+        activity: this.activity?.dataEntity?.originalActivity || this.activity?.dataEntity,
+        activityTypeExtension: this.activityTypeExtension,
+        activityTypes: this.activityTypes,
+        isActivityDetail: true,
+        collapsed: false,
+      };
+    },
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtensionName}-updated`, this.refreshActivityTypes);
+    this.refreshActivityTypes();
   },
+  methods: {
+    openActivity() {
+      if (this.link) {
+        window.location.href = this.link;
+      }
+    },
+    refreshActivityTypes() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityTypeExtensionName);
+      let changed = false;
+      extensions.forEach(extension => {
+        if (extension.type && extension.options && (!this.activityTypes[extension.type] || this.activityTypes[extension.type] !== extension.options)) {
+          this.activityTypes[extension.type] = extension.options;
+          changed = true;
+        }
+      });
+      // force update of attribute to re-render switch new extension type
+      if (changed) {
+        this.activityTypes = Object.assign({}, this.activityTypes);
+      }
+    },
+  }
 };
 </script>
