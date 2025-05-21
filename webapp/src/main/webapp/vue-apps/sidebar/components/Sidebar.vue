@@ -52,7 +52,6 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :opened-site="site"
-          :spaces="spaces"
           :opened-space="space"
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
@@ -67,7 +66,6 @@
           :third-level-drawer="thirdLevelDrawer"
           :second-level="secondLevel"
           :opened-site="site"
-          :spaces="spaces"
           :opened-space="space"
           :drawer-width="drawerWidth"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
@@ -101,7 +99,6 @@ export default {
     space: null,
     site: null,
     initStep: 0,
-    spaces: null,
     limit: 7,
     offset: 0,
     unreadPerSpace: null,
