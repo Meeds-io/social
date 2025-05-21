@@ -81,6 +81,7 @@ export function init(isExternalFeatureEnabled) {
         created() {
           document.addEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
           document.addEventListener('showSettingsApps', this.handleShowMainEvent);
+          document.addEventListener('space-settings-updated', this.handleSpaceUpdatedByEvent);
 
           this.$root.$on('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$on('space-settings-managers-updated', this.handleSpaceUpdated);
@@ -94,6 +95,7 @@ export function init(isExternalFeatureEnabled) {
         beforeDestroy() {
           document.removeEventListener('hideSettingsApps', this.handleDisplaySectionEvent);
           document.removeEventListener('showSettingsApps', this.handleShowMainEvent);
+          document.removeEventListener('space-settings-updated', this.handleSpaceUpdatedByEvent);
 
           this.$root.$off('space-settings-updated', this.handleSpaceUpdated);
           this.$root.$off('space-settings-managers-updated', this.handleSpaceUpdated);
@@ -119,13 +121,23 @@ export function init(isExternalFeatureEnabled) {
             await this.refreshSpace();
             await this.refreshExternalInvitations();
           },
+          handleSpaceUpdatedByEvent(event) {
+            const space = event?.detail;
+            if (space?.id === this.space?.id) {
+              this.space = space;
+              this.refreshSpaceWithNavigation();
+            }
+          },
           async handleSpaceUpdated() {
+            await this.refreshSpaceWithNavigation();
+            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
+          },
+          async refreshSpaceWithNavigation() {
             const oldPrettyName = this.space.prettyName;
             await this.refreshSpace();
             if (oldPrettyName !== this.space.prettyName) {
               window.history.replaceState('', window.document.title, window.location.href.replaceAll(`/${oldPrettyName}/`, `/${this.space.prettyName}/`));
             }
-            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: this.space}));
           },
           async refreshSpace() {
             if (this.spaceId) {

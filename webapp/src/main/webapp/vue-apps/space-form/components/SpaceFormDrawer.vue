@@ -30,15 +30,13 @@
     @opened="stepper = 1"
     @closed="stepper = 0"
     @go-back="templateId = null">
-    <template slot="title">
-      {{ spaceTemplate && $t('spacesList.label.addNewSpaceWithTemplate', {
-        0: spaceTemplate.name,
-      })|| $t('spacesList.label.addNewSpace') }}
+    <template #title>
+      {{ drawerTitle }}
     </template>
-    <template v-if="drawer" slot="content">
+    <template v-if="drawer && space" #content>
       <v-expand-transition>
         <div
-          v-if="templates?.length && !spaceTemplate"
+          v-if="templates?.length && !spaceTemplate && !isEdit"
           class="d-flex flex-wrap align-center justify-space-between my-4 me-4">
           <v-card
             v-for="item in sortedTemplates"
@@ -78,7 +76,7 @@
           </v-card>
         </div>
         <v-stepper
-          v-else-if="spaceTemplate"
+          v-else-if="spaceTemplate || isEdit"
           v-model="stepper"
           :class="{
             'pe-3' : isMobile,
@@ -140,16 +138,19 @@
                   :max-length="maxDescriptionLength"
                   tag-enabled
                   class="my-3"
+                  ck-editor-id="spaceFormDescription"
                   ck-editor-type="spaceDescription"
                   disable-suggester
                   autofocus />
                 <space-form-avatar
                   v-model="space.avatarId"
                   :name="space.displayName"
+                  :src="space.avatarUrl"
                   class="mt-4" />
                 <space-form-banner
                   v-model="space.bannerId"
                   :default-banner-url="bannerUrl"
+                  :src="space.bannerUrl"
                   class="mt-4" />
               </form>
             </v-stepper-content>
@@ -189,10 +190,10 @@
         </v-stepper>
       </v-expand-transition>
     </template>
-    <template v-if="spaceTemplate" slot="footer">
+    <template v-if="drawer && (spaceTemplate || isEdit)" slot="footer">
       <div class="d-flex">
         <v-btn
-          v-if="stepper > 1"
+          v-if="stepper > 1 && !isEdit"
           class="btn"
           @click="previousStep">
           {{ $t('spacesList.button.back') }}
@@ -219,7 +220,7 @@
           class="btn btn-primary"
           @click="saveSpace">
           <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
-          <template v-else-if="spaceToUpdate">
+          <template v-else-if="isEdit">
             {{ $t('spacesList.button.updateSpace') }}
           </template>
           <template v-else>
@@ -247,6 +248,17 @@ export default {
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
   }),
   computed: {
+    drawerTitle() {
+      if (this.isEdit) {
+        return this.$t('spacesList.label.editSpace', {
+          0: this.space.displayName
+        });
+      } else {
+        return this.spaceTemplate && this.$t('spacesList.label.addNewSpaceWithTemplate', {
+          0: this.spaceTemplate.name,
+        }) || this.$t('spacesList.label.addNewSpace');
+      }
+    },
     saveButtonDisabled() {
       return this.savingSpace
         || this.spaceSaved
@@ -287,10 +299,10 @@ export default {
       return this.spaceTemplate?.bannerFileId && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/spaceTemplateBanner/${this.spaceTemplate?.id}/${this.spaceTemplate?.bannerFileId}?size=0` || this.defaultBannerSrc;
     },
     includeName() {
-      return this.spaceTemplate?.spaceFields?.includes?.('name');
+      return this.isEdit ||  this.spaceTemplate?.spaceFields?.includes?.('name');
     },
     includeProperties() {
-      return this.spaceTemplate?.spaceFields?.includes?.('properties');
+      return this.isEdit || this.spaceTemplate?.spaceFields?.includes?.('properties');
     },
     includeAccess() {
       return this.spaceTemplate?.spaceFields?.includes?.('access');
@@ -312,6 +324,9 @@ export default {
     },
     singleStep() {
       return this.lastStep === 1;
+    },
+    isEdit() {
+      return this.space?.id;
     },
   },
   watch: {
@@ -342,7 +357,7 @@ export default {
       }
     },
     spaceTemplate() {
-      if (!this.space?.id) {
+      if (!this.isEdit) {
         this.setSpaceTemplateProperties();
       }
     },
@@ -386,11 +401,13 @@ export default {
     }
 
     this.$root.$on('addNewSpace', this.openByRootEvent);
+    document.addEventListener('editSpace', this.editByEvent);
     document.addEventListener('addNewSpace', this.openByEvent);
     document.addEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   beforeDestroy() {
     this.$root.$off('addNewSpace', this.openByRootEvent);
+    document.removeEventListener('editSpace', this.editByEvent);
     document.removeEventListener('addNewSpace', this.openByEvent);
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
@@ -408,13 +425,17 @@ export default {
       this.goBackButton = !templateId;
       this.open(templateId);
     },
-    async open(templateId) {
-      this.templateId = templateId && Number(templateId);
-      this.space = {
+    editByEvent(e) {
+      this.goBackButton = false;
+      this.open(null, e?.detail);
+    },
+    async open(templateId, space) {
+      this.space = space && JSON.parse(JSON.stringify(space)) || {
         templateId: templateId,
         subscription: 'open',
         visibility: 'private',
       };
+      this.templateId = space.templateId && Number(space.templateId);
       if (!this.$root.spaceTemplates) {
         this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
       }
@@ -426,7 +447,7 @@ export default {
       this.$refs.spaceFormDrawer.open();
     },
     setSpaceTemplateProperties() {
-      if (this.spaceTemplate) {
+      if (!this.isEdit && this.spaceTemplate) {
         this.$set(this.space, 'templateId', this.spaceTemplate.id);
         this.$set(this.space, 'subscription', this.spaceTemplate.spaceDefaultRegistration?.toLowerCase?.());
         this.$set(this.space, 'visibility', this.spaceTemplate.spaceDefaultVisibility?.toLowerCase?.());
@@ -446,6 +467,9 @@ export default {
       this.stepper++;
     },
     cancel() {
+      this.close();
+    },
+    close() {
       this.$refs.spaceFormDrawer.close();
     },
     saveSpace() {
@@ -454,13 +478,39 @@ export default {
       }
       this.savingSpace = true;
       this.space.templateId = this.templateId;
-      return this.$spaceService.createSpace(this.space)
-        .then(space => {
-          this.spaceSaved = true;
-          window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+      if (this.isEdit) {
+        this.$spaceService.updateSpace({
+          id: this.space.id,
+          displayName: this.space.displayName,
+          description: this.space.description,
+          avatarId: this.space.avatarId,
+          bannerId: this.space.bannerId,
         })
-        .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-        .finally(() => this.savingSpace = false);
+          .then(space => {
+            document.dispatchEvent(new CustomEvent('space-settings-updated', {detail: space}));
+            this.$root.$emit('alert-message', this.$t('SpaceSettings.successfullySaved'), 'success');
+            this.close();
+          })
+          .catch(e => {
+            if (String(e).indexOf('SPACE_ALREADY_EXIST') >= 0) {
+              this.$root.$emit('alert-message', this.$t('SpaceSettings.error.spaceWithSameNameExists'), 'error');
+            } else if (String(e).indexOf('INVALID_SPACE_NAME') >= 0) {
+              this.$root.$emit('alert-message', this.$t('spacesList.error.InvalidSpaceName'), 'error');
+            } else {
+              this.$root.$emit('alert-message', this.$t('SpaceSettings.error.unknownErrorWhenSavingSpace'), 'error');
+            }
+          })
+          .finally(() => this.savingSpace = false);
+      } else {
+        return this.$spaceService.createSpace(this.space)
+          .then(space => {
+            this.spaceSaved = true;
+            this.close();
+            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+          })
+          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .finally(() => this.savingSpace = false);
+      }
     },
   },
 };
