@@ -70,6 +70,7 @@
             </div>
             <rich-editor
               id="spaceDescriptionRichEditor"
+              ref="description"
               v-model="description"
               :placeholder="$t('SpaceSettings.label.description')"
               :max-length="maxDescriptionLength"
@@ -139,7 +140,11 @@ export default {
     },
   },
   created() {
+    document.addEventListener('space-settings-updated', this.reset);
     this.reset();
+  },
+  beforeDestroy() {
+    document.removeEventListener('space-settings-updated', this.reset);
   },
   methods: {
     reset() {
@@ -147,6 +152,7 @@ export default {
       this.description = this.$root?.space?.description;
       this.avatarUploadId = null;
       this.bannerUploadId = null;
+      this.$refs?.description?.initCKEditorData?.(this.description);
     },
     saveSpace() {
       if (this.savingSpace) {

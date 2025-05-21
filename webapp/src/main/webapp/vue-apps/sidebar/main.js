@@ -207,6 +207,7 @@ export function init(
           this.$root.$on('menu-opened', () => this.$root.allowClosing = false);
           this.$root.$on('menu-closed', () => this.$root.allowClosing = true);
           document.addEventListener('homeLinkUpdated', this.updateUserHome);
+          document.addEventListener('space-settings-updated', this.init);
           this.init();
         },
         mounted() {
@@ -220,6 +221,7 @@ export function init(
           document.removeEventListener('notification.unread.item', this.handleUpdatesFromWebSocket);
           document.removeEventListener('notification.read.item', this.handleUpdatesFromWebSocket);
           document.removeEventListener('notification.read.allItems', this.handleUpdatesFromWebSocket);
+          document.removeEventListener('space-settings-updated', this.init);
         },
         methods: {
           async init() {

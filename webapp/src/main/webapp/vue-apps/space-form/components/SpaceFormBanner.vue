@@ -77,6 +77,10 @@ export default {
       type: String,
       default: null,
     },
+    src: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     imageData: null,
@@ -103,10 +107,17 @@ export default {
       }
     },
   },
+  created() {
+    this.imageData = this.src;
+  },
   methods: {
     removeBanner() {
       this.imageData = null;
-      this.$emit('input', null);
+      if (this.src) {
+        this.$emit('input', 'DEFAULT_BANNER');
+      } else {
+        this.$emit('input', null);
+      }
     },
     updateBanner(uploadId) {
       this.$emit('input', uploadId);

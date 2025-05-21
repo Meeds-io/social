@@ -362,9 +362,19 @@ export default {
     },
   },
   created() {
+    document.addEventListener('space-settings-updated', this.handleSpaceUpdated);
     this.collapsedSpaces = (this.isSpaces || this.isSpaceTemplate || this.isSpaceCategory) && window.localStorage.getItem(this.displaySpacesExpandKey) === 'true';
   },
+  beforeDestroy() {
+    document.removeEventListener('space-settings-updated', this.handleSpaceUpdated);
+  },
   methods: {
+    handleSpaceUpdated(event) {
+      const space = event?.detail;
+      if (space && this.space?.id === space?.id) {
+        this.retrieveSpace(true);
+      }
+    },
     handleSpacesClick() {
       if (this.$root.displaySequentially && (this.isSpaceTemplate || this.isSpaceCategory)) {
         this.collapsedSpaces = !this.collapsedSpaces;

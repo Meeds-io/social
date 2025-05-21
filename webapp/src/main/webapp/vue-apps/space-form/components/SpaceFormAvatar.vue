@@ -87,6 +87,10 @@ export default {
       type: String,
       default: null,
     },
+    src: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     imageData: null,
@@ -97,7 +101,7 @@ export default {
   }),
   computed: {
     isDefaultAvatar() {
-      return !this.imageData;
+      return this.src || !this.imageData;
     },
     nameInitials() {
       if (this.name) {
@@ -109,6 +113,9 @@ export default {
     maxUploadSizeInBytes() {
       return this.maxUploadSize * 1024 * 1024;
     },
+  },
+  created() {
+    this.imageData = this.src;
   },
   methods: {
     removeAvatar() {

@@ -25,7 +25,7 @@
     content-class="overflow-y-initial"
     max-width="80vw">
     <template v-if="dialog">
-      <attachment-preview-actions :attachment="attachment" :is-mobile="isMobile"/>
+      <attachment-preview-actions :attachment="attachment" :is-mobile="isMobile" />
       <v-card 
         flat
         :max-height="!isMobile && '80vh' || '75vh'"

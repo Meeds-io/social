@@ -71,10 +71,6 @@ export default {
       type: Object,
       default: null,
     },
-    spaces: {
-      type: Array,
-      default: null,
-    },
     openedSpace: {
       type: Object,
       default: null,
