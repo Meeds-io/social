@@ -26,7 +26,7 @@
         </template>
       </widget-wrapper>
     </v-hover>
-    <space-members-drawer v-if="$root.isMember" />
+    <space-members-drawer v-if="!isAnonymous" />
   </v-app>
 </template>
 <script>
