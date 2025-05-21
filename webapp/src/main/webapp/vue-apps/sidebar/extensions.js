@@ -81,3 +81,18 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
       });
   },
 });
+extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
+  rank: 2,
+  name: 'editSpace',
+  icon: 'fa-cog',
+  titleKey: 'Notification.tooltip.editSpaceProperties',
+  enabled: space => space?.canEdit,
+  click: space => new Promise (resolve => {
+    const startTime = Date.now();
+    window.require(['SHARED/spaceForm'], drawer => {
+      window.setTimeout(() => {
+        drawer.edit(space?.id).then(resolve);
+      }, Math.max(200, Date.now() - startTime));
+    });
+  }),
+});
