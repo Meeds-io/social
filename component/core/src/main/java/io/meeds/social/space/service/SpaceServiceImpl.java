@@ -377,6 +377,7 @@ public class SpaceServiceImpl implements SpaceService {
     spaceToCreate.setEditor(username);
     spaceToCreate.setMembers(new String[] { username });
     spaceToCreate.setManagers(new String[] { username });
+    spaceToCreate.setUrl(Space.HOME_URL);
 
     SpaceTemplate spaceTemplate = getSpaceTemplateService().getSpaceTemplate(spaceToCreate.getTemplateId());
     if (spaceTemplate == null || !spaceTemplate.isEnabled() || spaceTemplate.isDeleted()) {
@@ -452,20 +453,8 @@ public class SpaceServiceImpl implements SpaceService {
   public void renameSpace(Space space, String newDisplayName) {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_RENAMED);
     try {
-      String oldPrettyName = space.getPrettyName();
-      // Ensure unicity of new pretty name
-      String newPrettyName = buildPrettyName(newDisplayName);
-
       space.setDisplayName(newDisplayName);
-      space.setPrettyName(newPrettyName);
-      if (oldPrettyName.equals(space.getUrl())) {
-        // Update URL only if legacy
-        // navigation tree which uses pretty name
-        space.setUrl(newPrettyName);
-      } else if (StringUtils.isBlank(space.getUrl())) {
-        space.setUrl(Space.HOME_URL);
-      }
-
+      space.setPrettyName(buildPrettyName(newDisplayName));
       spaceStorage.renameSpace(space);
       spaceLifeCycle.spaceRenamed(space, space.getEditor());
     } finally {
