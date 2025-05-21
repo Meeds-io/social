@@ -1216,7 +1216,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space.setRegistration(Space.VALIDATION);
     Space createdSpace = spaceService.createSpace(space, DRAGON_NAME);
     assertNotNull(createdSpace);
-    assertEquals("Dragon Ball", createdSpace.getDisplayName());
+    assertEquals("Dragon", createdSpace.getDisplayName());
   }
 
   public void testCreateSpaceWithExistingName() {
@@ -1277,7 +1277,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     try {
       Space createdSpace = spaceService.createSpace(new Space(), RAUL_NAME, Arrays.asList(dragon, john));
       assertNotNull(createdSpace);
-      assertTrue(createdSpace.getDisplayName().contains("Dragon Ball"));
+      assertTrue(createdSpace.getDisplayName().contains("Dragon"));
       assertTrue(createdSpace.getDisplayName().contains("and 1 more"));
       assertTrue(createdSpace.getDisplayName().contains(", "));
       assertEquals(spaceTemplate.getSpaceDefaultVisibility().name().toLowerCase(), createdSpace.getVisibility());

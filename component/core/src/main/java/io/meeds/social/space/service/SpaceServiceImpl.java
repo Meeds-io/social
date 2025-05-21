@@ -1127,11 +1127,14 @@ public class SpaceServiceImpl implements SpaceService {
                                          CollectionUtils.isEmpty(invitees) ? new String[0] :
                                                                            invitees.toArray(new String[invitees.size()]));
       List<String> userFullNames = Arrays.stream(users)
+                                         .limit(2)
                                          .map(u -> {
                                            Profile profile = identityManager.getOrCreateUserIdentity(u).getProfile();
-                                           return StringUtils.firstNonBlank(profile.getFullName());
+                                           String firstName = (String) profile.getProperty(Profile.FIRST_NAME);
+                                           String lastName = (String) profile.getProperty(Profile.LAST_NAME);
+                                           String fullName = profile.getFullName();
+                                           return StringUtils.firstNonBlank(firstName, lastName, fullName);
                                          })
-                                         .limit(2)
                                          .toList();
       String displayName = StringUtils.join(userFullNames, ", ");
       if (users.length > 2) {
