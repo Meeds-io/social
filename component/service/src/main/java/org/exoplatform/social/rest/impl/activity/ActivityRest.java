@@ -1024,13 +1024,29 @@ public class ActivityRest implements ResourceContainer {
 
       ActivityStorage activityStorage = CommonsUtils.getService(ActivityStorage.class);
       ExoSocialActivity existingActivity = activityStorage.getActivity(entity.getId());
-      int commentsCount = activityStorage.getNumberOfComments(existingActivity);
-      entity.setCommentsCount(commentsCount);
-      entity.setLikesCount(existingActivity.getNumberOfLikes());
       Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = EntityBuilder.retrieveMetadataItems(existingActivity,
                                                                                                              currentUserIdentity);
       if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
         entity.setMetadatas(activityMetadatasToPublish);
+      }
+      DataEntity activityDataEntity = EntityBuilder.buildEntityFromActivity(existingActivity,
+                                                                            currentUserIdentity,
+                                                                            uriInfo.getPath(),
+                                                                            null)
+                                                   .getDataEntity();
+      entity.setDataEntity(activityDataEntity);
+      boolean isSharedActivity = MapUtils.isNotEmpty(existingActivity.getTemplateParams())
+          && StringUtils.isNotBlank(existingActivity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
+      if (isSharedActivity) {
+        ExoSocialActivity originalActivity =
+                                           activityStorage.getActivity(existingActivity.getTemplateParams()
+                                                                                       .get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
+        DataEntity originalActivityDataEntity = EntityBuilder.buildEntityFromActivity(originalActivity,
+                                                                                      currentUserIdentity,
+                                                                                      uriInfo.getPath(),
+                                                                                      null)
+                                                             .getDataEntity();
+        entity.setProperty("originalActivity", originalActivityDataEntity);
       }
       return entity;
     }).toList();
