@@ -84,7 +84,7 @@
             <a
               :href="url"
               class="grey--text text--darken-1">
-              {{ userPosition }}
+              {{ primaryProperty }}
             </a>
           </v-card-subtitle>
         </div>
@@ -142,8 +142,8 @@ export default {
     usernameClass() {
       return `${(!this.user.enabled || this.user.deleted) && 'text-subtitle' || 'primary--text text-truncate-2 mt-0'}`;
     },
-    userPosition() {
-      return this.user?.position || '';
+    primaryProperty() {
+      return this.user?.primaryProperty || '';
     },
     externalUser() {
       return this.user?.external === 'true';
