@@ -260,9 +260,9 @@ export default {
       this.expandPages = this.item.properties?.expandPages || 'false';
       this.option = this.expandPages === 'true' ? 'PAGE' : this.item.type;
       this.$refs.drawer.open();
-      if (!this.sites) {
-        this.loading = true;
-        try {
+      try {
+        if (!this.sites) {
+          this.loading = true;
           this.sites = await this.$siteService.getSites(
             'PORTAL',
             null,
@@ -275,12 +275,13 @@ export default {
             this.displayed,
             this.filterByPermissions,
             this.excludeGroupNodesWithoutPageChildNodes,
-            this.temporalCheck);
+            this.temporalCheck
+          );
           await this.retrieveSite();
-        } finally {
-          this.loading = false;
-          this.initialized = true;
         }
+      } finally {
+        this.loading = false;
+        this.initialized = true;
       }
     },
     async apply() {
