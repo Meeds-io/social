@@ -1370,6 +1370,10 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testRenameSpace() throws SpaceException {
     Space space = this.getSpaceInstance(0);
+    assertEquals(Space.HOME_URL, space.getUrl());
+    String newUrl = "fakeUrl";
+    space.setUrl(newUrl);
+    spaceService.updateSpace(space);
 
     Identity identity = new Identity(SpaceIdentityProvider.NAME, space.getPrettyName());
     identityStorage.saveIdentity(identity);
@@ -1380,6 +1384,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     Space got = spaceService.getSpaceById(space.getId());
     assertEquals(newDisplayName, got.getDisplayName());
+    assertEquals(Space.HOME_URL, space.getUrl());
 
     newDisplayName = "new display name with super admin";
 
