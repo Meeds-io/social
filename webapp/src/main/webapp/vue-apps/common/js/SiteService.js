@@ -90,7 +90,7 @@ export function getSitesByFilter({
     credentials: 'include',
   }).then(resp => {
     if (resp?.ok) {
-      return resp.json();
+      return resp.json().catch(() => []);
     } else {
       throw new Error('Error while getting sites');
     }
@@ -117,7 +117,7 @@ export function getSite(siteType, siteName, params) {
     credentials: 'include',
   }).then(resp => {
     if (resp?.ok) {
-      return resp.json();
+      return resp.json().catch(() => []);
     } else {
       throw new Error('Error while getting site by type and name');
     }
