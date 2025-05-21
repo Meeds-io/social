@@ -128,7 +128,7 @@ export default {
       return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
     },
     excerptHtml() {
-      return this.excerpts && this.excerpts.join('<br />...') || this.body || '';
+      return this.excerpts && this.excerpts.join('\r\n...') || this.body || '';
     },
     excerptText() {
       return $('<div />').html(this.excerptHtml).text();
