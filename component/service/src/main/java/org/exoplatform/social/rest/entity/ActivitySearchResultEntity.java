@@ -21,10 +21,6 @@ public class ActivitySearchResultEntity extends BaseEntity {
 
   private long                                  postedTime;
 
-  private long                                  likesCount;
-
-  private long                                  commentsCount;
-
   private ActivitySearchResultEntity            comment;
 
   private Map<String, List<MetadataItemEntity>> metadatas;                              // NOSONAR
@@ -95,22 +91,6 @@ public class ActivitySearchResultEntity extends BaseEntity {
 
   public void setComment(ActivitySearchResultEntity comment) {
     this.comment = comment;
-  }
-
-  public long getLikesCount() {
-    return likesCount;
-  }
-
-  public void setLikesCount(long likesCount) {
-    this.likesCount = likesCount;
-  }
-
-  public long getCommentsCount() {
-    return commentsCount;
-  }
-
-  public void setCommentsCount(long commentsCount) {
-    this.commentsCount = commentsCount;
   }
 
   public void setMetadatas(Map<String, List<MetadataItemEntity>> metadatas) {
