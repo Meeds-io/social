@@ -122,7 +122,7 @@ export function init(params) {
         },
         refreshSpaceSettings(event) {
           const space = event?.detail;
-          if (space) {
+          if (space && Number(space.id) === Number(this.spaceId)) {
             this.spaceLogoTitle = space.displayName;
             this.spaceDescription = space.description;
             this.spaceLogoPath = space.avatarUrl;

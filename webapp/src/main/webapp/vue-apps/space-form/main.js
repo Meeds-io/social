@@ -32,35 +32,46 @@ const appId = 'spaceFormDrawer';
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export function open(templateId, isExternalFeatureEnabled) {
-  if (window.spaceFormAdded) {
-    document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
-  } else {
-    const spaceFormElement = document.createElement('div');
-    spaceFormElement.setAttribute('id', appId);
-    document.querySelector('#vuetify-apps').append(spaceFormElement);
-    return exoi18n.loadLanguageAsync(lang, url)
-      .then(i18n =>
-        Vue.createApp({
-          data: {
-            isExternalFeatureEnabled,
-            collator: new Intl.Collator(eXo.env.portal.language, {
-              numeric: true,
-              sensitivity: 'base'
-            }),
-          },
-          computed: {
-            isMobile() {
-              return this.$vuetify.breakpoint.mobile;
-            },
-          },
-          mounted() {
-            this.$root.$emit('addNewSpace', templateId);
-          },
-          template: '<space-form-drawer />',
-          vuetify: Vue.prototype.vuetifyOptions,
-          i18n,
-        }, spaceFormElement, 'Space Form')
-      );
+export async function open(templateId) {
+  if (!window.spaceFormAdded) {
+    await initApp();
   }
+  document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
+}
+
+export async function edit(spaceId) {
+  if (!window.spaceFormAdded) {
+    await initApp();
+  }
+  const space = await Vue.prototype.$spaceService.getSpaceById(spaceId, Date.now());
+  document.dispatchEvent(new CustomEvent('editSpace', {detail: space}));
+}
+
+function initApp() {
+  const spaceFormElement = document.createElement('div');
+  spaceFormElement.setAttribute('id', appId);
+  document.querySelector('#vuetify-apps').append(spaceFormElement);
+  return new Promise(resolve => exoi18n.loadLanguageAsync(lang, url)
+    .then(i18n =>
+      Vue.createApp({
+        data: {
+          isExternalFeatureEnabled: eXo.env.portal.isExternalFeatureEnabled,
+          collator: new Intl.Collator(eXo.env.portal.language, {
+            numeric: true,
+            sensitivity: 'base'
+          }),
+        },
+        computed: {
+          isMobile() {
+            return this.$vuetify.breakpoint.mobile;
+          },
+        },
+        mounted() {
+          resolve();
+        },
+        template: '<space-form-drawer />',
+        vuetify: Vue.prototype.vuetifyOptions,
+        i18n,
+      }, spaceFormElement, 'Space Form')
+    ));
 }

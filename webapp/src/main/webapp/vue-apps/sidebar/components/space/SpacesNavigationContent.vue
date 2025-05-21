@@ -98,16 +98,12 @@ export default {
       type: String,
       default: null,
     },
-    spaces: {
-      type: Array,
-      default: null,
-    },
   },
   data: () => ({
     startSearchAfterInMilliseconds: 400,
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
-    loadedSpaces: [],
+    spaces: [],
     loadingSpaces: false,
     initialized: false,
     limitToFetch: 0,
@@ -116,17 +112,13 @@ export default {
   }),
   computed: {
     canShowMore() {
-      return this.showMoreButton && this.initialized && (this.loadingSpaces || this.loadedSpaces.length >= this.limitToFetch);
+      return this.showMoreButton && this.initialized && (this.loadingSpaces || this.spaces.length >= this.limitToFetch);
     },
     filteredSpaces() {
       if (!this.keyword) {
-        if (!this.spaces) {
-          return this.loadedSpaces;
-        } else {
-          return this.spaces;
-        }
+        return this.spaces;
       } else {
-        return this.loadedSpaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
+        return this.spaces.slice().filter(space => space.displayName && space.displayName.toLowerCase().indexOf(this.keyword.toLowerCase()) >= 0);
       }
     },
   },
@@ -147,13 +139,13 @@ export default {
       this.searchSpaces();
     },
     filterType() {
-      this.loadedSpaces = [];
+      this.spaces = [];
       this.searchSpaces();
     },
     filteredSpaces() {
       this.$emit('spaces-count', this.filteredSpaces?.length);
     },
-    loadedSpaces() {
+    spaces() {
       this.refreshSelectedSpace();
     },
     loadingSpaces() {
@@ -181,14 +173,14 @@ export default {
       }
     },
     refreshSelectedSpace() {
-      this.selectedSpaceIndex = this.loadedSpaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
+      this.selectedSpaceIndex = this.spaces?.findIndex?.(space => eXo.env.server.portalBaseURL.includes(this.url(space)));
     },
     applySpaceUnreadChanges(event) {
       if (!event?.detail) {
         return;
       }
       const {spaceId, unread} = event.detail;
-      const space = this.loadedSpaces?.find(displayedSpace => displayedSpace.id === spaceId);
+      const space = this.spaces?.find(displayedSpace => displayedSpace.id === spaceId);
       if (space) {
         space.unread = unread && JSON.parse(JSON.stringify(unread)) || null;
       }
@@ -207,10 +199,10 @@ export default {
             spaceIds = spaceIds.slice(0, this.limitToFetch);
           }
           if (spaceIds?.length) {
-            this.loadedSpaces = await Promise
+            this.spaces = await Promise
               .all(spaceIds.map(spaceId => this.$spaceService.getSpaceById(spaceId,'member,managers,favorite,unread,muted')));
           } else {
-            this.loadedSpaces = [];
+            this.spaces = [];
           }
         } else {
           const data = await this.$spaceService.getSpacesByFilter({
@@ -223,10 +215,10 @@ export default {
             offset: this.offset,
             limit: this.limitToFetch,
           });
-          this.loadedSpaces = data?.spaces || [];
+          this.spaces = data?.spaces || [];
         }
         await this.$nextTick();
-        if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.loadedSpaces.length >= this.limitToFetch) {
+        if (this.keyword && this.filteredSpaces.length < this.originalLimitToFetch && this.spaces.length >= this.limitToFetch) {
           this.limitToFetch += this.pageSize;
         }
       } finally {
