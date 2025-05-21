@@ -13,3 +13,5 @@ if (extensionRegistry) {
 export function formatSearchResult(result) {
   return result;
 }
+Vue.prototype.$utils.includeExtensions('ActivityStreamExtension');
+
