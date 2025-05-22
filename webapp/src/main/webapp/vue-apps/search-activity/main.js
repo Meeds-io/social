@@ -13,8 +13,9 @@ if (extensionRegistry) {
 export function formatSearchResult(result) {
   return result;
 }
-Vue.prototype.$utils.includeExtensions('ActivityStreamExtension');
+Vue.prototype.$utils.includeExtensions('ActivityStreamExtension').then(()=> {
+  // hide the TopBar loading started by the activity stream (dependency) initialization
+  document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+});
 
-// hide the TopBar loading started by the activity stream (dependency) initialization
-document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
 
