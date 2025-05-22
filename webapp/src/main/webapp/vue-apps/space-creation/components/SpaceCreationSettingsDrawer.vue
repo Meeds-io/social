@@ -58,19 +58,16 @@
       </v-radio-group>
       <v-autocomplete
         v-if="settings.spaceCreationTemplateChoice === 'fewTemplates'"
-        v-model="selectedTemplates"
-        :items="settings.spaceTemplates"
+        v-model="search"
+        :items="filteredTemplates"
         :placeholder="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
         item-text="name"
         item-value="id"
         class="mt-n2 mb-4 px-5 elevation-0 no-border"
         hide-no-data
-        hide-selected
-        hide-details
         outlined
-        multiple
-        return-object
-        dense />
+        dense
+        @change="addTemplate" />
       <div v-if="settings.spaceCreationTemplateChoice === 'fewTemplates'" class="px-4">
         <v-chip
           v-for="template in selectedTemplates"
@@ -110,9 +107,18 @@ export default {
     loading: false,
     maxLabelLength: 150,
     settings: {},
-    originalSettings: {}
+    originalSettings: {},
+    search: null,
   }),
   computed: {
+    filteredTemplates() {
+      if (this.search) {
+        return this.$root.spaceTemplates.filter(
+          t => t.name.toLowerCase().includes(this.search.toLowerCase()));
+      } else {
+        return this.$root.spaceTemplates;
+      }
+    },
     modified() {
       return (this.settings.spaceCreationTemplateChoice !== this.originalSettings.spaceCreationTemplateChoice
            && JSON.stringify(this.settings.spaceTemplates) !== JSON.stringify(this.originalSettings.spaceTemplates))
@@ -134,11 +140,6 @@ export default {
     },
   },
   watch: {
-    selectedTemplates() {
-      if (!this.selectedTemplates.length) {
-        this.settings.spaceTemplates = this.$root.spaceTemplates;
-      }
-    },
     settings() {
       if (Object.keys(this.settings.labelTranslations).length === 0) {
         this.settings.labelTranslations = {[eXo.env.portal.defaultLanguage]: this.$t('space.creation.instantiation.create.button')};
@@ -153,6 +154,13 @@ export default {
     this.$root.$off('space-creation-settings-open', this.open);
   },
   methods: {
+    addTemplate(id) {
+      const template = this.$root.spaceTemplates.find(t => t.id === id);
+      if (template && !this.selectedTemplates.find(t => t.id === template.id)) {
+        this.selectedTemplates.push(template);
+      }
+      this.search = null;
+    },
     open() {
       this.restoreSavedSettings();
       this.$refs.drawer.open();
@@ -178,7 +186,7 @@ export default {
     },
     save() {
       this.loading = true;
-      this.settings.spaceTemplates = this.selectedTemplates;
+      this.settings.spaceTemplates = this.settings.spaceCreationTemplateChoice === 'anyTemplate' ? this.$root.spaceTemplates : this.selectedTemplates;
       this.$spaceCreationService.saveSettings(this.$root.saveSettingsUrl , this.settings).then(() => {
         this.$emit('updated', this.settings);
         this.$root.settings = this.settings;
