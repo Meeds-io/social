@@ -27,7 +27,7 @@ export function saveSettings(saveSettingsURL, settings) {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     },
     body: urlParams,
   }).then(resp => {
