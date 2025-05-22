@@ -18,11 +18,28 @@
                 :title="excerptText || activityTitle"
                 class="flex-grow-1 title font-weight-bold pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
                 v-sanitized-html="activityTitle"></p>
-              <div class="ml-2 pt-1">
-                <span v-if="hover || isMobile" class="d-flex d-inline-flex">
+              <div  class="ml-2 pt-1">
+                <span class="d-inline-flex align-center justify-center">
+                  <v-btn
+                    icon
+                    small
+                    class="me-2"
+                    @click.stop="openActivityCommentDrawer">
+                    <v-icon class="icon-default-color" size="16">
+                      fas fa-comment
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    class="me-2"
+                    @click.stop="openKudosForm">
+                    <v-icon class="icon-default-color" size="16">
+                      fas fa-award
+                    </v-icon>
+                  </v-btn>
                   <activity-favorite-action
                     :activity="result"
-                    class="ms-4"
                     @removed="$emit('refresh-favorite')" />
                 </span>
               </div>
@@ -80,6 +97,12 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      <div v-if="activityCommentDrawer">
+        <activity-comments-drawer
+          ref="activitySearchCommentDrawer"
+          :comment-types="activityTypes"
+          @closed="closeActivityCommentDrawer" />
+      </div>
     </v-card>
   </v-hover>
 </template>
@@ -101,6 +124,7 @@ export default {
     extensionApp: 'activity',
     activityTypeExtensionName: 'type',
     activityTypes: {},
+    activityCommentDrawer: false
   }),
   computed: {
     isComment() {
@@ -166,13 +190,26 @@ export default {
     },
     extendedComponentParams() {
       return {
-        activity: this.activity?.dataEntity?.originalActivity || this.activity?.dataEntity,
+        activity: this.activityEntity?.originalActivity || this.activityEntity,
         activityTypeExtension: this.activityTypeExtension,
         activityTypes: this.activityTypes,
         isActivityDetail: true,
         collapsed: false,
       };
     },
+    activityEntity() {
+      return this.result?.dataEntity;
+    },
+    entityType() {
+      return this.isComment && 'COMMENT' || 'ACTIVITY';
+    },
+    commentId() {
+      return this.isComment && `comment${this.activity.id}`;
+    },
+    isOwner() {
+      const currentUserName = eXo.env.portal?.username;
+      return  currentUserName === this.posterUsername || this.isSpaceStreamOwner && this.streamOwner?.isMember;
+    }
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
@@ -199,6 +236,31 @@ export default {
         this.activityTypes = Object.assign({}, this.activityTypes);
       }
     },
+    async openActivityCommentDrawer() {
+      this.activityCommentDrawer = true;
+      await this.$nextTick();
+      const options = {
+        activity: this.activityEntity,
+        newComment: true,
+      };
+      if (this.commentId) {
+        options ['commentId'] = this.commentId;
+      }
+      this.$refs.activitySearchCommentDrawer.displayActivityComments({detail: options});
+    },
+    async closeActivityCommentDrawer() {
+      await this.$nextTick();
+      this.activityCommentDrawer = false;
+    },
+    openKudosForm() {
+      document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {detail: {
+        id: this.commentId || this.activity.id,
+        parentId: this.isComment && this.this.activityEntity.id || '',
+        type: this.entityType,
+        owner: !this.isOwner && this.posterUsername || null,
+        spacePrettyName: this.isSpaceStreamOwner && this.streamOwner.prettyName
+      }}));
+    }
   }
 };
 </script>
