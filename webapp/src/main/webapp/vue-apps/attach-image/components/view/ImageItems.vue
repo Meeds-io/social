@@ -99,8 +99,7 @@ export default {
         });
     },
     openPreview(attachmentId) {
-      this.imageAttachments?.map((item) => item.downloadUrl=`/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${item.id}`);
-      document.dispatchEvent(new CustomEvent('open-attachments-preview', {detail: {'attachments': this.imageAttachments || [],'objectType': this.objectType,'objectId': this.objectId,'id': attachmentId }}));
+      document.dispatchEvent(new CustomEvent('open-attachments-preview', {detail: {'attachments': this.imageAttachments || [],'id': attachmentId }}));
     },
   },
 };
