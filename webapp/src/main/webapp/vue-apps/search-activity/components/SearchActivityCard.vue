@@ -18,7 +18,7 @@
                 :title="excerptText || activityTitle"
                 class="flex-grow-1 title font-weight-bold pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
                 v-sanitized-html="activityTitle"></p>
-              <div  class="ml-2 pt-1">
+              <div v-show="hover || isMobile" class="ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
                   <v-btn
                     icon
