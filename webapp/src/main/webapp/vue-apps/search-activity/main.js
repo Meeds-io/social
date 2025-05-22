@@ -15,3 +15,6 @@ export function formatSearchResult(result) {
 }
 Vue.prototype.$utils.includeExtensions('ActivityStreamExtension');
 
+// hide the TopBar loading started by the activity stream (dependency) initialization
+document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+
