@@ -1,10 +1,10 @@
 package org.exoplatform.social.core.space.impl;
 
+import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
@@ -17,36 +17,47 @@ import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
+import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.common.ContainerTransactional;
+import io.meeds.social.space.service.SpaceLayoutService;
 
 public class SpaceRenamedListenerImpl extends SpaceListenerPlugin {
 
-  private static final Log LOG = ExoLogger.getLogger(SpaceRenamedListenerImpl.class);
+  private static final Log    LOG = ExoLogger.getLogger(SpaceRenamedListenerImpl.class);
+
+  private SpaceLayoutService  spaceLayoutService;
+
+  private SpaceService        spaceService;
+
+  private OrganizationService organizationService;
+
+  private IdentityManager     identityManager;
+
+  private FileService         fileService;
 
   @Override
   public void spaceRenamed(SpaceLifeCycleEvent event) {
     Space space = event.getSpace();
     renameGroupLabel(space);
     updateDefaultSpaceAvatar(space);
+    updateSpaceUrl(space);
   }
 
+  @ContainerTransactional
   private void renameGroupLabel(Space space) {
     try {
-      RequestLifeCycle.begin(PortalContainer.getInstance());
-      OrganizationService organizationService = CommonsUtils.getService(OrganizationService.class);
-      GroupHandler groupHandler = organizationService.getGroupHandler();
+      GroupHandler groupHandler = getOrganizationService().getGroupHandler();
       Group group = groupHandler.findGroupById(space.getGroupId());
       group.setLabel(space.getDisplayName());
       groupHandler.saveGroup(group, true);
     } catch (Exception e) {
       LOG.error("Error while renaming, space group Label, ignore minor change and keep the old Group Label", e);
-    } finally {
-      RequestLifeCycle.end();
     }
   }
 
   private void updateDefaultSpaceAvatar(Space space) {
-    IdentityManager identityManager = CommonsUtils.getService(IdentityManager.class);
-    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    Identity spaceIdentity = getIdentityManager().getOrCreateSpaceIdentity(space.getPrettyName());
     FileItem spaceAvatar = identityManager.getAvatarFile(spaceIdentity);
     if (spaceAvatar != null && spaceAvatar.getFileInfo().getId() != null
         && EntityConverterUtils.DEFAULT_AVATAR.equals(spaceAvatar.getFileInfo().getName())) {
@@ -58,9 +69,50 @@ public class SpaceRenamedListenerImpl extends SpaceListenerPlugin {
       space.setAvatarAttachment(null);
       space.setAvatarLastUpdated(System.currentTimeMillis());
       identityManager.updateProfile(profile);
-      FileService fileService = CommonsUtils.getService(FileService.class);
-      fileService.deleteFile(spaceAvatar.getFileInfo().getId());
+      getFileService().deleteFile(spaceAvatar.getFileInfo().getId());
     }
   }
 
+  private void updateSpaceUrl(Space space) {
+    String spaceUri = getSpaceLayoutService().getFirstSpacePageUri(space.getGroupId());
+    if (!StringUtils.equals(spaceUri, space.getUrl())) {
+      space.setUrl(StringUtils.firstNonBlank(spaceUri, space.getUrl(), Space.HOME_URL));
+      getSpaceService().updateSpace(space);
+    }
+  }
+
+  public SpaceLayoutService getSpaceLayoutService() {
+    if (spaceLayoutService == null) {
+      spaceLayoutService = ExoContainerContext.getService(SpaceLayoutService.class);
+    }
+    return spaceLayoutService;
+  }
+
+  public SpaceService getSpaceService() {
+    if (spaceService == null) {
+      spaceService = ExoContainerContext.getService(SpaceService.class);
+    }
+    return spaceService;
+  }
+
+  public FileService getFileService() {
+    if (fileService == null) {
+      fileService = ExoContainerContext.getService(FileService.class);
+    }
+    return fileService;
+  }
+
+  public IdentityManager getIdentityManager() {
+    if (identityManager == null) {
+      identityManager = ExoContainerContext.getService(IdentityManager.class);
+    }
+    return identityManager;
+  }
+
+  public OrganizationService getOrganizationService() {
+    if (organizationService == null) {
+      organizationService = ExoContainerContext.getService(OrganizationService.class);
+    }
+    return organizationService;
+  }
 }
