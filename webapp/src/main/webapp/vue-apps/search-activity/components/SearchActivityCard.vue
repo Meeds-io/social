@@ -254,8 +254,8 @@ export default {
     },
     openKudosForm() {
       document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {detail: {
-        id: this.commentId || this.activity.id,
-        parentId: this.isComment && this.this.activityEntity.id || '',
+        id: this.activity.id,
+        parentId: this.isComment && this.activityEntity.id || '',
         type: this.entityType,
         owner: !this.isOwner && this.posterUsername || null,
         spacePrettyName: this.isSpaceStreamOwner && this.streamOwner.prettyName
