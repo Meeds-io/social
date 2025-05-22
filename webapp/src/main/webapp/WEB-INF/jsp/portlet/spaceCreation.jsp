@@ -28,8 +28,7 @@ String settings = null;
 if (rawSettings instanceof String[]) {
   settings = ((String[]) rawSettings)[0];
 }
-String decodedSettings = StringEscapeUtils.unescapeJava(settings);
-
+String decodedSettings = StringEscapeUtils.escapeHtml4(settings);
 
 String portletId = (String) request.getAttribute("portletStorageId");
 String domId = "spaceCreationApplication" + portletId;
