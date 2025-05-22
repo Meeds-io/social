@@ -38,7 +38,7 @@ String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
-      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"")%></textarea>
+      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
       <script type="text/javascript">
         require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', <%=defaultJson%>));
       </script>
