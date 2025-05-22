@@ -94,7 +94,7 @@ public class SpaceLayoutService {
     // Set URL of root node of the space
     String url = getFirstSpacePageUri(space.getGroupId());
     space = spaceService.getSpaceById(space.getId());
-    space.setUrl(url);
+    space.setUrl(StringUtils.defaultIfBlank(url, Space.HOME_URL));
     spaceService.updateSpace(space);
   }
 
