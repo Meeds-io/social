@@ -7,7 +7,7 @@
     allow-expand
     right
     disable-pull-to-refresh
-    @closed="reset">
+    @closed="closeDrawer">
     <template slot="title">
       <span class="text-capitalize-first-letter">
         {{ commentsTitle }}
@@ -131,6 +131,7 @@ export default {
     closeDrawer() {
       this.reset();
       this.$refs.activityCommentsDrawer.close();
+      this.$emit('closed');
     },
     addComment(comment) {
       this.highlightCommentId = this.$root.selectedCommentId;
