@@ -287,7 +287,7 @@ export default {
     async search() {
       this.loading = true;
       try {
-        if (this.keyword?.length) {
+        if (this.keyword?.length && this.plugin?.objectType) {
           this.links = await this.$contentLinkService.searchLinks(this.plugin?.objectType, this.keyword, 0, 10);
         } else {
           this.links = [];
@@ -307,25 +307,29 @@ export default {
         range
       } = event.detail;
       this.query = command;
+      this.$root.editor = editor;
+      this.textWatcher = textWatcher;
+      this.range = range;
       await this.$nextTick();
       if (this.filteredPlugins?.length || this.isItemFiltering) {
         this.selectedItemIndex = this.selectedItemIndex || 0;
-        this.$root.editor = editor;
-        this.textWatcher = textWatcher;
-        this.range = range;
         this.left = -Math.min(parseInt(position.left) + this.width, window.innerWidth);
         this.top = -parseInt(position.top) - 20;
-        this.menu = true;
         if (this.isItemFiltering) {
           const commandParts = command.split(':');
           this.keyword = commandParts[1];
           const plugin = this.$root.plugins.find(p => p.command === commandParts[0]);
           if (plugin?.insert) {
             this.selectCommand(plugin);
-          } else {
+          } else if (plugin) {
             this.plugin = plugin;
+          } else {
+            this.plugin = null;
+            this.unWatch();
+            return;
           }
         }
+        this.menu = true;
       } else {
         this.unWatch();
       }

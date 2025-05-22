@@ -29,13 +29,13 @@
           window.require(['SHARED/ContentLink'], app => app.openDrawer(editor));
         }
       });
-  
+
       editor.ui.addButton( 'InsertContentLink', {
         label: window.vueI18nMessages?.['richeditor.insertContent.tooltip'] || '',
         command: 'insertContentLink',
         toolbar: 'insert'
       });
-  
+
       editor.on('getData', function(evt) {
         let textData = evt.data.dataValue;
   
@@ -125,6 +125,7 @@
         editor.removeListener('blur', textWatcher.unmatch, textWatcher);
         if (!menuOpen) {
           getWindow().document.addEventListener('parent-element-scrolled', openCommandMenu);
+          editor.removeListener('key', onKeyShortcut);
           editor.on('key', onKeyShortcut);
           menuOpen = true;
         }
@@ -134,9 +135,9 @@
       }
   
       function onTextUnmatched() {
+        editor.removeListener('key', onKeyShortcut);
         if (menuOpen) {
           menuOpen = false;
-          editor.removeListener('key', onKeyShortcut);
           getWindow().document.removeEventListener('parent-element-scrolled', openCommandMenu);
           closeCommandMenu();
         }
