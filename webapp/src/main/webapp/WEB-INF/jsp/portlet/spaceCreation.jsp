@@ -10,7 +10,7 @@
 <%@page import="com.fasterxml.jackson.databind.ObjectMapper" %>
 <%@page import="java.util.Map" %>
 <%@page import="javax.portlet.PortletPreferences" %>
-<%@ page import="org.apache.commons.text.StringEscapeUtils" %>
+<%@page import="org.apache.commons.text.StringEscapeUtils"%>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <portlet:actionURL var="saveSettingsUrl" />
@@ -28,7 +28,6 @@ String settings = null;
 if (rawSettings instanceof String[]) {
   settings = ((String[]) rawSettings)[0];
 }
-String decodedSettings = StringEscapeUtils.escapeHtml4(settings);
 
 String portletId = (String) request.getAttribute("portletStorageId");
 String domId = "spaceCreationApplication" + portletId;
@@ -39,7 +38,7 @@ String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
-      <textarea id="<%=valueDomId%>" style="display:none;"><%=decodedSettings == null ? "{}" : decodedSettings%></textarea>
+      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"")%></textarea>
       <script type="text/javascript">
         require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', <%=defaultJson%>));
       </script>

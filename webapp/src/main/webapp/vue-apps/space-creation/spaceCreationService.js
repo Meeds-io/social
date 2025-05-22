@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-function escapeUnicodeInJson(obj) {
-  return JSON.stringify(obj).replace(/[\u007f-\uffff]/g, function (c) {
-    return `\\u${  (`0000${  c.charCodeAt(0).toString(16)}`).slice(-4)}`;
-  });
-}
 
 export function saveSettings(saveSettingsURL, settings) {
   const formData = new FormData();
-  formData.append('settings', escapeUnicodeInJson(settings));
+  formData.append('settings', JSON.stringify(settings));
   const urlParams = new URLSearchParams(formData).toString();
 
   return fetch(saveSettingsURL, {
     method: 'POST',
     credentials: 'include',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
     },
     body: urlParams,
   }).then(resp => {
