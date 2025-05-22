@@ -22,8 +22,6 @@ if (!Vue.prototype.$activityUtils) {
   });
 }
 
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
-
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`;
 
 // get overrided components if exists
@@ -53,6 +51,7 @@ const urls = [
 ];
 
 export function init(maxFileSize) {
+  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
