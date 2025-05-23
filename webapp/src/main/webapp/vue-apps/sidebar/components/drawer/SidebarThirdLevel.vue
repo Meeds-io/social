@@ -27,6 +27,7 @@
     :right="$vuetify.rtl"
     class="HamburgerMenuThirdLevelParent layout-side-bar border-box-sizing z-index-drawer"
     max-width="100%"
+    @keydown="closeDrawer"
     hide-overlay>
     <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
       <div class="full-width fill-height overflow-x-hidden overflow-x-auto specific-scrollbar">
@@ -61,6 +62,16 @@ export default {
   },
   data: () => ({
     drawer: false,
+    listFocusableElement: [],
+    lastFocusedElement: null,
+    firstElementFocusable: null,
+    lastElementFocusable: null,
+    lastElementDisabled: null,
+    secondLastElementFocusable: null,
+    firstListener: null,
+    lastListener: null,
+    secondLastListener: null,
+    lastDisabledListener: null,
   }),
   computed: {
     drawerOffset() {
@@ -85,13 +96,128 @@ export default {
     },
     drawer() {
       this.$emit('input', this.drawer);
+      this.$nextTick().then(() => {
+        this.focusNavigationDrawer().then(() => {
+          this.firstElementFocusable?.focus();
+        });
+      });
     },
-    value() {
-      this.drawer = this.value;
+    value(newVal) {
+      if (newVal) {
+        this.lastFocusedElement = document.activeElement;
+      }
+      this.drawer = newVal;
     },
   },
   created() {
     this.drawer = this.value;
   },
+  beforeDestroy() {
+    this.removeEventListenerKeydown(this.$refs?.thirdLevelDrawer?.$el, this.keydownListener);
+    this.removeEventListenerKeydown(this.firstElementFocusable, this.firstListener);
+    this.removeEventListenerKeydown(this.lastElementFocusable, this.lastListener);
+    this.removeEventListenerKeydown(this.secondLastElementFocusable, this.lastListener);
+    this.removeEventListenerKeydown(this.lastElementDisabled, this.lastDisabledListener);
+  },
+  methods: {
+    async focusNavigationDrawer() {
+      await this.$nextTick();
+      await new Promise(resolve => setTimeout(resolve, 200));
+      this.listFocusableElement = this.getVisibleFocusableElements();
+      this.firstElementFocusable = this.listFocusableElement[0];
+      this.lastElementFocusable = this.listFocusableElement[this.listFocusableElement.length-1];
+      if (this.listFocusableElement.length > 0) {
+        this.firstListener = (e) => this.handleFocusableKeydown('firstElementFocusable', e);
+        this.lastListener = (e) => this.handleFocusableKeydown('lastElementFocusable', e);
+        this.addEventListenerKeydown(this.firstElementFocusable, this.firstListener);
+        this.addEventListenerKeydown(this.lastElementFocusable, this.lastListener);
+        this.addEventListenerKeydown(this.$refs?.thirdLevelDrawer?.$el, this.keydownListener);
+      }
+    },
+    keydownListener(event) {
+      if (event.key === 'Escape') {
+        this.$emit('input', false);
+        this.$nextTick(() => {
+          if (this.lastFocusedElement) {
+            this.lastFocusedElement?.focus();
+          }
+        });
+      } else if (event.key === 'Enter') {
+        setTimeout(() => {
+          const listFocusableElement = this.getVisibleFocusableElements();
+          if (!listFocusableElement.includes(this.lastElementFocusable)) {
+            this.removeEventListenerKeydown(this.lastElementFocusable, this.lastListener);
+            this.lastElementFocusable = listFocusableElement[listFocusableElement.length-1];
+            this.addEventListenerKeydown(this.lastElementFocusable, this.lastListener);
+          }
+        }, 500);
+      }
+    },
+    handleFocusableKeydown(elemntFocusable, event) {
+      if (event && event.key !== 'Tab') {
+        return;
+      }
+      const listFocusableElement = this.getVisibleFocusableElements();
+      const secondLastElementFocusable = listFocusableElement[listFocusableElement.length-1];
+      if (secondLastElementFocusable !== this.lastElementFocusable && !this.secondLastElementFocusable && secondLastElementFocusable !== this.secondLastElementFocusable) {
+        this.secondLastElementFocusable = secondLastElementFocusable;
+        this.secondLastListener = (e) => this.handleFocusableKeydown('secondLastElementFocusable', e);
+        this.addEventListenerKeydown(this.secondLastElementFocusable, this.secondLastListener);
+        return;
+      } else if (secondLastElementFocusable === this.lastElementFocusable && this.secondLastElementFocusable) {
+        this.removeEventListenerKeydown(this.secondLastElementFocusable, this.secondLastListener);
+        this.secondLastElementFocusable = null;
+      } else if (secondLastElementFocusable !== this.lastElementFocusable && !this.lastElementDisabled && secondLastElementFocusable !== this.secondLastElementFocusable) {
+        this.lastElementDisabled = secondLastElementFocusable;
+        this.lastDisabledListener = (e) => this.handleFocusableKeydown('lastElementDisabled', e);
+        this.addEventListenerKeydown(this.lastElementDisabled, this.lastDisabledListener);
+      } else if (secondLastElementFocusable !== this.lastElementFocusable && elemntFocusable === 'lastElementFocusable') {
+        return;
+      }
+      
+      if (event.key === 'Tab') {
+        if (!event.shiftKey && elemntFocusable !== 'firstElementFocusable') {
+          if (this.lastElementDisabled && elemntFocusable === 'secondLastElementFocusable') {
+            event.preventDefault();
+            this.lastElementDisabled?.focus();
+          } else {
+            event.preventDefault();
+            this.firstElementFocusable?.focus();
+          }
+        } else if (event.shiftKey && elemntFocusable === 'firstElementFocusable') {
+          if (this.secondLastElementFocusable) {
+            event.preventDefault();
+            this.secondLastElementFocusable?.focus();
+          } else {
+            event.preventDefault();
+            this.lastElementFocusable?.focus();
+          }
+        }
+      }
+    },
+    getVisibleFocusableElements() {
+      const listFocusableElement = this.$refs?.thirdLevelDrawer?.$el.querySelectorAll('button, [href], input, [tabindex]:not([tabindex="-1"])');
+      return Array.from(listFocusableElement).filter(el  => { return this.checkVisibleElement(el);});
+    },
+    checkVisibleElement(element) {
+      return element?.offsetParent !== null && element instanceof HTMLElement && window?.getComputedStyle(element)?.visibility !== 'hidden' && window?.getComputedStyle(element)?.display !== 'none';
+    },
+    isSameElement(element1, element2) {
+      if (!element1 || !element2) {
+        return false;
+      }
+      return element1.isSameNode(element2);
+    },
+    addEventListenerKeydown(element, event) {
+      if (element && typeof element.addEventListener === 'function') {
+        element.addEventListener('keydown', event);
+      }
+    },
+    removeEventListenerKeydown(element, event) {
+      if (element && typeof element.addEventListener === 'function') {
+        element.removeEventListener('keydown', event);
+      }
+    },
+  }
 };
 </script>

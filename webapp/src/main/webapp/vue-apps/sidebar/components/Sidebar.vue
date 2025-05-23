@@ -21,6 +21,7 @@
 -->
 <template>
   <v-app
+    ref="appHamburgerNavigationMenu"
     color="transaprent"
     class="HamburgerNavigationMenu"
     flat>
@@ -54,6 +55,7 @@
           :opened-site="site"
           :opened-space="space"
           :drawer-width="drawerWidth"
+          @focusedDrawer="isFocusedDrawer($event)"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
         <v-overlay
           v-if="showInnerOverlay"
@@ -68,6 +70,7 @@
           :opened-site="site"
           :opened-space="space"
           :drawer-width="drawerWidth"
+          @focusedDrawer="isFocusedDrawer($event)"
           @firstLevelDrawer="updateFirstLevelDrawer($event)" />
         <sidebar-second-level
           v-if="allowDisplayLevels"
@@ -105,7 +108,9 @@ export default {
     interval: null,
     mouseEvent: false,
     closeTimeout: null,
-    visibility: ['displayed', 'temporal']
+    visibility: ['displayed', 'temporal'],
+    isFocused: false,
+    isSecondLevelDrawerOpen: false,
   }),
   computed: {
     allowDisplayLevels() {
@@ -161,10 +166,17 @@ export default {
         }
       }
       if (!this.secondLevelDrawer) {
+        if (this.$root.mode === 'ICON') {
+          this.isSecondLevelDrawerOpen = true;
+        }
         this.thirdLevelDrawer = false;
         this.space = null;
         this.site = null;
         this.secondLevel = null;
+      } else {
+        if (this.$root.mode === 'ICON') {
+          this.isSecondLevelDrawerOpen = false;
+        }
       }
     },
     firstLevelDrawer() {
@@ -174,10 +186,10 @@ export default {
         this.space = null;
         this.site = null;
         this.secondLevel = null;
-      } else if (this.firstLevelDrawer && this.$root.displaySequentially && this.mouseEvent) {
+      } else if (this.firstLevelDrawer && this.$root.displaySequentially && this.mouseEvent || this.isFocused) {
         // Close if mouse is not entered to menu
         this.closeTimeout = window.setTimeout(() => {
-          if (!this.hover) {
+          if (!this.hover && !this.isFocused) {
             this.closeMenu();
           }
         }, 500);
@@ -192,13 +204,16 @@ export default {
       }
     },
     hover() {
-      if (this.hover) {
+      if (this.hover || this.isFocused) {
         if (this.interval) {
           window.clearInterval(this.interval);
           this.interval = null;
         }
       } else if (!this.interval && this.$root.displaySequentially && !this.$root.hidden) {
         this.interval = window.setTimeout(() => this.closeMenu(), 500);
+      } else if (!this.hover) {
+        this.isFocused = false;
+        this.isSecondLevelDrawerOpen = false;
       }
     },
     site() {
@@ -219,6 +234,10 @@ export default {
     this.$root.$on('change-site-menu', this.changeSiteMenu);
     document.addEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.addEventListener('drawerOpened', this.closeDisplayedDrawerIfNotSelf);
+    document.addEventListener('keydown', this.closeDisplayedDrawerWithEsc);
+  },
+  mounted() {
+    this.$refs.appHamburgerNavigationMenu.$el.addEventListener('keydown', this.openDisplayedDrawer);
   },
   beforeDestroy() {
     this.$root.$off('change-space-menu', this.changeSpaceMenu);
@@ -226,8 +245,18 @@ export default {
     this.$root.$off('change-site-menu', this.changeSiteMenu);
     document.removeEventListener('closeDisplayedDrawer', this.closeDisplayedDrawer);
     document.removeEventListener('drawerOpened', this.closeDisplayedDrawerIfNotSelf);
+    this.$ref.appHamburgerNavigationMenu.$el.addEventListener('keydown', this.openDisplayedDrawer);
+    document.addEventListener('keydown', this.closeDisplayedDrawerWithEsc);
   },
   methods: {
+    isFocusedDrawer(event) {
+      if (!this.stickyDisplay && !this.hover) {
+        this.isFocused = false;
+        this.closeMenu();
+      } else {
+        this.isFocused = event;
+      }
+    },
     async openFirstLevel(mouseEvent) {
       this.mouseEvent = mouseEvent;
       this.firstLevelDrawer = false;
@@ -328,6 +357,23 @@ export default {
         this.closeMenuEffectively(true);
       }
     },
+    closeDisplayedDrawerWithEsc(event) {
+      if (event.key === 'Escape' && this.$root.mode === 'ICON' && this.isFocused && !this.isSecondLevelDrawerOpen) {
+        this.$root.hoverFirstLevel = false;
+        this.$root.hover = false;
+        this.isFocused = false;
+        this.closeMenuEffectively();
+      } else if (event.key === 'Escape') {
+        this.isSecondLevelDrawerOpen = false;
+      }
+    },
+    openDisplayedDrawer(event) {
+      if (event.key === 'Tab' && this.$root.icon && !this.isFocused) {
+        this.$root.hoverFirstLevel = true;
+        this.$root.hover = true;
+        this.isFocused = true;
+      }
+    },
     closeDisplayedDrawer() {
       if (this.firstLevelDrawer || this.secondLevelDrawer) {
         this.closeMenu();
@@ -356,6 +402,7 @@ export default {
         this.$root.hoverSecondLevel = false;
         this.$root.hoverFirstLevel = false;
         this.$root.hoverDeferred = false;
+        this.isFocused = false;
       } else {
         this.updateFirstLevelDrawer(false);
       }

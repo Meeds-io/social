@@ -16,49 +16,61 @@
 -->
 
 <template>
-  <a
-    :href="uri"
-    :target="target"
-    :rel="rel"
-    :ripple="false"
-    class="d-flex px-0"
-    @mouseover="showAction = true"
-    @mouseleave="showAction = false">
-    <v-list-item-icon size="20" class="d-flex align-center justify-center my-auto ms-0 me-3">
-      <v-icon size="20" class="icon-default-color">
-        {{ icon }}
-      </v-icon>
-    </v-list-item-icon>
-    <v-list-item-title class="menu-text-color">
-      <div class="d-flex align-center justify-space-between my-auto">
-        <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
-        <v-chip
-          v-if="unreadBadge && enableUnread"
-          color="error-color-background"
-          min-width="22"
-          height="22"
-          dark>
-          {{ unreadBadge }}
-        </v-chip>
+  <v-card
+    class="d-flex flex-row transparent"
+    transparent
+    flat>
+    <v-card-content class="pa-0 flex-grow-1 my-auto">
+      <a
+        :href="uri"
+        :target="target"
+        :rel="rel"
+        :ripple="false"
+        class="d-flex px-0"
+        @mouseover="showAction = true"
+        @mouseleave="showAction = false"
+        @keydown="handleKeyDown"
+        @focus="changeHover"
+        @blur="handleListItemBlur">
+        <v-list-item-icon size="20" class="d-flex align-center justify-center my-auto ms-0 me-3">
+          <v-icon size="20" class="icon-default-color">
+            {{ icon }}
+          </v-icon>
+        </v-list-item-icon>
+        <v-list-item-title class="menu-text-color">
+          <div class="d-flex align-center justify-space-between my-auto width-fit-content">
+            <span class="text-truncate" :style="navigationLabelStyle">{{ navigationLabel }}</span>
+            <v-chip
+              v-if="unreadBadge && enableUnread"
+              color="error-color-background"
+              min-width="22"
+              height="22"
+              dark>
+              {{ unreadBadge }}
+            </v-chip>
+          </div>
+        </v-list-item-title>
+      </a>
+    </v-card-content>
+    <v-card-actions class="pa-0 align-center">
+      <div
+        v-show="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction || localExpand)"
+        class="ms-auto my-auto flex-shrink-0">
+        <v-btn
+          :title="$t('menu.spaces.makeAsHomePage')"
+          icon
+          class="pa-0 ms-2"
+          @blur="showAction=false"
+          @click="selectHome($event)">
+          <v-icon
+            :class="isHomeLink && 'primary--text' || 'icon-default-color'"
+            small>
+            fa-house-user
+          </v-icon>
+        </v-btn>
       </div>
-    </v-list-item-title>
-    <v-list-item-action
-      v-if="!unreadBadge && enableChangeHome && !isNodeGroup && (isHomeLink || showAction)"
-      class="ms-auto my-auto flex-shrink-0">
-      <v-btn
-        :title="$t('menu.spaces.makeAsHomePage')"
-        height="36"
-        min-width="36"
-        icon
-        @click="selectHome($event)">
-        <v-icon
-          :class="isHomeLink && 'primary--text' || 'icon-default-color'"
-          small>
-          fa-house-user
-        </v-icon>
-      </v-btn>
-    </v-list-item-action>
-  </a>
+    </v-card-actions>
+  </v-card>
 </template>
 
 <script>
@@ -80,6 +92,8 @@ export default {
   data: () => ({
     homeLink: eXo.env.portal.homeLink,
     showAction: false,
+    localExpand: false,
+    isShiftTabPressed: false,
   }),
   computed: {
     baseSiteUri() {
@@ -117,6 +131,20 @@ export default {
       return this.unreadBadge > 0 ? { 'max-width': '140px' } : { 'max-width': '200px'};
     },
   },
+  watch: {
+    showAction() {
+      if (this.showAction) {
+        this.localExpand = true;
+      } else {
+        this.localExpand = false;
+      }
+    },
+    drawerOpened(newVal) {
+      if (!newVal){
+        this.localExpand = true;
+      }
+    },
+  },
   created() {
     document.addEventListener('homeLinkUpdated', this.updateHome);
   },
@@ -133,6 +161,20 @@ export default {
     },
     updateHome() {
       this.homeLink = eXo.env.portal.homeLink;
+    },
+    handleKeyDown(event) {
+      this.isShiftTabPressed = event.key === 'Tab' && event.shiftKey;
+    },
+    handleListItemBlur() {
+      if (this.isShiftTabPressed) {
+        this.localExpand = false;
+        this.showAction = false;
+        this.isShiftTabPressed = false;
+      }
+    },
+    changeHover() {
+      this.showAction = true;
+      this.localExpand = true;
     },
   },
 };

@@ -24,6 +24,9 @@
     :ripple="!ripple"
     :text="text"
     :icon="icon"
+    tabindex="0"
+    @focus="handleFocus()"
+    @blur="handleBlur()"
     @mousedown.stop.prevent="0"
     @touchstart.stop.prevent="0"
     @touchend.stop.prevent="emitAction($event, false)"
@@ -61,6 +64,12 @@ export default {
     },
   },
   methods: {
+    handleFocus() {
+      this.$emit('event-change', true);
+    },
+    handleBlur() {
+      this.$emit('event-change', false);
+    },
     emitAction(event, mouseover) {
       if (!this.active && mouseover) {
         return;
@@ -116,6 +125,9 @@ export default {
           }));
       }
     },
+  },
+  mounted() {
+    this.$emit('blur-change', true);
   }
 };
 </script>

@@ -97,8 +97,6 @@ public class ProfileEntity extends BaseEntity {
   public static final String MANAGED_USERS_COUNT     = "managedUsersCount";
 
   public static final String PRIMARY_PROPERTY   = "primaryProperty";
-  
-  public static final String IS_PRIMARY_PROPERTY_DROPDWOWN_LIST   = "isPrimaryPropertyDropdownList";
 
   public static final String SECONDARY_PROPERTY = "secondaryProperty";
 
@@ -563,21 +561,11 @@ public class ProfileEntity extends BaseEntity {
   public String getPrimaryProperty() {
     return getString(PRIMARY_PROPERTY);
   }
-  
+
   public ProfileEntity setPrimaryProperty(String primaryProperty) {
     setProperty(PRIMARY_PROPERTY, primaryProperty);
     return this;
   }
-  
-  public Boolean getIsPrimaryPropertyDropdownList() {
-    return (Boolean) getProperty(IS_PRIMARY_PROPERTY_DROPDWOWN_LIST);
-  }
-
-  public ProfileEntity setIsPrimaryPropertyDropdownList(boolean isPrimaryPropertyDropdownList) {
-    setProperty(IS_PRIMARY_PROPERTY_DROPDWOWN_LIST, isPrimaryPropertyDropdownList);
-    return this;
-  }
-  
   public String getSecondaryProperty() {
     return getString(SECONDARY_PROPERTY);
   }
