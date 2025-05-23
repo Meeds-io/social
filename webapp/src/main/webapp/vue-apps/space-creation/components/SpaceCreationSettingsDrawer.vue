@@ -120,13 +120,13 @@ export default {
       }
     },
     modified() {
-      return (this.settings.spaceCreationTemplateChoice !== this.originalSettings.spaceCreationTemplateChoice
-           && JSON.stringify(this.settings.spaceTemplates) !== JSON.stringify(this.originalSettings.spaceTemplates))
+      return (JSON.stringify([...this.selectedTemplates].sort((a, b) => a.id - b.id))
+              !== JSON.stringify([...this.originalSettings.spaceTemplates].sort((a, b) => a.id - b.id)))
           || JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
     },
     disabled() {
       return !this.modified || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
-      || (this.settings.spaceCreationTemplateChoice === 'fewTemplates' && !this.selectedTemplates.length);
+      || !this.selectedTemplates.length;
     },
     rules() {
       return {
@@ -166,6 +166,7 @@ export default {
       this.$refs.drawer.open();
     },
     close() {
+      this.selectedTemplates= [];
       this.$refs.drawer.close();
     },
     restoreSavedSettings() {
