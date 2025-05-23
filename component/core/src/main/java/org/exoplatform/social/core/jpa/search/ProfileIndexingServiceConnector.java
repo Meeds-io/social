@@ -250,7 +250,11 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     fields.put("name", profile.getFullName());
     fields.put("firstName", (String) profile.getProperty(Profile.FIRST_NAME));
     fields.put("lastName", (String) profile.getProperty(Profile.LAST_NAME));
-    fields.put("position", removeAccents(profile.getPosition()));
+    ProfilePropertySetting positionPropertySetting = profilePropertyService.getProfileSettingByName("position");
+    fields.put("position",
+               StringUtils.isNotEmpty(profile.getPosition()) ? removeAccents(parseValue(positionPropertySetting,
+                                                                                        profile.getPosition()))
+                                                             : profile.getPosition());
     fields.put("aboutMe", removeAccents(profile.getAboutMe()));
     fields.put("skills", removeAccents((String) profile.getProperty(Profile.EXPERIENCES_SKILLS)));
     fields.put("avatarUrl", profile.getAvatarUrl());

@@ -55,8 +55,8 @@
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
-      <span v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate my-auto text-left">
-        {{ userPosition }}
+      <span v-else-if="displayPrimaryProperty" class="text-subtitle text-truncate my-auto text-left">
+        {{ primaryProperty }}
       </span>
     </component>
     <component
@@ -100,8 +100,8 @@
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
         </p>
-        <p v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate text-left mb-0">
-          {{ userPosition }}
+        <p v-else-if="displayPrimaryProperty" class="text-subtitle text-truncate text-left mb-0">
+          {{ primaryProperty }}
         </p>
       </div>
       <template v-if="$slots.actions">
@@ -164,8 +164,8 @@
       <span v-if="$slots.subTitle" class="text-subtitle text-truncate my-auto text-left">
         <slot name="subTitle"></slot>
       </span>
-      <span v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate my-auto text-left">
-        {{ userPosition }}
+      <span v-else-if="displayPrimaryProperty" class="text-subtitle text-truncate my-auto text-left">
+        {{ primaryProperty }}
       </span>
     </component>
     <component
@@ -209,8 +209,8 @@
         <p v-if="$slots.subTitle" class="text-subtitle text-truncate text-left mb-0">
           <slot name="subTitle"></slot>
         </p>
-        <p v-else-if="displayPosition && userPosition" class="text-subtitle text-truncate text-left mb-0">
-          {{ userPosition }}
+        <p v-else-if="displayPrimaryProperty" class="text-subtitle text-truncate text-left mb-0">
+          {{ primaryProperty }}
         </p>
       </div>
       <template v-if="$slots.actions">
@@ -326,7 +326,7 @@ export default {
       type: Boolean,
       default: () => true
     },
-    displayPosition: {
+    displayPrimaryProperty: {
       type: Boolean,
       default: false
     },
@@ -367,9 +367,6 @@ export default {
     },
     userAvatarUrl() {
       return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
-    },
-    userPosition() {
-      return this.userIdentity?.position;
     },
     profileUrl() {
       if (this.url && !this.clickable && this.username) {
@@ -435,7 +432,7 @@ export default {
   },
   created() {
     if (this.username && this.mustRetrieveIdentity) {
-      this.$userService.getUser(this.username)
+      this.$userService.getUser(this.username, 'settings')
         .then(user => this.retrievedIdentity = user && JSON.parse(JSON.stringify(user)));
     }
   },
