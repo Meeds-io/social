@@ -1229,6 +1229,7 @@ public class EntityBuilder {
     activityEntity.setCanDelete(canDelete);
     boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
+    activityEntity.setCategoryIds(activity.getCategoryIds());
 
     LinkEntity commentLink;
     if (expandFields.contains(COMMENTS_TYPE)) {

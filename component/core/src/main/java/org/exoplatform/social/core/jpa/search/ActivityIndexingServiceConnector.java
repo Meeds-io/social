@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.jpa.search;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -196,6 +197,12 @@ public class ActivityIndexingServiceConnector extends ElasticIndexingServiceConn
     if (!activity.hasSpecificMetadataObject()) {
       addDocumentMetadata(document, activity.getMetadataObject());
     }
+    document.addListField("categoryId",
+                          new HashSet<>(activity.getCategoryIds() == null ? Collections.emptyList() :
+                                                                          activity.getCategoryIds()
+                                                                                  .stream()
+                                                                                  .map(String::valueOf)
+                                                                                  .toList()));
     return document;
   }
 

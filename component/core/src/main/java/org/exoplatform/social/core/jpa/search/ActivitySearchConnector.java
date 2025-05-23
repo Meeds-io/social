@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -63,6 +62,14 @@ public class ActivitySearchConnector {
       "    \"phrase_slop\": 1" +
       "  }" +
       "},";
+
+  public static final String           CATEGORY_IDS_QUERY            = """
+      {
+        "terms":{
+          "categoryId": [@categoryIds@]
+        }
+      }
+      """;
 
   private static final String           TERM_REPLACEMENT             = "@term@";
 
@@ -152,9 +159,11 @@ public class ActivitySearchConnector {
     String termQuery = buildTermQueryStatement(filter.getTerm());
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
+    String categoryQuery = buildCategoryIdQueryStatement(filter);
     return retrieveSearchQuery().replace("@term_query@", termQuery)
                                 .replace("@favorite_query@", favoriteQuery)
                                 .replace("@tags_query@", tagsQuery)
+                                .replace("@category_query@", categoryQuery)
                                 .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
                                 .replace("@offset@", String.valueOf(offset))
                                 .replace("@limit@", String.valueOf(limit));
@@ -357,12 +366,20 @@ public class ActivitySearchConnector {
                                                                          .append("            }\n")
                                                                          .append("          }}")
                                                                          .toString())
-                                        .collect(Collectors.toList());
+                                        .toList();
     return new StringBuilder().append(",\"should\": [\n")
                               .append(StringUtils.join(tagsQueryParts, ","))
                               .append("      ],\n")
                               .append("      \"minimum_should_match\": 1")
                               .toString();
+  }
+
+  private String buildCategoryIdQueryStatement(ActivitySearchFilter filter) {
+    if (CollectionUtils.isNotEmpty(filter.getCategoryIds())) {
+      return CATEGORY_IDS_QUERY.replace("@categoryIds@", StringUtils.join(filter.getCategoryIds(), ","));
+    } else {
+      return StringUtils.EMPTY;
+    }
   }
 
   private String buildTermQueryStatement(String phrase) {

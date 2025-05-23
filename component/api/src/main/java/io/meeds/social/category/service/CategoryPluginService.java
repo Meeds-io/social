@@ -33,6 +33,11 @@ public interface CategoryPluginService {
   CategoryPlugin getCategoryPlugin(String objectType);
 
   /**
+   * @param categoryPlugin add new {@link CategoryPlugin}
+   */
+  void addPlugin(CategoryPlugin categoryPlugin);
+
+  /**
    * @param objectType {@link CategoryObject} type
    * @param objectId {@link CategoryObject} id
    * @param username User technical name (login identifier)
