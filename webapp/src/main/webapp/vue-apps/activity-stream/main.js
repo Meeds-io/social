@@ -72,6 +72,9 @@ export function init(maxFileSize) {
         created() {
           this.replyToComment = window.location.hash.includes('#comment-reply');
         },
+        mounted() {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        },
         template: `<activity-stream id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,
         i18n,
