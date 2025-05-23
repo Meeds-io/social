@@ -55,7 +55,7 @@
               avatar-class="me-2"
               extra-class="mt-3"
               size="36"
-              display-position
+              display-primary-property
               bold-title />
           </div>
         </template>
