@@ -419,27 +419,31 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates);
     },
-    openByRootEvent(templateId) {
+    openByRootEvent(templateId, spaceTemplates) {
       this.goBackButton = !templateId;
-      this.open(templateId);
+      this.open(templateId, null, spaceTemplates);
     },
     editByEvent(e) {
       this.goBackButton = false;
       this.open(null, e?.detail);
     },
-    async open(templateId, space) {
+    async open(templateId, space, spaceTemplates) {
       this.space = space && JSON.parse(JSON.stringify(space)) || {
         templateId: templateId,
         subscription: 'open',
         visibility: 'private',
       };
       this.templateId = this.space.templateId && Number(this.space.templateId);
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      if (spaceTemplates) {
+        this.templates = spaceTemplates;
+      } else {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+        this.templates = this.$root.spaceTemplates;
       }
-      this.templates = this.$root.spaceTemplates;
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
@@ -502,14 +506,19 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       } else {
-        return this.$spaceService.createSpace(this.space)
-          .then(space => {
-            this.spaceSaved = true;
-            this.close();
-            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
-          })
-          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-          .finally(() => this.savingSpace = false);
+        if (eXo.env.portal.userName) {
+          return this.$spaceService.createSpace(this.space)
+            .then(space => {
+              this.spaceSaved = true;
+              this.close();
+              window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+            })
+            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+            .finally(() => this.savingSpace = false);
+        } else {
+          this.$root.$emit('alert-message', this.$t('spacesList.error.creation.space.anonymousUser'), 'error');
+          this.savingSpace = false;
+        }
       }
     },
   },
