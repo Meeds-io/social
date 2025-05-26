@@ -67,6 +67,25 @@
                 {{ $t('activity.filter.button.markAllAsRead') }}
               </span>
             </v-tooltip>
+            <v-tooltip v-if="!spaceId" bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-if="$root.canEdit"
+                  v-bind="attrs"
+                  v-on="on"
+                  id="toolbarFilterButton"
+                  class="me-sm-0 me-n2"
+                  height="36px"
+                  width="36px"
+                  icon
+                  @click="openStreamSettingsDrawer">
+                  <v-icon size="20px">fa-cog</v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $t('activityStream.settings.tooltip') }}
+              </span>
+            </v-tooltip>
             <extension-registry-components
               v-if="!spaceId"
               :params="extensionParams"
@@ -110,6 +129,8 @@
     </v-toolbar>
     <activity-stream-filter-drawer
       ref="filterStreamDrawer" />
+    <activity-stream-settings-drawer
+      ref="settingsStreamDrawer" />
   </div>
 </template>
 
@@ -163,7 +184,7 @@ export default {
       }
     },
     userCanPost() {
-      return !this.standalone && this.canPost;
+      return !this.standalone && this.canPost && (this.spaceId || this.$root.settings.allowPostToNetwork);
     },
     activityStreamToolbarStyle() {
       return this.userCanPost && 'py-2' || 'py-1';
@@ -181,6 +202,7 @@ export default {
       return {
         activityId: this.activityId,
         spaceId: this.spaceId,
+        canPost: this.userCanPost,
         files: [],
         templateParams: this.activityParams,
         message: this.activityBody,
@@ -257,6 +279,9 @@ export default {
     },
     openStreamFilterDrawer() {
       this.$refs.filterStreamDrawer.open();
+    },
+    openStreamSettingsDrawer() {
+      this.$refs.settingsStreamDrawer.open();
     },
   },
 };
