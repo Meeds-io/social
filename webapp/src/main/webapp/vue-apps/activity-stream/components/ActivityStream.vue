@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="loaded">
+  <v-app v-if="loaded" class="activity-stream">
     <v-main class="application-body">
       <activity-stream-toolbar
         v-if="canPostInitialized"

@@ -284,10 +284,10 @@
     <description>Space Activity Stream Portlet</description>
     <portlet-name>SpaceActivityStreamPortlet</portlet-name>
     <display-name>Space Activity Stream</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.ActivityStreamPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/spaceActivityStream.jsp</value>
+      <value>/WEB-INF/jsp/portlet/activityStream.jsp</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
@@ -310,10 +310,10 @@
     <description>User Activity Stream Portlet</description>
     <portlet-name>UserActivityStreamPortlet</portlet-name>
     <display-name>User Activity Stream</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.ActivityStreamPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
-      <value>/WEB-INF/jsp/portlet/userActivityStream.jsp</value>
+      <value>/WEB-INF/jsp/portlet/activityStream.jsp</value>
     </init-param>
     <init-param>
       <name>layout-css-class</name>
