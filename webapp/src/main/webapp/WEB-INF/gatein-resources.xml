@@ -903,6 +903,9 @@
         <module>ActivityStream</module>
       </depends>
       <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
@@ -937,6 +940,9 @@
     <module>
       <depends>
         <module>ActivityStream</module>
+      </depends>
+      <depends>
+        <module>categoryVueComponents</module>
       </depends>
       <depends>
         <module>commonVueComponents</module>
@@ -2484,6 +2490,9 @@
     </depends>
     <depends>
       <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>categoryVueComponents</module>
     </depends>
     <depends>
       <module>ExtendedDomPurify</module>

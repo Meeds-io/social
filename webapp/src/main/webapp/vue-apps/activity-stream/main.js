@@ -1,28 +1,6 @@
 import './initComponents.js';
 import './extensions.js';
-
-import * as activityStreamWebSocket from './js/WebSocket.js';
-if (!Vue.prototype.$activityStreamWebSocket) {
-  window.Object.defineProperty(Vue.prototype, '$activityStreamWebSocket', {
-    value: activityStreamWebSocket,
-  });
-}
-
-import * as activityConstants from './js/ActivityConstants.js';
-if (!Vue.prototype.$activityConstants) {
-  window.Object.defineProperty(Vue.prototype, '$activityConstants', {
-    value: activityConstants.default,
-  });
-}
-
-import * as activityUtils from './js/ActivityUtils.js';
-if (!Vue.prototype.$activityUtils) {
-  window.Object.defineProperty(Vue.prototype, '$activityUtils', {
-    value: activityUtils,
-  });
-}
-
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+import './services.js';
 
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`;
 
@@ -39,25 +17,34 @@ if (extensionRegistry) {
 // Disable swipe for Mobile when Stream pages are displayed
 window.disableSwipeOnPage = true;
 
-//getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
-
-const appId = 'ActivityStream';
-
-// Attention!!! when changing this, the list of preloaded
-// URLs has to change in JSP as well
-const urls = [
-  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
-  `/social/i18n/locale.commons.Commons?lang=${lang}`,
-  `/social/i18n/locale.social.Webui?lang=${lang}`,
-];
-
-export function init(maxFileSize) {
+export function init({
+  appId,
+  settings,
+  saveSettingsUrl,
+  canEdit,
+  maxUploadSize,
+}) {
+  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+  const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+  const urls = [
+    `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+    `/social/i18n/locale.commons.Commons?lang=${lang}`,
+    `/social/i18n/locale.social.Webui?lang=${lang}`,
+  ];
   exoi18n.loadLanguageAsync(lang, urls)
     .then(i18n => {
       Vue.createApp({
         data: {
-          maxFileSize,
+          settings: {
+            allowPostToNetwork: true,
+            allowFilteringPerCategory: true,
+            categoryDepth: 4,
+            categoryIds: [],
+            ...settings,
+          },
+          saveSettingsUrl,
+          canEdit,
+          maxFileSize: maxUploadSize,
           activityBaseLink: activityBaseLink,
           selectedActivityId: null,
           selectedCommentId: null,
@@ -72,6 +59,9 @@ export function init(maxFileSize) {
         },
         created() {
           this.replyToComment = window.location.hash.includes('#comment-reply');
+        },
+        mounted() {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
         },
         template: `<activity-stream id="${appId}" />`,
         vuetify: Vue.prototype.vuetifyOptions,
