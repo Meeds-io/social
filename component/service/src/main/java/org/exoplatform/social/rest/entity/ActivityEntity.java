@@ -17,12 +17,16 @@
 
 package org.exoplatform.social.rest.entity;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import org.exoplatform.social.core.activity.model.*;
+import org.exoplatform.social.core.activity.model.ActivityFile;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.rest.api.RestProperties;
 
 public class ActivityEntity extends BaseEntity {
@@ -251,6 +255,16 @@ public class ActivityEntity extends BaseEntity {
   public boolean isCanEdit() {
     Object canEdit = getProperty(RestProperties.CAN_EDIT);
     return canEdit != null && Boolean.parseBoolean(canEdit.toString());
+  }
+
+  public ActivityEntity setCategoryIds(List<Long> categoryIds) {
+    setProperty("categoryIds", CollectionUtils.isNotEmpty(categoryIds) ? categoryIds : null);
+    return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<Long> getCategoryIds() {
+    return (List<Long>) getProperty("categoryIds");
   }
 
   public void setCanDelete(boolean canDelete) {
