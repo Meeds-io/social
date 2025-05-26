@@ -16,12 +16,22 @@
  */
 package org.exoplatform.social.core.activity.model;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataObject;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Implementation of {@link org.exoplatform.social.core.activity.model.ExoSocialActivity}.
@@ -153,6 +163,10 @@ public class ExoSocialActivityImpl implements ExoSocialActivity {
   private String spaceId;
 
   private Float priority;
+
+  @Getter
+  @Setter
+  private List<Long>                      categoryIds;
 
   /**
    * constructor.

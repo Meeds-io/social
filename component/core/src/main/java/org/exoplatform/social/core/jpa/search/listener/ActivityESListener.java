@@ -9,6 +9,8 @@ import org.exoplatform.social.core.activity.ActivityListener;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.jpa.search.ActivityIndexingServiceConnector;
 
+import io.meeds.activity.space.plugin.ActivityCategoryLifeCycleEvent;
+
 public class ActivityESListener implements ActivityListener {
   private static final Log LOG = ExoLogger.getExoLogger(ActivityESListener.class);
 
@@ -40,6 +42,11 @@ public class ActivityESListener implements ActivityListener {
   @Override
   public void updateComment(ActivityLifeCycleEvent event) {
     reindexActivity(event.getActivity(), "update comment");
+  }
+
+  @Override
+  public void updateCategories(ActivityCategoryLifeCycleEvent event) {
+    reindexActivity(event.getActivity(), "update category");
   }
 
   @Override
