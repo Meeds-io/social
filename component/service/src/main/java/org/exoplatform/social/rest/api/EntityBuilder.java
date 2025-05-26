@@ -61,6 +61,7 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
@@ -326,7 +327,7 @@ public class EntityBuilder {
       userEntity.setFullname(profile.getFullName());
     }
     if (canViewProperties || isProfilePropertyVisible(Profile.POSITION)) {
-      userEntity.setPosition(profile.getPosition());
+      userEntity.setPosition(getProfilePropertyValue(profile, "position"));
     }
     if (canViewProperties || isProfilePropertyVisible(Profile.EMAIL)) {
       userEntity.setEmail(profile.getEmail());
@@ -487,12 +488,14 @@ public class EntityBuilder {
       if (propertySetting != null && propertySetting.isVisible()
           && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
                                          .contains(propertySetting.getId())) {
-        userEntity.setPrimaryProperty((String) profile.getProperty(propertyName));
+        String primaryPropertyValue = getProfilePropertyValue(profile, propertyName);
+        userEntity.setPrimaryProperty(primaryPropertyValue);
       } else {
         userEntity.setPrimaryProperty("");
       }
     } else if (StringUtils.isNotBlank(userEntity.getPosition())) {
-      userEntity.setPrimaryProperty(userEntity.getPosition());
+      String positionValue = getProfilePropertyValue(profile, "position");
+      userEntity.setPrimaryProperty(positionValue);
     } else {
       userEntity.setPrimaryProperty("");
     }
@@ -502,12 +505,14 @@ public class EntityBuilder {
       if (propertySetting != null && propertySetting.isVisible()
           && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
                                          .contains(propertySetting.getId())) {
-        userEntity.setSecondaryProperty((String) profile.getProperty(propertyName));
+        String secondaryPropertyValue = getProfilePropertyValue(profile, propertyName);
+        userEntity.setSecondaryProperty(secondaryPropertyValue);
       } else {
         userEntity.setSecondaryProperty("");
       }
     } else if (StringUtils.isNotBlank(userEntity.getTeam())) {
-      userEntity.setSecondaryProperty(userEntity.getTeam());
+      String teamValue = getProfilePropertyValue(profile, "team");
+      userEntity.setSecondaryProperty(teamValue);
     } else {
       userEntity.setSecondaryProperty("");
     }
@@ -518,17 +523,26 @@ public class EntityBuilder {
       if (propertySetting != null && propertySetting.isVisible()
           && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
                                          .contains(propertySetting.getId())) {
-        userEntity.setTertiaryProperty((String) profile.getProperty(propertyName));
+        String tertiaryPropertyValue = getProfilePropertyValue(profile, propertyName);
+        userEntity.setTertiaryProperty(tertiaryPropertyValue);
       } else {
         userEntity.setTertiaryProperty("");
       }
     } else if (StringUtils.isNotBlank(userEntity.getCity())) {
-      userEntity.setTertiaryProperty(userEntity.getCity());
+      String cityValue = getProfilePropertyValue(profile, "city");
+      userEntity.setTertiaryProperty(cityValue);
     } else {
       userEntity.setTertiaryProperty("");
     }
 
     return userEntity;
+  }
+  
+  private static String getProfilePropertyValue(Profile profile, String propertyName) {
+    ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+    String profilePropertyValue = (String) profile.getProperty(propertyName);
+    return propertySetting != null && propertySetting.isDropdownList()
+        && NumberUtils.isCreatable(profilePropertyValue) ? getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE, Long.parseLong(profilePropertyValue), PROFILE_PROPERTY_FIELD_NAME, LocaleContextInfoUtils.getUserLocale(getCurrentUserName())) : profilePropertyValue;
   }
 
   private static void buildManagedUsersCount(ProfileEntity userEntity) {
