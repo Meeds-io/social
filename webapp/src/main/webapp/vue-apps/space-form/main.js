@@ -37,9 +37,9 @@ export async function open(templateId, spaceTemplates) {
     await initApp(spaceTemplates);
   }
   document.dispatchEvent(new CustomEvent('addNewSpace', {detail: {
-          templateId: templateId,
-          spaceTemplates: spaceTemplates
-      }}));
+    templateId: templateId,
+    spaceTemplates: spaceTemplates
+  }}));
 }
 
 export async function edit(spaceId) {
