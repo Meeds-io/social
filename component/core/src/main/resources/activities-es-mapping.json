@@ -28,6 +28,9 @@
     "type": {
       "type": "keyword"
     },
+    "categoryId": {
+      "type": "keyword"
+    },
     "permissions": {
       "type": "long"
     },

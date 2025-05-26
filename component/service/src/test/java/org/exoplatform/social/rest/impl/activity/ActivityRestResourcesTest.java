@@ -132,16 +132,14 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     restartTransaction();
 
-    ContainerResponse response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
+    ContainerResponse response = service("GET", getURLResource("activities?streamType=USER_STREAM&limit=5&offset=0"), "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     // must return one activity of root and one of demo
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
     ActivityEntity activityEntity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
-    assertEquals("demo activity", activityEntity.getTitle());
-    activityEntity = getBaseEntity(collections.getEntities().get(1), ActivityEntity.class);
     assertEquals("root activity", activityEntity.getTitle());
     Boolean canPost = (boolean) collections.get("canPost");
     assertNotNull(canPost);
@@ -151,7 +149,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     field.setAccessible(true);
     field.set(activityManager, false);
     try {
-      response = service("GET", getURLResource("activities?limit=5&offset=0"), "", null, null);
+      response = service("GET", getURLResource("activities?streamType=USER_STREAM&limit=5&offset=0"), "", null, null);
       assertNotNull(response);
       assertEquals(200, response.getStatus());
       collections = (CollectionEntity) response.getEntity();
@@ -161,6 +159,51 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     } finally {
       field.set(activityManager, true);
     }
+
+    activityManager.deleteActivity(maryActivity);
+    activityManager.deleteActivity(demoActivity);
+    activityManager.deleteActivity(rootActivity);
+  }
+
+  public void testGetActivitiesByCategoryIds() throws Exception {
+    startSessionAs("root");
+    relationshipManager.inviteToConnect(rootIdentity, demoIdentity);
+    relationshipManager.confirm(demoIdentity, rootIdentity);
+
+    ExoSocialActivity rootActivity = new ExoSocialActivityImpl();
+    rootActivity.setTitle("root activity");
+    rootActivity.setCategoryIds(Arrays.asList(1l, 2l));
+    activityManager.saveActivityNoReturn(rootIdentity, rootActivity);
+
+    restartTransaction();
+
+    ExoSocialActivity demoActivity = new ExoSocialActivityImpl();
+    demoActivity.setTitle("demo activity");
+    demoActivity.setCategoryIds(Arrays.asList(3l, 4l));
+    activityManager.saveActivityNoReturn(demoIdentity, demoActivity);
+
+    ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
+    maryActivity.setTitle("mary activity");
+    maryActivity.setCategoryIds(Arrays.asList(5l, 6l));
+    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
+
+    restartTransaction();
+
+    ContainerResponse response = service("GET", getURLResource("activities?limit=5&offset=0&categoryId=1&categoryId=2&categoryId=3"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    // must return one activity of root and one of demo
+    assertEquals(2, collections.getEntities().size());
+
+    response = service("GET", getURLResource("activities?limit=5&offset=0&categoryId=2&categoryId=5"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    collections = (CollectionEntity) response.getEntity();
+    // must return one activity of root and one of demo
+    assertEquals(1, collections.getEntities().size());
 
     activityManager.deleteActivity(maryActivity);
     activityManager.deleteActivity(demoActivity);
@@ -628,7 +671,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
 
     ContainerResponse response = service("GET",
-                                         "/" + VersionResources.VERSION_ONE + "/social/activities?limit=5&offset=0",
+                                         "/" + VersionResources.VERSION_ONE + "/social/activities?streamType=USER_STREAM&limit=5&offset=0",
                                          "",
                                          null,
                                          null);
@@ -637,14 +680,13 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
 
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     // must return one activity of root and one of demo
-    assertEquals(2, collections.getEntities().size());
+    assertEquals(1, collections.getEntities().size());
     List<String> activitiesTitle = new ArrayList<>(2);
     ActivityEntity entity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     activitiesTitle.add(entity.getTitle());
-    entity = getBaseEntity(collections.getEntities().get(1), ActivityEntity.class);
+    entity = getBaseEntity(collections.getEntities().get(0), ActivityEntity.class);
     activitiesTitle.add(entity.getTitle());
     assertTrue(activitiesTitle.contains("root activity"));
-    assertTrue(activitiesTitle.contains("demo activity"));
   }
 
   public void testUpdateActivityById() throws Exception {

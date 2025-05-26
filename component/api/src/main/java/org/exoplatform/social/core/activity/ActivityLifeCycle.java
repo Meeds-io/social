@@ -16,9 +16,13 @@
  */
 package org.exoplatform.social.core.activity;
 
+import java.util.List;
+
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.activity.ActivityLifeCycleEvent.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+
+import io.meeds.activity.space.plugin.ActivityCategoryLifeCycleEvent;
 
 
 public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, ActivityLifeCycleEvent> {
@@ -67,6 +71,9 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
         break;
       case UNPIN_ACTIVITY:
         listener.unpinActivity(event);
+        break;
+      case UPDATE_CATEGORIES:
+        listener.updateCategories((ActivityCategoryLifeCycleEvent) event);
         break;
     }
   }
@@ -125,6 +132,10 @@ public class ActivityLifeCycle extends AbstractLifeCycle<ActivityListener, Activ
 
   public void unpinActivity(ExoSocialActivity activity) {
     broadcast(new ActivityLifeCycleEvent(Type.UNPIN_ACTIVITY, activity));
+  }
+
+  public void updateCategories(ExoSocialActivity activity, String userId, List<Long> previousCategoryIds) {
+    broadcast(new ActivityCategoryLifeCycleEvent(activity, userId, previousCategoryIds, Type.UPDATE_CATEGORIES));
   }
 
 }
