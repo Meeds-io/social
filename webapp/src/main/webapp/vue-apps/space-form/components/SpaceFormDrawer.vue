@@ -506,14 +506,19 @@ export default {
           })
           .finally(() => this.savingSpace = false);
       } else {
-        return this.$spaceService.createSpace(this.space)
-          .then(space => {
-            this.spaceSaved = true;
-            this.close();
-            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
-          })
-          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-          .finally(() => this.savingSpace = false);
+        if (eXo.env.portal.userName) {
+          return this.$spaceService.createSpace(this.space)
+            .then(space => {
+              this.spaceSaved = true;
+              this.close();
+              window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+            })
+            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+            .finally(() => this.savingSpace = false);
+        } else {
+          this.$root.$emit('alert-message', this.$t('spacesList.error.creation.space.anonymousUser'), 'error');
+          this.savingSpace = false;
+        }
       }
     },
   },
