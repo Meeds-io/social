@@ -4,7 +4,7 @@
     :element="htmlElement"
     :href="link"
     :target="linkTarget"
-    :title="tooltipText"
+    :aria-label="$t('news.activity.clickToAccessArticle',{0: titleText})"
     :class="mainClass">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
@@ -109,7 +109,6 @@
         <dynamic-html-element
           v-if="summary"
           :child="summaryElement"
-          :title="summaryTooltip"
           :class="bodyClass"
           class="text-wrap text-break reset-style-box rich-editor-content text-color"
           dir="auto" />
@@ -164,7 +163,6 @@ export default {
     title: null,
     titleTooltip: null,
     summary: null,
-    summaryTooltip: null,
     thumbnail: null,
     sourceLink: null,
     tooltip: null,
@@ -370,7 +368,6 @@ export default {
       }
       this.titleTooltip = this.$utils.htmlToText(this.title);
       this.summary = this.getSummary && this.$utils.trim(this.getSummary(this.activity, this.isActivityDetail));
-      this.summaryTooltip = this.$utils.htmlToText(this.summary);
       this.sourceLink = this.getSourceLink && this.getSourceLink(this.activity, this.isActivityDetail);
       this.tooltip = this.getTooltip && this.getTooltip(this.activity, this.isActivityDetail);
       if (this.supportsThumbnail) {
