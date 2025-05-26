@@ -31,8 +31,8 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.social.category.model.CategoryObject;
-import io.meeds.social.category.plugin.SpaceCategoryPlugin;
 import io.meeds.social.category.service.CategoryLinkService;
+import io.meeds.social.space.plugin.SpaceCategoryPlugin;
 
 @Service
 public class SpaceCategoryServiceImpl implements SpaceCategoryService {
