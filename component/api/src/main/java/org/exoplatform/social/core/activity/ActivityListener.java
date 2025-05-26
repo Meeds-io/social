@@ -18,6 +18,8 @@ package org.exoplatform.social.core.activity;
 
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
+import io.meeds.activity.space.plugin.ActivityCategoryLifeCycleEvent;
+
 public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEvent> {
   
   default void saveActivity(ActivityLifeCycleEvent event) {
@@ -73,6 +75,10 @@ public interface ActivityListener extends LifeCycleListener<ActivityLifeCycleEve
   }
 
   default void unpinActivity(ActivityLifeCycleEvent event) {
+    // By default, no behavior
+  }
+
+  default void updateCategories(ActivityCategoryLifeCycleEvent event) {
     // By default, no behavior
   }
 

@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -359,29 +359,35 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   @Override
-  public void updateActivity(ExoSocialActivity existingActivity, boolean broadcast) {
-    String activityId = existingActivity.getId();
+  public void updateActivity(ExoSocialActivity activity, boolean broadcast) {
+    String activityId = activity.getId();
 
     // In order to get the added mentions in the ActivityMentionPlugin we need
     // to
     // pass the previous mentions in the activity, since there is no way to do
     // so,
     // as a solution we pass them throw the activity's template params
-    String[] previousMentions = getActivity(activityId).getMentionedIds();
-    activityStorage.updateActivity(existingActivity);
+    ExoSocialActivity existingActivity = getActivity(activityId);
+    String[] previousMentions = existingActivity.getMentionedIds();
+    activityStorage.updateActivity(activity);
 
     if (previousMentions.length > 0) {
       String mentions = String.join(",", previousMentions);
-      Map<String, String> mentionsTemplateParams = existingActivity.getTemplateParams() != null ? existingActivity.getTemplateParams() : new HashMap<>();
+      Map<String, String> mentionsTemplateParams = activity.getTemplateParams() != null ? activity.getTemplateParams() :
+                                                                                        new HashMap<>();
       mentionsTemplateParams.put("PreviousMentions", mentions);
 
-      existingActivity.setTemplateParams(mentionsTemplateParams);
+      activity.setTemplateParams(mentionsTemplateParams);
     }
     if (broadcast) {
-      if (existingActivity.isComment() || StringUtils.isNotBlank(existingActivity.getParentId())) {
-        activityLifeCycle.updateComment(existingActivity);
+      if (activity.isComment() || StringUtils.isNotBlank(activity.getParentId())) {
+        activityLifeCycle.updateComment(activity);
       } else {
-        activityLifeCycle.updateActivity(existingActivity);
+        activityLifeCycle.updateActivity(activity);
+      }
+      if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(existingActivity.getCategoryIds())
+          || (CollectionUtils.size(activity.getCategoryIds()) > 0 && !CollectionUtils.isEqualCollection(activity.getCategoryIds(), existingActivity.getCategoryIds()))) {
+        activityLifeCycle.updateCategories(activity, activity.getUserId(), existingActivity.getCategoryIds());
       }
     }
   }

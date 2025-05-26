@@ -18,48 +18,25 @@ package org.exoplatform.social.core.activity.filter;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ActivitySearchFilter {
 
   private String       term;
 
   private List<String> tagNames;
 
-  private boolean      favorites;
+  private List<Long>   categoryIds;
 
-  public ActivitySearchFilter() {
-  }
+  private boolean      favorites;
 
   public ActivitySearchFilter(String term) {
     this.term = term;
   }
 
-  public ActivitySearchFilter(String term, List<String> tagNames, boolean favorites) {
-    this.term = term;
-    this.tagNames = tagNames;
-    this.favorites = favorites;
-  }
-
-  public String getTerm() {
-    return term;
-  }
-
-  public void setTerm(String term) {
-    this.term = term;
-  }
-
-  public boolean isFavorites() {
-    return favorites;
-  }
-
-  public void setFavorites(boolean favorites) {
-    this.favorites = favorites;
-  }
-
-  public void setTagNames(List<String> tagNames) {
-    this.tagNames = tagNames;
-  }
-
-  public List<String> getTagNames() {
-    return tagNames;
-  }
 }
