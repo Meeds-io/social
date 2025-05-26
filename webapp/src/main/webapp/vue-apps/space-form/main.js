@@ -36,7 +36,10 @@ export async function open(templateId, spaceTemplates) {
   if (!window.spaceFormAdded) {
     await initApp(spaceTemplates);
   }
-  document.dispatchEvent(new CustomEvent('addNewSpace', {detail: templateId}));
+  document.dispatchEvent(new CustomEvent('addNewSpace', {detail: {
+          templateId: templateId,
+          spaceTemplates: spaceTemplates
+      }}));
 }
 
 export async function edit(spaceId) {
