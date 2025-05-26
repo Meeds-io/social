@@ -18,6 +18,7 @@
  */
 package io.meeds.social.category.service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,14 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   private List<CategoryPlugin>        categoryPlugins;
 
   private Map<String, CategoryPlugin> categoryPluginsByType = new HashMap<>();
+
+  @Override
+  public void addPlugin(CategoryPlugin categoryPlugin) {
+    if (!(categoryPlugins instanceof ArrayList)) {
+      categoryPlugins = categoryPlugins == null ? new ArrayList<>() : new ArrayList<>(categoryPlugins);
+    }
+    categoryPlugins.add(categoryPlugin);
+  }
 
   @Override
   public CategoryPlugin getCategoryPlugin(String objectType) {

@@ -600,4 +600,11 @@ public interface ActivityManager {
     return activity == null ? null : activity.getTitle();
   }
 
+  /**
+   * @return {@link List} of category identifiers associated to all activities
+   */
+  default List<Long> getActivityCategoryIds() {
+    throw new UnsupportedOperationException();
+  }
+
 }
