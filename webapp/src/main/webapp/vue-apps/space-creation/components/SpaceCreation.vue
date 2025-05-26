@@ -14,7 +14,7 @@ export default {
   }),
   methods: {
     addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, true));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, this.$root.spaceTemplates));
     },
   }
 };
