@@ -100,10 +100,7 @@ export default {
     },
     fullName() {
       return this.user.fullname || this.user.profile?.fullName;
-    },
-    position() {
-      return this.user.position || this.user.profile?.position;
-    },
+    }
   }
 };
 </script>

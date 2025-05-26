@@ -80,14 +80,14 @@ export default {
     fullName() {
       return this.user.fullname || this.user.profile?.fullName;
     },
-    position() {
-      return this.user.position || this.user.profile?.position;
+    primaryProperty() {
+      return this.user.primaryProperty;
     },
     email() {
       return this.user.email || this.user.profile?.email;
     },
     subtitle() {
-      return this.emailSubtitle ? this.email : this.position;
+      return this.emailSubtitle ? this.email : this.primaryProperty;
     },
     isSpace() {
       return this.user.providerId === 'space';
