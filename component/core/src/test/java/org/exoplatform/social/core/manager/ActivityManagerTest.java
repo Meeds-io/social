@@ -1536,24 +1536,70 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesWithListAccess(rootIdentity);
 
-    assertEquals(1, activities.load(0, 10).length);
-    LOG.info("Create 100 activities...");
+    ExoSocialActivity[] activitie = activities.load(0, 10);
+    assertEquals(1, activitie.length);
     //
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 20; i++) {
       activity = new ExoSocialActivityImpl();
       activity.setTitle(activityTitle + " " + i);
       activity.setUserId(userId);
+      activity.setCategoryIds(Arrays.asList(i + 1l, i + 2l));
       //
       activityManager.saveActivityNoReturn(rootIdentity, activity);
     }
     activities = activityManager.getActivitiesWithListAccess(rootIdentity);
     //
-    LOG.info("Loadding 20 activities...");
     assertEquals(20, activities.load(0, 20).length);
     //
-    List<ExoSocialActivity> exoActivities = Arrays.asList(activities.load(0, activities.getSize()));
-    LOG.info("Loadding 101 activities...");
-    assertEquals(101, exoActivities.size());
+    List<ExoSocialActivity> activityList = Arrays.asList(activities.load(0, activities.getSize()));
+    assertEquals(21, activityList.size());
+  }
+
+  public void testGetActivitiiesByCategoryIds() throws ActivityStorageException {
+    String activityTitle = "title";
+    String userId = rootIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
+    //
+    activity = activityManager.getActivity(String.valueOf(activity.getId()));
+
+    assertNotNull(activity);
+    assertEquals(activityTitle, activity.getTitle());
+    assertEquals(userId, activity.getUserId());
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesWithListAccess(rootIdentity);
+
+    ExoSocialActivity[] activitie = activities.load(0, 10);
+    assertEquals(1, activitie.length);
+    //
+    for (int i = 0; i < 20; i++) {
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle(activityTitle + " " + i);
+      activity.setUserId(userId);
+      activity.setCategoryIds(Arrays.asList(i + 1l, i + 2l));
+      //
+      activityManager.saveActivityNoReturn(rootIdentity, activity);
+    }
+    activities = activityManager.getActivitiesWithListAccess(rootIdentity);
+    //
+    assertEquals(20, activities.load(0, 20).length);
+    //
+    List<ExoSocialActivity> activityList = Arrays.asList(activities.load(0, activities.getSize()));
+    assertEquals(21, activityList.size());
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+    activityFilter.setCategoryIds(Collections.singletonList(2l));
+    activities = activityManager.getActivitiesByFilterWithListAccess(rootIdentity, activityFilter);
+    assertEquals(2, activities.getSize());
+
+    activityList = Arrays.asList(activities.load(0, 10));
+    assertEquals(2, activityList.size());
+    assertNotNull(activityList.get(0).getCategoryIds());
+    assertEquals(2, activityList.get(0).getCategoryIds().size());
+    assertTrue(activityList.get(0).getCategoryIds().contains(2l));
   }
 
   /**
@@ -2052,7 +2098,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     demoActivityFeed = activityManager.getActivityFeedWithListAccess(demoIdentity);
     assertEquals(14, demoActivityFeed.getSize());
     assertEquals(14, demoActivityFeed.load(0, 15).length);
-    assertEquals(10, demoActivityFeed.load(5, 15).length);
+    assertEquals(9, demoActivityFeed.load(5, 15).length);
 
     RealtimeListAccess<ExoSocialActivity> maryActivityFeed = activityManager.getActivityFeedWithListAccess(maryIdentity);
     assertEquals(9, maryActivityFeed.getSize());

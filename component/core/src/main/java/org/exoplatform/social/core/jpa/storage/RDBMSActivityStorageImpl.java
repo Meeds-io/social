@@ -33,7 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -200,6 +200,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activity.setPinned(activityEntity.getPinned());
     activity.setPinDate(StorageUtils.toRFC3339Date(activityEntity.getPinDate()));
     activity.setPinAuthorId(activityEntity.getPinAuthorId());
+    activity.setCategoryIds(activityEntity.getCategoryIds());
     //
     List<String> commentPosterIds = new ArrayList<>();
     List<String> replyToIds = new ArrayList<>();
@@ -268,9 +269,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activityEntity.setPinned(activity.isPinned());
     activityEntity.setPinDate(StorageUtils.parseRFC3339Date(activity.getPinDate()));
     activityEntity.setPinAuthorId(activity.getPinAuthorId());
-    activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentionsByIdentityId(ownerId,
-                                                                                                 activity.getTitle(),
-                                                                                                 activity.getTemplateParams()))));
+    activityEntity.setCategoryIds(activity.getCategoryIds());
+    activityEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentionsByIdentityId(ownerId,
+                                                                                           activity.getTitle(),
+                                                                                           activity.getTemplateParams()))));
     //
     return activityEntity;
   }
@@ -447,13 +449,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     // Use getActivityStorage to benifit from Cached Storage
     return activityIds.stream()
                       .map(activityId -> getActivityStorage().getActivity(String.valueOf(activityId)))
-                      .collect(Collectors.toList());
+                      .toList();
   }
 
   private List<ExoSocialActivity> convertActivityEntitiesToActivities(List<ActivityEntity> activities) {
-    if (activities == null)
+    if (CollectionUtils.isNotEmpty(activities)) {
+      return activities.stream().map(this::convertActivityEntityToActivity).toList();
+    } else {
       return Collections.emptyList();
-    return activities.stream().map(activity -> convertActivityEntityToActivity(activity)).collect(Collectors.toList());
+    }
   }
 
   @Override
@@ -535,7 +539,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                        ActivityFilter activityFilter,
                                                        long offset,
                                                        long limit) {
-    List<String> spaceIdentityIds = null;
+    List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
@@ -544,8 +548,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId());
       return StorageUtils.subList(activities, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
@@ -572,29 +576,41 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return convertActivityIdsToActivities(activityIds);
       }
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
                                                                     0,
                                                                     -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
     case ANY_SPACE_ACTIVITY:
       activityFilter.setShowPinned(true);
       break;
+    case ALL_STREAM:
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+       streamIdentityIds = new ArrayList<>(streamIdentityIds);
+       streamIdentityIds.add(viewerIdentity.getId());
+       Set<Long> connectionIds = connectionDAO.getConnectionIds(Long.parseLong(viewerIdentity.getId()), org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+       if (connectionIds != null) {
+         streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
+       }
+      break;
     default:
       throw new UnsupportedOperationException();
     }
     return convertActivityIdsToActivities(activityDAO.getActivityByFilter(activityFilter,
-                                                                          spaceIdentityIds,
+                                                                          streamIdentityIds,
                                                                           (int) offset,
                                                                           (int) limit));
   }
 
   @Override
   public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
-    List<String> spaceIdentityIds = null;
+    List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
@@ -605,8 +621,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                                                                    .collect(Collectors.toList());
       return StorageUtils.subList(activityIds, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
@@ -638,24 +654,36 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return unreadActivityIds.stream().map(String::valueOf).toList();
       }
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
                                                                     0,
                                                                     -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
     case ANY_SPACE_ACTIVITY:
       activityFilter.setShowPinned(true);
       break;
+    case ALL_STREAM:
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                    0,
+                                                                    -1);
+      streamIdentityIds = new ArrayList<>(streamIdentityIds);
+      streamIdentityIds.add(viewerIdentity.getId());
+      Set<Long> connectionIds = connectionDAO.getConnectionIds(Long.parseLong(viewerIdentity.getId()), org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+      if (connectionIds != null) {
+        streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
+      }
+      break;
 
     case PIN_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
         String.valueOf(SpaceMembershipStatus.MEMBER),
         0,
         -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       activityFilter.setPinned(true);
@@ -664,7 +692,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     default:
       throw new UnsupportedOperationException();
     }
-    return activityDAO.getActivityIdsByFilter(activityFilter, spaceIdentityIds, (int) offset, (int) limit);
+    return activityDAO.getActivityIdsByFilter(activityFilter, streamIdentityIds, (int) offset, (int) limit);
   }
 
   @Override
@@ -705,7 +733,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return 0;
       }
       break;
-    case ANY_SPACE_ACTIVITY:
+    case ANY_SPACE_ACTIVITY, ALL_STREAM:
       break;
     default:
       throw new UnsupportedOperationException();
@@ -1534,6 +1562,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       updatedActivity.setPinned(existingActivity.isPinned());
       updatedActivity.setPinDate(StorageUtils.parseRFC3339Date(existingActivity.getPinDate()));
       updatedActivity.setPinAuthorId(existingActivity.getPinAuthorId());
+      updatedActivity.setCategoryIds(existingActivity.getCategoryIds());
 
 
       activityDAO.update(updatedActivity);
