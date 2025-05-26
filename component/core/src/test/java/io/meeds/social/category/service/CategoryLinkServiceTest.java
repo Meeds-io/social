@@ -36,7 +36,7 @@ import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryFilter;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.model.CategoryTree;
-import io.meeds.social.category.plugin.SpaceCategoryPlugin;
+import io.meeds.social.space.plugin.SpaceCategoryPlugin;
 
 import lombok.SneakyThrows;
 

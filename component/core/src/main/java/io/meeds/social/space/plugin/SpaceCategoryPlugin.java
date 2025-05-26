@@ -16,7 +16,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package io.meeds.social.category.plugin;
+package io.meeds.social.space.plugin;
 
 import java.util.List;
 
@@ -24,6 +24,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.social.core.space.spi.SpaceService;
+
+import io.meeds.social.category.plugin.CategoryPlugin;
 
 @Component
 public class SpaceCategoryPlugin implements CategoryPlugin {

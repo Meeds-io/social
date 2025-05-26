@@ -484,4 +484,17 @@ public interface ExoSocialActivity extends CacheEntry {
    * @return true if Activity has a specific {@link MetadataObject} type
    */
   boolean hasSpecificMetadataObject();
+
+  /**
+   * @return {@link List} of associated Category Identifiers
+   */
+  List<Long> getCategoryIds();
+
+  /**
+   * Set the {@link List} of associated Category Identifiers
+   * 
+   * @param categoryIds {@link List}
+   */
+  void setCategoryIds(List<Long> categoryIds);
+
 }
