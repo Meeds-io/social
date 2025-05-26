@@ -8,7 +8,7 @@
 <%
 SpaceTemplateService spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
 SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter(request.getRemoteUser(), request.getLocale(), false);
-List<SpaceTemplate> spaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), false);
+List<SpaceTemplate> spaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
 %>
 <div class="VuetifyApp">
     <div data-app="true"
