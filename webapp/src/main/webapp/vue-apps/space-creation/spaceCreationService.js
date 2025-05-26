@@ -1,38 +1,38 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
- * 
+ *
+ * Copyright (C) 2025 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import SpaceCreation from './components/SpaceCreation.vue';
-import SpaceCreationSettingsDrawer from './components/SpaceCreationSettingsDrawer.vue';
 
-import * as spaceCreationService from './spaceCreationService.js';
+export function saveSettings(saveSettingsURL, settings) {
+  const formData = new FormData();
+  formData.append('settings', JSON.stringify(settings));
+  const urlParams = new URLSearchParams(formData).toString();
 
-const components = {
-  'space-creation': SpaceCreation,
-  'space-creation-settings-drawer': SpaceCreationSettingsDrawer,
-};
-
-
-if (!Vue.prototype.$spaceCreationService) {
-  window.Object.defineProperty(Vue.prototype, '$spaceCreationService', {
-    value: spaceCreationService,
+  return fetch(saveSettingsURL, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: urlParams,
+  }).then(resp => {
+    if (!resp.ok) {
+      throw new Error('Error while saving space creation settings');
+    }
   });
-}
-
-for (const key in components) {
-  Vue.component(key, components[key]);
 }
