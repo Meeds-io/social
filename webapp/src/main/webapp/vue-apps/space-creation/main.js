@@ -34,14 +34,29 @@ const lang = eXo?.env?.portal?.language || 'en';
 //should expose the locale ressources as REST API 
 const url = `/social/i18n/locale.portlet.social.SpaceCreation?lang=${lang}`;
 
-const appId = 'SpaceCreation';
-
-export function init(spaceTemplates) {
+export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTemplates) {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     // init Vue app when locale ressources are ready
+    if (!settings.labelTranslations) {
+      settings.labelTranslations = {};
+    }
+    if (!settings.spaceTemplates) {
+      settings.spaceTemplates = spaceTemplates;
+    }
+    if (!settings.spaceCreationTemplateChoice) {
+      settings.spaceCreationTemplateChoice = 'anyTemplate';
+    }
     Vue.createApp({
       data: {
-        spaceTemplates  
+        settings,
+        isAdministrator,
+        saveSettingsUrl,
+        spaceTemplates
+      },
+      computed: {
+        label() {
+          return this.settings.labelTranslations?.[eXo.env.portal.language] || this.settings.labelTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('space.creation.instantiation.create.button');
+        }
       },
       template: `<space-creation id="${appId}" />`,
       i18n,
