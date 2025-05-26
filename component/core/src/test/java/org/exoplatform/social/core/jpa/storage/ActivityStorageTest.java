@@ -83,7 +83,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
     activities = activityStorage.getActivitiesByPoster(demoIdentity, 0, 10, new String[] {"TYPE1"});
     assertEquals(1, activities.size());
   }
-  
+
   public void testSaveActivity() {
     
     ExoSocialActivity activity = createActivity(0);
@@ -292,7 +292,7 @@ public class ActivityStorageTest extends AbstractCoreTest {
     assertEquals(0, demoConnectionActivities.load(0, 10).length);
     assertEquals(0, demoConnectionActivities.getSize());
     
-    Relationship demoJohnRelationship = relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
     relationshipManager.confirm(johnIdentity, demoIdentity);
 
     createActivities(1, johnIdentity);

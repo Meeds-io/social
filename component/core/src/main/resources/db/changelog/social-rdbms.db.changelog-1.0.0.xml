@@ -1196,4 +1196,34 @@
             <column name="INDEX_IN_ANALYTICS" type="BOOLEAN" defaultValue="false"/>
         </addColumn>
     </changeSet>
+
+  <changeSet author="social" id="1.0.0-mip-197-01">
+    <createTable tableName="SOC_ACTIVITY_CATEGORIES">
+      <column
+        name="ACTIVITY_ID"
+        type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column
+        name="CATEGORY_ID"
+        type="BIGINT">
+        <constraints nullable="false" />
+      </column>
+      <column
+        name="CREATED_DATE"
+        type="TIMESTAMP">
+        <constraints nullable="false" />
+      </column>
+    </createTable>
+    <addPrimaryKey
+      tableName="SOC_ACTIVITY_CATEGORIES"
+      columnNames="ACTIVITY_ID, CATEGORY_ID"
+      constraintName="PK_SOC_ACTIVITY_CATEGORIES_01" />
+    <createIndex
+      tableName="SOC_ACTIVITY_CATEGORIES"
+      indexName="IDX_SOC_ACTIVITY_CATEGORIES_01">
+      <column name="ACTIVITY_ID" type="BIGINT" />
+    </createIndex>
+  </changeSet>
+
 </databaseChangeLog>
