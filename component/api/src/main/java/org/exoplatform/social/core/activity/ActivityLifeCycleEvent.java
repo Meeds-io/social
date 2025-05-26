@@ -36,6 +36,7 @@ public class ActivityLifeCycleEvent extends LifeCycleEvent<ExoSocialActivity, St
     HIDE_ACTIVITY,
     PIN_ACTIVITY,
     UNPIN_ACTIVITY,
+    UPDATE_CATEGORIES,
   }
 
   private Type              type;

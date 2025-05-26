@@ -43,8 +43,8 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
@@ -138,6 +138,9 @@ public class ActivityRest implements ResourceContainer {
                                     required = false
                                 )
                                 @QueryParam("spaceId") String spaceId,
+                                @Parameter(description = "Category id used to search associated activities", required = false)
+                                @QueryParam("categoryId")
+                                List<Long> categoryIds,
                                 @Parameter(
                                     description = "offset time to use for searching newer activities until a time identified using format yyyy-MM-dd HH:mm:ss",
                                     required = false
@@ -176,6 +179,7 @@ public class ActivityRest implements ResourceContainer {
     boolean canPost;
     RealtimeListAccess<ExoSocialActivity> listAccess;
     ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setCategoryIds(categoryIds);
     if (!StringUtils.isBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null
@@ -188,12 +192,16 @@ public class ActivityRest implements ResourceContainer {
     } else {
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
     }
-    if (streamType != null && !streamType.equals(ActivityStreamType.ALL_STREAM)) {
+    if (streamType != null) {
       activityFilter.setStreamType(streamType);
-    } else if (!StringUtils.isBlank(spaceId)) {
+    } else if (StringUtils.isNotBlank(spaceId)) {
       activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    } else if (CollectionUtils.isNotEmpty(categoryIds)) {
+      activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
     }
-    if (!StringUtils.isEmpty(activityFilter.getSpaceId()) || activityFilter.getStreamType() != null) {
+    if (!StringUtils.isEmpty(activityFilter.getSpaceId())
+        || activityFilter.getStreamType() != null
+        || CollectionUtils.isNotEmpty(categoryIds)) {
       listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
     } else {
       listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
@@ -1002,11 +1010,14 @@ public class ActivityRest implements ResourceContainer {
                                    UriInfo uriInfo,
                                    @Parameter(description = "Term to search", required = true)
                                    @QueryParam("q") String query,
-                                   @Parameter(description = "Whether to search in favorites only or not", required = true)
+                                   @Parameter(description = "Whether to search in favorites only or not", required = false)
                                    @QueryParam(
                                      "favorites"
-                                   ) boolean favorites,
-                                   @Parameter(description = "Tag names used to search activities", required = true)
+                                   ) boolean isFavorite,
+                                   @Parameter(description = "Category id used to search associated activities", required = false)
+                                   @QueryParam("categoryId")
+                                   List<Long> categoryIds,
+                                   @Parameter(description = "Tag names used to search activities", required = false)
                                    @QueryParam(
                                      "tags"
                                    ) List<String> tagNames,
@@ -1022,14 +1033,14 @@ public class ActivityRest implements ResourceContainer {
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    if (StringUtils.isBlank(query) && !favorites && CollectionUtils.isEmpty(tagNames)) {
+    if (StringUtils.isBlank(query) && !isFavorite && CollectionUtils.isEmpty(tagNames)) {
       return Response.status(Status.BAD_REQUEST).entity("'q' parameter is mandatory").build();
     }
 
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, favorites);
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
