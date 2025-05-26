@@ -308,7 +308,7 @@ export default {
       return !this.isEdit && this.spaceTemplate?.spaceFields?.includes?.('access');
     },
     includeInvitation() {
-      return !this.isEdit && this.spaceTemplate?.spaceFields?.includes?.('invitation');
+      return !this.isEdit && !!eXo.env.portal.userName && this.spaceTemplate?.spaceFields?.includes?.('invitation');
     },
     propertiesStep() {
       return (this.includeName ? 1 : 0) + 1;
