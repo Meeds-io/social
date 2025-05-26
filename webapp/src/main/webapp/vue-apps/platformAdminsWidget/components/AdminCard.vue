@@ -35,7 +35,7 @@
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title>{{ fullName }}</v-list-item-title>
-          <v-list-item-subtitle>{{ position }}</v-list-item-subtitle>
+          <v-list-item-subtitle>{{ primaryProperty }}</v-list-item-subtitle>
         </v-list-item-content>
         <v-list-item-action @click="deleteAdminMembership()">
           <v-btn
@@ -68,8 +68,8 @@ export default {
     fullName() {
       return this.user?.fullname;
     },
-    position() {
-      return this.user?.position;
+    primaryProperty() {
+      return this.user?.primaryProperty;
     },
     userName() {
       return this.membership?.userName || this.membership?.remoteId;
