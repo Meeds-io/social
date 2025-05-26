@@ -1523,7 +1523,7 @@ public class UserRest implements ResourceContainer, Startable {
                                       @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("after") String after,
                                       @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
                                       @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand) throws Exception {
-    return activityRestResourcesV1.getActivities(uriInfo, null, before, after, offset, limit, returnSize, expand, null);
+    return activityRestResourcesV1.getActivities(uriInfo, null, null, before, after, offset, limit, returnSize, expand, null);
   }
 
   @POST
