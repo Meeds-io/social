@@ -105,7 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
       categoryIds = Collections.emptySet();
     } else {
       categoryStorage.getLinkedIds(filter.getObjectType());
-      categoryIds = categoryPluginService.getCategoryIds(filter.getObjectType())
+      categoryIds = categoryPluginService.getCategoryIds(filter.getObjectType(), filter.getSpaceId())
                                          .stream()
                                          .filter(id -> canAccess(id, username))
                                          .flatMap(id -> Stream.concat(this.getAncestorIds(id).stream(), Stream.of(id)))

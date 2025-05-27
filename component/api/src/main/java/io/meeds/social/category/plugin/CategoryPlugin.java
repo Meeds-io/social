@@ -60,6 +60,17 @@ public interface CategoryPlugin {
    * @return {@link List} of {@link Category} Ids associated to
    *         objects
    */
-  List<Long> getCategoryIds();
+  default List<Long> getCategoryIds() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * param spaceId Space Identifier
+   * @return {@link List} of {@link Category} Ids associated to
+   *         objects switch designated spaceId
+   */
+  default List<Long> getCategoryIds(long spaceId) {
+    return getCategoryIds();
+  }
 
 }

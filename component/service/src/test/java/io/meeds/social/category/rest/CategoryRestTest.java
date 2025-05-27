@@ -116,7 +116,7 @@ public class CategoryRestTest {
     ResultActions response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5")
                                                                                                              .with(testSimpleUser()));
     response.andExpect(status().isOk());
-    verify(categoryService).getCategoryTree(new CategoryFilter(null, 1, 2, 3, 4, 5, false, true), SIMPLE_USER, Locale.ENGLISH);
+    verify(categoryService).getCategoryTree(new CategoryFilter(null, 1, 2, 3, 4, 5, false, true, 0), SIMPLE_USER, Locale.ENGLISH);
 
     response = mockMvc.perform(get("/categories?ownerId=1&parentId=2&depth=3&offset=4&limit=5"));
     response.andExpect(status().isUnauthorized());
