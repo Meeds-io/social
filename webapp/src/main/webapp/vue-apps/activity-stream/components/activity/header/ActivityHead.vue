@@ -53,6 +53,9 @@
           class="d-flex activity-head-time" />
       </v-list-item-content>
     </template>
+    <activity-categories
+      v-if="$root.isDesktop"
+      :activity="activity" />
     <extension-registry-components
       :params="params"
       class="d-flex flex-no-wrap mx-0 mt-0 mb-auto activity-header-actions"

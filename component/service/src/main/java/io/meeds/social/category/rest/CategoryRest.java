@@ -144,7 +144,7 @@ public class CategoryRest {
                                                                                    0,
                                                                                    0,
                                                                                    0,
-                                                                                   true,
+                                                                                   false,
                                                                                    false,
                                                                                    spaceId),
                                                                 request.getRemoteUser(),
