@@ -7,6 +7,12 @@ extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers',
 });
 
 extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
+  id: 'category-form-drawer',
+  vueComponent: Vue.options.components['category-form-drawer'],
+  rank: 15,
+});
+
+extensionRegistry.registerComponent('ActivityStream', 'activity-stream-drawers', {
   id: 'comments-drawer',
   vueComponent: Vue.options.components['activity-comments-drawer'],
   rank: 20,
@@ -203,6 +209,27 @@ extensionRegistry.registerExtension('activity', 'action', {
       files: activity.files ? window.JSON.parse(window.JSON.stringify(activity.files)) : null,
       templateParams: window.JSON.parse(window.JSON.stringify(activity.templateParams)),
       activityType: activity.type
+    }}));
+  },
+});
+
+extensionRegistry.registerExtension('activity', 'action', {
+  id: 'addCategory',
+  rank: 27,
+  labelKey: 'activityStream.label.addCategories',
+  icon: 'fa-th-large',
+  isEnabled: (activity, activityTypeExtension) => {
+    if (activityTypeExtension.canManage && !activityTypeExtension.canManage(activity)) {
+      return false;
+    }
+    return activity.canManage === 'true';
+  },
+  click: activity => {
+    document.dispatchEvent(new CustomEvent('category-form-drawer-open', {detail: {
+      objectType: 'activity',
+      objectId: activity.id,
+      spaceId: activity?.activityStream?.space?.id,
+      categoryIds: activity?.categoryIds,
     }}));
   },
 });

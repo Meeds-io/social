@@ -42,8 +42,8 @@
         v-bind="attrs"
         :outlined="!selected"
         :class="[chipClass, !visible && 'invisible' || '']"
-        class="text-truncate border-box-sizing"
-        color="primary">
+        :color="selected && 'primary'"
+        class="text-truncate border-box-sizing">
         <v-card
           :title="category.name"
           :class="[
@@ -91,8 +91,8 @@
     ref="chip"
     :outlined="!selected"
     :class="[chipClass, !visible && 'invisible' || '']"
+    :color="selected && 'primary'"
     class="text-truncate border-box-sizing"
-    color="primary"
     @click.prevent.stop="openCategory(category)">
     <v-card
       :title="category.name"

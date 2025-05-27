@@ -32,15 +32,17 @@
     </template>
     <template v-if="drawer" #content>
       <div class="d-flex flex-column ma-4">
-        <div class="mb-2">
-          {{ $t('categoryInput.drawer.summary1') }}
-        </div>
-        <div class="mb-2">
-          {{ $t('categoryInput.drawer.summary2') }}
-        </div>
-        <div class="mb-4">
-          {{ $t('categoryInput.drawer.summary3') }}
-        </div>
+        <template v-if="objectType === 'space'">
+          <div class="mb-2">
+            {{ $t('categoryInput.drawer.summary1') }}
+          </div>
+          <div class="mb-2">
+            {{ $t('categoryInput.drawer.summary2') }}
+          </div>
+          <div class="mb-4">
+            {{ $t('categoryInput.drawer.summary3') }}
+          </div>
+        </template>
         <slot></slot>
         <category-input v-model="selectedCategoryIds" />
       </div>
@@ -77,6 +79,8 @@ export default {
     drawer: false,
     loading: false,
     saving: false,
+    objectType: null,
+    objectId: null,
     spaceId: null,
     categoryIds: null,
     selectedCategoryIds: null,
@@ -86,8 +90,19 @@ export default {
       return this.formModified || JSON.stringify(this.selectedCategoryIds) !== JSON.stringify(this.categoryIds);
     },
   },
+  created() {
+    document.addEventListener('category-form-drawer-open', this.openByEvent);
+  },
+  beforeDestroy() {
+    document.removeEventListener('category-form-drawer-open', this.openByEvent);
+  },
   methods: {
-    open(spaceId, categoryIds) {
+    openByEvent(event) {
+      this.open(event?.detail);
+    },
+    open({objectType, objectId, spaceId, categoryIds}) {
+      this.objectType = objectType;
+      this.objectId = objectId;
       this.spaceId = spaceId;
       this.categoryIds = categoryIds || [];
       this.selectedCategoryIds = this.categoryIds.slice();
@@ -97,29 +112,25 @@ export default {
       this.$refs.drawer.close();
     },
     async save() {
-      if (!this.spaceId) {
-        this.$emit('save', this.selectedCategoryIds);
-        return;
-      } else {
-        this.saving = true;
-        try {
-          await this.$categoryLinkService.updateCategories({
-            objectType: 'space',
-            objectId: this.spaceId,
-            spaceId: this.spaceId,
-            oldCategories: this.categoryIds,
-            newCategories: this.selectedCategoryIds,
-            dropExisting: true
-          });
-          this.categoryIds = this.selectedCategoryIds;
-          this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
-          this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
-          this.close();
-        } catch (e) {
-          this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
-        } finally {
-          this.saving = false;
-        }
+      this.saving = true;
+      try {
+        await this.$categoryLinkService.updateCategories({
+          objectType: this.objectType,
+          objectId: this.objectId,
+          spaceId: this.spaceId,
+          oldCategories: this.categoryIds,
+          newCategories: this.selectedCategoryIds,
+          dropExisting: true
+        });
+        this.categoryIds = this.selectedCategoryIds;
+        this.$root.$emit('categories-updated', this.objectType, this.objectId, this.categoryIds);
+        this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
+        this.close();
+      } catch (e) {
+        console.error(e);
+        this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
+      } finally {
+        this.saving = false;
       }
     },
   },

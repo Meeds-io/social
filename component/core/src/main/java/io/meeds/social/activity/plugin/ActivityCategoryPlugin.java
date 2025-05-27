@@ -34,8 +34,6 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
 
   public static final String OBJECT_TYPE            = ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
 
-  public static final String MANAGE_PERMISSION_TYPE = "manage";
-
   @Autowired
   private ActivityManager     activityManager;
 
@@ -54,12 +52,12 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
 
   @Override
   public boolean canEdit(String activityId, String username) {
-    return userAcl.hasPermission(OBJECT_TYPE, activityId, MANAGE_PERMISSION_TYPE, username);
+    return userAcl.hasPermission(OBJECT_TYPE, activityId, ActivityAclPlugin.MANAGE_PERMISSION_TYPE, username);
   }
 
   @Override
-  public List<Long> getCategoryIds() {
-    return activityManager.getActivityCategoryIds();
+  public List<Long> getCategoryIds(long spaceId) {
+    return activityManager.getActivityCategoryIds(spaceId);
   }
 
 }
