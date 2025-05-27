@@ -8,11 +8,11 @@
         :filter="filter"
         :has-activities="hasActivities" />
       <categories-filter
-        v-if="$root.allowFilteringPerCategory"
+        v-if="$root.allowFilteringPerCategory && !$root.selectedActivityId"
         v-show="hasActivities"
         v-model="$root.selectedCategoryId"
         :category-depth="$root.categoryDepth"
-        :category-ids="$root.categoryIds"
+        :category-ids="$root.settings?.categoryIds"
         :space-id="$root.spaceId"
         class="full-width border-box-sizing application-layout-style py-2 px-3 mb-5"
         object-type="activity"

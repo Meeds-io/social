@@ -423,7 +423,7 @@ public class CategoryServiceImpl implements CategoryService {
                                          long depthLimit,
                                          long depth) {
     CategoryTree categoryTree = new CategoryTree(category);
-    if (linkPermission && category.getParentId() > 0) {
+    if (StringUtils.isNotBlank(username)) {
       categoryTree.setCanLink(canManageLink(category, username));
     }
     long categoryId = categoryTree.getId();
