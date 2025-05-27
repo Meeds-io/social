@@ -42,7 +42,7 @@
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
           <span v-else class="my-auto text-subtitle-color">
-            {{ $t('activity.toolbar.title') }}
+            {{ toolbarTitle }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
             <v-tooltip v-if="markAllReadEnabled" bottom>
@@ -67,10 +67,9 @@
                 {{ $t('activity.filter.button.markAllAsRead') }}
               </span>
             </v-tooltip>
-            <v-tooltip v-if="!spaceId" bottom>
+            <v-tooltip v-if="$root.canEdit" bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
-                  v-if="$root.canEdit"
                   v-bind="attrs"
                   v-on="on"
                   id="toolbarFilterButton"
@@ -184,7 +183,7 @@ export default {
       }
     },
     userCanPost() {
-      return !this.standalone && this.canPost && (this.spaceId || this.$root.settings.allowPostToNetwork);
+      return !this.standalone && this.canPost;
     },
     activityStreamToolbarStyle() {
       return this.userCanPost && 'py-2' || 'py-1';
@@ -221,7 +220,13 @@ export default {
     },
     userAvatarSize() {
       return this.isMobile ? '42px' : '45px';
-    }
+    },
+    spaceToolbarTitle() {
+      return this.$root.spaceId && this.$root.settings?.nameTranslations?.[eXo.env.portal.language] || this.$root.settings?.nameTranslations?.[eXo.env.portal.defaultLanguage];
+    },
+    toolbarTitle() {
+      return this.spaceToolbarTitle || this.$t('activity.toolbar.title');
+    },
   },
   created() {
     this.streamFilter = this.$activityUtils.getStreamFilter();

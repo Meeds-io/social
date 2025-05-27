@@ -34,7 +34,6 @@ import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.jpa.storage.entity.MetadataItemEntity;
 import org.exoplatform.social.metadata.MetadataFilter;
-import org.exoplatform.social.metadata.model.MetadataKey;
 
 import jakarta.persistence.FlushModeType;
 import jakarta.persistence.NoResultException;

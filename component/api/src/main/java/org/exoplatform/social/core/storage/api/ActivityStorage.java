@@ -1181,4 +1181,12 @@ public interface ActivityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param spaceIdentityId Space {@link Identity} Identifier
+   * @return {@link List} of Category Ids used in Activities
+   */
+  default List<Long> getActivityCategoryIds(long spaceIdentityId) {
+    throw new UnsupportedOperationException();
+  }
+
 }

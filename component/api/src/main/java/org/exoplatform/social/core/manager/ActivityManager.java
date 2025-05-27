@@ -30,6 +30,7 @@ import org.exoplatform.social.core.activity.ActivitySystemTypePlugin;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.space.model.Space;
 
 /**
  * Provides APIs to manage activities. All methods to manipulate with
@@ -453,10 +454,10 @@ public interface ActivityManager {
    * Determines whether a user can view an activity or not
    * 
    * @param activity {@link ExoSocialActivity}
-   * @param viewer {@link org.exoplatform.services.security.Identity}
+   * @param identity {@link org.exoplatform.services.security.Identity}
    * @return true if has access, else return false
    */
-  default boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+  default boolean isActivityViewable(ExoSocialActivity activity, org.exoplatform.services.security.Identity identity) {
     return true;
   }
 
@@ -464,10 +465,21 @@ public interface ActivityManager {
    * Return whether an activity is deletable or not
    * 
    * @param activity checked activity
-   * @param viewer user identity
+   * @param identity {@link org.exoplatform.services.security.Identity}
    * @return true is user can delete activity, else false
    */
-  default boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity viewer) {
+  default boolean isActivityDeletable(ExoSocialActivity activity, org.exoplatform.services.security.Identity identity) {
+    return false;
+  }
+
+  /**
+   * Return whether an activity is manageable by the designated user or not
+   * 
+   * @param activity checked activity
+   * @param identity {@link org.exoplatform.services.security.Identity}
+   * @return true is user can moderate the activity, else false
+   */
+  default boolean isActivityManageable(ExoSocialActivity activity, org.exoplatform.services.security.Identity identity) {
     return false;
   }
 
@@ -601,9 +613,11 @@ public interface ActivityManager {
   }
 
   /**
+   * @param spaceId {@link Space} identifier
    * @return {@link List} of category identifiers associated to all activities
+   *         if spaceId = 0 else of designated space activities
    */
-  default List<Long> getActivityCategoryIds() {
+  default List<Long> getActivityCategoryIds(long spaceId) {
     throw new UnsupportedOperationException();
   }
 
