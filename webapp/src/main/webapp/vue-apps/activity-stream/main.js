@@ -66,8 +66,11 @@ export async function init({
         isMobile() {
           return this.$vuetify?.breakpoint?.mobile;
         },
+        isDesktop() {
+          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+        },
         categoryIds() {
-          return this.settingsSubcategoryIds || this.settings.categoryIds;
+          return this.settingsSubcategoryIds;
         },
         allowFilteringPerCategory() {
           return this.settings.allowFilteringPerCategory;
@@ -80,32 +83,36 @@ export async function init({
         async selectedCategoryId() {
           if (this.selectedCategoryId) {
             this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1);
-          } else if (this.filterType === 'category') {
-            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
           } else {
-            this.selectedCategoryIds = [];
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
           }
         },
       },
       created() {
         this.replyToComment = window.location.hash.includes('#comment-reply');
         this.$root.$on('activity-stream-settings-updated', this.handleSettingsUpdate);
+        this.$root.$on('categories-updated', this.handleCategoryUpdate);
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
+      beforeDestroy() {
         this.$root.$off('activity-stream-settings-updated', this.handleSettingsUpdate);
+        this.$root.$off('categories-updated', this.handleCategoryUpdate);
       },
       methods: {
         async handleSettingsUpdate() {
           this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
-          if (this.filterType === 'category') {
-            this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
-            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
-          } else {
-            this.settingsSubcategoryIds = [];
-            this.selectedCategoryIds = [];
+          this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
+          this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+        },
+        handleCategoryUpdate(objectType, objectId) {
+          if (objectType === 'activity' && !this.timeout) {
+            this.timeout = window.setTimeout(() => {
+              this.timeout = null;
+              this.$root.$emit('activity-updated', objectId);
+            }, 50);
           }
-          this.$root.$emit('spaces-list-refresh');
         },
       },
       template: `<activity-stream id="${appId}" />`,
