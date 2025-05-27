@@ -30,7 +30,7 @@ import io.meeds.social.category.plugin.CategoryPlugin;
 @Component
 public class SpaceCategoryPlugin implements CategoryPlugin {
 
-  public static final String OBJECT_TYPE = "space";
+  public static final String OBJECT_TYPE = SpaceAclPlugin.OBJECT_TYPE;
 
   @Autowired
   private SpaceService       spaceService;

@@ -20,6 +20,7 @@ import CategoryInput from './components/CategoryInput.vue';
 import CategorySuggester from './components/CategorySuggester.vue';
 
 import CategoriesDrawer from './components/drawer/CategoriesDrawer.vue';
+import CategoryFormDrawer from './components/drawer/CategoryFormDrawer.vue';
 import CategoryListDrawer from './components/drawer/CategoryListDrawer.vue';
 import CategoryInputDrawer from './components/drawer/CategoryInputDrawer.vue';
 
@@ -35,6 +36,7 @@ const components = {
 
   'category-input-drawer': CategoryInputDrawer,
   'categories-drawer': CategoriesDrawer,
+  'category-form-drawer': CategoryFormDrawer,
   'categories-list-drawer': CategoryListDrawer,
 
   'category-suggester': CategorySuggester,
