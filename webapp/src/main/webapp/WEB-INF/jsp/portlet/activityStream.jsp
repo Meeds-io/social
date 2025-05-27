@@ -42,8 +42,8 @@
         appId: '<%=domId%>',
         settings: JSON.parse(document.getElementById('<%=valueDomId%>').value),
         saveSettingsUrl: '<%=saveSettingsUrl%>',
-        canEdit: '<%=canEdit%>',
-        maxUploadSize: '<%=maxUploadSize%>',
+        canEdit: <%=canEdit%>,
+        maxUploadSize: <%=maxUploadSize%>,
       }));
     </script>
   </div>

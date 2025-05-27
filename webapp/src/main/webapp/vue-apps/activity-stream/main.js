@@ -17,12 +17,13 @@ if (extensionRegistry) {
 // Disable swipe for Mobile when Stream pages are displayed
 window.disableSwipeOnPage = true;
 
-export function init({
+export async function init({
   appId,
   settings,
   saveSettingsUrl,
   canEdit,
   maxUploadSize,
+  spaceId,
 }) {
   document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
   const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
@@ -31,42 +32,101 @@ export function init({
     `/social/i18n/locale.commons.Commons?lang=${lang}`,
     `/social/i18n/locale.social.Webui?lang=${lang}`,
   ];
-  exoi18n.loadLanguageAsync(lang, urls)
-    .then(i18n => {
-      Vue.createApp({
-        data: {
-          settings: {
-            allowPostToNetwork: true,
-            allowFilteringPerCategory: true,
-            categoryDepth: 4,
-            categoryIds: [],
-            ...settings,
-          },
-          saveSettingsUrl,
-          canEdit,
-          maxFileSize: maxUploadSize,
-          activityBaseLink: activityBaseLink,
-          selectedActivityId: null,
-          selectedCommentId: null,
-          canPost: null,
-          replyToComment: false,
-          displayCommentActionTypes: []
+  const i18n = await exoi18n.loadLanguageAsync(lang, urls);
+  let settingsSubcategoryIds;
+  if (settings?.categoryIds?.length) {
+    settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1);
+  }
+  try {
+    Vue.createApp({
+      data: {
+        settings: {
+          allowPostToNetwork: true,
+          nameTranslations: [],
+          allowFilteringPerCategory: true,
+          categoryDepth: 4,
+          categoryIds: [],
+          ...settings,
         },
-        computed: {
-          isMobile() {
-            return this.$vuetify?.breakpoint?.mobile;
-          },
+        spaceId: spaceId || eXo.env.portal.spaceId,
+        saveSettingsUrl,
+        canEdit,
+        maxFileSize: maxUploadSize,
+        activityBaseLink: activityBaseLink,
+        selectedActivityId: null,
+        selectedCommentId: null,
+        canPost: null,
+        replyToComment: false,
+        displayCommentActionTypes: [],
+        selectedCategoryId: null,
+        selectedCategoryIds: null,
+        settingsSubcategoryIds,
+      },
+      computed: {
+        isMobile() {
+          return this.$vuetify?.breakpoint?.mobile;
         },
-        created() {
-          this.replyToComment = window.location.hash.includes('#comment-reply');
+        categoryIds() {
+          return this.settingsSubcategoryIds || this.settings.categoryIds;
         },
-        mounted() {
-          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        allowFilteringPerCategory() {
+          return this.settings.allowFilteringPerCategory;
         },
-        template: `<activity-stream id="${appId}" />`,
-        vuetify: Vue.prototype.vuetifyOptions,
-        i18n,
-      }, `#${appId}`, 'Stream');
-    })
-    .finally(() => Vue.prototype.$utils.includeExtensions('ActivityStreamExtension'));
+        categoryDepth() {
+          return this.settings.categoryDepth || 4;
+        },
+      },
+      watch: {
+        async selectedCategoryId() {
+          if (this.selectedCategoryId) {
+            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1);
+          } else if (this.filterType === 'category') {
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+          } else {
+            this.selectedCategoryIds = [];
+          }
+        },
+      },
+      created() {
+        this.replyToComment = window.location.hash.includes('#comment-reply');
+        this.$root.$on('activity-stream-settings-updated', this.handleSettingsUpdate);
+      },
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        this.$root.$off('activity-stream-settings-updated', this.handleSettingsUpdate);
+      },
+      methods: {
+        async handleSettingsUpdate() {
+          this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
+          if (this.filterType === 'category') {
+            this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+          } else {
+            this.settingsSubcategoryIds = [];
+            this.selectedCategoryIds = [];
+          }
+          this.$root.$emit('spaces-list-refresh');
+        },
+      },
+      template: `<activity-stream id="${appId}" />`,
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n,
+    }, `#${appId}`, 'Stream');
+  } finally {
+    Vue.prototype.$utils.includeExtensions('ActivityStreamExtension');
+  }
+}
+
+async function getSubcategoryIds(categoryIds, depth) {
+  if (!categoryIds?.length) {
+    return [];
+  }
+  const subcategoyIds = await Promise.all(categoryIds.map(id => Vue.prototype.$categoryService.getSubcategoryIds(id, {
+    offset: 0,
+    limit: -1,
+    depth,
+  })));
+  const subcategoyIdsFlat = subcategoyIds.flatMap(s => s);
+  subcategoyIdsFlat.push(...categoryIds);
+  return [...new Set(subcategoyIdsFlat)];
 }

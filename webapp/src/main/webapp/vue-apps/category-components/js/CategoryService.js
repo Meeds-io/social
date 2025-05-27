@@ -29,6 +29,9 @@ export function getCategoryTree(options) {
   if (options.ownerId) {
     formData.append('ownerId', options.ownerId);
   }
+  if (options.spaceId) {
+    formData.append('spaceId', options.spaceId);
+  }
   if (options.depth) {
     formData.append('depth', options.depth);
   }

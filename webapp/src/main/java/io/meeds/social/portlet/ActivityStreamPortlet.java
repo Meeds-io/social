@@ -37,12 +37,16 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.model.Page;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.core.space.SpaceUtils;
+import org.exoplatform.social.core.space.model.Space;
+
+import io.meeds.social.space.plugin.SpaceAclPlugin;
 
 public class ActivityStreamPortlet extends GenericDispatchedViewPortlet {
 
-  private static final String   SETTING_NAME = "name";
+  private static final String SETTING_NAME = "name";
 
-  private UserACL               userAcl;
+  private UserACL             userAcl;
 
   @Override
   protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
@@ -72,9 +76,19 @@ public class ActivityStreamPortlet extends GenericDispatchedViewPortlet {
   }
 
   private boolean canModifySettings() {
-    Page currentPage = getCurrentPage();
-    return currentPage != null
-           && getUserAcl().hasEditPermission(currentPage, getCurrentIdentity());
+    Space space = SpaceUtils.getSpaceByContext();
+    Identity identity = getCurrentIdentity();
+    if (getUserAcl().isAnonymousUser(identity)) {
+      return false;
+    } else if (space == null) {
+      Page currentPage = getCurrentPage();
+      return currentPage != null
+             && getUserAcl().hasEditPermission(currentPage, identity);
+    } else {
+      return getUserAcl().hasEditPermission(SpaceAclPlugin.OBJECT_TYPE,
+                                            space.getId(),
+                                            identity);
+    }
   }
 
   private Page getCurrentPage() {
