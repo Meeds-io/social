@@ -265,7 +265,7 @@ export default {
         if (response?.ok) {
           this.$root.$emit('alert-message', this.$t('activityStream.settings.savedSuccessfully'), 'success');
           this.$root.settings = this.settings;
-          this.$root.$emit('activity-stream-settings-updated');
+          this.$root.$emit('activity-stream-settings-updated', this.settings);
           this.close();
         } else {
           this.$root.$emit('alert-message', this.$t('activityStream.settings.saveError'), 'error');
