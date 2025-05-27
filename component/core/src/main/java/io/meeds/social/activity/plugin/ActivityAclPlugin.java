@@ -34,13 +34,15 @@ import jakarta.annotation.PostConstruct;
 @Component
 public class ActivityAclPlugin implements AclPlugin {
 
-  private static final String OBJECT_TYPE = ActivityPermanentLinkPlugin.OBJECT_TYPE;
+  public static final String OBJECT_TYPE            = ActivityPermanentLinkPlugin.OBJECT_TYPE;
+
+  public static final String MANAGE_PERMISSION_TYPE = "manage";
 
   @Autowired
-  private PortalContainer     container;
+  private PortalContainer    container;
 
   @Autowired
-  private ActivityManager     activityManager;
+  private ActivityManager    activityManager;
 
   @PostConstruct
   public void init() {
@@ -67,6 +69,9 @@ public class ActivityAclPlugin implements AclPlugin {
       }
       case DELETE_PERMISSION_TYPE: {
         yield activityManager.isActivityDeletable(activity, identity);
+      }
+      case MANAGE_PERMISSION_TYPE: {
+        yield activityManager.isActivityManageable(activity, identity);
       }
       default:
         yield false;

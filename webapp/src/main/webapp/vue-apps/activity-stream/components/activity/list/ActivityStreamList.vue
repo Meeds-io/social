@@ -87,6 +87,7 @@ export default {
     userName: eXo.env.portal.userName,
     hasMore: false,
     loading: false,
+    initialized: false,
     error: false,
     isDeleted: false,
     streamFilter: 'all_stream',
@@ -111,6 +112,9 @@ export default {
     },
     activityIds() {
       return this.activities?.map?.(a => a.id)?.filter?.(id => !!id) || [];
+    },
+    selectedCategoryIds() {
+      return this.$root.selectedCategoryIds || this.$root.categoryIds;
     },
   },
   watch: {
@@ -141,6 +145,11 @@ export default {
         this.hadUnread = true;
       } else {
         this.hadUnread = false;
+      }
+    },
+    selectedCategoryIds() {
+      if (this.initialized) {
+        this.refreshActivities();
       }
     },
   },
@@ -243,6 +252,7 @@ export default {
     });
     this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
+    this.$root.$on('activity-stream-settings-updated', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
 
@@ -259,6 +269,10 @@ export default {
   },
   beforeDestroy() {
     this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$off('activities-refresh', this.refreshActivities);
+    this.$root.$off('activity-stream-settings-updated', this.refreshActivities);
+    this.$root.$off('activity-read', this.markActivityAsRead);
+    this.$root.$off('activity-loaded', this.refreshUnreadCount);
   },
   methods: {
     init() {
@@ -281,7 +295,13 @@ export default {
     },
     loadActivityIds() {
       this.loading = true;
-      return this.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+      return this.$activityService.getActivitiesByFilter({
+        spaceId: this.spaceId,
+        streamType: this.streamFilter,
+        limit: this.limit * 2,
+        categoryIds: this.selectedCategoryIds,
+        expand: this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND,
+      })
         .then(data => {
           this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];
@@ -307,7 +327,10 @@ export default {
           });
           return Promise.all(promises);
         })
-        .finally(() => this.loading = false);
+        .finally(() => {
+          this.initialized = true;
+          this.loading = false;
+        });
     },
     activityLoaded(activityId) {
       this.loadedActivities.add(activityId);

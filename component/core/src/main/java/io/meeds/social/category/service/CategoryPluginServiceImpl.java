@@ -59,8 +59,8 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   }
 
   @Override
-  public List<Long> getCategoryIds(String objectType) {
-    return getCategoryPlugin(objectType).getCategoryIds();
+  public List<Long> getCategoryIds(String objectType, long spaceId) {
+    return getCategoryPlugin(objectType).getCategoryIds(spaceId);
   }
 
 }

@@ -82,7 +82,7 @@ public class ActivityManagerImpl implements ActivityManager {
 
   protected RelationshipManager           relationshipManager;
 
-  private UserACL                         userACL;
+  private UserACL                         userAcl;
 
   /** spaceService */
   protected SpaceService                  spaceService;
@@ -165,7 +165,7 @@ public class ActivityManagerImpl implements ActivityManager {
     this.identityManager = identityManager;
     this.spaceService = spaceService;
     this.relationshipManager = relationshipManager;
-    this.userACL = userACL;
+    this.userAcl = userACL;
     initActivityTypes();
 
     if (params != null) {
@@ -306,6 +306,19 @@ public class ActivityManagerImpl implements ActivityManager {
     } else {
       return activityTypePlugin.getActivityTitle(activity);
     }
+  }
+
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceId) {
+    long spaceIdentityId = 0;
+    if (spaceId > 0) {
+      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+      if (space != null) {
+        Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+        spaceIdentityId = Long.parseLong(spaceIdentity.getId());
+      }
+    }
+    return activityStorage.getActivityCategoryIds(spaceIdentityId);
   }
 
   /**
@@ -831,8 +844,8 @@ public class ActivityManagerImpl implements ActivityManager {
             || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
       return true;
     } else {
-      return StringUtils.equals(userACL.getSuperUser(), username)
-          || viewer.isMemberOf(userACL.getAdminGroups())
+      return StringUtils.equals(userAcl.getSuperUser(), username)
+          || viewer.isMemberOf(userAcl.getAdminGroups())
           || hasMentioned(activity, username)
           || isConnectedWithUserWithId(activity.getPosterId(), username)
           || spaceService.isSuperManager(username);
@@ -896,6 +909,29 @@ public class ActivityManagerImpl implements ActivityManager {
         && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return spaceService.canManageSpace(spaceService.getSpaceByPrettyName(activityStream.getPrettyId()),
                                          viewer.getUserId());
+    } else {
+      return spaceService.isSuperManager(username);
+    }
+  }
+
+  @Override
+  public boolean isActivityManageable(ExoSocialActivity activity, org.exoplatform.services.security.Identity identity) {
+    if (userAcl.isAnonymousUser(identity)) {
+      return false;
+    }
+    ActivityStream activityStream = null;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = getActivity(activity.getParentId());
+      activityStream = parentActivity == null ? null : parentActivity.getActivityStream();
+    } else {
+      activityStream = activity.getActivityStream();
+    }
+    String username = identity.getUserId();
+    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+      Space space = spaceService.getSpaceByPrettyName(activityStream.getPrettyId());
+      return spaceService.isRedactor(space, username)
+             || spaceService.isPublisher(space, username)
+             || spaceService.canManageSpace(space, username);
     } else {
       return spaceService.isSuperManager(username);
     }

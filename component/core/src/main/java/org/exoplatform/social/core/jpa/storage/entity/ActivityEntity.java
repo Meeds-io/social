@@ -93,6 +93,17 @@ import lombok.Setter;
                     + " ( item.ownerId in (:owners) OR "
                     + "   ( item.ownerId in (:connections) AND item.streamType = :connStreamType ) "
                     + " ) "),
+        @NamedQuery(name = "ActivityEntity.getActivityCategoryIds", query = """
+              SELECT DISTINCT c.categoryId FROM SocActivity a
+              INNER JOIN a.categories c
+            """),
+        @NamedQuery(name = "ActivityEntity.getActivityCategoryIdsBySpaceId", query = """
+              SELECT DISTINCT c.categoryId FROM SocActivity a
+              INNER JOIN a.streamItems item
+              ON item.ownerId = :spaceIdentityId
+              AND item.streamType = :streamType
+              INNER JOIN a.categories c
+            """),
         @NamedQuery(name = "SocActivity.getActivityIdsByOwner",
                 query = "SELECT distinct item.activity.id, item.activity.updatedDate as updatedDate FROM SocStreamItem item WHERE "
                     + " item.activity.hidden = false AND "
