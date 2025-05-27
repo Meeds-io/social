@@ -91,9 +91,9 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
         long spaceId = StringUtils.isBlank(activity.getSpaceId()) ?
                                                                   0l :
                                                                   Long.parseLong(activity.getSpaceId());
-        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(ActivityCategoryPlugin.OBJECT_TYPE,
-                                                                                     activityId,
-                                                                                     activity.getParentId(),
+        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(activity.getMetadataObjectType(),
+                                                                                     activity.getMetadataObjectId(),
+                                                                                     activity.getMetadataObjectParentId(),
                                                                                      spaceId));
         if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(categoryIds)
             || (CollectionUtils.size(categoryIds) > 0 && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {
