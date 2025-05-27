@@ -41,8 +41,9 @@
         } || on"
         v-bind="attrs"
         :outlined="!selected"
-        :class="[chipClass, !visible && 'invisible' || '']"
+        :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
         :color="selected && 'primary'"
+        :small="small"
         class="text-truncate border-box-sizing">
         <v-card
           :title="category.name"
@@ -90,8 +91,9 @@
     v-else
     ref="chip"
     :outlined="!selected"
-    :class="[chipClass, !visible && 'invisible' || '']"
+    :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
     :color="selected && 'primary'"
+    :small="small"
     class="text-truncate border-box-sizing"
     @click.prevent.stop="openCategory(category)">
     <v-card
@@ -138,6 +140,10 @@ export default {
     parentWidth: {
       type: Number,
       default: null,
+    },
+    small: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
