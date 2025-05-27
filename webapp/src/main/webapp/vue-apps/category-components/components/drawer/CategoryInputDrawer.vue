@@ -174,6 +174,7 @@ export default {
     keyword: null,
     openedIds: [],
     categoryIds: [],
+    forbiddenCategoryIds: [],
     categoryTree: null,
     categoryOwnerId: null,
     categoryRootId: null,
@@ -261,6 +262,7 @@ export default {
     },
     async init() {
       this.loading = true;
+      this.forbiddenCategoryIds = [];
       const categoryIds = this.value?.slice?.() || [];
       let index = 0;
       do {
@@ -327,9 +329,9 @@ export default {
         return;
       }
       const categoryIds = this.categoryIds;
+      const parentId = item?.id || this.categoryRootId || 0;
+      const ownerId = item?.ownerId || this.categoryOwnerId || 0;
       try {
-        const parentId = item?.id || this.categoryRootId || 0;
-        const ownerId = item?.ownerId || this.categoryOwnerId || 0;
         const categoryTree = await this.$categoryService.getCategoryTree({
           parentId,
           ownerId,
@@ -344,6 +346,10 @@ export default {
         } else {
           Object.keys(categoryTree).forEach(key => item[key] = categoryTree[key]);
           return item;
+        }
+      } catch (e) {
+        if (!this.forbiddenCategoryIds.includes(parentId)) {
+          this.forbiddenCategoryIds.push(parentId);
         }
       } finally {
         this.refresh++;
@@ -429,7 +435,7 @@ export default {
       }
     },
     apply() {
-      this.$emit('input', this.categoryIds);
+      this.$emit('input', [...this.categoryIds, ...this.forbiddenCategoryIds]);
       this.close();
     },
   },
