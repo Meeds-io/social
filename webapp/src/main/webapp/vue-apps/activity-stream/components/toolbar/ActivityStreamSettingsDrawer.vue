@@ -27,40 +27,55 @@
     allow-expand
     right>
     <template #title>
-      {{ $t('activityStream.settings.title') }}
+      {{ $root.spaceId && $t('activityStream.settings.space.title') || $t('activityStream.settings.title') }}
     </template>
     <template v-if="drawer" #content>
       <div class="pa-5" flat>
-        <div class="mb-2 text-header">{{ $t('activityStream.settings.postingOptions') }}</div>
-        <v-tooltip
-          :disabled="$root.canPost"
-          bottom>
-          <template #activator="{on, attrs}">
-            <div
-              v-on="on"
-              v-bind="attrs"
-              class="d-flex full-width align-start text-start">
-              <v-list-item
-                class="pa-0 me-4"
-                dense>
-                <v-list-item-content class="pa-0">
-                  <v-list-item-title :class="!$root.canPost && 'text--disabled'">
-                    {{ $t('activityStream.settings.postingOptions.title') }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-wrap">
-                    {{ $t('activityStream.settings.postingOptions.subtitle') }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
-              </v-list-item>
-              <v-spacer />
-              <v-switch
-                v-model="settings.allowPostToNetwork"
-                :disabled="!$root.canPost"
-                class="mx-0 mt-0 pa-0 width-fit-content" />
-            </div>
-          </template>
-          <span>{{ $t('activityStream.settings.postingOptions.disabled') }}</span>
-        </v-tooltip>
+        <template v-if="$root.spaceId">
+          <div class="mb-2 text-header">{{ $t('activityStream.settings.space.displayOptions') }}</div>
+          <div class="mb-2">{{ $t('activityStream.settings.space.displayOptions.title') }}</div>
+          <translation-text-field
+            v-model="settings.nameTranslations"
+            :placeholder="$t('activityStream.settings.space.displayOptions.placeholder')"
+            :maxlength="maxNameLength"
+            :rules="rules.name"
+            :required="false"
+            drawer-title="activityStream.settings.space.displayOptions.nameTranslationTitle"
+            class="width-auto flex-grow-1 pb-1"
+            back-icon />
+        </template>
+        <template v-else>
+          <div class="mb-2 text-header">{{ $t('activityStream.settings.postingOptions') }}</div>
+          <v-tooltip
+            :disabled="$root.canPost"
+            bottom>
+            <template #activator="{on, attrs}">
+              <div
+                v-on="on"
+                v-bind="attrs"
+                class="d-flex full-width align-start text-start">
+                <v-list-item
+                  class="pa-0 me-4"
+                  dense>
+                  <v-list-item-content class="pa-0">
+                    <v-list-item-title :class="!$root.canPost && 'text--disabled'">
+                      {{ $t('activityStream.settings.postingOptions.title') }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle class="text-wrap">
+                      {{ $t('activityStream.settings.postingOptions.subtitle') }}
+                    </v-list-item-subtitle>
+                  </v-list-item-content>
+                </v-list-item>
+                <v-spacer />
+                <v-switch
+                  v-model="settings.allowPostToNetwork"
+                  :disabled="!$root.canPost"
+                  class="mx-0 mt-0 pa-0 width-fit-content" />
+              </div>
+            </template>
+            <span>{{ $t('activityStream.settings.postingOptions.disabled') }}</span>
+          </v-tooltip>
+        </template>
         <div class="mt-4 mb-2 text-header">{{ $t('activityStream.settings.filterOptions') }}</div>
         <div class="d-flex full-width align-center text-start">
           <div>{{ $t('activityStream.settings.filterOptions.title') }}</div>
@@ -162,16 +177,27 @@ export default {
     saving: false,
     settings: {},
     originalSettings: {},
+    maxNameLength: 150,
     categoryId: null,
     selectedCategories: [],
     filterPerCategories: false,
   }),
   computed: {
+    rules() {
+      return {
+        name: [
+          v => !!v?.length || ' ',
+          v => !v?.length || v.length <= this.maxNameLength || this.$t('spacesList.settings.nameExceedsMaxLength', {
+            0: this.maxNameLength,
+          }),
+        ],
+      };
+    },
     modified() {
       return JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
     },
     disabled() {
-      return !this.modified;
+      return !this.modified || Object.keys(this.settings.nameTranslations).some(k => this.settings.nameTranslations[k]?.length > this.maxNameLength);
     },
     categoryIds() {
       return this.settings.categoryIds;

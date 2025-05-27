@@ -7,6 +7,16 @@
         :can-filter="canFilter"
         :filter="filter"
         :has-activities="hasActivities" />
+      <categories-filter
+        v-if="$root.allowFilteringPerCategory"
+        v-show="hasActivities"
+        v-model="$root.selectedCategoryId"
+        :category-depth="$root.categoryDepth"
+        :category-ids="$root.categoryIds"
+        :space-id="$root.spaceId"
+        class="full-width border-box-sizing application-layout-style py-2 px-3 mb-5"
+        object-type="activity"
+        hide-on-empty />
       <activity-stream-list
         :activity-id="activityId"
         :activity-types="activityTypes"

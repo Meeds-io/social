@@ -43,4 +43,24 @@ public class CategoryFilter {
 
   private boolean sortByName;
 
+  private long    spaceId;
+
+  public CategoryFilter(String objectType, // NOSONAR
+                        long ownerId,
+                        long parentId,
+                        long depth,
+                        long offset,
+                        long limit,
+                        boolean linkPermission,
+                        boolean sortByName) {
+    this.objectType = objectType;
+    this.ownerId = ownerId;
+    this.parentId = parentId;
+    this.depth = depth;
+    this.offset = offset;
+    this.limit = limit;
+    this.linkPermission = linkPermission;
+    this.sortByName = sortByName;
+  }
+
 }
