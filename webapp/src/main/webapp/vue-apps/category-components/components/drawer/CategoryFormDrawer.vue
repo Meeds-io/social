@@ -124,11 +124,11 @@ export default {
         });
         this.categoryIds = this.selectedCategoryIds;
         this.$root.$emit('categories-updated', this.objectType, this.objectId, this.categoryIds);
-        this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');
+        this.$root.$emit('alert-message', this.$t('categoryInputDrawer.updated.success'), 'success');
         this.close();
       } catch (e) {
         console.error(e);
-        this.$root.$emit('alert-message', this.$t('categoryInput.updated.error'), 'error');
+        this.$root.$emit('alert-message', this.$t('categoryInputDrawer.updated.error'), 'error');
       } finally {
         this.saving = false;
       }
