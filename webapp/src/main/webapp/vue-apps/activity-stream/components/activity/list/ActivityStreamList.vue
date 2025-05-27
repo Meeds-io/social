@@ -252,7 +252,6 @@ export default {
     });
     this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
-    this.$root.$on('activity-stream-settings-updated', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
     this.$root.$on('categories-updated', this.refreshActivitiesByCategories);
@@ -271,7 +270,6 @@ export default {
   beforeDestroy() {
     this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$off('activities-refresh', this.refreshActivities);
-    this.$root.$off('activity-stream-settings-updated', this.refreshActivities);
     this.$root.$off('activity-read', this.markActivityAsRead);
     this.$root.$off('activity-loaded', this.refreshUnreadCount);
     this.$root.$off('categories-updated', this.refreshActivitiesByCategories);
@@ -303,6 +301,9 @@ export default {
       this.loadActivityIds();
     },
     loadActivityIds() {
+      if (this.loading) {
+        return;
+      }
       this.loading = true;
       return this.$activityService.getActivitiesByFilter({
         spaceId: this.spaceId,
@@ -315,7 +316,7 @@ export default {
           this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];
           this.retrievedSize = activityIds.length;
-          this.hasMore = this.retrievedSize > this.limit;
+          this.hasMore = activityIds.length > this.limit;
           const activityIdsToLoad = activityIds.slice(0, this.limit);
           const promises = activityIdsToLoad.map((activity, index) => {
             const activityId = activity && activity.id;
@@ -330,7 +331,8 @@ export default {
                 this.activities.push(activity);
               }
               return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-                .then(fullActivity => Object.assign(activity, fullActivity))
+                .then(fullActivity => this.activities.splice(this.activities.indexOf(activity), 1, fullActivity))
+                .catch(() => this.activities.splice(this.activities.indexOf(activity), 1))
                 .finally(() => this.$set(activity, 'loading', false));
             }
           });
