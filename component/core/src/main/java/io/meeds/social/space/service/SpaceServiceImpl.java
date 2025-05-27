@@ -20,10 +20,36 @@
  */
 package io.meeds.social.space.service;
 
-import static org.exoplatform.social.core.space.SpaceUtils.*;
+import static org.exoplatform.social.core.space.SpaceUtils.AUTHENTICATED;
+import static org.exoplatform.social.core.space.SpaceUtils.EVERYONE;
+import static org.exoplatform.social.core.space.SpaceUtils.INTERNAL;
+import static org.exoplatform.social.core.space.SpaceUtils.MANAGER;
+import static org.exoplatform.social.core.space.SpaceUtils.MEMBER;
+import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_PUBLISHER_GROUP;
+import static org.exoplatform.social.core.space.SpaceUtils.PLATFORM_USERS_GROUP;
+import static org.exoplatform.social.core.space.SpaceUtils.PUBLISHER;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithManagerMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithMemberMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithPublisherMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.addUserToGroupWithRedactorMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.createGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeMembershipFromGroup;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithAnyMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithManagerMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithMemberMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithPublisherMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
+import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -44,7 +70,6 @@ import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.resources.ResourceBundleService;
-import org.exoplatform.services.security.IdentityConstants;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.common.Utils;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
@@ -55,8 +80,13 @@ import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.model.SpaceExternalInvitation;
-import org.exoplatform.social.core.space.*;
+import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceException.Code;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.SpaceLifecycle;
+import org.exoplatform.social.core.space.SpaceListAccess;
+import org.exoplatform.social.core.space.SpaceListAccessType;
+import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
@@ -68,6 +98,7 @@ import org.exoplatform.web.security.security.RemindPasswordTokenService;
 import io.meeds.social.search.SpaceSearchConnector;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
+
 import lombok.SneakyThrows;
 
 public class SpaceServiceImpl implements SpaceService {
@@ -143,7 +174,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getAccessibleSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -166,7 +197,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getPendingSpacesWithListAccess(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -193,7 +224,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getInvitedSpacesWithListAccess(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -204,7 +235,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getInvitedSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.INVITED_FILTER);
@@ -212,7 +243,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getMemberSpaces(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MEMBER);
@@ -220,7 +251,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getMemberSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.MEMBER_FILTER);
@@ -228,7 +259,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getManagerSpaces(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.MANAGER);
@@ -236,7 +267,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getManagerSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -248,7 +279,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getEditableSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -261,7 +292,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getFavoriteSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -274,7 +305,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getPendingSpacesByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, spaceFilter, SpaceListAccessType.PENDING_FILTER);
@@ -282,7 +313,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getPendingSpaceRequestsToManage(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, username, SpaceListAccessType.PENDING_REQUESTS);
@@ -290,7 +321,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getLastAccessedSpace(String username) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -301,7 +332,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getLastAccessedSpaceByFilter(String username, SpaceFilter spaceFilter) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage,
@@ -313,7 +344,7 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public ListAccess<Space> getCommonSpaces(String username, String otherUserId) {
-    if (StringUtils.isBlank(username) || IdentityConstants.ANONIM.equals(username)) {
+    if (userAcl.isAnonymousUser(username)) {
       return new ListAccessImpl<>(Space.class, Collections.emptyList());
     }
     return new SpaceListAccess(spaceStorage, spaceSearchConnector, SpaceListAccessType.COMMON, username, otherUserId);

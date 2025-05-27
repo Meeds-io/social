@@ -266,14 +266,23 @@ public class ActivityEntity extends BaseEntity {
   public List<Long> getCategoryIds() {
     return (List<Long>) getProperty("categoryIds");
   }
-
+  
   public void setCanDelete(boolean canDelete) {
     setProperty(RestProperties.CAN_DELETE, String.valueOf(canDelete));
   }
-
+  
   public boolean isCanDelete() {
     Object canDelete = getProperty(RestProperties.CAN_DELETE);
     return canDelete != null && Boolean.parseBoolean(canDelete.toString());
+  }
+
+  public void setCanManage(boolean canManage) {
+    setProperty(RestProperties.CAN_MANAGE, String.valueOf(canManage));
+  }
+
+  public boolean isCanManage() {
+    Object canManage = getProperty(RestProperties.CAN_MANAGE);
+    return canManage != null && Boolean.parseBoolean(canManage.toString());
   }
 
   public void setCanPin(boolean canPin) {
