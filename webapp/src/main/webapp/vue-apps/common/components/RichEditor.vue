@@ -113,6 +113,10 @@ export default {
       type: Boolean,
       default: true
     },
+    contentLinkEnabled: {
+      type: Boolean,
+      default: false
+    },
     oembed: {
       type: Boolean,
       default: false
@@ -322,7 +326,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon,vuetifyStyle';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -332,33 +336,37 @@ export default {
       const windowHeight = $(window).height();
       if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
         // Disable suggester on smart-phone landscape
-        extraPlugins = `${extraPlugins},suggester`;
+        extraPlugins += ',suggester';
       }
 
       if (this.supportsOembed) {
         if (this.oembedOnlyVideo) {
-          extraPlugins = `${extraPlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
-          removePlugins = `${removePlugins},embedsemantic,embedbase`;
+          extraPlugins += ',embedsemanticOnlyVideo,embedbaseOnlyVideo';
+          removePlugins += ',embedsemantic,embedbase';
         } else {
-          extraPlugins = `${extraPlugins},embedsemantic,embedbase`;
-          removePlugins = `${removePlugins},embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+          extraPlugins += ',embedsemantic,embedbase';
+          removePlugins += ',embedsemanticOnlyVideo,embedbaseOnlyVideo';
         }
       } else {
-        removePlugins = `${removePlugins},embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo`;
+        removePlugins += ',embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo';
       }
 
       if (this.tagEnabled) {
-        extraPlugins = `${extraPlugins},tagSuggester`;
+        extraPlugins += ',tagSuggester';
         toolbar[0].push('tagSuggester');
       } else {
-        removePlugins = `${removePlugins},tagSuggester`;
+        removePlugins += ',tagSuggester';
       }
       if (!this.isMobile) {
         toolbar[0].push('emoji');
       }
       if (this.attachmentEnabled) {
-        extraPlugins = `${extraPlugins},attachImage`;
+        extraPlugins += ',attachImage';
         toolbar[0].push('attachImage');
+      }
+      if (this.contentLinkEnabled) {
+        extraPlugins += ',insertContentLink';
+        toolbar[0].push('InsertContentLink');
       }
       toolbar[0].unshift('formatOption');
 
@@ -366,10 +374,10 @@ export default {
       if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
-            extraPlugins = `${extraPlugins},${ckEditorExtension.extraPlugin}`;
+            extraPlugins += `,${ckEditorExtension.extraPlugin}`;
           }
           if (ckEditorExtension.removePlugin) {
-            removePlugins = `${extraPlugins},${ckEditorExtension.removePlugin}`;
+            removePlugins += `,${ckEditorExtension.removePlugin}`;
           }
           if (ckEditorExtension.extraToolbarItem) {
             toolbar[0].push(ckEditorExtension.extraToolbarItem);
@@ -402,6 +410,7 @@ export default {
         options.autoGrow_onStartup = false;
         options.autoGrow_maxHeight = 300;
       }
+      let firstScrollableParent;
       $(this.$refs.editor).ckeditor({...options,
         on: {
           instanceReady: function () {
@@ -418,10 +427,8 @@ export default {
             if (this.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
-            const firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
-            firstScrollableParent.addEventListener('scroll', () => {
-              document.dispatchEvent(new CustomEvent ('parent-element-scrolled'));
-            }, false);
+            firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
+            firstScrollableParent.addEventListener('scroll', self.controlParentScroll);
           },
           embedHandleResponse: function (embedResponse) {
             self.installOembed(embedResponse);
@@ -443,10 +450,10 @@ export default {
             }
           },
           destroy: function () {
-            if (!self) {
-              return;
+            if (self) {
+              self.editor = null;
+              firstScrollableParent?.removeEventListener?.('scroll', self.controlParentScroll);
             }
-            self.editor = null;
           }
         }
       });
@@ -535,8 +542,8 @@ export default {
         this.replaceSuggestedUsers(content, mentionedUsers, this.spaceId);
       }
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1]);
+        content = content.replace(/\n* *<oembed>(.*)\n*<\/oembed>/g, '');
         if (this.supportsOembed) {
           content = `${content}<oembed>${oembedUrl}</oembed>`;
         }
@@ -563,12 +570,12 @@ export default {
       if (!content.includes('<oembed>') && cleanOembedParams && this.oembedParams) {
         this.clearOembedParams();
       } else if (!this.templateParams && (this.oembedParams?.url || this.oembedParams?.link)) {
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, '');
         const link = this.oembedParams?.url || this.oembedParams?.link;
-        content = `${content}<oembed>${window.encodeURIComponent(link)}</oembed>`;
+        content = `${content}<oembed>${window.encodeURIComponent(link?.trim?.())}</oembed>`;
       } else if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = content.match(/<oembed>(.*)<\/oembed>/i)[1];
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+        const oembedUrl = content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1];
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, `<oembed>${oembedUrl?.trim?.()}</oembed>`);
       }
       return this.getContentWithOembedHtml(content);
     },
@@ -615,9 +622,8 @@ export default {
         return '';
       }
       if (content.includes('<oembed>') && content.includes('</oembed>')) {
-        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>(.*)<\/oembed>/i)[1]);
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, '');
-        content = content.replace(/<oembed>(.*)<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
+        const oembedUrl = window.decodeURIComponent(content.match(/<oembed>\n* *(.*)\n*<\/oembed>/i)[1]);
+        content = content.replace(/<oembed>\n* *(.*)\n*<\/oembed>/g, `<oembed>${oembedUrl}</oembed>`);
       }
       if (content.includes('<a') && content.includes('</a>')) {
         const tempdiv = document.createElement('div');
@@ -843,6 +849,9 @@ export default {
         }
       }
       return document.body;
+    },
+    controlParentScroll() {
+      document.dispatchEvent(new CustomEvent ('parent-element-scrolled'));
     },
     emitChanges(attachements, changed){
       this.$emit('attachments-edited', attachements, changed);

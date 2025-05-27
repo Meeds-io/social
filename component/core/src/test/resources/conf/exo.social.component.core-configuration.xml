@@ -471,19 +471,6 @@
     <type>org.exoplatform.social.core.jpa.storage.dao.jpa.ProfileLabelDAO</type>
   </component>
 
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.ActivityPermanentLinkPlugin</type>
-  </component>
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin</type>
-  </component>
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.UserProfilePermanentLinkPlugin</type>
-  </component>
-
   <component>
     <key>org.exoplatform.social.core.profilelabel.ProfileLabelService</key>
     <type>org.exoplatform.social.core.profilelabel.ProfileLabelServiceImpl</type>
@@ -508,6 +495,34 @@
 
   <external-component-plugins>
     <target-component>org.exoplatform.social.metadata.MetadataService</target-component>
+    <component-plugin>
+      <name>ContentLinkMetadataPlugin</name>
+      <set-method>addMetadataTypePlugin</set-method>
+      <type>org.exoplatform.social.metadata.MetadataTypePlugin</type>
+      <init-params>
+        <value-param>
+          <name>shareable</name>
+          <description>Whether to share metadatas when an associated object has been shared to a different space or to a user</description>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>allowMultipleItemsPerObject</name>
+          <description>Whether to allow adding the same object to the same Metadata or not</description>
+          <value>true</value>
+        </value-param>
+        <object-param>
+          <name>metadataType</name>
+          <object type="org.exoplatform.social.metadata.model.MetadataType">
+            <field name="id">
+              <long>579645</long>
+            </field>
+            <field name="name">
+              <string>contentLink</string>
+            </field>
+          </object>
+        </object-param>
+      </init-params>
+    </component-plugin>
     <component-plugin>
       <name>FavoriteMetadataPlugin</name>
       <set-method>addMetadataTypePlugin</set-method>
@@ -1252,23 +1267,6 @@
   <external-component-plugins>
     <target-component>org.exoplatform.social.common.xmlprocessor.XMLProcessor</target-component>
     <component-plugin>
-      <name>XMLBalancerFilterPlugin</name>
-      <set-method>addFilterPlugin</set-method>
-      <type>org.exoplatform.social.common.xmlprocessor.filters.XMLBalancerFilterPlugin</type>
-    </component-plugin>
-    <component-plugin>
-      <name>URLConverterFilterPlugin</name>
-      <set-method>addFilterPlugin</set-method>
-      <type>org.exoplatform.social.common.xmlprocessor.filters.URLConverterFilterPlugin</type>
-      <init-params>
-        <value-param>
-          <name>urlMaxLength</name>
-          <description>the max length of URL</description>
-          <value>-1</value>
-        </value-param>
-      </init-params>
-    </component-plugin>
-    <component-plugin>
       <name>SanitizeFilterPlugin</name>
       <set-method>addFilterPlugin</set-method>
       <type>org.exoplatform.social.common.xmlprocessor.filters.SanitizeFilterPlugin</type>
@@ -1404,12 +1402,12 @@
     <target-component>org.exoplatform.social.core.manager.ActivityManager</target-component>
     <component-plugin>
       <name>ActivityMetadataListener</name>
-      <set-method>registerActivityListener</set-method>
+      <set-method>addActivityListener</set-method>
       <type>org.exoplatform.social.core.listeners.ActivityMetadataListener</type>
     </component-plugin>
     <component-plugin>
       <name>ActivityMetadataListener</name>
-      <set-method>registerActivityListener</set-method>
+      <set-method>addActivityListener</set-method>
       <type>org.exoplatform.social.core.listeners.ActivityTagMetadataListener</type>
     </component-plugin>
     <component-plugin>

@@ -45,8 +45,8 @@
         SAFE_FOR_TEMPLATES: true,
         svg: true
       },
-      ADD_TAGS: ["iframe"],
-      ADD_ATTR: ['target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
+      ADD_TAGS: ["iframe", "content-link"],
+      ADD_ATTR: ['is', 'target', 'allow', 'allowfullscreen', 'frameborder', 'scrolling', 'v-identity-popover'],
     });
     DOMPurify.addHook('afterSanitizeAttributes', function(node) {
       if ('target' in node) {

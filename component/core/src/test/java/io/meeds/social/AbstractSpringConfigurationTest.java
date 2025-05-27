@@ -18,31 +18,43 @@
  */
 package io.meeds.social;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import org.exoplatform.component.test.ConfigurationUnit;
 import org.exoplatform.component.test.ConfiguredBy;
 import org.exoplatform.component.test.ContainerScope;
-import org.exoplatform.social.core.jpa.test.AbstractCoreTest;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.spi.SpaceService;
 
 import io.meeds.kernel.test.AbstractSpringTest;
 import io.meeds.spring.AvailableIntegration;
 
 @SpringBootApplication(scanBasePackages = {
   "io.meeds.social.common",
-  "io.meeds.social.navigation",
   "io.meeds.social.category",
+  "io.meeds.social.cms",
+  "io.meeds.social.navigation",
+  "io.meeds.social.activity",
+  "io.meeds.social.space.plugin",
   "io.meeds.social.space.category",
   "io.meeds.social.space.storage",
   "io.meeds.social.space.service",
+  "io.meeds.social.user",
+  "io.meeds.social.html",
+  "io.meeds.social.activity",
   AvailableIntegration.KERNEL_TEST_MODULE,
   AvailableIntegration.JPA_MODULE,
 }, exclude = {
   LiquibaseAutoConfiguration.class
 })
+@PropertySource("classpath:application.properties")
+@PropertySource("classpath:application-common.properties")
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
@@ -51,10 +63,26 @@ import io.meeds.spring.AvailableIntegration;
   @ConfigurationUnit(scope = ContainerScope.PORTAL, path = "conf/social.component.core-local-navigation-portal-configuration.xml"),
 })
 @RunWith(SpringRunner.class)
-public abstract class AbstractSpringConfigurationTest extends AbstractCoreTest {
+public abstract class AbstractSpringConfigurationTest extends AbstractSpringTest {
+
+  protected IdentityManager identityManager;
+
+  protected SpaceService    spaceService;
 
   protected AbstractSpringConfigurationTest() {
     AbstractSpringTest.setTestClass(AbstractSpringConfigurationTest.class);
+  }
+
+  @Before
+  public void setUp() {
+    begin();
+    this.identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
+    this.spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+  }
+
+  @After
+  public void tearDown() {
+    end();
   }
 
 }

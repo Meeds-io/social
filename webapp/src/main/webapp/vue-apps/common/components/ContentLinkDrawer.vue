@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
   This file is part of the Meeds project (https://meeds.io/).
 
-  Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+  Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -20,21 +19,25 @@
   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
-<configuration
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd http://www.exoplatform.org/xml/ns/kernel_1_2.xsd"
-   xmlns="http://www.exoplatform.org/xml/ns/kernel_1_2.xsd">
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.ActivityPermanentLinkPlugin</type>
-  </component>
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.SpacePermanentLinkPlugin</type>
-  </component>
-
-  <component>
-    <type>io.meeds.social.permlink.plugin.UserProfilePermanentLinkPlugin</type>
-  </component>
-
-</configuration>
+<template>
+  <!-- Inside $attrs we will have a href, thus the rule is valid, but not directly visible in Vue transpilation -->
+  <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+  <a
+    v-bind="$attrs"
+    @click.stop.prevent="open"
+    @keypress.enter.stop.prevent="open">
+    <slot></slot>
+  </a>
+</template>
+<script>
+export default {
+  methods: {
+    open() {
+      const objectParts = this.$attrs['data-object']?.split?.(':');
+      if (objectParts?.length === 2) {
+        window.require(['SHARED/ContentLink'], app => app.openPluginDrawer(objectParts[0], objectParts[1]));
+      }
+    },
+  },
+};
+</script>

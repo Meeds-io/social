@@ -114,6 +114,7 @@
               :max-length="maxLength"
               :tag-enabled="false"
               :oembed="richEditorOembed"
+              :content-link-enabled="contentLinkEnabled"
               autofocus
               @input="updateValue(language, $event)" />
           </v-col>
@@ -197,6 +198,10 @@ export default {
     rules: {
       type: Array,
       default: null,
+    },
+    contentLinkEnabled: {
+      type: Boolean,
+      default: false
     },
   },
   data: () => ({
