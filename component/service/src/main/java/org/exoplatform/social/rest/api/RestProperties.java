@@ -63,6 +63,8 @@ public class RestProperties {
 
   public static final String CAN_DELETE             = "canDelete";
 
+  public static final String CAN_MANAGE             = "canManage";
+
   public static final String CAN_PIN                = "canPin";
 
   public static final String MEMBERS_COUNT          = "membersCount";

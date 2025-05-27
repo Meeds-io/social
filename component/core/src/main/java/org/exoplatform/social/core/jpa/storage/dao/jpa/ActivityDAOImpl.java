@@ -916,6 +916,19 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return query.getResultList();
   }
 
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceIdentityId) {
+    if (spaceIdentityId == 0) {
+      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIds", Long.class)
+                               .getResultList();
+    } else {
+      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIdsBySpaceId", Long.class)
+                               .setParameter("spaceIdentityId", spaceIdentityId)
+                               .setParameter(STREAM_TYPE, StreamType.SPACE)
+                               .getResultList();
+    }
+  }
+
   private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter, List<String> streamIdentityIds, Class<T> clazz, boolean count) {
     List<String> suffixes = new ArrayList<>();
     List<String> predicates = new ArrayList<>();

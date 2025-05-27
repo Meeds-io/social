@@ -46,3 +46,49 @@ export function unlink(id, object) {
     }
   });
 }
+
+export async function updateCategories({
+  objectType,
+  objectId,
+  spaceId,
+  oldCategories,
+  newCategories,
+  dropExisting
+}) {
+  let result = true;
+  if (newCategories.length) {
+    const linkIds = newCategories.filter(id => oldCategories.indexOf(id) < 0);
+    if (linkIds?.length) {
+      for (let i = 0; i < linkIds.length; i++) {
+        const id = linkIds[i];
+        // Sequentially update links
+        // eslint-disable-next-line no-await-in-loop
+        const linkResult = await link(id, {
+          type: objectType,
+          id: objectId,
+          spaceId,
+        }).then(() => true).catch(() => false);
+        result = result || linkResult;
+      }
+    }
+  }
+  if (dropExisting && oldCategories?.length) {
+    const unlinkIds = oldCategories.filter(id => newCategories.indexOf(id) < 0);
+    if (unlinkIds?.length) {
+      for (let i = 0; i < unlinkIds.length; i++) {
+        const id = unlinkIds[i];
+        // Sequentially update links
+        // eslint-disable-next-line no-await-in-loop
+        const unlinkResult = await unlink(id, {
+          type: objectType,
+          id: objectId,
+          spaceId,
+        }).then(() => true).catch(() => false);
+        result = result || unlinkResult;
+      }
+    }
+  }
+  if (!result) {
+    throw new Error('Error while updating categories');
+  }
+}

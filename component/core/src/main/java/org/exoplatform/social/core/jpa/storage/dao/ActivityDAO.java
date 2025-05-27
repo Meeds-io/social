@@ -23,6 +23,7 @@ import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
+import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
 import org.exoplatform.social.core.storage.ActivityStorageException;
 
 /**
@@ -492,5 +493,12 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return
    */
   List<ActivityEntity> findActivities(List<Long> activityIds);
+
+
+  /**
+   * @param spaceIdentityId Space {@link Identity} identifier
+   * @return {@link List} of Category Ids used in Activities
+   */
+  List<Long> getActivityCategoryIds(long spaceIdentityId);
 
 }

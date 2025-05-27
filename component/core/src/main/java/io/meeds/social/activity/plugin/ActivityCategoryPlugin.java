@@ -58,8 +58,8 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
   }
 
   @Override
-  public List<Long> getCategoryIds() {
-    return activityManager.getActivityCategoryIds();
+  public List<Long> getCategoryIds(long spaceId) {
+    return activityManager.getActivityCategoryIds(spaceId);
   }
 
 }
