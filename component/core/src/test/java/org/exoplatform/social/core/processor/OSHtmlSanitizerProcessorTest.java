@@ -16,11 +16,7 @@
  */
 package org.exoplatform.social.core.processor;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.test.AbstractCoreTest;

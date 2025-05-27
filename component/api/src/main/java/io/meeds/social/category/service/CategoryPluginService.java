@@ -20,6 +20,8 @@ package io.meeds.social.category.service;
 
 import java.util.List;
 
+import org.exoplatform.social.core.space.model.Space;
+
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
@@ -48,8 +50,9 @@ public interface CategoryPluginService {
 
   /**
    * @param objectType {@link CategoryObject} type
+   * @param spaceId {@link Space} identifier
    * @return {@link List} of {@link Category} Ids associated to an object type
    */
-  List<Long> getCategoryIds(String objectType);
+  List<Long> getCategoryIds(String objectType, long spaceId);
 
 }

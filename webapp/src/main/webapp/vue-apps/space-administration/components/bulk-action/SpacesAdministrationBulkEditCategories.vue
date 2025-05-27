@@ -38,11 +38,14 @@ export default {
         async (space) => {
           const oldCategoryIds = space.categoryIds || [];
           const newCategoryIds = params.categoryIds || [];
-          await this.$spaceCategoryService.updateCategories(
-            space.id,
-            oldCategoryIds.slice(),
-            newCategoryIds.slice(),
-            params.dropExisting);
+          await this.$categoryLinkService.updateCategories({
+            objectType: 'space',
+            objectId: space.id,
+            spaceId: space.id,
+            oldCategoryIds: oldCategoryIds.slice(),
+            newCategoryIds: newCategoryIds.slice(),
+            dropExisting: params.dropExisting
+          });
           const categoryIds = newCategoryIds.slice();
           if (!params.dropExisting && oldCategoryIds.length) {
             categoryIds.push(...oldCategoryIds.filter(id => categoryIds.indexOf(id) < 0));
