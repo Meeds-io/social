@@ -1241,6 +1241,8 @@ public class EntityBuilder {
     activityEntity.setCanEdit(canEdit);
     boolean canDelete = getActivityManager().isActivityDeletable(activity, getCurrentUserIdentity());
     activityEntity.setCanDelete(canDelete);
+    boolean canManage = getActivityManager().isActivityManageable(activity, getCurrentUserIdentity());
+    activityEntity.setCanManage(canManage);
     boolean canPin = getActivityManager().canPinActivity(activity, authentiatedUser);
     activityEntity.setCanPin(canPin);
     activityEntity.setCategoryIds(activity.getCategoryIds());

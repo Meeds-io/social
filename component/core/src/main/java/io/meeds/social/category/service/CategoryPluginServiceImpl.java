@@ -31,7 +31,7 @@ import io.meeds.social.category.plugin.CategoryPlugin;
 @Service
 public class CategoryPluginServiceImpl implements CategoryPluginService {
 
-  @Autowired
+  @Autowired(required = false)
   private List<CategoryPlugin>        categoryPlugins;
 
   private Map<String, CategoryPlugin> categoryPluginsByType = new HashMap<>();
@@ -59,8 +59,8 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   }
 
   @Override
-  public List<Long> getCategoryIds(String objectType) {
-    return getCategoryPlugin(objectType).getCategoryIds();
+  public List<Long> getCategoryIds(String objectType, long spaceId) {
+    return getCategoryPlugin(objectType).getCategoryIds(spaceId);
   }
 
 }

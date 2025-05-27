@@ -190,7 +190,6 @@ export default {
       loading: false,
       attachments: null,
       activityToolbarAction: false,
-      postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
       spaceIdentity: null,
       spaceId: eXo.env.portal.spaceId,
@@ -198,6 +197,9 @@ export default {
     };
   },
   computed: {
+    postToNetwork() {
+      return eXo.env.portal.postToNetworkEnabled && this.$root.settings.allowPostToNetwork;
+    },
     composerPlaceholder() {
       return this.$t('activity.composer.placeholder');
     },

@@ -1,4 +1,10 @@
-export function getActivities(spaceId, streamType, limit, expand) {
+export function getActivitiesByFilter({
+  spaceId,
+  streamType,
+  limit,
+  expand,
+  categoryIds
+}) {
   const formData = new FormData();
 
   if (spaceId) {
@@ -11,6 +17,10 @@ export function getActivities(spaceId, streamType, limit, expand) {
   
   if (streamType) {
     formData.append('streamType', streamType.toUpperCase());
+  }
+
+  if (categoryIds?.length) {
+    categoryIds.forEach(c => formData.append('categoryId', c));
   }
 
   if (expand) {
