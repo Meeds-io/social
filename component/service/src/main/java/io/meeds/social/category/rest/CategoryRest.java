@@ -81,6 +81,9 @@ public class CategoryRest {
                                       @Parameter(description = "Category Owner Identity Id. Can be 0 to retrieve the Platform Main Tree.")
                                       @RequestParam(name = "ownerId", required = false, defaultValue = "0")
                                       long ownerId,
+                                      @Parameter(description = "Space identifier: filter categories used inside a designated space", required = false)
+                                      @RequestParam(name = "spaceId", required = false, defaultValue = "0")
+                                      long spaceId,
                                       @Parameter(description = "Sub Categories levels")
                                       @RequestParam(name = "depth", required = false, defaultValue = "0")
                                       long depth,
@@ -106,7 +109,8 @@ public class CategoryRest {
                                                                                    offset,
                                                                                    limit,
                                                                                    linkPermission,
-                                                                                   true),
+                                                                                   true,
+                                                                                   spaceId),
                                                                 request.getRemoteUser(),
                                                                 request.getLocale());
     if (categoryTree == null) {
@@ -125,6 +129,9 @@ public class CategoryRest {
                                   @Parameter(description = "Category Identifier")
                                   @PathVariable(name = "id", required = true)
                                   long id,
+                                  @Parameter(description = "Space identifier: filter categories used inside a designated space", required = false)
+                                  @RequestParam(name = "spaceId", required = false, defaultValue = "0")
+                                  long spaceId,
                                   @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
                                   @RequestParam(name = "token", required = false)
                                   String token) {
@@ -138,7 +145,8 @@ public class CategoryRest {
                                                                                    0,
                                                                                    0,
                                                                                    true,
-                                                                                   false),
+                                                                                   false,
+                                                                                   spaceId),
                                                                 request.getRemoteUser(),
                                                                 request.getLocale());
     if (categoryTree == null) {
