@@ -86,6 +86,7 @@
             prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
             class="login-password border-box-sizing"
             name="password"
+            aria-required="true"
             required="required"
             outlined
             dense
