@@ -16,6 +16,7 @@ import ActivityHead from './components/activity/header/ActivityHead.vue';
 import ActivityMobileHead from './components/activity/header/ActivityMobileHead.vue';
 import ActivityHeadTime from './components/activity/header/ActivityHeadTime.vue';
 import ActivityHeadMenu from './components/activity/header/ActivityHeadMenu.vue';
+import ActivityCategories from './components/activity/header/ActivityCategories.vue';
 import ActivityBody from './components/activity/content/ActivityBody.vue';
 import ActivityLink from './components/activity/content/ActivityLink.vue';
 import ActivityShare from './components/activity/content/ActivityShare.vue';
@@ -63,6 +64,7 @@ const components = {
   'activity-mobile-head': ActivityMobileHead,
   'activity-head-time': ActivityHeadTime,
   'activity-head-menu': ActivityHeadMenu,
+  'activity-categories': ActivityCategories,
   'activity-body': ActivityBody,
   'activity-link': ActivityLink,
   'activity-share': ActivityShare,
