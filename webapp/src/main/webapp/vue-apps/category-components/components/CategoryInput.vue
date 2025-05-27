@@ -153,7 +153,7 @@ export default {
   }),
   computed: {
     filteredCategories() {
-      return this.categories?.filter?.(cat => cat && !cat.locked) || [];
+      return this.categories?.filter?.(cat => cat && cat.name && !cat.locked) || [];
     },
     sortedCategories() {
       return this.filteredCategories.slice().sort(this.comparator);
