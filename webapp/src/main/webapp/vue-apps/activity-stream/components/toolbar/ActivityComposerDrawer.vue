@@ -155,9 +155,18 @@
         <category-input
           v-if="allowFilteringPerCategory"
           v-model="selectedCategoryIds"
-          :label="$t('activityStream.label.addCategories')"
-          label-class="text-body font-weight-bold"
-          class="mx-4 mt-5 mb-4" />
+          class="mx-4 mt-5 mb-4">
+          <template #label>
+            <div class="d-flex flex-column flex-grow-1 flex-shrink-1 text-truncate">
+              <div class="text-body font-weight-bold">
+                {{ $t('activityStream.label.addCategories') }}
+              </div>
+              <div v-if="filteredCategoryIds?.length && !selectedCategoryIds?.length" class="text-subtitle">
+                {{ $t('activityStream.label.mandatoryCategories') }}
+              </div>
+            </div>
+          </template>
+        </category-input>
       </v-card>
     </template>
     <template #footer>
@@ -203,6 +212,7 @@ export default {
       spaceId: eXo.env.portal.spaceId,
       username: eXo.env.portal.userName,
       allowFilteringPerCategory: this.allowFilteringPerCategory,
+      filteredCategoryIds: [],
       selectedCategoryIds: [],
     };
   },
@@ -243,7 +253,8 @@ export default {
           || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited)
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
           || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
-          || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
+          || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited)
+          || (!this.selectedCategoryIds.length && this.filteredCategoryIds?.length);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -360,7 +371,12 @@ export default {
         this.activityType = [];
       }
       this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
-      this.selectedCategoryIds = [];
+      this.filteredCategoryIds = !params?.activityId && params?.filteredCategoryIds;
+      if (this.allowFilteringPerCategory && this.filteredCategoryIds?.length === 1) {
+        this.selectedCategoryIds = this.filteredCategoryIds.slice();
+      } else {
+        this.selectedCategoryIds = [];
+      }
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
         this.messageEdited = false;

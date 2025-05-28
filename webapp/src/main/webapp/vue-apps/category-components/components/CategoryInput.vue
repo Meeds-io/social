@@ -25,7 +25,9 @@
     color="transparent"
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
+      <slot v-if="$slots.label" name="label"></slot>
       <div
+        v-else
         :class="labelClass"
         class="flex-grow-1 flex-shrink-1 text-truncate">
         {{ $t(label) }}

@@ -259,6 +259,7 @@ export default {
           activityType: [],
           spaceId: this.spaceId,
           allowFilteringPerCategory: this.$root.allowFilteringPerCategory,
+          filteredCategoryIds: this.$root.settings?.categoryIds,
         }}));
       });
     },
