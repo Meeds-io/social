@@ -26,10 +26,17 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.container.PortalContainer;
+
+import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
+import io.meeds.social.category.plugin.DefaultCategoryPlugin;
 
 @Service
 public class CategoryPluginServiceImpl implements CategoryPluginService {
+
+  @Autowired
+  private PortalContainer             container;
 
   @Autowired(required = false)
   private List<CategoryPlugin>        categoryPlugins;
@@ -50,7 +57,8 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
                                                  t -> categoryPlugins.stream()
                                                                      .filter(c -> c.getType().equals(t))
                                                                      .findFirst()
-                                                                     .orElseThrow());
+                                                                     .orElseGet(() -> new DefaultCategoryPlugin(container,
+                                                                                                                objectType)));
   }
 
   @Override
@@ -61,6 +69,11 @@ public class CategoryPluginServiceImpl implements CategoryPluginService {
   @Override
   public List<Long> getCategoryIds(String objectType, long spaceId) {
     return getCategoryPlugin(objectType).getCategoryIds(spaceId);
+  }
+
+  @Override
+  public CategoryObject getObject(CategoryObject object) {
+    return getCategoryPlugin(object.getType()).getObject(object);
   }
 
 }

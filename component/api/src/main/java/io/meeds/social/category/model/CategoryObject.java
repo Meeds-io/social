@@ -35,4 +35,7 @@ public class CategoryObject extends MetadataObject {
     super(type, id, parentObjectId, spaceId);
   }
 
+  public CategoryObject(MetadataObject object) {
+    this(object.getType(), object.getId(), object.getParentId(), object.getSpaceId());
+  }
 }
