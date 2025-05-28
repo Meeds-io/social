@@ -106,6 +106,12 @@ export default {
       }, 500);
     }
   },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
+  },
   methods: {
     displayActivityDetail(activityId, commentId) {
       this.loaded = false;

@@ -53,11 +53,11 @@ export default {
       this.$emit('openDrawer');
     },
     openComments() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
         offset: 0,
         limit: (this.commentNumber || 10) * 2, // To display all
-      }}));
+      });
     },
   }
 };
