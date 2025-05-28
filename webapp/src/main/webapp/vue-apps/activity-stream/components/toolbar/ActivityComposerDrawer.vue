@@ -18,6 +18,7 @@
   <exo-drawer
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
+    v-if="singleton"
     v-model="drawer"
     v-draggable="enabled"
     disable-pull-to-refresh
@@ -27,7 +28,7 @@
     <template #title>
       {{ $t('activity.composer.title') }}
     </template>
-    <template #content>
+    <template v-if="drawer" #content>
       <v-card flat>
         <div v-if="!activityId">
           <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
@@ -153,7 +154,7 @@
           type="activity-composer-footer-action" />
       </v-card>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -181,6 +182,7 @@ export default {
       message: '',
       files: null,
       templateParams: {},
+      singleton: true,
       drawer: false,
       activityBodyEdited: false,
       activityAttachmentsEdited: false,
@@ -301,12 +303,30 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
-    document.addEventListener('activity-created', this.cleareActivityMessage);
-    document.addEventListener('activity-updated', this.cleareActivityMessage);
+    document.addEventListener('activity-created', this.clearActivityMessage);
+    document.addEventListener('activity-updated', this.clearActivityMessage);
+  },
+  mounted() {
+    if (document.querySelectorAll('#activityComposerDrawer').length > 1) {
+      this.singleton = false;
+      this.clearListeners();
+    }
+  },
+  beforeDestroy() {
+    this.clearListeners();
   },
   methods: {
+    clearListeners() {
+      document.removeEventListener('activity-composer-drawer-open', this.open);
+      document.removeEventListener('activity-composer-edited', this.isActivityBodyEdited);
+      document.removeEventListener('activity-composer-closed', this.close);
+      document.removeEventListener('activity-created', this.clearActivityMessage);
+      document.removeEventListener('activity-updated', this.clearActivityMessage);
+    },
     isActivityBodyEdited(event) {
-      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      if (this.drawer) {
+        this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      }
     },
     attachmentsEdit(attachments, changed) {
       this.attachments = attachments;
@@ -447,7 +467,7 @@ export default {
         return Promise.resolve(activity);
       }
     },
-    cleareActivityMessage() {
+    clearActivityMessage() {
       if (localStorage.getItem('activity-message-activityComposer')) {
         localStorage.removeItem('activity-message-activityComposer');
       }
