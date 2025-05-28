@@ -257,7 +257,8 @@ export default {
           activityParams: this.activityParams,
           files: [],
           activityType: [],
-          spaceId: this.spaceId
+          spaceId: this.spaceId,
+          allowFilteringPerCategory: this.$root.allowFilteringPerCategory,
         }}));
       });
     },
