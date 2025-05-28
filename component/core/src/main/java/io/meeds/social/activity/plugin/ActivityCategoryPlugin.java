@@ -24,9 +24,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.manager.ActivityManager;
 
+import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
 
 @Component
@@ -35,10 +37,10 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
   public static final String OBJECT_TYPE            = ExoSocialActivityImpl.DEFAULT_ACTIVITY_METADATA_OBJECT_TYPE;
 
   @Autowired
-  private ActivityManager     activityManager;
+  private ActivityManager    activityManager;
 
   @Autowired
-  private UserACL             userAcl;
+  private UserACL            userAcl;
 
   @Override
   public String getType() {
@@ -56,8 +58,19 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
   }
 
   @Override
+  public List<Long> getCategoryIds() {
+    return getCategoryIds(0l);
+  }
+
+  @Override
   public List<Long> getCategoryIds(long spaceId) {
     return activityManager.getActivityCategoryIds(spaceId);
+  }
+
+  @Override
+  public CategoryObject getObject(CategoryObject categoryObject) {
+    ExoSocialActivity activity = activityManager.getActivity(categoryObject.getId());
+    return activity == null ? categoryObject : new CategoryObject(activity.getMetadataObject());
   }
 
 }
