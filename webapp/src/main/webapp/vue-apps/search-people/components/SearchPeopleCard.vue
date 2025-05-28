@@ -3,9 +3,6 @@
     <v-card
       @click="openUserProfile()"
       class="border-box-sizing fill-height"
-      :class="{
-        'full-width': isMobile
-      }"
       width="350"
       :height="80"
       :min-height="80"
