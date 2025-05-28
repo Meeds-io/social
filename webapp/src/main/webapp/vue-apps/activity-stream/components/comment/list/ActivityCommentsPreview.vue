@@ -99,9 +99,9 @@ export default {
         .finally(() => this.loading = false);
     },
     openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
-      }}));
+      });
     },
   },
 };
