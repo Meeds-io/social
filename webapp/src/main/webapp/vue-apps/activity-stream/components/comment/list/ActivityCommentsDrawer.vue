@@ -2,18 +2,19 @@
   <exo-drawer
     ref="activityCommentsDrawer"
     v-draggable="enabled"
+    v-model="drawer"
     :temporary="temporaryDrawer"
     id="activityCommentsDrawer"
     allow-expand
     right
     disable-pull-to-refresh
     @closed="reset">
-    <template slot="title">
+    <template #title>
       <span class="text-capitalize-first-letter">
         {{ commentsTitle }}
       </span>
     </template>
-    <template slot="titleIcons">
+    <template #titleIcons>
       <v-btn
         class="my-auto"
         elevation="0"
@@ -23,7 +24,7 @@
         <v-icon color="primary">mdi-chat-plus</v-icon>
       </v-btn>
     </template>
-    <template slot="content">
+    <template v-if="drawer" #content>
       <activity-comments
         ref="activityComments"
         :activity="activity"
@@ -73,6 +74,7 @@ export default {
     activity: null,
     initialized: false,
     drawerOpened: false,
+    drawer: true,
     temporaryDrawer: true,
     newCommentEditor: false,
     selectedCommentIdToReply: null,
@@ -101,20 +103,31 @@ export default {
     },
     enabled() {
       return eXo.env.portal.editorAttachImageEnabled && eXo.env.portal.attachmentObjectTypes?.indexOf(this.objectType) >= 0;
-    }
+    },
   },
   created() {
-    document.addEventListener('activity-comments-display', this.displayActivityComments);
     document.addEventListener('activity-comment-edit', this.editActivityComments);
     document.addEventListener('search-metadata-tag', this.closeDrawer);
 
+    this.$root.$on('activity-comments-display', this.displayActivityComments);
     this.$root.$on('activity-comment-created', this.hideCommentRichEditor);
     this.$root.$on('activity-comment-updated', this.hideCommentRichEditor);
     this.$root.$on('activity-comment-edit-cancel', this.hideCommentRichEditor);
 
     // Avoid closing drawer when closing dialog
-    this.$root.$on('activity-stream-confirm-opened', () => this.temporaryDrawer = false);
-    this.$root.$on('activity-stream-confirm-closed', () => this.temporaryDrawer = true);
+    this.$root.$on('activity-stream-confirm-opened', this.removeTemporaryDrawer);
+    this.$root.$on('activity-stream-confirm-closed', this.setTemporaryDrawer);
+  },
+  beforeDestroy() {
+    document.removeEventListener('activity-comment-edit', this.editActivityComments);
+    document.removeEventListener('search-metadata-tag', this.closeDrawer);
+
+    this.$root.$off('activity-comments-display', this.displayActivityComments);
+    this.$root.$off('activity-comment-created', this.hideCommentRichEditor);
+    this.$root.$off('activity-comment-updated', this.hideCommentRichEditor);
+    this.$root.$off('activity-comment-edit-cancel', this.hideCommentRichEditor);
+    this.$root.$off('activity-stream-confirm-opened', this.removeTemporaryDrawer);
+    this.$root.$off('activity-stream-confirm-closed', this.setTemporaryDrawer);
   },
   methods: {
     reset() {
@@ -127,6 +140,12 @@ export default {
       this.limit = this.pageSize;
       this.hideCommentRichEditor();
       this.$root.selectedCommentId = null;
+    },
+    setTemporaryDrawer() {
+      this.temporaryDrawer = true;
+    },
+    removeTemporaryDrawer() {
+      this.temporaryDrawer = false;
     },
     closeDrawer() {
       this.reset();
@@ -175,16 +194,15 @@ export default {
         const activityBody = event && event.detail && event.detail.activityBody;
         comment.contentToEdit = activityBody;
 
-        this.displayActivityComments({options: {
+        this.displayActivityComments({
           activity: activity,
           editComment: comment,
           offset: this.offset,
           limit: this.limit,
-        }});
+        });
       }
     },
-    displayActivityComments(event) {
-      const options = event && (event.detail || event.options);
+    displayActivityComments(options) {
       // Activity object with its identifier is mandatory
       if (options && options.activity && options.activity.id) {
         this.hideCommentRichEditor();

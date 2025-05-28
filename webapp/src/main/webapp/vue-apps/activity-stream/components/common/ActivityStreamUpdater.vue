@@ -55,10 +55,23 @@ export default {
     this.$root.$on('activity-stream-activity-updateComment', this.handleActivityUnread);
     this.$root.$on('activity-stream-activity-likeComment', this.handleActivityUnread);
     this.$root.$on('activity-stream-activity-pinActivity', this.handleActivityPin);
-    document.addEventListener('notification.unread.item', this.handleActivityUnreadEvent);
-
     this.$root.$on('activity-stream-reset-filter', this.init);
-    document.addEventListener('activity-stream-type-filter-applied', this.init);
+    this.$root.$on('activity-stream-type-filter-applied', this.init);
+    document.addEventListener('notification.unread.item', this.handleActivityUnreadEvent);
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-stream-activity-createActivity', this.increaseActivitiesLimitToRetrieve);
+    this.$root.$off('activity-stream-activity-deleteActivity', this.broadcastActivityDeleted);
+    this.$root.$off('activity-stream-activity-deleteComment', this.broadcastCommentDeleted);
+    this.$root.$off('activity-stream-activity-likeActivity', this.handleActivityUnread);
+    this.$root.$off('activity-stream-activity-updateActivity', this.handleActivityUnread);
+    this.$root.$off('activity-stream-activity-createComment', this.handleActivityUnread);
+    this.$root.$off('activity-stream-activity-updateComment', this.handleActivityUnread);
+    this.$root.$off('activity-stream-activity-likeComment', this.handleActivityUnread);
+    this.$root.$off('activity-stream-activity-pinActivity', this.handleActivityPin);
+    this.$root.$off('activity-stream-reset-filter', this.init);
+    this.$root.$off('activity-stream-type-filter-applied', this.init);
+    document.removeEventListener('notification.unread.item', this.handleActivityUnreadEvent);
   },
   methods: {
     init() {
