@@ -152,6 +152,12 @@
           :params="extensionParams"
           name="ActivityComposerFooterAction"
           type="activity-composer-footer-action" />
+        <category-input
+          v-if="allowFilteringPerCategory"
+          v-model="selectedCategoryIds"
+          :label="$t('activityStream.label.addCategories')"
+          label-class="text-body font-weight-bold"
+          class="mx-4 mt-5 mb-4" />
       </v-card>
     </template>
     <template #footer>
@@ -195,7 +201,9 @@ export default {
       audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
       spaceIdentity: null,
       spaceId: eXo.env.portal.spaceId,
-      username: eXo.env.portal.userName
+      username: eXo.env.portal.userName,
+      allowFilteringPerCategory: this.allowFilteringPerCategory,
+      selectedCategoryIds: [],
     };
   },
   computed: {
@@ -351,6 +359,8 @@ export default {
         this.files = [];
         this.activityType = [];
       }
+      this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
+      this.selectedCategoryIds = [];
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
         this.messageEdited = false;
@@ -392,8 +402,8 @@ export default {
           })
           .catch(error => {
             // eslint-disable-next-line no-console
-            console.error(`Error when updating the activity: ${error}`);
-            // TODO Display error Message
+            console.error('Error when updating the activity', error);
+            this.$root.$emit('alert-message', this.$t('activityStream.errorCreatingActivity'), 'error');
           })
           .finally(() => this.loading = false);
       } else {
@@ -420,14 +430,25 @@ export default {
             .then(this.postSaveMessage)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
+              if (this.selectedCategoryIds?.length) {
+                return this.$categoryLinkService.updateCategories({
+                  objectType: 'activity',
+                  objectId: this.activityId,
+                  spaceId: this.spaceId,
+                  oldCategories: [],
+                  newCategories: this.selectedCategoryIds,
+                });
+              }
+            })
+            .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.resetAudienceChoice();
               this.close();
             })
             .catch(error => {
               // eslint-disable-next-line no-console
-              console.error(`Error when posting message: ${error}`);
-              // TODO Display error Message
+              console.error('Error when posting message', error);
+              this.$root.$emit('alert-message', this.$t('activityStream.errorUpdatingActivity'), 'error');
             })
             .finally(() => this.loading = false);
         }
