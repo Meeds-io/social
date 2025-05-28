@@ -66,7 +66,7 @@ public class ActivityOberverPlugin extends ObserverPlugin {
     if (activity == null) {
       throw new ObjectNotFoundException(String.format(ACTIVITY_WITH_ID_NOT_FOUND, objectId));
     }
-    org.exoplatform.social.core.identity.model.Identity identity = identityManager.getIdentity(String.valueOf(identityId));
+    org.exoplatform.social.core.identity.model.Identity identity = identityManager.getIdentity(identityId);
     if (identity == null) {
       throw new ObjectNotFoundException(String.format("Identity with id  %s doesn't exist", identityId));
     }
