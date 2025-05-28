@@ -55,4 +55,13 @@ public interface CategoryPluginService {
    */
   List<Long> getCategoryIds(String objectType, long spaceId);
 
+  /**
+   * In some cases such as Activities, the Metadata Object is different, thus
+   * this method is used to switch the associated {@link CategoryObject}
+   *
+   * @param object {@link CategoryObject}
+   * @return {@link CategoryObject}
+   */
+  CategoryObject getObject(CategoryObject object);
+
 }

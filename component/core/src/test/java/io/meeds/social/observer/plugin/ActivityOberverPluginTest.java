@@ -100,7 +100,7 @@ public class ActivityOberverPluginTest {
     assertThrows(ObjectNotFoundException.class, () -> activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
     when(activityManager.getActivity(OBJECT_ID)).thenReturn(activity);
     assertThrows(ObjectNotFoundException.class, () -> activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
-    when(identityManager.getIdentity(String.valueOf(IDENTITY_ID))).thenReturn(identity);
+    when(identityManager.getIdentity(IDENTITY_ID)).thenReturn(identity);
     assertThrows(IllegalStateException.class, () -> activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
     when(identityRegistry.getIdentity(USER_NAME)).thenReturn(aclIdentity);
     assertFalse(activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));

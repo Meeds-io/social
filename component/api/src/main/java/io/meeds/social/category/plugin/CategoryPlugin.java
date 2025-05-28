@@ -21,6 +21,7 @@ package io.meeds.social.category.plugin;
 import java.util.List;
 
 import io.meeds.social.category.model.Category;
+import io.meeds.social.category.model.CategoryObject;
 
 public interface CategoryPlugin {
 
@@ -71,6 +72,10 @@ public interface CategoryPlugin {
    */
   default List<Long> getCategoryIds(long spaceId) {
     return getCategoryIds();
+  }
+
+  default CategoryObject getObject(CategoryObject metadataObject) {
+    return metadataObject;
   }
 
 }
