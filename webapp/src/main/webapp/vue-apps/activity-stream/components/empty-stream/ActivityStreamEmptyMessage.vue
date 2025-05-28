@@ -103,7 +103,9 @@ export default {
   },
   methods: {
     openComposer() {
-      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open'));
+      document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
+        allowFilteringPerCategory: this.$root.allowFilteringPerCategory,
+      }}));
     },
     sendKudos() {
       this.getSendKudosElement().click();
