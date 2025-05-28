@@ -24,7 +24,6 @@ import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGOR
 import java.util.List;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -88,15 +87,10 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
       String activityId = object.getId();
       ExoSocialActivity activity = activityManager.getActivity(activityId);
       if (activity != null) {
-        long spaceId = StringUtils.isBlank(activity.getSpaceId()) ?
-                                                                  0l :
-                                                                  Long.parseLong(activity.getSpaceId());
-        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(activity.getMetadataObjectType(),
-                                                                                     activity.getMetadataObjectId(),
-                                                                                     activity.getMetadataObjectParentId(),
-                                                                                     spaceId));
+        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(activity.getMetadataObject()));
         if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(categoryIds)
-            || (CollectionUtils.size(categoryIds) > 0 && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {
+            || (CollectionUtils.size(categoryIds) > 0
+                && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {
           activity.setCategoryIds(categoryIds);
           activityManager.updateActivity(activity);
         }

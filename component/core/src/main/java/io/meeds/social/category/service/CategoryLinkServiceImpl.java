@@ -20,6 +20,7 @@ package io.meeds.social.category.service;
 
 import java.util.List;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +59,7 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   @Override
   public List<Long> getLinkedIds(CategoryObject object) {
-    return categoryStorage.getLinkedIds(object);
+    return categoryStorage.getLinkedIds(getObject(object));
   }
 
   @Override
@@ -68,15 +69,16 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   @Override
   public boolean isLinked(long categoryId, CategoryObject object) {
-    return categoryStorage.isLinked(categoryId, object);
+    return categoryStorage.isLinked(categoryId, getObject(object));
   }
 
   @Override
   public void link(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                             ObjectAlreadyExistsException,
                                                                             IllegalAccessException {
-    checkCanManageLink(categoryId, object, username);
-    if (isLinked(categoryId, object)) {
+    CategoryObject transfomedObject = getObject(object);
+    checkCanManageLink(categoryId, transfomedObject, username);
+    if (isLinked(categoryId, transfomedObject)) {
       throw new ObjectAlreadyExistsException(object);
     }
     long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(username).getId());
@@ -91,14 +93,19 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   @Override
   public void unlink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
                                                                               IllegalAccessException {
-    checkCanManageLink(categoryId, object, username);
+    CategoryObject transfomedObject = getObject(object);
+    checkCanManageLink(categoryId, transfomedObject, username);
     unlink(categoryId, object);
   }
 
   @Override
   public void unlink(long categoryId, CategoryObject object) {
-    categoryStorage.unlink(categoryId, object);
-    listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, object);
+    CategoryObject transfomedObject = getObject(object);
+    categoryStorage.unlink(categoryId, transfomedObject);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, transfomedObject);
+    if (ObjectUtils.notEqual(object, transfomedObject)) {
+      listenerService.broadcast(EVENT_CATEGORY_LINK_REMOVED, categoryId, object);
+    }
   }
 
   private void checkCanManageLink(long categoryId, CategoryObject object, String username) throws ObjectNotFoundException,
@@ -118,8 +125,12 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
   }
 
   private void link(long categoryId, CategoryObject object, long userIdentityId) {
-    categoryStorage.link(categoryId, object, userIdentityId);
-    listenerService.broadcast(EVENT_CATEGORY_LINK_ADDED, categoryId, object);
+    CategoryObject transfomedObject = getObject(object);
+    categoryStorage.link(categoryId, transfomedObject, userIdentityId);
+    listenerService.broadcast(EVENT_CATEGORY_LINK_ADDED, categoryId, transfomedObject);
+    if (ObjectUtils.notEqual(object, transfomedObject)) {
+      listenerService.broadcast(EVENT_CATEGORY_LINK_ADDED, categoryId, object);
+    }
   }
 
   private long getSuperUserIdentityId() {
@@ -131,6 +142,10 @@ public class CategoryLinkServiceImpl implements CategoryLinkService {
 
   private boolean isAdministrator(String username) {
     return userAcl.isAdministrator(userAcl.getUserIdentity(username));
+  }
+
+  private CategoryObject getObject(CategoryObject object) {
+    return categoryPluginService.getObject(object);
   }
 
 }
