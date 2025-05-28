@@ -79,6 +79,9 @@ export async function init({
         categoryDepth() {
           return this.settings.categoryDepth || 4;
         },
+        preselectedCategoryIds() {
+          return this.selectedCategoryId ? [this.selectedCategoryId] : this.settings?.categoryIds;
+        },
       },
       watch: {
         async selectedCategoryId() {
