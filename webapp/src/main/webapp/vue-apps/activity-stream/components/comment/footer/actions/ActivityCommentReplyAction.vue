@@ -103,18 +103,18 @@ export default {
       this.hasCommented = this.comment && this.comment.hasCommented === 'true';
     },
     openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
         commentId: this.commentId,
         newComment: true,
-      }}));
+      });
     },
     openReplies() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
         commentId: this.commentId,
         highlightRepliesCommentId: this.commentId,
-      }}));
+      });
     },
   },
 };

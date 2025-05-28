@@ -94,10 +94,10 @@ export default {
       this.hasCommented = this.activity && this.activity.hasCommented === 'true';
     },
     openCommentsDrawer() {
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
         newComment: true,
-      }}));
+      });
     },
   },
 };
