@@ -22,21 +22,19 @@
 -->
 <template>
   <div v-if="categoriesCount" class="d-flex mb-auto me-2 pt-2px d-inline text-no-wrap">
-    <div class="d-flex overflow-hidden">
-      <v-fade-transition
-        v-for="(c, index) in filteredCategories"
-        :key="c.id">
-        <div v-if="!loading || loadedCategories[c.id]">
-          <category-chip
-            :ref="`category${index}`"
-            :category="c"
-            chip-class="flex-shrink-0 me-2"
-            breadcrumb
-            small
-            @select="selectCategory" />
-        </div>
-      </v-fade-transition>
-    </div>
+    <v-fade-transition
+      v-for="(c, index) in filteredCategories"
+      :key="c.id">
+      <div v-if="!initialized || !loading || loadedCategories[c.id]">
+        <category-chip
+          :ref="`category${index}`"
+          :category="c"
+          chip-class="flex-shrink-0 me-2"
+          breadcrumb
+          small
+          @select="selectCategory" />
+      </div>
+    </v-fade-transition>
     <v-btn
       v-if="remainingCount > 0"
       ref="moreButton"
@@ -69,6 +67,7 @@ export default {
     categories: null,
     moreDrawer: false,
     loading: false,
+    initialized: false,
     loadedCategories: {},
   }),
   computed: {
@@ -107,6 +106,7 @@ export default {
         }
       } finally {
         await this.$nextTick();
+        this.initialized = true;
         this.loading = false;
         this.categories.forEach(c => this.$set(this.loadedCategories, c.id, true));
       }
