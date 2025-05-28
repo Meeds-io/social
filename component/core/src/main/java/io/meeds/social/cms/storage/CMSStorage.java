@@ -20,7 +20,7 @@ package io.meeds.social.cms.storage;
 
 import java.util.List;
 
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.model.MetadataItem;
 import org.exoplatform.social.metadata.model.MetadataKey;
@@ -52,18 +52,14 @@ public class CMSStorage {
                           String name,
                           String pageReference,
                           long spaceId,
-                          long userCreatorId) throws org.exoplatform.commons.ObjectAlreadyExistsException {
+                          long userCreatorId) throws ObjectAlreadyExistsException {
     CMSSettingMetadataObject cmsSettingObject = new CMSSettingMetadataObject(type, name, spaceId);
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE,
                                               pageReference,
                                               spaceId);
-    try {
-      metadataService.createMetadataItem(cmsSettingObject,
-                                         metadataKey,
-                                         userCreatorId);
-    } catch (ObjectAlreadyExistsException e) {
-      throw new org.exoplatform.commons.ObjectAlreadyExistsException(cmsSettingObject);
-    }
+    metadataService.createMetadataItem(cmsSettingObject,
+                                       metadataKey,
+                                       userCreatorId);
   }
 
 }
