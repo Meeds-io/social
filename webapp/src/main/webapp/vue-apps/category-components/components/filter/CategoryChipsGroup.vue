@@ -21,7 +21,7 @@
 
 -->
 <template>
-  <div class="d-flex align-center specific-scrollbar overflow-x-auto position-relative d-inline text-no-wrap">
+  <div class="d-flex align-center specific-scrollbar overflow-x-auto overflow-y-hidden position-relative d-inline text-no-wrap">
     <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
       <category-chip
         v-for="(category, index) in categories"
