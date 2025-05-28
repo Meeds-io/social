@@ -1,7 +1,7 @@
-export function getStreamFilter() {
-  return localStorage.getItem(`activity-stream-stored-filter-${eXo.env.portal.spaceId || 'all'}`) || 'all_stream';
+export function getStreamFilter(appId) {
+  return localStorage.getItem(`activity-stream-stored-filter-${appId}`) || 'all_stream';
 }
 
-export function setStreamFilter(streamFilter) {
-  localStorage.setItem(`activity-stream-stored-filter-${eXo.env.portal.spaceId || 'all'}`, streamFilter);
+export function setStreamFilter(streamFilter, appId) {
+  localStorage.setItem(`activity-stream-stored-filter-${appId}`, streamFilter);
 }

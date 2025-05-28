@@ -264,11 +264,11 @@ export default {
         this.comment.expandSubComments = true;
         this.displayedSubCommentCount = this.subCommentsSize;
       } else {
-        document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+        this.$root.$emit('activity-comments-display', {
           activity: this.activity,
           commentId: this.commentId,
           highlightRepliesCommentId: this.commentId,
-        }}));
+        });
       }
     },
     scrollToReplies() {
