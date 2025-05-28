@@ -41,14 +41,14 @@
             </p>
           </v-list-item-title>
 
-          <component :is="$root.isMobile && 'div' || 'card-carousel'" :class="$root.isMobile && 'd-flex flex-column' || 'd-flex'">
+          <card-carousel class="d-flex">
             <div
               v-for="result in searchResults"
               :key="result.domId"
-              :class="$root.isMobile && 'pb-2' || 'pe-2'">
+               class="pe-2">
               <search-result-card :result="result" :term="term" />
             </div>
-          </component>
+          </card-carousel>
         </v-list-item-content>
       </v-list-item>
     </v-list>
