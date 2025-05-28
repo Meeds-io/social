@@ -25,7 +25,9 @@
     color="transparent"
     flat>
     <div class="d-flex overflow-hidden full-width mb-2">
+      <slot v-if="$slots.label" name="label"></slot>
       <div
+        v-else
         :class="labelClass"
         class="flex-grow-1 flex-shrink-1 text-truncate">
         {{ $t(label) }}
@@ -138,6 +140,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    filterPreselection: {
+      type: Boolean,
+      default: false,
+    },
     single: {
       type: Boolean,
       default: false,
@@ -192,20 +198,36 @@ export default {
     async refreshCategories() {
       this.loading = true;
       try {
-        this.categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
+        const categories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)
+          .then(c => {
+            if (c
+              && !c.canLink
+              && !this.accessPermission
+              && this.filterPreselection) {
+              return null;
+            } else {
+              return c;
+            }
+          })
           .catch(() => {
             this.lockedIds.push(id);
-            return {
+            return this.filterPreselection ? null : {
               id,
               locked: true,
             };
           })));
+        await this.$nextTick();
+        this.categories = categories.filter(c => c);
+        if (this.filterPreselection
+            && this.categories?.length !== this.categoryIds?.length) {
+          this.categoryIds = this.categories.map(c => c.id);
+        }
       } finally {
         this.loading = false;
       }
     },
     removeCategory(item) {
-      if (!item.locked) {
+      if (item.canLink && !item.locked) {
         this.categoryIds.splice(this.categoryIds.indexOf(item.id), 1);
         this.refreshCategories();
       }

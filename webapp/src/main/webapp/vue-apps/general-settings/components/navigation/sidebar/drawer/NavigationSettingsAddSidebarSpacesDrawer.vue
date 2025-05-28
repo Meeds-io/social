@@ -229,7 +229,7 @@ export default {
     },
     async spaceCategoryId() {
       if (this.spaceCategoryId) {
-        this.category = await this.$categoryService.getCategory(this.spaceCategoryId);
+        this.category = await this.$categoryService.getCategory(this.spaceCategoryId).catch(() => null);
       } else {
         this.category = null;
       }
