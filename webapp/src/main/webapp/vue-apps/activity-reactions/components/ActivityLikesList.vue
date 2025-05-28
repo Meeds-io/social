@@ -25,17 +25,16 @@ export default {
     };
   },
   created() {
+    this.$root.$on('activity-liked', this.handleActivityLikesUpdate);
     this.retrieveLikers();
     document.addEventListener('check-reactions', event => {
       if (event && event.detail && event.detail === this.activityId) {
         this.updateLikers();
       }
     });
-    document.addEventListener('activity-liked', event => {
-      if (event && event.detail && event.detail === this.activityId) {
-        this.retrieveLikers();
-      }
-    });
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-liked', this.handleActivityLikesUpdate);
   },
   watch: {
     activityId() {
@@ -43,6 +42,11 @@ export default {
     }
   },
   methods: {
+    handleActivityLikesUpdate(activityId) {
+      if (activityId === this.activityId) {
+        this.retrieveLikers();
+      }
+    },
     retrieveLikers() {
       return this.$activityService.getActivityLikers(this.activityId, 0)
         .then(data => {

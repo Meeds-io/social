@@ -154,59 +154,70 @@ export default {
     },
   },
   created() {
-    this.streamFilter = this.$activityUtils.getStreamFilter();
-    document.addEventListener('activity-favorite-removed', event => {
-      const favoriteActivity = event?.detail;
-      if (this.streamFilter === 'user_favorite_stream') {
-        this.$set(favoriteActivity, 'deleted', true);
-        const self = this;
-        setTimeout(function() {
-          const index = self.activities.findIndex(activity => favoriteActivity.id === activity.id);
-          if (index >= 0) {
-            self.activities.splice(index, 1);
-          }
-        }, 200);
-      }
-    });
-    document.addEventListener('activity-deleted', event => {
-      const activityId = event?.detail;
-      if (this.activityId === activityId) {
-        this.isDeleted = true;
-        const activity = this.activities.find(obj => activityId === obj.id);
-        if (activity) {
-          setTimeout(() => {
-            if (activity.activityStream.type === 'space') {
-              location.href = `${eXo.env.portal.context}/s/${activity.activityStream.space.id}`;
-            } else {
-              location.href = eXo.env.portal.context;
-            }
-          }, 500);
+    this.streamFilter = this.$activityUtils.getStreamFilter(this.$root.appId);
+    this.$root.$on('activity-favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$on('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$on('activity-updated', this.handleUpdated);
+    this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$on('activities-refresh', this.refreshActivities);
+    this.$root.$on('activity-read', this.markActivityAsRead);
+    this.$root.$on('activity-loaded', this.refreshUnreadCount);
+    this.$root.$on('categories-updated', this.refreshActivitiesByCategories);
+    document.addEventListener('activity-deleted', this.handleDeletedByEvent);
+    document.addEventListener('activity-pinned', this.handlePinnedByEvent);
+    document.addEventListener('activity-unpinned', this.handleUnpinnedByEvent);
+    document.addEventListener('activity-updated', this.handleUpdatedByEvent);
+
+    this.limit = this.pageSize;
+    this.retrievedSize = this.limit;
+    this.hasMore = false;
+    Promise.resolve(this.init())
+      .finally(() => {
+        if (this.$refs && this.$refs.activityUpdater) {
+          this.$refs.activityUpdater.init();
         }
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      });
+  },
+  beforeDestroy() {
+    this.$root.$off('activity-favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$off('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$off('activity-updated', this.handleUpdated);
+    this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$off('activities-refresh', this.refreshActivities);
+    this.$root.$off('activity-read', this.markActivityAsRead);
+    this.$root.$off('activity-loaded', this.refreshUnreadCount);
+    this.$root.$off('categories-updated', this.refreshActivitiesByCategories);
+    document.removeEventListener('activity-deleted', this.handleDeletedByEvent);
+    document.removeEventListener('activity-pinned', this.handlePinnedByEvent);
+    document.removeEventListener('activity-unpinned', this.handleUnpinnedByEvent);
+    document.removeEventListener('activity-updated', this.handleUpdatedByEvent);
+  },
+  methods: {
+    init() {
+      if (this.activityId) {
+        return this.loadActivity();
+      } else {
+        return this.loadActivityIds();
       }
-      if (activityId) {
-        const index = this.activities.findIndex(activity => activityId === activity.id);
-        if (index >= 0) {
-          this.activities.splice(index, 1);
-          this.$forceUpdate();
-        }
+    },
+    handleStreamTypeChanged(streamFilter) {
+      this.streamFilter = streamFilter;
+      this.activities = [];
+      this.loadActivityIds();
+    },
+    handleUpdated(activityId, activity) {
+      if (activity) {
+        this.updateActivityDisplay(activity);
+      } else {
+        this.updateActivityDisplayById(activityId);
       }
-    });
-    document.addEventListener('activity-pinned', event => {
-      if (this.pinActivityEnabled) {
-        const pinnedActivity = event?.detail;
-        this.$set(pinnedActivity, 'pinned', true);
-        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
-        this.activitiesToDisplay.splice(index, 1);
-        this.$forceUpdate();
-        const self = this;
-        setTimeout(function () {
-          self.activitiesToDisplay.unshift(pinnedActivity);
-          self.$forceUpdate();
-        }, 10);
-      }
-      this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
-    });
-    document.addEventListener('activity-unpinned', event => {
+    },
+    handleUpdatedByEvent(event) {
+      const activityId = event && event.detail;
+      this.updateActivityDisplayById(activityId);
+    },
+    handleUnpinnedByEvent(event) {
       if (this.pinActivityEnabled) {
         const unpinnedActivity = event?.detail;
         this.$set(unpinnedActivity, 'pinned', false);
@@ -232,54 +243,53 @@ export default {
         }, 50);
       }
       this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
-    });
-    document.addEventListener('activity-updated', event => {
-      const activityId = event && event.detail;
-      this.updateActivityDisplayById(activityId);
-
-    });
-    document.addEventListener('activity-stream-type-filter-applied', event => {
-      this.streamFilter = event && event.detail;
-      this.activities = [];
-      this.loadActivityIds();
-    });
-    this.$root.$on('activity-updated', (activityId, activity) => {
-      if (activity) {
-        this.updateActivityDisplay(activity);
-      } else {
-        this.updateActivityDisplayById(activityId);
+    },
+    handlePinnedByEvent(event) {
+      if (this.pinActivityEnabled) {
+        const pinnedActivity = event?.detail;
+        this.$set(pinnedActivity, 'pinned', true);
+        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
+        this.activitiesToDisplay.splice(index, 1);
+        this.$forceUpdate();
+        const self = this;
+        setTimeout(function () {
+          self.activitiesToDisplay.unshift(pinnedActivity);
+          self.$forceUpdate();
+        }, 10);
       }
-    });
-    this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
-    this.$root.$on('activities-refresh', this.refreshActivities);
-    this.$root.$on('activity-read', this.markActivityAsRead);
-    this.$root.$on('activity-loaded', this.refreshUnreadCount);
-    this.$root.$on('categories-updated', this.refreshActivitiesByCategories);
-
-    this.limit = this.pageSize;
-    this.retrievedSize = this.limit;
-    this.hasMore = false;
-    Promise.resolve(this.init())
-      .finally(() => {
-        if (this.$refs && this.$refs.activityUpdater) {
-          this.$refs.activityUpdater.init();
+      this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
+    },
+    handleDeletedByEvent(event) {
+      const activityId = event?.detail;
+      if (this.activityId === activityId) { // standalone
+        this.isDeleted = true;
+        const activity = this.activities.find(obj => this.activityId === obj.id);
+        if (activity) {
+          setTimeout(() => {
+            if (activity.activityStream.type === 'space') {
+              location.href = `${eXo.env.portal.context}/s/${activity.activityStream.space.id}`;
+            } else {
+              location.href = eXo.env.portal.context;
+            }
+          }, 500);
         }
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      });
-  },
-  beforeDestroy() {
-    this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
-    this.$root.$off('activities-refresh', this.refreshActivities);
-    this.$root.$off('activity-read', this.markActivityAsRead);
-    this.$root.$off('activity-loaded', this.refreshUnreadCount);
-    this.$root.$off('categories-updated', this.refreshActivitiesByCategories);
-  },
-  methods: {
-    init() {
-      if (this.activityId) {
-        return this.loadActivity();
-      } else {
-        return this.loadActivityIds();
+      } else if (activityId) { // stream
+        const index = this.activities.findIndex(activity => activityId === activity.id);
+        if (index >= 0) {
+          this.activities.splice(index, 1);
+          this.$forceUpdate();
+        }
+      }
+    },
+    handleFavoriteRemoved(activity) {
+      if (this.streamFilter === 'user_favorite_stream') {
+        this.$set(activity, 'deleted', true);
+        window.setTimeout(() => {
+          const index = this.activities.findIndex(a => activity.id === a.id);
+          if (index >= 0) {
+            this.activities.splice(index, 1);
+          }
+        }, 200);
       }
     },
     loadActivity() {
