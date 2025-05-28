@@ -38,7 +38,7 @@ export async function init({
     settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1);
   }
   try {
-    Vue.createApp({
+    await Vue.createApp({
       data: {
         settings: {
           allowPostToNetwork: true,
@@ -48,6 +48,7 @@ export async function init({
           categoryIds: [],
           ...settings,
         },
+        appId,
         spaceId: spaceId || eXo.env.portal.spaceId,
         saveSettingsUrl,
         canEdit,
