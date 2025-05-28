@@ -336,7 +336,8 @@ export default {
       if (!this.categoryIds?.length) {
         this.selectedSpaceCategories = [];
       } else {
-        this.selectedSpaceCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)));
+        const selectedSpaceCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id).catch(() => null)));
+        this.selectedSpaceCategories = selectedSpaceCategories.filter(c => c);
       }
     },
   },
