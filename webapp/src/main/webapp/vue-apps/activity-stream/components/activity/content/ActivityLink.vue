@@ -23,7 +23,7 @@
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
-            :alt="title"
+            alt=""
             :class="thumbnailClass"
             :style="imageMobileStyle"
             class="my-auto"
@@ -66,7 +66,7 @@
         <img
           v-if="thumbnail"
           :src="thumbnail"
-          :alt="title"
+          alt=""
           :class="thumbnailClass"
           class="my-auto"
           loading="lazy"
