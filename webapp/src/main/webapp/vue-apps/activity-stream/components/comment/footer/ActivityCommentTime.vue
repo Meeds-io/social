@@ -76,13 +76,13 @@ export default {
         event.preventDefault();
         event.stopPropagation();
       }
-      document.dispatchEvent(new CustomEvent('activity-comments-display', {detail: {
+      this.$root.$emit('activity-comments-display', {
         activity: this.activity,
         selectedCommentId: this.commentId,
         selectedActivityId: this.activity.id,
         offset: 0,
         limit: 200, // To display all
-      }}));
+      });
     },
   }
 };

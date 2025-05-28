@@ -18,12 +18,13 @@
   <exo-drawer
     id="filterStreamDrawer"
     ref="filterStreamDrawer"
+    v-model="drawer"
     body-classes="hide-scroll decrease-z-index-more"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('activity.filter.title') }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" #content>
       <div class="pa-5">
         <v-radio-group
           v-model="filter"
@@ -36,7 +37,7 @@
         </v-radio-group>
       </div>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="VuetifyApp flex d-flex">
         <v-btn
           class="dark-grey-color px-1 hidden-xs-only"
@@ -71,6 +72,7 @@
 <script>
 export default {
   data: () => ({
+    drawer: false,
     filterToChange: null,
     spaceId: eXo.env.portal.spaceId,
     filter: 'all_stream',
@@ -106,7 +108,7 @@ export default {
   },
   created() {
     this.$root.$on('activity-stream-reset-filter', this.resetFilter);
-    this.filter = this.$activityUtils.getStreamFilter();
+    this.filter = this.$activityUtils.getStreamFilter(this.$root.appId);
   },
   beforeDestroy() {
     this.$root.$off('activity-stream-reset-filter', this.resetFilter);
@@ -114,22 +116,23 @@ export default {
   methods: {
     applyFilter() {
       this.$root.$emit('close-alert-message');
+      this.$root.$emit('activity-stream-type-filter-applied', this.filter);
       document.dispatchEvent(new CustomEvent('activity-stream-type-filter-applied', {detail: this.filter}));
-      this.$activityUtils.setStreamFilter(this.filter);
+      this.$activityUtils.setStreamFilter(this.filter, this.$root.appId);
       this.$refs.filterStreamDrawer.close();
     },
     open() {
       this.$refs.filterStreamDrawer.open();
     },
     cancel() {
-      this.filter = this.$activityUtils.getStreamFilter();
+      this.filter = this.$activityUtils.getStreamFilter(this.$root.appId);
       if (this.$refs.filterStreamDrawer) {
         this.$refs.filterStreamDrawer.close();
       }
     },
     resetFilter(silent) {
       if (silent) {
-        this.$activityUtils.setStreamFilter('all_stream');
+        this.$activityUtils.setStreamFilter('all_stream', this.$root.appId);
       } else {
         this.filter = 'all_stream';
         this.applyFilter();

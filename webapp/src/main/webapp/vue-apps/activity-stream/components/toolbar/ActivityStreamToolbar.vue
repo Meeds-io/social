@@ -229,14 +229,19 @@ export default {
     },
   },
   created() {
-    this.streamFilter = this.$activityUtils.getStreamFilter();
-    document.addEventListener('activity-stream-type-filter-applied', event => {
-      this.streamFilter = event && event.detail;
-    });
+    this.streamFilter = this.$activityUtils.getStreamFilter(this.$root.appId);
+    this.$root.$on('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
     this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
     this.retrieveUserInformation();
   },
+  beforeDestroy() {
+    this.$root.$off('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$off('activity-stream-notify-all-read', this.notifyAsRead);
+  },
   methods: {
+    handleStreamTypeChanged(streamFilter) {
+      this.streamFilter = streamFilter;
+    },
     retrieveUserInformation() {
       this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
       if (!this.user) {
