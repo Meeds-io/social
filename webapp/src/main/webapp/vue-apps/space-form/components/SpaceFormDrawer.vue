@@ -516,6 +516,22 @@ export default {
             .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
             .finally(() => this.savingSpace = false);
         } else {
+          fetch(`${eXo.env.portal.context}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(this.space),
+        }).then(resp => {
+          console.warn('resp', resp);
+          if (!resp || !resp.ok) {
+            return resp.text().then((text) => {
+              throw new Error(text);
+            });
+          } else {
+            return resp.json();
+          }
+        });
           this.$root.$emit('alert-message', this.$t('spacesList.error.creation.space.anonymousUser'), 'error');
           this.savingSpace = false;
         }

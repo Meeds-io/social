@@ -831,6 +831,11 @@
         <set-method>register</set-method>
         <type>io.meeds.social.handler.SpacePermanentLinkHandler</type>
       </component-plugin>
+      <component-plugin>
+        <name>spaceCreationInstantiationHandler</name>
+        <set-method>register</set-method>
+        <type>io.meeds.social.handler.spaceCreationInstantiationHandler</type>
+      </component-plugin>
     </external-component-plugins>
     <external-component-plugins>
         <target-component>io.meeds.social.translation.service.TranslationService</target-component>
