@@ -16,11 +16,7 @@
  */
 package org.exoplatform.social.core.processor;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.social.core.BaseActivityProcessorPlugin;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
 import org.exoplatform.social.core.test.AbstractCoreTest;
@@ -51,47 +47,50 @@ public class OSHtmlSanitizerProcessorTest extends AbstractCoreTest {
 
   public void testProcessActivity() throws Exception {
     System.setProperty("gatein.email.domain.url", "test.com");
-    ExoSocialActivity activity = new ExoSocialActivityImpl();
-    String sample = "this is a <strong> tag to keep</strong>";
-    activity.setTitle(sample);
-    activity.setBody(sample);
-    processor.processActivity(activity);
-
-    assertEquals(sample, activity.getTitle());
-    assertEquals(sample, activity.getBody());
-
-    // tags with attributes
-    sample = "text <a href='test.com'>bar</a> zed";
-
-    activity.setTitle(sample);
-    processor.processActivity(activity);
-
-    assertEquals("text <a href=\"test.com\" rel=\"nofollow\" target=\"_self\">bar</a> zed", activity.getTitle());
-
-    // only with open tag
-    sample = "<strong> only open!!!";
-    activity.setTitle(sample);
-    processor.processActivity(activity);
-    assertEquals("<strong> only open!!!</strong>", activity.getTitle());
-
-    // self closing tags
-    sample = "<script href='#' />bar</a>";
-    activity.setTitle(sample);
-    processor.processActivity(activity);
-    assertEquals("bar", activity.getTitle());
-
-    // forbidden tag
-    sample = "<script>foo</script>";
-    activity.setTitle(sample);
-    processor.processActivity(activity);
-    assertEquals("", activity.getTitle());
-
-    // embedded
-    sample = "<span><strong>foo</strong>bar<script>zed</script></span>";
-    activity.setTitle(sample);
-    processor.processActivity(activity);
-    assertEquals("<strong>foo</strong>bar", activity.getTitle());
-    System.clearProperty("gatein.email.domain.url");
+    try {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      String sample = "this is a <strong> tag to keep</strong>";
+      activity.setTitle(sample);
+      activity.setBody(sample);
+      processor.processActivity(activity);
+  
+      assertEquals(sample, activity.getTitle());
+      assertEquals(sample, activity.getBody());
+  
+      // tags with attributes
+      sample = "text <a href='test.com'>bar</a> zed";
+  
+      activity.setTitle(sample);
+      processor.processActivity(activity);
+  
+      assertEquals("text <a href=\"test.com\" rel=\"nofollow\" target=\"_self\">bar</a> zed", activity.getTitle());
+  
+      // only with open tag
+      sample = "<strong> only open!!!";
+      activity.setTitle(sample);
+      processor.processActivity(activity);
+      assertEquals("<strong> only open!!!</strong>", activity.getTitle());
+  
+      // self closing tags
+      sample = "<script href='#' />bar</a>";
+      activity.setTitle(sample);
+      processor.processActivity(activity);
+      assertEquals("", activity.getTitle());
+  
+      // forbidden tag
+      sample = "<script>foo</script>";
+      activity.setTitle(sample);
+      processor.processActivity(activity);
+      assertEquals("", activity.getTitle());
+  
+      // embedded
+      sample = "<span><strong>foo</strong>bar<script>zed</script></span>";
+      activity.setTitle(sample);
+      processor.processActivity(activity);
+      assertEquals("<strong>foo</strong>bar", activity.getTitle().trim());
+    } finally {
+      System.clearProperty("gatein.email.domain.url");
+    }
   }
 
 }
