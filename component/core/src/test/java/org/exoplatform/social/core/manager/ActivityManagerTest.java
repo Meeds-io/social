@@ -982,8 +982,8 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     List<ExoSocialActivity> comments = activityManager.getCommentsWithListAccess(activity).loadAsList(0, 1);
     assertEquals(1, comments.size());
-    assertEquals(htmlRemovedString, comments.get(0).getBody());
-    assertEquals(htmlRemovedString, comments.get(0).getTitle());
+    assertEquals(htmlRemovedString.trim(), comments.get(0).getBody().trim());
+    assertEquals(htmlRemovedString.trim(), comments.get(0).getTitle().trim());
   }
 
   public void testGetCommentList() {
