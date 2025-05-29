@@ -76,6 +76,9 @@ export async function init({
         allowFilteringPerCategory() {
           return this.settings.allowFilteringPerCategory;
         },
+        isFilteredStream() {
+          return !!this.settings.categoryIds?.length;
+        },
         categoryDepth() {
           return this.settings.categoryDepth || 4;
         },
@@ -95,14 +98,14 @@ export async function init({
       created() {
         this.replyToComment = window.location.hash.includes('#comment-reply');
         this.$root.$on('activity-stream-settings-updated', this.handleSettingsUpdate);
-        this.$root.$on('categories-updated', this.handleCategoryUpdate);
+        document.addEventListener('categories-updated', this.handleCategoryUpdate);
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
       beforeDestroy() {
         this.$root.$off('activity-stream-settings-updated', this.handleSettingsUpdate);
-        this.$root.$off('categories-updated', this.handleCategoryUpdate);
+        document.removeEventListener('categories-updated', this.handleCategoryUpdate);
       },
       methods: {
         async handleSettingsUpdate() {
@@ -110,7 +113,9 @@ export async function init({
           this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
           this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
         },
-        handleCategoryUpdate(objectType, objectId) {
+        handleCategoryUpdate(event) {
+          const objectType = event?.detail?.objectType;
+          const objectId = event?.detail?.objectId;
           if (objectType === 'activity' && !this.timeout) {
             this.timeout = window.setTimeout(() => {
               this.timeout = null;

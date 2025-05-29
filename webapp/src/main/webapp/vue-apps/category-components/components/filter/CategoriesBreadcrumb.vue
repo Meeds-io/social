@@ -21,7 +21,9 @@
 
 -->
 <template>
-  <div class="d-flex align-center flex-grow-0 flex-shrink-0 max-width-fit overflow-x-auto specific-scrollbar">
+  <div
+    :class="isMobile ? 'flex-grow-1 overflow-hidden' : 'flex-grow-0 overflow-x-auto specific-scrollbar max-width-fit'"
+    class="d-flex align-center flex-shrink-0">
     <v-btn
       class="hidden-xs-only"
       height="32"
@@ -64,6 +66,9 @@ export default {
     },
   },
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     chevronIcon() {
       return this.$vuetify.rtl && 'fa-chevron-left' || 'fa-chevron-right';
     },
