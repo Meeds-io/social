@@ -217,7 +217,6 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                          .collect(Collectors.toList());
   }
 
-  @ExoTransactional
   public void deleteGroupBinding(long id) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingEntity bindingEntity = groupSpaceBindingDAO.find(id);
     if (bindingEntity != null) {
