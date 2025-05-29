@@ -105,6 +105,7 @@ export default {
     openComposer() {
       document.dispatchEvent(new CustomEvent('activity-composer-drawer-open', {detail: {
         allowFilteringPerCategory: this.$root.allowFilteringPerCategory,
+        isFilteredStream: this.$root.isFilteredStream,
         filteredCategoryIds: this.$root.preselectedCategoryIds,
       }}));
     },
