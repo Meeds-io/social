@@ -945,6 +945,24 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
+  public void deleteAll(List<ActivityEntity> entities) {
+    if (entities != null) {
+      entities = entities.stream().sorted((a1, a2) -> {
+        // Safely transform long to int
+        long c = a1.getId() - a2.getId();
+        if (c > 0) {
+          return -1;
+        } else if (c < 0) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }).toList();
+      super.deleteAll(entities);
+    }
+  }
+
+  @Override
   public List<Long> getActivityCategoryIds(long spaceIdentityId) {
     if (spaceIdentityId == 0) {
       return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIds", Long.class)
