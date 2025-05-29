@@ -28,6 +28,8 @@ import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 
+import io.meeds.common.ContainerTransactional;
+
 @DisallowConcurrentExecution
 public class QueueGroupSpaceBindingJob implements Job {
   private static final Log         LOG = ExoLogger.getLogger(QueueGroupSpaceBindingJob.class);
@@ -35,6 +37,7 @@ public class QueueGroupSpaceBindingJob implements Job {
   private GroupSpaceBindingService groupSpaceBindingService;
 
   @Override
+  @ContainerTransactional
   public void execute(JobExecutionContext context) throws JobExecutionException {
     groupSpaceBindingService = CommonsUtils.getService(GroupSpaceBindingService.class);
     LOG.info("Start treating GroupSpaceBinding queue");

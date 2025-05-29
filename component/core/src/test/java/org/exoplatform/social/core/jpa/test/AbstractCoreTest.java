@@ -317,6 +317,7 @@ public abstract class AbstractCoreTest extends BaseExoTestCase {
   
   protected void deleteAllActivities() throws Exception {
     ActivityDAO activityDAO = getService(ActivityDAO.class);
+    restartTransaction();
     activityDAO.deleteAll();
     ((CachedActivityStorage) activityStorage).clearCache();
   }
