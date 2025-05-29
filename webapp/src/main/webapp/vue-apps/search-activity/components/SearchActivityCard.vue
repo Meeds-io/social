@@ -124,7 +124,8 @@ export default {
     extensionApp: 'activity',
     activityTypeExtensionName: 'type',
     activityTypes: {},
-    activityCommentDrawer: false
+    activityCommentDrawer: false,
+    activityBaseLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`
   }),
   computed: {
     isComment() {
@@ -215,6 +216,7 @@ export default {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtensionName}-updated`, this.refreshActivityTypes);
     this.refreshActivityTypes();
+    this.$root.activityBaseLink = this.activityBaseLink;
   },
   methods: {
     openActivity() {
