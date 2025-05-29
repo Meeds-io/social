@@ -21,7 +21,7 @@
 -->
 <template>
   <exo-drawer
-    id="SpaceSettingsCategoriesDrawer"
+    id="CategoryInputDrawer"
     ref="drawer"
     v-model="drawer"
     :loading="loading"

@@ -21,7 +21,8 @@
 -->
 <template>
   <exo-drawer
-    id="SpaceSettingsCategoriesDrawer"
+    id="CategoriesFormDrawer"
+    v-if="singleton"
     ref="drawer"
     v-model="drawer"
     :loading="loading || saving"
@@ -77,6 +78,7 @@ export default {
   },
   data: () => ({
     drawer: false,
+    singleton: true,
     loading: false,
     saving: false,
     objectType: null,
@@ -93,8 +95,14 @@ export default {
   created() {
     document.addEventListener('category-form-drawer-open', this.openByEvent);
   },
+  mounted() {
+    if (document.querySelectorAll('#CategoriesFormDrawer').length > 1) {
+      this.singleton = false;
+      this.clearListeners();
+    }
+  },
   beforeDestroy() {
-    document.removeEventListener('category-form-drawer-open', this.openByEvent);
+    this.clearListeners();
   },
   methods: {
     openByEvent(event) {
@@ -123,7 +131,11 @@ export default {
           dropExisting: true
         });
         this.categoryIds = this.selectedCategoryIds;
-        this.$root.$emit('categories-updated', this.objectType, this.objectId, this.categoryIds);
+        document.dispatchEvent(new CustomEvent('categories-updated', {detail: {
+          objectType: this.objectType,
+          objectId: this.objectId,
+          categoryIds: this.categoryIds,
+        }}));
         this.$root.$emit('alert-message', this.$t('categoryInputDrawer.updated.success'), 'success');
         this.close();
       } catch (e) {
@@ -132,6 +144,9 @@ export default {
       } finally {
         this.saving = false;
       }
+    },
+    clearListeners() {
+      document.removeEventListener('category-form-drawer-open', this.openByEvent);
     },
   },
 };
