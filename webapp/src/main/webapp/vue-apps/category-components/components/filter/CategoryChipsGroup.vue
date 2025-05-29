@@ -21,8 +21,15 @@
 
 -->
 <template>
-  <div class="d-flex align-center specific-scrollbar overflow-x-auto overflow-y-hidden position-relative d-inline text-no-wrap">
-    <div v-if="initialized" class="flex-grow-0 flex-shrink-1 overflow-hidden">
+  <div
+    :class="!isMobile && 'specific-scrollbar overflow-x-auto overflow-y-hidden'"
+    class="d-flex align-center position-relative d-inline text-no-wrap">
+    <component
+      v-if="initialized"
+      :is="isMobile ? 'div' : 'card-carousel'"
+      class="flex-grow-0 flex-shrink-1 overflow-hidden"
+      hide-arrows
+      dense>
       <category-chip
         v-for="(category, index) in categories"
         :ref="`category${index}`"
@@ -34,8 +41,9 @@
         breadcrumb
         @initialized="setVisible(category, $event)"
         @select="openCategory" />
-    </div>
+    </component>
     <v-btn
+      v-if="!isMobile"
       ref="moreButton"
       :class="{
         'invisible' : !hasInvisibleItems,
@@ -71,6 +79,9 @@ export default {
     remainingSize: 0,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     hasInvisibleItems() {
       return this.remainingSize > 0;
     },
