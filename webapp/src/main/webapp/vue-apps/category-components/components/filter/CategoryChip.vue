@@ -151,8 +151,11 @@ export default {
     width: null,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     visible() {
-      return !this.parentWidth || !this.width || this.width < this.parentWidth;
+      return this.isMobile || !this.parentWidth || !this.width || this.width < this.parentWidth;
     },
   },
   watch: {

@@ -162,7 +162,7 @@ export default {
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
-    this.$root.$on('categories-updated', this.refreshActivitiesByCategories);
+    document.addEventListener('categories-updated', this.refreshActivitiesByCategories);
     document.addEventListener('activity-deleted', this.handleDeletedByEvent);
     document.addEventListener('activity-pinned', this.handlePinnedByEvent);
     document.addEventListener('activity-unpinned', this.handleUnpinnedByEvent);
@@ -187,7 +187,7 @@ export default {
     this.$root.$off('activities-refresh', this.refreshActivities);
     this.$root.$off('activity-read', this.markActivityAsRead);
     this.$root.$off('activity-loaded', this.refreshUnreadCount);
-    this.$root.$off('categories-updated', this.refreshActivitiesByCategories);
+    document.removeEventListener('categories-updated', this.refreshActivitiesByCategories);
     document.removeEventListener('activity-deleted', this.handleDeletedByEvent);
     document.removeEventListener('activity-pinned', this.handlePinnedByEvent);
     document.removeEventListener('activity-unpinned', this.handleUnpinnedByEvent);
@@ -218,44 +218,55 @@ export default {
       this.updateActivityDisplayById(activityId);
     },
     handleUnpinnedByEvent(event) {
+      const unpinnedActivity = event?.detail;
       if (this.pinActivityEnabled) {
-        const unpinnedActivity = event?.detail;
-        this.$set(unpinnedActivity, 'pinned', false);
         const index = this.activitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
         if (index >= 0) {
+          this.$set(this.activitiesToDisplay[index], 'pinned', false);
           this.activitiesToDisplay.splice(index, 1);
-        }
-        this.$forceUpdate();
-        const self = this;
-        setTimeout(function () {
-          let added = false;
-          for (let i = 0; i < self.activitiesToDisplay.length; i++) {
-            if ((new Date(unpinnedActivity.updateDate) > new Date(self.activitiesToDisplay[i].updateDate)) && !self.activitiesToDisplay[i].pinned) {
-              self.activitiesToDisplay.splice(i, 0, unpinnedActivity);
-              added = true;
-              break;
+          this.$forceUpdate();
+          setTimeout(() => {
+            let added = false;
+            for (let i = 0; i < this.activitiesToDisplay.length; i++) {
+              if ((new Date(unpinnedActivity.updateDate) > new Date(this.activitiesToDisplay[i].updateDate)) && !this.activitiesToDisplay[i].pinned) {
+                this.activitiesToDisplay.splice(i, 0, unpinnedActivity);
+                added = true;
+                break;
+              }
             }
-          }
-          if (!added && !self.hasMore) {
-            self.activitiesToDisplay.push(unpinnedActivity);
-          }
-          self.$forceUpdate();
-        }, 50);
+            if (!added && !this.hasMore) {
+              this.activitiesToDisplay.push(unpinnedActivity);
+            }
+            this.$forceUpdate();
+          }, 50);
+        }
+      } else {
+        const activity = this.activitiesToDisplay.find(a => unpinnedActivity.id === a.id);
+        if (activity) {
+          this.$set(activity, 'pinned', false);
+        }
       }
       this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
     },
     handlePinnedByEvent(event) {
+      const pinnedActivity = event?.detail;
       if (this.pinActivityEnabled) {
-        const pinnedActivity = event?.detail;
-        this.$set(pinnedActivity, 'pinned', true);
         const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
-        this.activitiesToDisplay.splice(index, 1);
-        this.$forceUpdate();
-        const self = this;
-        setTimeout(function () {
-          self.activitiesToDisplay.unshift(pinnedActivity);
-          self.$forceUpdate();
-        }, 10);
+        if (index >= 0) {
+          this.$set(this.activitiesToDisplay[index], 'pinned', true);
+          this.activitiesToDisplay.splice(index, 1);
+          this.$forceUpdate();
+          const self = this;
+          setTimeout(function () {
+            self.activitiesToDisplay.unshift(pinnedActivity);
+            self.$forceUpdate();
+          }, 10);
+        }
+      } else {
+        const activity = this.activitiesToDisplay.find(a => pinnedActivity.id === a.id);
+        if (activity) {
+          this.$set(activity, 'pinned', true);
+        }
       }
       this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
     },
@@ -299,11 +310,14 @@ export default {
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
-    refreshActivitiesByCategories(objectType) {
+    refreshActivitiesByCategories(event) {
+      const objectType = event?.detail?.objectType;
+      const objectId = event?.detail?.objectId;
       if (objectType === 'activity'
+          && this.activitiesToDisplay.find(a => a.id === objectId)
           && this.$root.allowFilteringPerCategory
           && (this.selectedCategoryIds?.length || this.$root.settingsSubcategoryIds?.length)) {
-        this.refreshActivities();
+        this.loadActivityIds();
       }
     },
     refreshActivities() {
@@ -367,13 +381,16 @@ export default {
       this.activities = activity && [activity] || [];
     },
     updateActivityDisplayById(activityId) {
-      this.loading = true;
-      return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
-        .then(activity => this.updateActivityDisplay(activity))
-        .finally (() => this.loading = false);
+      activityId = Number(activityId);
+      if (this.activitiesToDisplay?.find(a => Number(a.id) === activityId)) {
+        this.loading = true;
+        return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
+          .then(activity => this.updateActivityDisplay(activity))
+          .finally (() => this.loading = false);
+      }
     },
     updateActivityDisplay(updatedActivity) {
-      const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
+      const index = this.activitiesToDisplay.findIndex(activity => Number(updatedActivity.id) === Number(activity.id));
       if (index >= 0) {
         const activityToUpdate = {
           ...this.activities[index],
