@@ -21,9 +21,12 @@
 
 -->
 <template>
-  <div :class="hideOnEmpty && !display ? 'd-none' : 'd-flex'" class="flex-column justify-center full-width">
+  <div
+    :class="[hideOnEmpty && !display ? 'd-none' : 'd-flex']"
+    class="flex-column justify-center">
     <v-card
       v-if="display"
+      :class="isMobile && 'overflow-x-auto specific-scrollbar'"
       class="d-flex align-center"
       min-height="34"
       flat>
@@ -99,6 +102,9 @@ export default {
     chipsWidthPerCategory: 1,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     categories() {
       const categories = [];
       if (this.categoryTree) {

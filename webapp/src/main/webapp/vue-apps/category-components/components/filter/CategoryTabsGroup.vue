@@ -21,7 +21,7 @@
 
 -->
 <template>
-  <div v-if="categoriesSize" class="my-4 mx-5 position-relative">
+  <div v-if="categoriesSize" class="my-4 position-relative">
     <v-tabs
       v-model="selectedIndex"
       class="position-relative z-index-one"
