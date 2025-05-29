@@ -4,7 +4,7 @@
     <v-chip
       v-for="(selectedTag, index) in selectedTags"
       :key="selectedTag"
-      class="text-header-color mx-1"
+      class="text-body text-header-color mx-1"
       color="primary">
       <v-icon size="16" class="pe-2">
         fas fa-hashtag
