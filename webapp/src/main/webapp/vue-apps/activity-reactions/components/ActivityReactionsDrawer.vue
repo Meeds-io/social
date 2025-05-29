@@ -1,6 +1,8 @@
 <template>
   <exo-drawer
+    id="activityReactionsDrawer"
     ref="activityReactionsDrawer"
+    v-if="singleton"
     disable-pull-to-refresh
     right
     fixed
@@ -60,6 +62,7 @@ export default {
       limit: 10,
       selectedTab: null,
       drawerOpened: false,
+      singleton: true,
       activityReactionsExtensions: [],
       user: {}
     };
@@ -83,17 +86,32 @@ export default {
     },
   },
   created() {
+    document.addEventListener('open-reaction-drawer-selected-tab' , this.openByEvent);
     document.addEventListener('update-reaction-extension' , this.updateReaction);
-    document.addEventListener('open-reaction-drawer-selected-tab' , event => {
-      if (event && event.detail) {
-        this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType,event.detail.activityPosterId);
-      }
-    });
-    this.$root.$on('open-reaction-drawer-selected-tab', reactionTabDetails => {
-      this.openSelectedTab(reactionTabDetails.activityId, reactionTabDetails.tab, reactionTabDetails.activityType,reactionTabDetails.activityPosterId);
-    });
+    this.$root.$on('open-reaction-drawer-selected-tab', this.convertEventToDocument);
+  },
+  mounted() {
+    if (document.querySelectorAll('#activityReactionsDrawer').length > 1) {
+      this.singleton = false;
+      this.clearListeners();
+    }
+  },
+  beforeDestroy() {
+    this.clearListeners();
+    this.$root.$off('open-reaction-drawer-selected-tab', this.convertEventToDocument);
   },
   methods: {
+    convertEventToDocument(reactionTabDetails) {
+      document.dispatchEvent(new CustomEvent('open-reaction-drawer-selected-tab', {detail: reactionTabDetails}));
+    },
+    clearListeners() {
+      document.removeEventListener('open-reaction-drawer-selected-tab' , this.openByEvent);
+    },
+    openByEvent(event) {
+      if (event?.detail) {
+        this.openSelectedTab(event.detail.activityId, event.detail.tab, event.detail.activityType,event.detail.activityPosterId);
+      }
+    },
     open() {
       if (this.enabledReactionsTabsExtensions.length === 0) {
         this.refreshReactions();
