@@ -212,7 +212,8 @@ export default {
       spaceIdentity: null,
       spaceId: eXo.env.portal.spaceId,
       username: eXo.env.portal.userName,
-      allowFilteringPerCategory: this.allowFilteringPerCategory,
+      allowFilteringPerCategory: null,
+      isFilteredStream: false,
       filterPreselection: false,
       filteredCategoryIds: [],
       selectedCategoryIds: [],
@@ -256,7 +257,7 @@ export default {
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
           || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
           || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited)
-          || (!this.selectedCategoryIds?.length && this.filteredCategoryIds?.length);
+          || (this.isFilteredStream && !this.selectedCategoryIds?.length);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -373,6 +374,7 @@ export default {
         this.activityType = [];
       }
       this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
+      this.isFilteredStream = !params?.activityId && params?.isFilteredStream || false;
       this.filteredCategoryIds = !params?.activityId && params?.filteredCategoryIds;
       if (this.allowFilteringPerCategory && this.filteredCategoryIds?.length) {
         this.filterPreselection = true;
