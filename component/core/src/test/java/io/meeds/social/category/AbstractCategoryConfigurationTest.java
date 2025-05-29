@@ -68,6 +68,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   @After
   @SneakyThrows
   public void afterEach() {
+    restartTransaction();
     Category rootCategory = categoryService.getRootCategory(getAdminGroupIdentityId());
     categoryService.deleteCategory(rootCategory.getId(), ROOT_USER);
     end();
