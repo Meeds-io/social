@@ -20,6 +20,7 @@ package org.exoplatform.social.core.binding.spi;
 import java.util.Date;
 import java.util.List;
 
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
@@ -110,7 +111,10 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
                             .forEach(binding -> groupSpaceBindingStorage.deleteGroupBindingQueue(binding.getId()));
     groupSpaceBindingStorage.findAllGroupSpaceBinding()
                             .stream()
-                            .forEach(binding -> groupSpaceBindingStorage.deleteGroupBinding(binding.getId()));
+                            .forEach(binding -> {
+                              RequestLifeCycle.restartTransaction();
+                              groupSpaceBindingStorage.deleteGroupBinding(binding.getId());
+                            });
     
   }
 
