@@ -58,6 +58,9 @@ export default {
     },
   },
   created() {
+    if (this.value && !this.term) {
+      this.term = this.value;
+    }
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
       if (search) {
