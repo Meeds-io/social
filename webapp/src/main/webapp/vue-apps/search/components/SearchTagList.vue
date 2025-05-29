@@ -11,7 +11,7 @@
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"
-        class="text-header-color mx-1"
+        class="text-body text-header-color mx-1"
         v-bind="attrs"
         v-on="on">
         <v-icon size="16" class="pe-2">
