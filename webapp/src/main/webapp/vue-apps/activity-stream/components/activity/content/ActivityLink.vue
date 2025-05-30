@@ -287,12 +287,12 @@ export default {
     },
     summaryElement() {
       return {
-        template: ExtendedDomPurify.purify(this.summary?.startsWith?.('<') ? this.summary : `<div>${this.summary}</div>`) || '',
+        template: this.summary && ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
       };
     },
     titleElement() {
       return {
-        template: ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
+        template: this.title && ExtendedDomPurify.purify(`<div>${this.title}</div>`) || '',
       };
     },
     bodyClass() {
