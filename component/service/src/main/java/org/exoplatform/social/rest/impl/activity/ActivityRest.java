@@ -1028,7 +1028,11 @@ public class ActivityRest implements ResourceContainer {
                                    @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
                                    @QueryParam(
                                      "limit"
-                                   ) int limit) {
+                                   ) int limit,
+                                   @Parameter(description = "Asking for a full representation of a specific subresource", required = false)
+                                   @QueryParam(
+                                     "expand"
+                                   ) String expand) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -1054,32 +1058,18 @@ public class ActivityRest implements ResourceContainer {
         entity.setComment(commentEntity);
       }
 
-      ActivityStorage activityStorage = CommonsUtils.getService(ActivityStorage.class);
-      ExoSocialActivity existingActivity = activityStorage.getActivity(entity.getId());
+      ExoSocialActivity existingActivity = activityManager.getActivity(entity.getId());
       Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = EntityBuilder.retrieveMetadataItems(existingActivity,
-                                                                                                             currentUserIdentity);
+              currentUserIdentity);
       if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
         entity.setMetadatas(activityMetadatasToPublish);
       }
       DataEntity activityDataEntity = EntityBuilder.buildEntityFromActivity(existingActivity,
-                                                                            currentUserIdentity,
-                                                                            uriInfo.getPath(),
-                                                                            null)
-                                                   .getDataEntity();
+                      currentUserIdentity,
+                      uriInfo.getPath(),
+                      expand)
+              .getDataEntity();
       entity.setDataEntity(activityDataEntity);
-      boolean isSharedActivity = MapUtils.isNotEmpty(existingActivity.getTemplateParams())
-          && StringUtils.isNotBlank(existingActivity.getTemplateParams().get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
-      if (isSharedActivity) {
-        ExoSocialActivity originalActivity =
-                                           activityStorage.getActivity(existingActivity.getTemplateParams()
-                                                                                       .get(ActivityManager.SHARED_ACTIVITY_ID_PARAM));
-        DataEntity originalActivityDataEntity = EntityBuilder.buildEntityFromActivity(originalActivity,
-                                                                                      currentUserIdentity,
-                                                                                      uriInfo.getPath(),
-                                                                                      null)
-                                                             .getDataEntity();
-        entity.setProperty("originalActivity", originalActivityDataEntity);
-      }
       return entity;
     }).toList();
 
