@@ -16,7 +16,7 @@
             <v-list-item-title class="d-flex flex-row full-width align-center">
               <p
                 :title="excerptText || activityTitle"
-                class="flex-grow-1 title font-weight-bold pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
+                class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
                 v-sanitized-html="activityTitle"></p>
               <div v-show="hover || isMobile" class="ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
@@ -48,22 +48,31 @@
             <v-list-item-subtitle class="d-flex flex-column">
               <span class="d-flex flex-row align-center mx-auto full-width">
                 <span class="d-flex flex-row align-center" v-if="isSpaceStreamOwner">
-                  <exo-space-avatar
-                    :space-id="streamOwner.id"
-                    size="18"
-                    text-truncate-class="text-truncate text-sub-title"
-                    small-font-size
-                    subtitle-new-line-class
-                    :avatar="isMobile"
-                    popover />
+                  <a
+                    v-bind="attrs"
+                    v-on="on"
+                    :href="spaceUrl"
+                    class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+                    <v-avatar
+                      :size="18"
+                      tile
+                      class="my-auto">
+                      <img
+                        :src="streamOwner.avatarUrl"
+                        alt=""
+                        class="object-fit-cover ma-auto"
+                        loading="lazy">
+                    </v-avatar>
+                    <p class="ms-2 my-auto text-subtitle">{{streamOwner.displayName}}</p>
+                  </a>
                   <v-icon size="3" class="icon-default-color mx-3">fas fa-circle</v-icon>
                 </span>
                 <exo-user-avatar
                   :profile-id="posterUsername"
                   :size="18"
-                  small-font-size
                   :avatar="isMobile"
-                  :popover="!isMobile" />
+                  :popover="false"
+                  small-font-size />
                 <span class="d-flex flex-row align-center" v-if="postedTime">
                   <v-icon
                     size="3"
@@ -210,6 +219,12 @@ export default {
     isOwner() {
       const currentUserName = eXo.env.portal?.username;
       return  currentUserName === this.posterUsername || this.isSpaceStreamOwner && this.streamOwner?.isMember;
+    },
+    spaceUrl() {
+      if (!this.streamOwner?.id) {
+        return '#';
+      }
+      return `${eXo.env.portal.context}/s/${this.streamOwner?.id}`;
     }
   },
   created() {
