@@ -23,7 +23,7 @@
           <img
             v-if="thumbnail"
             :src="`${thumbnail}`"
-            alt=""
+            :alt="featuredThumbnailAltText"
             :class="thumbnailClass"
             :style="imageMobileStyle"
             class="my-auto"
@@ -66,7 +66,7 @@
         <img
           v-if="thumbnail"
           :src="thumbnail"
-          alt=""
+          :alt="featuredThumbnailAltText"
           :class="thumbnailClass"
           class="my-auto"
           loading="lazy"
@@ -334,7 +334,10 @@ export default {
     },
     activityViewsCount() {
       return this.activityViews?.viewsCount;
-    }
+    },
+    featuredThumbnailAltText() {
+      return this.activity?.news?.properties?.featuredImage?.altText || '';
+    },
   },
   watch: {
     activityTypeExtension(newVal, oldVal) {
