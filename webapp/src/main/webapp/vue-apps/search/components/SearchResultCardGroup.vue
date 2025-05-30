@@ -45,7 +45,7 @@
             <div
               v-for="result in searchResults"
               :key="result.domId"
-               class="pe-2">
+              class="pe-2">
               <search-result-card :result="result" :term="term" />
             </div>
           </card-carousel>
