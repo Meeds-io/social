@@ -287,7 +287,7 @@ export default {
     },
     summaryElement() {
       return {
-        template: ExtendedDomPurify.purify(this.summary?.startsWith?.('<') ? this.summary : `<div>${this.summary}</div>`) || '',
+        template: ExtendedDomPurify.purify(`<div>${this.summary}</div>`) || '',
       };
     },
     titleElement() {
