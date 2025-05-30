@@ -25,10 +25,15 @@
 @peopleCardMaxHeight: 227px;
 @peopleCardParentMaxHeight: @peopleCardParentMargin + @peopleCardMaxHeight;
 
-.searchCard {
-  @import "../../common/ProfileCard/Style.less";
-
-  .btn {
-    box-sizing: border-box;
+#searchDialog {
+  .searchCard {
+    @import "../../common/ProfileCard/Style.less";
+    @import "../../common/ProfileCard/Style-mobile.less";
+    .peopleCardItem {
+      width: 100% !important;
+      min-height: 100% !important;
+      margin: 0px !important;
+      background-color: white !important;
+    }
   }
 }
