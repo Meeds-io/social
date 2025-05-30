@@ -19,6 +19,7 @@
 package io.meeds.social.upgrade.model;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,26 +30,28 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LayoutUpgrade {
 
-  private boolean      updatePortalConfig;
+  private boolean             updatePortalConfig;
 
-  private boolean      updatePortalProperties;
+  private boolean             updatePortalProperties;
 
-  private boolean      updatePageLayout;
+  private boolean             updatePageLayout;
 
-  private boolean      updateNavigation;
+  private boolean             updateNavigation;
 
-  private String       configPath;
+  private String              configPath;
 
-  private String       portalType;
+  private String              portalType;
 
-  private String       portalName;
+  private String              portalName;
 
-  private String       importMode;
+  private String              importMode;
 
-  private List<String> pageNames;
+  private List<String>        pageNames;
 
-  private List<String> deleteNavigations;
+  private List<String>        deleteNavigations;
 
-  private List<String> hideNavigations;
+  private List<String>        hideNavigations;
+
+  private Map<String, String> properties;
 
 }
