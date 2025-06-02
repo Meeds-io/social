@@ -63,7 +63,7 @@
                         class="object-fit-cover ma-auto"
                         loading="lazy">
                     </v-avatar>
-                    <p class="ms-2 my-auto text-subtitle">{{streamOwner.displayName}}</p>
+                    <p class="ms-2 my-auto text-subtitle">{{ streamOwner.displayName }}</p>
                   </a>
                   <v-icon size="3" class="icon-default-color mx-3">fas fa-circle</v-icon>
                 </span>
