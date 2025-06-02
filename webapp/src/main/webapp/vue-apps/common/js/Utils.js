@@ -117,16 +117,26 @@ export function addShortcutsListener(chars, listener) {
   chars.forEach(c => shortcutChars.add(c));
   window.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key) {
-      const c = e?.key?.toLowerCase?.();
-      if (chars?.includes?.(c) && shortcutChars.has(c)) {
-        e.stopPropagation();
-        e.preventDefault();
-        window.setTimeout(() => {
-          listener(e.key);
-        }, 10);
-      }
+      execShortcut(chars, listener, e);
     }
   });
+  window.addEventListener('key-down', event => {
+    const e = event?.detail;
+    if (e?.key) {
+      execShortcut(chars, listener, e);
+    }
+  });
+}
+
+export function execShortcut(chars, listener, e) {
+  const c = e?.key?.toLowerCase?.();
+  if (chars?.includes?.(c) && shortcutChars.has(c)) {
+    e?.stopPropagation?.();
+    e?.preventDefault?.();
+    window.setTimeout(() => {
+      listener(e.key);
+    }, 10);
+  }
 }
 
 export function removeShortcutsListener(chars) {
