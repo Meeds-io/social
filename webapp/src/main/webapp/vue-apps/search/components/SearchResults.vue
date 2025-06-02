@@ -5,7 +5,6 @@
     <search-options
       :favorites="favorites"
       :all-enabled="allEnabled"
-      :connectors-list-opened.sync="connectorsListOpened"
       :sorted-connectors="sortedConnectors"
       :enabled-connectors="enabledConnectors"
       @select-favorites="selectFavorites"
@@ -78,7 +77,6 @@ export default {
     searching: 0,
     abortController: null,
     searchInitialized: false,
-    connectorsListOpened: false,
   }),
   computed: {
     hasMore() {
@@ -185,12 +183,6 @@ export default {
     },
   },
   created() {
-    // Workaround to fix closing menu when clicking outside
-    $(document).on('click', (e) => {
-      if (e.target && !$(e.target).parents('.connectors-list').length) {
-        this.connectorsListOpened = false;
-      }
-    });
     this.$root.$on('refresh', (searchConnector, favorites) => {
       if (!!favorites === !!this.favorites) {
         this.$set(this.results, searchConnector.name, []);
