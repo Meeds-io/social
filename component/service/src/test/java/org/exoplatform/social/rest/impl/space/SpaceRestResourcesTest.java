@@ -47,6 +47,7 @@ import io.meeds.portal.security.service.SecuritySettingService;
 import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
+import org.exoplatform.web.security.security.CookieTokenService;
 
 public class SpaceRestResourcesTest extends AbstractResourceTest {
 
@@ -72,6 +73,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
 
   private SecuritySettingService securitySettingService;
 
+  private CookieTokenService cookieTokenService;
+
   private MockUploadService      uploadService;
 
   protected boolean              hubRestricted;
@@ -89,6 +92,7 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     securitySettingService = getContainer().getComponentInstanceOfType(SecuritySettingService.class);
+    cookieTokenService = getContainer().getComponentInstanceOfType(CookieTokenService.class);
     SpaceLayoutService spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
     SpaceDirectoryService  spaceDirectoryService = getContainer().getComponentInstanceOfType(SpaceDirectoryService.class);
 
@@ -104,7 +108,8 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
                                        identityManager,
                                        uploadService,
                                        imageThumbnailService,
-                                       securitySettingService);
+                                       securitySettingService,
+                                       cookieTokenService);
     registry(spaceRestResources);
   }
 

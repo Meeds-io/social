@@ -93,6 +93,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
+import org.exoplatform.web.security.security.CookieTokenService;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -151,6 +152,8 @@ public class SpaceRest implements ResourceContainer {
 
   private final ImageThumbnailService  imageThumbnailService;
 
+  private final CookieTokenService    cookieTokenService;
+
   private byte[]                       defaultSpaceBanner           = null;
 
   private byte[]                       defaultSpaceAvatar           = null;
@@ -162,7 +165,8 @@ public class SpaceRest implements ResourceContainer {
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
-                   SecuritySettingService securitySettingService) {
+                   SecuritySettingService securitySettingService,
+                   CookieTokenService cookieTokenService) {
     this.spaceService = spaceService;
     this.spaceDirectoryService = spaceDirectoryService;
     this.spaceLayoutService = spaceLayoutService;
@@ -171,6 +175,7 @@ public class SpaceRest implements ResourceContainer {
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
     this.securitySettingService = securitySettingService;
+    this.cookieTokenService = cookieTokenService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
     CACHE_REVALIDATE_CONTROL.setNoCache(true);
@@ -383,6 +388,26 @@ public class SpaceRest implements ResourceContainer {
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
+  }
+
+  @POST
+  @Path("prepare")
+  @Produces(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Prepare a space", method = "POST", description = "This can be done by any user.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input")})
+  public Response prepareSpaceInstance(
+                                      @RequestBody(description = "Space object to be created, ex:<br />" +
+                                      "{<br />\"displayName\": \"My space\"," +
+                                      "<br />\"description\": \"This is my space\"," +
+                                      "<br />\"groupId\": \"/spaces/my_space\"," +
+                                      "<br />\"visibility\": \"private\"," +
+                                      "<br />\"subscription\": \"validation\"<br />}", required = true)
+                                      SpaceEntity model) {
+    String tokenId = cookieTokenService.createToken(JsonUtils.toJsonString(model.getDataEntity()), "SPACE_CREATION_INSTANCE");
+    return Response.ok(tokenId).type(MediaType.TEXT_PLAIN).build();
   }
 
   @GET

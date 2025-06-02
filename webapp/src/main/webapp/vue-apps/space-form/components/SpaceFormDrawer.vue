@@ -516,24 +516,18 @@ export default {
             .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
             .finally(() => this.savingSpace = false);
         } else {
-          fetch(`${eXo.env.portal.context}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(this.space),
-        }).then(resp => {
-          console.warn('resp', resp);
-          if (!resp || !resp.ok) {
-            return resp.text().then((text) => {
-              throw new Error(text);
-            });
-          } else {
-            return resp.json();
-          }
-        });
-          this.$root.$emit('alert-message', this.$t('spacesList.error.creation.space.anonymousUser'), 'error');
-          this.savingSpace = false;
+          return this.$spaceService.prepareSpaceInstance(this.space)
+            .then(tokenId => {
+              const expiry = new Date(Date.now() + 5 * 60 * 1000).toUTCString();
+              document.cookie = `spaceCreationCookie=${tokenId}; path=/; expires=${expiry}; SameSite=Lax`;
+              this.spaceSaved = true;
+              this.close();
+              window.location.href = `${eXo.env.portal.context}/login`;
+              this.spaceSaved = true;
+              this.close();
+            })
+            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+            .finally(() => this.savingSpace = false);
         }
       }
     },

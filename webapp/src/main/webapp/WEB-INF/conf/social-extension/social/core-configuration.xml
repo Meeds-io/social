@@ -834,7 +834,7 @@
       <component-plugin>
         <name>spaceCreationInstantiationHandler</name>
         <set-method>register</set-method>
-        <type>io.meeds.social.handler.spaceCreationInstantiationHandler</type>
+        <type>io.meeds.social.handler.SpaceCreationInstantiationHandler</type>
       </component-plugin>
     </external-component-plugins>
     <external-component-plugins>
