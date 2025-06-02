@@ -68,6 +68,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         <v-list-item
           v-for="connector in sortedConnectors"
           :key="connector.name"
+          :aria-label="getAriaLabel(connector)"
           class="clickable"
           dense
           @click="$emit('select-connector', connector)">
@@ -127,5 +128,13 @@ export default {
       default: () => [],
     },
   },
+  methods: {
+    getAriaLabel(connector) {
+      const isSelected = this.enabledConnectors.some(
+        enabled => enabled?.name === connector?.name
+      );
+      return !this.allEnabled && isSelected && this.$t('search.connector.option.selected.type.ariaLabel', {0: connector?.label}) || this.$t('search.connector.option.type.ariaLabel', {0: connector?.label});
+    }
+  }
 };
 </script>
