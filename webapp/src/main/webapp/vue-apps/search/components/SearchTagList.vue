@@ -11,6 +11,7 @@
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"
+        :aria-label="$t('search.filter.tag')"
         class="text-body text-header-color mx-1"
         v-bind="attrs"
         v-on="on">
