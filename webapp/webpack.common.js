@@ -100,6 +100,7 @@ let config = {
     admins: './src/main/webapp/vue-apps/platformAdminsWidget/main.js',
     platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
     contentLink: './src/main/webapp/vue-apps/content-link/main.js',
+    emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
   },
   module: {
     rules: [
