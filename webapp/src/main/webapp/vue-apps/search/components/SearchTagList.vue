@@ -38,6 +38,7 @@
             :color="`${isMobile ? 'blue lighten-4' : ''}`"
             :key="tag"
             :value="tag"
+            :aria-label="getAriaLabel(tag)"
             @click="handleTag(tag)"
             @keyup.enter="handleTag(tag)">
             <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ tag }}</span>
@@ -134,6 +135,9 @@ export default {
         this.selectedTags.push(tag);
         document.dispatchEvent(new CustomEvent('search-tag'));
       }
+    },
+    getAriaLabel(tag) {
+      return this.selectedTags.includes(tag) && this.$t('search.tag.option.active.item.ariaLabel', {0: tag}) || this.$t('search.tag.option.item.ariaLabel', {0: tag});
     }
   },
 };
