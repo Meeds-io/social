@@ -32,7 +32,6 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </v-chip>
     <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
     <v-menu
-      v-model="connectorsListOpened"
       :close-on-content-click="false"
       content-class="connectors-list"
       :attach="!$root.isMobile"
@@ -116,10 +115,6 @@ export default {
       default: false,
     },
     allEnabled: {
-      type: Boolean,
-      default: false,
-    },
-    connectorsListOpened: {
       type: Boolean,
       default: false,
     },
