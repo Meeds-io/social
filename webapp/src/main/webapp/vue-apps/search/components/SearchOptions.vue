@@ -23,6 +23,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     <v-chip
       :outlined="!favorites"
       :color="favorites ? 'primary' : ''"
+      :aria-pressed="favorites"
       class="ms-1 me-2 text-body border-color flex-shrink-0"
       @click="$emit('select-favorites')">
       <v-icon size="16" class="pe-2 yellow--text text--darken-2">
