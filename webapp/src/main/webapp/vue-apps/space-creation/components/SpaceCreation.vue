@@ -45,7 +45,7 @@
 export default {
   methods: {
     addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, this.$root.settings.spaceTemplates));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, this.$root.spaceTemplates));
     },
     openDrawerSettings() {
       this.$root.$emit('space-creation-settings-open');

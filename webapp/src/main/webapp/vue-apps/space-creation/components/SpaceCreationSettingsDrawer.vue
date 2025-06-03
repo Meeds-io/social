@@ -102,7 +102,7 @@
 export default {
   data: () => ({
     drawer: false,
-    selectedTemplates: [],
+    selectedTemplateIds: [],
     loading: false,
     maxLabelLength: 150,
     settings: {},
@@ -110,20 +110,21 @@ export default {
     search: null,
   }),
   computed: {
+    selectedTemplates() {
+      return this.$root.availableSpaceTemplates.filter(t => this.selectedTemplateIds.includes(t.id));
+    },
     filteredTemplates() {
       if (this.search) {
-        return this.$root.spaceTemplates.filter(
-          t => t.name.toLowerCase().includes(this.search.toLowerCase()));
+        return this.$root.availableSpaceTemplates.filter(t => t.name.toLowerCase().includes(this.search.toLowerCase()));
       } else {
-        return this.$root.spaceTemplates;
+        return this.$root.availableSpaceTemplates;
       }
     },
     disabled() {
       return JSON.stringify(this.settings) === JSON.stringify(this.originalSettings)
-          || (JSON.stringify([...this.selectedTemplates].sort((a, b) => a.id - b.id))
-             === JSON.stringify([...this.originalSettings.spaceTemplates].sort((a, b) => a.id - b.id)))
+          || (JSON.stringify([...this.selectedTemplateIds].sort((a, b) => a.id - b.id)) === JSON.stringify([...this.originalSettings.spaceTemplateIds].sort((a, b) => a.id - b.id)))
           || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
-          || (!this.selectedTemplates.length && this.settings.spaceCreationTemplateChoice === 'fewTemplates') ;
+          || (!this.selectedTemplateIds.length && this.settings.spaceCreationTemplateChoice === 'fewTemplates') ;
     },
     rules() {
       return {
@@ -152,10 +153,7 @@ export default {
   },
   methods: {
     addTemplate(id) {
-      const template = this.$root.spaceTemplates.find(t => t.id === id);
-      if (template && !this.selectedTemplates.find(t => t.id === template.id)) {
-        this.selectedTemplates.push(template);
-      }
+      this.selectedTemplateIds.push(id);
       this.search = null;
     },
     open() {
@@ -163,28 +161,26 @@ export default {
       this.$refs.drawer.open();
     },
     close() {
-      this.selectedTemplates= [];
+      this.selectedTemplateIds = [];
       this.$refs.drawer.close();
     },
     restoreSavedSettings() {
       this.settings = JSON.parse(JSON.stringify(this.$root.settings));
       this.originalSettings = JSON.parse(JSON.stringify(this.settings));
       if (this.settings.spaceCreationTemplateChoice === 'fewTemplates') {
-        this.selectedTemplates = this.settings.spaceTemplates;
+        this.selectedTemplateIds = this.settings.spaceTemplateIds;
       }
     },
     reset() {
       this.close();
       this.restoreSavedSettings();
     },
-    removeTemplate(template) {
-      this.selectedTemplates = this.selectedTemplates.filter(
-        t => t.id !== template.id
-      );
+    removeTemplate(id) {
+      this.selectedTemplateIds.splice(this.selectedTemplateIds.indexOf(id), 1);
     },
     save() {
       this.loading = true;
-      this.settings.spaceTemplates = this.settings.spaceCreationTemplateChoice === 'anyTemplate' ? this.$root.spaceTemplates : this.selectedTemplates;
+      this.settings.spaceTemplateIds = this.settings.spaceCreationTemplateChoice === 'anyTemplate' ? this.$root.availableSpaceTemplates.map(t => t.id) : this.selectedTemplateIds;
       this.$spaceCreationService.saveSettings(this.$root.saveSettingsUrl , this.settings).then(() => {
         this.$emit('updated', this.settings);
         this.$root.settings = this.settings;

@@ -20,8 +20,8 @@ UserACL userAcl = ExoContainerContext.getService(UserACL.class);
 boolean isAdministrator = ConversationState.getCurrent() != null && userAcl.isAdministrator(ConversationState.getCurrent().getIdentity());
 SpaceTemplateService spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
 SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter(request.getRemoteUser(), request.getLocale(), false);
-List<SpaceTemplate> defaultSpaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
-String defaultJson = JsonUtils.toJsonString(defaultSpaceTemplates);
+List<SpaceTemplate> spaceTemplates = spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
+String spaceTemplatesJson = JsonUtils.toJsonString(spaceTemplates);
 
 Object rawSettings = request.getAttribute("settings");
 String settings = null;
@@ -32,15 +32,15 @@ if (rawSettings instanceof String[]) {
 String portletId = (String) request.getAttribute("portletStorageId");
 String domId = "spaceCreationApplication" + portletId;
 String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
-
- %>
+%>
 <div class="VuetifyApp">
     <div data-app="true"
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
-      <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+      <textarea id="spaceCreationSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+      <textarea id="spaceCreationTemplate<%=valueDomId%>" style="display:none;"><%=StringEscapeUtils.escapeJava(spaceTemplatesJson).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
       <script type="text/javascript">
-        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', <%=defaultJson%>));
+        require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('spaceCreationSettings<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', JSON.parse(document.getElementById('spaceCreationTemplate<%=valueDomId%>').value)));
       </script>
     </div>
   </div>
