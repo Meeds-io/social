@@ -1125,7 +1125,7 @@
           {
             "labelTranslations":{},
             "spaceCreationTemplateChoice":"anyTemplate",
-            "spaceTemplates": null
+            "spaceTemplateIds": []
           }
         </value>
       </preference>
