@@ -57,6 +57,7 @@ export default {
     standalone: false,
     pageUri: null,
     pageTitle: null,
+    companyName: eXo?.env?.portal?.companyName
   }),
   computed: {
     buttonTooltip() {
@@ -77,6 +78,9 @@ export default {
     },
     term() {
       this.changeURI();
+      if (!this.loading) {
+        this.setWindowTitle();
+      }
     },
     favorites() {
       this.changeURI();
@@ -94,10 +98,12 @@ export default {
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
+        this.setWindowTitle();
       } else {
         this.$root.$emit('search-closed');
         document.dispatchEvent(new CustomEvent('search-closed'));
         window.history.replaceState('', this.pageTitle, this.pageUri);
+        window.document.title = this.pageTitle || `${this.$t('search.window.title')} - ${this.companyName}`;
       }
     },
   },
@@ -127,7 +133,10 @@ export default {
     this.loading = true;
     exoi18n.loadLanguageAsync(lang, urls)
       .then(() => this.$nextTick())
-      .finally(() => this.loading = false);
+      .finally(() => {
+        this.loading = false;
+        this.setWindowTitle();
+      });
 
     this.pageUri = window.location.href;
     this.pageTitle = window.document.title;
@@ -196,6 +205,11 @@ export default {
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     },
+    setWindowTitle() {
+      const termTitle = this.term ? `${this.term} - ` : '';
+      const searchWindowTitle = `${termTitle}${this.$t('search.window.title')} - ${this.companyName}`;
+      window.document.title = searchWindowTitle;
+    }
   },
 };
 </script>
