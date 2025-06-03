@@ -30,6 +30,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import io.meeds.social.space.model.SpaceCreationInstance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -93,7 +94,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
-import org.exoplatform.web.security.security.CookieTokenService;
 
 @Path(VersionResources.VERSION_ONE + "/social/spaces")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spaces", description = "Operations on spaces with their activities and users")
@@ -152,8 +152,6 @@ public class SpaceRest implements ResourceContainer {
 
   private final ImageThumbnailService  imageThumbnailService;
 
-  private final CookieTokenService    cookieTokenService;
-
   private byte[]                       defaultSpaceBanner           = null;
 
   private byte[]                       defaultSpaceAvatar           = null;
@@ -165,8 +163,7 @@ public class SpaceRest implements ResourceContainer {
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
-                   SecuritySettingService securitySettingService,
-                   CookieTokenService cookieTokenService) {
+                   SecuritySettingService securitySettingService) {
     this.spaceService = spaceService;
     this.spaceDirectoryService = spaceDirectoryService;
     this.spaceLayoutService = spaceLayoutService;
@@ -175,7 +172,6 @@ public class SpaceRest implements ResourceContainer {
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
     this.securitySettingService = securitySettingService;
-    this.cookieTokenService = cookieTokenService;
 
     CACHE_CONTROL.setMaxAge(CACHE_IN_SECONDS);
     CACHE_REVALIDATE_CONTROL.setNoCache(true);
@@ -406,8 +402,21 @@ public class SpaceRest implements ResourceContainer {
                                       "<br />\"visibility\": \"private\"," +
                                       "<br />\"subscription\": \"validation\"<br />}", required = true)
                                       SpaceEntity model) {
-    String tokenId = cookieTokenService.createToken(JsonUtils.toJsonString(model.getDataEntity()), "SPACE_CREATION_INSTANCE");
-    return Response.ok(tokenId).type(MediaType.TEXT_PLAIN).build();
+    String tokenId = spaceService.prepareSpaceInstance(new SpaceCreationInstance(model.getDisplayName(),
+                                                                                 model.getDescription(),
+                                                                                 model.getTemplateId(),
+                                                                                 model.getVisibility(),
+                                                                                 model.getSubscription(),
+                                                                                 model.getBannerId(),
+                                                                                 model.getAvatarId()));
+    return Response.ok(tokenId).cookie(new NewCookie("spaceCreationCookie",
+                                                     tokenId,
+                                                     "/",
+                                                     null,
+                                                     null,
+                                                     300,
+                                                     true ))
+                               .type(MediaType.TEXT_PLAIN).build();
   }
 
   @GET

@@ -517,14 +517,9 @@ export default {
             .finally(() => this.savingSpace = false);
         } else {
           return this.$spaceService.prepareSpaceInstance(this.space)
-            .then(tokenId => {
-              const expiry = new Date(Date.now() + 5 * 60 * 1000).toUTCString();
-              document.cookie = `spaceCreationCookie=${tokenId}; path=/; expires=${expiry}; SameSite=Lax`;
+            .then(() => {
               this.spaceSaved = true;
-              this.close();
               window.location.href = `${eXo.env.portal.context}/login`;
-              this.spaceSaved = true;
-              this.close();
             })
             .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
             .finally(() => this.savingSpace = false);

@@ -1,5 +1,24 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 package io.meeds.social.handler;
 
+import io.meeds.social.space.model.SpaceCreationInstance;
 import io.meeds.social.util.JsonUtils;
 import io.meeds.spring.web.localization.HttpRequestLocaleWrapper;
 import jakarta.annotation.PostConstruct;
@@ -15,7 +34,6 @@ import org.exoplatform.social.core.model.BannerAttachment;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.entity.SpaceEntity;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.ControllerContext;
@@ -87,18 +105,13 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
       if (token != null) {
         Space space = new Space();
         String spaceData = tokenService.getToken(token, "SPACE_CREATION_INSTANCE").getUsername();
-        SpaceEntity model = JsonUtils.fromJsonString(spaceData, SpaceEntity.class);
+        SpaceCreationInstance model = JsonUtils.fromJsonString(spaceData, SpaceCreationInstance.class);
         fillSpaceFromModel(space, model);
         space.setEditor(user);
         space = spaceService.createSpace(space, user);
         saveSpaceAvatar(space, model);
         saveSpaceBanner(model, space);
-          Cookie cookie = new Cookie("spaceCreationCookie", "");
-          cookie.setPath("/");
-          cookie.setMaxAge(0);
-          cookie.setHttpOnly(true);
-          cookie.setSecure(request.isSecure());
-          response.addCookie(cookie);
+        removeTokenCookie(request, response);
         String path = servletContext.getContextPath() + "/s/" + space.getSpaceId();
         response.sendRedirect(path);
         return true;
@@ -128,18 +141,12 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
     return null;
   }
 
-  private void fillSpaceFromModel(Space space, SpaceEntity model) throws IOException {
+  private void fillSpaceFromModel(Space space, SpaceCreationInstance model) throws IOException {
     if (StringUtils.isNotBlank(model.getDisplayName())) {
       space.setDisplayName(model.getDisplayName());
       space.setDescription(model.getDescription());
       if (StringUtils.isBlank(space.getPrettyName())) {
         space.setPrettyName(model.getDisplayName());
-      }
-    } else if (StringUtils.isNotBlank(model.getPrettyName())) {
-      space.setPrettyName(model.getPrettyName());
-      space.setDescription(model.getDescription());
-      if (StringUtils.isBlank(space.getDisplayName())) {
-        space.setDisplayName(model.getPrettyName());
       }
     }
 
@@ -147,11 +154,11 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
       space.setTemplateId(model.getTemplateId());
     }
 
-    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getBannerId())) {
+    if (StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
 
-    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getAvatarId())) {
+    if (StringUtils.isNotBlank(model.getAvatarId())) {
       updateProfileField(space, Profile.AVATAR, model.getAvatarId());
     }
 
@@ -212,7 +219,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
     }
   }
 
-  private void saveSpaceAvatar(Space space, SpaceEntity model) {
+  private void saveSpaceAvatar(Space space, SpaceCreationInstance model) {
     if (StringUtils.isNotBlank(model.getAvatarId())) {
       try {
         updateProfileField(space, Profile.AVATAR, model.getAvatarId());
@@ -222,7 +229,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
     }
   }
 
-  private void saveSpaceBanner(SpaceEntity model, Space space) {
+  private void saveSpaceBanner(SpaceCreationInstance model, Space space) {
     if (StringUtils.isNotBlank(model.getBannerId())) {
       try {
         updateProfileField(space, Profile.BANNER, model.getBannerId());

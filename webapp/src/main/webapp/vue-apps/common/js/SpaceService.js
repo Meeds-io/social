@@ -261,7 +261,7 @@ export function prepareSpaceInstance(space) {
     },
     body: JSON.stringify(space),
   }).then(resp => {
-    if (!resp || !resp.ok) {
+    if (!resp?.ok) {
       return resp.text().then((text) => {
         throw new Error(text);
       });
