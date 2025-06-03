@@ -45,7 +45,11 @@
 export default {
   methods: {
     addNewSpace() {
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, this.$root.settings.spaceTemplates));
+      let spaceTemplates = this.$root.settings.spaceTemplates;
+      if (!eXo.env.portal.userName) {
+        spaceTemplates = spaceTemplates.filter(template => template.permissions.includes('Everyone') );
+      }
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(false, spaceTemplates));
     },
     openDrawerSettings() {
       this.$root.$emit('space-creation-settings-open');
