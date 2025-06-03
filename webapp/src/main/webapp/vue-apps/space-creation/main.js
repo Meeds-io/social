@@ -40,8 +40,12 @@ export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTem
     if (!settings.labelTranslations) {
       settings.labelTranslations = {};
     }
-    if (!settings.spaceTemplates) {
-      settings.spaceTemplates = spaceTemplates;
+    if (!settings.spaceTemplateIds) {
+      if (spaceTemplates?.length) {
+        settings.spaceTemplateIds = spaceTemplates.map(t => t.id);
+      } else {
+        settings.spaceTemplateIds = [];
+      }
     }
     if (!settings.spaceCreationTemplateChoice) {
       settings.spaceCreationTemplateChoice = 'anyTemplate';
@@ -51,12 +55,15 @@ export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTem
         settings,
         isAdministrator,
         saveSettingsUrl,
-        spaceTemplates
+        availableSpaceTemplates: spaceTemplates
       },
       computed: {
         label() {
           return this.settings.labelTranslations?.[eXo.env.portal.language] || this.settings.labelTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('space.creation.instantiation.create.button');
-        }
+        },
+        spaceTemplates() {
+          return this.availableSpaceTemplates.filter(t => !this.settings?.spaceTemplateIds || this.settings?.spaceTemplateIds?.includes?.(t.id));
+        },
       },
       template: `<space-creation id="${appId}" />`,
       i18n,
