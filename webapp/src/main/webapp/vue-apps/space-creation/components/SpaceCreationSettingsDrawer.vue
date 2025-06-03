@@ -102,7 +102,6 @@
 export default {
   data: () => ({
     drawer: false,
-    labelTranslations: [],
     selectedTemplates: [],
     loading: false,
     maxLabelLength: 150,
@@ -119,14 +118,12 @@ export default {
         return this.$root.spaceTemplates;
       }
     },
-    modified() {
-      return (JSON.stringify([...this.selectedTemplates].sort((a, b) => a.id - b.id))
-              !== JSON.stringify([...this.originalSettings.spaceTemplates].sort((a, b) => a.id - b.id)))
-          || JSON.stringify(this.settings) !== JSON.stringify(this.originalSettings);
-    },
     disabled() {
-      return !this.modified || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
-      || !this.selectedTemplates.length;
+      return JSON.stringify(this.settings) === JSON.stringify(this.originalSettings)
+          || (JSON.stringify([...this.selectedTemplates].sort((a, b) => a.id - b.id))
+             === JSON.stringify([...this.originalSettings.spaceTemplates].sort((a, b) => a.id - b.id)))
+          || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
+          || (!this.selectedTemplates.length && this.settings.spaceCreationTemplateChoice === 'fewTemplates') ;
     },
     rules() {
       return {
