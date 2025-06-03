@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.space.model.SpaceCreationInstance;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -1199,6 +1200,14 @@ public interface SpaceService {
    *         identifiers
    */
   default List<Long> getSpaceCategoryIds() {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * @param spaceCreationInstance
+   * @return tokenId
+   */
+  default String prepareSpaceInstance(SpaceCreationInstance spaceCreationInstance) {
     throw new UnsupportedOperationException();
   }
 
