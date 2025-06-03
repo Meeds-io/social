@@ -516,8 +516,13 @@ export default {
             .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
             .finally(() => this.savingSpace = false);
         } else {
-          this.$root.$emit('alert-message', this.$t('spacesList.error.creation.space.anonymousUser'), 'error');
-          this.savingSpace = false;
+          return this.$spaceService.prepareSpaceInstance(this.space)
+            .then(() => {
+              this.spaceSaved = true;
+              window.location.href = `${eXo.env.portal.context}/login`;
+            })
+            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+            .finally(() => this.savingSpace = false);
         }
       }
     },

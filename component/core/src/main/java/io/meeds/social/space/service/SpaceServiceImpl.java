@@ -52,6 +52,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import io.meeds.social.space.model.SpaceCreationInstance;
+import io.meeds.social.util.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -127,6 +129,8 @@ public class SpaceServiceImpl implements SpaceService {
 
   private FileService              fileService;
 
+  private CookieTokenService       cookieTokenService;
+
   private SpaceLifecycle           spaceLifeCycle        = new SpaceLifecycle();
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
@@ -136,7 +140,8 @@ public class SpaceServiceImpl implements SpaceService {
                           UserACL userAcl,
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
-                          FileService fileService) {
+                          FileService fileService,
+                          CookieTokenService cookieTokenService) {
     this.spaceStorage = spaceStorage;
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
@@ -145,6 +150,7 @@ public class SpaceServiceImpl implements SpaceService {
     this.resourceBundleService = resourceBundleService;
     this.localeConfigService = localeConfigService;
     this.fileService = fileService;
+    this.cookieTokenService = cookieTokenService;
   }
 
   @Override
@@ -1095,6 +1101,11 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public Map<Long, Long> countSpacesByTemplate() {
     return spaceStorage.countSpacesByTemplate();
+  }
+
+  @Override
+  public String prepareSpaceInstance(SpaceCreationInstance spaceCreationInstance) {
+    return cookieTokenService.createToken(JsonUtils.toJsonString(spaceCreationInstance), "SPACE_CREATION_INSTANCE");
   }
 
   public void addSpaceListener(SpaceListenerPlugin plugin) {

@@ -252,6 +252,25 @@ export function createSpace(space) {
   });
 }
 
+export function prepareSpaceInstance(space) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spaces/prepare`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(space),
+  }).then(resp => {
+    if (!resp?.ok) {
+      return resp.text().then((text) => {
+        throw new Error(text);
+      });
+    } else {
+      return resp.text();
+    }
+  });
+}
+
 export function getSpaceMemberships(params) {
   const formData = new FormData();
   formData.append('offset', params.offset || 0);
