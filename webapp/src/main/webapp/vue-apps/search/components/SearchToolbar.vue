@@ -2,6 +2,7 @@
   <div class="d-flex align-center mx-4 mb-2">
     <v-text-field
       ref="searchInput"
+      id="searchInput"
       v-model="term"
       :placeholder="searchInputPlaceholder"
       rounded
