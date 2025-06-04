@@ -53,11 +53,11 @@
             icon
             v-on="on"
             v-bind="{
-            ...attrs,
-            'aria-label': $t('UIIntranetNotificationsPortlet.title.NotificationsSetting'),
-            role: null,
-            'aria-haspopup': null,
-            'aria-expanded': null}"
+              ...attrs,
+              'aria-label': $t('UIIntranetNotificationsPortlet.title.NotificationsSetting'),
+              role: null,
+              'aria-haspopup': null,
+              'aria-expanded': null}"
             @click="openSettings">
             <v-icon size="18" class="notifDrawerSettings">fa-sliders-h</v-icon>
           </v-btn>
