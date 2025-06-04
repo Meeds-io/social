@@ -402,13 +402,15 @@ public class SpaceRest implements ResourceContainer {
                                       "<br />\"visibility\": \"private\"," +
                                       "<br />\"subscription\": \"validation\"<br />}", required = true)
                                       SpaceEntity model) {
-    String tokenId = spaceService.prepareSpaceInstance(new SpaceCreationInstance(model.getDisplayName(),
+    String tokenId = spaceService.prepareSpaceInstance(new SpaceCreationInstance(model.getId(),
+                                                                                 model.getDisplayName(),
                                                                                  model.getDescription(),
                                                                                  model.getTemplateId(),
                                                                                  model.getVisibility(),
                                                                                  model.getSubscription(),
                                                                                  model.getBannerId(),
-                                                                                 model.getAvatarId()));
+                                                                                 model.getAvatarId(),
+                                                                                 model.getPrettyName()));
     return Response.ok(tokenId).cookie(new NewCookie("spaceCreationCookie",
                                                      tokenId,
                                                      "/",
