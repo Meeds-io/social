@@ -145,20 +145,25 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
     if (StringUtils.isNotBlank(model.getDisplayName())) {
       space.setDisplayName(model.getDisplayName());
       space.setDescription(model.getDescription());
+
       if (StringUtils.isBlank(space.getPrettyName())) {
         space.setPrettyName(model.getDisplayName());
       }
+    } else if (StringUtils.isNotBlank(model.getPrettyName())) {
+      space.setPrettyName(model.getPrettyName());
+      space.setDescription(model.getDescription());
+      space.setDisplayName(model.getPrettyName());
     }
 
     if (space.getSpaceId() == 0 && model.getTemplateId() > 0) {
       space.setTemplateId(model.getTemplateId());
     }
 
-    if (StringUtils.isNotBlank(model.getBannerId())) {
+    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
 
-    if (StringUtils.isNotBlank(model.getAvatarId())) {
+    if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getAvatarId())) {
       updateProfileField(space, Profile.AVATAR, model.getAvatarId());
     }
 

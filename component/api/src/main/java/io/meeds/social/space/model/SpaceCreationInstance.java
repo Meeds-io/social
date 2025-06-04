@@ -27,6 +27,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class SpaceCreationInstance {
 
+  private String id;
+
   private String displayName;
 
   private String description;
@@ -40,5 +42,7 @@ public class SpaceCreationInstance {
   private String bannerId;
 
   private String avatarId;
+
+  private String prettyName;
 
 }
