@@ -262,7 +262,7 @@ export default {
       if (this.commentId) {
         options ['commentId'] = this.commentId;
       }
-      this.$refs.activitySearchCommentDrawer.displayActivityComments({detail: options});
+      this.$refs.activitySearchCommentDrawer.displayActivityComments(options);
     },
     async closeActivityCommentDrawer() {
       await this.$nextTick();
