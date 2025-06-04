@@ -49,6 +49,8 @@
         left: `${left}px`,
       }"
       :role="alertType"
+      aria-live="assertive"
+      :aria-atomic="true"
       v-touch="{
         start: moveStart,
         end: moveEnd,
