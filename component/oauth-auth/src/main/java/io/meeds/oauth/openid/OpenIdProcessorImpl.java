@@ -22,21 +22,25 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SimpleTimeZone;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -98,6 +102,11 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private final SecureRandomService   secureRandomService;
 
+
+
+  private List<String> customClaims;
+  private String       customClaimsMultiValuedSeparator;
+
   public OpenIdProcessorImpl(ExoContainerContext context, InitParams params, SecureRandomService secureRandomService) {
     this.clientID = params.getValueParam("clientId").getValue();
     this.clientSecret = params.getValueParam("clientSecret").getValue();
@@ -133,6 +142,14 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
     this.chunkLength = OAuthPersistenceUtils.getChunkLength(params);
 
+    this.customClaims = Stream.of(params.getValueParam("customClaims").getValue().split(","))
+                          .map(String::trim)
+                          .filter(s -> !s.isEmpty())
+                          .collect(Collectors.toList());
+    this.customClaimsMultiValuedSeparator = params.getValueParam("customClaimsMultiValueSeparator").getValue();
+
+
+
     if (log.isDebugEnabled()) {
       log.debug("configuration: clientId=" + clientID
           +
@@ -141,7 +158,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
           ", scope=" + scopes +
           ", accessType=" + accessType +
           ", applicationName=" + applicationName +
-          ", chunkLength=" + chunkLength);
+          ", chunkLength=" + chunkLength +
+          ", customClaims=" + customClaims +
+          ", customClaimsMultivaluedSeparator=" + customClaimsMultiValuedSeparator);
     }
 
     this.secureRandomService = secureRandomService;
@@ -421,9 +440,23 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       @Override
       protected JSONObject parseResponse(String httpResponse) throws JSONException {
-        return new JSONObject(httpResponse);
+        JSONObject userInfo = new JSONObject(httpResponse);
+        JSONArray customClaimsArray = new JSONArray();
+        customClaims.stream().forEach(customClaim -> {
+          if (userInfo.has(customClaim)) {
+            Object customClaimValue = userInfo.get(customClaim);
+            if (customClaimValue instanceof JSONArray) {
+              JSONArray jsonArray = (JSONArray) customClaimValue;
+              String joinedValues = jsonArray.toList().stream().map(Object::toString).collect(Collectors.joining (customClaimsMultiValuedSeparator));
+              customClaimsArray.put(new JSONObject().put(customClaim, joinedValues));
+            } else {
+              customClaimsArray.put(new JSONObject().put(customClaim, customClaimValue.toString()));
+            }
+          }
+        });
+        userInfo.put(OAuthConstants.CUSTOM_CLAIMS, customClaimsArray);
+        return userInfo;
       }
-
     };
     JSONObject uinfo = userInfoRequest.executeRequest(params);
 
@@ -506,5 +539,13 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       log.error("Unable to read url {}",url,e);
     }
     return null;
+  }
+
+  public List<String> getCustomClaims() {
+    return customClaims;
+  }
+
+  public String getCustomClaimsMultiValuedSeparator() {
+    return customClaimsMultiValuedSeparator;
   }
 }
