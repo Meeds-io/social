@@ -29,6 +29,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -139,7 +140,20 @@ public class OAuthUtils {
                                                                 : givenName + " " + familyName;
       String picture =
                      userInfo.has(OAuthConstants.PICTURE_ATTRIBUTE) ? userInfo.getString(OAuthConstants.PICTURE_ATTRIBUTE) : null;
-      return new OAuthPrincipal<>(null, givenName, familyName, name, email, picture, accessTokenContext, openIdProviderType);
+      Map<String, String> customClaims = new HashMap<>();
+      if (userInfo.has(OAuthConstants.CUSTOM_CLAIMS)) {
+        JSONArray customClaimsArray = userInfo.getJSONArray(OAuthConstants.CUSTOM_CLAIMS);
+        for (int i = 0; i < customClaimsArray.length(); i++) {
+          JSONObject customClaim = customClaimsArray.getJSONObject(i);
+          customClaim
+              .toMap()
+              .entrySet()
+              .stream()
+              .forEach(entry -> customClaims.put(entry.getKey(), entry.getValue().toString()));
+        }
+      }
+
+      return new OAuthPrincipal<>(null, givenName, familyName, name, email, picture, accessTokenContext, openIdProviderType, customClaims);
     } catch (JSONException jsonException) {
       throw new OAuthException(OAuthExceptionCode.ACCESS_TOKEN_ERROR, "Error during user info reading: response format is ko");
     }
