@@ -17,6 +17,7 @@ package io.meeds.oauth.web;
 
 import java.io.IOException;
 
+import io.meeds.oauth.service.OAuthRegistrationService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -59,7 +60,8 @@ public class OAuthAuthenticationFilter extends AbstractSSOInterceptor {
 
   private SocialNetworkService   socialNetworkService;
 
-  private AuthenticationRegistry authenticationRegistry;
+  private AuthenticationRegistry   authenticationRegistry;
+  private OAuthRegistrationService oAuthRegistrationService;
 
   @Override
   protected void initImpl() {
@@ -80,6 +82,7 @@ public class OAuthAuthenticationFilter extends AbstractSSOInterceptor {
 
     socialNetworkService = getExoContainer().getComponentInstanceOfType(SocialNetworkService.class);
     authenticationRegistry = getExoContainer().getComponentInstanceOfType(AuthenticationRegistry.class);
+    oAuthRegistrationService = getExoContainer().getComponentInstanceOfType(OAuthRegistrationService.class);
   }
 
   @Override
@@ -188,6 +191,7 @@ public class OAuthAuthenticationFilter extends AbstractSSOInterceptor {
                                                 OAuthConstants.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_FOR_JAAS,
                                                 portalUser);
     if (portalUser.isEnabled()) {
+      oAuthRegistrationService.updateCustomClaimsInProfile(portalUser, principal);
       socialNetworkService.updateOAuthAccessToken(principal.getOauthProviderType(),
                                                   portalUser.getUserName(),
                                                   principal.getAccessToken());

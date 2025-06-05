@@ -57,6 +57,14 @@ public interface OAuthRegistrationService {
   void updateUserProfileAttributes(String username, OAuthProviderType<?> providerType) throws Exception; // NOSONAR
 
   /**
+   * Saves user OAuth profile attributes in {@link UserProfile} entity
+   *
+   * @param  user     existing {@link User} entity username attribute
+   * @param  principal {@link OAuthPrincipal} of authenticated user
+   */
+  void updateCustomClaimsInProfile(User user, OAuthPrincipal<? extends AccessTokenContext> principal);
+
+  /**
    * Saves User Avatar from oAuth Provider into user {@link Identity}
    * 
    * @param username  existing {@link User} entity username attribute
