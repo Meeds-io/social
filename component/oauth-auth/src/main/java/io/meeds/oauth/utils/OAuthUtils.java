@@ -106,10 +106,7 @@ public class OAuthUtils {
   public static OAuthPrincipal<GoogleAccessTokenContext> convertGoogleInfoToOAuthPrincipal(Userinfo userInfo,
                                                                                            GoogleAccessTokenContext accessToken,
                                                                                            OAuthProviderType<GoogleAccessTokenContext> googleProviderType) {
-    // Assume that username is first part of email
-    String email = userInfo.getEmail();
-    String username = email != null ? email.substring(0, email.indexOf('@')) : userInfo.getGivenName();
-    return new OAuthPrincipal<>(username,
+    return new OAuthPrincipal<>(null,
                                 userInfo.getGivenName(),
                                 userInfo.getFamilyName(),
                                 userInfo.getName(),
