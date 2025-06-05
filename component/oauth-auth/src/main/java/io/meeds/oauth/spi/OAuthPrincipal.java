@@ -15,7 +15,11 @@
  */
 package io.meeds.oauth.spi;
 
+import org.apache.ecs.html.S;
+
 import java.security.Principal;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Principal, which contains info about user, who was authenticated through
@@ -41,6 +45,10 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
 
   private final OAuthProviderType<T> oauthProviderType;
 
+
+
+  private final Map<String,String> customClaims;
+
   public OAuthPrincipal(String userName,
                         String firstName,
                         String lastName,
@@ -59,6 +67,18 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
                         String avatar,
                         T accessToken,
                         OAuthProviderType<T> oauthProviderType) {
+    this(userName, firstName, lastName, displayName, email, avatar, accessToken, oauthProviderType, new HashMap<>());
+  }
+
+  public OAuthPrincipal(String userName,
+                        String firstName,
+                        String lastName,
+                        String displayName,
+                        String email,
+                        String avatar,
+                        T accessToken,
+                        OAuthProviderType<T> oauthProviderType,
+                        Map<String, String> customClaims) {
     this.userName = userName;
     this.firstName = firstName;
     this.lastName = lastName;
@@ -67,6 +87,7 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
     this.avatar = avatar;
     this.accessToken = accessToken;
     this.oauthProviderType = oauthProviderType;
+    this.customClaims = customClaims;
   }
 
   @Override
@@ -105,5 +126,9 @@ public class OAuthPrincipal<T extends AccessTokenContext> implements Principal {
 
   public OAuthProviderType getOauthProviderType() {
     return oauthProviderType;
+  }
+
+  public Map<String, String> getCustomClaims() {
+    return customClaims;
   }
 }

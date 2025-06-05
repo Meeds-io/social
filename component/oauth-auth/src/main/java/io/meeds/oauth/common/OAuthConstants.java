@@ -195,4 +195,7 @@ public class OAuthConstants {
   public static final String PICTURE_ATTRIBUTE                                   = "picture";
 
   public static final String FAMILY_NAME_ATTRIBUTE                               = "family_name";
+
+
+  public static final String CUSTOM_CLAIMS                               = "custom_claims";
 }

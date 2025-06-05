@@ -149,7 +149,7 @@
       </value-param>
       <value-param>
         <name>scope</name>
-        <value>openid email profile</value>
+        <value>${exo.oauth.openid.scope:openid email profile}</value>
       </value-param>
       <value-param>
         <name>accessType</name>
@@ -158,6 +158,14 @@
       <value-param>
         <name>wellKnownConfigurationUrl</name>
         <value>${exo.oauth.openid.wellKnownConfigurationUrl}</value>
+      </value-param>
+      <value-param>
+        <name>customClaims</name>
+        <value>${exo.oauth.custom.claims:}</value>
+      </value-param>
+      <value-param>
+        <name>customClaimsMultiValueSeparator</name>
+        <value>${exo.oauth.custom.claims.multivalue.separator:;}</value>
       </value-param>
     </init-params>
   </component>
@@ -178,6 +186,10 @@
       <value-param>
         <name>registerOnFly</name>
         <value>${gatein.oauth.registraterOnFly:FACEBOOK,GOOGLE,LINKEDIN}</value>
+      </value-param>
+      <value-param>
+        <name>customClaimsMultiValueSeparator</name>
+        <value>${exo.oauth.custom.claims.multivalue.separator:;}</value>
       </value-param>
     </init-params>
   </component>

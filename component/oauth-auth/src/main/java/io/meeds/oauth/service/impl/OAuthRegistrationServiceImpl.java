@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -53,12 +55,15 @@ import io.meeds.oauth.service.OAuthRegistrationService;
 import io.meeds.oauth.spi.AccessTokenContext;
 import io.meeds.oauth.spi.OAuthPrincipal;
 import io.meeds.oauth.spi.OAuthProviderType;
+import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 
 public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
   private static Log          log                        = ExoLogger.getLogger(OAuthRegistrationServiceImpl.class);
 
   private static final String REGISTER_ON_FLY_INIT_PARAM = "registerOnFly";
+  private static final String CUSTOM_CLAIMS_MULTI_VALUE_SEPARATOR = "customClaimsMultiValueSeparator";
 
   private static final int    IMAGE_WIDTH                = 200;
 
@@ -69,17 +74,21 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
   private OrganizationService organizationService;
 
   private IdentityManager     identityManager;
+  private ProfilePropertyService profilePropertyService;
 
   private List<String>        registerOnFly;
+  private String       customClaimsMultiValuedSeparator;
+
 
   public OAuthRegistrationServiceImpl(PortalContainer container,
                                       OrganizationService organizationService,
                                       IdentityManager identityManager,
+                                      ProfilePropertyService profilePropertyService,
                                       InitParams initParams) {
     this.container = container;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
-
+    this.profilePropertyService = profilePropertyService;
     if (initParams != null && initParams.containsKey(REGISTER_ON_FLY_INIT_PARAM)) {
       String onFlyProviders = initParams.getValueParam(REGISTER_ON_FLY_INIT_PARAM).getValue();
       if (StringUtils.isBlank(onFlyProviders)) {
@@ -88,6 +97,13 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
         registerOnFly = Arrays.asList(onFlyProviders.split(","));
       }
     }
+    if (initParams != null && initParams.containsKey(CUSTOM_CLAIMS_MULTI_VALUE_SEPARATOR)) {
+      this.customClaimsMultiValuedSeparator = initParams.getValueParam(CUSTOM_CLAIMS_MULTI_VALUE_SEPARATOR).getValue();
+    } else {
+      this.customClaimsMultiValuedSeparator = ";";
+    }
+
+
   }
 
   @Override
@@ -122,7 +138,47 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
     User user = principal.getOauthProviderType().getOauthPrincipalProcessor().convertToGateInUser(principal);
     createUser(user, principal.getOauthProviderType());
     updateUserIdentityAvatar(user.getUserName(), principal);
+    updateCustomClaimsInProfile(user,principal);
     return user;
+  }
+
+  public void updateCustomClaimsInProfile(User user, OAuthPrincipal<? extends AccessTokenContext> principal) {
+    startTransaction();
+    try {
+
+      Map<String, String> customClaims = principal.getCustomClaims();
+      Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
+      Profile profile = identity.getProfile();
+
+      AtomicBoolean isProfileUpdated = new AtomicBoolean(false);
+
+      customClaims.entrySet().stream().forEach(claim -> {
+        String key = claim.getKey();
+        String value = claim.getValue();
+        //does the profile property exist?
+        ProfilePropertySetting setting = this.profilePropertyService.getProfileSettingByName(key);
+        if (setting!=null && setting.isActive()) {
+          //if it exists, update the value
+          if (setting.isMultiValued()) {
+           List<String> values = Arrays.asList(value.split(this.customClaimsMultiValuedSeparator));
+           List<Map<String, String>> maps =
+               values.stream().map(s -> Collections.singletonMap("value", s)).collect(Collectors.toList());
+           profile.setProperty(key, maps);
+          } else {
+            profile.setProperty(key, value);
+          }
+          isProfileUpdated.set(true);
+        }
+      });
+
+      if (isProfileUpdated.get()) {
+        //if at least one property was updated, update the profile
+        identityManager.updateProfile(profile);
+      }
+    } finally {
+      endTransaction();
+    }
+
   }
 
   @Override

@@ -69,6 +69,7 @@ public class OauthSignupOnflyFilter extends OAuthAbstractFilter {
 
       User user = oAuthRegistrationService.detectGateInUser(request, principal);
       if (user != null) {
+        oAuthRegistrationService.updateCustomClaimsInProfile(user, principal);
         authenticationRegistry.setAttributeOfClient(request,
                                                     OAuthConst.ATTRIBUTE_AUTHENTICATED_PORTAL_USER_DETECTED,
                                                     user);
