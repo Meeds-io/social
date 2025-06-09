@@ -105,7 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
       categoryIds = Collections.emptySet();
     } else {
       categoryStorage.getLinkedIds(filter.getObjectType());
-      categoryIds = categoryPluginService.getCategoryIds(filter.getObjectType())
+      categoryIds = categoryPluginService.getCategoryIds(filter.getObjectType(), filter.getSpaceId())
                                          .stream()
                                          .filter(id -> canAccess(id, username))
                                          .flatMap(id -> Stream.concat(this.getAncestorIds(id).stream(), Stream.of(id)))
@@ -423,7 +423,7 @@ public class CategoryServiceImpl implements CategoryService {
                                          long depthLimit,
                                          long depth) {
     CategoryTree categoryTree = new CategoryTree(category);
-    if (linkPermission && category.getParentId() > 0) {
+    if (StringUtils.isNotBlank(username)) {
       categoryTree.setCanLink(canManageLink(category, username));
     }
     long categoryId = categoryTree.getId();

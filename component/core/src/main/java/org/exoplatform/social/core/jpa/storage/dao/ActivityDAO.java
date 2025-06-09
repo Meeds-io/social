@@ -493,4 +493,11 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    */
   List<ActivityEntity> findActivities(List<Long> activityIds);
 
+
+  /**
+   * @param spaceIdentityId Space {@link Identity} identifier
+   * @return {@link List} of Category Ids used in Activities
+   */
+  List<Long> getActivityCategoryIds(long spaceIdentityId);
+
 }

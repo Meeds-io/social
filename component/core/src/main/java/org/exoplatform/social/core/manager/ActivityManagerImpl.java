@@ -26,7 +26,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
@@ -82,7 +82,7 @@ public class ActivityManagerImpl implements ActivityManager {
 
   protected RelationshipManager           relationshipManager;
 
-  private UserACL                         userACL;
+  private UserACL                         userAcl;
 
   /** spaceService */
   protected SpaceService                  spaceService;
@@ -165,7 +165,7 @@ public class ActivityManagerImpl implements ActivityManager {
     this.identityManager = identityManager;
     this.spaceService = spaceService;
     this.relationshipManager = relationshipManager;
-    this.userACL = userACL;
+    this.userAcl = userACL;
     initActivityTypes();
 
     if (params != null) {
@@ -308,6 +308,19 @@ public class ActivityManagerImpl implements ActivityManager {
     }
   }
 
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceId) {
+    long spaceIdentityId = 0;
+    if (spaceId > 0) {
+      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+      if (space != null) {
+        Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+        spaceIdentityId = Long.parseLong(spaceIdentity.getId());
+      }
+    }
+    return activityStorage.getActivityCategoryIds(spaceIdentityId);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -359,29 +372,35 @@ public class ActivityManagerImpl implements ActivityManager {
    * {@inheritDoc}
    */
   @Override
-  public void updateActivity(ExoSocialActivity existingActivity, boolean broadcast) {
-    String activityId = existingActivity.getId();
+  public void updateActivity(ExoSocialActivity activity, boolean broadcast) {
+    String activityId = activity.getId();
 
     // In order to get the added mentions in the ActivityMentionPlugin we need
     // to
     // pass the previous mentions in the activity, since there is no way to do
     // so,
     // as a solution we pass them throw the activity's template params
-    String[] previousMentions = getActivity(activityId).getMentionedIds();
-    activityStorage.updateActivity(existingActivity);
+    ExoSocialActivity existingActivity = getActivity(activityId);
+    String[] previousMentions = existingActivity.getMentionedIds();
+    activityStorage.updateActivity(activity);
 
     if (previousMentions.length > 0) {
       String mentions = String.join(",", previousMentions);
-      Map<String, String> mentionsTemplateParams = existingActivity.getTemplateParams() != null ? existingActivity.getTemplateParams() : new HashMap<>();
+      Map<String, String> mentionsTemplateParams = activity.getTemplateParams() != null ? activity.getTemplateParams() :
+                                                                                        new HashMap<>();
       mentionsTemplateParams.put("PreviousMentions", mentions);
 
-      existingActivity.setTemplateParams(mentionsTemplateParams);
+      activity.setTemplateParams(mentionsTemplateParams);
     }
     if (broadcast) {
-      if (existingActivity.isComment() || StringUtils.isNotBlank(existingActivity.getParentId())) {
-        activityLifeCycle.updateComment(existingActivity);
+      if (activity.isComment() || StringUtils.isNotBlank(activity.getParentId())) {
+        activityLifeCycle.updateComment(activity);
       } else {
-        activityLifeCycle.updateActivity(existingActivity);
+        activityLifeCycle.updateActivity(activity);
+      }
+      if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(existingActivity.getCategoryIds())
+          || (CollectionUtils.size(activity.getCategoryIds()) > 0 && !CollectionUtils.isEqualCollection(activity.getCategoryIds(), existingActivity.getCategoryIds()))) {
+        activityLifeCycle.updateCategories(activity, activity.getUserId(), existingActivity.getCategoryIds());
       }
     }
   }
@@ -825,8 +844,8 @@ public class ActivityManagerImpl implements ActivityManager {
             || isConnectedWithUserWithName(activityStream.getPrettyId(), username))) {
       return true;
     } else {
-      return StringUtils.equals(userACL.getSuperUser(), username)
-          || viewer.isMemberOf(userACL.getAdminGroups())
+      return StringUtils.equals(userAcl.getSuperUser(), username)
+          || viewer.isMemberOf(userAcl.getAdminGroups())
           || hasMentioned(activity, username)
           || isConnectedWithUserWithId(activity.getPosterId(), username)
           || spaceService.isSuperManager(username);
@@ -890,6 +909,31 @@ public class ActivityManagerImpl implements ActivityManager {
         && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
       return spaceService.canManageSpace(spaceService.getSpaceByPrettyName(activityStream.getPrettyId()),
                                          viewer.getUserId());
+    } else {
+      return spaceService.isSuperManager(username);
+    }
+  }
+
+  @Override
+  public boolean isActivityManageable(ExoSocialActivity activity, org.exoplatform.services.security.Identity identity) {
+    if (userAcl.isAnonymousUser(identity)) {
+      return false;
+    }
+    ActivityStream activityStream = null;
+    if (activity.isComment()) {
+      ExoSocialActivity parentActivity = getActivity(activity.getParentId());
+      activityStream = parentActivity == null ? null : parentActivity.getActivityStream();
+    } else {
+      activityStream = activity.getActivityStream();
+    }
+    String username = identity.getUserId();
+    if (activityStream != null && ActivityStream.Type.SPACE.equals(activityStream.getType())) {
+      Space space = spaceService.getSpaceByPrettyName(activityStream.getPrettyId());
+      return spaceService.isRedactor(space, username)
+             || (spaceService.canRedactOnSpace(space, username)
+                 && StringUtils.equals(identityManager.getOrCreateUserIdentity(username).getId(), activity.getUserId()))
+             || spaceService.isPublisher(space, username)
+             || spaceService.canManageSpace(space, username);
     } else {
       return spaceService.isSuperManager(username);
     }

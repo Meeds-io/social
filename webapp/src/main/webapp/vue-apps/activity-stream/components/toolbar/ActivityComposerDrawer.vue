@@ -18,6 +18,7 @@
   <exo-drawer
     id="activityComposerDrawer"
     ref="activityComposerDrawer"
+    v-if="singleton"
     v-model="drawer"
     v-draggable="enabled"
     disable-pull-to-refresh
@@ -27,7 +28,7 @@
     <template #title>
       {{ $t('activity.composer.title') }}
     </template>
-    <template #content>
+    <template v-if="drawer" #content>
       <v-card flat>
         <div v-if="!activityId">
           <div v-if="audienceTypesDisplay" class="mt-1 px-4 pt-4">
@@ -151,9 +152,25 @@
           :params="extensionParams"
           name="ActivityComposerFooterAction"
           type="activity-composer-footer-action" />
+        <category-input
+          v-if="allowFilteringPerCategory"
+          v-model="selectedCategoryIds"
+          :filter-preselection="filterPreselection"
+          class="mx-4 mt-5 mb-4">
+          <template #label>
+            <div class="d-flex flex-column flex-grow-1 flex-shrink-1 text-truncate">
+              <div class="text-body font-weight-bold">
+                {{ $t('activityStream.label.addCategories') }}
+              </div>
+              <div v-if="filteredCategoryIds?.length && !selectedCategoryIds?.length" class="text-subtitle">
+                {{ $t('activityStream.label.mandatoryCategories') }}
+              </div>
+            </div>
+          </template>
+        </category-input>
       </v-card>
     </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
@@ -181,6 +198,7 @@ export default {
       message: '',
       files: null,
       templateParams: {},
+      singleton: true,
       drawer: false,
       activityBodyEdited: false,
       activityAttachmentsEdited: false,
@@ -190,14 +208,21 @@ export default {
       loading: false,
       attachments: null,
       activityToolbarAction: false,
-      postToNetwork: eXo.env.portal.postToNetworkEnabled,
       audienceChoice: eXo.env.portal.postToNetworkEnabled && 'yourNetwork' ||  'oneOfYourSpaces',
       spaceIdentity: null,
       spaceId: eXo.env.portal.spaceId,
-      username: eXo.env.portal.userName
+      username: eXo.env.portal.userName,
+      allowFilteringPerCategory: null,
+      isFilteredStream: false,
+      filterPreselection: false,
+      filteredCategoryIds: [],
+      selectedCategoryIds: [],
     };
   },
   computed: {
+    postToNetwork() {
+      return eXo.env.portal.postToNetworkEnabled && (!this.$root.settings || this.$root.settings.allowPostToNetwork);
+    },
     composerPlaceholder() {
       return this.$t('activity.composer.placeholder');
     },
@@ -231,7 +256,8 @@ export default {
           || (!!this.activityId && !this.activityBodyEdited && !this.activityAttachmentsEdited)
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
           || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
-          || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited);
+          || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited)
+          || (this.isFilteredStream && !this.selectedCategoryIds?.length);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
@@ -299,12 +325,30 @@ export default {
     document.addEventListener('activity-composer-drawer-open', this.open);
     document.addEventListener('activity-composer-edited', this.isActivityBodyEdited);
     document.addEventListener('activity-composer-closed', this.close);
-    document.addEventListener('activity-created', this.cleareActivityMessage);
-    document.addEventListener('activity-updated', this.cleareActivityMessage);
+    document.addEventListener('activity-created', this.clearActivityMessage);
+    document.addEventListener('activity-updated', this.clearActivityMessage);
+  },
+  mounted() {
+    if (document.querySelectorAll('#activityComposerDrawer').length > 1) {
+      this.singleton = false;
+      this.clearListeners();
+    }
+  },
+  beforeDestroy() {
+    this.clearListeners();
   },
   methods: {
+    clearListeners() {
+      document.removeEventListener('activity-composer-drawer-open', this.open);
+      document.removeEventListener('activity-composer-edited', this.isActivityBodyEdited);
+      document.removeEventListener('activity-composer-closed', this.close);
+      document.removeEventListener('activity-created', this.clearActivityMessage);
+      document.removeEventListener('activity-updated', this.clearActivityMessage);
+    },
     isActivityBodyEdited(event) {
-      this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      if (this.drawer) {
+        this.activityBodyEdited = (this.messageEdited && this.messageLength) || event.detail !== 0 || (event.detail === 0 && this.messageLength);
+      }
     },
     attachmentsEdit(attachments, changed) {
       this.attachments = attachments;
@@ -328,6 +372,16 @@ export default {
         this.templateParams = {};
         this.files = [];
         this.activityType = [];
+      }
+      this.allowFilteringPerCategory = !params?.activityId && params?.allowFilteringPerCategory || false;
+      this.isFilteredStream = !params?.activityId && params?.isFilteredStream || false;
+      this.filteredCategoryIds = !params?.activityId && params?.filteredCategoryIds;
+      if (this.allowFilteringPerCategory && this.filteredCategoryIds?.length) {
+        this.filterPreselection = true;
+        this.selectedCategoryIds = this.filteredCategoryIds.slice();
+      } else {
+        this.filterPreselection = false;
+        this.selectedCategoryIds = [];
       }
       this.$nextTick().then(() => {
         this.activityBodyEdited = false;
@@ -370,8 +424,8 @@ export default {
           })
           .catch(error => {
             // eslint-disable-next-line no-console
-            console.error(`Error when updating the activity: ${error}`);
-            // TODO Display error Message
+            console.error('Error when updating the activity', error);
+            this.$root.$emit('alert-message', this.$t('activityStream.errorCreatingActivity'), 'error');
           })
           .finally(() => this.loading = false);
       } else {
@@ -398,14 +452,25 @@ export default {
             .then(this.postSaveMessage)
             .then(() => this.ckEditorInstance && this.ckEditorInstance.saveAttachments())
             .then(() => {
+              if (this.selectedCategoryIds?.length) {
+                return this.$categoryLinkService.updateCategories({
+                  objectType: 'activity',
+                  objectId: this.activityId,
+                  spaceId: this.spaceId,
+                  oldCategories: [],
+                  newCategories: this.selectedCategoryIds,
+                });
+              }
+            })
+            .then(() => {
               document.dispatchEvent(new CustomEvent('activity-created', {detail: this.activityId}));
               this.resetAudienceChoice();
               this.close();
             })
             .catch(error => {
               // eslint-disable-next-line no-console
-              console.error(`Error when posting message: ${error}`);
-              // TODO Display error Message
+              console.error('Error when posting message', error);
+              this.$root.$emit('alert-message', this.$t('activityStream.errorUpdatingActivity'), 'error');
             })
             .finally(() => this.loading = false);
         }
@@ -445,7 +510,7 @@ export default {
         return Promise.resolve(activity);
       }
     },
-    cleareActivityMessage() {
+    clearActivityMessage() {
       if (localStorage.getItem('activity-message-activityComposer')) {
         localStorage.removeItem('activity-message-activityComposer');
       }

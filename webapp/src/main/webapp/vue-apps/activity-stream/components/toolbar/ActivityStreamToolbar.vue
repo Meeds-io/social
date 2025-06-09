@@ -42,7 +42,7 @@
             <span class="pa-2 text-truncate"> {{ composerButtonLabel }} </span>
           </v-btn>
           <span v-else class="my-auto text-subtitle-color">
-            {{ $t('activity.toolbar.title') }}
+            {{ toolbarTitle }}
           </span>
           <div class="my-auto ms-auto d-flex flex-row">
             <v-tooltip v-if="markAllReadEnabled" bottom>
@@ -65,6 +65,24 @@
               </template>
               <span>
                 {{ $t('activity.filter.button.markAllAsRead') }}
+              </span>
+            </v-tooltip>
+            <v-tooltip v-if="$root.canEdit" bottom>
+              <template #activator="{ on, attrs }">
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  id="toolbarFilterButton"
+                  class="me-sm-0 me-n2"
+                  height="36px"
+                  width="36px"
+                  icon
+                  @click="openStreamSettingsDrawer">
+                  <v-icon size="20px">fa-cog</v-icon>
+                </v-btn>
+              </template>
+              <span>
+                {{ $t('activityStream.settings.tooltip') }}
               </span>
             </v-tooltip>
             <extension-registry-components
@@ -110,6 +128,8 @@
     </v-toolbar>
     <activity-stream-filter-drawer
       ref="filterStreamDrawer" />
+    <activity-stream-settings-drawer
+      ref="settingsStreamDrawer" />
   </div>
 </template>
 
@@ -181,6 +201,7 @@ export default {
       return {
         activityId: this.activityId,
         spaceId: this.spaceId,
+        canPost: this.userCanPost,
         files: [],
         templateParams: this.activityParams,
         message: this.activityBody,
@@ -199,17 +220,28 @@ export default {
     },
     userAvatarSize() {
       return this.isMobile ? '42px' : '45px';
-    }
+    },
+    spaceToolbarTitle() {
+      return this.$root.spaceId && this.$root.settings?.nameTranslations?.[eXo.env.portal.language] || this.$root.settings?.nameTranslations?.[eXo.env.portal.defaultLanguage];
+    },
+    toolbarTitle() {
+      return this.spaceToolbarTitle || this.$t('activity.toolbar.title');
+    },
   },
   created() {
-    this.streamFilter = this.$activityUtils.getStreamFilter();
-    document.addEventListener('activity-stream-type-filter-applied', event => {
-      this.streamFilter = event && event.detail;
-    });
+    this.streamFilter = this.$activityUtils.getStreamFilter(this.$root.appId);
+    this.$root.$on('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
     this.$root.$on('activity-stream-notify-all-read', this.notifyAsRead);
     this.retrieveUserInformation();
   },
+  beforeDestroy() {
+    this.$root.$off('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$off('activity-stream-notify-all-read', this.notifyAsRead);
+  },
   methods: {
+    handleStreamTypeChanged(streamFilter) {
+      this.streamFilter = streamFilter;
+    },
     retrieveUserInformation() {
       this.user = this.$currentUserIdentity && this.$currentUserIdentity.profile;
       if (!this.user) {
@@ -225,7 +257,10 @@ export default {
           activityParams: this.activityParams,
           files: [],
           activityType: [],
-          spaceId: this.spaceId
+          spaceId: this.spaceId,
+          allowFilteringPerCategory: this.$root.allowFilteringPerCategory,
+          isFilteredStream: this.$root.isFilteredStream,
+          filteredCategoryIds: this.$root.preselectedCategoryIds,
         }}));
       });
     },
@@ -257,6 +292,9 @@ export default {
     },
     openStreamFilterDrawer() {
       this.$refs.filterStreamDrawer.open();
+    },
+    openStreamSettingsDrawer() {
+      this.$refs.settingsStreamDrawer.open();
     },
   },
 };

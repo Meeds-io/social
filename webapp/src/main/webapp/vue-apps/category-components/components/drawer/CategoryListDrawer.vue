@@ -23,6 +23,7 @@
 <template>
   <exo-drawer
     ref="drawer"
+    id="CategoryListDrawer"
     v-model="drawer"
     allow-expand
     right>

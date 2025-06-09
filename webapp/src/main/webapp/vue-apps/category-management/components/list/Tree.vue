@@ -219,12 +219,14 @@ export default {
       }
     },
     async handleCategoryUpdated(item) {
-      item = await this.$categoryService.getCategory(item.id);
-      const category = this.$root.getCategory(item.id);
-      category.name = item.name;
-      category.icon = item.icon;
-      category.linkPermissionIds = item.linkPermissionIds;
-      category.accessPermissionIds = item.accessPermissionIds;
+      item = await this.$categoryService.getCategory(item.id).catch(() => null);
+      if (item) {
+        const category = this.$root.getCategory(item.id);
+        category.name = item.name;
+        category.icon = item.icon;
+        category.linkPermissionIds = item.linkPermissionIds;
+        category.accessPermissionIds = item.accessPermissionIds;
+      }
     },
     handleCategoryDeleted(item) {
       const parentCategory = this.$root.getCategory(item.parentId);

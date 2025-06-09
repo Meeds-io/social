@@ -287,7 +287,7 @@ export default {
   watch: {
     async spaceCategoryIds() {
       if (this.spaceCategoryIds?.length) {
-        const spaceCategories = await Promise.all(this.spaceCategoryIds.map(id => this.$categoryService.getCategory(id)));
+        const spaceCategories = await Promise.all(this.spaceCategoryIds.map(id => this.$categoryService.getCategory(id).catch(() => null)));
         this.spaceCategories = spaceCategories.filter(c => c);
       } else {
         this.spaceCategories = [];
@@ -296,7 +296,7 @@ export default {
     },
     async spaceTemplateCategoryIds() {
       if (this.spaceTemplateCategoryIds?.length) {
-        const spaceTemplateCategories = await Promise.all(this.spaceTemplateCategoryIds.map(id => this.$categoryService.getCategory(id)));
+        const spaceTemplateCategories = await Promise.all(this.spaceTemplateCategoryIds.map(id => this.$categoryService.getCategory(id).catch(() => null)));
         this.spaceTemplateCategories = spaceTemplateCategories.filter(c => c);
       } else {
         this.spaceTemplateCategories = [];

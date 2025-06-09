@@ -16,6 +16,7 @@
 package org.exoplatform.social.core.activity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import lombok.*;
 
@@ -26,13 +27,15 @@ public class ActivityFilter implements Serializable {
 
   private static final long  serialVersionUID = 5258841427055953446L;
 
-  private ActivityStreamType streamType;
+  private ActivityStreamType streamType       = ActivityStreamType.USER_STREAM;
 
   private String             term;
 
   private String             userId;
 
   private String             spaceId;
+
+  private List<Long>         categoryIds;
 
   private boolean            showPinned;
 

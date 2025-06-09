@@ -20,6 +20,8 @@ package io.meeds.social.category.service;
 
 import java.util.List;
 
+import org.exoplatform.social.core.space.model.Space;
+
 import io.meeds.social.category.model.Category;
 import io.meeds.social.category.model.CategoryObject;
 import io.meeds.social.category.plugin.CategoryPlugin;
@@ -33,6 +35,11 @@ public interface CategoryPluginService {
   CategoryPlugin getCategoryPlugin(String objectType);
 
   /**
+   * @param categoryPlugin add new {@link CategoryPlugin}
+   */
+  void addPlugin(CategoryPlugin categoryPlugin);
+
+  /**
    * @param objectType {@link CategoryObject} type
    * @param objectId {@link CategoryObject} id
    * @param username User technical name (login identifier)
@@ -43,8 +50,18 @@ public interface CategoryPluginService {
 
   /**
    * @param objectType {@link CategoryObject} type
+   * @param spaceId {@link Space} identifier
    * @return {@link List} of {@link Category} Ids associated to an object type
    */
-  List<Long> getCategoryIds(String objectType);
+  List<Long> getCategoryIds(String objectType, long spaceId);
+
+  /**
+   * In some cases such as Activities, the Metadata Object is different, thus
+   * this method is used to switch the associated {@link CategoryObject}
+   *
+   * @param object {@link CategoryObject}
+   * @return {@link CategoryObject}
+   */
+  CategoryObject getObject(CategoryObject object);
 
 }

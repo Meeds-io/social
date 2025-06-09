@@ -33,7 +33,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -166,8 +166,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                            .map(this::fromEntity)
                                            .collect(Collectors.toSet()));
     }
-    activity.setTemplateParams(activityEntity.getTemplateParams() != null ? new LinkedHashMap<String, String>(activityEntity.getTemplateParams())
-                                                                          : new HashMap<String, String>());
+    activity.setTemplateParams(activityEntity.getTemplateParams()
+        != null ? new LinkedHashMap<String, String>(activityEntity.getTemplateParams()) : new HashMap<String, String>());
 
     String ownerIdentityId = activityEntity.getOwnerId();
     ActivityStream stream = new ActivityStreamImpl();
@@ -184,8 +184,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         }
       }
     } else {
-      LOG.warn("Cannot find stream of activity " + activityEntity.getId() + " since identity " + ownerIdentityId
-          + " does not exist");
+      LOG.warn("Cannot find stream of activity " + activityEntity.getId() + " since identity " + ownerIdentityId +
+          " does not exist");
     }
     //
     activity.setActivityStream(stream);
@@ -200,6 +200,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activity.setPinned(activityEntity.getPinned());
     activity.setPinDate(StorageUtils.toRFC3339Date(activityEntity.getPinDate()));
     activity.setPinAuthorId(activityEntity.getPinAuthorId());
+    activity.setCategoryIds(activityEntity.getCategoryIds());
     //
     List<String> commentPosterIds = new ArrayList<>();
     List<String> replyToIds = new ArrayList<>();
@@ -215,7 +216,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                          List<String> commentPosterIds,
                                          List<String> replyToIds,
                                          boolean isSubComment) {
-    
+
     List<ActivityEntity> comments = activityDAO.findCommentsAndSubCommentsOfActivity(activity.getId());
     List<Long> commentIds = new ArrayList<>();
     for (ActivityEntity comment : comments) {
@@ -268,9 +269,10 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     activityEntity.setPinned(activity.isPinned());
     activityEntity.setPinDate(StorageUtils.parseRFC3339Date(activity.getPinDate()));
     activityEntity.setPinAuthorId(activity.getPinAuthorId());
-    activityEntity.setMentionerIds(new HashSet<String>(Arrays.asList(processMentionsByIdentityId(ownerId,
-                                                                                                 activity.getTitle(),
-                                                                                                 activity.getTemplateParams()))));
+    activityEntity.setCategoryIds(activity.getCategoryIds());
+    activityEntity.setMentionerIds(new HashSet<>(Arrays.asList(processMentionsByIdentityId(ownerId,
+                                                                                           activity.getTitle(),
+                                                                                           activity.getTemplateParams()))));
     //
     return activityEntity;
   }
@@ -286,8 +288,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     exoComment.setType(comment.getType());
     exoComment.setTitleId(comment.getTitleId());
     exoComment.setBody(comment.getBody());
-    exoComment.setTemplateParams(comment.getTemplateParams() != null ? new LinkedHashMap<String, String>(comment.getTemplateParams())
-                                                                     : new HashMap<String, String>());
+    exoComment.setTemplateParams(comment.getTemplateParams()
+        != null ? new LinkedHashMap<String, String>(comment.getTemplateParams()) : new HashMap<String, String>());
     exoComment.setPosterId(comment.getPosterId());
     exoComment.isComment(true);
     //
@@ -338,7 +340,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return convertCommentEntitiesToComments(comments, false, false);
   }
 
-  private List<ExoSocialActivity> convertCommentEntitiesToComments(List<ActivityEntity> comments, boolean loadSubComments, boolean sortDescending) {
+  private List<ExoSocialActivity> convertCommentEntitiesToComments(List<ActivityEntity> comments,
+                                                                   boolean loadSubComments,
+                                                                   boolean sortDescending) {
     if (comments == null || comments.isEmpty())
       return Collections.emptyList();
     if (loadSubComments) {
@@ -447,13 +451,15 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     // Use getActivityStorage to benifit from Cached Storage
     return activityIds.stream()
                       .map(activityId -> getActivityStorage().getActivity(String.valueOf(activityId)))
-                      .collect(Collectors.toList());
+                      .toList();
   }
 
   private List<ExoSocialActivity> convertActivityEntitiesToActivities(List<ActivityEntity> activities) {
-    if (activities == null)
+    if (CollectionUtils.isNotEmpty(activities)) {
+      return activities.stream().map(this::convertActivityEntityToActivity).toList();
+    } else {
       return Collections.emptyList();
-    return activities.stream().map(activity -> convertActivityEntityToActivity(activity)).collect(Collectors.toList());
+    }
   }
 
   @Override
@@ -535,7 +541,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                        ActivityFilter activityFilter,
                                                        long offset,
                                                        long limit) {
-    List<String> spaceIdentityIds = null;
+    List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
@@ -544,8 +550,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId());
       return StorageUtils.subList(activities, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
@@ -572,29 +578,43 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return convertActivityIdsToActivities(activityIds);
       }
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
-                                                                    0,
-                                                                    -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
     case ANY_SPACE_ACTIVITY:
       activityFilter.setShowPinned(true);
       break;
+    case ALL_STREAM:
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+      streamIdentityIds = new ArrayList<>(streamIdentityIds);
+      streamIdentityIds.add(viewerIdentity.getId());
+      Set<Long> connectionIds =
+                              connectionDAO.getConnectionIds(Long.parseLong(viewerIdentity.getId()),
+                                                             org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+      if (connectionIds != null) {
+        streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
+      }
+      break;
     default:
       throw new UnsupportedOperationException();
     }
     return convertActivityIdsToActivities(activityDAO.getActivityByFilter(activityFilter,
-                                                                          spaceIdentityIds,
+                                                                          streamIdentityIds,
                                                                           (int) offset,
                                                                           (int) limit));
   }
 
   @Override
   public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
-    List<String> spaceIdentityIds = null;
+    List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
@@ -605,8 +625,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                                                                    .collect(Collectors.toList());
       return StorageUtils.subList(activityIds, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
@@ -638,24 +658,38 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return unreadActivityIds.stream().map(String::valueOf).toList();
       }
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
-                                                                    0,
-                                                                    -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       break;
     case ANY_SPACE_ACTIVITY:
       activityFilter.setShowPinned(true);
       break;
+    case ALL_STREAM:
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+      streamIdentityIds = new ArrayList<>(streamIdentityIds);
+      streamIdentityIds.add(viewerIdentity.getId());
+      Set<Long> connectionIds =
+                              connectionDAO.getConnectionIds(Long.parseLong(viewerIdentity.getId()),
+                                                             org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+      if (connectionIds != null) {
+        streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
+      }
+      break;
 
     case PIN_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-        String.valueOf(SpaceMembershipStatus.MEMBER),
-        0,
-        -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                     0,
+                                                                     -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return Collections.emptyList();
       }
       activityFilter.setPinned(true);
@@ -664,7 +698,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     default:
       throw new UnsupportedOperationException();
     }
-    return activityDAO.getActivityIdsByFilter(activityFilter, spaceIdentityIds, (int) offset, (int) limit);
+    return activityDAO.getActivityIdsByFilter(activityFilter, streamIdentityIds, (int) offset, (int) limit);
   }
 
   @Override
@@ -688,7 +722,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       } else {
         try {
           return (int) spaceWebNotificationService.countUnreadActivitiesBySpace(viewerIdentity.getRemoteId(),
-                                                                                 Long.parseLong(activityFilter.getSpaceId()));
+                                                                                Long.parseLong(activityFilter.getSpaceId()));
         } catch (Exception e) {
           throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
                                                         viewerIdentity.getRemoteId(),
@@ -705,7 +739,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         return 0;
       }
       break;
-    case ANY_SPACE_ACTIVITY:
+    case ANY_SPACE_ACTIVITY, ALL_STREAM:
       break;
     default:
       throw new UnsupportedOperationException();
@@ -777,7 +811,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
           Identity owner = identityStorage.findIdentityById(ownerIdentityId);
           storeFile(owner, comment);
         } catch (Exception e) {
-          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + comment.getId(), e);
+          throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY,
+                                             "Failed to attach files into activity " + comment.getId(),
+                                             e);
         }
       }
 
@@ -887,7 +923,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       try {
         storeFile(owner, activity);
       } catch (Exception e) {
-        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY, "Failed to attach files into activity " + activity.getId(), e);
+        throw new ActivityStorageException(Type.FAILED_TO_ATTACH_FILES_TO_ACTIVITY,
+                                           "Failed to attach files into activity " + activity.getId(),
+                                           e);
       }
     }
 
@@ -937,7 +975,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
             LOG.error("Error while adding attachment to activity " + activityFile.getName(), e);
           }
         }
-        //Attachments from existing resource
+        // Attachments from existing resource
         else {
           try {
             activityFileStoragePlugin.attachExistingFile(activity, streamOwner, activityFile);
@@ -1012,16 +1050,17 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   private void createStreamItem(StreamType streamType, ActivityEntity activity, Long ownerId) {
     StreamItemEntity streamItem = new StreamItemEntity(streamType);
     streamItem.setOwnerId(ownerId);
-    if (streamType == StreamType.POSTER || streamType == StreamType.SPACE || streamType == StreamType.MENTIONER
+    if (streamType == StreamType.POSTER || streamType == StreamType.SPACE
+        || streamType == StreamType.MENTIONER
         || streamType == StreamType.COMMENTER) {
       streamItem.setUpdatedDate(activity.getUpdatedDate());
     } else {
       streamItem.setUpdatedDate(null);
     }
     boolean isExist = activity.getId() != null
-        && activity.getStreamItems()
-                   .stream()
-                   .anyMatch(item -> item.getOwnerId().equals(ownerId) && streamType.equals(item.getStreamType()));
+                      && activity.getStreamItems()
+                                 .stream()
+                                 .anyMatch(item -> item.getOwnerId().equals(ownerId) && streamType.equals(item.getStreamType()));
     if (!isExist) {
       activity.addStreamItem(streamItem);
     }
@@ -1173,6 +1212,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     }
     //
     activityDAO.update(activity);
+  }
+
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceIdentityId) {
+    return activityDAO.getActivityCategoryIds(spaceIdentityId);
   }
 
   private boolean hasOtherComment(ActivityEntity activity, String poster) {
@@ -1377,7 +1421,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
-  public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity, boolean loadSubComments, int offset, int limit, boolean sortDescending) {
+  public List<ExoSocialActivity> getComments(ExoSocialActivity existingActivity,
+                                             boolean loadSubComments,
+                                             int offset,
+                                             int limit,
+                                             boolean sortDescending) {
     long activityId = 0;
     try {
       activityId = Long.parseLong(existingActivity.getId());
@@ -1534,7 +1582,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       updatedActivity.setPinned(existingActivity.isPinned());
       updatedActivity.setPinDate(StorageUtils.parseRFC3339Date(existingActivity.getPinDate()));
       updatedActivity.setPinAuthorId(existingActivity.getPinAuthorId());
-
+      updatedActivity.setCategoryIds(existingActivity.getCategoryIds());
 
       activityDAO.update(updatedActivity);
     } else {
@@ -1759,7 +1807,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     if (spaceIds != null) {
       owners.addAll(spaceIds.stream().map(spaceId -> Long.parseLong(spaceId)).collect(Collectors.toList()));
     }
-    Set<Long> connectionIds = connectionDAO.getConnectionIds(identityId, org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+    Set<Long> connectionIds =
+                            connectionDAO.getConnectionIds(identityId,
+                                                           org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
     if (connectionIds != null) {
       owners.addAll(connectionIds);
     }
@@ -1825,7 +1875,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       List<StreamItemEntity> items = activityEntity.getStreamItems()
                                                    .stream()
                                                    .filter(item -> item.getStreamType() == StreamType.POSTER
-                                                       || item.getStreamType() == StreamType.SPACE)
+                                                                   || item.getStreamType() == StreamType.SPACE)
                                                    .toList();
       if (!items.isEmpty()) {
         Date now = new Date();
@@ -1866,8 +1916,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       boolean isParentActivity2 = parent2 == null || !parent2.isComment();
 
       if (isParentActivity1 && isParentActivity2) {
-        return sortDescending ? o2.getPosted().compareTo(o1.getPosted())
-                              : o1.getPosted().compareTo(o2.getPosted());
+        return sortDescending ? o2.getPosted().compareTo(o1.getPosted()) : o1.getPosted().compareTo(o2.getPosted());
       } else if (isParentActivity1) {
         return compare(o1, parent2);
       } else if (isParentActivity2) {

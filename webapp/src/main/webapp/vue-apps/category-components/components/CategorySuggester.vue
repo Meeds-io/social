@@ -115,8 +115,12 @@ export default {
   methods: {
     async init() {
       if (this.value) {
-        this.category = await this.$categoryService.getCategory(this.value);
-        this.categories = [this.category];
+        this.category = await this.$categoryService.getCategory(this.value).catch(() => null);
+        if (this.category) {
+          this.categories = [this.category];
+        } else {
+          this.categories = [];
+        }
       } else {
         this.category = null;
         this.categories = [];

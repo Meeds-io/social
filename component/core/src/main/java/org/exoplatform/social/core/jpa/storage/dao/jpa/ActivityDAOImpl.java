@@ -145,13 +145,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
-  public List<Long> getActivityByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, int offset, int limit) {
+  public List<Long> getActivityByFilter(ActivityFilter activityFilter, List<String> streamIdentityIds, int offset, int limit) {
 
-    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Tuple.class, false);
-    if (limit > 0) {
-      query.setFirstResult(Math.max(offset, 0));
-      query.setMaxResults(limit);
-    }
+    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, streamIdentityIds, Tuple.class, false);
     if (limit > 0) {
       query.setFirstResult(Math.max(offset, 0));
       query.setMaxResults(limit);
@@ -163,11 +159,11 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
   @Override
   public List<String> getActivityIdsByFilter(ActivityFilter activityFilter,
-                                             List<String> spaceIdentityIds,
+                                             List<String> streamIdentityIds,
                                              int offset,
                                              int limit) {
 
-    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Tuple.class, false);
+    TypedQuery<Tuple> query = buildQueryFromFilter(activityFilter, streamIdentityIds, Tuple.class, false);
     if (limit > 0) {
       query.setFirstResult(Math.max(offset, 0));
       query.setMaxResults(limit);
@@ -177,8 +173,8 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
-  public int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds) {
-    TypedQuery<Long> query = buildQueryFromFilter(activityFilter, spaceIdentityIds, Long.class, true);
+  public int getActivitiesCountByFilter(ActivityFilter activityFilter, List<String> streamIdentityIds) {
+    TypedQuery<Long> query = buildQueryFromFilter(activityFilter, streamIdentityIds, Long.class, true);
     return query.getSingleResult().intValue();
   }
 
@@ -920,61 +916,81 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return query.getResultList();
   }
 
-  private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter, List<String> spaceIdentityIds, Class<T> clazz, boolean count) {
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceIdentityId) {
+    if (spaceIdentityId == 0) {
+      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIds", Long.class)
+                               .getResultList();
+    } else {
+      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIdsBySpaceId", Long.class)
+                               .setParameter("spaceIdentityId", spaceIdentityId)
+                               .setParameter(STREAM_TYPE, StreamType.SPACE)
+                               .getResultList();
+    }
+  }
+
+  private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter, List<String> streamIdentityIds, Class<T> clazz, boolean count) {
     List<String> suffixes = new ArrayList<>();
     List<String> predicates = new ArrayList<>();
-    buildPredicates(activityFilter, spaceIdentityIds, suffixes, predicates);
+    buildPredicates(activityFilter, streamIdentityIds, suffixes, predicates);
 
     TypedQuery<T> query;
     String queryName = getQueryFilterName(suffixes, count);
     if (filterNamedQueries.containsKey(queryName)) {
       query = getEntityManager().createNamedQuery(queryName, clazz);
     } else {
-      String queryContent = getQueryFilterContent(predicates, activityFilter.isShowPinned(), count);
+      String queryContent = getQueryFilterContent(activityFilter, predicates, count);
       query = getEntityManager().createQuery(queryContent, clazz);
       getEntityManager().getEntityManagerFactory().addNamedQuery(queryName, query);
       filterNamedQueries.put(queryName, true);
     }
 
-    addQueryFilterParameters(activityFilter, spaceIdentityIds, query);
+    addQueryFilterParameters(activityFilter, streamIdentityIds, query);
     return query;
   }
 
   private <T> void addQueryFilterParameters(ActivityFilter activityFilter, List<String> spaceIdentityIds, TypedQuery<T> query) {
     if (activityFilter.getUserId() != null) {
       query.setParameter("posterId", activityFilter.getUserId());
+      query.setParameter("streamTypes", Arrays.asList(StreamType.POSTER, StreamType.SPACE));
     }
     if (activityFilter.getSpaceId() != null) {
       long ownerId = Long.parseLong(activityFilter.getSpaceId());
-      query.setParameter(STREAM_TYPE, StreamType.SPACE);
       query.setParameter("ownerIds", Collections.singleton(ownerId));
-    }
-    if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
+      query.setParameter("streamTypes", Arrays.asList(StreamType.SPACE));
+    } else if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
       List<Long> owners = new ArrayList<>();
       for (String id : spaceIdentityIds) {
         owners.add(Long.parseLong(id));
       }
-      query.setParameter(STREAM_TYPE, StreamType.SPACE);
       query.setParameter("ownerIds", owners);
+      query.setParameter("streamTypes", Arrays.asList(StreamType.POSTER, StreamType.SPACE));
+    }
+    if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
+      query.setParameter("categoryIds", activityFilter.getCategoryIds());
     }
   }
 
   private void buildPredicates(ActivityFilter activityFilter,
-                               List<String> spaceIdentityIds,
+                               List<String> streamIdentityIds,
                                List<String> suffixes,
                                List<String> predicates) {
     if (activityFilter.getUserId() != null) {
       suffixes.add("Poster");
       predicates.add("item.activity.posterId = :posterId");
+      predicates.add("item.streamType in (:streamTypes)");
     }
-    if (CollectionUtils.isNotEmpty(spaceIdentityIds) || activityFilter.getSpaceId() != null) {
+    if (CollectionUtils.isNotEmpty(streamIdentityIds) || activityFilter.getSpaceId() != null) {
       suffixes.add("StreamType");
-      predicates.add("item.streamType = :streamType");
       predicates.add("item.ownerId in (:ownerIds)");
+      predicates.add("item.streamType in (:streamTypes)");
     }
     if (activityFilter.isPinned()) {
       suffixes.add("Pinned");
       predicates.add("item.activity.pinned = true");
+    }
+    if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
+      suffixes.add("CategoryIds");
     }
   }
 
@@ -988,11 +1004,16 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return queryName;
   }
 
-  private String getQueryFilterContent(List<String> predicates, boolean showPinned, boolean count) {
+  private String getQueryFilterContent(ActivityFilter activityFilter, List<String> predicates, boolean count) {
     String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.activity.pinDate, item.updatedDate";
-    querySelect = querySelect + " FROM SocStreamItem item WHERE item.activity.hidden = false";
+    querySelect = querySelect + " FROM SocStreamItem item";
 
-    String orderBy = showPinned ? " ORDER BY item.activity.pinDate DESC NULLS LAST, item.updatedDate DESC" : " ORDER BY item.updatedDate DESC";
+    String orderBy = activityFilter.isShowPinned() ? " ORDER BY item.activity.pinDate DESC NULLS LAST, item.updatedDate DESC NULLS LAST" : " ORDER BY item.updatedDate DESC NULLS LAST";
+
+    if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
+      querySelect += " INNER JOIN item.activity.categories cat ON cat.categoryId in :categoryIds";
+    }
+    querySelect += " WHERE item.activity.hidden = false AND item.activity.parent IS NULL";
 
     String queryContent;
     if (predicates.isEmpty()) {

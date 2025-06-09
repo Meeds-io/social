@@ -1,5 +1,5 @@
 <template>
-  <v-app v-if="loaded">
+  <v-app v-if="loaded" class="activity-stream">
     <v-main class="application-body">
       <activity-stream-toolbar
         v-if="canPostInitialized"
@@ -7,6 +7,16 @@
         :can-filter="canFilter"
         :filter="filter"
         :has-activities="hasActivities" />
+      <categories-filter
+        v-if="$root.allowFilteringPerCategory && !$root.selectedActivityId"
+        v-show="hasActivities"
+        v-model="$root.selectedCategoryId"
+        :category-depth="$root.categoryDepth"
+        :category-ids="$root.settings?.categoryIds"
+        :space-id="$root.spaceId"
+        class="full-width border-box-sizing application-background-color application-border application-border-radius py-2 px-3 mb-5"
+        object-type="activity"
+        hide-on-empty />
       <activity-stream-list
         :activity-id="activityId"
         :activity-types="activityTypes"
@@ -95,6 +105,12 @@ export default {
         }
       }, 500);
     }
+  },
+  beforeDestroy() {
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
+    document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
   },
   methods: {
     displayActivityDetail(activityId, commentId) {

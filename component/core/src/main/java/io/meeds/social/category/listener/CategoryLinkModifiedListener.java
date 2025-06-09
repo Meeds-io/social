@@ -23,19 +23,23 @@ import static io.meeds.social.category.service.CategoryLinkService.EVENT_CATEGOR
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import org.exoplatform.services.listener.Event;
 import org.exoplatform.services.listener.ListenerBase;
 import org.exoplatform.services.listener.ListenerService;
+import org.exoplatform.social.core.activity.model.ExoSocialActivity;
+import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 
+import io.meeds.social.activity.plugin.ActivityCategoryPlugin;
 import io.meeds.social.category.model.CategoryObject;
-import io.meeds.social.category.plugin.SpaceCategoryPlugin;
+import io.meeds.social.category.service.CategoryLinkService;
 import io.meeds.social.space.category.service.SpaceCategoryService;
+import io.meeds.social.space.plugin.SpaceCategoryPlugin;
 
 import jakarta.annotation.PostConstruct;
 
@@ -46,10 +50,16 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
   private SpaceService         spaceService;
 
   @Autowired
+  private ActivityManager      activityManager;
+
+  @Autowired
   private SpaceCategoryService spaceCategoryService;
 
   @Autowired
   private ListenerService      listenerService;
+
+  @Autowired
+  private CategoryLinkService  categoryLinkService;
 
   @PostConstruct
   public void init() {
@@ -60,14 +70,34 @@ public class CategoryLinkModifiedListener implements ListenerBase<Long, Category
   @Override
   public void onEvent(Event<Long, CategoryObject> event) throws Exception {
     CategoryObject object = event.getData();
-    boolean isSpace = StringUtils.equals(object.getType(), SpaceCategoryPlugin.OBJECT_TYPE);
-    if (isSpace) {
+    String type = object.getType();
+    switch (type) {
+    case SpaceCategoryPlugin.OBJECT_TYPE:
       Space space = spaceService.getSpaceById(Long.parseLong(object.getId()));
       if (space != null) {
         List<Long> categoryIds = spaceCategoryService.getSpaceCategoryIds(space.getSpaceId());
-        space.setCategoryIds(categoryIds);
-        spaceService.updateSpace(space);
+        if (CollectionUtils.size(categoryIds) != CollectionUtils.size(space.getCategoryIds())
+            || (CollectionUtils.size(categoryIds) > 0 && !CollectionUtils.isEqualCollection(categoryIds, space.getCategoryIds()))) {
+          space.setCategoryIds(categoryIds);
+          spaceService.updateSpace(space);
+        }
       }
+      break;
+    case ActivityCategoryPlugin.OBJECT_TYPE:
+      String activityId = object.getId();
+      ExoSocialActivity activity = activityManager.getActivity(activityId);
+      if (activity != null) {
+        List<Long> categoryIds = categoryLinkService.getLinkedIds(new CategoryObject(activity.getMetadataObject()));
+        if (CollectionUtils.size(activity.getCategoryIds()) != CollectionUtils.size(categoryIds)
+            || (CollectionUtils.size(categoryIds) > 0
+                && !CollectionUtils.isEqualCollection(categoryIds, activity.getCategoryIds()))) {
+          activity.setCategoryIds(categoryIds);
+          activityManager.updateActivity(activity);
+        }
+      }
+      break;
+    default:
+      break;
     }
   }
 

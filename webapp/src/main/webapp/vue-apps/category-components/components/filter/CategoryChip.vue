@@ -41,9 +41,10 @@
         } || on"
         v-bind="attrs"
         :outlined="!selected"
-        :class="[chipClass, !visible && 'invisible' || '']"
-        class="text-truncate border-box-sizing"
-        color="primary">
+        :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
+        :color="selected && 'primary'"
+        :small="small"
+        class="text-truncate border-box-sizing">
         <v-card
           :title="category.name"
           :class="[
@@ -90,9 +91,10 @@
     v-else
     ref="chip"
     :outlined="!selected"
-    :class="[chipClass, !visible && 'invisible' || '']"
+    :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
+    :color="selected && 'primary'"
+    :small="small"
     class="text-truncate border-box-sizing"
-    color="primary"
     @click.prevent.stop="openCategory(category)">
     <v-card
       :title="category.name"
@@ -139,14 +141,21 @@ export default {
       type: Number,
       default: null,
     },
+    small: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     menu: false,
     width: null,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     visible() {
-      return !this.parentWidth || !this.width || this.width < this.parentWidth;
+      return this.isMobile || !this.parentWidth || !this.width || this.width < this.parentWidth;
     },
   },
   watch: {

@@ -1,28 +1,6 @@
 import './initComponents.js';
 import './extensions.js';
-
-import * as activityStreamWebSocket from './js/WebSocket.js';
-if (!Vue.prototype.$activityStreamWebSocket) {
-  window.Object.defineProperty(Vue.prototype, '$activityStreamWebSocket', {
-    value: activityStreamWebSocket,
-  });
-}
-
-import * as activityConstants from './js/ActivityConstants.js';
-if (!Vue.prototype.$activityConstants) {
-  window.Object.defineProperty(Vue.prototype, '$activityConstants', {
-    value: activityConstants.default,
-  });
-}
-
-import * as activityUtils from './js/ActivityUtils.js';
-if (!Vue.prototype.$activityUtils) {
-  window.Object.defineProperty(Vue.prototype, '$activityUtils', {
-    value: activityUtils,
-  });
-}
-
-document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+import './services.js';
 
 const activityBaseLink = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`;
 
@@ -39,44 +17,132 @@ if (extensionRegistry) {
 // Disable swipe for Mobile when Stream pages are displayed
 window.disableSwipeOnPage = true;
 
-//getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
-
-const appId = 'ActivityStream';
-
-// Attention!!! when changing this, the list of preloaded
-// URLs has to change in JSP as well
-const urls = [
-  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
-  `/social/i18n/locale.commons.Commons?lang=${lang}`,
-  `/social/i18n/locale.social.Webui?lang=${lang}`,
-];
-
-export function init(maxFileSize) {
-  exoi18n.loadLanguageAsync(lang, urls)
-    .then(i18n => {
-      Vue.createApp({
-        data: {
-          maxFileSize,
-          activityBaseLink: activityBaseLink,
-          selectedActivityId: null,
-          selectedCommentId: null,
-          canPost: null,
-          replyToComment: false,
-          displayCommentActionTypes: []
+export async function init({
+  appId,
+  settings,
+  saveSettingsUrl,
+  canEdit,
+  maxUploadSize,
+  spaceId,
+}) {
+  document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
+  const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+  const urls = [
+    `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+    `/social/i18n/locale.commons.Commons?lang=${lang}`,
+    `/social/i18n/locale.social.Webui?lang=${lang}`,
+  ];
+  const i18n = await exoi18n.loadLanguageAsync(lang, urls);
+  let settingsSubcategoryIds;
+  if (settings?.categoryIds?.length) {
+    settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1);
+  }
+  try {
+    await Vue.createApp({
+      data: {
+        settings: {
+          allowPostToNetwork: true,
+          nameTranslations: [],
+          allowFilteringPerCategory: true,
+          categoryDepth: 4,
+          categoryIds: [],
+          ...settings,
         },
-        computed: {
-          isMobile() {
-            return this.$vuetify?.breakpoint?.mobile;
-          },
+        appId,
+        spaceId: spaceId || eXo.env.portal.spaceId,
+        saveSettingsUrl,
+        canEdit,
+        maxFileSize: maxUploadSize,
+        activityBaseLink: activityBaseLink,
+        selectedActivityId: null,
+        selectedCommentId: null,
+        canPost: null,
+        replyToComment: false,
+        displayCommentActionTypes: [],
+        selectedCategoryId: null,
+        selectedCategoryIds: null,
+        settingsSubcategoryIds,
+      },
+      computed: {
+        isMobile() {
+          return this.$vuetify?.breakpoint?.mobile;
         },
-        created() {
-          this.replyToComment = window.location.hash.includes('#comment-reply');
+        isDesktop() {
+          return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
         },
-        template: `<activity-stream id="${appId}" />`,
-        vuetify: Vue.prototype.vuetifyOptions,
-        i18n,
-      }, `#${appId}`, 'Stream');
-    })
-    .finally(() => Vue.prototype.$utils.includeExtensions('ActivityStreamExtension'));
+        categoryIds() {
+          return this.settingsSubcategoryIds;
+        },
+        allowFilteringPerCategory() {
+          return this.settings.allowFilteringPerCategory;
+        },
+        isFilteredStream() {
+          return !!this.settings.categoryIds?.length;
+        },
+        categoryDepth() {
+          return this.settings.categoryDepth || 4;
+        },
+        preselectedCategoryIds() {
+          return this.selectedCategoryId ? [this.selectedCategoryId] : this.settings?.categoryIds;
+        },
+      },
+      watch: {
+        async selectedCategoryId() {
+          if (this.selectedCategoryId) {
+            this.selectedCategoryIds = await getSubcategoryIds([this.selectedCategoryId], -1);
+          } else {
+            this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+          }
+        },
+      },
+      created() {
+        this.replyToComment = window.location.hash.includes('#comment-reply');
+        this.$root.$on('activity-stream-settings-updated', this.handleSettingsUpdate);
+        document.addEventListener('categories-updated', this.handleCategoryUpdate);
+      },
+      mounted() {
+        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+      },
+      beforeDestroy() {
+        this.$root.$off('activity-stream-settings-updated', this.handleSettingsUpdate);
+        document.removeEventListener('categories-updated', this.handleCategoryUpdate);
+      },
+      methods: {
+        async handleSettingsUpdate() {
+          this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
+          this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
+          this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+        },
+        handleCategoryUpdate(event) {
+          const objectType = event?.detail?.objectType;
+          const objectId = event?.detail?.objectId;
+          if (objectType === 'activity' && !this.timeout) {
+            this.timeout = window.setTimeout(() => {
+              this.timeout = null;
+              this.$root.$emit('activity-updated', objectId);
+            }, 50);
+          }
+        },
+      },
+      template: `<activity-stream id="${appId}" />`,
+      vuetify: Vue.prototype.vuetifyOptions,
+      i18n,
+    }, `#${appId}`, 'Stream');
+  } finally {
+    Vue.prototype.$utils.includeExtensions('ActivityStreamExtension');
+  }
+}
+
+async function getSubcategoryIds(categoryIds, depth) {
+  if (!categoryIds?.length) {
+    return [];
+  }
+  const subcategoyIds = await Promise.all(categoryIds.map(id => Vue.prototype.$categoryService.getSubcategoryIds(id, {
+    offset: 0,
+    limit: -1,
+    depth,
+  })));
+  const subcategoyIdsFlat = subcategoyIds.flatMap(s => s);
+  subcategoyIdsFlat.push(...categoryIds);
+  return [...new Set(subcategoyIdsFlat)];
 }

@@ -117,9 +117,7 @@ export default {
     document.addEventListener('activity-comment-deleted', this.handleCommentDeleted);
   },
   beforeDestroy() {
-    if (this.allowEdit) {
-      this.$root.$off('activity-comment-editor-updated', this.updateEditorOptions);
-    }
+    this.$root.$off('activity-comment-editor-updated', this.updateEditorOptions);
     this.$root.$off('activity-comment-created', this.addComment);
     this.$root.$off('activity-comment-updated', this.updateComment);
     this.$root.$off('activity-comment-deleted', this.deleteComment);
@@ -160,16 +158,14 @@ export default {
       }
     },
     handleCommentCreated(event) {
-      const comment = event && event.detail;
-      if (!comment || !comment.id) {
+      const comment = event?.detail;
+      const activityId = comment?.activityId;
+      if (!comment?.id || !activityId) {
         console.error('no comment was sent in triggered event');
         return;
-      }
-      const activityId = comment.activityId;
-      if (activityId !== this.activityId) {
+      } else if (activityId !== this.activityId) {
         return;
-      }
-      if (comment.templateParams) {
+      } else if (comment.templateParams) {
         this.$root.$emit('activity-comment-created', comment);
       } else { // Comment not completely loaded
         this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)
@@ -200,16 +196,14 @@ export default {
       this.resetEditorOptions();
     },
     handleCommentUpdated(event) {
-      const comment = event && event.detail;
-      if (!comment || !comment.id) {
+      const comment = event?.detail;
+      const activityId = comment?.activityId;
+      if (!comment?.id || !activityId) {
         console.error('no comment was sent in triggered event');
         return;
-      }
-      const activityId = comment.activityId;
-      if (activityId !== this.activityId) {
+      } else if (activityId !== this.activityId) {
         return;
-      }
-      if (comment.templateParams) {
+      } else if (comment.templateParams) {
         this.$root.$emit('activity-comment-updated', comment);
       } else { // Comment not completely loaded
         this.$activityService.getActivityById(comment.id, this.$activityConstants.FULL_COMMENT_EXPAND)

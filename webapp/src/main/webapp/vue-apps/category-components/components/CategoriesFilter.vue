@@ -21,9 +21,12 @@
 
 -->
 <template>
-  <div class="d-flex flex-column justify-center full-width">
+  <div
+    :class="[hideOnEmpty && !display ? 'd-none' : 'd-flex']"
+    class="flex-column justify-center">
     <v-card
       v-if="display"
+      :class="isMobile && 'overflow-x-auto specific-scrollbar'"
       class="d-flex align-center"
       min-height="34"
       flat>
@@ -73,6 +76,10 @@ export default {
       type: String,
       default: null,
     },
+    spaceId: {
+      type: String,
+      default: null,
+    },
     categoryIds: {
       type: Array,
       default: null,
@@ -80,6 +87,10 @@ export default {
     categoryDepth: {
       type: Number,
       default: () => 4,
+    },
+    hideOnEmpty: {
+      type: Boolean,
+      default: false,
     },
   },
   data: () => ({
@@ -91,6 +102,9 @@ export default {
     chipsWidthPerCategory: 1,
   }),
   computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.mobile;
+    },
     categories() {
       const categories = [];
       if (this.categoryTree) {
@@ -159,6 +173,7 @@ export default {
           const subCategories = (await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategoryTree({
             parentId: id,
             objectType: this.objectType,
+            spaceId: this.spaceId,
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,
@@ -173,6 +188,7 @@ export default {
         } else {
           this.categoryTree = await this.$categoryService.getCategoryTree({
             objectType: this.objectType,
+            spaceId: this.spaceId,
             depth: this.categoryDepth,
             offset: 0,
             limit: -1,

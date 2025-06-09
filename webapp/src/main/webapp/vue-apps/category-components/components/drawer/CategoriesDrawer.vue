@@ -21,7 +21,7 @@
 -->
 <template>
   <exo-drawer
-    id="SpaceSettingsCategoriesDrawer"
+    id="CategoriesDrawer"
     ref="drawer"
     v-model="drawer"
     :loading="loading || saving"
@@ -103,7 +103,14 @@ export default {
       } else {
         this.saving = true;
         try {
-          await this.$spaceCategoryService.updateCategories(this.spaceId, this.categoryIds, this.selectedCategoryIds, true);
+          await this.$categoryLinkService.updateCategories({
+            objectType: 'space',
+            objectId: this.spaceId,
+            spaceId: this.spaceId,
+            oldCategories: this.categoryIds,
+            newCategories: this.selectedCategoryIds,
+            dropExisting: true
+          });
           this.categoryIds = this.selectedCategoryIds;
           this.$root.$emit('space-categories-updated', this.spaceId, this.categoryIds);
           this.$root.$emit('alert-message', this.$t('categoryInput.updated.success'), 'success');

@@ -87,6 +87,7 @@ export default {
     userName: eXo.env.portal.userName,
     hasMore: false,
     loading: false,
+    initialized: false,
     error: false,
     isDeleted: false,
     streamFilter: 'all_stream',
@@ -111,6 +112,9 @@ export default {
     },
     activityIds() {
       return this.activities?.map?.(a => a.id)?.filter?.(id => !!id) || [];
+    },
+    selectedCategoryIds() {
+      return this.$root.selectedCategoryIds?.length ? this.$root.selectedCategoryIds : this.$root.categoryIds;
     },
   },
   watch: {
@@ -143,108 +147,26 @@ export default {
         this.hadUnread = false;
       }
     },
+    selectedCategoryIds() {
+      if (this.initialized) {
+        this.refreshActivities();
+      }
+    },
   },
   created() {
-    this.streamFilter = this.$activityUtils.getStreamFilter();
-    document.addEventListener('activity-favorite-removed', event => {
-      const favoriteActivity = event?.detail;
-      if (this.streamFilter === 'user_favorite_stream') {
-        this.$set(favoriteActivity, 'deleted', true);
-        const self = this;
-        setTimeout(function() {
-          const index = self.activities.findIndex(activity => favoriteActivity.id === activity.id);
-          if (index >= 0) {
-            self.activities.splice(index, 1);
-          }
-        }, 200);
-      }
-    });
-    document.addEventListener('activity-deleted', event => {
-      const activityId = event?.detail;
-      if (this.activityId === activityId) {
-        this.isDeleted = true;
-        const activity = this.activities.find(obj => activityId === obj.id);
-        if (activity) {
-          setTimeout(() => {
-            if (activity.activityStream.type === 'space') {
-              location.href = `${eXo.env.portal.context}/s/${activity.activityStream.space.id}`;
-            } else {
-              location.href = eXo.env.portal.context;
-            }
-          }, 500);
-        }
-      }
-      if (activityId) {
-        const index = this.activities.findIndex(activity => activityId === activity.id);
-        if (index >= 0) {
-          this.activities.splice(index, 1);
-          this.$forceUpdate();
-        }
-      }
-    });
-    document.addEventListener('activity-pinned', event => {
-      if (this.pinActivityEnabled) {
-        const pinnedActivity = event?.detail;
-        this.$set(pinnedActivity, 'pinned', true);
-        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
-        this.activitiesToDisplay.splice(index, 1);
-        this.$forceUpdate();
-        const self = this;
-        setTimeout(function () {
-          self.activitiesToDisplay.unshift(pinnedActivity);
-          self.$forceUpdate();
-        }, 10);
-      }
-      this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
-    });
-    document.addEventListener('activity-unpinned', event => {
-      if (this.pinActivityEnabled) {
-        const unpinnedActivity = event?.detail;
-        this.$set(unpinnedActivity, 'pinned', false);
-        const index = this.activitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
-        if (index >= 0) {
-          this.activitiesToDisplay.splice(index, 1);
-        }
-        this.$forceUpdate();
-        const self = this;
-        setTimeout(function () {
-          let added = false;
-          for (let i = 0; i < self.activitiesToDisplay.length; i++) {
-            if ((new Date(unpinnedActivity.updateDate) > new Date(self.activitiesToDisplay[i].updateDate)) && !self.activitiesToDisplay[i].pinned) {
-              self.activitiesToDisplay.splice(i, 0, unpinnedActivity);
-              added = true;
-              break;
-            }
-          }
-          if (!added && !self.hasMore) {
-            self.activitiesToDisplay.push(unpinnedActivity);
-          }
-          self.$forceUpdate();
-        }, 50);
-      }
-      this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
-    });
-    document.addEventListener('activity-updated', event => {
-      const activityId = event && event.detail;
-      this.updateActivityDisplayById(activityId);
-
-    });
-    document.addEventListener('activity-stream-type-filter-applied', event => {
-      this.streamFilter = event && event.detail;
-      this.activities = [];
-      this.loadActivityIds();
-    });
-    this.$root.$on('activity-updated', (activityId, activity) => {
-      if (activity) {
-        this.updateActivityDisplay(activity);
-      } else {
-        this.updateActivityDisplayById(activityId);
-      }
-    });
+    this.streamFilter = this.$activityUtils.getStreamFilter(this.$root.appId);
+    this.$root.$on('activity-favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$on('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$on('activity-updated', this.handleUpdated);
     this.$root.$on('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
+    document.addEventListener('categories-updated', this.refreshActivitiesByCategories);
+    document.addEventListener('activity-deleted', this.handleDeletedByEvent);
+    document.addEventListener('activity-pinned', this.handlePinnedByEvent);
+    document.addEventListener('activity-unpinned', this.handleUnpinnedByEvent);
+    document.addEventListener('activity-updated', this.handleUpdatedByEvent);
 
     this.limit = this.pageSize;
     this.retrievedSize = this.limit;
@@ -258,7 +180,18 @@ export default {
       });
   },
   beforeDestroy() {
+    this.$root.$off('activity-favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$off('activity-stream-type-filter-applied', this.handleStreamTypeChanged);
+    this.$root.$off('activity-updated', this.handleUpdated);
     this.$root.$off('activity-stream-activity-updateActivity', this.updateActivityDisplayById);
+    this.$root.$off('activities-refresh', this.refreshActivities);
+    this.$root.$off('activity-read', this.markActivityAsRead);
+    this.$root.$off('activity-loaded', this.refreshUnreadCount);
+    document.removeEventListener('categories-updated', this.refreshActivitiesByCategories);
+    document.removeEventListener('activity-deleted', this.handleDeletedByEvent);
+    document.removeEventListener('activity-pinned', this.handlePinnedByEvent);
+    document.removeEventListener('activity-unpinned', this.handleUnpinnedByEvent);
+    document.removeEventListener('activity-updated', this.handleUpdatedByEvent);
   },
   methods: {
     init() {
@@ -268,6 +201,108 @@ export default {
         return this.loadActivityIds();
       }
     },
+    handleStreamTypeChanged(streamFilter) {
+      this.streamFilter = streamFilter;
+      this.activities = [];
+      this.loadActivityIds();
+    },
+    handleUpdated(activityId, activity) {
+      if (activity) {
+        this.updateActivityDisplay(activity);
+      } else {
+        this.updateActivityDisplayById(activityId);
+      }
+    },
+    handleUpdatedByEvent(event) {
+      const activityId = event && event.detail;
+      this.updateActivityDisplayById(activityId);
+    },
+    handleUnpinnedByEvent(event) {
+      const unpinnedActivity = event?.detail;
+      if (this.pinActivityEnabled) {
+        const index = this.activitiesToDisplay.findIndex(activity => unpinnedActivity.id === activity.id);
+        if (index >= 0) {
+          this.$set(this.activitiesToDisplay[index], 'pinned', false);
+          this.activitiesToDisplay.splice(index, 1);
+          this.$forceUpdate();
+          setTimeout(() => {
+            let added = false;
+            for (let i = 0; i < this.activitiesToDisplay.length; i++) {
+              if ((new Date(unpinnedActivity.updateDate) > new Date(this.activitiesToDisplay[i].updateDate)) && !this.activitiesToDisplay[i].pinned) {
+                this.activitiesToDisplay.splice(i, 0, unpinnedActivity);
+                added = true;
+                break;
+              }
+            }
+            if (!added && !this.hasMore) {
+              this.activitiesToDisplay.push(unpinnedActivity);
+            }
+            this.$forceUpdate();
+          }, 50);
+        }
+      } else {
+        const activity = this.activitiesToDisplay.find(a => unpinnedActivity.id === a.id);
+        if (activity) {
+          this.$set(activity, 'pinned', false);
+        }
+      }
+      this.displayAlert(this.$t('UIActivity.label.successfullyUnpinned'));
+    },
+    handlePinnedByEvent(event) {
+      const pinnedActivity = event?.detail;
+      if (this.pinActivityEnabled) {
+        const index = this.activitiesToDisplay.findIndex(activity => pinnedActivity.id === activity.id);
+        if (index >= 0) {
+          this.$set(this.activitiesToDisplay[index], 'pinned', true);
+          this.activitiesToDisplay.splice(index, 1);
+          this.$forceUpdate();
+          const self = this;
+          setTimeout(function () {
+            self.activitiesToDisplay.unshift(pinnedActivity);
+            self.$forceUpdate();
+          }, 10);
+        }
+      } else {
+        const activity = this.activitiesToDisplay.find(a => pinnedActivity.id === a.id);
+        if (activity) {
+          this.$set(activity, 'pinned', true);
+        }
+      }
+      this.displayAlert(this.$t('UIActivity.label.successfullyPinned'));
+    },
+    handleDeletedByEvent(event) {
+      const activityId = event?.detail;
+      if (this.activityId === activityId) { // standalone
+        this.isDeleted = true;
+        const activity = this.activities.find(obj => this.activityId === obj.id);
+        if (activity) {
+          setTimeout(() => {
+            if (activity.activityStream.type === 'space') {
+              location.href = `${eXo.env.portal.context}/s/${activity.activityStream.space.id}`;
+            } else {
+              location.href = eXo.env.portal.context;
+            }
+          }, 500);
+        }
+      } else if (activityId) { // stream
+        const index = this.activities.findIndex(activity => activityId === activity.id);
+        if (index >= 0) {
+          this.activities.splice(index, 1);
+          this.$forceUpdate();
+        }
+      }
+    },
+    handleFavoriteRemoved(activity) {
+      if (this.streamFilter === 'user_favorite_stream') {
+        this.$set(activity, 'deleted', true);
+        window.setTimeout(() => {
+          const index = this.activities.findIndex(a => activity.id === a.id);
+          if (index >= 0) {
+            this.activities.splice(index, 1);
+          }
+        }, 200);
+      }
+    },
     loadActivity() {
       this.loading = true;
       return this.$activityService.getActivityById(this.activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
@@ -275,18 +310,37 @@ export default {
         .catch(() => this.error = true)
         .finally(() => this.loading = false);
     },
+    refreshActivitiesByCategories(event) {
+      const objectType = event?.detail?.objectType;
+      const objectId = event?.detail?.objectId;
+      if (objectType === 'activity'
+          && this.activitiesToDisplay.find(a => a.id === objectId)
+          && this.$root.allowFilteringPerCategory
+          && (this.selectedCategoryIds?.length || this.$root.settingsSubcategoryIds?.length)) {
+        this.loadActivityIds();
+      }
+    },
     refreshActivities() {
       this.activities = [];
       this.loadActivityIds();
     },
     loadActivityIds() {
+      if (this.loading) {
+        return;
+      }
       this.loading = true;
-      return this.$activityService.getActivities(this.spaceId, this.streamFilter, this.limit * 2, this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND)
+      return this.$activityService.getActivitiesByFilter({
+        spaceId: this.spaceId,
+        streamType: this.streamFilter,
+        limit: this.limit * 2,
+        categoryIds: this.selectedCategoryIds,
+        expand: this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND,
+      })
         .then(data => {
           this.$emit('can-post-loaded', data.canPost);
           const activityIds = data && (data.activityIds || data.activities) || [];
           this.retrievedSize = activityIds.length;
-          this.hasMore = this.retrievedSize > this.limit;
+          this.hasMore = activityIds.length > this.limit;
           const activityIdsToLoad = activityIds.slice(0, this.limit);
           const promises = activityIdsToLoad.map((activity, index) => {
             const activityId = activity && activity.id;
@@ -301,13 +355,17 @@ export default {
                 this.activities.push(activity);
               }
               return this.$activityService.getActivityById(activityId, this.$activityConstants.FULL_ACTIVITY_EXPAND)
-                .then(fullActivity => Object.assign(activity, fullActivity))
+                .then(fullActivity => this.activities.splice(this.activities.indexOf(activity), 1, fullActivity))
+                .catch(() => this.activities.splice(this.activities.indexOf(activity), 1))
                 .finally(() => this.$set(activity, 'loading', false));
             }
           });
           return Promise.all(promises);
         })
-        .finally(() => this.loading = false);
+        .finally(() => {
+          this.initialized = true;
+          this.loading = false;
+        });
     },
     activityLoaded(activityId) {
       this.loadedActivities.add(activityId);
@@ -323,15 +381,23 @@ export default {
       this.activities = activity && [activity] || [];
     },
     updateActivityDisplayById(activityId) {
-      this.loading = true;
-      return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
-        .then(activity => this.updateActivityDisplay(activity))
-        .finally (() => this.loading = false);
+      activityId = Number(activityId);
+      if (this.activitiesToDisplay?.find(a => Number(a.id) === activityId)) {
+        this.loading = true;
+        return this.$activityService.getActivityById(activityId, this.$activityConstants.ACTIVITY_EXPAND)
+          .then(activity => this.updateActivityDisplay(activity))
+          .finally (() => this.loading = false);
+      }
     },
     updateActivityDisplay(updatedActivity) {
-      const index = this.activities.findIndex(activity => updatedActivity.id === activity.id);
+      const index = this.activitiesToDisplay.findIndex(activity => Number(updatedActivity.id) === Number(activity.id));
       if (index >= 0) {
-        const activityToUpdate = Object.assign({}, this.activities[index], {metadatas: {}}, updatedActivity);
+        const activityToUpdate = {
+          ...this.activities[index],
+          metadatas: {},
+          ...updatedActivity,
+          categoryIds: updatedActivity?.categoryIds || null,
+        };
         this.activities.splice(index, 1, activityToUpdate);
         this.$root.$emit('activity-refresh-ui', updatedActivity.id);
       }

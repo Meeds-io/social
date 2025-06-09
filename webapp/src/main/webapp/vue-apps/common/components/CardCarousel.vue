@@ -56,6 +56,10 @@ export default {
       type: Object,
       default: null,
     },
+    hideArrows: {
+      type: Boolean,
+      default: false,
+    },
     dense: {
       type: Boolean,
       default: false,
@@ -79,12 +83,14 @@ export default {
     },
   },
   mounted() {
-    this.scrollElement = this.$el && this.$el.children && this.$el.children.length > 1 && this.$el.children[1];
-
-    window.setTimeout(() => {
-      this.computeProperties();
-    }, 500);
-    window.onresize = this.computeProperties;
+    if (!this.hideArrows) {
+      this.scrollElement = this.$el && this.$el.children && this.$el.children.length > 1 && this.$el.children[1];
+  
+      window.setTimeout(() => {
+        this.computeProperties();
+      }, 500);
+      window.onresize = this.computeProperties;
+    }
   },
   updated() {
     this.computeProperties();
@@ -114,7 +120,7 @@ export default {
       });
     },
     computeProperties() {
-      if (!this.computing) {
+      if (!this.computing && !this.hideArrows) {
         this.computing = true;
         window.setTimeout(() => {
           const parentWidth = this.scrollElement.offsetWidth;
