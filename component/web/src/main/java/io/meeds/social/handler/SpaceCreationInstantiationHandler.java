@@ -112,7 +112,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
         saveSpaceAvatar(space, model);
         saveSpaceBanner(model, space);
         removeTokenCookie(request, response);
-        String path = servletContext.getContextPath() + "/spaces/" + space.getSpaceId();
+        String path = servletContext.getContextPath() + "/s/" + space.getSpaceId();
         response.sendRedirect(path);
         return true;
       }
