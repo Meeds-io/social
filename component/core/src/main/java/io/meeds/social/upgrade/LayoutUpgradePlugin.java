@@ -154,7 +154,7 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
     } else {
       portalConfig.setPortalLayout(newPortalConfig.getPortalLayout());
     }
-    if (newPortalConfig == null) {
+    if (newPortalConfig == null && portalConfig == null) {
       LOG.info("IGNORE:: Portal layout {}/{} wasn't found in path {}. The layout upgrade will be ignored",
                portalType,
                portalName,
