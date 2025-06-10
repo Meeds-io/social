@@ -103,6 +103,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     assertNull(item.getUrl());
     assertNull(item.getTarget());
     assertNull(item.getAvatar());
+    assertFalse(item.isDefaultPath());
 
     assertNotNull(item.getItems());
     assertEquals(0, item.getItems().size());
@@ -128,6 +129,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
 
     assertNotNull(item.getItems());
     assertEquals(AbstractSpaceSidebarPlugin.SPACES_LIMIT_DEFAULT, item.getItems().size());
+    assertTrue(item.getItems().get(0).isDefaultPath());
 
     item = new SidebarItem(SidebarItemType.SPACE_CATEGORY);
     item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, String.valueOf(subCategory1.getId())));
