@@ -58,7 +58,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
@@ -394,7 +393,6 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   @SneakyThrows
-  @ExoTransactional
   public Space createSpace(Space space, String username) {
     return createSpace(space, username, null);
   }
