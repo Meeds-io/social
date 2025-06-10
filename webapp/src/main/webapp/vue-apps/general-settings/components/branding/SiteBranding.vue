@@ -218,6 +218,7 @@ export default {
     changed() {
       return this.branding
           && (this.logoUploadId
+          || this.companyName !== this.defaultCompanyName
           || this.faviconUploadId
           || this.isTopBarStylingPropertiesChanged
           || this.isSideBarStylingPropertiesChanged
