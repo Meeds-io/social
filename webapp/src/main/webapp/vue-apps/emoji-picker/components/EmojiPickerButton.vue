@@ -18,7 +18,9 @@
 -->
 
 <template>
-  <div class="d-flex my-auto ">
+  <div
+    v-if="useQuickEmojis"
+    class="d-flex my-auto ">
     <emoji-picker-quick-emojis
       @select-emoji="selectEmoji" />
     <v-btn
@@ -36,12 +38,33 @@
       </v-icon>
     </v-btn>
   </div>
+  <v-btn
+    v-else
+    ref="launcher"
+    class="pa-0"
+    icon
+    @click="showEmojiPicker">
+    <v-icon
+      :size="iconSize"
+      class="icon-default-color">
+      fas fa-smile
+    </v-icon>
+  </v-btn>
 </template>
 
 <script>
 
-
 export default {
+  props: {
+    useQuickEmojis: {
+      type: Boolean,
+      default: false
+    },
+    iconSize: {
+      type: Number,
+      default: 16
+    }
+  },
   methods: {
     selectEmoji(emoji) {
       this.$emit('select-emoji', emoji);

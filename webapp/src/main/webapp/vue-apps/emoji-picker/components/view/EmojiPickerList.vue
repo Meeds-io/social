@@ -19,7 +19,7 @@
 
 <template>
   <v-card
-    class="specific-scrollbar border-box-sizing"
+    class="border-box-sizing"
     flat>
     <emoji-picker-list-category
       :categories="emojiCategories"
@@ -38,14 +38,15 @@
       hide-details
       outlined />
     <v-virtual-scroll
-      :items="emojiRows"
       ref="emojiScroll"
+      :items="emojiRows"
       :item-height="itemHeight"
-      height="350">
+      height="350"
+      class="overflow-x-hidden specific-scrollbar">
       <template #default="{ item }">
         <div
           v-if="item.type === 'category'"
-          v-intersect="(isVisible) => onCategoryVisibleByName(item.name, isVisible)"
+          :data-category-name="item.name"
           class="font-weight-bold ms-2 mb-n1 mt-3">
           {{ $t(`emojiPicker.category.${item.name}.label`) }}
         </div>
@@ -76,12 +77,6 @@
 const MAX_RECENT_EMOJIS = 24;
 
 export default {
-  props: {
-    emojis: {
-      type: Object,
-      default: null
-    }
-  },
   data() {
     return {
       search: '',
@@ -94,8 +89,15 @@ export default {
       categoryRefs: {},
       observer: null,
       perRows: 8,
-      itemHeight: 40
+      itemHeight: 40,
+      isProgrammaticScroll: false,
     };
+  },
+  props: {
+    emojis: {
+      type: Object,
+      default: null
+    }
   },
   computed: {
     emojiCategories() {
@@ -115,7 +117,6 @@ export default {
       return this.selectedCategory || this.emojiCategories?.[0];
     },
     emojiRows() {
-      const flatList = [];
       if (this.hasSearchTerm) {
         const rows = [];
         for (let i = 0; i < this.cachedFilteredEmojis.length; i += this.perRows) {
@@ -126,6 +127,7 @@ export default {
         }
         return rows;
       } else {
+        const flatList = [];
         for (const category of this.emojiCategories) {
           flatList.push({type: 'category', name: category.name});
           for (let i = 0; i < category.emojis.length; i += this.perRows) {
@@ -155,34 +157,44 @@ export default {
   },
   beforeDestroy() {
     document.removeEventListener('quick-emoji-selected', this.handleQuickEmojisSelect);
+    this.$refs.emojiScroll?.$el?.removeEventListener('scroll', this.handleScroll);
   },
   mounted() {
     this.prepareSearchIndex();
     this.updateFilteredEmojis();
+    this.$refs.emojiScroll?.$el?.addEventListener('scroll', this.handleScroll, {passive: true});
   },
   methods: {
-    onCategoryVisibleByName(categoryName, isVisible) {
-      if (!isVisible) {
-        return;
-      }
-      const catIndex = this.emojiCategories.findIndex(c => c.name === categoryName);
-      if (catIndex !== -1 && this.selectedCategoryIndex !== catIndex) {
-        this.selectedCategoryIndex = catIndex;
-      }
+    getCategoryIndex(categoryName) {
+      return this.emojiCategories.findIndex(category => category.name === categoryName);
     },
     selectCategory(index) {
       this.selectedCategoryIndex = index;
       this.selectedCategory = this.emojiCategories?.[index];
       const categoryName = this.selectedCategory?.name;
       const targetIndex = this.emojiRows.findIndex(item => item.type === 'category' && item.name === categoryName);
-      if (targetIndex !== -1) {
-        this.$nextTick(() => {
-          this.$refs?.emojiScroll?.$el.scrollTo({
-            top: targetIndex * this.itemHeight,
-            behavior: 'smooth'
-          });
-        });
+
+      if (targetIndex === -1) {
+        return;
       }
+      const scrollEl = this.$refs?.emojiScroll?.$el;
+      if (!scrollEl) {
+        return;
+      }
+      this.isProgrammaticScroll = true;
+      scrollEl.scrollTo({
+        top: targetIndex * this.itemHeight,
+        behavior: 'smooth'
+      });
+      let scrollTimeout;
+      const onScroll = () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          this.isProgrammaticScroll = false;
+          scrollEl.removeEventListener('scroll', onScroll);
+        }, 150);
+      };
+      scrollEl.addEventListener('scroll', onScroll);
     },
     selectEmoji(emoji) {
       this.addToRecentEmojis(emoji);
@@ -246,6 +258,35 @@ export default {
       const emoji = this.emojis.quickEmojis.find(emoji => emoji.unicode === targetEmoji.unicode);
       this.addToRecentEmojis(emoji);
     },
+    getVisibleCategoryIndex(scrollTop) {
+      let offset = 0;
+      let lastCategoryName = null;
+      for (let i = 0; i < this.emojiRows.length; i++) {
+        const item = this.emojiRows[i];
+        if (item.type === 'category') {
+          lastCategoryName = item.name;
+        }
+        if (offset >= scrollTop) {
+          break;
+        }
+        offset += this.itemHeight;
+      }
+      if (lastCategoryName) {
+        const categoryIndex = this.getCategoryIndex(lastCategoryName);
+        return categoryIndex !== -1 ? categoryIndex : 0;
+      }
+      return 0;
+    },
+    handleScroll(event) {
+      if (this.isProgrammaticScroll) {
+        return;
+      }
+      const scrollTop = event.target.scrollTop;
+      const categoryIndex = this.getVisibleCategoryIndex(scrollTop);
+      if (categoryIndex !== -1 && categoryIndex !== this.selectedCategoryIndex) {
+        this.selectedCategoryIndex = categoryIndex;
+      }
+    }
   }
 };
 </script>
