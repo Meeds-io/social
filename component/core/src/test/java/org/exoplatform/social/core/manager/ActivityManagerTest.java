@@ -36,6 +36,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.Mockito;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.PropertyManager;
@@ -50,7 +51,6 @@ import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.common.RealtimeListAccess;
 import org.exoplatform.social.core.ActivityTypePlugin;
 import org.exoplatform.social.core.activity.ActivityFilter;
@@ -740,6 +740,32 @@ public class ActivityManagerTest extends AbstractCoreTest {
     activities = activitiesListAccess.loadAsList(0, activitiesListAccess.getSize());
     // then
     assertEquals(0, activities.size());
+  }
+
+  public void testLoadSpaceActivities() {
+    String activityTitle = "activity title";
+    String userId = johnIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle(activityTitle);
+    activity.setUserId(userId);
+    Space space = createSpace("spaceTestActivity", "john", "demo");
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+
+    RealtimeListAccess<ExoSocialActivity> activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter);
+    assertTrue(activitiesListAccess.getSize() > 0);
+
+    List<ExoSocialActivity> activities = activitiesListAccess.loadAsList(0, activitiesListAccess.getSize());
+    assertFalse(activities.isEmpty());
+
+    List<String> activityIds = activitiesListAccess.loadIdsAsList(0, activitiesListAccess.getSize());
+    assertFalse(activityIds.isEmpty());
+
+    assertEquals(activity.getId(), activityIds.get(0));
+    assertEquals(activity.getId(), activities.get(0).getId());
   }
 
   /**
