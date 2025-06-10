@@ -75,7 +75,7 @@
           class="my-1 me-3"
           color="primary"
           close
-          @click:close="removeTemplate(template)">
+          @click:close="removeTemplate(template.id)">
           {{ template.name }}
         </v-chip>
       </div>
@@ -122,7 +122,6 @@ export default {
     },
     disabled() {
       return JSON.stringify(this.settings) === JSON.stringify(this.originalSettings)
-          || (JSON.stringify([...this.selectedTemplateIds].sort((a, b) => a.id - b.id)) === JSON.stringify([...this.originalSettings.spaceTemplateIds].sort((a, b) => a.id - b.id)))
           || Object.keys(this.settings.labelTranslations).some(k => this.settings.labelTranslations[k]?.length > this.maxLabelLength)
           || (!this.selectedTemplateIds.length && this.settings.spaceCreationTemplateChoice === 'fewTemplates') ;
     },
@@ -153,7 +152,10 @@ export default {
   },
   methods: {
     addTemplate(id) {
-      this.selectedTemplateIds.push(id);
+      if (this.selectedTemplateIds.indexOf(id) === -1) {
+        this.selectedTemplateIds.push(id);
+        this.selectedTemplateIds.sort((a, b) => a - b);
+      }
       this.search = null;
     },
     open() {
