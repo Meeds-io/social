@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.PortalContainer;
+import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.model.AvatarAttachment;
 import org.exoplatform.social.core.model.BannerAttachment;
@@ -111,6 +112,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
         space = spaceService.createSpace(space, user);
         saveSpaceAvatar(space, model);
         saveSpaceBanner(model, space);
+        RequestLifeCycle.restartTransaction();
         removeTokenCookie(request, response);
         String path = servletContext.getContextPath() + "/s/" + space.getSpaceId();
         response.sendRedirect(path);
