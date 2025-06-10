@@ -112,7 +112,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
         space = spaceService.createSpace(space, user);
         saveSpaceAvatar(space, model);
         saveSpaceBanner(model, space);
-        restartTransaction();
+        RequestLifeCycle.restartTransaction();
         removeTokenCookie(request, response);
         String path = servletContext.getContextPath() + "/s/" + space.getSpaceId();
         response.sendRedirect(path);
@@ -243,25 +243,6 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
       } catch (IOException e) {
         LOG.warn("Error adding Space Banner. Avoid stopping space creation process and continue", e);
       }
-    }
-  }
-
-  private void restartTransaction() {
-    int i = 0;
-    // Close transactions until no encapsulated transaction
-    boolean success = true;
-    do {
-      try {
-        RequestLifeCycle.end();
-        i++;
-      } catch (IllegalStateException e) {
-        success = false;
-      }
-    } while (success);
-
-    // Restart transactions with the same number of encapsulations
-    for (int j = 0; j < i; j++) {
-      RequestLifeCycle.begin(container);
     }
   }
 }
