@@ -109,11 +109,13 @@ public class SpaceListSidebarPluginTest extends AbstractNavigationConfigurationT
     assertEquals(frName, result.getName());
     assertNotNull(result.getItems());
     assertTrue(result.getItems().isEmpty());
+    assertFalse(item.isDefaultPath());
 
     result = spaceListSidebarPlugin.resolveProperties(item, userAcl.getSuperUser(), Locale.FRENCH);
     assertNotNull(result.getItems());
     assertEquals(AbstractSpaceSidebarPlugin.SPACES_LIMIT_DEFAULT,
                  item.getItems().size());
+    assertTrue(item.getItems().get(0).isDefaultPath());
   }
 
 }

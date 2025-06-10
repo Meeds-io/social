@@ -88,6 +88,7 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
     } else {
       item.setUrl(null);
     }
+    item.setDefaultPath(false);
     return item;
   }
 
@@ -105,7 +106,7 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
                                                      SidebarItemType.SPACES,
                                                      null,
                                                      properties,
-                                                     false));
+                                                     true));
   }
 
   @Override
