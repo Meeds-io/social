@@ -529,7 +529,7 @@ public class ProfileSearchConnector {
                 } else {
                   searchedText = removeAccents(splittedValues[i]);
                 }
-                expression.append(" ").append(key).append(":").append(searchedText);
+                expression.append(" ").append(key.replace(" ", "\\\\ ")).append(":").append(searchedText);
               }
             }
             query.append("""
@@ -552,7 +552,7 @@ public class ProfileSearchConnector {
                         "query": "%s:%s"
                       }
                    }
-                  """.formatted(property.getPropertyName(), searchedText));
+                  """.formatted(property.getPropertyName().replace(" ", "\\\\ "), searchedText));
           }
           index++;
         }
