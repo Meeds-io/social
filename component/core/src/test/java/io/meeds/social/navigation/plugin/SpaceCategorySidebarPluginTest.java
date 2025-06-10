@@ -103,6 +103,7 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     assertNull(item.getUrl());
     assertNull(item.getTarget());
     assertNull(item.getAvatar());
+    assertTrue(item.isDefaultPath());
 
     assertNotNull(item.getItems());
     assertEquals(0, item.getItems().size());

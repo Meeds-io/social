@@ -85,7 +85,7 @@ public abstract class AbstractSpaceSidebarPlugin implements SidebarPlugin {
                            SidebarItemType.SPACE,
                            null,
                            properties,
-                           false);
+                           true);
   }
 
   private SortBy getSortField(SidebarItem item, SidebarSpaceSortBy sortBy) { // NOSONAR

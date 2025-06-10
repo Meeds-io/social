@@ -93,6 +93,7 @@ public class SpaceTemplateSidebarPluginTest extends AbstractNavigationConfigurat
     assertNull(item.getUrl());
     assertNull(item.getTarget());
     assertNull(item.getAvatar());
+    assertTrue(item.isDefaultPath());
 
     assertNotNull(item.getItems());
     assertEquals(AbstractSpaceSidebarPlugin.SPACES_LIMIT_DEFAULT,
