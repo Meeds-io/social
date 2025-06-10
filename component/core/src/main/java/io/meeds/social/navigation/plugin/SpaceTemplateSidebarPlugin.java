@@ -76,6 +76,7 @@ public class SpaceTemplateSidebarPlugin extends AbstractSpaceSidebarPlugin {
       item.setIcon(spaceTemplate.getIcon());
       item.setItems(getSpaces(item, username));
     }
+    item.setDefaultPath(false);
     return item;
   }
 

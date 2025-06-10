@@ -75,6 +75,7 @@ public class SpaceCategorySidebarPlugin extends AbstractSpaceSidebarPlugin {
       item.setIcon(category.getIcon());
       item.setItems(getSpaces(item, username));
     }
+    item.setDefaultPath(false);
     return item;
   }
 
