@@ -35,14 +35,14 @@
           class="pt-2"
           multiple>
           <v-chip
-            v-for="tag in tags"
+            v-for="t in tagsWithAriaLabel"
             :color="`${isMobile ? 'blue lighten-4' : ''}`"
-            :key="tag"
-            :value="tag"
-            :aria-label="getAriaLabel(tag)"
-            @click="handleTag(tag)"
-            @keyup.enter="handleTag(tag)">
-            <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ tag }}</span>
+            :key="t.tag"
+            :value="t.tag"
+            :aria-label="t.ariaLabel"
+            @click="handleTag(t.tag)"
+            @keyup.enter="handleTag(t.tag)">
+            <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ t.tag }}</span>
           </v-chip>
         </v-chip-group>
       </div>
@@ -73,6 +73,12 @@ export default {
     Width() {
       return this.isMobile && '400' || '200';
     },
+    tagsWithAriaLabel() {
+      return this.tags.map(tag => ({
+        tag,
+        ariaLabel: this.selectedTags.includes(tag) && this.$t('search.tag.option.active.item.ariaLabel', {0: tag}) || this.$t('search.tag.option.item.ariaLabel', {0: tag})
+      }));
+    }
   },
   watch: {
     query() {
@@ -137,9 +143,6 @@ export default {
         document.dispatchEvent(new CustomEvent('search-tag'));
       }
     },
-    getAriaLabel(tag) {
-      return this.selectedTags.includes(tag) && this.$t('search.tag.option.active.item.ariaLabel', {0: tag}) || this.$t('search.tag.option.item.ariaLabel', {0: tag});
-    }
   },
 };
 </script>
