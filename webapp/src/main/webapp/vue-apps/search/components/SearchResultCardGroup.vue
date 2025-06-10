@@ -35,10 +35,10 @@
 
         <v-list-item-content>
           <v-list-item-title class="d-flex flex-row full-width align-center pt-2">
-            <p
-              class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
-              v-sanitized-html="connectorName">
-            </p>
+            <h1
+              class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate">
+              {{ connectorName }}
+            </h1>
           </v-list-item-title>
 
           <card-carousel class="d-flex">
