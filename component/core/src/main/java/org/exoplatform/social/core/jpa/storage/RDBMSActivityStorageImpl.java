@@ -591,7 +591,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case ALL_STREAM:
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
                                                                      -1);
       streamIdentityIds = new ArrayList<>(streamIdentityIds);
@@ -671,7 +671,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case ALL_STREAM:
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
                                                                      -1);
       streamIdentityIds = new ArrayList<>(streamIdentityIds);
