@@ -4,7 +4,7 @@
       flat
       class="pa-0"
       :aria-label="$t('search.access.to.result', {0 :excerptText || activityTitle})"
-      @click="openActivity">
+      :href="link">
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
           <v-list-item-icon class="me-2">
@@ -15,16 +15,17 @@
 
           <v-list-item-content>
             <v-list-item-title class="d-flex flex-row full-width align-center">
-              <p
+              <h1
                 class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
-                v-sanitized-html="activityTitle"></p>
+                :aria-label="activityTitleText"
+                v-sanitized-html="activityTitle"></h1>
               <div v-show="hover || isMobile" class="ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
                   <v-btn
                     icon
                     small
                     class="me-2"
-                    @click.stop="openActivityCommentDrawer">
+                    @click.stop.prevent="openActivityCommentDrawer">
                     <v-icon class="icon-default-color" size="16">
                       fas fa-comment
                     </v-icon>
@@ -33,7 +34,7 @@
                     icon
                     small
                     class="me-2"
-                    @click.stop="openKudosForm">
+                    @click.stop.prevent="openKudosForm">
                     <v-icon class="icon-default-color" size="16">
                       fas fa-award
                     </v-icon>
@@ -188,6 +189,9 @@ export default {
     activityTitle() {
       return this.excerptHtml || this.$t('search.activity.no.title.label');
     },
+    activityTitleText() {
+      return $('<div />').html(this.activityTitle).text();
+    },
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
     },
@@ -233,11 +237,6 @@ export default {
     this.$root.activityBaseLink = this.activityBaseLink;
   },
   methods: {
-    openActivity() {
-      if (this.link) {
-        window.location.href = this.link;
-      }
-    },
     refreshActivityTypes() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityTypeExtensionName);
       let changed = false;
