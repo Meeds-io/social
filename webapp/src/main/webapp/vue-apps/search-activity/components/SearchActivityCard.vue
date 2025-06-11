@@ -165,7 +165,7 @@ export default {
       return this.excerpts && this.excerpts.join('\r\n...') || this.body || '';
     },
     excerptText() {
-      return $('<div />').html(this.excerptHtml).text();
+      return this.$utils.htmlToText(this.excerptHtml);
     },
     activityType() {
       if (!this.result) {
@@ -190,7 +190,7 @@ export default {
       return this.excerptHtml || this.$t('search.activity.no.title.label');
     },
     activityTitleText() {
-      return $('<div />').html(this.activityTitle).text();
+      return this.$utils.htmlToText(this.activityTitle);
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
