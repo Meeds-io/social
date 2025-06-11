@@ -376,7 +376,7 @@ public class SpaceServiceImpl implements SpaceService {
     if (identity == null) {
       return 0;
     } else {
-      return this.spaceStorage.getManagerSpacesCount(identity.getId());
+      return this.spaceStorage.getManagerSpacesCount(identity.getRemoteId());
     }
   }
 
