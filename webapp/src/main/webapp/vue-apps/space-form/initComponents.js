@@ -30,6 +30,8 @@ import SpaceFormInviteUsersInput from './components/SpaceFormInviteUsersInput.vu
 import SpaceFormInviteEmailListItem from './components/SpaceFormInviteEmailListItem.vue';
 import SpaceFormInviteUserListItem from './components/SpaceFormInviteUserListItem.vue';
 
+import SpaceFormPreview from './components/SpaceFormPreview.vue';
+
 const components = {
   'space-form-access': SpaceFormAccess,
   'space-form-avatar': SpaceFormAvatar,
@@ -41,6 +43,7 @@ const components = {
   'space-form-invite-email-list-item': SpaceFormInviteEmailListItem,
   'space-form-invite-user-list-item': SpaceFormInviteUserListItem,
   'space-form-invite-users-input': SpaceFormInviteUsersInput,
+  'space-form-preview': SpaceFormPreview,
 };
 
 for (const key in components) {
