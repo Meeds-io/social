@@ -21,226 +21,224 @@
 
 -->
 <template>
-  <div>
-    <exo-drawer
-      ref="spaceFormDrawer"
-      v-model="drawer"
-      :go-back-button="goBackButton && spaceTemplate"
-      right
-      class="spaceFormDrawer"
-      @opened="stepper = 1"
-      @closed="stepper = 0"
-      @go-back="templateId = null">
-      <template #title>
-        {{ drawerTitle }}
-      </template>
-      <template v-if="drawer && space" #content>
-        <v-expand-transition>
-          <div
-            v-if="templates?.length && !spaceTemplate && !isEdit"
-            class="d-flex flex-wrap align-center justify-space-between my-4 me-4">
-            <v-card
-              v-for="item in sortedTemplates"
-              :key="item.id"
-              class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
-              height="136"
-              flat
-              @click="open(item.id)">
-              <v-hover v-slot="{hover}">
-                <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
-                  <div
-                    class="mt-auto mb-2">
-                    <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
-                  </div>
-                  <div
-                    :title="item.name"
-                    class="mb-auto full-width">
-                    {{ item.name }}
-                  </div>
-                  <v-expand-transition>
-                    <div
-                      v-show="hover"
-                      class="absolute-full-size text-start pa-2 ms-4 border-radius mask-color">
-                      <div
-                        :title="item.name"
-                        class="text-truncate-2 font-weight-bold white--text full-width pb-1">
-                        {{ item.name }}
-                      </div>
-                      <div
-                        v-sanitized-html="item.description || ''"
-                        :title="item.description"
-                        class="text-subtitle white--text full-width text-truncate-5"></div>
-                    </div>
-                  </v-expand-transition>
-                </div>
-              </v-hover>
-            </v-card>
-          </div>
-          <v-stepper
-            v-else-if="spaceTemplate || isEdit"
-            v-model="stepper"
-            :class="{
-              'pe-3' : isMobile,
-              'mt-5' : singleStep,
-            }"
-            class="ma-0 py-0"
-            vertical
-            flat>
-            <template v-if="includeName">
-              <v-stepper-step
-                v-if="!singleStep"
-                :step="1"
-                class="ma-4 pa-0"
-                editable>
-                {{ $t('spacesList.label.nameTitle') }}
-              </v-stepper-step>
-              <v-stepper-content :step="1" class="pa-0 ma-0 no-border">
-                <form
-                  v-if="stepper === 1"
-                  ref="form1"
-                  class="px-4"
-                  @submit="nextStep">
-                  <v-label for="name">
-                    {{ $t('spacesList.label.nameLabel') }}
-                  </v-label>
-                  <input
-                    ref="autoFocusInput1"
-                    v-model="space.displayName"
-                    :aria-label="$t('spacesList.label.namePlaceholder')"
-                    :placeholder="$t('spacesList.label.namePlaceholder')"
-                    class="input-block-level ignore-vuetify-classes my-3"
-                    type="text"
-                    name="name"
-                    autofocus>
-                </form>
-              </v-stepper-content>
-            </template>
-            <template v-if="includeProperties">
-              <v-stepper-step
-                v-if="!singleStep"
-                :step="propertiesStep"
-                class="ma-4 pa-0"
-                editable>
-                {{ $t('spacesList.label.propertiesTitle') }}
-              </v-stepper-step>
-              <v-stepper-content :step="propertiesStep" class="pa-0 ma-0 no-border">
-                <form
-                  v-if="stepper === propertiesStep"
-                  ref="form2"
-                  class="px-4"
-                  @submit="nextStep">
-                  <v-label for="description">
-                    {{ $t('spacesList.label.descriptionLabel') }}
-                  </v-label>
-                  <rich-editor
-                    id="spaceDescriptionRichEditor"
-                    v-model="space.description"
-                    :placeholder="$t('spacesList.label.descriptionPlaceholder')"
-                    :max-length="maxDescriptionLength"
-                    tag-enabled
-                    class="my-3"
-                    ck-editor-id="spaceFormDescription"
-                    ck-editor-type="spaceDescription"
-                    disable-suggester
-                    autofocus />
-                  <space-form-avatar
-                    v-model="space.avatarId"
-                    :name="space.displayName"
-                    :src="space.avatarUrl"
-                    class="mt-4"
-                    @avatar-updated="avatarUpdated"/>
-                  <space-form-banner
-                    v-model="space.bannerId"
-                    :default-banner-url="bannerUrl"
-                    :src="space.bannerUrl"
-                    class="mt-4" />
-                </form>
-              </v-stepper-content>
-            </template>
-            <template v-if="includeInvitation">
-              <v-stepper-step
-                v-if="!singleStep"
-                :step="invitationStep"
-                class="ma-4 pa-0"
-                editable>
-                {{ $t('spacesList.label.inviteUsers') }}
-              </v-stepper-step>
-              <v-stepper-content :step="invitationStep" class="pa-0 ma-0 no-border">
-                <space-form-invitation
-                  v-if="stepper === invitationStep"
-                  @invited-members="space.invitedMembers = $event"
-                  @invited-email="space.externalInvitedUsers = $event" />
-              </v-stepper-content>
-            </template>
-            <template v-if="includeAccess">
-              <v-stepper-step
-                v-if="!singleStep"
-                :step="accessStep"
-                class="ma-4 pa-0"
-                editable>
-                {{ $t('spacesList.label.spaceAccessTitle') }}
-              </v-stepper-step>
-              <v-stepper-content :step="accessStep" class="pa-0 ma-0 no-border">
-                <space-form-access
-                  v-if="stepper === accessStep"
-                  :visibility="space.visibility"
-                  :subscription="space.subscription"
-                  @visibility="space.visibility = $event"
-                  @subscription="space.subscription = $event" />
-              </v-stepper-content>
-            </template>
-          </v-stepper>
-        </v-expand-transition>
-      </template>
-      <template v-if="drawer && (spaceTemplate || isEdit)" slot="footer">
-        <div class="d-flex">
-          <v-btn
-            v-if="stepper > 1 && !isEdit"
-            class="btn"
-            @click="previousStep">
-            {{ $t('spacesList.button.back') }}
-          </v-btn>
-          <v-spacer />
-          <v-btn
-            :disabled="savingSpace || spaceSaved"
-            class="btn me-2"
-            @click="cancel">
-            <template>
-              {{ $t('spacesList.button.cancel') }}
-            </template>
-          </v-btn>
-          <v-btn
-            v-if="stepper < lastStep"
-            class="btn btn-primary"
-            @click="nextStep">
-            {{ $t('spacesList.button.next') }}
-          </v-btn>
-          <v-btn
-            v-else
-            :loading="savingSpace"
-            :disabled="saveButtonDisabled"
-            class="btn btn-primary"
-            @click="saveSpace">
-            <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
-            <template v-else-if="isEdit">
-              {{ $t('spacesList.button.updateSpace') }}
-            </template>
-            <template v-else>
-              {{ $t('spacesList.button.createSpace') }}
-            </template>
-          </v-btn>
-        </div>
-      </template>
-    </exo-drawer>
-    <div class="d-none d-lg-block position-absolute">
-    <space-preview
-      v-if="drawer && spaceTemplate"
-      :space="space"
-      :preview-avatar="previewAvatar"
-      class="pa-4 z-index-modal"
-      style="top: 6vh; left: 55vw;"/>
+  <exo-drawer
+    ref="spaceFormDrawer"
+    v-model="drawer"
+    :go-back-button="goBackButton && spaceTemplate"
+    right
+    class="spaceFormDrawer"
+    @opened="stepper = 1"
+    @closed="stepper = 0"
+    @go-back="templateId = null">
+    <template #title>
+      {{ drawerTitle }}
+    </template>
+    <template v-if="drawer && space" #content>
+      <div class="d-none d-lg-block">
+        <space-form-preview
+          v-if="drawer && spaceTemplate"
+          :space="space"
+          :preview-avatar="previewAvatar"
+          class="pa-4 position-absolute"
+          style="right: 450px;" />
       </div>
-  </div>
+      <v-expand-transition>
+        <div
+          v-if="templates?.length && !spaceTemplate && !isEdit"
+          class="d-flex flex-wrap align-center justify-space-between my-4 me-4">
+          <v-card
+            v-for="item in sortedTemplates"
+            :key="item.id"
+            class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
+            height="136"
+            flat
+            @click="open(item.id)">
+            <v-hover v-slot="{hover}">
+              <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
+                <div
+                  class="mt-auto mb-2">
+                  <v-icon size="32" class="py-2">{{ item.icon }}</v-icon>
+                </div>
+                <div
+                  :title="item.name"
+                  class="mb-auto full-width">
+                  {{ item.name }}
+                </div>
+                <v-expand-transition>
+                  <div
+                    v-show="hover"
+                    class="absolute-full-size text-start pa-2 ms-4 border-radius mask-color">
+                    <div
+                      :title="item.name"
+                      class="text-truncate-2 font-weight-bold white--text full-width pb-1">
+                      {{ item.name }}
+                    </div>
+                    <div
+                      v-sanitized-html="item.description || ''"
+                      :title="item.description"
+                      class="text-subtitle white--text full-width text-truncate-5"></div>
+                  </div>
+                </v-expand-transition>
+              </div>
+            </v-hover>
+          </v-card>
+        </div>
+        <v-stepper
+          v-else-if="spaceTemplate || isEdit"
+          v-model="stepper"
+          :class="{
+            'pe-3' : isMobile,
+            'mt-5' : singleStep,
+          }"
+          class="ma-0 py-0"
+          vertical
+          flat>
+          <template v-if="includeName">
+            <v-stepper-step
+              v-if="!singleStep"
+              :step="1"
+              class="ma-4 pa-0"
+              editable>
+              {{ $t('spacesList.label.nameTitle') }}
+            </v-stepper-step>
+            <v-stepper-content :step="1" class="pa-0 ma-0 no-border">
+              <form
+                v-if="stepper === 1"
+                ref="form1"
+                class="px-4"
+                @submit="nextStep">
+                <v-label for="name">
+                  {{ $t('spacesList.label.nameLabel') }}
+                </v-label>
+                <input
+                  ref="autoFocusInput1"
+                  v-model="space.displayName"
+                  :aria-label="$t('spacesList.label.namePlaceholder')"
+                  :placeholder="$t('spacesList.label.namePlaceholder')"
+                  class="input-block-level ignore-vuetify-classes my-3"
+                  type="text"
+                  name="name"
+                  autofocus>
+              </form>
+            </v-stepper-content>
+          </template>
+          <template v-if="includeProperties">
+            <v-stepper-step
+              v-if="!singleStep"
+              :step="propertiesStep"
+              class="ma-4 pa-0"
+              editable>
+              {{ $t('spacesList.label.propertiesTitle') }}
+            </v-stepper-step>
+            <v-stepper-content :step="propertiesStep" class="pa-0 ma-0 no-border">
+              <form
+                v-if="stepper === propertiesStep"
+                ref="form2"
+                class="px-4"
+                @submit="nextStep">
+                <v-label for="description">
+                  {{ $t('spacesList.label.descriptionLabel') }}
+                </v-label>
+                <rich-editor
+                  id="spaceDescriptionRichEditor"
+                  v-model="space.description"
+                  :placeholder="$t('spacesList.label.descriptionPlaceholder')"
+                  :max-length="maxDescriptionLength"
+                  tag-enabled
+                  class="my-3"
+                  ck-editor-id="spaceFormDescription"
+                  ck-editor-type="spaceDescription"
+                  disable-suggester
+                  autofocus />
+                <space-form-avatar
+                  v-model="space.avatarId"
+                  :name="space.displayName"
+                  :src="space.avatarUrl"
+                  class="mt-4"
+                  @avatar-updated="avatarUpdated" />
+                <space-form-banner
+                  v-model="space.bannerId"
+                  :default-banner-url="bannerUrl"
+                  :src="space.bannerUrl"
+                  class="mt-4" />
+              </form>
+            </v-stepper-content>
+          </template>
+          <template v-if="includeInvitation">
+            <v-stepper-step
+              v-if="!singleStep"
+              :step="invitationStep"
+              class="ma-4 pa-0"
+              editable>
+              {{ $t('spacesList.label.inviteUsers') }}
+            </v-stepper-step>
+            <v-stepper-content :step="invitationStep" class="pa-0 ma-0 no-border">
+              <space-form-invitation
+                v-if="stepper === invitationStep"
+                @invited-members="space.invitedMembers = $event"
+                @invited-email="space.externalInvitedUsers = $event" />
+            </v-stepper-content>
+          </template>
+          <template v-if="includeAccess">
+            <v-stepper-step
+              v-if="!singleStep"
+              :step="accessStep"
+              class="ma-4 pa-0"
+              editable>
+              {{ $t('spacesList.label.spaceAccessTitle') }}
+            </v-stepper-step>
+            <v-stepper-content :step="accessStep" class="pa-0 ma-0 no-border">
+              <space-form-access
+                v-if="stepper === accessStep"
+                :visibility="space.visibility"
+                :subscription="space.subscription"
+                @visibility="space.visibility = $event"
+                @subscription="space.subscription = $event" />
+            </v-stepper-content>
+          </template>
+        </v-stepper>
+      </v-expand-transition>
+    </template>
+    <template v-if="drawer && (spaceTemplate || isEdit)" slot="footer">
+      <div class="d-flex">
+        <v-btn
+          v-if="stepper > 1 && !isEdit"
+          class="btn"
+          @click="previousStep">
+          {{ $t('spacesList.button.back') }}
+        </v-btn>
+        <v-spacer />
+        <v-btn
+          :disabled="savingSpace || spaceSaved"
+          class="btn me-2"
+          @click="cancel">
+          <template>
+            {{ $t('spacesList.button.cancel') }}
+          </template>
+        </v-btn>
+        <v-btn
+          v-if="stepper < lastStep"
+          class="btn btn-primary"
+          @click="nextStep">
+          {{ $t('spacesList.button.next') }}
+        </v-btn>
+        <v-btn
+          v-else
+          :loading="savingSpace"
+          :disabled="saveButtonDisabled"
+          class="btn btn-primary"
+          @click="saveSpace">
+          <v-icon v-if="spaceSaved">mdi-check-all</v-icon>
+          <template v-else-if="isEdit">
+            {{ $t('spacesList.button.updateSpace') }}
+          </template>
+          <template v-else>
+            {{ $t('spacesList.button.createSpace') }}
+          </template>
+        </v-btn>
+      </div>
+    </template>
+  </exo-drawer>
 </template>
 <script>
 export default {

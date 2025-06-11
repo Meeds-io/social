@@ -54,16 +54,18 @@
       v-sanitized-html="space.description || ''"
       class="py-5 text-truncate-3"></div>
     <div class="d-flex flex-row mt-auto align-center">
-       <div class="text-subtitle"> {{ $t('spacesList.label.oneMember') }} </div>
-       <v-spacer />
-       <v-chip
-       v-if="!closedSpace"
-       color="primary"
-       height="24"
-       widht="78"
-       small
-       label
-       outlined > <span class="primary--text font-weight-bold"> {{ spaceAccess }} </span> </v-chip>
+      <div class="text-subtitle"> {{ $t('spacesList.label.oneMember') }} </div>
+      <v-spacer />
+      <v-chip
+        v-if="!closedSpace"
+        color="primary"
+        height="24"
+        widht="78"
+        small
+        label
+        outlined>
+        <span class="primary--text font-weight-bold"> {{ spaceAccess }} </span>
+      </v-chip>
     </div>
   </v-card>
 </template>
