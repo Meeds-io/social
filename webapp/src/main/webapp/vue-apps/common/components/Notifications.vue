@@ -48,7 +48,7 @@
       :style="absolute && {
         left: `${left}px`,
       }"
-      :role="alertType"
+      role="alert"
       aria-live="assertive"
       :aria-atomic="true"
       v-touch="{
