@@ -26,6 +26,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       :aria-pressed="favorites"
       :aria-label="$t('search.filter.favorite')"
       class="ms-1 me-2 text-body border-color flex-shrink-0"
+      tabindex="0"
+      @keydown.enter="$emit('select-favorites')"
       @click="$emit('select-favorites')">
       <v-icon size="16" class="pe-2 yellow--text text--darken-2">
         fas fa-star
@@ -47,7 +49,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           :aria-label="$t('search.filter.type')"
           v-bind="attrs"
           v-on="on"
-          class="text-body text-header-color ms-2 flex-shrink-0">
+          tabindex="0"
+          class="text-body text-header-color ms-2 flex-shrink-0"
+          @keydown.enter="on.click">
           <v-icon size="16" class="pe-2">
             fas fa-paste
           </v-icon>
