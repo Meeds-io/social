@@ -161,12 +161,6 @@ export default {
         this.favorites = parameters['favorites'] === 'true';
         this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
       }
-    } else {
-      $(document).on('keydown', (event) => {
-        if (event.key === 'Escape') {
-          this.drawer = false;
-        }
-      });
     }
     document.addEventListener('search-open', this.open);
     document.addEventListener('search-metadata-tag', this.open);
