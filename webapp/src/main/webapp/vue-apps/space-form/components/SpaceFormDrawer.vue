@@ -34,6 +34,14 @@
       {{ drawerTitle }}
     </template>
     <template v-if="drawer && space" #content>
+      <div class="d-none d-lg-block">
+        <space-form-preview
+          v-if="drawer && spaceTemplate"
+          :space="space"
+          :preview-avatar="previewAvatar"
+          class="pa-4 position-absolute"
+          style="right: 450px;" />
+      </div>
       <v-expand-transition>
         <div
           v-if="templates?.length && !spaceTemplate && !isEdit"
@@ -146,7 +154,8 @@
                   v-model="space.avatarId"
                   :name="space.displayName"
                   :src="space.avatarUrl"
-                  class="mt-4" />
+                  class="mt-4"
+                  @avatar-updated="avatarUpdated" />
                 <space-form-banner
                   v-model="space.bannerId"
                   :default-banner-url="bannerUrl"
@@ -246,6 +255,7 @@ export default {
     goBackButton: false,
     maxDescriptionLength: 2000,
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
+    previewAvatar: null,
   }),
   computed: {
     drawerTitle() {
@@ -526,6 +536,9 @@ export default {
         }
       }
     },
+    avatarUpdated(avatar) {
+      this.previewAvatar = avatar;
+    }
   },
 };
 </script>
