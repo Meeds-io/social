@@ -6,15 +6,18 @@
     :nudge-left="isMobile && 300"
     :nudge-bottom="30"
     content-class="tag-search-content"
+    attach
     offset-x>
     <template #activator="{ on, attrs }">
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"
         :aria-label="$t('search.filter.tag')"
+        tabindex="0"
         class="text-body text-header-color mx-1"
         v-bind="attrs"
-        v-on="on">
+        v-on="on"
+        @keydown.enter="on.click">
         <v-icon size="16" class="pe-2">
           fas fa-hashtag
         </v-icon>
@@ -25,6 +28,7 @@
       <v-text-field
         ref="tagSearchInput"
         v-model="query"
+        autofocus
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
       <div class="pa-3">
@@ -91,26 +95,11 @@ export default {
     open() {
       if (this.open) {
         this.query = '';
-        window.setTimeout(() => {
-          if (this.$refs.tagSearchInput) {
-            this.$refs.tagSearchInput.$el.querySelector('input').focus();
-          }
-        }, 200);
         this.search();
       }
     },
   },
   created() {
-    // Workaround to fix closing menu when clicking outside
-    document.onmousedown = event => {
-      if (this.open && event && event.target) {
-        if (!$('.tag-search-content').find(event.target).length) {
-          window.setTimeout(() => {
-            this.open = false;
-          }, 200);
-        }
-      }
-    };
     this.selectedTags = this.value;
   },
   methods: {
