@@ -99,6 +99,11 @@ export default {
       viewMode: 1,
     },
   }),
+  watch: {
+    imageData(newVal) {
+      this.$emit('avatar-updated', newVal);
+    }
+  },
   computed: {
     isDefaultAvatar() {
       return this.src || !this.imageData;
