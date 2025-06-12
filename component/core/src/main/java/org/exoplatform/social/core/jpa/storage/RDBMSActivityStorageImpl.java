@@ -590,6 +590,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
+      activityFilter.setPosterId(viewerIdentity.getId());
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                      String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
@@ -670,6 +671,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
+      activityFilter.setPosterId(viewerIdentity.getId());
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                      String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
@@ -703,7 +705,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
-    List<String> spaceIdentityIds = null;
+    List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
@@ -711,8 +713,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     case USER_FAVORITE_STREAM:
       return getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId()).size();
     case FAVORITE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return 0;
       }
       break;
@@ -731,20 +733,34 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         }
       }
     case MANAGE_SPACES_STREAM:
-      spaceIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
-                                                                    String.valueOf(SpaceMembershipStatus.MANAGER),
-                                                                    0,
-                                                                    -1);
-      if (CollectionUtils.isEmpty(spaceIdentityIds)) {
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MANAGER),
+                                                                     0,
+                                                                     -1);
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
         return 0;
       }
       break;
-    case ANY_SPACE_ACTIVITY, ALL_STREAM:
+    case ALL_STREAM:
+      activityFilter.setPosterId(viewerIdentity.getId());
+      streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                     String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                     0,
+                                                                     -1);
+      streamIdentityIds = new ArrayList<>(streamIdentityIds);
+      streamIdentityIds.add(viewerIdentity.getId());
+      Set<Long> connectionIds = connectionDAO.getConnectionIds(Long.parseLong(viewerIdentity.getId()),
+                                                               org.exoplatform.social.core.relationship.model.Relationship.Type.CONFIRMED);
+      if (connectionIds != null) {
+        streamIdentityIds.addAll(connectionIds.stream().map(String::valueOf).toList());
+      }
+      break;
+    case ANY_SPACE_ACTIVITY:
       break;
     default:
       throw new UnsupportedOperationException();
     }
-    return activityDAO.getActivitiesCountByFilter(activityFilter, spaceIdentityIds);
+    return activityDAO.getActivitiesCountByFilter(activityFilter, streamIdentityIds);
   }
 
   public List<ExoSocialActivity> getFavoriteActivities(Identity viewerIdentity, String spaceId) {
