@@ -40,7 +40,7 @@ export function init(appId, settings, isAdministrator, saveSettingsUrl, spaceTem
     if (!settings.labelTranslations) {
       settings.labelTranslations = {};
     }
-    if (!settings.spaceTemplateIds) {
+    if (!settings.spaceTemplateIds.length) {
       if (spaceTemplates?.length) {
         settings.spaceTemplateIds = spaceTemplates.map(t => t.id);
       } else {
