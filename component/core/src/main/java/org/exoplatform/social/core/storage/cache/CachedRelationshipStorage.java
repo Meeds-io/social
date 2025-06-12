@@ -44,7 +44,7 @@ import org.exoplatform.social.core.storage.cache.model.data.ListActivitiesData;
 import org.exoplatform.social.core.storage.cache.model.data.ListIdentitiesData;
 import org.exoplatform.social.core.storage.cache.model.data.RelationshipData;
 import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
-import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityListKey;
 import org.exoplatform.social.core.storage.cache.model.key.IdentityFilterKey;
 import org.exoplatform.social.core.storage.cache.model.key.IdentityKey;
 import org.exoplatform.social.core.storage.cache.model.key.ListActivitiesKey;
@@ -80,7 +80,7 @@ public class CachedRelationshipStorage implements RelationshipStorage {
 
   private final ExoCache<SuggestionKey, SuggestionsData>                                                     exoSuggestionCache;
 
-  private final ExoCache<ActivityCountKey, IntegerData>                                                      exoActivitiesCountCache;
+  private final ExoCache<ActivityListKey, IntegerData>                                                      exoActivitiesCountCache;
 
   private final ExoCache<ListActivitiesKey, ListActivitiesData>                                              exoActivitiesCache;
 

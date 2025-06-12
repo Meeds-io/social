@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -55,7 +55,15 @@ import jakarta.persistence.TypedQuery;
  * May 18, 2015  
  */
 public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> implements ActivityDAO {
-  
+
+  private static final String        ACTIVITY_POSTER_ID        = "posterId";
+
+  private static final String        ACTIVITY_PROVIDER_ID        = "providerId";
+
+  private static final String        ACTIVITY_USER_ID          = "userId";
+
+  private static final String        ACTIVITY_OWNER_IDS        = "ownerIds";
+
   private static final String        STREAM_TYPE               = "streamType";
 
   private static final String        QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
@@ -949,22 +957,20 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     return query;
   }
 
-  private <T> void addQueryFilterParameters(ActivityFilter activityFilter, List<String> spaceIdentityIds, TypedQuery<T> query) {
+  private <T> void addQueryFilterParameters(ActivityFilter activityFilter, List<String> streamIdentityIds, TypedQuery<T> query) {
     if (activityFilter.getUserId() != null) {
-      query.setParameter("posterId", activityFilter.getUserId());
-      query.setParameter("streamTypes", Arrays.asList(StreamType.POSTER, StreamType.SPACE));
+      query.setParameter(ACTIVITY_USER_ID, activityFilter.getUserId());
     }
-    if (activityFilter.getSpaceId() != null) {
-      long ownerId = Long.parseLong(activityFilter.getSpaceId());
-      query.setParameter("ownerIds", Collections.singleton(ownerId));
-      query.setParameter("streamTypes", Arrays.asList(StreamType.SPACE));
-    } else if (CollectionUtils.isNotEmpty(spaceIdentityIds)) {
-      List<Long> owners = new ArrayList<>();
-      for (String id : spaceIdentityIds) {
-        owners.add(Long.parseLong(id));
+    if (CollectionUtils.isNotEmpty(streamIdentityIds) || activityFilter.getSpaceId() != null) {
+      if (activityFilter.getSpaceId() != null) {
+        query.setParameter(ACTIVITY_OWNER_IDS, Collections.singleton(activityFilter.getSpaceId()));
+      } else if (CollectionUtils.isNotEmpty(streamIdentityIds)) {
+        query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
       }
-      query.setParameter("ownerIds", owners);
-      query.setParameter("streamTypes", Arrays.asList(StreamType.POSTER, StreamType.SPACE));
+      if (activityFilter.getPosterId() != null) {
+        query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getPosterId());
+        query.setParameter(ACTIVITY_PROVIDER_ID, OrganizationIdentityProvider.NAME);
+      }
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       query.setParameter("categoryIds", activityFilter.getCategoryIds());
@@ -976,18 +982,21 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
                                List<String> suffixes,
                                List<String> predicates) {
     if (activityFilter.getUserId() != null) {
-      suffixes.add("Poster");
-      predicates.add("item.activity.posterId = :posterId");
-      predicates.add("item.streamType in (:streamTypes)");
+      suffixes.add("UserStream");
+      predicates.add("activity.posterId = :userId");
     }
     if (CollectionUtils.isNotEmpty(streamIdentityIds) || activityFilter.getSpaceId() != null) {
-      suffixes.add("StreamType");
-      predicates.add("item.ownerId in (:ownerIds)");
-      predicates.add("item.streamType in (:streamTypes)");
+      if (activityFilter.getPosterId() == null) {
+        suffixes.add("StreamType");
+        predicates.add("activity.ownerId in (:ownerIds)");
+      } else {
+        suffixes.add("StreamTypeAndPoster");
+        predicates.add("(activity.ownerId in (:ownerIds) OR (activity.posterId = :posterId and activity.providerId = :providerId))");
+      }
     }
     if (activityFilter.isPinned()) {
       suffixes.add("Pinned");
-      predicates.add("item.activity.pinned = true");
+      predicates.add("activity.pinned = true");
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       suffixes.add("CategoryIds");
@@ -1005,15 +1014,15 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   private String getQueryFilterContent(ActivityFilter activityFilter, List<String> predicates, boolean count) {
-    String querySelect = count ? "SELECT COUNT(item.activity.id)" : "SELECT DISTINCT(item.activity.id), item.activity.pinDate, item.updatedDate";
-    querySelect = querySelect + " FROM SocStreamItem item";
+    String querySelect = count ? "SELECT COUNT(DISTINCT activity.id)" : "SELECT DISTINCT(activity.id), activity.pinDate, activity.updatedDate updatedDate";
+    querySelect = querySelect + " FROM SocActivity activity";
 
-    String orderBy = activityFilter.isShowPinned() ? " ORDER BY item.activity.pinDate DESC NULLS LAST, item.updatedDate DESC NULLS LAST" : " ORDER BY item.updatedDate DESC NULLS LAST";
+    String orderBy = activityFilter.isShowPinned() ? " ORDER BY activity.pinDate DESC NULLS LAST, updatedDate DESC NULLS LAST" : " ORDER BY updatedDate DESC NULLS LAST";
 
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
-      querySelect += " INNER JOIN item.activity.categories cat ON cat.categoryId in :categoryIds";
+      querySelect += " INNER JOIN activity.categories cat ON cat.categoryId in :categoryIds";
     }
-    querySelect += " WHERE item.activity.hidden = false AND item.activity.parent IS NULL";
+    querySelect += " WHERE activity.hidden = false AND activity.parent IS NULL";
 
     String queryContent;
     if (predicates.isEmpty()) {

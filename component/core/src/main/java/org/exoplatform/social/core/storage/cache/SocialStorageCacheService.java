@@ -31,7 +31,7 @@ import org.exoplatform.social.core.storage.cache.model.data.ProfileData;
 import org.exoplatform.social.core.storage.cache.model.data.RelationshipData;
 import org.exoplatform.social.core.storage.cache.model.data.SpaceData;
 import org.exoplatform.social.core.storage.cache.model.data.SuggestionsData;
-import org.exoplatform.social.core.storage.cache.model.key.ActivityCountKey;
+import org.exoplatform.social.core.storage.cache.model.key.ActivityListKey;
 import org.exoplatform.social.core.storage.cache.model.key.ActivityKey;
 import org.exoplatform.social.core.storage.cache.model.key.IdentityCompositeKey;
 import org.exoplatform.social.core.storage.cache.model.key.IdentityFilterKey;
@@ -73,7 +73,7 @@ public class SocialStorageCacheService {
 
   // ActivityStorage
   private final ExoCache<ActivityKey, ActivityData> activityCache;
-  private final ExoCache<ActivityCountKey, IntegerData> activitiesCountCache;
+  private final ExoCache<ActivityListKey, IntegerData> activitiesCountCache;
   private final ExoCache<ListActivitiesKey, ListActivitiesData> activitiesCache;
 
   // SpaceStorage
@@ -161,7 +161,7 @@ public class SocialStorageCacheService {
     return activityCache;
   }
 
-  public ExoCache<ActivityCountKey, IntegerData> getActivitiesCountCache() {
+  public ExoCache<ActivityListKey, IntegerData> getActivitiesCountCache() {
     return activitiesCountCache;
   }
 

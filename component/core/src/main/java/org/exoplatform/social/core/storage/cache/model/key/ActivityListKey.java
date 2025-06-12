@@ -26,7 +26,7 @@ import org.exoplatform.social.core.activity.ActivityFilter;
  * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
  * @version $Revision$
  */
-public class ActivityCountKey implements CacheKey {
+public class ActivityListKey implements CacheKey {
   private static final long serialVersionUID = -2153747306033203041L;
 
   private IdentityKey key;
@@ -45,47 +45,47 @@ public class ActivityCountKey implements CacheKey {
   
   private String[] activityTypes;
 
-  public ActivityCountKey(final IdentityKey key, final ActivityType type) {
+  public ActivityListKey(final IdentityKey key, final ActivityType type) {
     this.key = key;
     this.type = type;
   }
   
-  public ActivityCountKey(final IdentityKey key, final ActivityType type, final String...activityTypes) {
+  public ActivityListKey(final IdentityKey key, final ActivityType type, final String...activityTypes) {
     this.key = key;
     this.type = type;
     this.activityTypes = activityTypes;
   }
   
-  public ActivityCountKey(final IdentityKey key, final IdentityKey viewerKey, final ActivityType type) {
+  public ActivityListKey(final IdentityKey key, final IdentityKey viewerKey, final ActivityType type) {
     this.key = key;
     this.type = type;
     this.viewerKey = viewerKey;
   }
 
-  public ActivityCountKey(final IdentityKey key, final String baseId, final ActivityType type) {
+  public ActivityListKey(final IdentityKey key, final String baseId, final ActivityType type) {
     this.key = key;
     this.baseId = baseId;
     this.type = type;
   }
 
-  public ActivityCountKey(final IdentityKey key, final Long time, final ActivityType type) {
+  public ActivityListKey(final IdentityKey key, final Long time, final ActivityType type) {
     this.key = key;
     this.time = time;
     this.type = type;
   }
   
-  public ActivityCountKey(final ActivityKey activityKey, final Long time, final ActivityType type) {
+  public ActivityListKey(final ActivityKey activityKey, final Long time, final ActivityType type) {
     this.activityKey = activityKey;
     this.time = time;
     this.type = type;
   }
   
-  public ActivityCountKey(final String baseId, final ActivityType type) {
+  public ActivityListKey(final String baseId, final ActivityType type) {
     this.baseId = baseId;
     this.type = type;
   }
 
-  public ActivityCountKey(IdentityKey key, ActivityFilter activityFilter) {
+  public ActivityListKey(IdentityKey key, ActivityFilter activityFilter) {
     this.key = key;
     this.activityFilter = activityFilter;
   }
@@ -103,11 +103,11 @@ public class ActivityCountKey implements CacheKey {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof ActivityCountKey)) {
+    if (!(o instanceof ActivityListKey)) {
       return false;
     }
 
-    ActivityCountKey that = (ActivityCountKey) o;
+    ActivityListKey that = (ActivityListKey) o;
 
     if (baseId != null ? !baseId.equals(that.baseId) : that.baseId != null) {
       return false;
