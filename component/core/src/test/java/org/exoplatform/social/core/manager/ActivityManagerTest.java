@@ -1548,7 +1548,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
                  parentActivity.getUserId());
   }
 
-  public void testGetActivitiesByUser() throws ActivityStorageException {
+  public void testGetActivitiesByUser() {
     String activityTitle = "title";
     String userId = rootIdentity.getId();
     ExoSocialActivity activity = new ExoSocialActivityImpl();
@@ -1583,7 +1583,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(21, activityList.size());
   }
 
-  public void testGetActivitiesByUserAndConnectionsAndSpaces() throws ActivityStorageException {
+  public void testGetActivitiesByUserAndConnectionsAndSpaces() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Post activity to 'john' user stream by 'john'");
     activity.setUserId(johnIdentity.getId());
@@ -1597,14 +1597,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     Space space = this.getSpaceInstance(0);
     restartTransaction();
 
-    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-    RealtimeListAccess<ExoSocialActivity> spaceActivitiesListAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
-    if (spaceActivitiesListAccess.getSize() > 0) {
-      // Ensure that automatic Space Activity is removed
-      assertEquals(1, spaceActivitiesListAccess.getSize());
-      activityManager.deleteActivity(spaceActivitiesListAccess.loadIdsAsList(0, 1).get(0));
-      restartTransaction();
-    }
+    deleteSpaceAutomaticActivities(space);
 
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
@@ -1618,21 +1611,14 @@ public class ActivityManagerTest extends AbstractCoreTest {
     relationshipManager.confirm(demoIdentity, johnIdentity);
     restartTransaction();
 
+    deleteRelationshipAutomaticActivities(demoIdentity);
     activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
-    if (activities.getSize() > 1) {
-      // Ensure that automatic Relationship Activity is removed
-      List<ExoSocialActivity> activityList = activities.loadAsList(0, 100);
-      activityList.stream()
-                  .filter(a -> StringUtils.equals(a.getType(), RelationshipPublisher.USER_ACTIVITIES_FOR_RELATIONSHIP))
-                  .forEach(activityManager::deleteActivity);
-      restartTransaction();
-      activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
-    }
     assertEquals("Demo activity posted to mary stream and john's stream activity must be the only activities to return", 2, activities.getSize());
     assertEquals(2, activities.loadAsList(0, 100).size());
     assertEquals(2, activities.loadIdsAsList(0, 100).size());
 
     // demo posts activities to space
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
     for (int i = 0; i < 10; i++) {
       activity = new ExoSocialActivityImpl();
       activity.setTitle("Activity Title: " + i);
@@ -1671,6 +1657,92 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(11, activities.getSize());
     assertEquals(11, activities.loadAsList(0, 100).size());
     assertEquals(11, activities.loadIdsAsList(0, 100).size());
+  }
+
+  public void testGetActivitiesWithLastCommentedFirst() {
+    ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
+    johnActivity.setTitle("Post activity to 'john' user stream by 'john'");
+    johnActivity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, johnActivity);
+
+    ExoSocialActivity maryActivity = new ExoSocialActivityImpl();
+    maryActivity.setTitle("Post activity to 'mary' user stream by 'demo'");
+    maryActivity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(maryIdentity, maryActivity);
+
+    Space space = this.getSpaceInstance(0);
+    restartTransaction();
+
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
+    restartTransaction();
+
+    deleteSpaceAutomaticActivities(space);
+    deleteRelationshipAutomaticActivities(demoIdentity);
+    restartTransaction();
+
+    // demo posts activities to space
+    List<ExoSocialActivity> spaceActivities = new ArrayList<>();
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    for (int i = 0; i < 10; i++) {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title: " + i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+      spaceActivities.add(0, activity);
+    }
+    restartTransaction();
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+    RealtimeListAccess<ExoSocialActivity> activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(12, activitiesListAccess.getSize());
+
+    List<ExoSocialActivity> activities = activitiesListAccess.loadAsList(0, 100);
+    assertEquals(12, activities.size());
+
+    List<String> activityIds = activitiesListAccess.loadIdsAsList(0, 100);
+    assertEquals(12, activityIds.size());
+
+    for (int i = 0; i < activities.size(); i++) {
+      assertEquals(activityIds.get(i), activities.get(i).getId());
+    }
+
+    for (int i = 0; i < spaceActivities.size(); i++) {
+      assertEquals(String.format("Activity n°%s doesn't match", i),
+                   activityIds.get(i),
+                   spaceActivities.get(i).getId());
+    }
+    assertEquals(activityIds.get(10), maryActivity.getId());
+    assertEquals(activityIds.get(11), johnActivity.getId());
+
+    ExoSocialActivity johnActivityComment = new ExoSocialActivityImpl();
+    johnActivityComment.setTitle("John's activity comment");
+    johnActivityComment.setUserId(rootIdentity.getId());
+    activityManager.saveComment(johnActivity, johnActivityComment);
+
+    activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(12, activitiesListAccess.getSize());
+
+    activities = activitiesListAccess.loadAsList(0, 100);
+    assertEquals(johnActivity.getId(), activities.get(0).getId());
+
+    activityIds = activitiesListAccess.loadIdsAsList(0, 100);
+    assertEquals(johnActivity.getId(), activityIds.get(0));
+
+    ExoSocialActivity maryActivityComment = new ExoSocialActivityImpl();
+    maryActivityComment.setTitle("Mary's activity comment");
+    maryActivityComment.setUserId(rootIdentity.getId());
+    activityManager.saveComment(maryActivity, maryActivityComment);
+
+    activitiesListAccess = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(12, activitiesListAccess.getSize());
+
+    activities = activitiesListAccess.loadAsList(0, 100);
+    assertEquals(maryActivity.getId(), activities.get(0).getId());
+
+    activityIds = activitiesListAccess.loadIdsAsList(0, 100);
+    assertEquals(maryActivity.getId(), activityIds.get(0));
   }
 
   public void testGetActivitiesByCategoryIds() throws ActivityStorageException {
@@ -2954,6 +3026,31 @@ public class ActivityManagerTest extends AbstractCoreTest {
       identityManager.updateIdentity(identity);
     }
     return identityManager.getOrCreateUserIdentity(username);
+  }
+
+  private void deleteSpaceAutomaticActivities(Space space) {
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    RealtimeListAccess<ExoSocialActivity> spaceActivitiesListAccess = activityManager.getActivitiesOfSpaceWithListAccess(spaceIdentity);
+    if (spaceActivitiesListAccess.getSize() > 0) {
+      // Ensure that automatic Space Activity is removed
+      assertEquals(1, spaceActivitiesListAccess.getSize());
+      activityManager.deleteActivity(spaceActivitiesListAccess.loadIdsAsList(0, 1).get(0));
+      restartTransaction();
+    }
+  }
+
+  private void deleteRelationshipAutomaticActivities(Identity identity) {
+    ActivityFilter userActivityFilter = new ActivityFilter();
+    userActivityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+    RealtimeListAccess<ExoSocialActivity> userActivities = activityManager.getActivitiesByFilterWithListAccess(identity, userActivityFilter);
+    if (userActivities.getSize() > 1) {
+      // Ensure that automatic Relationship Activity is removed
+      List<ExoSocialActivity> activityList = userActivities.loadAsList(0, 100);
+      activityList.stream()
+                  .filter(a -> StringUtils.equals(a.getType(), RelationshipPublisher.USER_ACTIVITIES_FOR_RELATIONSHIP))
+                  .forEach(activityManager::deleteActivity);
+      restartTransaction();
+    }
   }
 
 }
