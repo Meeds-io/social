@@ -538,6 +538,7 @@ public class UserRest implements ResourceContainer, Startable {
       @ApiResponse (responseCode = "200", description = "Request fulfilled"),
       @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response addUser(@Context UriInfo uriInfo,
+                          @Context HttpServletRequest request,
                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
                           @RequestBody(description = "User object to be created, ex:<br />" +
                               "{<br />\"username\": \"john\"," +
@@ -564,13 +565,40 @@ public class UserRest implements ResourceContainer, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
+    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
+
+    String errorMessage = USERNAME_VALIDATOR.validate(locale, model.getUsername());
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("USERNAME:" + errorMessage).build();
+    }
+
+    errorMessage = PASSWORD_VALIDATOR.validate(locale, model.getPassword());
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("PASSWORD:" + errorMessage).build();
+    }
+
+    errorMessage = LASTNAME_VALIDATOR.validate(locale, model.getLastname());
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+    }
+
+    errorMessage = FIRSTNAME_VALIDATOR.validate(locale, model.getFirstname());
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+    }
+
+    errorMessage = EMAIL_VALIDATOR.validate(locale, model.getEmail());
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+    }
+
     //Create new user
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.createUserInstance(model.getUsername());
     user.setFirstName(model.getFirstname());
     user.setLastName(model.getLastname());
     user.setEmail(model.getEmail());
-    user.setPassword(model.getPassword() == null || model.getPassword().isEmpty() ? "exo" : model.getPassword());
+    user.setPassword(model.getPassword());
     userHandler.createUser(user, true);
     //
     return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
