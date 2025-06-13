@@ -19,6 +19,7 @@
 
 <template>
   <v-tabs
+    ref="categoryTabs"
     v-model="selectedCategoryIndex"
     class="d-flex align-center justify-space-between"
     background-color="background-grey-primary"
@@ -63,6 +64,15 @@ export default {
     hasRecents: {
       type: Boolean,
       default: false
+    }
+  },
+  watch: {
+    selectedCategoryIndex() {
+      this.$nextTick(() => {
+        requestAnimationFrame(() => {
+          this.$refs.categoryTabs?.callSlider?.();
+        });
+      });
     }
   }
 };

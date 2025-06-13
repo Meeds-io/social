@@ -23,7 +23,7 @@
     :close-on-content-click="false"
     :position-x="menuX"
     :position-y="menuY"
-    content-class="z-index-modal bord pickerMenu border-radius-8 overflow-hidden"
+    content-class="z-index-modal pickerMenu border-radius-8 overflow-hidden"
     :max-height="maxHeight"
     :max-width="maxWidth"
     absolute
@@ -48,7 +48,8 @@ export default {
       search: '',
       launcherInstance: null,
       maxHeight: 450,
-      maxWidth: 308
+      maxWidth: 308,
+      closeOnEmojiSelect: true,
     };
   },
   created() {
@@ -72,14 +73,20 @@ export default {
   },
   methods: {
     handleClickOutside(event) {
+      const launcherEl = this.launcherInstance?.$el;
       const menuEl = document.querySelector('.pickerMenu');
-      if (!menuEl?.contains(event.target)) {
+      if (!menuEl?.contains(event.target) && (!launcherEl?.contains(event.target))) {
         this.showPicker = false;
       }
     },
     showEmojiPicker(event) {
+      if (this.showPicker) {
+        this.showPicker = false;
+        return;
+      }
       const data = event.detail;
       this.launcherInstance = data.launcherInstance;
+      this.closeOnEmojiSelect = data.options?.closeOnEmojiSelect;
       const launcherTop = parseFloat(data.top);
       const launcherLeft = parseFloat(data.left);
       const menuHeight = this.maxHeight;
@@ -96,7 +103,9 @@ export default {
     selectEmoji(emoji) {
       this.launcherInstance.$emit('select-emoji', emoji);
       this.$nextTick(() => {
-        this.showPicker = false;
+        if (this.closeOnEmojiSelect) {
+          this.showPicker = false;
+        }
       });
     }
   }
