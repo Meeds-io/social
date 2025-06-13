@@ -16,7 +16,6 @@
  */
 package org.exoplatform.social.rest.impl.activity;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -133,34 +132,18 @@ public class ActivityRest implements ResourceContainer {
   )
   public Response getActivities( // NOSONAR
                                 @Context UriInfo uriInfo,
-                                @Parameter(
-                                    description = "Space technical identifier",
-                                    required = false
-                                )
+                                @Parameter(description = "Space technical identifier", required = false)
                                 @QueryParam("spaceId") String spaceId,
                                 @Parameter(description = "Category id used to search associated activities", required = false)
                                 @QueryParam("categoryId")
                                 List<Long> categoryIds,
-                                @Parameter(
-                                    description = "offset time to use for searching newer activities until a time identified using format yyyy-MM-dd HH:mm:ss",
-                                    required = false
-                                ) @Schema(defaultValue = "0")
-                                @QueryParam("beforeTime") String beforeTime,
-                                @Parameter(
-                                    description = "offset time to use for searching newer activities since a time identified using format yyyy-MM-dd HH:mm:ss",
-                                    required = false
-                                ) @Schema(defaultValue = "0")
-                                @QueryParam("afterTime") String afterTime,
                                 @Parameter(description = "Offset", required = false)
                                 @QueryParam("offset") int offset,
                                 @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
                                 @QueryParam("limit") int limit,
                                 @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false")
                                 @QueryParam("returnSize") boolean returnSize,
-                                @Parameter(
-                                    description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>",
-                                    required = false
-                                )
+                                @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false)
                                 @QueryParam("expand") String expand,
                                 @Parameter(description = "Activity stream type. Possible values: ALL_STREAM, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false)
                                 @QueryParam("streamType") ActivityStreamType streamType) {
@@ -177,7 +160,6 @@ public class ActivityRest implements ResourceContainer {
     }
 
     boolean canPost;
-    RealtimeListAccess<ExoSocialActivity> listAccess;
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setCategoryIds(categoryIds);
     if (!StringUtils.isBlank(spaceId)) {
@@ -196,16 +178,10 @@ public class ActivityRest implements ResourceContainer {
       activityFilter.setStreamType(streamType);
     } else if (StringUtils.isNotBlank(spaceId)) {
       activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
-    } else if (CollectionUtils.isNotEmpty(categoryIds)) {
+    } else {
       activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
     }
-    if (!StringUtils.isEmpty(activityFilter.getSpaceId())
-        || activityFilter.getStreamType() != null
-        || CollectionUtils.isNotEmpty(categoryIds)) {
-      listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
-    } else {
-      listAccess = activityManager.getActivityFeedWithListAccess(currentUserIdentity);
-    }
+    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
 
     String entitiesName = null;
     List<DataEntity> activityEntities = null;
@@ -220,22 +196,7 @@ public class ActivityRest implements ResourceContainer {
       }).toList();
       entitiesName = EntityBuilder.ACTIVITY_IDS_TYPE;
     } else {
-      List<ExoSocialActivity> activities = null;
-      if (StringUtils.isNotBlank(afterTime)) {
-        try {
-          activities = listAccess.loadNewer(RestUtils.getBaseTime(afterTime), limit);
-        } catch (ParseException e) {
-          return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
-        }
-      } else if (StringUtils.isNotBlank(beforeTime)) {
-        try {
-          activities = listAccess.loadOlder(RestUtils.getBaseTime(beforeTime), limit);
-        } catch (ParseException e) {
-          return Response.status(Status.BAD_REQUEST).entity("afterTime Date has to be of format yyyy-MM-dd HH:mm:ss").build();
-        }
-      } else {
-        activities = listAccess.loadAsList(offset, limit);
-      }
+      List<ExoSocialActivity> activities = listAccess.loadAsList(offset, limit);
       activityEntities = convertToEntities(activities, currentUserIdentity, uriInfo, expand);
       entitiesName = EntityBuilder.ACTIVITIES_TYPE;
     }

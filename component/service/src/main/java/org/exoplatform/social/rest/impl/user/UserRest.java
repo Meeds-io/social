@@ -48,7 +48,6 @@ import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.deprecation.DeprecatedAPI;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
@@ -1485,45 +1484,6 @@ public class UserRest implements ResourceContainer, Startable {
       collectionSpace.setSize(commonSpacesAccessList.getSize());
     }
     return EntityBuilder.getResponse(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
-  }
-
-  @POST
-  @Path("{id}/activities")
-  @RolesAllowed("users")
-  @Operation(
-      summary = "Creates an activity by a specific user",
-      method = "POST",
-      description = "This creates the activity if the given user is the authenticated user.")
-  @Deprecated
-  @DeprecatedAPI(value = "Use ActivityRestResourcesV1.postActivity instead", insist = true)
-  public Response addActivityByUser(@Context UriInfo uriInfo,
-                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                    @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand,
-                                    @RequestBody(description = "Activity object to be created, in which the title of activity is required, ex: <br/>{\"title\": \"act4 posted\"}", required = true) ActivityEntity model) throws Exception {
-    return activityRestResourcesV1.postActivity(uriInfo, null, expand, model);
-  }
-
-  @GET
-  @Path("{id}/activities")
-  @RolesAllowed("users")
-  @Operation(
-      summary = "Gets activities of a specific user",
-      method = "GET",
-      description = "This returns an activity in the list in the following cases: " +
-          "<br/><ul><li>this is a user activity and the owner of the activity is the authenticated user or one of his connections</li>" +
-          "<li>this is a space activity and the authenticated user is a member of the space</li></ul>")
-  @Deprecated
-  @DeprecatedAPI(value = "Use ActivityRestResourcesV1.getActivities instead", insist = true)
-  public Response getActivitiesOfUser(@Context UriInfo uriInfo,
-                                      @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                      @Parameter(description = "Activity stream type, ex: <em>owner, connections, spaces</em> or <em>all</em>") @Schema(defaultValue = "all") @QueryParam("type") String type,
-                                      @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
-                                      @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
-                                      @Parameter(description = "Base time to load older activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("before") String before,
-                                      @Parameter(description = "Base time to load newer activities (yyyy-MM-dd HH:mm:ss)") @QueryParam("after") String after,
-                                      @Parameter(description = "Returning the number of activities or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                      @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>") @QueryParam("expand") String expand) throws Exception {
-    return activityRestResourcesV1.getActivities(uriInfo, null, null, before, after, offset, limit, returnSize, expand, null);
   }
 
   @POST
