@@ -371,6 +371,16 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
+  public int getManagerSpacesCount(String username) {
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
+    if (identity == null) {
+      return 0;
+    } else {
+      return this.spaceStorage.getManagerSpacesCount(identity.getRemoteId());
+    }
+  }
+
+  @Override
   public List<Space> getLastSpaces(int limit) {
     return spaceStorage.getLastSpaces(limit);
   }

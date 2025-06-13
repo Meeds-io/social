@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -138,14 +139,22 @@ public class LayoutUpgradePlugin extends UpgradeProductPlugin {
     PortalConfig newPortalConfig = portalConfigService.getConfig(portalType, portalName, PortalConfig.class, location);
     PortalConfig portalConfig = layoutService.getPortalConfig(portalType, portalName);
     if (portalConfig == null) {
-      portalConfig = newPortalConfig;
+      if (upgrade.isUpdatePortalProperties()) {
+        return false;
+      } else {
+        portalConfig = newPortalConfig;
+      }
     } else if (upgrade.isUpdatePortalProperties()) {
-      newPortalConfig.setBannerFileId(portalConfig.getBannerFileId());
-      portalConfig = newPortalConfig;
+      if (MapUtils.isNotEmpty(upgrade.getProperties())) {
+        portalConfig.getProperties().putAll(upgrade.getProperties());
+      } else {
+        newPortalConfig.setBannerFileId(portalConfig.getBannerFileId());
+        portalConfig = newPortalConfig;
+      }
     } else {
       portalConfig.setPortalLayout(newPortalConfig.getPortalLayout());
     }
-    if (newPortalConfig == null) {
+    if (newPortalConfig == null && portalConfig == null) {
       LOG.info("IGNORE:: Portal layout {}/{} wasn't found in path {}. The layout upgrade will be ignored",
                portalType,
                portalName,
