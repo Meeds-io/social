@@ -17,10 +17,10 @@
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import './initComponents.js';
-import {emojiBank} from './js/emojiBank.js';
 
 const lang = eXo?.env?.portal?.language || 'en';
 const url = `/social/i18n/locale.portlet.EmojiPicker?lang=${lang}`;
+const emojiBankUrl = '/social/json/emojiBank.json?v=1';
 const vuetify = Vue.prototype.vuetifyOptions;
 const appId = 'emojiPicker';
 
@@ -28,11 +28,14 @@ const emojiAppElement = document.createElement('div');
 emojiAppElement.setAttribute('id', appId);
 document.querySelector('#vuetify-apps').append(emojiAppElement);
 
-exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+Promise.all([
+  exoi18n.loadLanguageAsync(lang, url),
+  fetch(emojiBankUrl).then(res => res.json())
+]).then(([i18n, emojiBank]) => {
   Vue.createApp({
     data() {
       return {
-        emojiBank: emojiBank
+        emojiBank
       };
     },
     template: '<emoji-picker />',
