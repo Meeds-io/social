@@ -56,19 +56,23 @@ import jakarta.persistence.TypedQuery;
  */
 public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> implements ActivityDAO {
 
-  private static final String        ACTIVITY_POSTER_ID        = "posterId";
+  private static final List<StreamType> MAIN_STREAM_TYPES         = List.of(StreamType.SPACE, StreamType.POSTER);
 
-  private static final String        ACTIVITY_PROVIDER_ID        = "providerId";
+  private static final String           MAIN_STREAM_TYPES_PARAM   = "mainStreamTypes";
 
-  private static final String        ACTIVITY_USER_ID          = "userId";
+  private static final String           ACTIVITY_POSTER_ID        = "posterId";
 
-  private static final String        ACTIVITY_OWNER_IDS        = "ownerIds";
+  private static final String           ACTIVITY_PROVIDER_ID      = "providerId";
 
-  private static final String        STREAM_TYPE               = "streamType";
+  private static final String           ACTIVITY_USER_ID          = "userId";
 
-  private static final String        QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
+  private static final String           ACTIVITY_OWNER_IDS        = "ownerIds";
 
-  private static final String        QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
+  private static final String           STREAM_TYPE               = "streamType";
+
+  private static final String           QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
+
+  private static final String           QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
 
   private final Map<String, Boolean> filterNamedQueries        = new HashMap<>();
 
@@ -953,11 +957,17 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       filterNamedQueries.put(queryName, true);
     }
 
-    addQueryFilterParameters(activityFilter, streamIdentityIds, query);
+    addQueryFilterParameters(activityFilter, streamIdentityIds, query, count);
     return query;
   }
 
-  private <T> void addQueryFilterParameters(ActivityFilter activityFilter, List<String> streamIdentityIds, TypedQuery<T> query) {
+  private <T> void addQueryFilterParameters(ActivityFilter activityFilter,
+                                            List<String> streamIdentityIds,
+                                            TypedQuery<T> query,
+                                            boolean count) {
+    if (!count) {
+      query.setParameter(MAIN_STREAM_TYPES_PARAM, MAIN_STREAM_TYPES);
+    }
     if (activityFilter.getUserId() != null) {
       query.setParameter(ACTIVITY_USER_ID, activityFilter.getUserId());
     }
@@ -1014,11 +1024,14 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   private String getQueryFilterContent(ActivityFilter activityFilter, List<String> predicates, boolean count) {
-    String querySelect = count ? "SELECT COUNT(DISTINCT activity.id)" : "SELECT DISTINCT(activity.id), activity.pinDate, activity.updatedDate updatedDate";
+    String querySelect = count ? "SELECT COUNT(DISTINCT activity.id)" : "SELECT DISTINCT(activity.id), activity.pinDate, item.updatedDate updatedDate";
     querySelect = querySelect + " FROM SocActivity activity";
 
     String orderBy = activityFilter.isShowPinned() ? " ORDER BY activity.pinDate DESC NULLS LAST, updatedDate DESC NULLS LAST" : " ORDER BY updatedDate DESC NULLS LAST";
 
+    if (!count) {
+      querySelect += " INNER JOIN activity.streamItems item ON item.streamType in (:mainStreamTypes)";
+    }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       querySelect += " INNER JOIN activity.categories cat ON cat.categoryId in :categoryIds";
     }
