@@ -115,7 +115,7 @@ export default {
     },
     filteredTemplates() {
       if (this.search) {
-        return this.$root.availableSpaceTemplates.filter(t => t.name.toLowerCase().includes(this.search.toLowerCase()));
+        return this.$root.availableSpaceTemplates.filter(t => this.search === t.id);
       } else {
         return this.$root.availableSpaceTemplates;
       }
@@ -151,11 +151,12 @@ export default {
     this.$root.$off('space-creation-settings-open', this.open);
   },
   methods: {
-    addTemplate(id) {
+    async addTemplate(id) {
       if (this.selectedTemplateIds.indexOf(id) === -1) {
         this.selectedTemplateIds.push(id);
         this.selectedTemplateIds.sort((a, b) => a - b);
       }
+      await this.$nextTick();
       this.search = null;
     },
     open() {
