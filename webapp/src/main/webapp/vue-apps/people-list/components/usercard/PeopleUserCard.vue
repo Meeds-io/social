@@ -224,21 +224,24 @@ export default {
     },
     firstField() {
       if (this.preferences) {
-        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.firstField)[0]?.value;
+        const firstFieldProperty = this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.firstField)[0];
+        return this.propertyDisplayValue(firstFieldProperty);
       } else {
         return this.user?.primaryProperty;
       }
     },
     secondField() {
       if (this.preferences) {
-        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.secondField)[0]?.value;
+        const secondFieldProperty = this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.secondField)[0];
+        return this.propertyDisplayValue(secondFieldProperty);
       } else {
         return this.user?.secondaryProperty;
       }
     },
     thirdField() {
       if (this.preferences) {
-        return this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.thirdField)[0]?.value;
+        const thirdFieldProperty = this.fieldsToDisplay?.filter(property => property.propertyName === this.preferences.thirdField)[0];
+        return this.propertyDisplayValue(thirdFieldProperty);
       } else {
         return this.user?.tertiaryProperty;
       }
@@ -291,6 +294,14 @@ export default {
           }
         }
       });
+    },
+    propertyOption(fieldProperty) {
+      return fieldProperty.dropdownList
+        ? fieldProperty.propertyOptions?.find(option => `${option.id}` === `${fieldProperty.value}`)
+        : null;
+    },
+    propertyDisplayValue(fieldProperty) {
+      return this.propertyOption(fieldProperty)?.translatedValue ?? this.propertyOption(fieldProperty)?.value ?? fieldProperty.value;
     }
   }
 };
