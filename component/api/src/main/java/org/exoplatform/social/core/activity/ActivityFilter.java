@@ -35,7 +35,7 @@ public class ActivityFilter implements Serializable {
 
   private String             posterId;
 
-  private String             spaceId;
+  private String             spaceIdentityId;
 
   private List<Long>         categoryIds;
 
