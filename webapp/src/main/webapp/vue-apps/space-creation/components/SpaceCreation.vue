@@ -21,19 +21,21 @@
 <template>
   <v-hover v-slot="{ hover }">
     <v-app>
-      <v-btn
-        color="primary"
-        @click="addNewSpace">
-        {{ $root.label }}
-        <v-icon
-          v-if="$root.isAdministrator && hover"
-          color="white"
-          size="16"
-          class="mx-1"
-          @click.stop="openDrawerSettings">
-          fa-cog
-        </v-icon>
-      </v-btn>
+      <div class="d-flex justify-center">
+        <v-btn
+          color="primary d-block"
+          max-width="92%"
+          @click="addNewSpace">
+          <span class="full-width text-truncate"> {{ $root.label }} </span>
+          <v-icon
+            v-if="$root.isAdministrator && hover"
+            color="white"
+            size="16"
+            @click.stop="openDrawerSettings">
+            fa-cog
+          </v-icon>
+        </v-btn>
+      </div>
       <space-creation-settings-drawer
         @updated="spaceCreationSettingsUpdated"
         ref="spaceCreationSettingsDrawer" />
