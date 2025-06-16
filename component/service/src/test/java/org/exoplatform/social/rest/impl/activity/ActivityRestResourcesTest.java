@@ -311,7 +311,7 @@ public class ActivityRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
 
     collections = (CollectionEntity) response.getEntity();
-    assertEquals(4, collections.getEntities().size());
+    assertEquals(3, collections.getEntities().size());
 
     // Get space favorite activities
     response =

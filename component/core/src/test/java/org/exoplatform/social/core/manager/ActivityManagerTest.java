@@ -1659,6 +1659,247 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(11, activities.loadIdsAsList(0, 100).size());
   }
 
+  public void testGetActivitiesPostedByUser() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'john' user stream by 'john'");
+    activity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'mary' user stream by 'demo'");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(maryIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to own stream");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
+
+    Space space = this.getSpaceInstance(0);
+    restartTransaction();
+
+    deleteSpaceAutomaticActivities(space);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.USER_STREAM);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(2, activities.getSize());
+    assertEquals(2, activities.loadAsList(0, 100).size());
+    assertEquals(2, activities.loadIdsAsList(0, 100).size());
+
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
+    restartTransaction();
+
+    deleteRelationshipAutomaticActivities(demoIdentity);
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(2, activities.getSize());
+    assertEquals(2, activities.loadAsList(0, 100).size());
+    assertEquals(2, activities.loadIdsAsList(0, 100).size());
+
+    // demo posts activities to space
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+    for (int i = 0; i < 10; i++) {
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title: " + i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    }
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(12, activities.getSize());
+    assertEquals(12, activities.loadAsList(0, 100).size());
+    assertEquals(12, activities.loadIdsAsList(0, 100).size());
+
+    spaceService.removeMember(space, demoIdentity.getRemoteId());
+    ((CachedActivityStorage) activityStorage).clearCache();
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(2, activities.getSize());
+    assertEquals(2, activities.loadAsList(0, 100).size());
+    assertEquals(2, activities.loadIdsAsList(0, 100).size());
+  }
+
+  public void testGetActivitiesBySpace() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'john' user stream by 'john'");
+    activity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'mary' user stream by 'demo'");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(maryIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to own stream");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
+
+    Space space1 = this.getSpaceInstance(0);
+    Space space2 = this.getSpaceInstance(1);
+    restartTransaction();
+
+    Identity space1Identity = identityManager.getOrCreateSpaceIdentity(space1.getPrettyName());
+    Identity space2Identity = identityManager.getOrCreateSpaceIdentity(space2.getPrettyName());
+
+    deleteSpaceAutomaticActivities(space1);
+    deleteSpaceAutomaticActivities(space2);
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    activityFilter.setSpaceIdentityId(space1Identity.getId());
+
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
+    restartTransaction();
+
+    deleteRelationshipAutomaticActivities(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    for (int i = 0; i < 10; i++) {
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title Space 1: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(space1Identity, activity);
+
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title Space 2: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(space2Identity, activity);
+    }
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(10, activities.getSize());
+    assertEquals(10, activities.loadAsList(0, 100).size());
+    assertEquals(10, activities.loadIdsAsList(0, 100).size());
+
+    spaceService.removeMember(space1, demoIdentity.getRemoteId());
+    ((CachedActivityStorage) activityStorage).clearCache();
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+  }
+
+  public void testGetActivitiesBySpaceAndUser() {
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'john' user stream by 'john'");
+    activity.setUserId(johnIdentity.getId());
+    activityManager.saveActivityNoReturn(johnIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to 'mary' user stream by 'demo'");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(maryIdentity, activity);
+
+    activity = new ExoSocialActivityImpl();
+    activity.setTitle("Post activity to own stream");
+    activity.setUserId(demoIdentity.getId());
+    activityManager.saveActivityNoReturn(demoIdentity, activity);
+
+    Space space1 = this.getSpaceInstance(0);
+    Space space2 = this.getSpaceInstance(1);
+    restartTransaction();
+
+    Identity space1Identity = identityManager.getOrCreateSpaceIdentity(space1.getPrettyName());
+    Identity space2Identity = identityManager.getOrCreateSpaceIdentity(space2.getPrettyName());
+
+    deleteSpaceAutomaticActivities(space1);
+    deleteSpaceAutomaticActivities(space2);
+
+    ActivityFilter spaceActivityFilter = new ActivityFilter();
+    spaceActivityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+    spaceActivityFilter.setSpaceIdentityId(space1Identity.getId());
+    spaceActivityFilter.setUserId(demoIdentity.getId());
+
+    ActivityFilter userActivityFilter = new ActivityFilter();
+    userActivityFilter.setStreamType(ActivityStreamType.USER_STREAM);
+    userActivityFilter.setSpaceIdentityId(space1Identity.getId());
+    userActivityFilter.setUserId(demoIdentity.getId());
+
+    relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
+    relationshipManager.confirm(demoIdentity, johnIdentity);
+    restartTransaction();
+
+    deleteRelationshipAutomaticActivities(demoIdentity);
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    for (int i = 0; i < 10; i++) {
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title Space 1: " + i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(space1Identity, activity);
+
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title Space 2: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(space2Identity, activity);
+    }
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    for (int i = 0; i < 10; i++) {
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title Space 1: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(space1Identity, activity);
+    }
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter);
+    assertEquals(10, activities.getSize());
+    assertEquals(10, activities.loadAsList(0, 100).size());
+    assertEquals(10, activities.loadIdsAsList(0, 100).size());
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter);
+    assertEquals(10, activities.getSize());
+    assertEquals(10, activities.loadAsList(0, 100).size());
+    assertEquals(10, activities.loadIdsAsList(0, 100).size());
+
+    spaceService.removeMember(space1, demoIdentity.getRemoteId());
+    ((CachedActivityStorage) activityStorage).clearCache();
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+  }
+
   public void testGetActivitiesWithLastCommentedFirst() {
     ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
     johnActivity.setTitle("Post activity to 'john' user stream by 'john'");
