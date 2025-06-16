@@ -36,6 +36,7 @@ import org.exoplatform.commons.persistence.impl.GenericDAOJPAImpl;
 import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.storage.dao.ActivityDAO;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.entity.ActivityEntity;
@@ -62,9 +63,13 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
   private static final String           ACTIVITY_POSTER_ID        = "posterId";
 
+  private static final String           ACTIVITY_ID_PARAM         = "activityId";
+
   private static final String           ACTIVITY_PROVIDER_ID      = "providerId";
 
-  private static final String           ACTIVITY_USER_ID          = "userId";
+  private static final String           USER_PROVIDER_ID          = "userProviderId";
+
+  private static final String           SPACE_PROVIDER_ID         = "spaceProviderId";
 
   private static final String           ACTIVITY_OWNER_IDS        = "ownerIds";
 
@@ -74,9 +79,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
   private static final String           QUERY_FILTER_COUNT_PREFIX = "SocActivity.countAllActivities";
 
-  private final Map<String, Boolean> filterNamedQueries        = new HashMap<>();
+  private final Map<String, Boolean>    filterNamedQueries        = new HashMap<>();
 
-  private final ConnectionDAO        connectionDAO;
+  private final ConnectionDAO           connectionDAO;
 
   public ActivityDAOImpl(ConnectionDAO connectionDAO) {
     this.connectionDAO = connectionDAO;
@@ -101,14 +106,14 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
     query.setParameter("owners", Collections.singleton(ownerId));
     if (limit > 0) {
-      query.setFirstResult(offset > 0 ? (int)offset : 0);
-      query.setMaxResults((int)limit);
+      query.setFirstResult(offset > 0 ? (int) offset : 0);
+      query.setMaxResults((int) limit);
     }
 
     List<Tuple> resultList = query.getResultList();
     return convertActivityEntitiesToIds(resultList);
   }
-  
+
   @Override
   public List<String> getUserIdsActivities(Identity owner, long offset, long limit) throws ActivityStorageException {
     long ownerId = Long.parseLong(owner.getId());
@@ -810,7 +815,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   @Override
   public long getNumberOfComments(long activityId) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocActivity.numberCommentsOfActivity", Long.class);
-    query.setParameter("activityId", activityId);
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
     return query.getSingleResult();
   }
 
@@ -825,7 +830,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<ActivityEntity> findCommentsAndSubCommentsOfActivity(Long activityId) {
     TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery("SocActivity.findCommentsAndSubCommentsOfActivity",
                                                                            ActivityEntity.class);
-    query.setParameter("activityId", activityId);
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
     return query.getResultList();
   }
 
@@ -833,7 +838,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   public List<ActivityEntity> getComments(long activityId, int offset, int limit, boolean sortDescending) {
     String queryString = sortDescending ? "SocActivity.findLastCommentsOfActivity" : "SocActivity.findCommentsOfActivity";
     TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery(queryString, ActivityEntity.class);
-    query.setParameter("activityId", activityId);
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
     if (limit > 0) {
       query.setFirstResult(offset >= 0 ? offset : 0);
       query.setMaxResults(limit);
@@ -844,7 +849,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   @Override
   public List<ActivityEntity> getNewerComments(long activityId, Date sinceTime, int offset, int limit) {
     TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery("SocActivity.findNewerCommentsOfActivity", ActivityEntity.class);
-    query.setParameter("activityId", activityId);
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
     query.setParameter("sinceTime", sinceTime != null ? sinceTime.getTime() : 0);
     if (limit > 0) {
       query.setFirstResult(offset >= 0 ? offset : 0);
@@ -856,7 +861,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   @Override
   public List<ActivityEntity> getOlderComments(long activityId, Date sinceTime, int offset, int limit) {
     TypedQuery<ActivityEntity> query = getEntityManager().createNamedQuery("SocActivity.findOlderCommentsOfActivity", ActivityEntity.class);
-    query.setParameter("activityId", activityId);
+    query.setParameter(ACTIVITY_ID_PARAM, activityId);
     query.setParameter("sinceTime", sinceTime != null ? sinceTime.getTime() : 0);
     if (limit > 0) {
       query.setFirstResult(offset >= 0 ? offset : 0);
@@ -959,7 +964,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
   }
 
-  private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter, List<String> streamIdentityIds, Class<T> clazz, boolean count) {
+  private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter,
+                                                 List<String> streamIdentityIds,
+                                                 Class<T> clazz,
+                                                 boolean count) {
     List<String> suffixes = new ArrayList<>();
     List<String> predicates = new ArrayList<>();
     buildPredicates(activityFilter, streamIdentityIds, suffixes, predicates);
@@ -986,19 +994,27 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (!count) {
       query.setParameter(MAIN_STREAM_TYPES_PARAM, MAIN_STREAM_TYPES);
     }
-    if (activityFilter.getUserId() != null) {
-      query.setParameter(ACTIVITY_USER_ID, activityFilter.getUserId());
-    }
-    if (CollectionUtils.isNotEmpty(streamIdentityIds) || activityFilter.getSpaceId() != null) {
-      if (activityFilter.getSpaceId() != null) {
-        query.setParameter(ACTIVITY_OWNER_IDS, Collections.singleton(activityFilter.getSpaceId()));
-      } else if (CollectionUtils.isNotEmpty(streamIdentityIds)) {
+    if (activityFilter.getSpaceIdentityId() != null) {
+      query.setParameter(ACTIVITY_OWNER_IDS, Collections.singleton(activityFilter.getSpaceIdentityId()));
+      if (activityFilter.getUserId() != null) {
+        query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getUserId());
+      }
+    } else if (activityFilter.getUserId() != null) {
+      query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getUserId());
+      query.setParameter(USER_PROVIDER_ID, OrganizationIdentityProvider.NAME);
+      if (CollectionUtils.isNotEmpty(streamIdentityIds)) {
+        query.setParameter(SPACE_PROVIDER_ID, SpaceIdentityProvider.NAME);
         query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
       }
-      if (activityFilter.getPosterId() != null) {
-        query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getPosterId());
-        query.setParameter(ACTIVITY_PROVIDER_ID, OrganizationIdentityProvider.NAME);
-      }
+    } else if (activityFilter.getPosterId() == null) {
+      query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds == null ? Collections.emptyList() : streamIdentityIds);
+    } else if (CollectionUtils.isEmpty(streamIdentityIds)) {
+      query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getPosterId());
+      query.setParameter(USER_PROVIDER_ID, OrganizationIdentityProvider.NAME);
+    } else {
+      query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getPosterId());
+      query.setParameter(USER_PROVIDER_ID, OrganizationIdentityProvider.NAME);
+      query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       query.setParameter("categoryIds", activityFilter.getCategoryIds());
@@ -1009,18 +1025,33 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
                                List<String> streamIdentityIds,
                                List<String> suffixes,
                                List<String> predicates) {
-    if (activityFilter.getUserId() != null) {
-      suffixes.add("UserStream");
-      predicates.add("activity.posterId = :userId");
-    }
-    if (CollectionUtils.isNotEmpty(streamIdentityIds) || activityFilter.getSpaceId() != null) {
-      if (activityFilter.getPosterId() == null) {
-        suffixes.add("StreamType");
-        predicates.add("activity.ownerId in (:ownerIds)");
+    if (activityFilter.getSpaceIdentityId() != null) {
+      if (activityFilter.getUserId() != null) {
+        suffixes.add("PostedSpaceStream");
+        predicates.add("activity.posterId = :posterId");
       } else {
-        suffixes.add("StreamTypeAndPoster");
-        predicates.add("(activity.ownerId in (:ownerIds) OR (activity.posterId = :posterId and activity.providerId = :providerId))");
+        suffixes.add("SpaceStream");
       }
+      predicates.add("activity.ownerId in (:ownerIds)");
+    } else if (activityFilter.getUserId() != null) {
+      predicates.add("activity.posterId = :posterId");
+      if (CollectionUtils.isEmpty(streamIdentityIds)) {
+        suffixes.add("PostedActivitiesInUserStreams");
+        predicates.add("activity.providerId = :userProviderId");
+      } else {
+        suffixes.add("PostedActivitiesInAllStreams");
+        predicates.add("(activity.providerId = :userProviderId OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:ownerIds)))");
+      }
+    } else if (activityFilter.getPosterId() == null) {
+      suffixes.add("SpacesAndConnectionsStream");
+      predicates.add("activity.ownerId in (:ownerIds)");
+    } else if (CollectionUtils.isEmpty(streamIdentityIds)) {
+      suffixes.add("UserStream");
+      predicates.add("activity.posterId = :posterId");
+      predicates.add("activity.providerId = :userProviderId");
+    } else {
+      suffixes.add("AllStream");
+      predicates.add("(activity.ownerId in (:ownerIds) OR (activity.posterId = :posterId and activity.providerId = :userProviderId))");
     }
     if (activityFilter.isPinned()) {
       suffixes.add("Pinned");
@@ -1057,7 +1088,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
     String queryContent;
     if (predicates.isEmpty()) {
-      queryContent = querySelect ;
+      queryContent = querySelect;
     } else {
       queryContent = querySelect + " AND " + StringUtils.join(predicates, " AND ");
     }
@@ -1066,4 +1097,5 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
     return queryContent;
   }
+
 }

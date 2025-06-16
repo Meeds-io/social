@@ -541,13 +541,30 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                        ActivityFilter activityFilter,
                                                        long offset,
                                                        long limit) {
+    if (activityFilter.getSpaceIdentityId() != null) {
+      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+      if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
+        return Collections.emptyList();
+      } else {
+        Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+          return Collections.emptyList();
+        }
+      }
+    }
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
+      if (activityFilter.getSpaceIdentityId() == null) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
+      }
       break;
     case USER_FAVORITE_STREAM:
-      List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId());
+      List<ExoSocialActivity> activities = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceIdentityId());
       return StorageUtils.subList(activities, (int) offset, (int) limit);
     case FAVORITE_SPACES_STREAM:
       streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
@@ -557,18 +574,18 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case UNREAD_SPACES_STREAM:
       List<Long> activityIds;
-      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
         activityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
       } else {
         try {
           activityIds = spaceWebNotificationService.getUnreadActivityIdsBySpace(viewerIdentity.getRemoteId(),
-                                                                                Long.parseLong(activityFilter.getSpaceId()),
+                                                                                Long.parseLong(activityFilter.getSpaceIdentityId()),
                                                                                 offset,
                                                                                 limit);
         } catch (Exception e) {
           throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
                                                         viewerIdentity.getRemoteId(),
-                                                        activityFilter.getSpaceId()),
+                                                        activityFilter.getSpaceIdentityId()),
                                           e);
         }
       }
@@ -587,6 +604,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      if (activityFilter.getSpaceIdentityId() == null) {
+        return Collections.emptyList();
+      }
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
@@ -615,13 +635,30 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
+    if (activityFilter.getSpaceIdentityId() != null) {
+      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+      if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
+        return Collections.emptyList();
+      } else {
+        Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+          return Collections.emptyList();
+        }
+      }
+    }
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
+      if (activityFilter.getSpaceIdentityId() == null) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
+      }
       break;
     case USER_FAVORITE_STREAM:
-      List<String> activityIds = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId()).stream()
+      List<String> activityIds = getFavoriteActivities(viewerIdentity, activityFilter.getSpaceIdentityId()).stream()
                                                                                                    .map(ExoSocialActivity::getId)
                                                                                                    .collect(Collectors.toList());
       return StorageUtils.subList(activityIds, (int) offset, (int) limit);
@@ -633,11 +670,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case UNREAD_SPACES_STREAM:
       List<Long> unreadActivityIds;
-      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
         unreadActivityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
       } else {
         try {
-          Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceId());
+          Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
           if (spaceIdentity == null || !spaceIdentity.isEnable() || spaceIdentity.isDeleted() || !spaceIdentity.isSpace()) {
             return Collections.emptyList();
           }
@@ -649,7 +686,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
         } catch (Exception e) {
           throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
                                                         viewerIdentity.getRemoteId(),
-                                                        activityFilter.getSpaceId()),
+                                                        activityFilter.getSpaceIdentityId()),
                                           e);
         }
       }
@@ -668,6 +705,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      if (activityFilter.getSpaceIdentityId() == null) {
+        return Collections.emptyList();
+      }
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
@@ -705,13 +745,30 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
+    if (activityFilter.getSpaceIdentityId() != null) {
+      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+      if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
+        return 0;
+      } else {
+        Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+          return 0;
+        }
+      }
+    }
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
       activityFilter.setUserId(viewerIdentity.getId());
+      if (activityFilter.getSpaceIdentityId() == null) {
+        streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
+                                                                       String.valueOf(SpaceMembershipStatus.MEMBER),
+                                                                       0,
+                                                                       -1);
+      }
       break;
     case USER_FAVORITE_STREAM:
-      return getFavoriteActivities(viewerIdentity, activityFilter.getSpaceId()).size();
+      return getFavoriteActivities(viewerIdentity, activityFilter.getSpaceIdentityId()).size();
     case FAVORITE_SPACES_STREAM:
       streamIdentityIds = spaceStorage.getFavoriteSpaceIdentityIds(viewerIdentity.getRemoteId(), new SpaceFilter(), 0, -1);
       if (CollectionUtils.isEmpty(streamIdentityIds)) {
@@ -719,16 +776,16 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case UNREAD_SPACES_STREAM:
-      if (StringUtils.isBlank(activityFilter.getSpaceId())) {
+      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
         return (int) spaceWebNotificationService.countUnreadActivities(viewerIdentity.getRemoteId());
       } else {
         try {
           return (int) spaceWebNotificationService.countUnreadActivitiesBySpace(viewerIdentity.getRemoteId(),
-                                                                                Long.parseLong(activityFilter.getSpaceId()));
+                                                                                Long.parseLong(activityFilter.getSpaceIdentityId()));
         } catch (Exception e) {
           throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
                                                         viewerIdentity.getRemoteId(),
-                                                        activityFilter.getSpaceId()),
+                                                        activityFilter.getSpaceIdentityId()),
                                           e);
         }
       }
@@ -756,6 +813,9 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
+      if (activityFilter.getSpaceIdentityId() == null) {
+        return 0;
+      }
       break;
     default:
       throw new UnsupportedOperationException();
