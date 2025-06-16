@@ -169,7 +169,7 @@ public class ActivityRest implements ResourceContainer {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-      activityFilter.setSpaceId(spaceIdentity.getId());
+      activityFilter.setSpaceIdentityId(spaceIdentity.getId());
       canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
     } else {
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
