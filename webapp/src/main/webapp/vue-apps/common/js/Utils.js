@@ -26,19 +26,19 @@ export function trim(text) {
 }
 
 export function includeExtensions(suffix) {
-  if (!window.requirejs.loadedExtension) {
-    window.requirejs.loadedExtension = {};
+  if (!window.requireJsLoadedExtension) {
+    window.requireJsLoadedExtension = {};
   }
-  const modules = Object.keys(window.requirejs.s.contexts._.config.paths).filter(m => m?.includes?.(suffix));
+  const modules = window.requireJsModules.filter(m => m?.includes?.(suffix));
   if (modules?.length) {
     return Promise.all(modules.map(module => new Promise(resolve =>
       window.require([module], app => {
-        if (!window.requirejs.loadedExtension[module]) {
-          window.requirejs.loadedExtension[module] = true;
-          return Promise.resolve(app?.init?.())
+        if (!window.requireJsLoadedExtension[module]) {
+          window.requireJsLoadedExtension[module] = true;
+          Promise.resolve(app?.init?.())
             .then(resolve);
         } else {
-          return resolve();
+          resolve();
         }
       })
     )));
