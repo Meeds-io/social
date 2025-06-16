@@ -38,7 +38,7 @@ String valueDomId = "spaceCreationApplicationSettingsValue" + portletId;
       class="v-application v-application--is-ltr theme--light"
       id="<%=domId%>">
       <textarea id="spaceCreationSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
-      <textarea id="spaceCreationTemplate<%=valueDomId%>" style="display:none;"><%=StringEscapeUtils.escapeJava(spaceTemplatesJson).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+      <textarea id="spaceCreationTemplate<%=valueDomId%>" style="display:none;"><%=StringEscapeUtils.escapeJava(spaceTemplatesJson).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\\\n", "").replace("\\n", "") %></textarea>
       <script type="text/javascript">
         require(['PORTLET/social/SpaceCreation'], app => app.init('<%=domId%>', JSON.parse(document.getElementById('spaceCreationSettings<%=valueDomId%>').value), <%=isAdministrator%>, '<%=saveSettingsUrl%>', JSON.parse(document.getElementById('spaceCreationTemplate<%=valueDomId%>').value)));
       </script>
