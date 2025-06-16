@@ -21,6 +21,7 @@
         <v-list-item-title class="d-flex align-center mb-0">
           <exo-user-avatar
             :identity="posterIdentity"
+            class="flex-grow-1 flex-shrink-1"
             fullname
             popover
             bold-title
@@ -30,18 +31,19 @@
             <v-icon
               v-if="$vuetify.rtl"
               size="8"
-              class="mx-1 ps-1">
+              class="flex-grow-1 flex-shrink-0 mx-1 ps-1">
               fa-chevron-left
             </v-icon>
             <v-icon
               v-else
               size="8"
-              class="mx-1 ps-1">
+              class="flex-grow-1 flex-shrink-0 mx-1 ps-1">
               fa-chevron-right
             </v-icon>
             <exo-space-avatar
               :space="space"
               :size="20"
+              class="flex-grow-1 flex-shrink-1 text-truncate"
               bold-title
               link-style
               popover />
