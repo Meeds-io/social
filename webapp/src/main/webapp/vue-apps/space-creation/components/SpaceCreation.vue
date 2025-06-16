@@ -23,7 +23,9 @@
     <v-app>
       <div class="d-flex justify-center">
         <v-btn
-          color="primary d-block"
+          color="primary"
+          class="d-block"
+          elevation="0"
           max-width="92%"
           @click="addNewSpace">
           <span class="full-width text-truncate"> {{ $root.label }} </span>
