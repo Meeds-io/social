@@ -58,8 +58,8 @@
       </v-radio-group>
       <v-autocomplete
         v-if="settings.spaceCreationTemplateChoice === 'fewTemplates'"
-        v-model="search"
-        :items="filteredTemplates"
+        v-model="selectedTemplateId"
+        :items="$root.availableSpaceTemplates"
         :placeholder="$t('space.creation.instantiation.settingsDrawer.content.searchTemplatePlaceholder')"
         item-text="name"
         item-value="id"
@@ -107,18 +107,11 @@ export default {
     maxLabelLength: 150,
     settings: {},
     originalSettings: {},
-    search: null,
+    selectedTemplateId: null,
   }),
   computed: {
     selectedTemplates() {
       return this.$root.availableSpaceTemplates.filter(t => this.selectedTemplateIds.includes(t.id));
-    },
-    filteredTemplates() {
-      if (this.search) {
-        return this.$root.availableSpaceTemplates.filter(t => this.search === t.id);
-      } else {
-        return this.$root.availableSpaceTemplates;
-      }
     },
     disabled() {
       return JSON.stringify(this.settings) === JSON.stringify(this.originalSettings)
@@ -157,7 +150,7 @@ export default {
         this.selectedTemplateIds.sort((a, b) => a - b);
       }
       await this.$nextTick();
-      this.search = null;
+      this.selectedTemplateId = null;
     },
     open() {
       this.restoreSavedSettings();
