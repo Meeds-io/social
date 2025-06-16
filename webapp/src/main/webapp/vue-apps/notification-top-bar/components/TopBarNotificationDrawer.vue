@@ -47,7 +47,7 @@
         <span>{{ markingAsReadDisabled && $t('Notification.label.NoMarkAllAsRead') || $t('Notification.label.MarkAsRead', {0: $t(`Notification.label.types.${groupName}`)}) }}</span>
       </v-tooltip>
       <v-tooltip bottom>
-        <template #activator="{on, bind}">
+        <template #activator="{on, attrs}">
           <v-btn
             :href="settingsLink"
             icon
