@@ -91,7 +91,7 @@
         .then(data => {
           if (data) {
             i18n.mergeLocaleMessage(lang, data);
-            if (!cachedMessages && !eXo.developing) {
+            if (!cachedMessages && !eXo.developing && eXo.env.client.assetsVersion) {
               try {
                 sessionStorage.setItem(url, JSON.stringify(data));
               } catch (e) {
@@ -104,10 +104,12 @@
         .finally(() => {
           delete window.eXoI18N.executingFetches[url];
           window.eXoI18N.i18NFetchedURLs.push(url);
-          try {
-            sessionStorage.setItem(i18NFetchedURLsKey, JSON.stringify(window.eXoI18N.i18NFetchedURLs));
-          } catch (e) {
-            // QuotaExceededError can be thrown, thus nothing to do here
+          if (eXo.env.client.assetsVersion) {
+            try {
+              sessionStorage.setItem(i18NFetchedURLsKey, JSON.stringify(window.eXoI18N.i18NFetchedURLs));
+            } catch (e) {
+              // QuotaExceededError can be thrown, thus nothing to do here
+            }
           }
           window.vueI18nMessages = i18n.messages[eXo.env.portal.language];
           return i18n;

@@ -205,7 +205,7 @@ var requirejs, require, define;
 
     function newContext(contextName) {
         var config = {
-                waitSeconds: 30,
+                waitSeconds: 60,
                 baseUrl: './',
                 paths: {},
                 pkgs: {},
@@ -1907,6 +1907,12 @@ var requirejs, require, define;
      * name.
      */
     define = function (name, deps, callback) {
+        if (!window.requireJsModules) {
+          window.requireJsModules = [name];
+        } else {
+          window.requireJsModules.push(name);
+        }
+
         var node, context;
 
         //Allow for anonymous functions
