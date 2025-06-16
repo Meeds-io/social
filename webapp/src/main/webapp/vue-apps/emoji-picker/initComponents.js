@@ -23,13 +23,17 @@ import EmojiPickerButton from './components/EmojiPickerButton.vue';
 import EmojiPickerQuickEmojis from './components/view/EmojiPickerQuickEmojis.vue';
 import EmojiPickerList from './components/view/EmojiPickerList.vue';
 import EmojiPickerListCategory from './components/view/EmojiPickerListCategory.vue';
+import EmojiSuggester from './components/suggester/EmojiSuggester.vue';
+import EmojiSuggestionList from './components/suggester/EmojiSuggestionList.vue';
 
 const components = {
   'emoji-picker': EmojiPicker,
   'emoji-picker-button': EmojiPickerButton,
   'emoji-picker-quick-emojis': EmojiPickerQuickEmojis,
   'emoji-picker-list': EmojiPickerList,
-  'emoji-picker-list-category': EmojiPickerListCategory
+  'emoji-picker-list-category': EmojiPickerListCategory,
+  'emoji-suggester': EmojiSuggester,
+  'emoji-suggester-list': EmojiSuggestionList
 };
 
 for (const key in components) {

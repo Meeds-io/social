@@ -32,6 +32,7 @@ Promise.all([
   exoi18n.loadLanguageAsync(lang, url),
   fetch(emojiBankUrl).then(res => res.json())
 ]).then(([i18n, emojiBank]) => {
+  Object.defineProperty(Vue.prototype, '$emojiBank', {value: emojiBank,});
   Vue.createApp({
     data() {
       return {
