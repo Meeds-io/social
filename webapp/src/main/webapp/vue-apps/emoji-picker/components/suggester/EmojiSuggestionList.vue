@@ -1,4 +1,4 @@
-/*
+<!--
  This file is part of the Meeds project (https://meeds.io/).
 
  Copyright (C) 2025 Meeds Association contact@meeds.io
@@ -15,33 +15,36 @@
  You should have received a copy of the GNU Lesser General Public License
  along with this program; if not, write to the Free Software Foundation,
  Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
-import './initComponents.js';
+-->
 
-const lang = eXo?.env?.portal?.language || 'en';
-const url = `/social/i18n/locale.portlet.EmojiPicker?lang=${lang}`;
-const emojiBankUrl = '/social/json/emojiBank.json?v=1';
-const vuetify = Vue.prototype.vuetifyOptions;
-const appId = 'emojiPicker';
+<template>
+  <v-list
+    class="pa-0"
+    dense>
+    <v-list-item
+      v-for="(item, index) in suggestions"
+      :key="index"
+      :class="{ 'v-list-item--active': index === focusedIndex }"
+      @click="$emit('select', item)">
+      <v-list-item-title>
+        {{ item.emoji }} {{ item.shortcodes[0] }}
+      </v-list-item-title>
+    </v-list-item>
+  </v-list>
+</template>
 
-const emojiAppElement = document.createElement('div');
-emojiAppElement.setAttribute('id', appId);
-document.querySelector('#vuetify-apps').append(emojiAppElement);
+<script>
 
-Promise.all([
-  exoi18n.loadLanguageAsync(lang, url),
-  fetch(emojiBankUrl).then(res => res.json())
-]).then(([i18n, emojiBank]) => {
-  Object.defineProperty(Vue.prototype, '$emojiBank', {value: emojiBank,});
-  Vue.createApp({
-    data() {
-      return {
-        emojiBank
-      };
+export default {
+  props: {
+    suggestions: {
+      type: Array,
+      default: null
     },
-    template: '<emoji-picker />',
-    vuetify,
-    i18n
-  }, `#${appId}`, 'Emoji picker');
-});
-
+    focusedIndex: {
+      type: Number,
+      default: null
+    }
+  },
+};
+</script>
