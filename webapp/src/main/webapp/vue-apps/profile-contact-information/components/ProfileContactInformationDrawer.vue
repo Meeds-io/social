@@ -22,10 +22,12 @@
           <profile-contact-edit-multi-field
             v-else-if="property.multiValued || property?.children?.length"
             :property="property"
+            :disabled="disabledField(property)"
             @propertyUpdated="propertyUpdated" />
           <profile-dropdown-property
             v-else-if="property.dropdownList"
             :property="property"
+            :disabled="disabledField(property)"
             :property-label="getResolvedName(property)"
             @property-updated="propertyUpdated" />
           <div v-else>
