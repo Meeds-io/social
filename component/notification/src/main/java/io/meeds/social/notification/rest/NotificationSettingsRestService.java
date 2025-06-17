@@ -302,6 +302,30 @@ public class NotificationSettingsRestService implements ResourceContainer {
   }
 
   @PATCH
+  @Path("channel/{channelId}/defaultvalue")
+  @RolesAllowed("administrators")
+  @Operation(
+      summary = "Change default value of Channel for all users",
+      description = "Change default value of Channel for all users",
+      method = "PATCH"
+  )
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "204", description = "Request fulfilled")
+      }
+  )
+  public Response saveChannelDefaultValue(
+      @Parameter(description = "Channel Id like MAIL_CHANNEL, WEB_CHANNEL...", required = true)
+      @PathParam("channelId")
+      String channelId,
+      @Parameter(description = "Enable/disable a channel", required = true)
+      @FormParam("enable")
+      boolean enable) {
+    pluginSettingService.saveChannelDefaultValue(channelId, enable);
+    return Response.noContent().build();
+  }
+
+  @PATCH
   @Path("{id}/spaces/{spaceId}")
   @RolesAllowed("users")
   @Operation(summary = "Change enablement status of Channel for a user", description = "Change enablement status of Channel for a user", method = "PATCH")
@@ -521,6 +545,7 @@ public class NotificationSettingsRestService implements ResourceContainer {
                                         emailDigestChoices,
                                         channelCheckBoxList,
                                         channelStatus,
+                                        setting.getChannelDefaultValue(),
                                         channels,
                                         setting.getMutedSpaces());
   }
