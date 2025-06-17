@@ -15,6 +15,7 @@
           class="px-0"
           link
           text
+          v-if="!disabled"
           @click="addNewItem">
           + {{ $t('profileContactInformation.addNew') }}
         </v-btn>
@@ -27,6 +28,7 @@
         <profile-dropdown-property
           v-if="property.dropdownList"
           :multi-valued="true"
+          :disabled="disabled"
           :parent-property="property"
           :property="childProperty"
           :property-label="getResolvedName(childProperty)"
@@ -36,6 +38,7 @@
           v-else
           :property="childProperty"
           :parent-propery="property"
+          :disabled="disabled"
           :properties="property.children"
           :multi-valued="property.multiValued"
           @propertyUpdated="propertyUpdated"
@@ -51,6 +54,10 @@ export default {
     property: {
       type: Object,
       default: () => null,
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   methods: {
