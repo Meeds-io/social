@@ -32,7 +32,8 @@
           :src="previewAvatar"
           width="50px"
           height="50px"
-          class="border-radius clickable">
+          class="border-radius clickable"
+          alt="">
         <v-avatar
           v-else
           class="clickable"
