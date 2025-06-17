@@ -84,7 +84,9 @@
           <slot name="content"></slot>
           <attachments-draggable-zone />    
         </v-flex>
-        <v-divider v-show="$slots.footer" class="my-0" />
+        <v-divider
+          v-show="$slots.footer && !hideFooterDivider"
+          class="my-0" />
         <v-flex v-show="$slots.footer" class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
           <slot v-if="$slots.footer" name="footer"></slot>
         </v-flex>
@@ -194,6 +196,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    hideFooterDivider: {
+      type: Boolean,
+      default: false,
+    }
   },
   data: () => ({
     initialized: false,
