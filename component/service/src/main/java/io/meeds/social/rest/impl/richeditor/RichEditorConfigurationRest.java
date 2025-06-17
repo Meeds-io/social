@@ -19,7 +19,6 @@ package io.meeds.social.rest.impl.richeditor;
 
 import java.util.Date;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;

@@ -181,9 +181,9 @@ export default {
   },
   created() {
     const permissions = this.value?.slice?.();
-    this.isUserPermissions = this.users && permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
-    this.isSpaceAdminPermissions = this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin') && true || false;
-    this.isAnyPermissions = this.any && permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
+    this.isUserPermissions = !!(this.users && permissions?.find?.(p => p === this.$root.usersPermission));
+    this.isSpaceAdminPermissions = !!(this.spaceAdmin && permissions?.find?.(p => p === 'spaceAdmin'));
+    this.isAnyPermissions = !!(this.any && permissions?.find?.(p => p === this.$root.everyonePermission));
     this.specificGroupEntries = [];
 
     const specificGroupEntries = permissions?.filter?.(p =>

@@ -515,25 +515,24 @@ export default {
             }
           })
           .finally(() => this.savingSpace = false);
+      } else if (eXo.env.portal.userName) {
+        return this.$spaceService.createSpace(this.space)
+          .then(space => {
+            this.spaceSaved = true;
+            this.close();
+            window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
+          })
+          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .finally(() => this.savingSpace = false);
+
       } else {
-        if (eXo.env.portal.userName) {
-          return this.$spaceService.createSpace(this.space)
-            .then(space => {
-              this.spaceSaved = true;
-              this.close();
-              window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
-            })
-            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-            .finally(() => this.savingSpace = false);
-        } else {
-          return this.$spaceService.prepareSpaceInstance(this.space)
-            .then(() => {
-              this.spaceSaved = true;
-              window.location.href = `${eXo.env.portal.context}/login`;
-            })
-            .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
-            .finally(() => this.savingSpace = false);
-        }
+        return this.$spaceService.prepareSpaceInstance(this.space)
+          .then(() => {
+            this.spaceSaved = true;
+            window.location.href = `${eXo.env.portal.context}/login`;
+          })
+          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .finally(() => this.savingSpace = false);
       }
     },
     avatarUpdated(avatar) {
