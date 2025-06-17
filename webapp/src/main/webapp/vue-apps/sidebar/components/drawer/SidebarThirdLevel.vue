@@ -23,9 +23,12 @@
     ref="thirdLevelDrawer"
     v-model="drawer"
     :width="drawerWidth"
-    :style="drawerOffsetStyle"
     :right="$vuetify.rtl"
-    class="HamburgerMenuThirdLevelParent layout-side-bar border-box-sizing z-index-drawer"
+    :style="{
+      ...drawerOffsetStyle,
+      'z-index': zIndex,
+    }"
+    class="HamburgerMenuThirdLevelParent layout-side-bar border-box-sizing"
     max-width="100%"
     hide-overlay>
     <v-hover v-if="drawer" v-model="$root.hoverThirdLevel">
@@ -61,13 +64,17 @@ export default {
   },
   data: () => ({
     drawer: false,
+    drawerZIndex: 1035,
   }),
   computed: {
+    zIndex() {
+      return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
+    },
     drawerOffset() {
       return this.$root.displaySequentially && this.drawerWidth * 2 || 0;
     },
     drawerOffsetStyle() {
-      return this.$vuetify.rtl && `right: ${this.drawerOffset}px;` || `left: ${this.drawerOffset}px;`;
+      return this.$vuetify.rtl && {right: `${this.drawerOffset}px`} || {left: `${this.drawerOffset}px`};
     },
     expand() {
       return this.$root.expand;
