@@ -30,6 +30,7 @@
       small
       class="removeMultiFieldValue  error--text"
       :class="hasParent && 'hasParent' ||'noParent'"
+      v-if="!disabled"
       @click="$emit('remove')">
       fa-minus
     </v-icon>
@@ -58,6 +59,10 @@ export default {
     multiValued: {
       type: Boolean,
       default: () => null,
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
   
