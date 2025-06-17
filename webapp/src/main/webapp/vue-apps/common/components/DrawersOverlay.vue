@@ -3,8 +3,8 @@
     <v-fade-transition>
       <v-overlay
         v-show="overlay"
+        :z-index="zIndex"
         id="drawers-overlay"
-        z-index="1030"
         absolute />
     </v-fade-transition>
   </v-app>
@@ -15,8 +15,12 @@ export default {
     openedModals: 0,
     openedDrawers: 0,
     uiPortalApplicationElement: null,
+    drawerZIndex: 1035,
   }),
   computed: {
+    zIndex() {
+      return this.overlay ? (this.drawerZIndex - 1 + (this.openedDrawers || 0)) : this.drawerZIndex - 1;
+    },
     overlay() {
       return this.openedDrawers && !this.openedModals;
     },

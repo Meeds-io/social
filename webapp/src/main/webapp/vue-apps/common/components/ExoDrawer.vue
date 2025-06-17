@@ -10,6 +10,9 @@
       'layout-drawer': isBrandingLayout,
       'z-index-snackbar': increaseZindex,
     }"
+    :style="{
+      'z-index': zIndex,
+    }"
     :absolute="!fixed"
     :fixed="fixed"
     :width="width"
@@ -205,8 +208,12 @@ export default {
     expand: false,
     modalOpened: false,
     increaseZindex: false,
+    drawerZIndex: 1035,
   }),
   computed: {
+    zIndex() {
+      return this.drawer ? (this.drawerZIndex + (eXo.openedDrawers?.length || 0)) : this.drawerZIndex;
+    },
     rightDrawer() {
       return (this.right && eXo.env.portal.orientation === 'ltr') || (this.left && eXo.env.portal.orientation === 'rtl');
     },
