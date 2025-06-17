@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import org.exoplatform.portal.config.model.PortalConfig;
@@ -341,6 +342,16 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     Space space = spaceService.getSpaceById(spaceEntity.getId());
     assertNotNull(space);
     assertEquals("social", space.getDisplayName());
+  }
+
+  public void testPrepareSpace() throws Exception {
+    String input = "{\"displayName\":\"social\",\"visibility\":\"hidden\",\"subscription\":\"open\"}";
+    ContainerResponse response = getResponse("POST", getURLResource("spaces/prepare"), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    String tokenId = (String) response.getEntity();
+    assertNotNull(tokenId);
   }
 
   public void testCreateSpaceWithNonLatinName() throws Exception {
