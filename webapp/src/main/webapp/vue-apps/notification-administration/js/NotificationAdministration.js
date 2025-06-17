@@ -84,3 +84,18 @@ export function saveChannelStatus(channelId, enable) {
     }
   });
 }
+
+export function saveChannelDefaultValue(channelId, enable) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/notifications/settings/channel/${channelId}/defaultvalue`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: `enable=${enable}`
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error saving channel default value setting');
+    }
+  });
+}

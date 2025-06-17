@@ -49,6 +49,8 @@ public class UserNotificationSettings {
 
   private Map<String, Boolean>          channelStatus;
 
+  private Map<String, Boolean> channelDefaultValue;
+
   private List<String>                  channels;
 
   private List<Long>                    mutedSpaces;
@@ -74,6 +76,7 @@ public class UserNotificationSettings {
                                   List<EmailDigestChoice> emailDigestChoices,
                                   List<ChannelActivationChoice> channelCheckBoxList,
                                   Map<String, Boolean> channelStatus,
+                                  Map<String, Boolean> channelDefaultValue,
                                   List<String> channels,
                                   List<Long> mutedSpaces) {
     this.groups = groups;
@@ -89,6 +92,7 @@ public class UserNotificationSettings {
     this.channelStatus = channelStatus;
     this.channels = channels;
     this.mutedSpaces = mutedSpaces;
+    this.channelDefaultValue = channelDefaultValue;
   }
 
   public List<GroupProvider> getGroups() {
@@ -201,5 +205,13 @@ public class UserNotificationSettings {
 
   public void setMutedSpaces(List<Long> mutedSpaces) {
     this.mutedSpaces = mutedSpaces;
+  }
+
+  public Map<String, Boolean> getChannelDefaultValue() {
+    return channelDefaultValue;
+  }
+
+  public void setChannelDefaultValue(Map<String, Boolean> channelDefaultValue) {
+    this.channelDefaultValue = channelDefaultValue;
   }
 }
