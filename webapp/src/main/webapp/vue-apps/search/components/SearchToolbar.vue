@@ -37,7 +37,7 @@ export default {
   }),
   computed: {
     searchInputPlaceholder() {
-      return this.$t('Search.label.inputPlaceHolder', {0: eXo.env?.portal?.productName});
+      return this.$t('Search.label.inputPlaceHolder', {0: eXo.env?.portal?.companyName});
     }
   },
   watch: {
