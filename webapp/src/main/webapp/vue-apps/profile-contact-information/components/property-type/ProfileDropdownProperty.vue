@@ -33,6 +33,7 @@
         item-text="translatedValue"
         item-value="id"
         clear-icon="fas fa-times"
+        :disabled="disabled"
         clearable
         single-line
         solo
@@ -49,7 +50,7 @@
         v-if="!multiValued"
         :property="propertyObject" />
       <v-btn
-        v-if="multiValued"
+        v-if="multiValued && !disabled"
         icon
         @click="$emit('remove')">
         <v-icon
@@ -85,6 +86,10 @@ export default {
       default: null
     },
     multiValued: {
+      type: Boolean,
+      default: false
+    },
+    disabled: {
       type: Boolean,
       default: false
     }
