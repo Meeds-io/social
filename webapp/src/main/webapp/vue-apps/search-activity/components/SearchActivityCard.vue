@@ -146,9 +146,6 @@ export default {
     poster() {
       return this.activity?.poster?.profile;
     },
-    body() {
-      return this.activity?.body;
-    },
     posterUsername() {
       return this.poster?.username;
     },
@@ -159,10 +156,10 @@ export default {
       return this.activity?.streamOwner?.space || false;
     },
     excerpts() {
-      return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
+      return this.activity && this.activity.excerpts || (this.activityEntity?.title && [this.activityEntity.title]) || (this.activityEntity?.body && [this.activityEntity.body]);
     },
     excerptHtml() {
-      return this.excerpts && this.excerpts.join('\r\n...') || this.body || '';
+      return this.excerpts && this.excerpts.join('\r\n...') || '';
     },
     excerptText() {
       return this.$utils.htmlToText(this.excerptHtml);

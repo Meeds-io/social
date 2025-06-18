@@ -18,9 +18,14 @@
  */
 package io.meeds.social.cms.plugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import io.meeds.social.cms.model.ContentLinkExtension;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,8 +106,12 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   @Override
   public String transform(String html, HtmlTransformerContext context) {
-    html = replaceDataObjectTag(html);
-    html = replaceContentLinkTag(html, context);
+    if (!context.isTextOnly()) {
+      html = replaceDataObjectTag(html);
+      html = replaceContentLinkTag(html, context);
+    } else {
+      html = replaceContentLinkText(html, context);
+    }
     return html;
   }
 
@@ -168,6 +177,30 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
       }
       fromIndex = html.indexOf(DATA_OBJECT_ATTRIBUTE, fromIndex + DATA_OBJECT_ATTRIBUTE.length());
     }
+    return html;
+  }
+
+  private String replaceContentLinkText(String html, HtmlTransformerContext context) {
+    List<String> extensionObjectTypes = contentLinkPluginService.getExtensions()
+                                                                .stream()
+                                                                .map(ContentLinkExtension::getObjectType)
+                                                                .toList();
+
+    for (String type : extensionObjectTypes) {
+      String regex = "/" + Pattern.quote(type) + ":([^/\\s]+)";
+      Matcher matcher = Pattern.compile(regex).matcher(html);
+
+      var result = new StringBuilder();
+      while (matcher.find()) {
+        String fullMatch = matcher.group();
+        String replacement = String.format(CONTENT_LINK_TAG, fullMatch);
+
+        matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+      }
+      matcher.appendTail(result);
+      html = result.toString();
+    }
+    html = replaceContentLinkTag(html, context);
     return html;
   }
 
