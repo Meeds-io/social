@@ -400,7 +400,10 @@ public class SpaceServiceImpl implements SpaceService {
   @Override
   public Space createSpace(Space space, String username, List<Identity> identitiesToInvite) throws SpaceException {
     if (!getSpaceTemplateService().canCreateSpace(space.getTemplateId(), username)) {
-      throw new SpaceException(Code.SPACE_PERMISSION);
+      throw new SpaceException(Code.SPACE_PERMISSION,
+                               String.format("User %s isn't allowed to create space with template %s",
+                                             username,
+                                             space.getTemplateId()));
     }
 
     // Copy only settable properties from provided DTO
