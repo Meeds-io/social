@@ -115,6 +115,10 @@ public class Identity implements CacheEntry, Cloneable {
     return id;
   }
 
+  public long getIdentityId() {
+    return Long.parseLong(id);
+  }
+
   /**
    * Sets the id.
    *
