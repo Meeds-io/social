@@ -353,7 +353,7 @@ public class SpaceTemplateService {
     return aclIdentity != null
            && (spaceTemplate.getPermissions()
                             .stream()
-                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)))
+                            .anyMatch(expression -> UserACL.EVERYONE.equals(expression) || aclIdentity.isMemberOf(getMembershipEntry(expression)))
                || spaceTemplate.getAdminPermissions()
                                .stream()
                                .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
