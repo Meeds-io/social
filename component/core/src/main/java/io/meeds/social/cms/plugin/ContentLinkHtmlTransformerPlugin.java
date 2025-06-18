@@ -19,8 +19,10 @@
 package io.meeds.social.cms.plugin;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -98,6 +100,8 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
 
   @Autowired
   private PortalContainer          portalContainer;
+
+  private Map<String, Pattern>     extensionPatterns               = null;
 
   @PostConstruct
   public void init() {
@@ -181,20 +185,13 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
   }
 
   private String replaceContentLinkText(String html, HtmlTransformerContext context) {
-    List<String> extensionObjectTypes = contentLinkPluginService.getExtensions()
-                                                                .stream()
-                                                                .map(ContentLinkExtension::getObjectType)
-                                                                .toList();
-
-    for (String type : extensionObjectTypes) {
-      String regex = "/" + Pattern.quote(type) + ":([^/\\s]+)";
-      Matcher matcher = Pattern.compile(regex).matcher(html);
+    for (Map.Entry<String, Pattern> entry : getExtensionPatterns().entrySet()) {
+      Matcher matcher = entry.getValue().matcher(html);
 
       var result = new StringBuilder();
       while (matcher.find()) {
         String fullMatch = matcher.group();
         String replacement = String.format(CONTENT_LINK_TAG, fullMatch);
-
         matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
       }
       matcher.appendTail(result);
@@ -288,6 +285,21 @@ public class ContentLinkHtmlTransformerPlugin implements HtmlTransformerPlugin {
     } catch (Exception e) {
       return resourceBundleService.getResourceBundle(CONTENT_LINK_RESOURCE_BUNDLE, ResourceBundleService.DEFAULT_CROWDIN_LOCALE);
     }
+  }
+
+  private Map<String, Pattern> getExtensionPatterns() {
+    if (extensionPatterns == null) {
+      extensionPatterns = new HashMap<>();
+      List<String> extensionObjectTypes = contentLinkPluginService.getExtensions()
+                                                                  .stream()
+                                                                  .map(ContentLinkExtension::getObjectType)
+                                                                  .toList();
+      for (String type : extensionObjectTypes) {
+        String regex = "/" + Pattern.quote(type) + ":([^/\\s]+)";
+        extensionPatterns.put(type, Pattern.compile(regex));
+      }
+    }
+    return extensionPatterns;
   }
 
 }

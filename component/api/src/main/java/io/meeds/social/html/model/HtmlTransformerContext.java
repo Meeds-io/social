@@ -38,7 +38,7 @@ public class HtmlTransformerContext {
 
   private Locale   locale;
 
-  private boolean  isTextOnly;
+  private boolean  textOnly;
 
   public HtmlTransformerContext(Locale locale) {
     this.locale = locale;
@@ -54,10 +54,10 @@ public class HtmlTransformerContext {
     this.locale = locale;
   }
 
-  public HtmlTransformerContext(Identity userIdentity, Locale locale,  boolean isTextOnly) {
+  public HtmlTransformerContext(Identity userIdentity, Locale locale,  boolean textOnly) {
     this.userIdentity = userIdentity;
     this.locale = locale;
-    this.isTextOnly = isTextOnly;
+    this.textOnly = textOnly;
   }
 
   public String getUsername() {
