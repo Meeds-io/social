@@ -16,6 +16,7 @@
  */
 package org.exoplatform.social.core.manager;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -83,11 +84,8 @@ import org.exoplatform.social.core.test.AbstractCoreTest;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
 
-/**
- * Unit Test for {@link ActivityManager}, including cache tests.
- * 
- * @author hoat_le
- */
+import lombok.SneakyThrows;
+
 public class ActivityManagerTest extends AbstractCoreTest {
 
   private static final Log        LOG               = ExoLogger.getLogger(ActivityManagerTest.class);
@@ -710,6 +708,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
    * Test {@link ActivityManager#pinActivity(String, String)} Test
    * {@link ActivityManager#unpinActivity(String)}
    */
+  @SneakyThrows
   public void testPinActivity() throws Exception {
     String activityTitle = "activity title";
     String userId = johnIdentity.getId();
@@ -744,6 +743,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(0, activities.size());
   }
 
+  @SneakyThrows
   public void testLoadSpaceActivities() {
     String activityTitle = "activity title";
     String userId = johnIdentity.getId();
@@ -1548,6 +1548,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
                  parentActivity.getUserId());
   }
 
+  @SneakyThrows
   public void testGetActivitiesByUser() {
     String activityTitle = "title";
     String userId = rootIdentity.getId();
@@ -1583,6 +1584,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(21, activityList.size());
   }
 
+  @SneakyThrows
   public void testGetActivitiesByUserAndConnectionsAndSpaces() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Post activity to 'john' user stream by 'john'");
@@ -1659,6 +1661,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(11, activities.loadIdsAsList(0, 100).size());
   }
 
+  @SneakyThrows
   public void testGetActivitiesPostedByUser() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Post activity to 'john' user stream by 'john'");
@@ -1728,6 +1731,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(2, activities.loadIdsAsList(0, 100).size());
   }
 
+  @SneakyThrows
   public void testGetActivitiesBySpace() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Post activity to 'john' user stream by 'john'");
@@ -1756,7 +1760,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
-    activityFilter.setSpaceIdentityId(space1Identity.getId());
+    activityFilter.setSpaceIdentityId(space1Identity.getIdentityId());
 
     relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
     relationshipManager.confirm(demoIdentity, johnIdentity);
@@ -1790,12 +1794,11 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ((CachedActivityStorage) activityStorage).clearCache();
     restartTransaction();
 
-    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
-    assertEquals(0, activities.getSize());
-    assertEquals(0, activities.loadAsList(0, 100).size());
-    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+    assertThrows(IllegalAccessException.class,
+                 () -> activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter));
   }
 
+  @SneakyThrows
   public void testGetActivitiesBySpaceAndUser() {
     ExoSocialActivity activity = new ExoSocialActivityImpl();
     activity.setTitle("Post activity to 'john' user stream by 'john'");
@@ -1824,13 +1827,13 @@ public class ActivityManagerTest extends AbstractCoreTest {
 
     ActivityFilter spaceActivityFilter = new ActivityFilter();
     spaceActivityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
-    spaceActivityFilter.setSpaceIdentityId(space1Identity.getId());
-    spaceActivityFilter.setUserId(demoIdentity.getId());
+    spaceActivityFilter.setSpaceIdentityId(space1Identity.getIdentityId());
+    spaceActivityFilter.setUserId(demoIdentity.getIdentityId());
 
     ActivityFilter userActivityFilter = new ActivityFilter();
     userActivityFilter.setStreamType(ActivityStreamType.USER_STREAM);
-    userActivityFilter.setSpaceIdentityId(space1Identity.getId());
-    userActivityFilter.setUserId(demoIdentity.getId());
+    userActivityFilter.setSpaceIdentityId(space1Identity.getIdentityId());
+    userActivityFilter.setUserId(demoIdentity.getIdentityId());
 
     relationshipManager.inviteToConnect(demoIdentity, johnIdentity);
     relationshipManager.confirm(demoIdentity, johnIdentity);
@@ -1890,16 +1893,89 @@ public class ActivityManagerTest extends AbstractCoreTest {
     ((CachedActivityStorage) activityStorage).clearCache();
     restartTransaction();
 
-    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter);
-    assertEquals(0, activities.getSize());
-    assertEquals(0, activities.loadAsList(0, 100).size());
-    assertEquals(0, activities.loadIdsAsList(0, 100).size());
-    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter);
-    assertEquals(0, activities.getSize());
-    assertEquals(0, activities.loadAsList(0, 100).size());
-    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+    assertThrows(IllegalAccessException.class,
+                 () -> activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter));
+    spaceActivityFilter.setSpaceIdentityId(55896473l);
+    assertThrows(ObjectNotFoundException.class,
+                 () -> activityManager.getActivitiesByFilterWithListAccess(demoIdentity, spaceActivityFilter));
+    assertThrows(IllegalAccessException.class,
+                 () -> activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter));
+    userActivityFilter.setSpaceIdentityId(55896473l);
+    assertThrows(ObjectNotFoundException.class,
+                 () -> activityManager.getActivitiesByFilterWithListAccess(demoIdentity, userActivityFilter));
   }
 
+  @SneakyThrows
+  public void testGetActivitiesWhenManager() {
+    Space space = this.getSpaceInstance(0);
+    restartTransaction();
+    Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+
+    deleteSpaceAutomaticActivities(space);
+
+    spaceService.removeMember(space, johnIdentity.getRemoteId());
+    ((CachedActivityStorage) activityStorage).clearCache();
+    restartTransaction();
+
+    ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setSpaceIdentityId(spaceIdentity.getIdentityId());
+    activityFilter.setStreamType(ActivityStreamType.ANY_SPACE_ACTIVITY);
+
+    RealtimeListAccess<ExoSocialActivity> activities = activityManager.getActivitiesByFilterWithListAccess(johnIdentity,
+                                                                                                           activityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    // demo posts activities to space
+    for (int i = 0; i < 10; i++) {
+      ExoSocialActivity activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title: " + i);
+      activity.setUserId(demoIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+
+      activity = new ExoSocialActivityImpl();
+      activity.setTitle("Activity Title: " + i);
+      activity.setUserId(johnIdentity.getId());
+      activityManager.saveActivityNoReturn(spaceIdentity, activity);
+    }
+    restartTransaction();
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(20, activities.getSize());
+    assertEquals(20, activities.loadAsList(0, 100).size());
+    assertEquals(20, activities.loadIdsAsList(0, 100).size());
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter);
+    assertEquals(20, activities.getSize());
+    assertEquals(20, activities.loadAsList(0, 100).size());
+    assertEquals(20, activities.loadIdsAsList(0, 100).size());
+
+    activityFilter.setSpaceIdentityId(0l);
+    activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
+    activities = activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(20, activities.getSize());
+    assertEquals(20, activities.loadAsList(0, 100).size());
+    assertEquals(20, activities.loadIdsAsList(0, 100).size());
+
+    activityFilter.setUserId(johnIdentity.getIdentityId());
+    activityFilter.setStreamType(ActivityStreamType.USER_STREAM);
+    activities = activityManager.getActivitiesByFilterWithListAccess(johnIdentity, activityFilter);
+    assertEquals(0, activities.getSize());
+    assertEquals(0, activities.loadAsList(0, 100).size());
+    assertEquals(0, activities.loadIdsAsList(0, 100).size());
+    activities = activityManager.getActivitiesByFilterWithListAccess(demoIdentity, activityFilter);
+    assertEquals(10, activities.getSize());
+    assertEquals(10, activities.loadAsList(0, 100).size());
+    assertEquals(10, activities.loadIdsAsList(0, 100).size());
+  }
+
+  @SneakyThrows
   public void testGetActivitiesWithLastCommentedFirst() {
     ExoSocialActivity johnActivity = new ExoSocialActivityImpl();
     johnActivity.setTitle("Post activity to 'john' user stream by 'john'");
@@ -1986,6 +2062,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(maryActivity.getId(), activityIds.get(0));
   }
 
+  @SneakyThrows
   public void testGetActivitiesByCategoryIds() throws ActivityStorageException {
     String activityTitle = "title";
     String userId = rootIdentity.getId();
@@ -2556,6 +2633,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(10, johnSpaceActivitiesFeed.getSize());
   }
 
+  @SneakyThrows
   public void testGetActivityByStreamTypeWithListAccess() throws ObjectAlreadyExistsException {
     populateActivityMass(demoIdentity, 1);
     populateActivityMass(maryIdentity, 2);
@@ -3280,6 +3358,7 @@ public class ActivityManagerTest extends AbstractCoreTest {
     }
   }
 
+  @SneakyThrows
   private void deleteRelationshipAutomaticActivities(Identity identity) {
     ActivityFilter userActivityFilter = new ActivityFilter();
     userActivityFilter.setStreamType(ActivityStreamType.ALL_STREAM);

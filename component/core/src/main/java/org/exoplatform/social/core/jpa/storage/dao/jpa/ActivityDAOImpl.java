@@ -994,19 +994,19 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (!count) {
       query.setParameter(MAIN_STREAM_TYPES_PARAM, MAIN_STREAM_TYPES);
     }
-    if (activityFilter.getSpaceIdentityId() != null) {
+    if (activityFilter.getSpaceIdentityId() > 0) {
       query.setParameter(ACTIVITY_OWNER_IDS, Collections.singleton(activityFilter.getSpaceIdentityId()));
-      if (activityFilter.getUserId() != null) {
+      if (activityFilter.getUserId() > 0) {
         query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getUserId());
       }
-    } else if (activityFilter.getUserId() != null) {
+    } else if (activityFilter.getUserId() > 0) {
       query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getUserId());
       query.setParameter(USER_PROVIDER_ID, OrganizationIdentityProvider.NAME);
       if (CollectionUtils.isNotEmpty(streamIdentityIds)) {
         query.setParameter(SPACE_PROVIDER_ID, SpaceIdentityProvider.NAME);
         query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
       }
-    } else if (activityFilter.getPosterId() == null) {
+    } else if (activityFilter.getPosterId() == 0) {
       query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds == null ? Collections.emptyList() : streamIdentityIds);
     } else if (CollectionUtils.isEmpty(streamIdentityIds)) {
       query.setParameter(ACTIVITY_POSTER_ID, activityFilter.getPosterId());
@@ -1025,15 +1025,15 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
                                List<String> streamIdentityIds,
                                List<String> suffixes,
                                List<String> predicates) {
-    if (activityFilter.getSpaceIdentityId() != null) {
-      if (activityFilter.getUserId() != null) {
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      if (activityFilter.getUserId() > 0) {
         suffixes.add("PostedSpaceStream");
         predicates.add("activity.posterId = :posterId");
       } else {
         suffixes.add("SpaceStream");
       }
       predicates.add("activity.ownerId in (:ownerIds)");
-    } else if (activityFilter.getUserId() != null) {
+    } else if (activityFilter.getUserId() > 0) {
       predicates.add("activity.posterId = :posterId");
       if (CollectionUtils.isEmpty(streamIdentityIds)) {
         suffixes.add("PostedActivitiesInUserStreams");
@@ -1042,7 +1042,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
         suffixes.add("PostedActivitiesInAllStreams");
         predicates.add("(activity.providerId = :userProviderId OR (activity.providerId = :spaceProviderId AND activity.ownerId in (:ownerIds)))");
       }
-    } else if (activityFilter.getPosterId() == null) {
+    } else if (activityFilter.getPosterId() == 0) {
       suffixes.add("SpacesAndConnectionsStream");
       predicates.add("activity.ownerId in (:ownerIds)");
     } else if (CollectionUtils.isEmpty(streamIdentityIds)) {

@@ -169,7 +169,7 @@ public class ActivityRest implements ResourceContainer {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       }
       Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
-      activityFilter.setSpaceIdentityId(spaceIdentity.getId());
+      activityFilter.setSpaceIdentityId(spaceIdentity.getIdentityId());
       canPost = activityManager.canPostActivityInStream(currentUser, spaceIdentity);
     } else {
       canPost = activityManager.canPostActivityInStream(currentUser, currentUserIdentity);
@@ -181,7 +181,14 @@ public class ActivityRest implements ResourceContainer {
     } else {
       activityFilter.setStreamType(ActivityStreamType.ALL_STREAM);
     }
-    RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
+    RealtimeListAccess<ExoSocialActivity> listAccess;
+    try {
+      listAccess = activityManager.getActivitiesByFilterWithListAccess(currentUserIdentity, activityFilter);
+    } catch (IllegalAccessException e) {
+      throw new WebApplicationException(e, Response.Status.UNAUTHORIZED);
+    } catch (ObjectNotFoundException e) {
+      throw new WebApplicationException(e, Response.Status.NOT_FOUND);
+    }
 
     String entitiesName = null;
     List<DataEntity> activityEntities = null;

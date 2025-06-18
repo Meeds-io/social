@@ -541,13 +541,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
                                                        ActivityFilter activityFilter,
                                                        long offset,
                                                        long limit) {
-    if (activityFilter.getSpaceIdentityId() != null) {
-      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(activityFilter.getSpaceIdentityId()));
       if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
         return Collections.emptyList();
       } else {
         Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
-        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+        if (space == null) {
           return Collections.emptyList();
         }
       }
@@ -555,8 +555,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
-      activityFilter.setUserId(viewerIdentity.getId());
-      if (activityFilter.getSpaceIdentityId() == null) {
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
         streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                        String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                        0,
@@ -574,12 +574,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case UNREAD_SPACES_STREAM:
       List<Long> activityIds;
-      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         activityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
       } else {
         try {
           activityIds = spaceWebNotificationService.getUnreadActivityIdsBySpace(viewerIdentity.getRemoteId(),
-                                                                                Long.parseLong(activityFilter.getSpaceIdentityId()),
+                                                                                activityFilter.getSpaceIdentityId(),
                                                                                 offset,
                                                                                 limit);
         } catch (Exception e) {
@@ -604,13 +604,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      if (activityFilter.getSpaceIdentityId() == null) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         return Collections.emptyList();
       }
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
-      activityFilter.setPosterId(viewerIdentity.getId());
+      activityFilter.setPosterId(viewerIdentity.getIdentityId());
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                      String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
@@ -635,13 +635,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public List<String> getActivityIdsByFilter(Identity viewerIdentity, ActivityFilter activityFilter, long offset, long limit) {
-    if (activityFilter.getSpaceIdentityId() != null) {
-      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(activityFilter.getSpaceIdentityId()));
       if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
         return Collections.emptyList();
       } else {
         Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
-        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+        if (space == null) {
           return Collections.emptyList();
         }
       }
@@ -649,8 +649,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
-      activityFilter.setUserId(viewerIdentity.getId());
-      if (activityFilter.getSpaceIdentityId() == null) {
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
         streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                        String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                        0,
@@ -670,11 +670,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       break;
     case UNREAD_SPACES_STREAM:
       List<Long> unreadActivityIds;
-      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         unreadActivityIds = spaceWebNotificationService.getUnreadActivityIds(viewerIdentity.getRemoteId(), offset, limit);
       } else {
         try {
-          Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+          Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(activityFilter.getSpaceIdentityId()));
           if (spaceIdentity == null || !spaceIdentity.isEnable() || spaceIdentity.isDeleted() || !spaceIdentity.isSpace()) {
             return Collections.emptyList();
           }
@@ -705,13 +705,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      if (activityFilter.getSpaceIdentityId() == null) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         return Collections.emptyList();
       }
       activityFilter.setShowPinned(true);
       break;
     case ALL_STREAM:
-      activityFilter.setPosterId(viewerIdentity.getId());
+      activityFilter.setPosterId(viewerIdentity.getIdentityId());
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                      String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
@@ -745,13 +745,13 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
 
   @Override
   public int getActivitiesCountByFilter(Identity viewerIdentity, ActivityFilter activityFilter) {
-    if (activityFilter.getSpaceIdentityId() != null) {
-      Identity spaceIdentity = identityStorage.findIdentityById(activityFilter.getSpaceIdentityId());
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(activityFilter.getSpaceIdentityId()));
       if (spaceIdentity == null || spaceIdentity.isDeleted() || !spaceIdentity.isEnable()) {
         return 0;
       } else {
         Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
-        if (space == null || !ArrayUtils.contains(space.getMembers(), viewerIdentity.getRemoteId())) {
+        if (space == null) {
           return 0;
         }
       }
@@ -759,8 +759,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     List<String> streamIdentityIds = null;
     switch (activityFilter.getStreamType()) {
     case USER_STREAM:
-      activityFilter.setUserId(viewerIdentity.getId());
-      if (activityFilter.getSpaceIdentityId() == null) {
+      activityFilter.setUserId(viewerIdentity.getIdentityId());
+      if (activityFilter.getSpaceIdentityId() == 0) {
         streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                        String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                        0,
@@ -776,12 +776,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case UNREAD_SPACES_STREAM:
-      if (StringUtils.isBlank(activityFilter.getSpaceIdentityId())) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         return (int) spaceWebNotificationService.countUnreadActivities(viewerIdentity.getRemoteId());
       } else {
         try {
           return (int) spaceWebNotificationService.countUnreadActivitiesBySpace(viewerIdentity.getRemoteId(),
-                                                                                Long.parseLong(activityFilter.getSpaceIdentityId()));
+                                                                                activityFilter.getSpaceIdentityId());
         } catch (Exception e) {
           throw new IllegalStateException(String.format("Unable to retrieve activities for user %s with filtered space %s",
                                                         viewerIdentity.getRemoteId(),
@@ -799,7 +799,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ALL_STREAM:
-      activityFilter.setPosterId(viewerIdentity.getId());
+      activityFilter.setPosterId(viewerIdentity.getIdentityId());
       streamIdentityIds = spaceStorage.getSpaceIdentityIdsByUserRole(viewerIdentity.getRemoteId(),
                                                                      String.valueOf(SpaceMembershipStatus.MEMBER),
                                                                      0,
@@ -813,7 +813,7 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
       }
       break;
     case ANY_SPACE_ACTIVITY:
-      if (activityFilter.getSpaceIdentityId() == null) {
+      if (activityFilter.getSpaceIdentityId() == 0) {
         return 0;
       }
       break;
@@ -823,12 +823,12 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return activityDAO.getActivitiesCountByFilter(activityFilter, streamIdentityIds);
   }
 
-  public List<ExoSocialActivity> getFavoriteActivities(Identity viewerIdentity, String spaceId) {
+  public List<ExoSocialActivity> getFavoriteActivities(Identity viewerIdentity, long spaceIdentityId) {
     long userIdentityId = Long.parseLong(viewerIdentity.getId());
     FavoriteService favoriteService = ExoContainerContext.getService(FavoriteService.class);
     List<MetadataItem> metadataItems = new ArrayList<>();
-    if (StringUtils.isNotBlank(spaceId)) {
-      Identity spaceIdentity = identityStorage.findIdentityById(spaceId);
+    if (spaceIdentityId > 0) {
+      Identity spaceIdentity = identityStorage.findIdentityById(String.valueOf(spaceIdentityId));
       if (spaceIdentity != null) {
         Space space = spaceStorage.getSpaceByPrettyName(spaceIdentity.getRemoteId());
         metadataItems =
