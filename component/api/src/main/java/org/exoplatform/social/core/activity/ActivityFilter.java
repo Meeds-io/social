@@ -31,11 +31,11 @@ public class ActivityFilter implements Serializable {
 
   private String             term;
 
-  private String             userId;
+  private long               userId;
 
-  private String             posterId;
+  private long               posterId;
 
-  private String             spaceIdentityId;
+  private long               spaceIdentityId;
 
   private List<Long>         categoryIds;
 
