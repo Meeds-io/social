@@ -666,11 +666,23 @@ public class ActivityManagerImpl implements ActivityManager {
     return new ActivitiesRealtimeListAccess(activityStorage, ActivityType.VIEW_USER_ACTIVITIES, ownerIdentity, viewerIdentity);
   }
 
-  /**
-   * {@inheritDoc}
-   */
   @Override
-  public RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity viewerIdentity, ActivityFilter activityFilter){
+  public RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity viewerIdentity,
+                                                                                   ActivityFilter activityFilter) throws ObjectNotFoundException,
+                                                                                                                  IllegalAccessException {
+    if (activityFilter.getSpaceIdentityId() > 0) {
+      Identity spaceIdentity = identityManager.getIdentity(activityFilter.getSpaceIdentityId());
+      if (spaceIdentity == null || spaceIdentity.isDeleted()) {
+        throw new ObjectNotFoundException(String.format("Space with identity id %s doesn't exist",
+                                                        activityFilter.getSpaceIdentityId()));
+      } else {
+        Space space = spaceService.getSpaceByPrettyName(spaceIdentity.getRemoteId());
+        if (!spaceService.canViewSpace(space, viewerIdentity.getRemoteId())) {
+          throw new IllegalAccessException(String.format("Space with identity id %s isn't accessible",
+                                                         activityFilter.getSpaceIdentityId()));
+        }
+      }
+    }
     return new ActivitiesRealtimeListAccess(activityStorage, viewerIdentity, activityFilter);
   }
 

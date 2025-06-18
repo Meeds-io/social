@@ -294,9 +294,11 @@ public interface ActivityManager {
    * @param viewerIdentity The viewer identity.
    * @param activityFilter The activity filter.
    * @return The activities.
+   * @throws ObjectNotFoundException when target space (if designated in filter selection) not found
+   * @throws IllegalAccessException when user can't acccess target space stream (if designated in filter selection)
    */
   default RealtimeListAccess<ExoSocialActivity> getActivitiesByFilterWithListAccess(Identity viewerIdentity,
-                                                                                    ActivityFilter activityFilter) {
+                                                                                    ActivityFilter activityFilter) throws ObjectNotFoundException, IllegalAccessException {
     throw new UnsupportedOperationException();
   }
 
