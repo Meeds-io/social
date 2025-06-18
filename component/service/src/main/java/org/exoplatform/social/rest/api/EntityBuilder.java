@@ -99,6 +99,7 @@ import org.exoplatform.services.rest.impl.ApplicationContextImpl;
 import org.exoplatform.services.rest.impl.provider.JsonEntityProvider;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.social.common.RealtimeListAccess;
+import org.exoplatform.social.core.activity.model.ActivitySearchResult;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
 import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
@@ -1326,6 +1327,20 @@ public class EntityBuilder {
       activityEntity.setMetadatas(activityMetadatasToPublish);
     }
     return activityEntity;
+  }
+
+  public static ActivitySearchResultEntity buildEntityFromActivitySearchResult(ActivitySearchResult activitySearchResult) {
+    ActivitySearchResultEntity entity = new ActivitySearchResultEntity(activitySearchResult);
+    if (CollectionUtils.isNotEmpty(entity.getExcerpts())) {
+      entity.setExcerpts(entity.getExcerpts()
+                               .stream()
+                               .map(text -> HtmlUtils.transform(text,
+                                                                new HtmlTransformerContext(getCurrentUserIdentity(),
+                                                                                           getLocale(),
+                                                                                           true)))
+                               .toList());
+    }
+    return entity;
   }
 
   public static Map<String, List<MetadataItemEntity>> retrieveMetadataItems(ExoSocialActivity activity,

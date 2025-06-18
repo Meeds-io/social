@@ -1015,12 +1015,12 @@ public class ActivityRest implements ResourceContainer {
     ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
-      ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
+      ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
       entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
       entity.setStreamOwner(EntityBuilder.buildEntityIdentity(searchResult.getStreamOwner(), uriInfo.getPath(), "all"));
       ActivitySearchResult comment = searchResult.getComment();
       if (comment != null) {
-        ActivitySearchResultEntity commentEntity = new ActivitySearchResultEntity(comment);
+        ActivitySearchResultEntity commentEntity = EntityBuilder.buildEntityFromActivitySearchResult(comment);
         commentEntity.setPoster(EntityBuilder.buildEntityIdentity(comment.getPoster(), uriInfo.getPath(), "all"));
         commentEntity.setStreamOwner(EntityBuilder.buildEntityIdentity(comment.getStreamOwner(), uriInfo.getPath(), "all"));
         entity.setComment(commentEntity);
