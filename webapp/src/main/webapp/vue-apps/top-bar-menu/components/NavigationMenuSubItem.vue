@@ -52,6 +52,12 @@
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true">
             <span class="text-body">{{ navigation.label }}</span>
+            <v-icon
+              v-if="navigation.target === 'NEW_TAB'"
+              size="12"
+              class="mx-1">
+              fa-external-link-alt
+            </v-icon>
           </v-list-item-title>
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
