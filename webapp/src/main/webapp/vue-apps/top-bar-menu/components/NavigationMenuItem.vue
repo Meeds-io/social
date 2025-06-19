@@ -48,6 +48,12 @@
           class="text-truncate-3">
           {{ navigation.label }}
         </span>
+        <v-icon
+          v-if="navigation.target === 'NEW_TAB'"
+          size="12"
+          class="mx-1">
+          fa-external-link-alt
+        </v-icon>
         <v-btn
           v-if="hasChildren && childrenHasPage"
           icon
