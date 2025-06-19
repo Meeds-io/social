@@ -50,8 +50,8 @@
         </span>
         <v-icon
           v-if="navigation.target === 'NEW_TAB'"
-          size="16"
-          class="mb-1 mx-1">
+          size="12"
+          class="mx-1">
           fa-external-link-alt
         </v-icon>
         <v-btn
