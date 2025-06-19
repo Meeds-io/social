@@ -703,7 +703,7 @@
     <portlet-info>
       <title>Spaces List</title>
     </portlet-info>
-     <portlet-preferences>
+    <portlet-preferences>
       <preference>
         <name>settings</name>
         <value>
@@ -1099,6 +1099,37 @@
       <title>Platform Access</title>
       <keywords>access</keywords>
     </portlet-info>
+  </portlet>
+
+  <portlet>
+    <description>Add CTA and select space templates for creation</description>
+    <portlet-name>SpaceCreation</portlet-name>
+    <display-name>Space Creation</display-name>
+    <portlet-class>io.meeds.social.portlet.SpaceCreationPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/spaceCreation.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.social.SpaceCreation</resource-bundle>
+    <portlet-info>
+      <title>Space Creation</title>
+    </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+            "labelTranslations":{},
+            "spaceCreationTemplateChoice":"anyTemplate",
+            "spaceTemplateIds": []
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
   </portlet>
 
 </portlet-app>

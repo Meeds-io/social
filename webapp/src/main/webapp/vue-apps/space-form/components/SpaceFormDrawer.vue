@@ -34,6 +34,14 @@
       {{ drawerTitle }}
     </template>
     <template v-if="drawer && space" #content>
+      <div class="d-none d-lg-block">
+        <space-form-preview
+          v-if="drawer && spaceTemplate"
+          :space="space"
+          :preview-avatar="previewAvatar"
+          class="pa-4 position-absolute"
+          style="right: 450px;" />
+      </div>
       <v-expand-transition>
         <div
           v-if="templates?.length && !spaceTemplate && !isEdit"
@@ -146,7 +154,8 @@
                   v-model="space.avatarId"
                   :name="space.displayName"
                   :src="space.avatarUrl"
-                  class="mt-4" />
+                  class="mt-4"
+                  @avatar-updated="avatarUpdated" />
                 <space-form-banner
                   v-model="space.bannerId"
                   :default-banner-url="bannerUrl"
@@ -246,6 +255,7 @@ export default {
     goBackButton: false,
     maxDescriptionLength: 2000,
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
+    previewAvatar: null,
   }),
   computed: {
     drawerTitle() {
@@ -308,7 +318,7 @@ export default {
       return !this.isEdit && this.spaceTemplate?.spaceFields?.includes?.('access');
     },
     includeInvitation() {
-      return !this.isEdit && this.spaceTemplate?.spaceFields?.includes?.('invitation');
+      return !this.isEdit && !!eXo.env.portal.userName && this.spaceTemplate?.spaceFields?.includes?.('invitation');
     },
     propertiesStep() {
       return (this.includeName ? 1 : 0) + 1;
@@ -419,27 +429,31 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates);
     },
-    openByRootEvent(templateId) {
+    openByRootEvent(templateId, spaceTemplates) {
       this.goBackButton = !templateId;
-      this.open(templateId);
+      this.open(templateId, null, spaceTemplates);
     },
     editByEvent(e) {
       this.goBackButton = false;
       this.open(null, e?.detail);
     },
-    async open(templateId, space) {
+    async open(templateId, space, spaceTemplates) {
       this.space = space && JSON.parse(JSON.stringify(space)) || {
         templateId: templateId,
         subscription: 'open',
         visibility: 'private',
       };
       this.templateId = this.space.templateId && Number(this.space.templateId);
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      if (spaceTemplates) {
+        this.templates = spaceTemplates;
+      } else {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+        this.templates = this.$root.spaceTemplates;
       }
-      this.templates = this.$root.spaceTemplates;
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
@@ -501,7 +515,7 @@ export default {
             }
           })
           .finally(() => this.savingSpace = false);
-      } else {
+      } else if (eXo.env.portal.userName) {
         return this.$spaceService.createSpace(this.space)
           .then(space => {
             this.spaceSaved = true;
@@ -510,8 +524,20 @@ export default {
           })
           .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
           .finally(() => this.savingSpace = false);
+
+      } else {
+        return this.$spaceService.prepareSpaceInstance(this.space)
+          .then(() => {
+            this.spaceSaved = true;
+            window.location.href = `${eXo.env.portal.context}/login`;
+          })
+          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .finally(() => this.savingSpace = false);
       }
     },
+    avatarUpdated(avatar) {
+      this.previewAvatar = avatar;
+    }
   },
 };
 </script>

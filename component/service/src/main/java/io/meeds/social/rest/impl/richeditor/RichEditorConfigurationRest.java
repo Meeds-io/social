@@ -19,7 +19,6 @@ package io.meeds.social.rest.impl.richeditor;
 
 import java.util.Date;
 
-import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -68,7 +67,6 @@ public class RichEditorConfigurationRest implements ResourceContainer {
   }
 
   @GET
-  @RolesAllowed("users")
   @Operation(summary = "Retrieves rich editor configuration Javascript file", method = "GET", description = "Returns list of tags")
   @Produces("text/javascript")
   @ApiResponses(value = {

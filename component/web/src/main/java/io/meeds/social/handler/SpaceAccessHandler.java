@@ -35,7 +35,6 @@ import org.exoplatform.portal.mop.SiteType;
 import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.url.PortalURLContext;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceAccessType;
@@ -67,8 +66,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private SpaceLayoutService      spaceLayoutService;
 
-  private IdentityRegistry        identityRegistry;
-
   private URLFactoryService       urlFactoryService;
 
   private UserPortalConfigService userPortalConfigService;
@@ -83,7 +80,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
     PortalContainer container = PortalContainer.getInstance();
     this.spaceService = container.getComponentInstanceOfType(SpaceService.class);
-    this.identityRegistry = container.getComponentInstanceOfType(IdentityRegistry.class);
     this.identityManager = container.getComponentInstanceOfType(IdentityManager.class);
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
@@ -150,7 +146,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
   }
 
   private boolean canAccessSpace(Space space, String username) {
-    Identity identity = username == null ? null : identityRegistry.getIdentity(username);
+    Identity identity = userAcl.getUserIdentity(username);
     if (identity == null || space == null) {
       return false;
     } else if (spaceService.isMember(space, username)) {

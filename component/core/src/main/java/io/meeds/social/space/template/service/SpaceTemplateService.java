@@ -19,7 +19,6 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -106,28 +105,23 @@ public class SpaceTemplateService {
   }
 
   public List<SpaceTemplate> getSpaceTemplates(SpaceTemplateFilter spaceTemplateFilter, Pageable pageable, boolean expand) {
-    if (spaceTemplateFilter != null
-        && StringUtils.isBlank(spaceTemplateFilter.getUsername())) {
-      return Collections.emptyList();
-    } else {
-      boolean includeDisabled = spaceTemplateFilter == null || spaceTemplateFilter.isIncludeDisabled();
-      List<SpaceTemplate> spaceTemplates = includeDisabled ? spaceTemplateStorage.getSpaceTemplates(pageable) :
-                                                           spaceTemplateStorage.getEnabledSpaceTemplates(pageable);
-      return spaceTemplates.stream()
-                           .map(spaceTemplate -> {
-                             if (spaceTemplateFilter != null
-                                 && !canViewTemplate(spaceTemplate.getId(), spaceTemplateFilter.getUsername())) {
-                               return null;
-                             } else if (expand) {
-                               computeSpaceTemplateAttributes(spaceTemplate,
-                                                              spaceTemplateFilter == null ? null :
-                                                                                          spaceTemplateFilter.getLocale());
-                             }
-                             return spaceTemplate;
-                           })
-                           .filter(Objects::nonNull)
-                           .toList();
-    }
+    boolean includeDisabled = spaceTemplateFilter == null || spaceTemplateFilter.isIncludeDisabled();
+    List<SpaceTemplate> spaceTemplates = includeDisabled ? spaceTemplateStorage.getSpaceTemplates(pageable)
+                                                         : spaceTemplateStorage.getEnabledSpaceTemplates(pageable);
+    return spaceTemplates.stream()
+                         .map(spaceTemplate -> {
+                           if (spaceTemplateFilter != null
+                               && !canViewTemplate(spaceTemplate.getId(), spaceTemplateFilter.getUsername())) {
+                             return null;
+                           } else if (expand) {
+                             computeSpaceTemplateAttributes(spaceTemplate,
+                                                            spaceTemplateFilter == null ? null :
+                                                                                        spaceTemplateFilter.getLocale());
+                           }
+                           return spaceTemplate;
+                         })
+                         .filter(Objects::nonNull)
+                         .toList();
   }
 
   public List<Long> getManagingSpaceTemplates(String username) {
@@ -344,10 +338,10 @@ public class SpaceTemplateService {
   }
 
   private boolean canViewTemplate(SpaceTemplate spaceTemplate, String username) {
-    if (spaceTemplate == null
-        || spaceTemplate.isDeleted()
-        || userAcl.isAnonymousUser(username)) {
+    if (spaceTemplate == null || spaceTemplate.isDeleted()) {
       return false;
+    } else if (userAcl.isAnonymousUser(username)) {
+      return CollectionUtils.containsAny(spaceTemplate.getPermissions(), UserACL.EVERYONE);
     } else if (canManageTemplates(username)) {
       return true;
     } else if (!spaceTemplate.isEnabled()) {
@@ -359,7 +353,7 @@ public class SpaceTemplateService {
     return aclIdentity != null
            && (spaceTemplate.getPermissions()
                             .stream()
-                            .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression)))
+                            .anyMatch(expression -> UserACL.EVERYONE.equals(expression) || aclIdentity.isMemberOf(getMembershipEntry(expression)))
                || spaceTemplate.getAdminPermissions()
                                .stream()
                                .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));

@@ -30,6 +30,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import io.meeds.social.space.model.SpaceCreationInstance;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.LocaleUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -383,6 +384,41 @@ public class SpaceRest implements ResourceContainer {
                                      uriInfo,
                                      RestUtils.getJsonMediaType(),
                                      Response.Status.OK);
+  }
+
+  @POST
+  @Path("prepare")
+  @Produces(MediaType.TEXT_PLAIN)
+  @Operation(summary = "Prepare a space", method = "POST", description = "This can be done by any user.")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "500", description = "Internal server error"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input")})
+  public Response prepareSpaceInstance(
+                                      @RequestBody(description = "Space object to be created, ex:<br />" +
+                                      "{<br />\"displayName\": \"My space\"," +
+                                      "<br />\"description\": \"This is my space\"," +
+                                      "<br />\"groupId\": \"/spaces/my_space\"," +
+                                      "<br />\"visibility\": \"private\"," +
+                                      "<br />\"subscription\": \"validation\"<br />}", required = true)
+                                      SpaceEntity model) {
+    String tokenId = spaceService.prepareSpaceInstance(new SpaceCreationInstance(model.getId(),
+                                                                                 model.getDisplayName(),
+                                                                                 model.getDescription(),
+                                                                                 model.getTemplateId(),
+                                                                                 model.getVisibility(),
+                                                                                 model.getSubscription(),
+                                                                                 model.getBannerId(),
+                                                                                 model.getAvatarId(),
+                                                                                 model.getPrettyName()));
+    return Response.ok(tokenId).cookie(new NewCookie("spaceCreationCookie",
+                                                     tokenId,
+                                                     "/",
+                                                     null,
+                                                     null,
+                                                     300,
+                                                     true ))
+                               .type(MediaType.TEXT_PLAIN).build();
   }
 
   @GET
