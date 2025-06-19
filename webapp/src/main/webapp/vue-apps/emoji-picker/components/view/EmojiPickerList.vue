@@ -56,7 +56,7 @@
           <v-btn
             v-for="emoji in item.emojis"
             :key="emoji.unicode"
-            :title="emoji.name"
+            :title="emoji.shortcodes?.[0]"
             class="pa-1 btn btn-default no-border"
             icon
             @click="selectEmoji(emoji)">
