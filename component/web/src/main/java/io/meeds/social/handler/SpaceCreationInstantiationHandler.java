@@ -57,6 +57,8 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
 
   public static final String NAME = "space-creation-instantiation";
 
+  public static final String TOKEN_TYPE = "SPACE_CREATION_INSTANCE";
+
   private final SpaceService spaceService;
 
   private final WebAppController webAppController;
@@ -105,7 +107,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
       String token = getTokenCookie(request);
       if (token != null) {
         Space space = new Space();
-        String spaceData = tokenService.getToken(token, "SPACE_CREATION_INSTANCE").getUsername();
+        String spaceData = tokenService.getToken(token, TOKEN_TYPE).getUsername();
         SpaceCreationInstance model = JsonUtils.fromJsonString(spaceData, SpaceCreationInstance.class);
         fillSpaceFromModel(space, model);
         space.setEditor(user);
@@ -114,6 +116,7 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
         saveSpaceBanner(model, space);
         RequestLifeCycle.restartTransaction();
         removeTokenCookie(request, response);
+        tokenService.deleteToken(token, TOKEN_TYPE);
         String path = servletContext.getContextPath() + "/s/" + space.getSpaceId();
         response.sendRedirect(path);
         return true;
