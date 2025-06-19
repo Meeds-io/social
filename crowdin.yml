@@ -369,5 +369,5 @@ files: [
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
     "escape_quotes": 0,
- }
+  }
 ]
