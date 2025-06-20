@@ -47,7 +47,7 @@
           <v-list-item-title
             v-on="on"
             v-bind="attrs"
-            class="pt-5 pb-5"
+            class="pt-5 pb-5 d-flex"
             :class="hasPage && ' ' || ' not-clickable '"
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true">
