@@ -47,11 +47,17 @@
           <v-list-item-title
             v-on="on"
             v-bind="attrs"
-            class="pt-5 pb-5"
+            class="pt-5 pb-5 d-flex"
             :class="hasPage && ' ' || ' not-clickable '"
             @mouseleave="showMenu = false"
             @mouseover="showMenu = true">
             <span class="text-body">{{ navigation.label }}</span>
+            <v-icon
+              v-if="navigation.target === 'NEW_TAB'"
+              size="12"
+              class="mx-1">
+              fa-external-link-alt
+            </v-icon>
           </v-list-item-title>
           <v-list-item-icon
             v-if="hasChildren && childrenHasPage"
