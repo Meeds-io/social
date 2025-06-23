@@ -34,8 +34,7 @@
     z-index="2000"
     absolute
     offset-y
-    bottom
-    attach>
+    bottom>
     <v-list
       v-if="isCommandFiltering"
       class="pa-0"
