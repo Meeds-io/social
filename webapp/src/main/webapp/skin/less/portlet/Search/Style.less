@@ -22,54 +22,6 @@
 @import "../../mixins.less";
 
 #searchDialog {
-
-  #searchInput {
-    font-size: 30px !important;
-    height: 44px;
-  }
-
-  .searchInputParent {
-    .v-input__slot {
-      margin: 0;
-
-      &:after {
-        content: none;
-      }
-      &:before {
-        content: none;
-      }
-    }
-  }
-
-  .searchConnectorsParent {
-    white-space: nowrap;
-    overflow-x: auto;
-    display: -webkit-box!important;
-  }
-  .searchResultsParent {
-    .searchCard {
-      max-width: 224px !important;
-      width: 224px !important;
-      min-width: 224px !important;
-      height: 227px;
-      max-height: 227px;
-      min-height: 227px;
-      display: flex;
-      margin-right: 6px;
-      margin-bottom: 6px;
-
-      > * {
-        width: 100%;
-        height: 100%;
-      }
-
-      .caption {
-        max-height: 140px;
-        overflow: hidden;
-      }
-    }
-  }
-
   .searchNoResultsParent {
     .uiIconSearchLight {
       font-size: 160px;

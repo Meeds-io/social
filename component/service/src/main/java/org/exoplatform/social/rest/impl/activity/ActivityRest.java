@@ -996,7 +996,11 @@ public class ActivityRest implements ResourceContainer {
                                    @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
                                    @QueryParam(
                                      "limit"
-                                   ) int limit) {
+                                   ) int limit,
+                                   @Parameter(description = "Asking for a full representation of a specific subresource", required = false)
+                                   @QueryParam(
+                                     "expand"
+                                   ) String expand) {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -1011,27 +1015,29 @@ public class ActivityRest implements ResourceContainer {
     ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
-      ActivitySearchResultEntity entity = new ActivitySearchResultEntity(searchResult);
+      ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
       entity.setPoster(EntityBuilder.buildEntityIdentity(searchResult.getPoster(), uriInfo.getPath(), "all"));
       entity.setStreamOwner(EntityBuilder.buildEntityIdentity(searchResult.getStreamOwner(), uriInfo.getPath(), "all"));
       ActivitySearchResult comment = searchResult.getComment();
       if (comment != null) {
-        ActivitySearchResultEntity commentEntity = new ActivitySearchResultEntity(comment);
+        ActivitySearchResultEntity commentEntity = EntityBuilder.buildEntityFromActivitySearchResult(comment);
         commentEntity.setPoster(EntityBuilder.buildEntityIdentity(comment.getPoster(), uriInfo.getPath(), "all"));
         commentEntity.setStreamOwner(EntityBuilder.buildEntityIdentity(comment.getStreamOwner(), uriInfo.getPath(), "all"));
         entity.setComment(commentEntity);
       }
 
-      ActivityStorage activityStorage = CommonsUtils.getService(ActivityStorage.class);
-      ExoSocialActivity existingActivity = activityStorage.getActivity(entity.getId());
-      int commentsCount = activityStorage.getNumberOfComments(existingActivity);
-      entity.setCommentsCount(commentsCount);
-      entity.setLikesCount(existingActivity.getNumberOfLikes());
+      ExoSocialActivity existingActivity = activityManager.getActivity(entity.getId());
       Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = EntityBuilder.retrieveMetadataItems(existingActivity,
-                                                                                                             currentUserIdentity);
+              currentUserIdentity);
       if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
         entity.setMetadatas(activityMetadatasToPublish);
       }
+      DataEntity activityDataEntity = EntityBuilder.buildEntityFromActivity(existingActivity,
+                      currentUserIdentity,
+                      uriInfo.getPath(),
+                      expand)
+              .getDataEntity();
+      entity.setDataEntity(activityDataEntity);
       return entity;
     }).toList();
 

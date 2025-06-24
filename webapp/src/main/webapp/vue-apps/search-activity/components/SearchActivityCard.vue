@@ -1,50 +1,119 @@
 <template>
-  <v-card
-    class="d-flex flex-column border-radius box-shadow"
-    flat
-    min-height="227">
-    <v-card-text v-if="poster" class="px-2 pt-2 pb-0">
-      <exo-user-avatar
-        :identity="poster"
-        popover>
-        <template slot="subTitle">
-          <date-format :value="postedTime" />
-        </template>
-        <template slot="actions">
-          <activity-favorite-action
-            :activity="result"
-            class="ms-3"
-            absolute
-            top="0"
-            right="0"
-            @removed="$emit('refresh-favorite')" />
-        </template>
-      </exo-user-avatar>
-    </v-card-text>
-    <div class="mx-auto flex-grow-1 px-3 py-0">
-      <div
-        ref="excerptNode"
-        :title="excerptText"
-        class="text-wrap text-break caption text-truncate-4"
-        v-sanitized-html="excerptHtml">
+  <v-hover v-slot="{ hover }">
+    <v-card
+      flat
+      class="pa-0"
+      :aria-label="$t('search.access.to.result', {0 :excerptText || activityTitle})"
+      :href="link">
+      <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
+        <v-list-item>
+          <v-list-item-icon class="me-2">
+            <span class="d-flex align-center justify-center">
+              <v-icon size="32" class="icon-default-color mt-2">fas fa-stream</v-icon>
+            </span>
+          </v-list-item-icon>
+
+          <v-list-item-content>
+            <v-list-item-title class="d-flex flex-row full-width align-center">
+              <h1
+                class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
+                :aria-label="activityTitleText"
+                v-sanitized-html="activityTitle"></h1>
+              <div v-show="hover || isMobile" class="ml-2 pt-1">
+                <span class="d-inline-flex align-center justify-center">
+                  <v-btn
+                    icon
+                    small
+                    class="me-2"
+                    @click.stop.prevent="openActivityCommentDrawer">
+                    <v-icon class="icon-default-color" size="16">
+                      fas fa-comment
+                    </v-icon>
+                  </v-btn>
+                  <v-btn
+                    icon
+                    small
+                    class="me-2"
+                    @click.stop.prevent="openKudosForm">
+                    <v-icon class="icon-default-color" size="16">
+                      fas fa-award
+                    </v-icon>
+                  </v-btn>
+                  <activity-favorite-action
+                    :activity="result"
+                    @removed="$emit('refresh-favorite')" />
+                </span>
+              </div>
+            </v-list-item-title>
+
+            <v-list-item-subtitle class="d-flex flex-column">
+              <span class="d-flex flex-row align-center mx-auto full-width">
+                <span class="d-flex flex-row align-center" v-if="isSpaceStreamOwner">
+                  <a
+                    v-bind="attrs"
+                    v-on="on"
+                    :href="spaceUrl"
+                    class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
+                    <v-avatar
+                      :size="18"
+                      tile
+                      class="my-auto">
+                      <img
+                        :src="streamOwner.avatarUrl"
+                        alt=""
+                        class="object-fit-cover ma-auto"
+                        loading="lazy">
+                    </v-avatar>
+                    <p class="ms-2 my-auto text-subtitle">{{ streamOwner.displayName }}</p>
+                  </a>
+                  <v-icon size="3" class="icon-default-color mx-3">fas fa-circle</v-icon>
+                </span>
+                <exo-user-avatar
+                  :profile-id="posterUsername"
+                  :size="18"
+                  :avatar="isMobile"
+                  :popover="false"
+                  small-font-size />
+                <span class="d-flex flex-row align-center" v-if="postedTime">
+                  <v-icon
+                    size="3"
+                    class="icon-default-color mx-3">fas fa-circle</v-icon>
+                  <v-icon
+                    size="12"
+                    class="icon-default-color">fas fa-clock</v-icon>
+                  <date-format class="ms-1 my-auto" :value="postedTime" />
+                </span>
+              </span>
+              <div
+                v-if="excerptHtml"
+                class="pt-2 text-wrap text-body text-break"
+                :class="{
+                  'text-truncate-2': isMobile,
+                  'text-truncate-3': !isMobile,
+                }"
+                v-sanitized-html="excerptHtml">
+              </div>
+              <extension-registry-components
+                v-else
+                :params="extendedComponentParams"
+                :class="'activitySearchResultContent'"
+                name="ActivityContent"
+                type="activity-content-extensions"
+                parent-element="div"
+                element="div"
+                class="d-flex flex-column" />
+            </v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+      <div v-if="activityCommentDrawer">
+        <activity-comments-drawer
+          ref="activitySearchCommentDrawer"
+          :comment-types="activityTypes"
+          @closed="closeActivityCommentDrawer" />
       </div>
-    </div>
-    <v-list class="light-grey-background flex-grow-0 border-top-color no-border-radius pa-0">
-      <v-list-item :href="link" class="px-0 pt-1 pb-2">
-        <v-list-item-icon class="mx-0 my-auto">
-          <span :class="activityIcon" class="tertiary--text ps-1 pe-2 display-1"></span>
-        </v-list-item-icon>
-        <v-list-item-content>
-          <v-list-item-title :title="activityReactions">
-            {{ activityReactions }}
-          </v-list-item-title>
-          <v-list-item-subtitle>
-            {{ activityStreamOwner }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
-  </v-card>
+    </v-card>
+  </v-hover>
 </template>
 
 <script>
@@ -60,80 +129,46 @@ export default {
     },
   },
   data: () => ({
-    maxEllipsisHeight: 90,
-    lineHeight: 22,
     profileActionExtensions: [],
+    extensionApp: 'activity',
+    activityTypeExtensionName: 'type',
+    activityTypes: {},
+    activityCommentDrawer: false,
+    activityBaseLink: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity`
   }),
   computed: {
     isComment() {
-      return this.result && this.result.comment;
+      return this.result?.comment;
     },
     activity() {
-      return this.isComment && this.result.comment || this.result;
+      return this.isComment && this.result?.comment || this.result;
     },
     poster() {
-      return this.activity && this.activity.poster.profile;
-    },
-    body() {
-      return this.activity && this.activity.body;
-    },
-    posterFullname() {
-      return this.poster && this.poster.fullname;
+      return this.activity?.poster?.profile;
     },
     posterUsername() {
-      return this.poster && this.poster.username;
-    },
-    posterIsExternal() {
-      return this.poster && (this.poster.isExternal || this.poster.external);
+      return this.poster?.username;
     },
     streamOwner() {
-      return this.activity && this.activity.streamOwner.space || this.activity.streamOwner.profile;
+      return this.activity?.streamOwner?.space || this.activity?.streamOwner?.profile;
     },
-    spaceDisplayName() {
-      return this.streamOwner && this.streamOwner.displayName;
+    isSpaceStreamOwner() {
+      return this.activity?.streamOwner?.space || false;
     },
     excerpts() {
-      return this.activity && this.activity.excerpts || (this.activity.title && [this.activity.title]) || (this.activity.body && [this.activity.body]);
+      return this.activity && this.activity.excerpts || (this.activityEntity?.title && [this.activityEntity.title]) || (this.activityEntity?.body && [this.activityEntity.body]);
     },
     excerptHtml() {
-      return this.excerpts && this.excerpts.join('<br />...') || this.body || '';
+      return this.excerpts && this.excerpts.join('\r\n...') || '';
     },
     excerptText() {
-      return $('<div />').html(this.excerptHtml).text();
+      return this.$utils.htmlToText(this.excerptHtml);
     },
     activityType() {
       if (!this.result) {
         return '';
       }
       return this.result.comment && this.result.comment.type || this.result.type;
-    },
-    activityIcon() {
-      if (!this.result) {
-        return '';
-      }
-      let typeIcon = this.activityType && this.activityType.replace(':', '_') || '';
-      typeIcon = `uiIcon${typeIcon.charAt(0).toUpperCase()}${typeIcon.substring(1)}`;
-      return `uiIconActivity ${typeIcon}`;
-    },
-    activityLikes() {
-      if (!this.result) {
-        return '';
-      }
-      const likesCount = this.result.likesCount || 0;
-      return this.$t('Search.activity.likesCount', {0: likesCount});
-    },
-    activityComments() {
-      const commentsCount = this.result.commentsCount || 0;
-      return this.$t('Search.activity.commentsCount', {0: commentsCount});
-    },
-    activityReactions() {
-      return `${this.activityLikes}, ${this.activityComments}`;
-    },
-    activityStreamOwner() {
-      if (!this.result) {
-        return '';
-      }
-      return this.result.streamOwner.profile && this.result.streamOwner.profile.fullname || this.result.streamOwner.space && this.result.streamOwner.space.displayName || '';
     },
     postedTime() {
       if (!this.result) {
@@ -148,9 +183,96 @@ export default {
         return `/${eXo.env.portal.containerName}/${eXo.env.portal.metaPortalName}/activity?id=${this.activity.id}`;
       }
     },
+    activityTitle() {
+      return this.excerptHtml || this.$t('search.activity.no.title.label');
+    },
+    activityTitleText() {
+      return this.$utils.htmlToText(this.activityTitle);
+    },
+    isMobile() {
+      return this.$vuetify?.breakpoint?.smAndDown;
+    },
+    activityTypeExtension() {
+      if (!this.activity || !this.activityTypes) {
+        return {};
+      }
+      return this.activityTypes[this.activityType] || this.activityTypes['default'] || {};
+    },
+    extendedComponentParams() {
+      return {
+        activity: this.activityEntity?.originalActivity || this.activityEntity,
+        activityTypeExtension: this.activityTypeExtension,
+        activityTypes: this.activityTypes,
+        isActivityDetail: true,
+        collapsed: false,
+      };
+    },
+    activityEntity() {
+      return this.result?.dataEntity;
+    },
+    entityType() {
+      return this.isComment && 'COMMENT' || 'ACTIVITY';
+    },
+    commentId() {
+      return this.isComment && `comment${this.activity.id}`;
+    },
+    isOwner() {
+      const currentUserName = eXo.env.portal?.username;
+      return  currentUserName === this.posterUsername || this.isSpaceStreamOwner && this.streamOwner?.isMember;
+    },
+    spaceUrl() {
+      if (!this.streamOwner?.id) {
+        return '#';
+      }
+      return `${eXo.env.portal.context}/s/${this.streamOwner?.id}`;
+    }
   },
   created() {
     this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
+    document.addEventListener(`extension-${this.extensionApp}-${this.activityTypeExtensionName}-updated`, this.refreshActivityTypes);
+    this.refreshActivityTypes();
+    this.$root.activityBaseLink = this.activityBaseLink;
   },
+  methods: {
+    refreshActivityTypes() {
+      const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityTypeExtensionName);
+      let changed = false;
+      extensions.forEach(extension => {
+        if (extension.type && extension.options && (!this.activityTypes[extension.type] || this.activityTypes[extension.type] !== extension.options)) {
+          this.activityTypes[extension.type] = extension.options;
+          changed = true;
+        }
+      });
+      // force update of attribute to re-render switch new extension type
+      if (changed) {
+        this.activityTypes = Object.assign({}, this.activityTypes);
+      }
+    },
+    async openActivityCommentDrawer() {
+      this.activityCommentDrawer = true;
+      await this.$nextTick();
+      const options = {
+        activity: this.activityEntity,
+        newComment: true,
+      };
+      if (this.commentId) {
+        options ['commentId'] = this.commentId;
+      }
+      this.$refs.activitySearchCommentDrawer.displayActivityComments(options);
+    },
+    async closeActivityCommentDrawer() {
+      await this.$nextTick();
+      this.activityCommentDrawer = false;
+    },
+    openKudosForm() {
+      document.dispatchEvent(new CustomEvent('exo-kudos-open-send-modal', {detail: {
+        id: this.activity.id,
+        parentId: this.isComment && this.activityEntity.id || '',
+        type: this.entityType,
+        owner: !this.isOwner && this.posterUsername || null,
+        spacePrettyName: this.isSpaceStreamOwner && this.streamOwner.prettyName
+      }}));
+    }
+  }
 };
 </script>

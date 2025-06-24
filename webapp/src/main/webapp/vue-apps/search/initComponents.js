@@ -5,6 +5,8 @@ import SearchResults from './components/SearchResults.vue';
 import SearchResultCard from './components/SearchResultCard.vue';
 import SearchTagSelector from './components/SearchTagSelector.vue';
 import SearchTagList from './components/SearchTagList.vue';
+import SearchOptions from './components/SearchOptions.vue';
+import SearchResultCardGroup from './components/SearchResultCardGroup.vue';
 
 const components = {
   'search-application': SearchApplication,
@@ -14,6 +16,8 @@ const components = {
   'search-result-card': SearchResultCard,
   'search-tag-selector': SearchTagSelector,
   'search-tag-list': SearchTagList,
+  'search-options': SearchOptions,
+  'search-result-card-group': SearchResultCardGroup
 };
 
 for (const key in components) {

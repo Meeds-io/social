@@ -1,9 +1,15 @@
 <template>
   <div class="space-search-card">
     <space-card
+      :min-width="cardWidth"
+      :max-width="cardWidth"
+      :height="cardHeight"
+      :min-height="cardHeight"
       :space="result"
       :space-action-extensions="spaceActionExtensions"
-      embedded
+      display-members-count
+      hide-space-description
+      class="pa-0"
       @refresh="$emit('refresh')" />
   </div>
 </template>
@@ -21,7 +27,14 @@ export default {
   },
   data: () => ({
     spaceActionExtensions: [],
+    cardWidth: 400,
+    cardHeight: 130,
   }),
+  computed: {
+    isMobile() {
+      return this.$vuetify.breakpoint.smAndDown;
+    }
+  },
   created() {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();

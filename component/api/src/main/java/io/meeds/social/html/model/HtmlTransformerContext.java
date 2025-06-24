@@ -38,6 +38,8 @@ public class HtmlTransformerContext {
 
   private Locale   locale;
 
+  private boolean  textOnly;
+
   public HtmlTransformerContext(Locale locale) {
     this.locale = locale;
   }
@@ -50,6 +52,12 @@ public class HtmlTransformerContext {
   public HtmlTransformerContext(boolean system, Locale locale) {
     this.system = system;
     this.locale = locale;
+  }
+
+  public HtmlTransformerContext(Identity userIdentity, Locale locale,  boolean textOnly) {
+    this.userIdentity = userIdentity;
+    this.locale = locale;
+    this.textOnly = textOnly;
   }
 
   public String getUsername() {

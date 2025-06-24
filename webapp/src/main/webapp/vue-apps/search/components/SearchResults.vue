@@ -1,98 +1,32 @@
 <template>
   <v-flex
-    :loading="loading"
     class="transparent"
     flat>
-    <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 border-box-sizing">
-      <v-chip
-        :outlined="!favorites"
-        :color="favorites ? 'primary' : ''"
-        class="ms-1 me-2 border-color"
-        @click="selectFavorites">
-        <v-icon
-          size="16"
-          class="pb-1 pe-2 yellow--text text--darken-2">
-          fas fa-star
-        </v-icon>
-        <span class="text-header">{{ $t('search.connector.label.favorites') }}</span>
-      </v-chip>
-      <search-tag-selector @tags-changed="selectTags" />
-      <v-menu
-        v-model="connectorsListOpened"
-        :close-on-content-click="false"
-        content-class="connectors-list"
-        bottom
-        right
-        offset-y>
-        <template #activator="{ on, attrs }">
-          <v-chip
-            :outlined="!allEnabled"
-            :color="allEnabled ? 'primary' : ''"
-            class="border-color mx-1"
-            v-bind="attrs"
-            v-on="on">
-            <span class="me-8">{{ $t('search.connector.label.all') }}</span>
-            <i class="fas fa-chevron-down"></i>
-          </v-chip>
-        </template>
-        <v-list dense class="pa-0">
-          <v-list-item @click="selectAllConnector()">
-            <v-list-item-title class="d-flex align-center">
-              <v-checkbox
-                :input-value="allEnabled"
-                :ripple="false"
-                readonly
-                dense
-                class="ma-0" />
-              <span>{{ $t('search.connector.label.all') }}</span>
-            </v-list-item-title>
-          </v-list-item>
-          <v-list-item
-            v-for="connector in sortedConnectors"
-            :key="connector.name"
-            class="clickable"
-            dense
-            @click="selectConnector(connector)">
-            <v-list-item-title class="d-flex align-center">
-              <v-checkbox
-                :input-value="!allEnabled && connector.enabled"
-                :ripple="false"
-                dense
-                class="ma-0" />
-              <span>{{ connector.label }}</span>
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-      <div v-if="!allEnabled" class="selected-connectors">
-        <v-chip
-          v-for="connector in enabledConnectors"
-          :key="connector.name"
-          color="primary"
-          class="mx-1 border-color">
-          <span class="text-capitalize-first-letter">{{ connector.label }}</span>
-          <v-icon
-            size="10"
-            class="ms-2"
-            right
-            @click="selectConnector(connector)">
-            fas fa-times
-          </v-icon>
-        </v-chip>
-      </div>
-    </div>
-    <v-row v-if="hasResults" class="searchResultsParent justify-center justify-md-start mx-4 border-box-sizing">
-      <v-col
+    <search-options
+      :favorites="favorites"
+      :all-enabled="allEnabled"
+      :sorted-connectors="sortedConnectors"
+      :enabled-connectors="enabledConnectors"
+      @select-favorites="selectFavorites"
+      @select-tags="selectTags"
+      @select-all-connector="selectAllConnector"
+      @select-connector="selectConnector" />
+    <v-divider />
+    <div v-if="hasResults" class="searchResultsParent d-flex flex-column border-box-sizing">
+      <div
         v-for="result in resultsArray"
         :key="result.domId"
-        cols="12"
-        md="6"
-        lg="4"
-        xl="3"
-        class="searchCard pa-0">
-        <search-result-card :result="result" :term="term" />
-      </v-col>
-    </v-row>
+        class="pa-0 searchCard">
+        <search-result-card
+          v-if="!isGroupingResult(result)"
+          :result="result"
+          :term="term" />
+        <search-result-card-group
+          v-else
+          :results="result"
+          :term="term" />
+      </div>
+    </div>
     <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto text-center text-subtitle">
         <div class="position-relative">
@@ -143,7 +77,6 @@ export default {
     searching: 0,
     abortController: null,
     searchInitialized: false,
-    connectorsListOpened: false,
   }),
   computed: {
     hasMore() {
@@ -175,6 +108,9 @@ export default {
     enabledConnectorNames() {
       return this.enabledConnectors.map(connector => connector.name);
     },
+    enabledGroupingConnectorNames() {
+      return this.enabledConnectors.filter(connector => connector.groupingEnabled).map(connector => connector.name);
+    },
     searchEnabledConnectors() {
       return this.enabledConnectors.filter(connector => {
         return (connector.favoritesEnabled || !this.favorites)
@@ -186,18 +122,37 @@ export default {
         return;
       }
       const connectorNames = Object.keys(this.results);
-      let results = {};
+      const finalResults = [];
+
       connectorNames.forEach(connectorName => {
         if (this.enabledConnectorNames.includes(connectorName)) {
-          results[connectorName] = this.results[connectorName];
+          let connectorResults = this.results[connectorName];
+
+          if (this.favorites) {
+            connectorResults = connectorResults.filter(
+              result =>
+                (result.metadatas && result.metadatas.favorites) ||
+                    result.favorite ||
+                    result.isFavorite
+            );
+          }
+
+          if (this.enabledGroupingConnectorNames.includes(connectorName)) {
+            // Keep as grouped sublist
+            finalResults.push(connectorResults);
+          } else {
+            // Flatten into list
+            finalResults.push(...connectorResults);
+          }
         }
       });
-
-      results = Object.values(results).flat();
-      if (this.favorites) {
-        results = results.filter(result => result.metadatas && result.metadatas.favorites || result.favorite || result.isFavorite);
-      }
-      return results.sort((a, b) => a.index - b.index);
+      // Sort by index
+      finalResults.sort((a, b) => {
+        const indexA = Array.isArray(a) ? a[0]?.index ?? Infinity : a.index;
+        const indexB = Array.isArray(b) ? b[0]?.index ?? Infinity : b.index;
+        return indexA - indexB;
+      });
+      return finalResults;
     },
   },
   watch: {
@@ -228,12 +183,6 @@ export default {
     },
   },
   created() {
-    // Workaround to fix closing menu when clicking outside
-    $(document).on('click', (e) => {
-      if (e.target && !$(e.target).parents('.connectors-list').length) {
-        this.connectorsListOpened = false;
-      }
-    });
     this.$root.$on('refresh', (searchConnector, favorites) => {
       if (!!favorites === !!this.favorites) {
         this.$set(this.results, searchConnector.name, []);
@@ -427,6 +376,9 @@ export default {
           });
       });
     },
+    isGroupingResult(result) {
+      return Array.isArray(result);
+    }
   },
 };
 </script>

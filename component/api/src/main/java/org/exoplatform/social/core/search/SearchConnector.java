@@ -39,11 +39,15 @@ public class SearchConnector implements Cloneable {
 
   private String  uiComponent;
 
+  private String  icon;
+
   private boolean enabled;
 
   private boolean favoritesEnabled;
 
   private boolean tagsEnabled;
+
+  private boolean groupingEnabled;
 
   @Override
   public int hashCode() {
@@ -73,6 +77,6 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, jsModule, cssModule, i18nBundle, uiComponent, enabled, favoritesEnabled, tagsEnabled);
+    return new SearchConnector(name, uri, jsModule, cssModule, i18nBundle, uiComponent, icon, enabled, favoritesEnabled, tagsEnabled, groupingEnabled);
   }
 }

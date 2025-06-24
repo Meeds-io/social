@@ -5,24 +5,33 @@
     :loading="loading"
     expanded
     right>
+    <template #title>
+      {{ $t("Search.page.title") }}
+    </template>
     <template v-if="drawer" #content>
       <v-card
-        :loading="loading"
+        :class="!$root.isMobile && 'pa-4' || ''"
+        class="d-flex flex-column light-grey-background-color"
+        min-height="100%"
         flat>
-        <search-toolbar
-          ref="toolbar"
-          v-model="term"
-          :standalone="standalone"
-          @close="drawer = false" />
-        <search-results
-          ref="results"
-          :connectors="connectors"
-          :term="term"
-          :standalone="standalone"
-          @loading="loading = $event"
-          @favorites-changed="favorites = $event"
-          @tags-changed="selectedTags = $event"
-          @filter-changed="changeURI" />
+        <v-card
+          :class="!$root.isMobile && 'singlePageApplication card-border-radius' || ''"
+          class="pa-0 flex-grow-1 d-flex flex-column fill-height white overflow-hidden"
+          flat>
+          <search-toolbar
+            ref="toolbar"
+            v-model="term"
+            :standalone="standalone" />
+          <search-results
+            ref="results"
+            :connectors="connectors"
+            :term="term"
+            :standalone="standalone"
+            @loading="loading = $event"
+            @favorites-changed="favorites = $event"
+            @tags-changed="selectedTags = $event"
+            @filter-changed="changeURI" />
+        </v-card>
       </v-card>
     </template>
   </exo-drawer>
@@ -48,6 +57,7 @@ export default {
     standalone: false,
     pageUri: null,
     pageTitle: null,
+    companyName: eXo?.env?.portal?.companyName
   }),
   computed: {
     buttonTooltip() {
@@ -68,6 +78,9 @@ export default {
     },
     term() {
       this.changeURI();
+      if (!this.loading) {
+        this.setWindowTitle();
+      }
     },
     favorites() {
       this.changeURI();
@@ -85,10 +98,12 @@ export default {
         this.$root.$emit('search-opened');
         document.dispatchEvent(new CustomEvent('search-opened'));
         this.changeURI();
+        this.setWindowTitle();
       } else {
         this.$root.$emit('search-closed');
         document.dispatchEvent(new CustomEvent('search-closed'));
         window.history.replaceState('', this.pageTitle, this.pageUri);
+        window.document.title = this.pageTitle || `${this.$t('search.window.title')} - ${this.companyName}`;
       }
     },
   },
@@ -118,7 +133,10 @@ export default {
     this.loading = true;
     exoi18n.loadLanguageAsync(lang, urls)
       .then(() => this.$nextTick())
-      .finally(() => this.loading = false);
+      .finally(() => {
+        this.loading = false;
+        this.setWindowTitle();
+      });
 
     this.pageUri = window.location.href;
     this.pageTitle = window.document.title;
@@ -143,12 +161,6 @@ export default {
         this.favorites = parameters['favorites'] === 'true';
         this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
       }
-    } else {
-      $(document).on('keydown', (event) => {
-        if (event.key === 'Escape') {
-          this.drawer = false;
-        }
-      });
     }
     document.addEventListener('search-open', this.open);
     document.addEventListener('search-metadata-tag', this.open);
@@ -187,6 +199,11 @@ export default {
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     },
+    setWindowTitle() {
+      const termTitle = this.term ? `${this.term} - ` : '';
+      const searchWindowTitle = `${termTitle}${this.$t('search.window.title')} - ${this.companyName}`;
+      window.document.title = searchWindowTitle;
+    }
   },
 };
 </script>

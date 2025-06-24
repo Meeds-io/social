@@ -6,21 +6,29 @@
     :nudge-left="isMobile && 300"
     :nudge-bottom="30"
     content-class="tag-search-content"
+    attach
     offset-x>
     <template #activator="{ on, attrs }">
       <v-chip
         :outlined="!open"
         :color="open && 'primary' || ''"
-        class="border-color mx-1"
+        :aria-label="$t('search.filter.tag')"
+        tabindex="0"
+        class="text-body text-header-color mx-1"
         v-bind="attrs"
-        v-on="on">
-        <span><span class="text-header">#</span> {{ $t('Tag.search.button') }}</span>
+        v-on="on"
+        @keydown.enter="on.click">
+        <v-icon size="16" class="pe-2">
+          fas fa-hashtag
+        </v-icon>
+        <span> {{ $t('Tag.search.button') }}</span>
       </v-chip>
     </template>
     <v-card>
       <v-text-field
         ref="tagSearchInput"
         v-model="query"
+        autofocus
         :placeholder="$t('Tag.search.placeholder')"
         class="px-4" />
       <div class="pa-3">
@@ -31,13 +39,14 @@
           class="pt-2"
           multiple>
           <v-chip
-            v-for="tag in tags"
+            v-for="t in tagsWithAriaLabel"
             :color="`${isMobile ? 'blue lighten-4' : ''}`"
-            :key="tag"
-            :value="tag"
-            @click="handleTag(tag)"
-            @keyup.enter="handleTag(tag)">
-            <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ tag }}</span>
+            :key="t.tag"
+            :value="t.tag"
+            :aria-label="t.ariaLabel"
+            @click="handleTag(t.tag)"
+            @keyup.enter="handleTag(t.tag)">
+            <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ t.tag }}</span>
           </v-chip>
         </v-chip-group>
       </div>
@@ -68,6 +77,12 @@ export default {
     Width() {
       return this.isMobile && '400' || '200';
     },
+    tagsWithAriaLabel() {
+      return this.tags.map(tag => ({
+        tag,
+        ariaLabel: this.selectedTags.includes(tag) && this.$t('search.tag.option.active.item.ariaLabel', {0: tag}) || this.$t('search.tag.option.item.ariaLabel', {0: tag})
+      }));
+    }
   },
   watch: {
     query() {
@@ -80,26 +95,11 @@ export default {
     open() {
       if (this.open) {
         this.query = '';
-        window.setTimeout(() => {
-          if (this.$refs.tagSearchInput) {
-            this.$refs.tagSearchInput.$el.querySelector('input').focus();
-          }
-        }, 200);
         this.search();
       }
     },
   },
   created() {
-    // Workaround to fix closing menu when clicking outside
-    document.onmousedown = event => {
-      if (this.open && event && event.target) {
-        if (!$('.tag-search-content').find(event.target).length) {
-          window.setTimeout(() => {
-            this.open = false;
-          }, 200);
-        }
-      }
-    };
     this.selectedTags = this.value;
   },
   methods: {
@@ -131,7 +131,7 @@ export default {
         this.selectedTags.push(tag);
         document.dispatchEvent(new CustomEvent('search-tag'));
       }
-    }
+    },
   },
 };
 </script>
