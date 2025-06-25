@@ -54,6 +54,7 @@ export default {
     term: null,
     favorites: false,
     selectedTags: [],
+    selectedSpaces: [],
     standalone: false,
     pageUri: null,
     pageTitle: null,
@@ -86,6 +87,9 @@ export default {
       this.changeURI();
     },
     selectedTags() {
+      this.changeURI();
+    },
+    selectedSpaces() {
       this.changeURI();
     },
     loading() {
@@ -160,8 +164,10 @@ export default {
         this.term = parameters['q'] || '';
         this.favorites = parameters['favorites'] === 'true';
         this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
+        this.selectedSpaces = parameters['spaceId'] && [parameters['spaceId']] || [];
       }
     }
+    this.$root.$on('spaces-changed', this.setSelectedSpaces);
     document.addEventListener('search-open', this.open);
     document.addEventListener('search-metadata-tag', this.open);
   },
@@ -169,6 +175,7 @@ export default {
     this.drawer = true;
   },
   beforeDestroy() {
+    this.$root.$off('spaces-changed', this.setSelectedSpaces);
     document.removeEventListener('search-open', this.open);
     document.removeEventListener('search-metadata-tag', this.open);
   },
@@ -197,12 +204,18 @@ export default {
       if (this.selectedTags && this.selectedTags.length) {
         pageUri += `&tags=${this.selectedTags.join(',')}`;
       }
+      if (this.selectedSpaces && this.selectedSpaces.length) {
+        pageUri += `&spaceId=${this.selectedSpaces[0]}`;
+      }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     },
     setWindowTitle() {
       const termTitle = this.term ? `${this.term} - ` : '';
       const searchWindowTitle = `${termTitle}${this.$t('search.window.title')} - ${this.companyName}`;
       window.document.title = searchWindowTitle;
+    },
+    setSelectedSpaces(selectedSpaces) {
+      this.selectedSpaces = selectedSpaces || [];
     }
   },
 };

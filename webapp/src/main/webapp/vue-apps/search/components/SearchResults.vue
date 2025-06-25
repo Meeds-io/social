@@ -72,6 +72,7 @@ export default {
     pageSize: 10,
     limit: 10,
     selectedTags: [],
+    selectedSpaces: [],
     favorites: false,
     allEnabled: true,
     searching: 0,
@@ -168,6 +169,11 @@ export default {
         this.$nextTick().then(this.search);
       }
     },
+    selectedSpaces(){
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
     favorites() {
       this.$emit('favorites-changed', this.favorites);
       if (this.searchInitialized) {
@@ -210,6 +216,12 @@ export default {
     } else {
       this.searchInitialized = true;
     }
+    this.$root.$on('spaces-changed', this.selectSpaces);
+    this.$root.$on('favorites-changed', this.selectFavorites);
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-changed', this.selectSpaces);
+    this.$root.$off('favorites-changed', this.selectFavorites);
   },
   methods: {
     selectFavorites() {
@@ -222,6 +234,9 @@ export default {
     selectTags(tags) {
       this.selectedTags = tags || [];
       this.$emit('filter-changed');
+    },
+    selectSpaces(spaces) {
+      this.selectedSpaces = spaces || [];
     },
     selectAllConnector() {
       if (this.allEnabled) {
