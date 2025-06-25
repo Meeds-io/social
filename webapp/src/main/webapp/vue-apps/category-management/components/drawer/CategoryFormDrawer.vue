@@ -282,7 +282,7 @@ export default {
     },
     nextStep() {
       if (this.step === 2 && this.drawer && this.isNew && !this.category.linkPermissionIds?.length) {
-        this.category.linkPermissionIds = this.category.accessPermissionIds.slice();
+        this.category.linkPermissionIds = this.category.accessPermissionIds.slice().filter(id => id && id !== '0');
       }
       this.step++;
     },
@@ -303,6 +303,9 @@ export default {
     async save() {
       this.saving = true;
       try {
+        if (this.category?.linkPermissionIds?.length) {
+          this.category.linkPermissionIds = this.category.linkPermissionIds.filter(id => id && id !== '0');
+        }
         if (this.isNew) {
           this.category = await this.$categoryService.createCategory(this.category);
           await this.$nextTick();
