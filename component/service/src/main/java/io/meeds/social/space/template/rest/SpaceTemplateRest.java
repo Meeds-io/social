@@ -18,11 +18,14 @@
  */
 package io.meeds.social.space.template.rest;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -95,6 +98,34 @@ public class SpaceTemplateRest {
     }
   }
 
+  @GetMapping("{id}/canCreateSpace")
+  @Secured("users")
+  @Operation(
+          summary = "Check if the current user can create a space with this template",
+          method = "GET",
+          description = "Returns whether the currently authenticated user is allowed to create a space using the given template")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Permission check successful"),
+          @ApiResponse(responseCode = "500", description = "Internal server error"),
+          @ApiResponse(responseCode = "404", description = "Template not found") })
+  public ResponseEntity<Map<String, Boolean>> canCreateSpaceWithTemplate(HttpServletRequest request,
+                                                                         @Parameter(description = "Space template identifier")
+                                                                         @PathVariable("id")
+                                                                         long id) {
+    try {
+      String username = request.getRemoteUser();
+      SpaceTemplate template = spaceTemplateService.getSpaceTemplate(id);
+      if (template == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+      }
+
+      boolean canCreate = spaceTemplateService.canCreateSpace(id, username);
+      return ResponseEntity.ok(Collections.singletonMap("canCreate", canCreate));
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+  }
+  
   @PostMapping
   @Secured("users")
   @Operation(summary = "Create a Space template", method = "POST", description = "This creates a new Space template")
