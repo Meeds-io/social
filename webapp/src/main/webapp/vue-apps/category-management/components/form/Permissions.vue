@@ -155,7 +155,7 @@ export default {
   async created() {
     const identityIds = this.value?.slice?.() || [];
     const permissions = await Promise.all(identityIds.map(this.retrieveGroupIdByIdentityId));
-    this.isAnyPermissions = permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
+    this.isAnyPermissions = this.showAny && permissions?.find?.(p => p === this.$root.everyonePermission) && true || false;
     this.isUserPermissions = permissions?.find?.(p => p === this.$root.usersPermission) && true || false;
     this.isGuestPermissions = permissions?.find?.(p => p === this.$root.guestsPermission) && true || false;
     this.specificGroupEntries = [];
