@@ -20,20 +20,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
-    <v-chip
-      :outlined="!favorites"
-      :color="favorites ? 'primary' : ''"
-      :aria-pressed="favorites"
-      :aria-label="$t('search.filter.favorite')"
-      class="ms-1 me-2 text-body border-color flex-shrink-0"
-      tabindex="0"
-      @keydown.enter="$emit('select-favorites')"
-      @click="$emit('select-favorites')">
-      <v-icon size="16" class="pe-2 yellow--text text--darken-2">
-        fas fa-star
-      </v-icon>
-      <span :class="favorites && 'text-white' || 'text-header-color'">{{ $t('search.connector.label.favorites') }}</span>
-    </v-chip>
+    <search-space-selector />
+    <search-favorites-selector :favorites="favorites" />
     <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
     <v-menu
       :close-on-content-click="false"
