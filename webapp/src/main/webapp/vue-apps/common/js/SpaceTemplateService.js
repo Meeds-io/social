@@ -85,3 +85,15 @@ export function deleteSpaceTemplate(id) {
     }
   });
 }
+
+export function canCreateSpaceWithTemplate(templateId) {
+  return fetch(`/social/rest/space/templates/${templateId}/canCreateSpace`, {
+    credentials: 'include',
+    method: 'GET',
+  }).then((resp) => {
+    if (!resp?.ok) {
+      throw new Error('Error while checking space creation on template');
+    }
+    return resp.json();
+  });
+}
