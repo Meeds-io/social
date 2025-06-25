@@ -21,7 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <div class="spaceFilter d-flex flex-row">
     <v-menu
-      v-if="!selectedSpaces.length"
+      v-if="initialized && !selectedSpaces.length"
       v-model="menu"
       :close-on-content-click="false"
       attach
@@ -64,6 +64,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           ref="spacesSuggester"
           :include-users="false"
           :labels="spaceSuggesterLabels"
+          autofocus
           name="spacesSuggester"
           class="user-suggester mt-n2"
           include-spaces />
@@ -106,7 +107,8 @@ export default {
       textInput: '',
       choice: 'any',
       space: [],
-      selectedSpaces: []
+      selectedSpaces: [],
+      initialized: false
     };
   },
   computed: {
@@ -118,7 +120,7 @@ export default {
     },
     selectedSpaceItems() {
       return this.selectedSpaces.map(item => {
-        item.avatarUrl = item?.profile.avatarUrl;
+        item.avatarUrl = item?.profile?.avatarUrl || item.avatarUrl;
         return item;
       });
     },
@@ -142,7 +144,35 @@ export default {
     selectedSpaces() {
       const selectedSpaceIds = this.selectedSpaces.map(item => item.spaceId);
       this.$root.$emit('spaces-changed', selectedSpaceIds);
+    },
+    menu() {
+      if (!this.menu) {
+        this.resetChoice();
+      }
     }
+  },
+  async created() {
+    let spaceId = eXo.env?.portal?.spaceId;
+    const search = window.location.search && window.location.search.substring(1);
+    if (search && !spaceId) {
+      const parameters = JSON.parse(
+        `{"${decodeURI(search)
+          .replace(/"/g, '\\"')
+          .replace(/&/g, '","')
+          .replace(/=/g, '":"')}"}`
+      );
+      spaceId = parameters['spaceId'];
+    }
+    if (spaceId) {
+      const space = await this.$spaceService.getSpaceById(spaceId);
+      if (space) {
+        this.selectedSpaces.push({
+          ...space,
+          spaceId: space.id,
+        });
+      }
+    }
+    this.initialized = true;
   },
   methods: {
     deleteSpace(index) {
@@ -150,6 +180,8 @@ export default {
     },
     closeMenu() {
       this.menu = false;
+    },
+    resetChoice() {
       this.choice = 'any';
     }
   }
