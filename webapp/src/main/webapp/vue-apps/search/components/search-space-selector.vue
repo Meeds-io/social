@@ -164,15 +164,20 @@ export default {
       spaceId = parameters['spaceId'];
     }
     if (spaceId) {
-      const space = await this.$spaceService.getSpaceById(spaceId);
-      if (space) {
-        this.selectedSpaces.push({
-          ...space,
-          spaceId: space.id,
-        });
+      try {
+        const space = await this.$spaceService.getSpaceById(spaceId);
+        if (space?.isMember) {
+          this.selectedSpaces.push({
+            ...space,
+            spaceId: space.id,
+          });
+        }
+      } finally {
+        this.initialized = true;
       }
+    } else {
+      this.initialized = true;
     }
-    this.initialized = true;
   },
   methods: {
     deleteSpace(index) {
