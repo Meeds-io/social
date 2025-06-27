@@ -147,7 +147,11 @@ public class ActivitySearchConnector {
                                                       long limit) {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
     if (!CollectionUtils.isEmpty(filter.getSpaceIdentityIds())) {
+      // Filter the space identity IDs that I have access to
       streamFeedOwnerIds = streamFeedOwnerIds.stream().filter(filter.getSpaceIdentityIds()::contains).collect(Collectors.toSet());
+      if (streamFeedOwnerIds.isEmpty()) {
+        return Collections.emptyList();
+      }
     }
     Map<String, List<String>> metadataFilters = buildMetadatasFilter(filter, viewerIdentity);
     String esQuery = buildQueryStatement(streamFeedOwnerIds, metadataFilters, filter, offset, limit);
