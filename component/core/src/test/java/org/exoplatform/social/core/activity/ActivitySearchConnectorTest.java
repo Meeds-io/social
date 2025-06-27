@@ -11,9 +11,11 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
@@ -286,6 +288,42 @@ public class ActivitySearchConnectorTest {
     assertNotNull(activitySearchResult.getExcerpts());
     assertEquals(0, activitySearchResult.getExcerpts().size());
     assertEquals(streamOwner, activitySearchResult.getStreamOwner());
+  }
+  
+  @Test
+  public void testSearchInSpaceResult() throws IOException {// NOSONAR
+    ActivitySearchConnector activitySearchConnector = new ActivitySearchConnector(activitySearchProcessor,
+                                                                                  identityManager,
+                                                                                  activityStorage,
+                                                                                  configurationManager,
+                                                                                  client,
+                                                                                  getParams());
+
+    ActivitySearchFilter filter = new ActivitySearchFilter("John");
+    Long allowedSpaceStreamOwnerId = 10L;
+    Long notAllowedSpaceStreamOwnerId = 20L;
+    List<Long> spaceIdentityIds = new ArrayList<>();
+    spaceIdentityIds.add(allowedSpaceStreamOwnerId);
+    filter.setSpaceIdentityIds(spaceIdentityIds);
+    HashSet<Long> permissions = new HashSet<>(Arrays.asList(1L, 2L, 10L));
+    Identity identity = mock(Identity.class);
+    lenient().when(identity.getId()).thenReturn("1");
+    when(activityStorage.getStreamFeedOwnerIds(identity)).thenReturn(permissions);
+
+    searchResult =
+                 IOUtil.getStreamContentAsString(Objects.requireNonNull(getClass().getClassLoader()
+                                                                                  .getResourceAsStream("activities-search-result-by-identity.json")));
+    when(client.sendRequest(Mockito.any(String.class), eq(ES_INDEX))).thenReturn(searchResult);
+
+    List<ActivitySearchResult> result = activitySearchConnector.search(identity, filter, 0, 10);
+    assertNotNull(result);
+    assertEquals(1, result.size());
+
+    spaceIdentityIds.clear();
+    spaceIdentityIds.add(notAllowedSpaceStreamOwnerId);
+    result = activitySearchConnector.search(identity, filter, 0, 10);
+    assertNotNull(result);
+    assertEquals(0, result.size());
   }
 
   private InitParams getParams() {
