@@ -827,6 +827,11 @@
         <type>io.meeds.social.handler.SpaceAccessHandler</type>
       </component-plugin>
       <component-plugin>
+        <name>ActivityAccessHandler</name>
+        <set-method>register</set-method>
+        <type>io.meeds.social.handler.ActivityAccessHandler</type>
+      </component-plugin>
+      <component-plugin>
         <name>SpacePermanentLinkHandler</name>
         <set-method>register</set-method>
         <type>io.meeds.social.handler.SpacePermanentLinkHandler</type>
