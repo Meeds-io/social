@@ -33,6 +33,8 @@ public class ActivitySearchFilter {
 
   private List<Long>   categoryIds;
 
+  private List<Long>   spaceIdentityIds;
+
   private boolean      favorites;
 
   public ActivitySearchFilter(String term) {
