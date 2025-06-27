@@ -190,6 +190,9 @@
             <field name="icon">
               <string>fas fa-stream</string>
             </field>
+            <field name="spaceFilterEnabled">
+              <boolean>true</boolean>
+            </field>
           </object>
         </object-param>
       </init-params>
