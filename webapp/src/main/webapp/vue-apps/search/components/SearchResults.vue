@@ -115,7 +115,8 @@ export default {
     searchEnabledConnectors() {
       return this.enabledConnectors.filter(connector => {
         return (connector.favoritesEnabled || !this.favorites)
-          && (connector.tagsEnabled || !this.selectedTags.length);
+          && (connector.tagsEnabled || !this.selectedTags.length)
+          && (connector.spaceFilterEnabled || !this.selectedSpaces.length);
       });
     },
     resultsArray() {
@@ -210,6 +211,10 @@ export default {
           .replace(/=/g, '":"')}"}`
       );
       this.favorites = parameters['favorites'] === 'true';
+      const selectedSpaceId = parameters['spaceId'];
+      if (selectedSpaceId) {
+        this.selectedSpaces.push(selectedSpaceId);
+      }
     }
     if (this.favorites || this.term) {
       this.search();
@@ -352,6 +357,9 @@ export default {
               uri += `?tags=${tag}`;
             }
           });
+        }
+        if (this.selectedSpaces?.length) {
+          uri += `&spaceId=${this.selectedSpaces[0]}`;
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
