@@ -69,7 +69,6 @@ import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.ActivityEntity;
@@ -993,6 +992,10 @@ public class ActivityRest implements ResourceContainer {
                                    @QueryParam(
                                      "tags"
                                    ) List<String> tagNames,
+                                   @Parameter(description = "Space id used to search activities", required = false)
+                                   @QueryParam(
+                                     "spaceId"
+                                   ) Long spaceId,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1016,7 +1019,15 @@ public class ActivityRest implements ResourceContainer {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, isFavorite);
+    List<Long> spaceIdentityIds = null;
+    if (spaceId != null) {
+      Space space = spaceService.getSpaceById(spaceId);
+      if (space != null) {
+        spaceIdentityIds = new ArrayList<>();
+        spaceIdentityIds.add(identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getIdentityId());
+      }
+    }
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
