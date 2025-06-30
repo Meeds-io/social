@@ -84,6 +84,10 @@ export default {
       type: Array,
       default: null,
     },
+    excludeCategoryIds: {
+      type: Array,
+      default: null,
+    },
     categoryDepth: {
       type: Number,
       default: () => 4,
@@ -110,6 +114,7 @@ export default {
       if (this.categoryTree) {
         this.addSubcategories(this.categoryTree, categories);
       }
+      categories.forEach(this.excludeIds);
       return categories;
     },
     displayBreadcrumb() {
@@ -238,6 +243,16 @@ export default {
         this.$emit('input', category?.id);
       }
     },
+    excludeIds(cat) {
+      if (Array.isArray(cat.categories)) {
+        cat.categories = cat.categories
+          .filter(child => !this.excludeCategoryIds.includes(child.id))
+          .map(child => {
+            this.excludeIds(child);
+            return child;
+          });
+      }
+    }
   },
 };
 </script>

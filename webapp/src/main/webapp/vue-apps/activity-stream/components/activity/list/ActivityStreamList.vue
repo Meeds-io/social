@@ -116,6 +116,9 @@ export default {
     selectedCategoryIds() {
       return this.$root.selectedCategoryIds?.length ? this.$root.selectedCategoryIds : this.$root.categoryIds;
     },
+    excludeCategoryIds() {
+      return this.$root.excludeCategoryIds;
+    },
   },
   watch: {
     loading() {
@@ -148,6 +151,11 @@ export default {
       }
     },
     selectedCategoryIds() {
+      if (this.initialized) {
+        this.refreshActivities();
+      }
+    },
+    excludeCategoryIds() {
       if (this.initialized) {
         this.refreshActivities();
       }
@@ -334,6 +342,7 @@ export default {
         streamType: this.streamFilter,
         limit: this.limit * 2,
         categoryIds: this.selectedCategoryIds,
+        excludedCategoryIds: this.excludeCategoryIds,
         expand: this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND,
       })
         .then(data => {

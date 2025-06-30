@@ -73,6 +73,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
 
   private static final String           ACTIVITY_OWNER_IDS        = "ownerIds";
 
+  public static final String            CATEGORY_IDS              = "categoryIds";
+
+  public static final String            EXCLUDED_CATEGORY_IDS     = "excludedCategoryIds";
+
   private static final String           STREAM_TYPE               = "streamType";
 
   private static final String           QUERY_FILTER_FIND_PREFIX  = "SocActivity.findAllActivities";
@@ -999,7 +1003,13 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       query.setParameter(ACTIVITY_OWNER_IDS, streamIdentityIds);
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
-      query.setParameter("categoryIds", activityFilter.getCategoryIds());
+      if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
+        activityFilter.getCategoryIds().removeAll(activityFilter.getExcludedCategoryIds());
+      }
+      query.setParameter(CATEGORY_IDS, activityFilter.getCategoryIds());
+    }
+    if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
+      query.setParameter(EXCLUDED_CATEGORY_IDS, activityFilter.getExcludedCategoryIds());
     }
   }
 
@@ -1042,6 +1052,9 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       suffixes.add("CategoryIds");
     }
+    if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
+      suffixes.add("ExcludedCategoryIds");
+    }
   }
 
   private String getQueryFilterName(List<String> suffixes, boolean count) {
@@ -1064,9 +1077,17 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
       querySelect += " INNER JOIN activity.streamItems item ON item.streamType in (:mainStreamTypes)";
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
-      querySelect += " INNER JOIN activity.categories cat ON cat.categoryId in :categoryIds";
+      querySelect += " INNER JOIN activity.categories catInclude ON catInclude.categoryId IN :categoryIds";
     }
+    if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
+      querySelect += " LEFT JOIN activity.categories catExclude ON catExclude.categoryId IN :excludedCategoryIds";
+    }
+
     querySelect += " WHERE activity.hidden = false AND activity.parent IS NULL";
+
+    if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
+      querySelect += " AND catExclude.categoryId IS NULL";
+    }
 
     String queryContent;
     if (predicates.isEmpty()) {
