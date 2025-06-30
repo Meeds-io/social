@@ -3,7 +3,8 @@ export function getActivitiesByFilter({
   streamType,
   limit,
   expand,
-  categoryIds
+  categoryIds,
+  excludedCategoryIds,
 }) {
   const formData = new FormData();
 
@@ -21,6 +22,10 @@ export function getActivitiesByFilter({
 
   if (categoryIds?.length) {
     categoryIds.forEach(c => formData.append('categoryId', c));
+  }
+
+  if (excludedCategoryIds?.length) {
+    excludedCategoryIds.forEach(c => formData.append('excludedCategoryId', c));
   }
 
   if (expand) {

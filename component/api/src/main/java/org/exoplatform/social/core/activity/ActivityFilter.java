@@ -39,6 +39,8 @@ public class ActivityFilter implements Serializable {
 
   private List<Long>         categoryIds;
 
+  private List<Long>         excludedCategoryIds;
+
   private boolean            showPinned;
 
   private boolean            pinned;
