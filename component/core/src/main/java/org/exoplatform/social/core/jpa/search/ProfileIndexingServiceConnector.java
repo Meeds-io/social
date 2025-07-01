@@ -20,6 +20,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,12 +33,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -303,6 +306,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
 
     Document document = new ProfileIndexDocument(id, null, createdDate, (Set<String>) null, fields);
+    document.setPermissions(getMemberSpaceIdentityIds(identity));
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
             id,
             identity.getRemoteId(),
@@ -357,5 +361,10 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       LOG.error("Error parsing profile property value translations", e);
     }
     return optionValue;
+  }
+
+  private Set<String> getMemberSpaceIdentityIds(Identity ownerIdentity) {
+    SpaceStorage spaceStorage = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceStorage.class);
+    return new HashSet<>(spaceStorage.getMemberRoleSpaceIdentityIds(ownerIdentity.getId(), 0, -1));
   }
 }
