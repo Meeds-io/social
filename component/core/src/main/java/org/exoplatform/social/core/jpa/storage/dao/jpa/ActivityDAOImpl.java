@@ -1004,7 +1004,7 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
     }
     if (CollectionUtils.isNotEmpty(activityFilter.getCategoryIds())) {
       if (CollectionUtils.isNotEmpty(activityFilter.getExcludedCategoryIds())) {
-        activityFilter.getCategoryIds().retainAll(activityFilter.getExcludedCategoryIds());
+        activityFilter.getCategoryIds().removeAll(activityFilter.getExcludedCategoryIds());
       }
       query.setParameter(CATEGORY_IDS, activityFilter.getCategoryIds());
     }
