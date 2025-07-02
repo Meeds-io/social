@@ -297,6 +297,9 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setSearchEmail(searchEmail);
       filter.setSearchUserName(searchUsername);
       filter.setEnabled(!isDisabled);
+      if (StringUtils.isNotBlank(spaceId)) {
+        filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), Arrays.asList(spaceId)));
+      }
       if (target != null && excludeCurrentUser) {
         filter.setViewerIdentity(target);
       }
