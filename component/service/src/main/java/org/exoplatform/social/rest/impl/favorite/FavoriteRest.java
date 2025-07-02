@@ -3,10 +3,31 @@ package org.exoplatform.social.rest.impl.favorite;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
+import org.apache.commons.lang3.StringUtils;
+
+import org.exoplatform.commons.ObjectAlreadyExistsException;
+import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
+import org.exoplatform.services.rest.resource.ResourceContainer;
+import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.Identity;
+import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
+import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.service.rest.api.VersionResources;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,19 +35,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.services.log.ExoLogger;
-import org.exoplatform.services.log.Log;
-import org.exoplatform.services.rest.resource.ResourceContainer;
-import org.exoplatform.services.security.ConversationState;
-import org.exoplatform.services.security.Identity;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
-import org.exoplatform.social.metadata.favorite.FavoriteService;
-import org.exoplatform.social.metadata.favorite.model.Favorite;
-import org.exoplatform.social.metadata.model.MetadataItem;
-import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.service.rest.api.VersionResources;
 
 
 @Path(VersionResources.VERSION_ONE + "/social/favorites")
@@ -131,27 +139,29 @@ public class FavoriteRest implements ResourceContainer {
       }
   )
   public Response getFavoritesList(
-                                      @Parameter(
-                                          description = "Query Offset",
-                                          required = true
-                                      )
-                                      @QueryParam("offset")
-                                      int offset,
-                                      @Parameter(
-                                          description = "Query results limit",
-                                          required = true
-                                      )
-                                      @QueryParam("limit")
-                                      int limit,
-                                      @Parameter(
-                                          description = "Fovorites total size")
-                                      @Schema(defaultValue = "false")
-                                      @QueryParam("returnSize")
-                                      boolean returnSize) {
+                                   @Parameter(description = "Query Offset", required = true)
+                                   @QueryParam("offset")
+                                   int offset,
+                                   @Parameter(description = "Query results limit", required = true)
+                                   @QueryParam("limit")
+                                   int limit,
+                                   @Parameter(description = "Fovorites Object Type")
+                                   @QueryParam("type")
+                                   String objectType,
+                                   @Parameter(description = "Fovorites total size")
+                                   @Schema(defaultValue = "false")
+                                   @QueryParam("returnSize")
+                                   boolean returnSize) {
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
     try {
       FavoriteEntity favoriteEntity = new FavoriteEntity();
-      List<MetadataItem> myFavorites = favoriteService.getFavoriteItemsByCreator(userIdentityId, offset, limit);
+      List<MetadataItem> myFavorites = StringUtils.isBlank(objectType) ? favoriteService.getFavoriteItemsByCreator(userIdentityId,
+                                                                                                                   offset,
+                                                                                                                   limit) :
+                                                                       favoriteService.getFavoriteItemsByCreatorAndType(objectType,
+                                                                                                                        userIdentityId,
+                                                                                                                        offset,
+                                                                                                                        limit);
       favoriteEntity.setFavoritesItem(myFavorites);
       favoriteEntity.setLimit(limit);
       favoriteEntity.setOffset(offset);
