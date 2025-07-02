@@ -20,6 +20,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,6 +34,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -66,6 +68,8 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final TranslationService     translationService;
 
+  private final UserACL                userACL;
+
   private static final String          HIDDEN_VALUE                 = "hidden";
 
   private static final String          PROFILE_PROPERTY_FIELD_NAME  = "optionValue";
@@ -77,13 +81,15 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
                                          IdentityDAO identityDAO,
                                          ConnectionDAO connectionDAO,
                                          ProfilePropertyService profilePropertyService,
-                                         TranslationService translationService) {
+                                         TranslationService translationService,
+                                         UserACL userACL) {
     super(initParams);
     this.identityManager = identityManager;
     this.identityDAO = identityDAO;
     this.connectionDAO = connectionDAO;
     this.profilePropertyService = profilePropertyService;
     this.translationService = translationService;
+    this.userACL = userACL;
   }
 
   @Override
@@ -303,6 +309,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
 
     Document document = new ProfileIndexDocument(id, null, createdDate, (Set<String>) null, fields);
+    document.setPermissions(getGroupIdentityIds(identity));
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
             id,
             identity.getRemoteId(),
@@ -357,5 +364,27 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       LOG.error("Error parsing profile property value translations", e);
     }
     return optionValue;
+  }
+
+  private Set<String> getGroupIdentityIds(Identity ownerIdentity) {
+    Set<String> groups = userACL.getUserIdentity(ownerIdentity.getRemoteId()).getGroups();
+    Set<String> groupIdentityIds = new HashSet<>();
+
+    for (String groupId : groups) {
+      if (groupId.startsWith("/spaces/")) {
+        String spacePrettyName = groupId.substring("/spaces/".length());
+        Identity identity = identityManager.getOrCreateSpaceIdentity(spacePrettyName);
+        if (identity != null) {
+          groupIdentityIds.add(identity.getId());
+        }
+      } else {
+        Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
+        if (identity != null) {
+          groupIdentityIds.add(identity.getId());
+        }
+      }
+    }
+
+    return groupIdentityIds;
   }
 }

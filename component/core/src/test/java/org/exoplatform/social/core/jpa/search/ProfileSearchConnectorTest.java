@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -768,6 +769,99 @@ public class ProfileSearchConnectorTest {
 
         int result = profileSearchConnector.count(null, filter, null);
         Assert.assertEquals(1, result);
+    }
+
+    @Test
+    public void testSearchWithSpace() {
+      ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
+      profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
+      IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
+      ProfileFilter filter = new ProfileFilter();
+      filter.setSearchEmail(false);
+      filter.setSearchUserName(false);
+      filter.setName("\\\"aaa\\\"");
+      filter.setEnabled(true);
+      filter.setUserType("internal");
+      filter.setSpaceIdentityIds(Arrays.asList("5"));
+      filter.setEnrollmentStatus("noEnrollmentPossible");
+      String index = "profile_alias";
+      String expectedQuery = "{\n" +
+              "   \"from\" : 0, \"size\" : 10,\n" +
+              "   \"sort\": {\"lastName.raw\": {\"order\": \"ASC\"}}\n" +
+              "       ,\n" +
+              "\"query\" : {\n" +
+              "      \"constant_score\" : {\n" +
+              "        \"filter\" : {\n" +
+              "          \"bool\" :{\n" +
+              "    \"must\": [\n" +
+              "      {\n" +
+              "        \"terms\": {\n" +
+              "          \"permissions\": [\n" +
+              "5\n" +
+              "          ]\n" +
+              "        }\n" +
+              "      }\n" +
+              "    ],\n" +
+              "    \"should\": [\n" +
+              "                  {\n" +
+              "                    \"term\": {\n" +
+              "                      \"external\": false\n" +
+              "                    }\n" +
+              "                  },\n" +
+              "                  {\n" +
+              "                    \"bool\": {\n" +
+              "                      \"must_not\": {\n" +
+              "                        \"exists\": {\n" +
+              "                          \"field\": \"external\"\n" +
+              "                        }\n" +
+              "                      }\n" +
+              "                    }\n" +
+              "                  }\n" +
+              "                  ]\n" +
+              "                  ,\"minimum_should_match\" : 1\n" +
+              "    \"should\": [\n" +
+              "                  {\n" +
+              "                    \"bool\": {\n" +
+              "                      \"must_not\": {\n" +
+              "                        \"exists\": {\n" +
+              "                          \"field\": \"enrollmentDate\"\n" +
+              "                          }\n" +
+              "                        },\n" +
+              "                      \"must\": {\n" +
+              "                        \"exists\": {\n" +
+              "                          \"field\": \"lastLoginTime\"\n" +
+              "                        }\n" +
+              "                      }\n" +
+              "                    }\n" +
+              "                  },\n" +
+              "                  {\n" +
+              "                    \"term\": {\n" +
+              "                      \"external\": true\n" +
+              "                    }\n" +
+              "                  }\n" +
+              "                  ]\n" +
+              "                  ,\"minimum_should_match\" : 1\n" +
+              "      ,\n" +
+              "    \"filter\": [\n" +
+              "      {          \"query_string\": {\n" +
+              "            \"query\": \"name.whitespace:*\\\"aaa\\\"*\"\n" +
+              "          }\n" +
+              "      }\n" +
+              "    ]\n" +
+              "     } \n" +
+              "   } \n" +
+              "  }\n" +
+              " }\n" +
+              ",\"_source\": false\n" +
+              ",\"fields\": [\"_id\"]\n" +
+              "}\n";
+      when(elasticSearchClient.sendRequest(expectedQuery,
+                                           index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"aaa\"]},\"sort\":[\"aaa\"]}]}}");
+      COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
+      long offset = 0;
+      long limit = 10;
+      List<String> result = profileSearchConnector.search(null, filter, null, offset, limit);
+      Assert.assertEquals(1, result.size());
     }
 
     private String buildAdvancedFilterQuery(ProfileFilter filter) throws NoSuchMethodException,
