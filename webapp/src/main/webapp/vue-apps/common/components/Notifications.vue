@@ -97,7 +97,12 @@
           link
           @click="linkCallback">
           <div v-if="alertLinkText" class="text-none">{{ alertLinkText }}</div>
-          <v-icon v-else-if="alertLinkIcon">{{ alertLinkIcon }}</v-icon>
+          <v-icon
+            v-else-if="alertLinkIcon"
+            size="16"
+            color="primary">
+            {{ alertLinkIcon }}
+          </v-icon>
         </v-btn>
       </div>
       <template v-if="!isMobile && alertDismissible" #close="{toggle}">

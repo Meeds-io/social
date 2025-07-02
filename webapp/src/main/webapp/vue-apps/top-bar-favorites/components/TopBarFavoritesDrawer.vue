@@ -17,12 +17,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <exo-drawer
     ref="favoritesDrawer"
+    v-model="drawer"
     class="favoritesDrawer"
     right>
-    <template slot="title">
+    <template #title>
       {{ $t('UITopBarFavoritesPortlet.title.recentFavorites') }}
     </template>
-    <template slot="content">
+    <template v-if="drawer" #titleIcons>
+      <extension-registry-components
+        name="FavoritesDrawer"
+        type="title-icons"
+        class="d-flex" />
+    </template>
+    <template v-if="drawer" #content>
       <v-list v-if="favoritesList.length" class="mx-3">
         <favorite-item
           v-for="favoriteItem in favoritesList"
@@ -37,7 +44,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </div>
       </div>
     </template>
-    <template slot="footer" v-if="hasMore">
+    <template v-if="hasMore" #footer>
       <v-btn
         :loading="loading"
         :disabled="loading"
@@ -53,6 +60,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 export default {
   data: () => ({
     favoritesList: [],
+    drawer: false,
     loading: false,
     offset: 0,
     limit: Math.round((window.innerHeight - 122) / 53),
