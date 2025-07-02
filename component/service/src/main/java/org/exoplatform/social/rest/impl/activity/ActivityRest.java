@@ -137,6 +137,9 @@ public class ActivityRest implements ResourceContainer {
                                 @Parameter(description = "Category id used to search associated activities", required = false)
                                 @QueryParam("categoryId")
                                 List<Long> categoryIds,
+                                @Parameter(description = "Category IDs to exclude from the result", required = false)
+                                @QueryParam("excludedCategoryId")
+                                List<Long> excludedCategoryIds,
                                 @Parameter(description = "Offset", required = false)
                                 @QueryParam("offset") int offset,
                                 @Parameter(description = "Limit", required = false) @Schema(defaultValue = "20")
@@ -162,6 +165,7 @@ public class ActivityRest implements ResourceContainer {
     boolean canPost;
     ActivityFilter activityFilter = new ActivityFilter();
     activityFilter.setCategoryIds(categoryIds);
+    activityFilter.setExcludedCategoryIds(excludedCategoryIds);
     if (!StringUtils.isBlank(spaceId)) {
       Space space = spaceService.getSpaceById(spaceId);
       if (space == null

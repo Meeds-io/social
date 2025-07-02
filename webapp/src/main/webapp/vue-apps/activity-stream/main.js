@@ -34,8 +34,12 @@ export async function init({
   ];
   const i18n = await exoi18n.loadLanguageAsync(lang, urls);
   let settingsSubcategoryIds;
+  let settingsExcludeSubcategoryIds;
   if (settings?.categoryIds?.length) {
     settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1);
+  }
+  if (settings?.excludeCategoryIds?.length) {
+    settingsExcludeSubcategoryIds = await getSubcategoryIds(settings.excludeCategoryIds, 1);
   }
   try {
     await Vue.createApp({
@@ -46,6 +50,7 @@ export async function init({
           allowFilteringPerCategory: true,
           categoryDepth: 4,
           categoryIds: [],
+          excludeCategoryIds: [],
           ...settings,
         },
         appId,
@@ -62,6 +67,7 @@ export async function init({
         selectedCategoryId: null,
         selectedCategoryIds: null,
         settingsSubcategoryIds,
+        settingsExcludeSubcategoryIds,
       },
       computed: {
         isMobile() {
@@ -72,6 +78,9 @@ export async function init({
         },
         categoryIds() {
           return this.settingsSubcategoryIds;
+        },
+        excludeCategoryIds() {
+          return this.settingsExcludeSubcategoryIds;
         },
         allowFilteringPerCategory() {
           return this.settings.allowFilteringPerCategory;
@@ -112,6 +121,7 @@ export async function init({
           this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
           this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1);
           this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1);
+          this.settingsExcludeSubcategoryIds = await getSubcategoryIds(this.settings.excludeCategoryIds, 1);
         },
         handleCategoryUpdate(event) {
           const objectType = event?.detail?.objectType;
