@@ -13,6 +13,7 @@
         v-model="$root.selectedCategoryId"
         :category-depth="$root.categoryDepth"
         :category-ids="$root.settings?.categoryIds"
+        :exclude-category-ids="$root.settings?.excludeCategoryIds"
         :space-id="$root.spaceId"
         class="full-width border-box-sizing application-background-color application-border application-border-radius py-2 px-3 mb-5"
         object-type="activity"

@@ -148,6 +148,44 @@
             </v-list-item>
           </v-list>
         </div>
+        <div class="d-flex align-center text-start">
+          <div>{{ $t('activityStream.settings.filterExcludeCategory') }}</div>
+          <v-spacer />
+          <v-switch
+            v-model="filterPerExcludeCategories"
+            class="ma-0 width-fit-content" />
+        </div>
+        <div v-if="filterPerExcludeCategories" class="mt-4">
+          <category-suggester
+            v-model="excludeCategoryId"
+            class="mt-n2 mb-4 mx-0 pa-0"
+            label=""
+            access-permission />
+          <v-list class="pa-0" dense>
+            <v-list-item
+              v-for="(c, index) in selectedExcludeCategories"
+              :key="c.id"
+              class="pa-0"
+              dense>
+              <v-list-item-icon class="me-2 my-auto">
+                <v-icon size="24">{{ c.icon }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content class="me-2 pa-0 text-truncate">
+                <v-list-item-title class="text-truncate">
+                  {{ c.name }}
+                </v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-action class="mx-0 my-auto">
+                <v-btn
+                  :title="$t('activityStream.settings.deleteCategory')"
+                  icon
+                  @click="removeItem(index, settings.excludeCategoryIds)">
+                  <v-icon size="18" color="error">fa-trash</v-icon>
+                </v-btn>
+              </v-list-item-action>
+            </v-list-item>
+          </v-list>
+        </div>
       </div>
     </template>
     <template #footer>
@@ -179,8 +217,11 @@ export default {
     originalSettings: {},
     maxNameLength: 150,
     categoryId: null,
+    excludeCategoryId: null,
     selectedCategories: [],
+    selectedExcludeCategories: [],
     filterPerCategories: false,
+    filterPerExcludeCategories: false,
   }),
   computed: {
     rules() {
@@ -202,6 +243,9 @@ export default {
     categoryIds() {
       return this.settings.categoryIds;
     },
+    excludeCategoryIds() {
+      return this.settings.excludeCategoryIds;
+    },
   },
   watch: {
     async categoryId() {
@@ -213,6 +257,15 @@ export default {
         this.categoryId = null;
       }
     },
+    async excludeCategoryId() {
+      if (this.excludeCategoryId) {
+        if (this.settings.excludeCategoryIds.indexOf(this.excludeCategoryId) < 0) {
+          this.settings.excludeCategoryIds.push(this.excludeCategoryId);
+        }
+        await this.$nextTick();
+        this.excludeCategoryId = null;
+      }
+    },
     async categoryIds() {
       if (!this.categoryIds?.length) {
         this.selectedCategories = [];
@@ -220,9 +273,21 @@ export default {
         this.selectedCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id)));
       }
     },
+    async excludeCategoryIds() {
+      if (!this.excludeCategoryIds?.length) {
+        this.selectedExcludeCategories = [];
+      } else {
+        this.selectedExcludeCategories = await Promise.all(this.excludeCategoryIds.map(id => this.$categoryService.getCategory(id)));
+      }
+    },
     filterPerCategories() {
       if (this.drawer && !this.filterPerCategories) {
         this.settings.categoryIds = [];
+      }
+    },
+    filterPerExcludeCategories() {
+      if (this.drawer && !this.filterPerExcludeCategories) {
+        this.settings.excludeCategoryIds = [];
       }
     },
   },
@@ -237,6 +302,7 @@ export default {
       this.settings = JSON.parse(JSON.stringify(this.$root.settings));
       this.originalSettings = JSON.parse(JSON.stringify(this.$root.settings));
       this.filterPerCategories = !!this.categoryIds?.length;
+      this.filterPerExcludeCategories = !!this.excludeCategoryIds?.length;
       if (!this.$root.canPost) {
         this.settings.allowPostToNetwork = false;
       }
