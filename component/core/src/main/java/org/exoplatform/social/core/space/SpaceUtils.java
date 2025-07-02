@@ -19,7 +19,6 @@ package org.exoplatform.social.core.space;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -598,8 +597,11 @@ public class SpaceUtils {
     SpaceService spaceService = getSpaceService();
     return spaceIds.stream().map(id -> {
       Space space = spaceService.getSpaceById(id);
-      if (space != null && spaceService.canViewSpace(space, userName)) {
-        return identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getId();
+      if (space != null && (StringUtils.isBlank(userName) || spaceService.canViewSpace(space, userName))) {
+        Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+        if (identity != null) {
+          return identity.getId();
+        }
       }
       return null;
     }).filter(Objects::nonNull).toList();

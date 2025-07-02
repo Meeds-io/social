@@ -33,14 +33,13 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
-import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.jpa.storage.dao.ConnectionDAO;
 import org.exoplatform.social.core.jpa.storage.dao.IdentityDAO;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -69,6 +68,8 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
 
   private final TranslationService     translationService;
 
+  private final UserACL                userACL;
+
   private static final String          HIDDEN_VALUE                 = "hidden";
 
   private static final String          PROFILE_PROPERTY_FIELD_NAME  = "optionValue";
@@ -80,13 +81,15 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
                                          IdentityDAO identityDAO,
                                          ConnectionDAO connectionDAO,
                                          ProfilePropertyService profilePropertyService,
-                                         TranslationService translationService) {
+                                         TranslationService translationService,
+                                         UserACL userACL) {
     super(initParams);
     this.identityManager = identityManager;
     this.identityDAO = identityDAO;
     this.connectionDAO = connectionDAO;
     this.profilePropertyService = profilePropertyService;
     this.translationService = translationService;
+    this.userACL = userACL;
   }
 
   @Override
@@ -306,7 +309,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     }
 
     Document document = new ProfileIndexDocument(id, null, createdDate, (Set<String>) null, fields);
-    document.setPermissions(getMemberSpaceIdentityIds(identity));
+    document.setPermissions(getGroupIdentityIds(identity));
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
             id,
             identity.getRemoteId(),
@@ -363,8 +366,25 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     return optionValue;
   }
 
-  private Set<String> getMemberSpaceIdentityIds(Identity ownerIdentity) {
-    SpaceStorage spaceStorage = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SpaceStorage.class);
-    return new HashSet<>(spaceStorage.getMemberRoleSpaceIdentityIds(ownerIdentity.getId(), 0, -1));
+  private Set<String> getGroupIdentityIds(Identity ownerIdentity) {
+    Set<String> groups = userACL.getUserIdentity(ownerIdentity.getRemoteId()).getGroups();
+    Set<String> groupIdentityIds = new HashSet<>();
+
+    for (String groupId : groups) {
+      if (groupId.startsWith("/spaces/")) {
+        String spacePrettyName = groupId.substring("/spaces/".length());
+        Identity identity = identityManager.getOrCreateSpaceIdentity(spacePrettyName);
+        if (identity != null) {
+          groupIdentityIds.add(identity.getId());
+        }
+      } else {
+        Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
+        if (identity != null) {
+          groupIdentityIds.add(identity.getId());
+        }
+      }
+    }
+
+    return groupIdentityIds;
   }
 }
