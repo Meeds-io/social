@@ -83,8 +83,8 @@
         <properties-param>
           <name>constructor.params</name>
           <property name="index_alias" value="profile_alias" />
-          <property name="index_current" value="${meeds.social.index.profile.current:profile_v3}" />
-          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v2}" />
+          <property name="index_current" value="${meeds.social.index.profile.current:profile_v4}" />
+          <property name="index_previous" value="${meeds.social.index.profile.previous:profile_v3}" />
           <property name="reindexOnUpgrade" value="${meeds.social.index.profile.reindexOnUpgrade:true}" />
         </properties-param>
       </init-params>

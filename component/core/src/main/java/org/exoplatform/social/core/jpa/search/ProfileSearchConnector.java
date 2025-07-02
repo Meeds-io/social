@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -179,6 +180,12 @@ public class ProfileSearchConnector {
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
+    if (CollectionUtils.isNotEmpty(filter.getSpaceIdentityIds())) {
+      String permissionsQuery = buildSpacePermissionsExpression(filter);
+      esSubQuery.append(permissionsQuery);
+      subQueryEmpty = false;
+      appendCommar = true;
+    }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
@@ -574,5 +581,21 @@ public class ProfileSearchConnector {
       string = string.replace(c, " ");
     }
     return string;
+  }
+
+  private String buildSpacePermissionsExpression(ProfileFilter filter) {
+    List<String> permissions = filter.getSpaceIdentityIds();
+    StringBuilder query = new StringBuilder();
+    query.append("    \"must\": [\n");
+    query.append("      {\n");
+    query.append("        \"terms\": {\n");
+    query.append("          \"permissions\": [\n");
+    query.append(String.join(",\n", permissions));
+    query.append("\n");
+    query.append("          ]\n");
+    query.append("        }\n");
+    query.append("      }\n");
+    query.append("    ],\n");
+    return query.toString();
   }
 }
