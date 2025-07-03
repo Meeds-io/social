@@ -139,7 +139,7 @@ export default {
             );
           }
 
-          if (this.enabledGroupingConnectorNames.includes(connectorName)) {
+          if (this.enabledGroupingConnectorNames.includes(connectorName) && connectorResults?.length) {
             // Keep as grouped sublist
             finalResults.push(connectorResults);
           } else {
@@ -170,7 +170,7 @@ export default {
         this.$nextTick().then(this.search);
       }
     },
-    selectedSpaces(){
+    selectedSpaces() {
       if (this.searchInitialized) {
         this.$nextTick().then(this.search);
       }
@@ -390,6 +390,8 @@ export default {
               });
               this.$set(this.results, searchConnector.name, resultArray);
               this.totalSize = this.results[searchConnector.name].length;
+            } else {
+              this.totalSize = 0;
             }
           })
           .catch(e => searchConnector.error = e)
