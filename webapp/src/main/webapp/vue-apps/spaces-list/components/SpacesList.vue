@@ -39,6 +39,7 @@
           :category-depth="$root.categoryDepth"
           :filter-type="$root.filterType"
           :category-ids="$root.categoryIds"
+          :exclude-category-ids="$root.excludeCategoryIds"
           object-type="space"
           class="full-width border-box-sizing px-5" />
         <spaces-card-list

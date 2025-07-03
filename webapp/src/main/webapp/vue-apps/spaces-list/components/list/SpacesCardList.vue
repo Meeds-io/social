@@ -153,6 +153,9 @@ export default {
     selectedCategoryIds() {
       return this.$root.selectedCategoryIds || this.$root.categoryIds;
     },
+    excludeCategoryIds() {
+      return this.$root.excludeCategoryIds;
+    },
     displayNoSpaceOptions() {
       return !this.hasSpaces
         && this.$root.settings?.filterType === 'any'
@@ -188,6 +191,11 @@ export default {
       }
     },
     selectedCategoryIds() {
+      if (this.initialized) {
+        this.searchSpaces();
+      }
+    },
+    excludeCategoryIds() {
       if (this.initialized) {
         this.searchSpaces();
       }
@@ -233,7 +241,8 @@ export default {
       this.$emit('loading-spaces', true);
       try {
         const data = await this.$spaceService.getSpacesByFilter({
-          categoryId: this.selectedCategoryIds,
+          categoryIds: this.selectedCategoryIds,
+          excludedCategoryIds: this.excludeCategoryIds,
           templateId: this.$root.templateIds,
           sortBy: this.$root.sortBy,
           query: this.keyword,
