@@ -320,6 +320,27 @@ public class SpaceServiceTest extends AbstractCoreTest {
       spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
       assertEquals(1, spaceListAccess.getSize());
     }
+
+    // Exclude category
+    spaceFilter = new SpaceFilter();
+    spaceFilter.setCategoryIds(categoryIds);
+    spaceFilter.setExcludedCategoryIds(Collections.singletonList(categoryIds.getFirst()));
+    spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(4, spaceListAccess.getSize());
+
+    Space space = this.getSpaceInstance(6);
+    space.setCategoryIds(List.of(30L, 40L));
+    space.setEditor(TOM_NAME);
+    spaceService.updateSpace(space);
+
+    spaceFilter = new SpaceFilter();
+    spaceFilter.setCategoryIds(Collections.singletonList(30L));
+    spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(1, spaceListAccess.getSize());
+
+    spaceFilter.setExcludedCategoryIds(Collections.singletonList(40L));
+    spaceListAccess = spaceService.getVisibleSpacesWithListAccess(DEMO_NAME, spaceFilter);
+    assertEquals(0, spaceListAccess.getSize());
   }
 
   public void testGetMemberSpacesWithSpaceTemplateAdmin() throws Exception {
