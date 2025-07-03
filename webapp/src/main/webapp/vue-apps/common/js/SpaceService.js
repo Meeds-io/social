@@ -155,12 +155,13 @@ export function getSpacesByFilter(options) {
       formData.append('templateId', options.templateId);
     }
   }
-  if (options.categoryId?.length) {
-    if (typeof options.categoryId === 'object' && options.categoryId.length) {
-      options.categoryId.forEach(id => formData.append('categoryId', id));
-    } else {
-      formData.append('categoryId', options.categoryId);
-    }
+
+  if (options.categoryIds?.length) {
+    options.categoryIds.forEach(c => formData.append('categoryId', c));
+  }
+
+  if (options.excludedCategoryIds?.length) {
+    options.excludedCategoryIds.forEach(c => formData.append('excludedCategoryId', c));
   }
   if (options.registration) {
     formData.append('registration', options.registration.toUpperCase());

@@ -66,11 +66,16 @@ export function init(
       settings.templateIds = [];
     }
     let settingsSubcategoryIds;
+    let settingsExcludeSubcategoryIds;
     if (settings.filterType === 'category') {
       if (!settings.categoryIds) {
         settings.categoryIds = [];
       }
+      if (!settings?.excludeCategoryIds) {
+        settings.excludeCategoryIds = [];
+      }
       settingsSubcategoryIds = await getSubcategoryIds(settings.categoryIds, 1, settingName);
+      settingsExcludeSubcategoryIds = await getSubcategoryIds(settings.excludeCategoryIds, 1, settingName);
     } else {
       settings.categoryIds = null;
     }
@@ -83,6 +88,7 @@ export function init(
         canEdit,
         settings,
         settingsSubcategoryIds,
+        settingsExcludeSubcategoryIds,
         settingsSaveUrl,
         settingNameUrl,
         settingName,
@@ -114,6 +120,9 @@ export function init(
         },
         categoryIds() {
           return this.filterType === 'category' ? (this.settingsSubcategoryIds || this.settings.categoryIds) : null;
+        },
+        excludeCategoryIds() {
+          return this.filterType === 'category' ? (this.settingsExcludeSubcategoryIds || this.settings.excludeCategoryIds) : null;
         },
         templateIds() {
           return this.filterType === 'template' ? this.settings.templateIds : null;
@@ -171,6 +180,7 @@ export function init(
           this.settings = JSON.parse(JSON.stringify(this.settings)); // Force update
           if (this.filterType === 'category') {
             this.settingsSubcategoryIds = await getSubcategoryIds(this.settings.categoryIds, 1, this.settingName);
+            this.settingsExcludeSubcategoryIds = await getSubcategoryIds(this.settings.excludeCategoryIds, 1, this.settingName);
             this.selectedCategoryIds = await getSubcategoryIds(this.settings.categoryIds || [], -1, this.settingName);
           } else {
             this.settingsSubcategoryIds = [];
