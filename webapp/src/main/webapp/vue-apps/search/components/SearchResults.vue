@@ -81,7 +81,7 @@ export default {
   }),
   computed: {
     hasMore() {
-      return this.totalSize && this.enabledConnectors && this.enabledConnectors.filter(connector => connector.hasMore).length;
+      return this.totalSize && this.searchEnabledConnectors?.filter(connector => connector.hasMore)?.length;
     },
     loading() {
       return this.searching > 0;
