@@ -171,6 +171,7 @@ export default {
       }
     },
     selectedSpaces() {
+      this.totalSize = 0;
       if (this.searchInitialized) {
         this.$nextTick().then(this.search);
       }
@@ -390,8 +391,6 @@ export default {
               });
               this.$set(this.results, searchConnector.name, resultArray);
               this.totalSize = this.results[searchConnector.name].length;
-            } else {
-              this.totalSize = 0;
             }
           })
           .catch(e => searchConnector.error = e)
