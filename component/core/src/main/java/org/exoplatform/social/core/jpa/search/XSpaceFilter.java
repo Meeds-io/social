@@ -44,6 +44,7 @@ public class XSpaceFilter extends SpaceFilter {
       this.setTemplateIds(spaceFilter.getTemplateIds());
       this.setManagingTemplateIds(spaceFilter.getManagingTemplateIds());
       this.setCategoryIds(spaceFilter.getCategoryIds());
+      this.setExcludedCategoryIds(spaceFilter.getExcludedCategoryIds());
       this.setExcludedIds(spaceFilter.getExcludedIds());
       this.setVisibility(spaceFilter.getVisibility());
       this.setRegistration(spaceFilter.getRegistration());

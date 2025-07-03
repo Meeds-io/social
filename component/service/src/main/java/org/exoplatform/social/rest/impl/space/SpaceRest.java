@@ -232,6 +232,9 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Category Identifier used to filter spaces", required = false)
                             @QueryParam("categoryId")
                             List<Long> categoryIds,
+                            @Parameter(description = "Category IDs to exclude from the result", required = false)
+                            @QueryParam("excludedCategoryId")
+                            List<Long> excludedCategoryIds,
                             @Parameter(description = "Excluded space ids", required = false)
                             @QueryParam("excludedId")
                             List<Long> excludedIds,
@@ -274,6 +277,9 @@ public class SpaceRest implements ResourceContainer {
         return EntityBuilder.getResponseBuilder(collectionSpace, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK)
                             .build();
       }
+    }
+    if (CollectionUtils.isNotEmpty(excludedCategoryIds)) {
+      spaceFilter.setExcludedCategoryIds(excludedCategoryIds);
     }
     spaceFilter.setRegistration(registration);
     spaceFilter.setVisibility(visibility);
