@@ -175,8 +175,8 @@ export default {
       }
       this.addComponent(component, components);
     },
-    addComponent(component, components) {
-      if (!component.componentOptions.isEnabled || component.componentOptions.isEnabled(this.params)) {
+    async addComponent(component, components) {
+      if (!component.componentOptions.isEnabled || await Promise.resolve(component.componentOptions.isEnabled(this.params))) {
         const existingComponentIndex = components.findIndex(cmp => cmp.componentOptions.id === component.componentOptions.id);
         if (existingComponentIndex >= 0) {
           components.splice(existingComponentIndex, 1, component);
