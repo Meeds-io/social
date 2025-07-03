@@ -17,6 +17,7 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -67,6 +67,7 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
@@ -995,7 +996,7 @@ public class ActivityRest implements ResourceContainer {
                                    @Parameter(description = "Space id used to search activities", required = false)
                                    @QueryParam(
                                      "spaceId"
-                                   ) Long spaceId,
+                                   ) String spaceId,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1021,11 +1022,10 @@ public class ActivityRest implements ResourceContainer {
 
     List<Long> spaceIdentityIds = null;
     if (spaceId != null) {
-      Space space = spaceService.getSpaceById(spaceId);
-      if (space != null) {
-        spaceIdentityIds = new ArrayList<>();
-        spaceIdentityIds.add(identityManager.getOrCreateSpaceIdentity(space.getPrettyName()).getIdentityId());
-      }
+      spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, Arrays.asList(spaceId))
+                                   .stream()
+                                   .map(Long::valueOf)
+                                   .toList();
     }
     ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
