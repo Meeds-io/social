@@ -114,7 +114,6 @@ export default {
       if (this.categoryTree) {
         this.addSubcategories(this.categoryTree, categories);
       }
-      categories.forEach(this.excludeIds);
       return categories;
     },
     displayBreadcrumb() {
@@ -211,10 +210,12 @@ export default {
       }
     },
     addSubcategories(item, result, depth) {
-      result.push(item);
-      item.depth = depth || 0;
-      if (item?.categories) {
-        item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
+      if (!this.excludeCategoryIds?.includes?.(item?.id)) {
+        result.push(item);
+        item.depth = depth || 0;
+        if (item?.categories) {
+          item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
+        }
       }
     },
     getBreadcrumb(category) {
@@ -243,16 +244,6 @@ export default {
         this.$emit('input', category?.id);
       }
     },
-    excludeIds(cat) {
-      if (Array.isArray(cat.categories)) {
-        cat.categories = cat.categories
-          .filter(child => !this.excludeCategoryIds?.includes(child.id))
-          .map(child => {
-            this.excludeIds(child);
-            return child;
-          });
-      }
-    }
   },
 };
 </script>
