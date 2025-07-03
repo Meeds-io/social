@@ -246,7 +246,7 @@ export default {
     excludeIds(cat) {
       if (Array.isArray(cat.categories)) {
         cat.categories = cat.categories
-          .filter(child => !this.excludeCategoryIds.includes(child.id))
+          .filter(child => !this.excludeCategoryIds?.includes(child.id))
           .map(child => {
             this.excludeIds(child);
             return child;
