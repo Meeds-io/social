@@ -156,7 +156,7 @@ export default {
       return this.activity?.streamOwner?.space || false;
     },
     excerpts() {
-      return this.activity && this.activity.excerpts || (this.activityEntity?.title && [this.activityEntity.title]) || (this.activityEntity?.body && [this.activityEntity.body]);
+      return this.activity?.excerpts?.length && this.activity.excerpts || (this.activity.body && [this.activity.body]);
     },
     excerptHtml() {
       return this.excerpts && this.excerpts.join('\r\n...') || '';
