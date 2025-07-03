@@ -2108,6 +2108,13 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertNotNull(activityList.get(0).getCategoryIds());
     assertEquals(2, activityList.get(0).getCategoryIds().size());
     assertTrue(activityList.get(0).getCategoryIds().contains(2l));
+
+    // Exclude category
+    activityFilter = new ActivityFilter();
+    activityFilter.setCategoryIds(Collections.singletonList(2L));
+    activityFilter.setExcludedCategoryIds(Collections.singletonList(1L));
+    activities = activityManager.getActivitiesByFilterWithListAccess(rootIdentity, activityFilter);
+    assertEquals(1, activities.getSize());
   }
 
   /**
