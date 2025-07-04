@@ -19,10 +19,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 -->
 <template>
-  <div class="searchConnectorsParent d-flex align-center mx-4 mb-4 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
+  <div class="searchConnectorsParent d-flex align-center mx-4 mb-2 pb-2 content-box-sizing overflow-x-auto text-no-wrap">
     <search-space-selector />
-    <search-favorites-selector :favorites="favorites" />
-    <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
     <v-menu
       :close-on-content-click="false"
       content-class="connectors-list"
@@ -32,8 +30,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       offset-y>
       <template #activator="{ on, attrs }">
         <v-chip
-          :outlined="!allEnabled"
-          :color="allEnabled ? 'primary' : ''"
+          outlined
           :aria-label="$t('search.filter.type')"
           v-bind="attrs"
           v-on="on"
@@ -100,6 +97,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         </v-icon>
       </v-chip>
     </div>
+    <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
+    <search-favorites-selector :favorites="favorites" />
   </div>
 </template>
 
