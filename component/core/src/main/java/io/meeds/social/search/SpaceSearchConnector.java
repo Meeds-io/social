@@ -120,10 +120,45 @@ public class SpaceSearchConnector {
       }
       """;
 
+  public static final String           CATEGORY_INCLUDE_EXCLUDE_QUERY = """
+      {
+        "bool": {
+          "must": [
+            {
+              "terms": {
+                "categoryId": [@categoryIds@]
+              }
+            }
+          ],
+          "must_not": [
+            {
+              "terms": {
+                "categoryId": [@excludedCategoryIds@]
+              }
+            }
+          ]
+        }
+      }
+      """;
+  
   public static final String           CATEGORY_IDS_QUERY            = """
       {
         "terms":{
           "categoryId": [@categoryIds@]
+        }
+      }
+      """; 
+  
+  public static final String           EXCLUDE_CATEGORY_IDS_QUERY     = """
+      {
+        "bool": {
+          "must_not": [
+            {
+              "terms": {
+                "categoryId": [@excludedCategoryIds@]
+              }
+            }
+          ]
         }
       }
       """;
@@ -490,11 +525,34 @@ public class SpaceSearchConnector {
   }
 
   private String buildCategoryIdQueryStatement(SpaceSearchFilter filter) {
-    if (CollectionUtils.isNotEmpty(filter.getCategoryIds())) {
-      return CATEGORY_IDS_QUERY.replace("@categoryIds@", StringUtils.join(filter.getCategoryIds(), ","));
-    } else {
+    List<Long> include = new ArrayList<>(filter.getCategoryIds() != null
+            ? new ArrayList<>(filter.getCategoryIds())
+            : Collections.emptyList());
+
+    List<Long> exclude = filter.getExcludedCategoryIds() != null
+            ? new ArrayList<>(filter.getExcludedCategoryIds())
+            : Collections.emptyList();
+
+    // Remove excluded IDs from include list
+    include.removeAll(exclude);
+    boolean hasInclude = CollectionUtils.isNotEmpty(filter.getCategoryIds());
+    boolean hasExclude = CollectionUtils.isNotEmpty(filter.getExcludedCategoryIds());
+
+    if (!hasInclude && !hasExclude) {
       return StringUtils.EMPTY;
     }
+
+    if (hasInclude && hasExclude) {
+      return CATEGORY_INCLUDE_EXCLUDE_QUERY.replace("@categoryIds@", StringUtils.join(filter.getCategoryIds(), ","))
+                                           .replace("@excludedCategoryIds@",
+                                                    StringUtils.join(filter.getExcludedCategoryIds(), ","));
+    }
+
+    if (hasInclude) {
+      return CATEGORY_IDS_QUERY.replace("@categoryIds@", StringUtils.join(filter.getCategoryIds(), ","));
+    }
+
+    return EXCLUDE_CATEGORY_IDS_QUERY.replace("@excludedCategoryIds@", StringUtils.join(filter.getExcludedCategoryIds(), ","));
   }
 
   private String getPermissionField(SpaceSearchFilter filter) {
