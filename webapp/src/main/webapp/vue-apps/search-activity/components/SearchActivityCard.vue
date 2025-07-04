@@ -3,22 +3,49 @@
     <v-card
       flat
       class="pa-0"
-      :aria-label="$t('search.access.to.result', {0 :excerptText || activityTitle})"
+      :aria-label="$t('search.access.to.result', {0 :excerptText})"
       :href="link">
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
-          <v-list-item-icon class="me-2">
+          <v-list-item-icon class="me-2 pt-2">
             <span class="d-flex align-center justify-center">
-              <v-icon size="32" class="icon-default-color mt-2">fas fa-stream</v-icon>
+              <v-avatar
+                size="32"
+                class="flex-shrink-0">
+                <img
+                  :src="posterAvatar"
+                  class="object-fit-cover ma-auto"
+                  loading="lazy"
+                  alt="">
+              </v-avatar>
             </span>
           </v-list-item-icon>
 
           <v-list-item-content>
             <v-list-item-title class="d-flex flex-row full-width align-center">
-              <h1
-                class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate"
-                :aria-label="activityTitleText"
-                v-sanitized-html="activityTitle"></h1>
+              <div class="d-flex flex-row align-center flex-grow-1 text-truncate">
+                <span
+                  class="title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text font-weight-bold"
+                  :aria-label="activityTitleText">
+                  {{ posterName }}
+                  <span v-if="isSpaceStreamOwner">
+                    <v-icon class="icon-default-color ms-1" size="14">
+                    fas fa-chevron-right
+                  </v-icon>
+                  <v-avatar
+                      :size="22"
+                      tile
+                      class="pb-2px me-1 spaceAvatar">
+                    <img
+                        :src="streamOwner.avatarUrl"
+                        alt=""
+                        class="object-fit-cover ma-auto"
+                        loading="lazy">
+                  </v-avatar>
+                  {{ streamOwner.displayName }}
+                  </span>
+                </span>
+              </div>
               <div v-show="hover || isMobile" class="ml-2 pt-1">
                 <span class="d-inline-flex align-center justify-center">
                   <v-btn
@@ -47,46 +74,15 @@
             </v-list-item-title>
 
             <v-list-item-subtitle class="d-flex flex-column">
-              <span class="d-flex flex-row align-center mx-auto full-width">
-                <span class="d-flex flex-row align-center" v-if="isSpaceStreamOwner">
-                  <a
-                    v-bind="attrs"
-                    v-on="on"
-                    :href="spaceUrl"
-                    class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
-                    <v-avatar
-                      :size="18"
-                      tile
-                      class="my-auto">
-                      <img
-                        :src="streamOwner.avatarUrl"
-                        alt=""
-                        class="object-fit-cover ma-auto"
-                        loading="lazy">
-                    </v-avatar>
-                    <p class="ms-2 my-auto text-subtitle">{{ streamOwner.displayName }}</p>
-                  </a>
-                  <v-icon size="3" class="icon-default-color mx-3">fas fa-circle</v-icon>
-                </span>
-                <exo-user-avatar
-                  :profile-id="posterUsername"
-                  :size="18"
-                  :avatar="isMobile"
-                  :popover="false"
-                  small-font-size />
-                <span class="d-flex flex-row align-center" v-if="postedTime">
+             <span class="d-flex flex-row align-center mx-auto full-width" v-if="postedTime">
                   <v-icon
-                    size="3"
-                    class="icon-default-color mx-3">fas fa-circle</v-icon>
-                  <v-icon
-                    size="12"
-                    class="icon-default-color">fas fa-clock</v-icon>
+                      size="12"
+                      class="icon-default-color">fas fa-clock</v-icon>
                   <date-format class="ms-1 my-auto" :value="postedTime" />
                 </span>
-              </span>
               <div
                 v-if="excerptHtml"
-                class="pt-2 text-wrap text-body text-break"
+                class="pt-2 text-wrap text-body-2 text-color text-break"
                 :class="{
                   'text-truncate-2': isMobile,
                   'text-truncate-3': !isMobile,
@@ -146,8 +142,11 @@ export default {
     poster() {
       return this.activity?.poster?.profile;
     },
-    posterUsername() {
-      return this.poster?.username;
+    posterAvatar() {
+      return this.poster?.avatar;
+    },
+    posterName() {
+      return this.poster?.fullname;
     },
     streamOwner() {
       return this.activity?.streamOwner?.space || this.activity?.streamOwner?.profile;
@@ -183,11 +182,8 @@ export default {
         return `/${eXo.env.portal.containerName}/${eXo.env.portal.metaPortalName}/activity?id=${this.activity.id}`;
       }
     },
-    activityTitle() {
-      return this.excerptHtml || this.$t('search.activity.no.title.label');
-    },
     activityTitleText() {
-      return this.$utils.htmlToText(this.activityTitle);
+      return this.$utils.htmlToText(this.excerptHtml) || this.$t('search.activity.no.title.label');
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.smAndDown;
