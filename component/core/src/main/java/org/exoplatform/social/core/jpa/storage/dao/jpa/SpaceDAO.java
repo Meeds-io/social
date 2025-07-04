@@ -271,7 +271,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
     if (parameterNames.contains(PARAM_CATEGORY_IDS)) {
       if (CollectionUtils.isNotEmpty(filter.getExcludedCategoryIds())) {
-        filter.getCategoryIds().removeAll(filter.getExcludedCategoryIds());
+        List<Long> categoryIds = new ArrayList<>(filter.getCategoryIds());
+        categoryIds.removeAll(filter.getExcludedCategoryIds());
+        filter.setCategoryIds(categoryIds);
       }
       query.setParameter(PARAM_CATEGORY_IDS, filter.getCategoryIds());
     }
