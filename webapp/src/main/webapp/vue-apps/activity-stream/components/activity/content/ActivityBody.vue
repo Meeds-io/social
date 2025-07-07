@@ -4,7 +4,7 @@
     class="position-relative">
     <dynamic-html-element
       v-if="isBodyNotEmpty"
-      :child="bodyElement"
+      :html="bodyElement"
       :element="element"
       :class="bodyClass"
       class="reset-style-box rich-editor-content text-break"
@@ -53,9 +53,7 @@ export default {
   }),
   computed: {
     bodyElement() {
-      return {
-        template: ExtendedDomPurify.purify(`<div>${this.body}</div>`) || '',
-      };
+      return this.body || '';
     },
     getBody() {
       return this.activityTypeExtension && this.activityTypeExtension.getBody;
