@@ -7,8 +7,8 @@
       :href="link">
       <v-list class="pa-0" :class="hover && 'light-grey-background-color no-border-radius' || ''">
         <v-list-item>
-          <v-list-item-icon class="me-2 pt-2">
-            <span class="d-flex align-center justify-center">
+          <v-list-item-icon class="me-2 pt-1">
+            <span class="d-flex align-center justify-center pt-2px">
               <v-avatar
                 size="32"
                 class="flex-shrink-0">
