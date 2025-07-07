@@ -303,6 +303,7 @@ public class SpaceListAccess implements ListAccess<Space> {
                                    filter.getTemplateIds(),
                                    filter.getManagingTemplateIds(),
                                    filter.getCategoryIds(),
+                                   filter.getExcludedCategoryIds(),
                                    filter.getSpaceNameSearchCondition(),
                                    filter.isFavorite(),
                                    filter.getTagNames(),

@@ -44,6 +44,8 @@ public class SpaceSearchFilter {
 
   private List<Long>            categoryIds;
 
+  private List<Long>            excludedCategoryIds;
+
   private String                term;
 
   private boolean               favorites;

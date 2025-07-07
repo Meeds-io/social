@@ -55,9 +55,8 @@ public class SpaceFilter implements Cloneable {
 
   private List<Long>            categoryIds;
 
-public List<Long> getCategoryIds() {
-  return categoryIds;
-}
+  private List<Long>            excludedCategoryIds;
+
   private List<Long>            managingTemplateIds;
 
   private SpaceMembershipStatus status;
@@ -94,9 +93,8 @@ public List<Long> getCategoryIds() {
   }
 
   public boolean isUnifiedSearch() {
-    return (favorite && identityId > 0)
-           || StringUtils.isNotBlank(spaceNameSearchCondition)
-           || CollectionUtils.isNotEmpty(tagNames);
+    return (favorite && identityId > 0) || StringUtils.isNotBlank(spaceNameSearchCondition)
+        || CollectionUtils.isNotEmpty(tagNames);
   }
 
   @Override
@@ -108,6 +106,7 @@ public List<Long> getCategoryIds() {
                            identityId,
                            templateIds,
                            categoryIds,
+                           excludedCategoryIds,
                            managingTemplateIds,
                            status,
                            extraStatus,

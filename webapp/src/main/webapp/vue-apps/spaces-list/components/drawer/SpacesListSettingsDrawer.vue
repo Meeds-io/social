@@ -148,7 +148,7 @@
             :max="50" />
         </div>
         <div class="mt-4 mb-2 text-header">{{ $t('spacesList.settings.filterList') }}</div>
-        <div class="mb-2 ms-n1 d-flex align-center">
+        <div class="ms-n1 d-flex align-center">
           <v-radio-group
             v-model="settings.filterType"
             class="pa-0 ma-0 full-width"
@@ -203,52 +203,95 @@
           </v-radio-group>
         </div>
         <template v-if="settings.filterType === 'category'">
-          <category-suggester
-            v-model="categoryId"
-            class="mt-n2 mb-4 mx-0 pa-0"
-            label=""
-            access-permission />
-          <div class="mb-2">{{ $t('spacesList.settings.categoryListSortTitle') }}</div>
-          <v-list class="pa-0" dense>
-            <v-list-item
-              v-for="(c, index) in selectedSpaceCategories"
-              :key="c.id"
-              class="pa-0"
-              dense>
-              <v-list-item-icon class="me-2 my-auto">
-                <v-icon size="24">{{ c.icon }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content class="me-2 pa-0 text-truncate">
-                <v-list-item-title class="text-truncate">
-                  {{ c.name }}
-                </v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-action :class="index == (selectedSpaceCategories.length -1) && 'invisible'" class="ms-2 my-auto">
-                <v-btn
-                  :title="$t('spacesList.settings.moveDown')"
-                  icon
-                  @click="moveDown(index, settings.categoryIds)">
-                  <v-icon size="18">fa-arrow-down</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action :class="index == 0 && 'invisible'" class="mx-0 my-auto">
-                <v-btn
-                  :title="$t('spacesList.settings.moveUp')"
-                  icon
-                  @click="moveUp(index, settings.categoryIds)">
-                  <v-icon size="18">fa-arrow-up</v-icon>
-                </v-btn>
-              </v-list-item-action>
-              <v-list-item-action class="mx-0 my-auto">
-                <v-btn
-                  :title="$t('spacesList.settings.delete')"
-                  icon
-                  @click="removeItem(index, settings.categoryIds)">
-                  <v-icon size="18" color="error">fa-trash</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
+          <v-card class="ms-4" flat>
+            <v-checkbox
+              v-model="filterPerCategories"
+              :label="$t('spacesList.settings.includeCategory')"
+              class="mt-0" />
+            <div v-if="filterPerCategories" class="mt-4">
+              <category-suggester
+                v-model="categoryId"
+                class="mt-n2 mb-4 mx-0 pa-0"
+                label=""
+                access-permission />
+              <div class="mb-2">{{ $t('spacesList.settings.categoryListSortTitle') }}</div>
+              <v-list class="pa-0" dense>
+                <v-list-item
+                  v-for="(c, index) in selectedSpaceCategories"
+                  :key="c.id"
+                  class="pa-0"
+                  dense>
+                  <v-list-item-icon class="me-2 my-auto">
+                    <v-icon size="24">{{ c.icon }}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content class="me-2 pa-0 text-truncate">
+                    <v-list-item-title class="text-truncate">
+                      {{ c.name }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action :class="index == (selectedSpaceCategories.length -1) && 'invisible'" class="ms-2 my-auto">
+                    <v-btn
+                      :title="$t('spacesList.settings.moveDown')"
+                      icon
+                      @click="moveDown(index, settings.categoryIds)">
+                      <v-icon size="18">fa-arrow-down</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-action :class="index == 0 && 'invisible'" class="mx-0 my-auto">
+                    <v-btn
+                      :title="$t('spacesList.settings.moveUp')"
+                      icon
+                      @click="moveUp(index, settings.categoryIds)">
+                      <v-icon size="18">fa-arrow-up</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                  <v-list-item-action class="mx-0 my-auto">
+                    <v-btn
+                      :title="$t('spacesList.settings.delete')"
+                      icon
+                      @click="removeItem(index, settings.categoryIds)">
+                      <v-icon size="18" color="error">fa-trash</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list>
+            </div>
+            <v-checkbox
+              v-model="filterPerExcludeCategories"
+              :label="$t('spacesList.settings.excludeCategory')"
+              class="mt-0" />
+            <div v-if="filterPerExcludeCategories" class="mt-4">
+              <category-suggester
+                v-model="excludeCategoryId"
+                class="mt-n2 mb-4 mx-0 pa-0"
+                label=""
+                access-permission />
+              <v-list class="pa-0" dense>
+                <v-list-item
+                  v-for="(c, index) in selectedExcludeCategories"
+                  :key="c.id"
+                  class="pa-0"
+                  dense>
+                  <v-list-item-icon class="me-2 my-auto">
+                    <v-icon size="24">{{ c.icon }}</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content class="me-2 pa-0 text-truncate">
+                    <v-list-item-title class="text-truncate">
+                      {{ c.name }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action class="mx-0 my-auto">
+                    <v-btn
+                      :title="$t('spacesList.settings.delete')"
+                      icon
+                      @click="removeItem(index, settings.excludeCategoryIds)">
+                      <v-icon size="18" color="error">fa-trash</v-icon>
+                    </v-btn>
+                  </v-list-item-action>
+                </v-list-item>
+              </v-list>
+            </div>
+          </v-card>
         </template>
       </div>
     </template>
@@ -281,9 +324,13 @@ export default {
     originalSettings: {},
     maxNameLength: 150,
     categoryId: null,
+    excludeCategoryId: null,
     templateId: null,
     publicAccess: false,
     selectedSpaceCategories: [],
+    selectedExcludeCategories: [],
+    filterPerCategories: false,
+    filterPerExcludeCategories: false,
   }),
   computed: {
     rules() {
@@ -312,6 +359,9 @@ export default {
     categoryIds() {
       return this.settings.categoryIds;
     },
+    excludeCategoryIds() {
+      return this.settings.excludeCategoryIds;
+    },
   },
   watch: {
     async categoryId() {
@@ -321,6 +371,15 @@ export default {
         }
         await this.$nextTick();
         this.categoryId = null;
+      }
+    },
+    async excludeCategoryId() {
+      if (this.excludeCategoryId) {
+        if (this.settings.excludeCategoryIds.indexOf(this.excludeCategoryId) < 0) {
+          this.settings.excludeCategoryIds.push(this.excludeCategoryId);
+        }
+        await this.$nextTick();
+        this.excludeCategoryId = null;
       }
     },
     async templateId() {
@@ -338,6 +397,13 @@ export default {
       } else {
         const selectedSpaceCategories = await Promise.all(this.categoryIds.map(id => this.$categoryService.getCategory(id).catch(() => null)));
         this.selectedSpaceCategories = selectedSpaceCategories.filter(c => c);
+      }
+    },
+    async excludeCategoryIds() {
+      if (!this.excludeCategoryIds?.length) {
+        this.selectedExcludeCategories = [];
+      } else {
+        this.selectedExcludeCategories = await Promise.all(this.excludeCategoryIds.map(id => this.$categoryService.getCategory(id)));
       }
     },
   },
@@ -359,6 +425,8 @@ export default {
         return;
       }
       this.settings = JSON.parse(JSON.stringify(this.$root.settings));
+      this.filterPerCategories = !!this.categoryIds?.length;
+      this.filterPerExcludeCategories = !!this.excludeCategoryIds?.length;
       this.originalSettings = JSON.parse(JSON.stringify(this.$root.settings));
       this.$refs.drawer.open();
     },
