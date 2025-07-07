@@ -210,12 +210,14 @@ export default {
       }
     },
     addSubcategories(item, result, depth) {
-      if (!this.excludeCategoryIds?.includes?.(item?.id)) {
-        result.push(item);
-        item.depth = depth || 0;
-        if (item?.categories) {
-          item.categories.forEach(cat => this.addSubcategories(cat, result, item.depth + 1));
-        }
+      result.push(item);
+      item.depth = depth || 0;
+      if (item?.categories) {
+        item.categories = item.categories
+          .filter(child => !this.excludeCategoryIds?.includes?.(child?.id));
+        item.categories.forEach(cat => {
+          this.addSubcategories(cat, result, item.depth + 1);
+        });
       }
     },
     getBreadcrumb(category) {
