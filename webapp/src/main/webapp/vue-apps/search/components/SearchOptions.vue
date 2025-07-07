@@ -35,7 +35,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           v-bind="attrs"
           v-on="on"
           tabindex="0"
-          class="text-body text-header-color ms-2 flex-shrink-0"
+          class="text-body text-header-color me-1 flex-shrink-0"
           @keydown.enter="on.click">
           <v-icon size="16" class="pe-2">
             fas fa-paste
@@ -80,7 +80,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         v-for="connector in enabledConnectors"
         :key="connector.name"
         color="primary"
-        class="mx-1 text-body border-color">
+        class="me-1 text-body border-color">
         <v-icon
           v-if="connector.icon"
           size="16"
