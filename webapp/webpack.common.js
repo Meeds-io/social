@@ -101,6 +101,7 @@ let config = {
     platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
     platformName: './src/main/webapp/vue-apps/platform-name/main.js',
     platformLogo: './src/main/webapp/vue-apps/platform-logo/main.js',
+    sidebarLogin: './src/main/webapp/vue-apps/sidebar-login/main.js',
     contentLink: './src/main/webapp/vue-apps/content-link/main.js',
     spaceCreation: './src/main/webapp/vue-apps/space-creation/main.js',
     emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
