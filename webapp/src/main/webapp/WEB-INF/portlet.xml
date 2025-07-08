@@ -1139,7 +1139,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformName.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1160,7 +1159,6 @@
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/platformLogo.jsp</value>
     </init-param>
-    <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
       <mime-type>text/html</mime-type>
@@ -1170,6 +1168,27 @@
     <portlet-info>
       <title>Platform Logo</title>
       <keywords>logo</keywords>
+    </portlet-info>
+  </portlet>
+
+
+  <portlet>
+    <portlet-name>SidebarLogin</portlet-name>
+    <display-name>Sidebar Login</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/sidebarLogin.jsp</value>
+    </init-param>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.SidebarLogin</resource-bundle>
+    <portlet-info>
+      <title>Sidebar Login</title>
+      <keywords>sidebar login</keywords>
     </portlet-info>
   </portlet>
 
