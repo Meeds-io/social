@@ -21,6 +21,7 @@ import java.net.URL;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -161,8 +162,8 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
           //if it exists, update the value
           if (setting.isMultiValued()) {
            List<String> values = Arrays.asList(value.split(this.customClaimsMultiValuedSeparator));
-           List<Map<String, String>> maps =
-               values.stream().map(s -> Collections.singletonMap("value", s)).collect(Collectors.toList());
+           List<HashMap<String, String>> maps =
+               values.stream().map(s -> new HashMap<>(Map.of("value", s))).collect(Collectors.toList());
            profile.setProperty(key, maps);
           } else {
             profile.setProperty(key, value);
@@ -173,7 +174,7 @@ public class OAuthRegistrationServiceImpl implements OAuthRegistrationService {
 
       if (isProfileUpdated.get()) {
         //if at least one property was updated, update the profile
-        identityManager.updateProfile(profile);
+        identityManager.updateProfile(profile, true);
       }
     } finally {
       endTransaction();
