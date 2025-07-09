@@ -19,13 +19,15 @@
 
 -->
 <template>
-  <v-card flat class="d-flex full-height justify-center">
-    <img
-      :src="platformLogo"
-      alt=""
-      width="auto"
-      class="object-fit-contain">
-  </v-card>
+  <v-app>
+    <v-card flat class="d-flex full-height justify-center rounded-0 transparent">
+      <img
+        :src="platformLogo"
+        alt=""
+        width="auto"
+        class="object-fit-contain">
+    </v-card>
+  </v-app>
 </template>
 
 <script>

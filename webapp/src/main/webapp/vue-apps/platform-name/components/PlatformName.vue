@@ -19,12 +19,14 @@
 
 -->
 <template>
-  <v-card-title
-    class="text-title text-h4 primary--text text-center justify-center full-height py-0">
-    <span class="text-truncate-2 full-width">
-      {{ platformName }}
-    </span>
-  </v-card-title>
+  <v-app>
+    <v-card-title
+      class="text-title text-h4 primary--text text-center justify-center full-height py-0">
+      <span class="text-truncate-2 full-width">
+        {{ platformName }}
+      </span>
+    </v-card-title>
+  </v-app>
 </template>
 
 <script>
