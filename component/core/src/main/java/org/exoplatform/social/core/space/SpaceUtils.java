@@ -592,6 +592,21 @@ public class SpaceUtils {
     }
   }
 
+  public static List<String> getSpaceIdentityIds(String userName, List<String> spaceIds) {
+    IdentityManager identityManager = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(IdentityManager.class);
+    SpaceService spaceService = getSpaceService();
+    return spaceIds.stream().map(id -> {
+      Space space = spaceService.getSpaceById(id);
+      if (space != null && (StringUtils.isBlank(userName) || spaceService.canViewSpace(space, userName))) {
+        Identity identity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+        if (identity != null) {
+          return identity.getId();
+        }
+      }
+      return null;
+    }).filter(Objects::nonNull).toList();
+  }
+
   private static String computeSpacePermissionFromTemplate(String p, String groupId) {
     return SPACE_ADMIN_REFERENCE_NAME.equals(p) ? MANAGER + ":" + groupId : p;
   }

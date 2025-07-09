@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -145,6 +146,12 @@ public class ActivitySearchConnector {
                                                       long offset,
                                                       long limit) {
     Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
+    if (!CollectionUtils.isEmpty(filter.getSpaceIdentityIds())) {
+      streamFeedOwnerIds.retainAll(filter.getSpaceIdentityIds());
+      if (streamFeedOwnerIds.isEmpty()) {
+        return Collections.emptyList();
+      }
+    }
     Map<String, List<String>> metadataFilters = buildMetadatasFilter(filter, viewerIdentity);
     String esQuery = buildQueryStatement(streamFeedOwnerIds, metadataFilters, filter, offset, limit);
     String jsonResponse = this.client.sendRequest(esQuery, this.index);

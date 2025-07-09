@@ -11,7 +11,6 @@
       @select-tags="selectTags"
       @select-all-connector="selectAllConnector"
       @select-connector="selectConnector" />
-    <v-divider />
     <div v-if="hasResults" class="searchResultsParent d-flex flex-column border-box-sizing">
       <div
         v-for="result in resultsArray"
@@ -72,6 +71,7 @@ export default {
     pageSize: 10,
     limit: 10,
     selectedTags: [],
+    selectedSpaces: [],
     favorites: false,
     allEnabled: true,
     searching: 0,
@@ -80,7 +80,7 @@ export default {
   }),
   computed: {
     hasMore() {
-      return this.totalSize && this.enabledConnectors && this.enabledConnectors.filter(connector => connector.hasMore).length;
+      return this.totalSize && this.searchEnabledConnectors?.filter(connector => connector.hasMore)?.length;
     },
     loading() {
       return this.searching > 0;
@@ -114,7 +114,8 @@ export default {
     searchEnabledConnectors() {
       return this.enabledConnectors.filter(connector => {
         return (connector.favoritesEnabled || !this.favorites)
-          && (connector.tagsEnabled || !this.selectedTags.length);
+          && (connector.tagsEnabled || !this.selectedTags.length)
+          && (connector.spaceFilterEnabled || !this.selectedSpaces.length);
       });
     },
     resultsArray() {
@@ -137,7 +138,7 @@ export default {
             );
           }
 
-          if (this.enabledGroupingConnectorNames.includes(connectorName)) {
+          if (this.enabledGroupingConnectorNames.includes(connectorName) && connectorResults?.length) {
             // Keep as grouped sublist
             finalResults.push(connectorResults);
           } else {
@@ -164,6 +165,12 @@ export default {
     },
     selectedTags() {
       this.$emit('tags-changed', this.selectedTags);
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    },
+    selectedSpaces() {
+      this.totalSize = 0;
       if (this.searchInitialized) {
         this.$nextTick().then(this.search);
       }
@@ -204,12 +211,22 @@ export default {
           .replace(/=/g, '":"')}"}`
       );
       this.favorites = parameters['favorites'] === 'true';
+      const selectedSpaceId = parameters['spaceId'];
+      if (selectedSpaceId) {
+        this.selectedSpaces.push(selectedSpaceId);
+      }
     }
     if (this.favorites || this.term) {
       this.search();
     } else {
       this.searchInitialized = true;
     }
+    this.$root.$on('spaces-changed', this.selectSpaces);
+    this.$root.$on('favorites-changed', this.selectFavorites);
+  },
+  beforeDestroy() {
+    this.$root.$off('spaces-changed', this.selectSpaces);
+    this.$root.$off('favorites-changed', this.selectFavorites);
   },
   methods: {
     selectFavorites() {
@@ -222,6 +239,9 @@ export default {
     selectTags(tags) {
       this.selectedTags = tags || [];
       this.$emit('filter-changed');
+    },
+    selectSpaces(spaces) {
+      this.selectedSpaces = spaces || [];
     },
     selectAllConnector() {
       if (this.allEnabled) {
@@ -337,6 +357,9 @@ export default {
               uri += `?tags=${tag}`;
             }
           });
+        }
+        if (this.selectedSpaces?.length) {
+          uri += `&spaceId=${this.selectedSpaces[0]}`;
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)

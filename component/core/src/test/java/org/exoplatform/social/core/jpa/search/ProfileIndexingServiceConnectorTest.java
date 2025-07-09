@@ -1,6 +1,7 @@
 package org.exoplatform.social.core.jpa.search;
 
 import io.meeds.social.translation.service.TranslationService;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.junit.Before;
@@ -49,6 +50,8 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
   
   private TranslationService              translationService;
 
+  private UserACL                         userACL;
+
   @Override
   @Before
   public void setUp() throws Exception {
@@ -56,6 +59,7 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     identityManager = getService(IdentityManagerImpl.class);
     profilePropertyService = getService(ProfilePropertyService.class);
     translationService = getService(TranslationService.class);
+    userACL = getService(UserACL.class);
     getService(CachedProfileSettingStorage.class).clearCaches();
 
     InitParams initParams = new InitParams();
@@ -74,7 +78,8 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
                                                                                identityDAO,
                                                                                connectionDAO,
                                                                                profilePropertyService,
-                                                                               translationService);
+                                                                               translationService,
+                                                                               userACL);
   }
 
   @Test

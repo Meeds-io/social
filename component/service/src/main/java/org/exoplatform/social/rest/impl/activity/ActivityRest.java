@@ -17,6 +17,7 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +48,6 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.portal.application.localization.LocalizationFilter;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -67,9 +67,9 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
-import org.exoplatform.social.core.storage.api.ActivityStorage;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.entity.ActivityEntity;
@@ -993,6 +993,10 @@ public class ActivityRest implements ResourceContainer {
                                    @QueryParam(
                                      "tags"
                                    ) List<String> tagNames,
+                                   @Parameter(description = "Space id used to search activities", required = false)
+                                   @QueryParam(
+                                     "spaceId"
+                                   ) String spaceId,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1016,7 +1020,14 @@ public class ActivityRest implements ResourceContainer {
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, isFavorite);
+    List<Long> spaceIdentityIds = null;
+    if (spaceId != null) {
+      spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, Arrays.asList(spaceId))
+                                   .stream()
+                                   .map(Long::valueOf)
+                                   .toList();
+    }
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
