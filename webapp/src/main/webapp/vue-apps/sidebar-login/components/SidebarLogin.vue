@@ -19,14 +19,7 @@
 
 -->
 <template>
-  <v-card
-    flat
-    :color="this.backgroundPath && 'transparent' || 'primary'"
-    class="full-height d-flex justify-center align-center">
-    <img v-if="backgroundPath"
-         :src="backgroundPath"
-         :alt="backgroundAlt"
-         class="full-height full-witdh object-fit-cover">
+  <v-app>
     <v-card
       flat
       :color="this.backgroundPath && 'transparent' || 'primary'"
@@ -50,7 +43,7 @@
         </v-card-title>
       </v-card>
     </v-card>
-  </v-card>
+  </v-app>
 </template>
 
 <script>
