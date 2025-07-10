@@ -109,8 +109,9 @@
   
       function matchCallback(text, offset) {
         const left = text.slice(0, offset);
-        const match = left?.match?.(/\/([a-z]*)(:[^>^<^.]*)?$/);
+        let match = left?.split(/\s/)?.pop?.()?.trim?.()?.match?.(/^\/([a-z]*)(:[^>^<^.]*)?$/);
         if (match?.length) {
+          match = left.match(/\/([a-z]*)(:[^>^<^.]*)?$/);
           return {
             start: match.index + 1,
             end: offset,
@@ -170,6 +171,8 @@
             getWindow().document.dispatchEvent(new CustomEvent('custom-link-item-select-up'));
           } else if (evt.data.keyCode == 13) {
             getWindow().document.dispatchEvent(new CustomEvent('custom-link-item-select'));
+          } else if (evt.data.keyCode == 27) {
+            getWindow().document.dispatchEvent(new CustomEvent('content-link-menu-close'));
           }
         }
       }
