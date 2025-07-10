@@ -29,8 +29,8 @@
     <v-btn
       color="primary"
       text
-      :href="downloadURL"
-      :download="attachment.filename">
+      :href="downloadUrl"
+      :download="filename">
       {{ $t('attachment.downloadFile') }}
     </v-btn>
   </v-card>
@@ -58,8 +58,11 @@ export default {
     isMobile() {
       return this.$vuetify.breakpoint.name === 'sm' || this.$vuetify.breakpoint.name === 'xs' || this.$vuetify.breakpoint.name === 'md';
     },
-    downloadURL() {
-      return `${eXo.env.portal.context}${ this.attachment.downloadUrl}?size=0x0&download=true`;
+    filename() {
+      return this.attachment.filename;
+    },
+    downloadUrl() {
+      return this.attachment.downloadUrl;
     },
   },
 };

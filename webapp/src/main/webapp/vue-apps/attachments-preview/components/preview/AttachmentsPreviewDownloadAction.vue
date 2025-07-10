@@ -19,8 +19,8 @@
 <template>
   <v-btn
     id="preview-attachment-download"
-    :href="downloadURL"
-    :download="attachment?.filename"
+    :href="downloadUrl"
+    :download="filename"
     :class="!isMobile && 'icon-large-size' || 'icon-medium-size'"
     :title="$t('attachment.imageDownload')"
     icon
@@ -41,10 +41,12 @@ export default {
     },
   },
   computed: {
-    downloadURL() {
-      return this.attachment && `${eXo.env.portal.context}${ this.attachment.downloadUrl}?size=0x0&download=true`;
-    }
+    filename() {
+      return this.attachment?.filename;
+    },
+    downloadUrl() {
+      return this.attachment?.downloadUrl;
+    },
   },
 };
 </script>
-
