@@ -46,6 +46,8 @@
           :value="index"
           class="ps-0"
           dense
+          @mousedown.stop.prevent="0"
+          @mouseup.stop.prevent="0"
           @click.stop.prevent="selectCommand(p)">
           <v-list-item-icon class="my-auto mx-2">
             <v-card
@@ -81,6 +83,8 @@
               :key="link.objectId"
               :value="index"
               dense
+              @mousedown.stop.prevent="0"
+              @mouseup.stop.prevent="0"
               @click.prevent.stop="selectItem(link)">
               <v-list-item-content class="text-truncate">
                 <v-list-item-title :title="link.title" class="text-truncate">{{ link.title }}</v-list-item-title>
@@ -240,6 +244,7 @@ export default {
         const textToInsert = query?.length ? plugin.command.replace(query, '') : plugin.command;
         this.$root.editor.insertText(`${textToInsert}:`);
         this.plugin = plugin;
+        this.query = `${textToInsert}:`;
       }
     },
     async selectItem(link) {
