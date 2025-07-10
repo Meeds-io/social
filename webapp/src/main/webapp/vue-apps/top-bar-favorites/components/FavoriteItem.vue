@@ -15,7 +15,15 @@ export default {
     activityExtensions: {
       type: Object,
       default: () => null,
-    }
+    },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
+    clickCallback: {
+      type: Function,
+      default: null,
+    },
   },
   data: () => ({
     component: {},
@@ -30,7 +38,9 @@ export default {
     params() {
       return {
         id: this.favoriteId,
-        activityExtensions: this.activityExtensions
+        activityExtensions: this.activityExtensions,
+        expanded: this.expanded,
+        clickCallback: this.clickCallback,
       };
     },
     componentsApp() {

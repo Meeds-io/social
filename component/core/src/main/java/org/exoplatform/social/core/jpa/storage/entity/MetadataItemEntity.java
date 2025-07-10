@@ -103,7 +103,7 @@ import jakarta.persistence.Table;
         + " mi.metadata.type = :metadataType AND"
         + " mi.metadata.name = :metadataName AND"
         + " mi.objectType = :objectType"
-        + " ORDER BY mi.createdDate DESC, mi.id DESC"
+        + " ORDER BY mi.updatedDate DESC, mi.id DESC"
 )
 @NamedQuery(
     name = "SocMetadataItemEntity.getMetadataItemsByMetadataTypeAndNameAndObjectTypeAndId",
@@ -137,7 +137,7 @@ import jakarta.persistence.Table;
     query = "SELECT mi FROM SocMetadataItemEntity mi WHERE "
         + " mi.metadata.type = :metadataType AND"
         + " mi.creatorId = :creatorId"
-        + " ORDER BY mi.createdDate DESC, mi.id DESC"
+        + " ORDER BY mi.updatedDate DESC, mi.id DESC"
 )
 @NamedQuery(
     name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",
