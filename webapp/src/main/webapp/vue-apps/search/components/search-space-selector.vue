@@ -29,7 +29,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <template #activator="{ on, attrs }">
         <v-chip
           outlined
-          tabIndex="0"
+          tab-index="0"
           class="text-body text-header-color mx-1"
           v-bind="attrs"
           v-on="on"
