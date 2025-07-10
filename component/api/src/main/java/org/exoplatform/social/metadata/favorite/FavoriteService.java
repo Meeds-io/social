@@ -18,8 +18,8 @@
  */
 package org.exoplatform.social.metadata.favorite;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.favorite.model.Favorite;
@@ -135,4 +135,19 @@ public interface FavoriteService {
   default void addFavoriteACLPlugin(FavoriteACLPlugin favoriteACLPlugin) {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Set an existing favorite item as last item accessed by a user
+   * 
+   * @param entityType
+   * @param entityType object type, can be of any type: activity, comment,
+   *          notes...
+   * @param entityId object technical unique identifier
+   * @param userIdentityId {@link Identity} technical identifier of the user
+   * @throws ObjectNotFoundException when the favorite doesn't exists
+   */
+  default void setFavoriteAsLastAccessed(String entityType, String entityId, long userIdentityId) throws ObjectNotFoundException {
+    throw new UnsupportedOperationException();
+  }
+
 }

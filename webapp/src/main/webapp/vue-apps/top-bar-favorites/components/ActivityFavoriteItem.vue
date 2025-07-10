@@ -1,5 +1,9 @@
 <template>
-  <v-list-item class="clickable" :href="activityUrl">
+  <v-list-item
+    :href="activityUrl"
+    @keydown.enter="setAsViewed"
+    @auxclick="setAsViewed"
+    @click="setAsViewed">
     <v-list-item-icon class="me-3 my-auto">
       <v-img
         v-if="activityTypeExtension && activityTypeExtension.img"
@@ -51,7 +55,15 @@ export default {
     activityExtensions: {
       type: Object,
       default: () => null,
-    }
+    },
+    clickCallback: {
+      type: Function,
+      default: null,
+    },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     activity: null,
@@ -97,6 +109,11 @@ export default {
     },
     displayAlert(message, type) {
       this.$root.$emit('alert-message', message, type || 'success');
+    },
+    setAsViewed(event) {
+      if (event.which === 1 || event.which === 2) {
+        this.clickCallback('activity', this.id);
+      }
     },
   }
 };
