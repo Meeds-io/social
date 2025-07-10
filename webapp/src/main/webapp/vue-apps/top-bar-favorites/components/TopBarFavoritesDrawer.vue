@@ -19,6 +19,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     ref="favoritesDrawer"
     v-model="drawer"
     class="favoritesDrawer"
+    :loading="loading"
     allow-expand
     right
     @expand-updated="expanded = $event">
@@ -32,23 +33,73 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         class="d-flex" />
     </template>
     <template v-if="drawer" #content>
-      <v-list v-if="favoritesList.length" class="mx-3">
-        <favorite-item
-          v-for="favoriteItem in favoritesList"
-          :key="favoriteItem.id"
-          :favorite="favoriteItem"
-          :activity-extensions="activityExtensions"
-          :click-callback="setFavoriteAsLastAccessed"
-          :expanded="expanded" />
-      </v-list>
-      <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
-        <div class="noFavoritesContent">
-          <v-icon class="mx-auto disabled--text mb-3" size="100">fas fa-star </v-icon>
-          <p class="text-subtitle">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
+      <div
+        :class="expanded && 'pa-4'"
+        class="d-flex light-grey-background-color fill-height">
+        <div
+          class="singlePageApplication pa-0 d-flex fill-height">
+          <v-card
+            v-if="expanded"
+            class="card-border-radius"
+            height="fit-content"
+            min-width="270"
+            width="270"
+            max-width="30%"
+            flat>
+            <favorite-types
+              ref="favoriteTypes"
+              id="favoriteTypes"
+              class="flex-grow-0 flex-shrink-0"
+              @change="selectType" />
+          </v-card>
+          <v-expand-x-transition>
+            <v-card
+              :min-width="separatorWidth"
+              :class="expanded && 'me-4'" />
+          </v-expand-x-transition>
+          <v-card
+            :max-height="expanded && '100%' || 'auto'"
+            class="d-flex flex-column flex-grow-1 flex-shrink-1 transparent no-border-radius overflow-hidden"
+            flat>
+            <v-card
+              :max-height="expanded && '100%' || 'auto'"
+              :class="expanded && 'overflow-x-hidden overflow-y-auto card-border-radius' || 'overflow-x-hidden no-border-radius'"
+              :tile="!expanded"
+              class="d-flex flex-column flex-grow-1 flex-shrink-1"
+              flat>
+              <v-list v-if="favoritesList.length">
+                <div v-if="expanded" class="mx-4 mb-4 mt-2 text-header">
+                  {{ typeLabel }}
+                </div>
+                <favorite-item
+                  v-for="favoriteItem in favoritesList"
+                  :key="favoriteItem.id"
+                  :favorite="favoriteItem"
+                  :activity-extensions="activityExtensions"
+                  :click-callback="setFavoriteAsLastAccessed"
+                  :expanded="expanded" />
+              </v-list>
+              <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
+                <div class="noFavoritesContent">
+                  <v-icon class="mx-auto disabled--text mb-3" size="100">fas fa-star </v-icon>
+                  <p class="text-subtitle">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
+                </div>
+              </div>
+            </v-card>
+            <v-btn
+              v-if="expanded && hasMore"
+              :loading="loading"
+              :disabled="loading"
+              class="btn mx-auto mt-4 flex-grow-0 flex-shrink-0"
+              outlined
+              @click="loadMore">
+              {{ $t('Search.button.loadMore') }}
+            </v-btn>
+          </v-card>
         </div>
       </div>
     </template>
-    <template v-if="hasMore" #footer>
+    <template v-if="!expanded && hasMore" #footer>
       <v-btn
         :loading="loading"
         :disabled="loading"
@@ -67,6 +118,7 @@ export default {
     drawer: false,
     loading: false,
     expanded: false,
+    type: null,
     offset: 0,
     limit: Math.round((window.innerHeight - 122) / 53),
     totalSize: 0,
@@ -81,14 +133,14 @@ export default {
     },
   },
   watch: {
-    limit() {
-      this.retrieveFavoritesList();
+    type() {
+      if (this.drawer) {
+        this.retrieveFavoritesList();
+      }
     },
-    loading() {
-      if (this.loading) {
-        this.$refs.favoritesDrawer.startLoading();
-      } else {
-        this.$refs.favoritesDrawer.endLoading();
+    limit() {
+      if (this.drawer) {
+        this.retrieveFavoritesList();
       }
     },
   },
@@ -115,15 +167,21 @@ export default {
         event.preventDefault();
         event.stopPropagation();
       }
+      this.type = null;
+      this.typeLabel = this.$t('UITopBarFavoritesPortlet.types.all');
       this.retrieveFavoritesList();
       window.require(['SHARED/favoriteDrawerExtensions'], () => {
         Promise.resolve(this.$utils.includeExtensions('FavoriteDrawerExtension'))
           .then(() => this.$refs.favoritesDrawer.open());
       });
     },
+    selectType(type, label) {
+      this.type = type;
+      this.typeLabel = label;
+    },
     retrieveFavoritesList() {
       this.loading = true;
-      return this.$favoriteService.getFavorites(this.offset, this.limit, true)
+      return this.$favoriteService.getFavorites(this.offset, this.limit, true, this.type)
         .then(data => {
           this.totalSize = data && data.size || this.totalSize;
           this.favoritesList = data && data.favoritesItem || [];
