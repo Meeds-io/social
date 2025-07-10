@@ -19,7 +19,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     ref="favoritesDrawer"
     v-model="drawer"
     class="favoritesDrawer"
-    right>
+    allow-expand
+    right
+    @expand-updated="expanded = $event">
     <template #title>
       {{ $t('UITopBarFavoritesPortlet.title.recentFavorites') }}
     </template>
@@ -35,7 +37,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           v-for="favoriteItem in favoritesList"
           :key="favoriteItem.id"
           :favorite="favoriteItem"
-          :activity-extensions="activityExtensions" />
+          :activity-extensions="activityExtensions"
+          :click-callback="setFavoriteAsLastAccessed"
+          :expanded="expanded" />
       </v-list>
       <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
         <div class="noFavoritesContent">
@@ -62,6 +66,7 @@ export default {
     favoritesList: [],
     drawer: false,
     loading: false,
+    expanded: false,
     offset: 0,
     limit: Math.round((window.innerHeight - 122) / 53),
     totalSize: 0,
@@ -137,6 +142,9 @@ export default {
           this.activityExtensions.push(extension);
         }
       });
+    },
+    setFavoriteAsLastAccessed(objectType, objectId) {
+      return this.$favoriteService.setFavoriteAsLastAccessed(objectType, objectId);
     },
   }
 };

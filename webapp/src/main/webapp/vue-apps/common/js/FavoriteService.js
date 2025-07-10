@@ -22,6 +22,17 @@ export function addFavorite(objectType, objectId, parentObjectId, spaceId) {
   });
 }
 
+export function setFavoriteAsLastAccessed(objectType, objectId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}/view`, {
+    method: 'PATCH',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp || !resp.ok) {
+      throw new Error('Response code indicates a server error', resp);
+    }
+  });
+}
+
 export function removeFavorite(objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/favorites/${objectType}/${objectId}?ignoreNotExisting=true`, {
     method: 'DELETE',
