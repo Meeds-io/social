@@ -5,22 +5,28 @@
     @auxclick="setAsViewed"
     @click="setAsViewed">
     <v-list-item-icon class="me-3 my-auto">
-      <v-img
-        v-if="activityTypeExtension && activityTypeExtension.img"
-        :src="activityTypeExtension.img"
-        :max-height="maxHeight"
-        :max-width="maxWidth" />
-      <v-icon 
-        v-else-if="activityTypeExtension && activityTypeExtension.icon"
-        :size="iconSize" 
-        :class="activityTypeExtension.class">
-        {{ activityTypeExtension.icon }} 
-      </v-icon> 
-      <v-icon
-        v-else
-        :size="iconSize">
-        fas fa-stream
-      </v-icon> 
+      <v-card
+        :min-width="iconWidth"
+        class="d-flex justify-center no-border-radius"
+        color="transparent"
+        flat>
+        <v-img
+          v-if="activityTypeExtension && activityTypeExtension.img"
+          :src="activityTypeExtension.img"
+          :max-height="maxHeight"
+          :max-width="maxWidth" />
+        <v-icon 
+          v-else-if="activityTypeExtension && activityTypeExtension.icon"
+          :size="iconSize" 
+          :class="activityTypeExtension.class">
+          {{ activityTypeExtension.icon }} 
+        </v-icon> 
+        <v-icon
+          v-else
+          :size="iconSize">
+          fas fa-stream
+        </v-icon>
+      </v-card>
     </v-list-item-icon>
 
     <v-list-item-content>
@@ -41,7 +47,7 @@
         <user-avatar
           :identity="posterIdentity"
           :size="16"
-          class="flex-grow-1 flex-shrink-1 text-truncate" />
+          class="flex-grow-0 flex-shrink-1 text-truncate" />
       </v-list-item-subtitle>
     </v-list-item-content>
 
@@ -86,6 +92,9 @@ export default {
     defaultClass: 'primary--text',
   }),
   computed: {
+    iconWidth() {
+      return this.expanded ? 40 : 30;
+    },
     iconSize() {
       return this.expanded ? 34 : 24;
     },
@@ -114,7 +123,7 @@ export default {
       return this.activityTitle && this.$utils.htmlToText(this.activityTitle) || '';
     },
     activityPostedTime() {
-      return this.activity?.createDate;
+      return this.activity?.updateDate || this.activity?.createDate;
     },
     posterIdentity() {
       return this.activity?.identity?.profile;
