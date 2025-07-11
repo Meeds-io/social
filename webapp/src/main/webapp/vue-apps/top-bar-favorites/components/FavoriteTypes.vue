@@ -52,7 +52,6 @@ export default {
   }),
   computed: {
     groups() {
-      console.warn('this.$root.extensions', this.$root.extensions);
       const groups = [];
       this.extensions
         .forEach(group => {

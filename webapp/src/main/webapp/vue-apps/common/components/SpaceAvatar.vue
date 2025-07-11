@@ -123,11 +123,15 @@ export default {
       type: Object,
       default: () => null,
     },
+    spaceId: {
+      type: String,
+      default: () => null,
+    },
     spacePrettyName: {
       type: String,
       default: () => null,
     },
-    spaceId: {
+    spaceGroupId: {
       type: String,
       default: () => null,
     },
@@ -243,6 +247,9 @@ export default {
           .then(space => this.space = space);
       } else if (this.spacePrettyName) {
         this.$spaceService.getSpaceByPrettyName(this.spacePrettyName)
+          .then(space => this.space = space);
+      } else if (this.spaceGroupId) {
+        this.$spaceService.getSpaceByGroupId(this.spaceGroupId)
           .then(space => this.space = space);
       }
     }
