@@ -20,10 +20,9 @@
 package io.meeds.oauth.web.openid;
 
 import io.meeds.oauth.common.OAuthConstants;
-import io.meeds.oauth.exception.OAuthException;
 import io.meeds.oauth.openid.OpenIdAccessTokenContext;
-import io.meeds.oauth.openid.OpenIdProcessor;
 import io.meeds.oauth.spi.OAuthPrincipal;
+import io.meeds.oauth.spi.OAuthProviderType;
 import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -32,6 +31,7 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.User;
@@ -39,12 +39,12 @@ import org.exoplatform.web.security.AuthenticationRegistry;
 import org.gatein.sso.agent.filter.api.AbstractSSOInterceptor;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
   private static Log log = ExoLogger.getLogger(OpenIdAuthenticationFilter.class);
   private AuthenticationRegistry authenticationRegistry;
-  private OpenIdProcessor openIdProcessor;
+  private OAuthProviderTypeRegistry oAuthProviderTypeRegistry;
+  private OAuthProviderType oAuthProviderType;
 
   private boolean openIdEnabled;
   @Override
@@ -52,13 +52,10 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
     this.openIdEnabled = Boolean.parseBoolean(System.getProperty("exo.oauth.openid.enabled"));
     if (this.openIdEnabled) {
       authenticationRegistry = getExoContainer().getComponentInstanceOfType(AuthenticationRegistry.class);
-      OAuthProviderTypeRegistry
-          oAuthProviderTypeRegistry =
+      oAuthProviderTypeRegistry =
           getExoContainer().getComponentInstanceOfType(OAuthProviderTypeRegistry.class);
-      openIdProcessor =
-          (OpenIdProcessor) oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_OPEN_ID,
-                                                                       OpenIdAccessTokenContext.class)
-                                                     .getOauthProviderProcessor();
+      oAuthProviderType = oAuthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_OPEN_ID,
+                                                                    OpenIdAccessTokenContext.class);
     }
   }
 
@@ -101,11 +98,12 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
       return;
     }
 
-    checkAccessTokenInCookies(request,response);
-    filterChain.doFilter(request, response);
+    if (!checkAccessTokenInCookies(request,response)) {
+      filterChain.doFilter(request, response);
+    }
   }
 
-  private void checkAccessTokenInCookies(HttpServletRequest request, HttpServletResponse response) {
+  private boolean checkAccessTokenInCookies(HttpServletRequest request, HttpServletResponse response) {
     Cookie[] cookies = request.getCookies();
 
     if (cookies != null) {
@@ -113,14 +111,21 @@ public class OpenIdAuthenticationFilter extends AbstractSSOInterceptor {
         if (cookie.getName().equals("OPENID_ACCESS_TOKEN")) {
           try {
             saveInitialURI(request);
-            openIdProcessor.processOAuthInteraction(request, response);
-          } catch (OAuthException | ExecutionException | InterruptedException | IOException ex) {
-            log.error("Error during OAuth flow with: " + ex.getMessage(), ex);
-            return;
+            String contextPath = request.getContextPath();
+            String initialUri = request.getParameter("initialURI");
+            if (StringUtils.isBlank(initialUri)) {
+              initialUri = contextPath;
+            }
+            String initOauthURI = oAuthProviderType.getInitOAuthURL(contextPath,initialUri);
+            response.sendRedirect(initOauthURI);
+            return true;
+          } catch (IOException ex) {
+            log.error("Error when initializing OAuth flow with: " + ex.getMessage(), ex);
           }
         }
       }
     }
+    return false;
   }
   private void saveInitialURI(HttpServletRequest request) {
     String initialURI = request.getParameter("initialURI");
