@@ -140,6 +140,13 @@ import jakarta.persistence.Table;
         + " ORDER BY mi.updatedDate DESC, mi.id DESC"
 )
 @NamedQuery(
+    name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator",
+    query = "SELECT count(mi.id) FROM SocMetadataItemEntity mi WHERE "
+        + " mi.metadata.type = :metadataType AND"
+        + " mi.objectType = :objectType AND"
+        + " mi.creatorId = :creatorId"
+)
+@NamedQuery(
     name = "SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",
     query = "SELECT count(mi.id) FROM SocMetadataItemEntity mi WHERE "
         + " mi.metadata.type = :metadataType AND"

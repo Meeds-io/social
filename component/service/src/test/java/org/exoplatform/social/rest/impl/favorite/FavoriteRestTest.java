@@ -38,8 +38,11 @@ import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.MetadataTypePlugin;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
+import org.exoplatform.social.metadata.favorite.model.Favorite;
 import org.exoplatform.social.metadata.model.MetadataItem;
+import org.exoplatform.social.metadata.model.MetadataKey;
 import org.exoplatform.social.metadata.model.MetadataObject;
+import org.exoplatform.social.metadata.model.MetadataType;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
 public class FavoriteRestTest extends AbstractResourceTest {
@@ -49,22 +52,27 @@ public class FavoriteRestTest extends AbstractResourceTest {
   private Identity        maryIdentity;
 
   private MetadataService metadataService;
-  
+
+  private FavoriteService favoriteService;
+
   private SpaceService    spaceService;
 
   private ActivityManager activityManager;
 
   private MetadataDAO     metadataDAO;
 
+  private MetadataType    favoriteMetadataType;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     metadataService = getContainer().getComponentInstanceOfType(MetadataService.class);
-    FavoriteService favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
+    favoriteService = getContainer().getComponentInstanceOfType(FavoriteService.class);
     metadataDAO = getContainer().getComponentInstanceOfType(MetadataDAO.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
+    favoriteMetadataType = new MetadataType(1, "favorites");
     getContainer().getComponentInstanceOfType(MetadataStorage.class).clearCaches();
 
     try {
@@ -203,6 +211,154 @@ public class FavoriteRestTest extends AbstractResourceTest {
                            getURLResource("favorites/user/name") + "?ignoreNotExisting=true",
                            null);
     assertEquals(204, response.getStatus());
+  }
+
+  public void testGetFavoriteItemsByCreator() throws Exception {
+    startSessionAs(johnIdentity.getRemoteId());
+
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    long audienceId = userIdentityId;
+    String favoriteType = favoriteMetadataType.getName();
+
+    String objectType = "objectType1";
+    createNewMetadataItem(favoriteType, "testMetadata1", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata3", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata5", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+
+    ContainerResponse response = getResponse("GET",
+                                             getURLResource("favorites?offset=0&limit=5&returnSize=true"),
+                                             null);
+    assertEquals(200, response.getStatus());
+    FavoriteEntity favoriteEntity = (FavoriteEntity) response.getEntity();
+    List<MetadataItem> favoritesList = favoriteEntity.getFavoritesItem();
+
+    assertEquals(3, favoritesList.size());
+    assertEquals(3, favoriteEntity.getSize().intValue());
+    assertEquals(3, favoriteService.getFavoriteItemsSize(userIdentityId));
+    assertEquals(3, favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
+  }
+
+  public void testGetFavoriteItemsByCreatorAndType() throws Exception {
+    startSessionAs(johnIdentity.getRemoteId());
+
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    String objectType = "space";
+    String otherObjectType = "activity";
+
+    Favorite favorite1 = new Favorite(objectType, "objectId1", null, userIdentityId);
+    favoriteService.createFavorite(favorite1);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite2 = new Favorite(objectType, "objectId2", null, userIdentityId);
+    favoriteService.createFavorite(favorite2);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite3 = new Favorite(otherObjectType, "objectId3", null, userIdentityId);
+    favoriteService.createFavorite(favorite3);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite4 = new Favorite(otherObjectType, "objectId4", null, userIdentityId + 1);
+    favoriteService.createFavorite(favorite4);
+
+    ContainerResponse response = getResponse("GET",
+                                             getURLResource("favorites?offset=0&limit=5&returnSize=true&type=" + objectType),
+                                             null);
+    assertEquals(200, response.getStatus());
+    FavoriteEntity favoriteEntity = (FavoriteEntity) response.getEntity();
+    List<MetadataItem> favoritesList = favoriteEntity.getFavoritesItem();
+
+    assertEquals(2, favoritesList.size());
+    assertEquals(2, favoriteEntity.getSize().intValue());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(0).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(1).getObjectId());
+
+    response = getResponse("GET",
+                           getURLResource("favorites?offset=0&limit=5&returnSize=true&type=test"),
+                           null);
+    favoriteEntity = (FavoriteEntity) response.getEntity();
+    favoritesList = favoriteEntity.getFavoritesItem();
+
+    assertEquals(0, favoritesList.size());
+    assertEquals(0, favoriteEntity.getSize().intValue());
+  }
+
+  public void testSetFavoriteAsLastAccessed() throws Exception {
+    startSessionAs(johnIdentity.getRemoteId());
+
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    String objectType = "space";
+
+    Favorite favorite1 = new Favorite(objectType, "objectId1", null, userIdentityId);
+    favoriteService.createFavorite(favorite1);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite2 = new Favorite(objectType, "objectId2", null, userIdentityId);
+    favoriteService.createFavorite(favorite2);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite3 = new Favorite(objectType, "objectId3", null, userIdentityId);
+    favoriteService.createFavorite(favorite3);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite4 = new Favorite(objectType, "objectId4", null, userIdentityId);
+    favoriteService.createFavorite(favorite4);
+
+    ContainerResponse response = getResponse("GET",
+                                             getURLResource("favorites?offset=0&limit=5&returnSize=true&type=" + objectType),
+                                             null);
+    assertEquals(200, response.getStatus());
+    FavoriteEntity favoriteEntity = (FavoriteEntity) response.getEntity();
+    List<MetadataItem> favoritesList = favoriteEntity.getFavoritesItem();
+
+    assertEquals(4, favoritesList.size());
+    assertEquals(favorite4.getObjectId(), favoritesList.get(0).getObjectId());
+    assertEquals(favorite3.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(2).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(3).getObjectId());
+
+    response = getResponse("PATCH",
+                           getURLResource("favorites/" + objectType + "/" + favorite4.getObjectId() + "/view"),
+                           null);
+    assertEquals(204, response.getStatus());
+    Thread.sleep(10); // NOSONAR
+    response = getResponse("PATCH",
+                           getURLResource("favorites/" + objectType + "/" + favorite3.getObjectId() + "/view"),
+                           null);
+    assertEquals(204, response.getStatus());
+    Thread.sleep(10); // NOSONAR
+    response = getResponse("PATCH",
+                           getURLResource("favorites/" + objectType + "/" + favorite2.getObjectId() + "/view"),
+                           null);
+    assertEquals(204, response.getStatus());
+    Thread.sleep(10); // NOSONAR
+    response = getResponse("PATCH",
+                           getURLResource("favorites/" + objectType + "/" + favorite1.getObjectId() + "/view"),
+                           null);
+    assertEquals(204, response.getStatus());
+    Thread.sleep(10); // NOSONAR
+    response = getResponse("GET",
+                           getURLResource("favorites?offset=0&limit=5&returnSize=true&type=" + objectType),
+                           null);
+    favoriteEntity = (FavoriteEntity) response.getEntity();
+    favoritesList = favoriteEntity.getFavoritesItem();
+
+    assertEquals(4, favoritesList.size());
+    assertEquals(favorite4.getObjectId(), favoritesList.get(3).getObjectId());
+    assertEquals(favorite3.getObjectId(), favoritesList.get(2).getObjectId());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(0).getObjectId());
+  }
+
+  private MetadataItem createNewMetadataItem(String type,
+                                             String name,
+                                             String objectType,
+                                             String objectId,
+                                             String parentObjectId,
+                                             long creatorId,
+                                             long audienceId) throws Exception {
+    MetadataItem metadataItem = new MetadataItem();
+    metadataItem.setObjectId(objectId);
+    metadataItem.setObjectType(objectType);
+    metadataItem.setParentObjectId(parentObjectId);
+    return metadataService.createMetadataItem(metadataItem.getObject(),
+        new MetadataKey(type,
+            name,
+            audienceId),
+        creatorId);
   }
 
 }

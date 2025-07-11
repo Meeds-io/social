@@ -188,6 +188,10 @@ public class MetadataStorage {
     return metadataItemDAO.countMetadataItemsByMetadataTypeAndCreator(metadataType, creatorId);
   }
 
+  public int countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(long metadataType, String objectType, long creatorId) {
+    return metadataItemDAO.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType, objectType, creatorId);
+  }
+
   public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(long metadataType, long creatorId, long spaceId) {
     List<Tuple> metadataItemsTuple = metadataItemDAO.countMetadataItemsByMetadataTypeAndAudienceId(metadataType,
                                                                                                    creatorId,

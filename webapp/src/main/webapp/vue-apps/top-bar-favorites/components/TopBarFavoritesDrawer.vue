@@ -184,8 +184,8 @@ export default {
       this.loading = true;
       return this.$favoriteService.getFavorites(this.offset, this.limit, true, this.type)
         .then(data => {
-          this.totalSize = data && data.size || this.totalSize;
-          this.favoritesList = data && data.favoritesItem || [];
+          this.totalSize = data?.size || this.totalSize;
+          this.favoritesList = data?.favoritesItem || [];
         })
         .finally(() => this.loading = false);
     },
