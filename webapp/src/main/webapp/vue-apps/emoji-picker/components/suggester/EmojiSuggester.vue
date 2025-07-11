@@ -25,7 +25,7 @@
     :close-on-content-click="false"
     :min-width="minWidth"
     :max-height="400"
-    :content-class="`border-radius-8 specific-scrollbar ${menuContentClass}`"
+    :content-class="`border-radius specific-scrollbar ${menuContentClass}`"
     absolute
     top
     offset-x
