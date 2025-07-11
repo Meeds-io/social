@@ -70,7 +70,7 @@
         :class="expanded && 'pa-4'"
         class="d-flex light-grey-background-color fill-height">
         <div
-          class="singlePageApplication pa-0 d-flex fill-height">
+          class="page-content pa-0 d-flex fill-height">
           <v-card
             v-if="expanded"
             class="card-border-radius"
