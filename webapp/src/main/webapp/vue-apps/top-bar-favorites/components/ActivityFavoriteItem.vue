@@ -8,18 +8,17 @@
       <v-img
         v-if="activityTypeExtension && activityTypeExtension.img"
         :src="activityTypeExtension.img"
-        max-height="28"
-        max-width="25" />
+        :max-height="maxHeight"
+        :max-width="maxWidth" />
       <v-icon 
         v-else-if="activityTypeExtension && activityTypeExtension.icon"
-        size="24" 
+        :size="iconSize" 
         :class="activityTypeExtension.class">
         {{ activityTypeExtension.icon }} 
       </v-icon> 
       <v-icon
         v-else
-        size="24" 
-        class="primary--text">
+        :size="iconSize">
         fas fa-stream
       </v-icon> 
     </v-list-item-icon>
@@ -29,11 +28,10 @@
         {{ activityTitleText }}
       </v-list-item-title>
       <v-list-item-subtitle v-if="expanded" class="d-flex align-center full-width overflow-hidden pt-2px">
-        <template>
+        <template v-if="space">
           <space-avatar
-            v-if="space"
             :space="space"
-            :size="25"
+            :size="16"
             class="flex-grow-0 flex-shrink-1 text-truncate"
             link-style />
           <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
@@ -42,7 +40,7 @@
         <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
         <user-avatar
           :identity="posterIdentity"
-          :size="25"
+          :size="16"
           class="flex-grow-1 flex-shrink-1 text-truncate" />
       </v-list-item-subtitle>
     </v-list-item-content>
@@ -88,6 +86,15 @@ export default {
     defaultClass: 'primary--text',
   }),
   computed: {
+    iconSize() {
+      return this.expanded ? 34 : 24;
+    },
+    maxHeight() {
+      return this.expanded ? 38 : 28;
+    },
+    maxWidth() {
+      return this.expanded ? 35 : 25;
+    },
     space() {
       return this.activity?.activityStream?.space;
     },
