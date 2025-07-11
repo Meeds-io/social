@@ -342,6 +342,16 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     query.executeUpdate();
   }
 
+  public int countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(long metadataType, String objectType, long creatorId) {
+    TypedQuery<Long> query =
+                           getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator",
+                                                               Long.class);
+    query.setParameter(METADATA_TYPE, metadataType);
+    query.setParameter(OBJECT_TYPE, objectType);
+    query.setParameter(CREATOR_ID, creatorId);
+    return query.getSingleResult().intValue();
+  }
+
   public int countMetadataItemsByMetadataTypeAndCreator(long metadataType, long creatorId) {
     TypedQuery<Long> query =
                            getEntityManager().createNamedQuery("SocMetadataItemEntity.countMetadataItemsByMetadataTypeAndCreator",

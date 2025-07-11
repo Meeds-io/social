@@ -122,15 +122,18 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     String favoriteType = favoriteMetadataType.getName();
     String otherType = userMetadataType.getName();
 
-    createNewMetadataItem(favoriteType,"testMetadata1","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata2","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(favoriteType,"testMetadata3","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata4","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(favoriteType,"testMetadata5","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata6","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
+    String objectType = "objectType1";
+    createNewMetadataItem(favoriteType, "testMetadata1", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata2", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata3", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata4", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata5", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata6", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
 
     List<MetadataItem> favoriteList = favoriteService.getFavoriteItemsByCreator(userIdentityId, 0, 5);
     assertEquals(3, favoriteList.size());
+    assertEquals(3, favoriteService.getFavoriteItemsSize(userIdentityId));
+    assertEquals(3, favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
 
     favoriteList = favoriteService.getFavoriteItemsByCreator(100l, 0, 5);
     assertEquals(0, favoriteList.size());
@@ -167,6 +170,9 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     assertEquals(2, favoritesList.size());
     assertEquals(favorite2.getObjectId(), favoritesList.get(0).getObjectId());
     assertEquals(favorite1.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(3, favoriteService.getFavoriteItemsSize(userIdentityId));
+    assertEquals(2, favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
+    assertEquals(1, favoriteService.getFavoriteItemsSize(otherObjectType, userIdentityId));
 
     favoritesList = favoriteService.getFavoriteItemsByCreatorAndType("test",
                                                                      userIdentityId,
