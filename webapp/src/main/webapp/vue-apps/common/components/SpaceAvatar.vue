@@ -104,7 +104,7 @@
         <p
           v-if="displayName"
           :class="[fullnameStyle, linkStyle && 'primary--text' || '', textTruncateClass]"
-          class="my-auto text-body">
+          class="my-auto text-color">
           {{ displayName }}
         </p>
         <p v-if="$slots.subTitle" class="text-subtitle my-auto">

@@ -94,6 +94,16 @@ public interface FavoriteService {
   int getFavoriteItemsSize(long creatorId);
 
   /**
+   * Count the favorite items attached to a given {@link MetadataItem} creatorId
+   * and Object Type
+   *
+   * @param objectType {@link MetadataObject} type
+   * @param creatorId {@link MetadataItem} creatorId
+   * @return integer
+   */
+  int getFavoriteItemsSize(String objectType, long creatorId);
+
+  /**
    * Check if an object identified by its type/id for a user has favorite metadata
    * or not
    * 

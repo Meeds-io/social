@@ -33,13 +33,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           class="ma-auto text-truncate"
           v-sanitized-html="spaceName"></p>
       </v-list-item-title>
-      <v-expand-x-transition>
-        <v-list-item-subtitle v-if="expanded" class="d-flex full-width overflow-hidden pt-2px">
-          <span class="flex-grow-1 flex-shrink-0">{{ membersCount }} {{ $t('space.logo.banner.popover.members') }}</span>
-          <span class="flex-grow-1 flex-shrink-0 mx-2">-</span>
-          <span class="flex-grow-1 flex-shrink-1 text-truncate">{{ descriptionText }}</span>
-        </v-list-item-subtitle>
-      </v-expand-x-transition>
+      <v-list-item-subtitle v-if="expanded" class="d-flex full-width overflow-hidden pt-2px">
+        <span class="flex-grow-1 flex-shrink-0">{{ membersCount }} {{ $t('space.logo.banner.popover.members') }}</span>
+        <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        <span class="flex-grow-1 flex-shrink-1 text-truncate">{{ descriptionText }}</span>
+      </v-list-item-subtitle>
     </v-list-item-content>
 
     <v-list-item-action>
