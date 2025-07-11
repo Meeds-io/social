@@ -6,6 +6,7 @@ import ActivityFavoriteItem from './components/ActivityFavoriteItem.vue';
 import SpaceFavoriteItem from './components/SpaceFavoriteItem.vue';
 import FavoriteTypes from './components/FavoriteTypes.vue';
 import FavoriteType from './components/FavoriteType.vue';
+import FavoritePlaceholder from './components/FavoritePlaceholder.vue';
 
 const components = {
   'top-bar-favorites': TopBarFavorites,
@@ -14,6 +15,7 @@ const components = {
   'favorite-item': FavoriteItem,
   'favorite-types': FavoriteTypes,
   'favorite-type': FavoriteType,
+  'favorite-placeholder': FavoritePlaceholder,
   'activity-favorite-item': ActivityFavoriteItem,
   'space-favorite-item': SpaceFavoriteItem,
 };
