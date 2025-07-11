@@ -38,8 +38,8 @@
 <script>
 export default {
   props: {
-    badgeByPlugin: {
-      type: Object,
+    value: {
+      type: String,
       default: null,
     },
   },
@@ -76,6 +76,9 @@ export default {
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.extensionType}-updated`, this.refreshExtensions);
     this.refreshExtensions();
+    if (this.value) {
+      this.selectedGroupIndex = this.groups.findIndex(g => g.name === this.type);
+    }
   },
   beforeDestroy() {
     document.removeEventListener(`extension-${this.extensionApp}-${this.extensionType}-updated`, this.refreshExtensions);
