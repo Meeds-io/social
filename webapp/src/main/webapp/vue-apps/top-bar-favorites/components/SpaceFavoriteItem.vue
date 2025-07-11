@@ -21,10 +21,16 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     @auxclick="setAsViewed"
     @click="setAsViewed">
     <v-list-item-icon class="me-3 my-auto">
-      <exo-space-avatar 
-        :space="space" 
-        :size="avatarSize"
-        avatar />
+      <v-card
+        :min-width="iconWidth"
+        class="d-flex justify-center no-border-radius"
+        color="transparent"
+        flat>
+        <exo-space-avatar
+          :space="space"
+          :size="avatarSize"
+          avatar />
+      </v-card>
     </v-list-item-icon>
 
     <v-list-item-content>
@@ -81,6 +87,9 @@ export default {
     },
     membersCount() {
       return this.space?.membersCount;
+    },
+    iconWidth() {
+      return this.expanded ? 40 : 30;
     },
     avatarSize() {
       return this.expanded ? 35 : 25;
