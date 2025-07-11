@@ -171,7 +171,11 @@ public class FavoriteRest implements ResourceContainer {
       favoriteEntity.setLimit(limit);
       favoriteEntity.setOffset(offset);
       if (returnSize) {
-        favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(userIdentityId));
+        if (StringUtils.isBlank(objectType)) {
+          favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(userIdentityId));
+        } else {
+          favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
+        }
       }
       return Response.ok(favoriteEntity).build();
     } catch (Exception e) {
