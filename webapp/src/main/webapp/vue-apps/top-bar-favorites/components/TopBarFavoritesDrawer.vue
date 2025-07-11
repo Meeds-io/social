@@ -68,10 +68,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :tile="!expanded"
               class="d-flex flex-column flex-grow-1 flex-shrink-1"
               flat>
-              <v-list v-if="favoritesList.length">
-                <div v-if="expanded" class="mx-4 mb-4 mt-2 text-header">
-                  {{ typeLabel }}
-                </div>
+              <v-list v-if="favoritesList.length" class="pa-0">
                 <favorite-item
                   v-for="favoriteItem in favoritesList"
                   :key="favoriteItem.id"
