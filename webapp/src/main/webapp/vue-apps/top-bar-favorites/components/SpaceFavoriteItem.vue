@@ -33,6 +33,13 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           class="ma-auto text-truncate"
           v-sanitized-html="spaceName"></p>
       </v-list-item-title>
+      <v-expand-x-transition>
+        <v-list-item-subtitle v-if="expanded" class="d-flex full-width overflow-hidden pt-2px">
+          <span class="flex-grow-1 flex-shrink-0">{{ membersCount }} {{ $t('space.logo.banner.popover.members') }}</span>
+          <span class="flex-grow-1 flex-shrink-0 mx-2">-</span>
+          <span class="flex-grow-1 flex-shrink-1 text-truncate">{{ descriptionText }}</span>
+        </v-list-item-subtitle>
+      </v-expand-x-transition>
     </v-list-item-content>
 
     <v-list-item-action>
@@ -70,6 +77,14 @@ export default {
     spaceUrl: '#',
     isFavorite: true
   }),
+  computed: {
+    descriptionText() {
+      return this.expanded && this.space?.description && this.$utils.htmlToText(this.space?.description) || '';
+    },
+    membersCount() {
+      return this.space?.membersCount;
+    },
+  },
   created() {
     this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
     this.$spaceService.getSpaceById(this.id)
