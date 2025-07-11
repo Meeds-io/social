@@ -25,11 +25,26 @@
     </v-list-item-icon>
 
     <v-list-item-content>
-      <v-list-item-title>
-        <p
-          class="ma-auto text-truncate"
-          v-sanitized-html="activityTitle"></p>
+      <v-list-item-title class="text-truncate">
+        {{ activityTitleText }}
       </v-list-item-title>
+      <v-list-item-subtitle v-if="expanded" class="d-flex align-center full-width overflow-hidden pt-2px">
+        <template>
+          <space-avatar
+            v-if="space"
+            :space="space"
+            :size="25"
+            class="flex-grow-0 flex-shrink-1 text-truncate"
+            link-style />
+          <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        </template>
+        <date-format class="flex-grow-0 flex-shrink-0" :value="activityPostedTime" />
+        <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        <user-avatar
+          :identity="posterIdentity"
+          :size="25"
+          class="flex-grow-1 flex-shrink-1 text-truncate" />
+      </v-list-item-subtitle>
     </v-list-item-content>
 
     <v-list-item-action>
@@ -73,8 +88,11 @@ export default {
     defaultClass: 'primary--text',
   }),
   computed: {
+    space() {
+      return this.activity?.activityStream?.space;
+    },
     spaceId() {
-      return this.activity?.activityStream?.space?.id;
+      return this.space?.id;
     },
     activityTypeExtension() {
       if (this.activity?.type) {
@@ -84,11 +102,20 @@ export default {
     },
     activityTitle() {
       return this.activityTypeExtension?.title && this.activityTypeExtension?.title(this.activity) || this.favoriteTitle(this.activity?.title) || this.$t('UITopBarFavoritesPortlet.label.activity');
-    }
+    },
+    activityTitleText() {
+      return this.activityTitle && this.$utils.htmlToText(this.activityTitle) || '';
+    },
+    activityPostedTime() {
+      return this.activity?.createDate;
+    },
+    posterIdentity() {
+      return this.activity?.identity?.profile;
+    },
   },
   created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-    this.$activityService.getActivityById(this.id)
+    this.$activityService.getActivityById(this.id, 'identity')
       .then(fullActivity => {
         this.activity = fullActivity;
       });
