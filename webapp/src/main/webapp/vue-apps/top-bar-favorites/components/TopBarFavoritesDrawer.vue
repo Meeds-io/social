@@ -37,7 +37,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
         :class="expanded && 'pa-4'"
         class="d-flex light-grey-background-color fill-height">
         <div
-          class="singlePageApplication pa-0 d-flex fill-height">
+          class="page-content pa-0 d-flex fill-height">
           <v-card
             v-if="expanded"
             class="card-border-radius"
@@ -77,12 +77,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
                   :click-callback="setFavoriteAsLastAccessed"
                   :expanded="expanded" />
               </v-list>
-              <div v-else-if="!loading" class="d-flex full-height disabled-background align-center justify-center">
-                <div class="noFavoritesContent">
-                  <v-icon class="mx-auto disabled--text mb-3" size="100">fas fa-star </v-icon>
-                  <p class="text-subtitle">{{ $t('UITopBarFavoritesPortlet.label.NoFavorites') }}</p>
-                </div>
-              </div>
+              <favorite-placeholder
+                v-else-if="!loading"
+                :type="type" />
             </v-card>
             <v-btn
               v-if="expanded && hasMore"
@@ -141,6 +138,11 @@ export default {
         this.retrieveFavoritesList();
       }
     },
+    expanded() {
+      if (this.drawer) {
+        this.type = null;
+      }
+    },
   },
   created() {
     document.addEventListener('favorites-open', this.openDrawer);
@@ -181,7 +183,7 @@ export default {
       this.loading = true;
       return this.$favoriteService.getFavorites(this.offset, this.limit, true, this.type)
         .then(data => {
-          this.totalSize = data?.size || this.totalSize;
+          this.totalSize = data?.size || 0;
           this.favoritesList = data?.favoritesItem || [];
         })
         .finally(() => this.loading = false);

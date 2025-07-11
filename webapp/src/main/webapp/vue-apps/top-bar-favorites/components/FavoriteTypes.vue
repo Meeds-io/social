@@ -23,8 +23,7 @@
     <v-list-item-group
       v-model="selectedGroupIndex"
       color="primary"
-      dense
-      mandatory>
+      dense>
       <favorite-type
         v-for="(group, index) in groups"
         :key="group.name"
@@ -48,7 +47,7 @@ export default {
     extensions: [],
     extensionApp: 'favorite',
     extensionType: 'favorite-type',
-    selectedGroupIndex: null,
+    selectedGroupIndex: 0,
   }),
   computed: {
     groups() {
@@ -75,9 +74,6 @@ export default {
   created() {
     document.addEventListener(`extension-${this.extensionApp}-${this.extensionType}-updated`, this.refreshExtensions);
     this.refreshExtensions();
-    if (this.value) {
-      this.selectedGroupIndex = this.groups.findIndex(g => g.name === this.type);
-    }
   },
   beforeDestroy() {
     document.removeEventListener(`extension-${this.extensionApp}-${this.extensionType}-updated`, this.refreshExtensions);
