@@ -20,6 +20,7 @@ import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
@@ -41,9 +42,13 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = VersionResources.VERSION_ONE + "/social/favorites", description = "Managing favorites for any type of data")
 public class FavoriteRest implements ResourceContainer {
 
-  private static final Log LOG = ExoLogger.getLogger(FavoriteRest.class);
+  private static final String FAVORITE_OBJECT_ID_REQUIRED   = "FavoriteObjectIdRequired";
 
-  private FavoriteService  favoriteService;
+  private static final String FAVORITE_OBJECT_TYPE_REQUIRED = "FavoriteObjectTypeRequired";
+
+  private static final Log    LOG                           = ExoLogger.getLogger(FavoriteRest.class);
+
+  private FavoriteService     favoriteService;
 
   public FavoriteRest(FavoriteService favoriteService) {
     this.favoriteService = favoriteService;
@@ -97,10 +102,10 @@ public class FavoriteRest implements ResourceContainer {
                                  ) @Schema(defaultValue = "false")
                                  @QueryParam("ignoreWhenExisting") boolean ignoreWhenExisting) {
     if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectTypeRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_TYPE_REQUIRED).build();
     }
     if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectIdRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_ID_REQUIRED).build();
     }
     Identity authenticatedUserIdentity = ConversationState.getCurrent().getIdentity();
     if (!favoriteService.canCreateFavorite(authenticatedUserIdentity, objectType, objectId)) {
@@ -166,7 +171,11 @@ public class FavoriteRest implements ResourceContainer {
       favoriteEntity.setLimit(limit);
       favoriteEntity.setOffset(offset);
       if (returnSize) {
-        favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(userIdentityId));
+        if (StringUtils.isBlank(objectType)) {
+          favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(userIdentityId));
+        } else {
+          favoriteEntity.setSize(favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
+        }
       }
       return Response.ok(favoriteEntity).build();
     } catch (Exception e) {
@@ -214,10 +223,10 @@ public class FavoriteRest implements ResourceContainer {
                                  @QueryParam("ignoreNotExisting")
                                  boolean ignoreNotExisting) {
     if (StringUtils.isBlank(objectType)) {
-      return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectTypeRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_TYPE_REQUIRED).build();
     }
     if (StringUtils.isBlank(objectId)) {
-      return Response.status(Status.BAD_REQUEST).entity("FavoriteObjectIdRequired").build();
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_ID_REQUIRED).build();
     }
 
     long userIdentityId = RestUtils.getCurrentUserIdentityId();
@@ -234,6 +243,41 @@ public class FavoriteRest implements ResourceContainer {
     } catch (Exception e) {
       LOG.warn("Error deleting a favorite", e);
       return Response.serverError().entity(e.getMessage()).build();
+    }
+  }
+
+  @PATCH
+  @Path("{objectType}/{objectId}/view")
+  @Produces(MediaType.APPLICATION_JSON)
+  @RolesAllowed("users")
+  @Operation(
+      summary = "Update favorite object access order to make it listed first",
+      method = "PATCH")
+  @ApiResponses(
+      value = {
+          @ApiResponse(responseCode = "204", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "404", description = "Not found"),
+      }
+  )
+  public Response setFavoriteAsLastAccessed(
+                                            @Parameter(description = "Object type: activity, comment, notes ...", required = true)
+                                            @PathParam("objectType")
+                                            String objectType,
+                                            @Parameter(description = "Object identifier: technical id to identify object as favorite", required = true)
+                                            @PathParam("objectId")
+                                            String objectId) {
+    if (StringUtils.isBlank(objectType)) {
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_TYPE_REQUIRED).build();
+    }
+    if (StringUtils.isBlank(objectId)) {
+      return Response.status(Status.BAD_REQUEST).entity(FAVORITE_OBJECT_ID_REQUIRED).build();
+    }
+    long userIdentityId = RestUtils.getCurrentUserIdentityId();
+    try {
+      favoriteService.setFavoriteAsLastAccessed(objectType, objectId, userIdentityId);
+      return Response.noContent().build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Status.NOT_FOUND).build();
     }
   }
 

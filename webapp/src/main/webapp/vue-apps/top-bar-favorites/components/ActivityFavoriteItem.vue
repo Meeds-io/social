@@ -1,31 +1,54 @@
 <template>
-  <v-list-item class="clickable" :href="activityUrl">
+  <v-list-item
+    :href="activityUrl"
+    @keydown.enter="setAsViewed"
+    @auxclick="setAsViewed"
+    @click="setAsViewed">
     <v-list-item-icon class="me-3 my-auto">
-      <v-img
-        v-if="activityTypeExtension && activityTypeExtension.img"
-        :src="activityTypeExtension.img"
-        max-height="28"
-        max-width="25" />
-      <v-icon 
-        v-else-if="activityTypeExtension && activityTypeExtension.icon"
-        size="24" 
-        :class="activityTypeExtension.class">
-        {{ activityTypeExtension.icon }} 
-      </v-icon> 
-      <v-icon
-        v-else
-        size="24" 
-        class="primary--text">
-        fas fa-stream
-      </v-icon> 
+      <v-card
+        :min-width="iconWidth"
+        class="d-flex justify-center no-border-radius"
+        color="transparent"
+        flat>
+        <v-img
+          v-if="activityTypeExtension && activityTypeExtension.img"
+          :src="activityTypeExtension.img"
+          :max-height="maxHeight"
+          :max-width="maxWidth" />
+        <v-icon 
+          v-else-if="activityTypeExtension && activityTypeExtension.icon"
+          :size="iconSize" 
+          :class="activityTypeExtension.class">
+          {{ activityTypeExtension.icon }} 
+        </v-icon> 
+        <v-icon
+          v-else
+          :size="iconSize">
+          fas fa-stream
+        </v-icon>
+      </v-card>
     </v-list-item-icon>
 
     <v-list-item-content>
-      <v-list-item-title>
-        <p
-          class="ma-auto text-truncate"
-          v-sanitized-html="activityTitle"></p>
+      <v-list-item-title class="text-truncate">
+        {{ activityTitleText }}
       </v-list-item-title>
+      <v-list-item-subtitle v-if="expanded" class="d-flex align-center full-width overflow-hidden pt-2px">
+        <template v-if="space">
+          <favorite-space-avatar
+            :space="space"
+            :size="16"
+            class="flex-grow-0 flex-shrink-1 text-truncate"
+            link-style />
+          <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        </template>
+        <date-format class="flex-grow-0 flex-shrink-0" :value="activityPostedTime" />
+        <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        <favorite-user-avatar
+          :identity="posterIdentity"
+          :size="16"
+          class="flex-grow-1 flex-shrink-1 text-truncate" />
+      </v-list-item-subtitle>
     </v-list-item-content>
 
     <v-list-item-action>
@@ -51,7 +74,15 @@ export default {
     activityExtensions: {
       type: Object,
       default: () => null,
-    }
+    },
+    clickCallback: {
+      type: Function,
+      default: null,
+    },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     activity: null,
@@ -61,8 +92,23 @@ export default {
     defaultClass: 'primary--text',
   }),
   computed: {
+    iconWidth() {
+      return this.expanded ? 40 : 30;
+    },
+    iconSize() {
+      return this.expanded ? 34 : 24;
+    },
+    maxHeight() {
+      return this.expanded ? 38 : 28;
+    },
+    maxWidth() {
+      return this.expanded ? 35 : 25;
+    },
+    space() {
+      return this.activity?.activityStream?.space;
+    },
     spaceId() {
-      return this.activity?.activityStream?.space?.id;
+      return this.space?.id;
     },
     activityTypeExtension() {
       if (this.activity?.type) {
@@ -72,11 +118,20 @@ export default {
     },
     activityTitle() {
       return this.activityTypeExtension?.title && this.activityTypeExtension?.title(this.activity) || this.favoriteTitle(this.activity?.title) || this.$t('UITopBarFavoritesPortlet.label.activity');
-    }
+    },
+    activityTitleText() {
+      return this.activityTitle && this.$utils.htmlToText(this.activityTitle) || '';
+    },
+    activityPostedTime() {
+      return this.activity?.updateDate || this.activity?.createDate;
+    },
+    posterIdentity() {
+      return this.activity?.identity?.profile;
+    },
   },
   created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-    this.$activityService.getActivityById(this.id)
+    this.$activityService.getActivityById(this.id, 'identity')
       .then(fullActivity => {
         this.activity = fullActivity;
       });
@@ -97,6 +152,11 @@ export default {
     },
     displayAlert(message, type) {
       this.$root.$emit('alert-message', message, type || 'success');
+    },
+    setAsViewed(event) {
+      if (event.which === 1 || event.which === 2) {
+        this.clickCallback('activity', this.id);
+      }
     },
   }
 };

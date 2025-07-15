@@ -358,7 +358,7 @@ export default {
       return this.userIdentity?.username ||  this.userIdentity?.userName || this.profileId;
     },
     enabled() {
-      return this.userIdentity?.enabled;  
+      return this.userIdentity?.enabled || this.identity?.dataEntity?.enabled;
     },  
     deleted() {
       return this.userIdentity?.deleted;
@@ -370,7 +370,7 @@ export default {
       return this.userIdentity?.primaryProperty;
     },
     userAvatarUrl() {
-      return this.userIdentity?.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
+      return this.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
     },
     profileUrl() {
       if (this.url && !this.clickable && this.username) {
@@ -380,7 +380,7 @@ export default {
       }
     },
     isExternal() {
-      return this.userIdentity?.external === 'true';
+      return this.userIdentity && Object.hasOwn(this.userIdentity, 'isInternal') ? !this.userIdentity?.isInternal : this.userIdentity?.external === 'true';
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
@@ -426,12 +426,12 @@ export default {
       return !this.identity
           || !this.identityId
           || !this.username
-          || !this.userFullname
-          || !Object.hasOwn(this.identity, 'avatar')
-          || !Object.hasOwn(this.identity, 'enabled')
+          || (!this.userFullname && this.fullname)
+          || (!Object.hasOwn(this.identity, 'avatar') && this.avatar)
+          || (!Object.hasOwn(this.identity, 'enabled') && (!this.identity?.dataEntity || !Object.hasOwn(this.identity.dataEntity, 'enabled')))
           || !Object.hasOwn(this.identity, 'deleted')
           || !Object.hasOwn(this.identity, 'primaryProperty')
-          || !Object.hasOwn(this.identity, 'external');
+          || (!Object.hasOwn(this.identity, 'external') && !Object.hasOwn(this.identity, 'isInternal'));
     },
   },
   created() {

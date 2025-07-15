@@ -30,19 +30,19 @@
                   {{ posterName }}
                   <span v-if="isSpaceStreamOwner">
                     <v-icon class="icon-default-color ms-1" size="14">
-                    fas fa-chevron-right
-                  </v-icon>
-                  <v-avatar
+                      fas fa-chevron-right
+                    </v-icon>
+                    <v-avatar
                       :size="22"
                       tile
                       class="pb-2px me-1 spaceAvatar">
-                    <img
+                      <img
                         :src="streamOwner.avatarUrl"
                         alt=""
                         class="object-fit-cover ma-auto"
                         loading="lazy">
-                  </v-avatar>
-                  {{ streamOwner.displayName }}
+                    </v-avatar>
+                    {{ streamOwner.displayName }}
                   </span>
                 </span>
               </div>
@@ -74,12 +74,12 @@
             </v-list-item-title>
 
             <v-list-item-subtitle class="d-flex flex-column">
-             <span class="d-flex flex-row align-center mx-auto full-width" v-if="postedTime">
-                  <v-icon
-                      size="12"
-                      class="icon-default-color">fas fa-clock</v-icon>
-                  <date-format class="ms-1 my-auto" :value="postedTime" />
-                </span>
+              <span class="d-flex flex-row align-center mx-auto full-width" v-if="postedTime">
+                <v-icon
+                  size="12"
+                  class="icon-default-color">fas fa-clock</v-icon>
+                <date-format class="ms-1 my-auto" :value="postedTime" />
+              </span>
               <div
                 v-if="excerptHtml"
                 class="pt-2 text-wrap text-body-2 text-color text-break"

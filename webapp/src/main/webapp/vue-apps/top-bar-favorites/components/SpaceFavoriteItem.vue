@@ -15,12 +15,22 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <v-list-item class="clickable" :href="spaceUrl">
+  <v-list-item
+    :href="spaceUrl"
+    @keydown.enter="setAsViewed"
+    @auxclick="setAsViewed"
+    @click="setAsViewed">
     <v-list-item-icon class="me-3 my-auto">
-      <exo-space-avatar 
-        :space="space" 
-        :size="25"
-        avatar />
+      <v-card
+        :min-width="iconWidth"
+        class="d-flex justify-center no-border-radius"
+        color="transparent"
+        flat>
+        <exo-space-avatar
+          :space="space"
+          :size="avatarSize"
+          avatar />
+      </v-card>
     </v-list-item-icon>
 
     <v-list-item-content>
@@ -29,6 +39,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           class="ma-auto text-truncate"
           v-sanitized-html="spaceName"></p>
       </v-list-item-title>
+      <v-list-item-subtitle v-if="expanded" class="d-flex full-width overflow-hidden pt-2px">
+        <span class="flex-grow-1 flex-shrink-0">{{ membersCount }} {{ $t('space.logo.banner.popover.members') }}</span>
+        <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
+        <span class="flex-grow-1 flex-shrink-1 text-truncate">{{ descriptionText }}</span>
+      </v-list-item-subtitle>
     </v-list-item-content>
 
     <v-list-item-action>
@@ -51,6 +66,14 @@ export default {
       type: String,
       default: () => null,
     },
+    clickCallback: {
+      type: Function,
+      default: null,
+    },
+    expanded: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     space: null,
@@ -58,6 +81,20 @@ export default {
     spaceUrl: '#',
     isFavorite: true
   }),
+  computed: {
+    descriptionText() {
+      return this.expanded && this.space?.description && this.$utils.htmlToText(this.space?.description) || '';
+    },
+    membersCount() {
+      return this.space?.membersCount;
+    },
+    iconWidth() {
+      return this.expanded ? 40 : 30;
+    },
+    avatarSize() {
+      return this.expanded ? 35 : 25;
+    },
+  },
   created() {
     this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
     this.$spaceService.getSpaceById(this.id)
@@ -79,6 +116,11 @@ export default {
     },
     displayAlert(message, type) {
       this.$root.$emit('alert-message', message, type || 'success');
+    },
+    setAsViewed(event) {
+      if (event.which === 1 || event.which === 2) {
+        this.clickCallback('space', this.id);
+      }
     },
   }
 };

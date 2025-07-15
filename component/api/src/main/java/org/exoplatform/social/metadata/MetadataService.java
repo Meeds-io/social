@@ -521,6 +521,17 @@ public interface MetadataService {
   int countMetadataItemsByMetadataTypeAndCreator(String metadataTypeName, long creatorId);
 
   /**
+   * Count the size of metadata items to a given {@link Metadata} type,
+   * {@link MetadataItem} creatorId
+   *
+   * @param metadataTypeName {@link Metadata} type
+   * @param objectType {@link MetadataItem} objectType
+   * @param creatorId {@link MetadataItem} creatorId
+   * @return integer
+   */
+  int countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(String metadataTypeName, String objectType, long creatorId);
+
+  /**
    * Count the size of Metadata items to a given {@link Metadata} type,
    * {@link MetadataItem} creatorId by a given {@link Space} identifier
    *

@@ -472,6 +472,12 @@ public class MetadataServiceImpl implements MetadataService, Startable {
     return this.metadataStorage.countMetadataItemsByMetadataTypeAndCreator(metadataType.getId(), creatorId);
   }
 
+  public int countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(String metadataTypeName, String objectType, long creatorId) {
+    MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
+    validateUserIdentityId(creatorId);
+    return this.metadataStorage.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(metadataType.getId(), objectType, creatorId);
+  }
+
   public Map<String, Long> countMetadataItemsByMetadataTypeAndAudienceId(String metadataTypeName, long creatorId, long spaceId) {
     MetadataType metadataType = validateAndGetMetadataType(metadataTypeName);
     validateUserIdentityId(creatorId);

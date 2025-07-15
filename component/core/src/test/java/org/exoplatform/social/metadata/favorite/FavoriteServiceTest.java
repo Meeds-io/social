@@ -18,14 +18,16 @@
  */
 package org.exoplatform.social.metadata.favorite;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ObjectParameter;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.MetadataDAO;
 import org.exoplatform.social.core.metadata.storage.MetadataStorage;
@@ -110,13 +112,7 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     assertEquals(objectType, metadataItem.getObjectType());
     assertEquals(parentObjectId, metadataItem.getParentObjectId());
 
-    try {
-      favoriteService.createFavorite(favorite);
-      fail();
-    } catch (@SuppressWarnings("removal")
-    ObjectAlreadyExistsException e) {
-      // Expected
-    }
+    assertThrows(ObjectAlreadyExistsException.class, () -> favoriteService.createFavorite(favorite));
   }
 
   public void testGetFavoriteItemsByCreator() throws Exception {
@@ -126,20 +122,21 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     String favoriteType = favoriteMetadataType.getName();
     String otherType = userMetadataType.getName();
 
-    createNewMetadataItem(favoriteType,"testMetadata1","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata2","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(favoriteType,"testMetadata3","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata4","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(favoriteType,"testMetadata5","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
-    createNewMetadataItem(otherType,"testMetadata6","objectType1","objectId1","parentObjectId1",userIdentityId,audienceId);
+    String objectType = "objectType1";
+    createNewMetadataItem(favoriteType, "testMetadata1", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata2", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata3", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata4", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(favoriteType, "testMetadata5", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
+    createNewMetadataItem(otherType, "testMetadata6", objectType, "objectId1", "parentObjectId1", userIdentityId, audienceId);
 
-    List<MetadataItem> favoritesList = metadataService.getMetadataItemsByMetadataTypeAndCreator("favorites", userIdentityId, 3 ,0);
+    List<MetadataItem> favoriteList = favoriteService.getFavoriteItemsByCreator(userIdentityId, 0, 5);
+    assertEquals(3, favoriteList.size());
+    assertEquals(3, favoriteService.getFavoriteItemsSize(userIdentityId));
+    assertEquals(3, favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
 
-    favoritesList = metadataService.getMetadataItemsByMetadataTypeAndCreator("favorites", userIdentityId, 0, 5);
-    assertEquals(3, favoritesList.size());
-
-    favoritesList = metadataService.getMetadataItemsByMetadataTypeAndCreator("favorites", 100, 0, 5);
-    assertEquals(0, favoritesList.size());
+    favoriteList = favoriteService.getFavoriteItemsByCreator(100l, 0, 5);
+    assertEquals(0, favoriteList.size());
 
   }
   
@@ -148,10 +145,17 @@ public class FavoriteServiceTest extends AbstractCoreTest {
     String objectType = "space";
     String otherObjectType = "activite";
 
-    favoriteService.createFavorite(new Favorite(objectType, "objectId1", null, userIdentityId));
-    favoriteService.createFavorite(new Favorite(objectType, "objectId2", null, userIdentityId));
-    favoriteService.createFavorite(new Favorite(otherObjectType, "objectId3", null, userIdentityId));
-    favoriteService.createFavorite(new Favorite(otherObjectType, "objectId4", null, userIdentityId + 1));
+    Favorite favorite1 = new Favorite(objectType, "objectId1", null, userIdentityId);
+    favoriteService.createFavorite(favorite1);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite2 = new Favorite(objectType, "objectId2", null, userIdentityId);
+    favoriteService.createFavorite(favorite2);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite3 = new Favorite(otherObjectType, "objectId3", null, userIdentityId);
+    favoriteService.createFavorite(favorite3);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite4 = new Favorite(otherObjectType, "objectId4", null, userIdentityId + 1);
+    favoriteService.createFavorite(favorite4);
 
     List<MetadataItem> favoritesList = favoriteService.getFavoriteItemsByCreatorAndType(objectType,
                                                                                         userIdentityId,
@@ -164,12 +168,62 @@ public class FavoriteServiceTest extends AbstractCoreTest {
                                                                      0,
                                                                      2);
     assertEquals(2, favoritesList.size());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(0).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(3, favoriteService.getFavoriteItemsSize(userIdentityId));
+    assertEquals(2, favoriteService.getFavoriteItemsSize(objectType, userIdentityId));
+    assertEquals(1, favoriteService.getFavoriteItemsSize(otherObjectType, userIdentityId));
 
     favoritesList = favoriteService.getFavoriteItemsByCreatorAndType("test",
                                                                      userIdentityId,
                                                                      0,
                                                                      3);
     assertEquals(0, favoritesList.size());
+  }
+
+  public void testSetFavoriteAsLastAccessed() throws Exception {
+    long userIdentityId = Long.parseLong(johnIdentity.getId());
+    String objectType = "space";
+
+    Favorite favorite1 = new Favorite(objectType, "objectId1", null, userIdentityId);
+    favoriteService.createFavorite(favorite1);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite2 = new Favorite(objectType, "objectId2", null, userIdentityId);
+    favoriteService.createFavorite(favorite2);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite3 = new Favorite(objectType, "objectId3", null, userIdentityId);
+    favoriteService.createFavorite(favorite3);
+    Thread.sleep(10); // NOSONAR
+    Favorite favorite4 = new Favorite(objectType, "objectId4", null, userIdentityId);
+    favoriteService.createFavorite(favorite4);
+
+    List<MetadataItem> favoritesList = favoriteService.getFavoriteItemsByCreatorAndType(objectType,
+                                                                                        userIdentityId,
+                                                                                        0,
+                                                                                        10);
+    assertEquals(4, favoritesList.size());
+    assertEquals(favorite4.getObjectId(), favoritesList.get(0).getObjectId());
+    assertEquals(favorite3.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(2).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(3).getObjectId());
+
+    favoriteService.setFavoriteAsLastAccessed(favorite4.getObjectType(), favorite4.getObjectId(), userIdentityId);
+    Thread.sleep(10); // NOSONAR
+    favoriteService.setFavoriteAsLastAccessed(favorite3.getObjectType(), favorite3.getObjectId(), userIdentityId);
+    Thread.sleep(10); // NOSONAR
+    favoriteService.setFavoriteAsLastAccessed(favorite2.getObjectType(), favorite2.getObjectId(), userIdentityId);
+    Thread.sleep(10); // NOSONAR
+    favoriteService.setFavoriteAsLastAccessed(favorite1.getObjectType(), favorite1.getObjectId(), userIdentityId);
+
+    favoritesList = favoriteService.getFavoriteItemsByCreatorAndType(objectType,
+                                                                     userIdentityId,
+                                                                     0,
+                                                                     10);
+    assertEquals(4, favoritesList.size());
+    assertEquals(favorite4.getObjectId(), favoritesList.get(3).getObjectId());
+    assertEquals(favorite3.getObjectId(), favoritesList.get(2).getObjectId());
+    assertEquals(favorite2.getObjectId(), favoritesList.get(1).getObjectId());
+    assertEquals(favorite1.getObjectId(), favoritesList.get(0).getObjectId());
   }
 
   public void testDeleteFavorite() throws Exception {

@@ -24,9 +24,9 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.FavoriteACLPlugin;
 import org.exoplatform.social.metadata.MetadataService;
 import org.exoplatform.social.metadata.favorite.FavoriteService;
@@ -92,6 +92,13 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
+  public int getFavoriteItemsSize(String objectType, long creatorId) {
+    return metadataService.countMetadataItemsByMetadataTypeAndObjectTypeAndCreator(METADATA_TYPE.getName(),
+                                                                                   objectType,
+                                                                                   creatorId);
+  }
+
+  @Override
   public boolean isFavorite(Favorite favorite) {
     long userIdentityId = favorite.getUserIdentityId();
     MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(), String.valueOf(userIdentityId), userIdentityId);
@@ -111,6 +118,21 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
     for (MetadataItem favoriteItem : favorites) {
       metadataService.deleteMetadataItem(favoriteItem.getId(), userIdentityId);
+    }
+  }
+
+  @Override
+  public void setFavoriteAsLastAccessed(String objectType, String objectId, long userIdentityId) throws ObjectNotFoundException {
+    MetadataKey metadataKey = new MetadataKey(METADATA_TYPE.getName(),
+                                              String.valueOf(userIdentityId),
+                                              userIdentityId);
+    List<MetadataItem> favorites = metadataService.getMetadataItemsByMetadataAndObject(metadataKey, new FavoriteObject(objectType, objectId, null, 0));
+    if (CollectionUtils.isEmpty(favorites)) {
+      throw new ObjectNotFoundException(String.format("Favorite not found with key %s/%s ", objectType, objectId));
+    }
+    for (MetadataItem favoriteItem : favorites) {
+      favoriteItem.setUpdatedDate(System.currentTimeMillis());
+      metadataService.updateMetadataItem(favoriteItem, userIdentityId);
     }
   }
 
