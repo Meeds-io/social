@@ -35,7 +35,7 @@
       </v-list-item-title>
       <v-list-item-subtitle v-if="expanded" class="d-flex align-center full-width overflow-hidden pt-2px">
         <template v-if="space">
-          <space-avatar
+          <favorite-space-avatar
             :space="space"
             :size="16"
             class="flex-grow-0 flex-shrink-1 text-truncate"
@@ -44,10 +44,10 @@
         </template>
         <date-format class="flex-grow-0 flex-shrink-0" :value="activityPostedTime" />
         <v-icon class="flex-grow-0 flex-shrink-0 mx-2" size="2">fa-circle</v-icon>
-        <user-avatar
+        <favorite-user-avatar
           :identity="posterIdentity"
           :size="16"
-          class="flex-grow-0 flex-shrink-1 text-truncate" />
+          class="flex-grow-1 flex-shrink-1 text-truncate" />
       </v-list-item-subtitle>
     </v-list-item-content>
 
