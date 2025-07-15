@@ -22,7 +22,7 @@
       link
       text
       @click="openCommentsDrawer">
-      {{ $t('UIActivity.label.Show_All_Comments', {0: commentsSize}) }}
+      {{ $t('UIActivity.label.Show_All_Comments', {0: totalCommentsSize}) }}
     </v-btn>
   </div>
 </template>
@@ -50,6 +50,7 @@ export default {
   data: () => ({
     comments: [],
     commentsSize: 0,
+    totalCommentsSize: 0,
     limit: 2,
     loading: true,
   }),
@@ -76,6 +77,7 @@ export default {
       this.$nextTick().then(() => {
         this.comments = this.$activityService.computeParentCommentsList(this.activity.comments) || [];
         this.activity.commentsSize = this.commentsSize = this.activity.commentsCount && Number(this.activity.commentsCount) || 0;
+        this.totalCommentsSize = this.activity.totalCommentsSize = this.activity.totalCommentsCount && Number(this.activity.totalCommentsCount) || 0;
         this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
         this.loading = false;
       });
@@ -93,6 +95,7 @@ export default {
           this.$nextTick().then(() => {
             this.comments = data && data.comments || [];
             this.activity.commentsSize = this.commentsSize = data && data.size && Number(data.size) || 0;
+            this.totalCommentsSize = this.activity.totalCommentsSize = this.comments[0]?.totalCommentsCount || 0;
             this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
           });
         })

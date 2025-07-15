@@ -420,6 +420,12 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
   long getNumberOfComments(long activityId);
 
   /**
+   * @param activityId the Id of activity
+   * @return the total number of comments
+   */
+  long getNumberOfAllComments(long activityId);
+
+  /**
    *
    * @param activityId the Id of activity
    * @param offset the start index

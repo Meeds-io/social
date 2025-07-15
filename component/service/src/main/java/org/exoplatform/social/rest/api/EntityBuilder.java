@@ -225,6 +225,8 @@ public class EntityBuilder {
 
   private static final String             COMMENT_PARAM                              = "comment";
 
+  public static final String              TOTAL_COMMENTS_COUNT                       = "totalCommentsCount";
+
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
   private static UserPortalConfigService  userPortalConfigService;
@@ -1326,6 +1328,9 @@ public class EntityBuilder {
     if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
       activityEntity.setMetadatas(activityMetadatasToPublish);
     }
+    if (expandFields.contains(TOTAL_COMMENTS_COUNT)) {
+      activityEntity.setTotalCommentsCount(getActivityManager().getNumberOfAllComments(activity));
+    }
     return activityEntity;
   }
 
@@ -1433,6 +1438,15 @@ public class EntityBuilder {
     }
   }
 
+  public static boolean expandTotalActivityCommentsCount(String expand) {
+    if (StringUtils.isNotEmpty(expand)) {
+      List<String> expandFields = Arrays.asList(expand.split(","));
+      return expandFields.contains(TOTAL_COMMENTS_COUNT);
+    } else {
+      return false;
+    }
+  }
+
   public static CommentEntity buildEntityFromComment(ExoSocialActivity comment,
                                                      Identity authentiatedUser,
                                                      String restPath,
@@ -1530,8 +1544,12 @@ public class EntityBuilder {
         }
       }
     }
+    int totalActivityCommentsCount = getActivityManager().getNumberOfAllComments(activity);
     for (ExoSocialActivity comment : comments) {
       CommentEntity commentInfo = buildEntityFromComment(comment, authentiatedUser, restPath, expand, true);
+      if (expandTotalActivityCommentsCount(expand)) {
+        commentInfo.setTotalCommentsCount(totalActivityCommentsCount);
+      }
       commentsEntity.add(commentInfo.getDataEntity());
     }
     return commentsEntity;

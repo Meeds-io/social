@@ -629,6 +629,14 @@ public interface ActivityStorage {
   public int getNumberOfComments(ExoSocialActivity existingActivity);
 
   /**
+   * Gets the number of comments and subcomments of an activity.
+   *
+   * @param existingActivity
+   * @return
+   */
+  public int getNumberOfAllComments(ExoSocialActivity existingActivity);
+
+  /**
    * Gets the number of newer comments of an activity based on a comment.
    *
    * @param existingActivity
