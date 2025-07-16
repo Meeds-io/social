@@ -101,6 +101,7 @@ let config = {
     platformAccess: './src/main/webapp/vue-apps/platform-access/main.js',
     contentLink: './src/main/webapp/vue-apps/content-link/main.js',
     spaceCreation: './src/main/webapp/vue-apps/space-creation/main.js',
+    emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
   },
   module: {
     rules: [
