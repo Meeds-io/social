@@ -1501,6 +1501,9 @@
         <module>translationField</module>
       </depends>
       <depends>
+        <module>spacesListComponents</module>
+      </depends>
+      <depends>
         <module>cropper</module>
         <as>Cropper</as>
       </depends>
