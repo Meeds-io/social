@@ -21,10 +21,11 @@
 <template>
   <v-card
     id="login-extensions"
+    class="transparent"
     flat>
     <template v-if="providers.length">
       <v-card
-        class="d-flex mx-auto mt-5"
+        class="d-flex mx-auto mt-5 transparent"
         :width="mainProvidersWidth"
         flat>
         <component
@@ -43,7 +44,7 @@
           :params="params"
           :rememberme="rememberme"
           key="providerMenu"
-          class="flex-grow-1 text-end mx-auto" />
+          class="flex-grow-1 text-end mx-auto transparent" />
       </v-card>
       <portal-login-separator class="mt-5" />
     </template>
@@ -90,7 +91,7 @@ export default {
       return this.menuProviders.length > 0;
     },
     mainProvidersWidth() {
-      return this.mainProviders.length === 2 && this.mainProviders.length * 82 || '';
+      return this.mainProviders.length > 1 && this.mainProviders.length * 82 || '';
     },
   },
   created() {
@@ -109,6 +110,8 @@ export default {
         });
       }
       this.providers = providers.sort((p1, p2) => (p2.rank || 0) - (p1.rank || 0));
+      this.$root.$emit('login-providers-refreshed', this.providers);
+
     },
   },
 };

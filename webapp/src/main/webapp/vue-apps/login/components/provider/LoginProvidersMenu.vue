@@ -29,8 +29,7 @@
           :aria-label="$t('UILoginForm.label.moreProviders')"
           min-width="auto"
           color="primary"
-          class="pa-4"
-          large
+          class="btn"
           outlined
           v-bind="attrs"
           v-on="on">
