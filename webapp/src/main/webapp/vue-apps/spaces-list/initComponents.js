@@ -37,6 +37,7 @@ import SpaceRoleList from './components/space-card/menu/SpaceRoleList.vue';
 import SpaceCardButton from './components/common/SpaceCardButton.vue';
 import SpaceCardUnreadBadge from './components/common/SpaceCardUnreadBadge.vue';
 import SpaceFavoriteAction from './components/common/SpaceFavoriteAction.vue';
+import SpacesFilterSettings from './components/list/SpacesFilterSettings.vue';
 
 const components = {
   'spaces-list': SpacesList,
@@ -55,6 +56,7 @@ const components = {
   'space-favorite-action': SpaceFavoriteAction,
   'space-pending-button': SpacePendingButton,
   'spaces-public-access-warning': SpacesPublicAccessWarning,
+  'spaces-filter-settings': SpacesFilterSettings
 };
 
 for (const key in components) {

@@ -135,6 +135,9 @@
             false-value="false"
             class="ma-0 width-fit-content" />
         </div>
+        <spaces-filter-settings
+          v-if="option === 'SPACES'"
+          v-model="spaceFilterSettings" />
       </div>
     </template>
     <template #footer>
@@ -175,6 +178,7 @@ export default {
     limit: 4,
     displayItemsInMobile: 'false',
     displayOnlyWhenMember: 'true',
+    spaceFilterSettings: {}
   }),
   computed: {
     spaceTemplate() {
@@ -186,7 +190,7 @@ export default {
         || (this.option === 'SPACE_CATEGORY' && !this.spaceCategoryId)
         || (this.option === 'SPACES' && (!this.names || !this.names[eXo.env.portal.defaultLanguage]?.trim?.()?.length || Object.values(this.names).find(name => name?.length > 50)))
         || !this.sortBy;
-    },
+    }
   },
   watch: {
     option() {
@@ -234,6 +238,14 @@ export default {
         this.category = null;
       }
     },
+    spaceFilterSettings: {
+      deep: true,
+      handler() {
+        if (this.drawer) {
+          this.modified = true;
+        }
+      }
+    },
   },
   created() {
     this.$root.$on('sidebar-item-add-spaces', this.open);
@@ -260,6 +272,12 @@ export default {
           displayItemsInMobile: 'false',
           displayOnlyWhenMember: 'true',
         },
+      };
+      this.spaceFilterSettings = {
+        excludeCategoryIds: this.item?.properties?.excludedCategoryIds ? JSON.parse(this.item?.properties?.excludedCategoryIds) : [],
+        categoryIds: this.item?.properties?.spaceCategoryIds ? JSON.parse(this.item?.properties?.spaceCategoryIds) : [],
+        templateIds: this.item?.properties?.spaceTemplateIds ? JSON.parse(this.item?.properties?.spaceTemplateIds) : [],
+        filterType: this.item?.properties?.filterType
       };
       this.isNew = !item;
       this.reset(this.item);
@@ -318,11 +336,22 @@ export default {
           limit: Math.min(this.limit, 10),
           displayItemsInMobile: this.displayItemsInMobile,
           displayOnlyWhenMember: this.displayOnlyWhenMember,
+          excludedCategoryIds: JSON.stringify(this.spaceFilterSettings?.excludeCategoryIds ?? []),
+          spaceTemplateIds: JSON.stringify(this.spaceFilterSettings?.templateIds ?? []),
+          spaceCategoryIds: JSON.stringify(this.spaceFilterSettings?.categoryIds ?? []),
+          filterType: this.spaceFilterSettings?.filterType
         };
       }
       const data = await this.$spaceService.getSpacesByFilter({
-        templateId: this.option === 'SPACE_TEMPLATE' ? this.spaceTemplateId : null,
-        categoryId: this.option === 'SPACE_CATEGORY' ? this.spaceCategoryId : null,
+        excludedCategoryIds: this.spaceFilterSettings?.excludeCategoryIds?.length
+          ? await this.appendExcludedSubCategories(this.spaceFilterSettings.excludeCategoryIds)
+          : null,
+        templateId: this.option === 'SPACE_TEMPLATE'
+          ? this.spaceTemplateId
+          : this.spaceFilterSettings?.templateIds?.length ? this.spaceFilterSettings.templateIds : null,
+        categoryIds: this.option === 'SPACE_CATEGORY'
+          ? this.spaceCategoryId
+          : this.spaceFilterSettings?.categoryIds?.length ? this.spaceFilterSettings.categoryIds : null,
         offset: 0,
         limit: this.limit,
         filter: this.getSpacesFilterType(this.sortBy),
@@ -344,6 +373,18 @@ export default {
         this.settings.sidebar.items.push(this.item);
       }
       this.close();
+    },
+    async appendExcludedSubCategories(excludedCategories) {
+      const subcategoryLists = await Promise.all(
+        excludedCategories.map(id =>
+          this.$categoryService.getSubcategoryIds(id, {depth: 1, offset: 0, limit: -1}).catch(err => {
+            console.warn(`Could not fetch subcategories for ID ${id}`, err);
+            return [];
+          })
+        )
+      );
+      const subcategoryIds = subcategoryLists.flat();
+      return [...new Set([...excludedCategories, ...subcategoryIds])];
     },
     getSpacesFilterType(sortBy) {
       if (sortBy === 'LAST_ACCESS') {

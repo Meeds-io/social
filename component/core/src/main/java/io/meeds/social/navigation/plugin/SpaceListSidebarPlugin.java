@@ -20,12 +20,11 @@ package io.meeds.social.navigation.plugin;
 
 import static io.meeds.social.navigation.plugin.SidebarPluginUtils.getNameFromProperties;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.meeds.social.category.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
@@ -46,21 +45,32 @@ import io.meeds.portal.navigation.model.SidebarItem;
 @Order(40)
 public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
-  public static final String      SPACES_NAMES    = "names";
+  public static final String        SPACES_NAMES          = "names";
 
-  public static final PageKey     SPACES_PAGE_KEY = new PageKey(SiteKey.portal("global"), "all-spaces");
+  private static final String       SPACE_CATEGORY_IDS    = "spaceCategoryIds";
+
+  private static final String       SPACE_TEMPLATE_IDS    = "spaceTemplateIds";
+
+  private static final String       EXCLUDED_CATEGORY_IDS = "excludedCategoryIds";
+
+  private static final ObjectMapper mapper                = new ObjectMapper();
+
+  public static final PageKey       SPACES_PAGE_KEY       = new PageKey(SiteKey.portal("global"), "all-spaces");
 
   @Autowired
-  private LocaleConfigService     localeConfigService;
+  private LocaleConfigService       localeConfigService;
 
   @Autowired
-  private UserPortalConfigService portalConfigService;
+  private UserPortalConfigService   portalConfigService;
 
   @Autowired
-  private LayoutService           layoutService;
+  private LayoutService             layoutService;
 
   @Autowired
-  private UserACL                 userAcl;
+  private UserACL                   userAcl;
+
+  @Autowired
+  private CategoryService           categoryService;
 
   @Override
   public SidebarItemType getType() {
@@ -77,10 +87,7 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   @Override
   public SidebarItem resolveProperties(SidebarItem item, String username, Locale locale) {
-    item.setName(getNameFromProperties(localeConfigService,
-                                       item,
-                                       SPACES_NAMES,
-                                       locale));
+    item.setName(getNameFromProperties(localeConfigService, item, SPACES_NAMES, locale));
     item.setItems(getSpaces(item, username));
 
     if (hasAccessToSpacesPage(username)) {
@@ -111,7 +118,27 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
 
   @Override
   protected void buildSpaceFilter(String username, SidebarItem item, SpaceFilter spaceFilter) {
-    // No specific space filter
+    List<Long> excludedCategoryIds = getLongListFromJson(item.getProperties(), EXCLUDED_CATEGORY_IDS);
+    List<Long> categoryIds = getLongListFromJson(item.getProperties(), SPACE_CATEGORY_IDS);
+    List<Long> templateIds = getLongListFromJson(item.getProperties(), SPACE_TEMPLATE_IDS);
+
+    if (excludedCategoryIds != null) {
+      Set<Long> allExcluded = new HashSet<>(excludedCategoryIds);
+      for (Long parentId : excludedCategoryIds) {
+        List<Long> subCategoryIds = categoryService.getSubcategoryIds(username, parentId, 0, -1, -1);
+        if (subCategoryIds != null) {
+          allExcluded.addAll(subCategoryIds);
+        }
+      }
+      spaceFilter.setExcludedCategoryIds(new ArrayList<>(allExcluded));
+    }
+
+    if (categoryIds != null) {
+      spaceFilter.setCategoryIds(categoryIds);
+    }
+    if (templateIds != null) {
+      spaceFilter.setTemplateIds(templateIds);
+    }
   }
 
   private boolean hasAccessToSpacesPage(String username) {
@@ -119,4 +146,16 @@ public class SpaceListSidebarPlugin extends AbstractSpaceSidebarPlugin {
     return spacesPage != null && userAcl.hasAccessPermission(spacesPage, userAcl.getUserIdentity(username));
   }
 
+  private static List<Long> getLongListFromJson(Map<String, String> properties, String key) {
+    String value = properties.get(key);
+    if (value == null || value.isBlank())
+      return null;
+    try {
+      List<Long> list = mapper.readValue(value, new TypeReference<>() {
+      });
+      return list.isEmpty() ? null : list;
+    } catch (Exception e) {
+      return null;
+    }
+  }
 }

@@ -205,15 +205,26 @@ export default {
             this.spaces = [];
           }
         } else {
+          const openedItem =this.$root.openedItem;
+          const properties = openedItem?.properties;
+          const type = openedItem.type;
           const data = await this.$spaceService.getSpacesByFilter({
             query: this.filterType === 'lastVisited' ? this.keyword : '',
-            categoryId: this.$root.openedItem?.properties?.spaceCategoryIds && JSON.parse(this.$root.openedItem?.properties?.spaceCategoryIds) || null,
-            templateId: this.$root.openedSpaceTemplateId || 0,
             filter: this.filterType || 'lastVisited',
             sortBy: 'lastVisited',
             expand: 'member,managers,favorite,unread,muted',
             offset: this.offset,
             limit: this.limitToFetch,
+            ...(type === 'SPACES'
+              ? {
+                excludedCategoryIds: await this.appendExcludedSubCategories(this.parseJsonArray(properties.excludedCategoryIds) || []),
+                categoryIds: this.parseJsonArray(properties.spaceCategoryIds),
+                templateId: this.parseJsonArray(properties.spaceTemplateIds) || this.$root.openedSpaceTemplateId || 0,
+              }
+              : {
+                categoryId: this.parseJsonArray(properties.spaceCategoryIds)?.[0] ?? null,
+                templateId: this.$root.openedSpaceTemplateId || 0,
+              }),
           });
           this.spaces = data?.spaces || [];
         }
@@ -223,6 +234,26 @@ export default {
         }
       } finally {
         this.loadingSpaces = false;
+      }
+    },
+    async appendExcludedSubCategories(excludedCategories) {
+      const subcategoryLists = await Promise.all(
+        excludedCategories.map(id =>
+          this.$categoryService.getSubcategoryIds(id, {depth: 1, offset: 0, limit: -1}).catch(err => {
+            console.warn(`Could not fetch subcategories for ID ${id}`, err);
+            return [];
+          })
+        )
+      );
+      const subcategoryIds = subcategoryLists.flat();
+      return [...new Set([...excludedCategories, ...subcategoryIds])];
+    },
+    parseJsonArray(value) {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) && parsed.length > 0 ? parsed : null;
+      } catch {
+        return null;
       }
     },
     resetSearch() {
