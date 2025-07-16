@@ -18,9 +18,19 @@
  */
 
 import LoginForm from './components/LoginForm.vue';
+import LoginSeparator from '../login/components/LoginSeparator.vue';
+import LoginProviders from '../login/components/provider/LoginProviders.vue';
+import LoginProvidersMenu from '../login/components/provider/LoginProvidersMenu.vue';
+import LoginProviderLink from '../login/components/provider/LoginProviderLink.vue';
+import LoginProviderMenuLink from '../login/components/provider/LoginProviderMenuLink.vue';
 
 const components = {
   'login-form': LoginForm,
+  'portal-login-providers': LoginProviders,
+  'portal-login-providers-menu': LoginProvidersMenu,
+  'portal-login-provider-link': LoginProviderLink,
+  'portal-login-provider-menu-link': LoginProviderMenuLink,
+  'portal-login-separator': LoginSeparator,
 };
 
 for (const key in components) {

@@ -29,17 +29,16 @@ const urls = [
   `/social/i18n/locale.portal.login?lang=${lang}`
 ];
 
-export function init(forgotPasswordPath) {
-  const decodedPath = decodeURIComponent(forgotPasswordPath);
+export function init(params) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
-        params: decodedPath,
+        params: params,
       },
-      template: `<login-form id="${appId}" forgot-password-path="${decodedPath}"/>`,
+      template: `<login-form id="${appId}" :params="params"/>`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, `#${appId}`, 'Login Form');
-  });
+  }).finally(() => Vue.prototype.$utils.includeExtensions('LoginExtension'));
 }

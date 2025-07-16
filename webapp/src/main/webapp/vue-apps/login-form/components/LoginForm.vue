@@ -19,11 +19,28 @@
 
 -->
 <template>
-  <v-app class="mx-auto">
+  <v-app class="mx-auto" v-show="this.init">
     <v-card
       class="rounded-0 transparent pa-5"
       flat>
-      <div class="widget-text-header align-center">{{ $t('portal.login.WelcomeBack') }}</div>
+      <div v-if="registerEnabled" class="widget-text-header align-center">
+        {{ $t('UILoginForm.label.registerNewAccount') }}
+        <a
+          :title="$t('UILoginForm.button.registerNewAccount')"
+          href="/portal/register"
+          class="text-decoration-underline">
+          {{ $t('UILoginForm.button.registerNewAccount') }}
+        </a>
+      </div>
+      <div v-else class="widget-text-header align-center">{{ $t('portal.login.WelcomeBack') }}</div>
+
+      <div v-if="!registerEnabled && !this.displayForm" class="widget-text-header align-center">{{ $t('portal.login.chooseSignin') }}</div>
+
+      <portal-login-providers
+        :params="this.values"
+        :rememberme="rememberme"
+        ref="loginProvidersComponent"
+        v-show="!this.displayForm"/>
 
       <form
         ref="form"
@@ -32,7 +49,8 @@
         method="post"
         autocomplete="off"
         class="d-flex ma-0 flex-column"
-        @submit="validateForm()">
+        @submit="validateForm()"
+        v-if="this.displayForm">
         <input
           v-if="initialUri"
           type="hidden"
@@ -111,6 +129,19 @@
           </v-row>
         </div>
       </form>
+      <div v-else class="mt-4 center text-body">
+          <v-btn
+            color="primary"
+            class="elevation-0"
+            outlined
+            style="background-color:white"
+            @click="clickDisplayForm()">
+            <span class="text-body">
+              <v-icon class="me-2">fas fa-envelope</v-icon>
+              {{ $t('portal.login.SigninUsingEmail') }}
+            </span>
+          </v-btn>
+      </div>
     </v-card>
 
   </v-app>
@@ -118,8 +149,8 @@
 <script>
 export default {
   props: {
-    forgotPasswordPath: {
-      type: String,
+    params: {
+      type: Object,
       default: null,
     },
   },
@@ -127,7 +158,9 @@ export default {
     rememberme: true,
     loading: false,
     username: '',
-    showPassword: false
+    showPassword: false,
+    displayForm: false,
+    init: false,
   }),
   watch: {
     errorMessage: {
@@ -139,17 +172,29 @@ export default {
       },
     },
   },
+  created() {
+    this.values = JSON.parse(this.params);
+    this.$root.$on('login-providers-refreshed', (providers) => {
+      this.displayForm = providers.length === 0;
+      const t = this;
+      setTimeout(() => {
+        t.init = true;
+      }, 10);
+    });
+  },
   computed: {
+    registerEnabled() {
+      return this.values?.registerEnabled;
+    },
+    forgotPasswordPath() {
+      return this.values?.forgotPasswordPath;
+    },
     passwordType(){
       return this.showPassword ? 'text' :'password';
     },
     initialUri() {
-      console.log('Checking for initialUri in component:', window.location.search);
       const urlParams = new URLSearchParams(window.location.search);
-      console.log('Checking for initialUri in URL params:', urlParams);
-      console.log('Checking for initialUri in URL params:', urlParams);
       if (urlParams.has('initialUri')) {
-        console.log('Initial URI found in URL params:', urlParams.get('initialUri'));
         return urlParams.get('initialUri');
       }
       return null;
@@ -169,13 +214,14 @@ export default {
         || this.errorCode;
     },
   },
-  created() {
-    console.log('LoginForm component created', this.forgotPasswordPath);
-  },
   mounted() {
     this.setupUserName();
   },
   methods: {
+
+    clickDisplayForm() {
+      this.displayForm = !this.displayForm;
+    },
     setupUserName(){
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.has('username')) {
