@@ -29,10 +29,9 @@
           :aria-label="providerButtonLabel"
           min-width="auto"
           color="primary"
-          class="pa-4 text-none"
-          outlined
-          large
+          class="text-none elevation-0 btn"
           v-bind="attrs"
+          outlined
           v-on="on"
           @click="clickOnProviderButton">
           <v-img
@@ -43,7 +42,7 @@
             max-width="25"
             eager />
           <v-icon v-else :class="providerIcon" />
-          <span v-if="displayText" class="text-truncate">{{ providerButtonLabel }}</span>
+          <span v-if="displayText" class="text-body text-truncate">{{ providerButtonLabel }}</span>
         </v-btn>
       </template>
       <span>{{ providerButtonLabel }}</span>

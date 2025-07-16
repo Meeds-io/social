@@ -2174,6 +2174,7 @@
   <portlet>
     <name>LoginForm</name>
     <module>
+      <load-group>login-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/loginForm.bundle.js</path>
@@ -3331,5 +3332,6 @@
       <module>extensionRegistry</module>
     </depends>
   </module>
+
 
 </gatein-resources>
