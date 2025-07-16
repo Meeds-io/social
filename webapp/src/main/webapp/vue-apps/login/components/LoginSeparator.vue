@@ -21,7 +21,7 @@
 <template>
   <div class="d-flex">
     <v-divider class="my-auto secondary login-separator" />
-    <span class="mx-3 text-uppercase">
+    <span class="mx-3 text-uppercase secondary--text">
       {{ $t('UILoginForm.label.or') }}
     </span>
     <v-divider class="my-auto secondary login-separator" />
