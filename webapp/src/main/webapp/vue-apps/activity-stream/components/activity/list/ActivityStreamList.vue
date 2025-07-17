@@ -170,6 +170,7 @@ export default {
     this.$root.$on('activities-refresh', this.refreshActivities);
     this.$root.$on('activity-read', this.markActivityAsRead);
     this.$root.$on('activity-loaded', this.refreshUnreadCount);
+    this.$root.$on('set-activity-comment-size', this.setActivityCommentSize);
     document.addEventListener('categories-updated', this.refreshActivitiesByCategories);
     document.addEventListener('activity-deleted', this.handleDeletedByEvent);
     document.addEventListener('activity-pinned', this.handlePinnedByEvent);
@@ -195,6 +196,7 @@ export default {
     this.$root.$off('activities-refresh', this.refreshActivities);
     this.$root.$off('activity-read', this.markActivityAsRead);
     this.$root.$off('activity-loaded', this.refreshUnreadCount);
+    this.$root.$off('set-activity-comment-size', this.setActivityCommentSize);
     document.removeEventListener('categories-updated', this.refreshActivitiesByCategories);
     document.removeEventListener('activity-deleted', this.handleDeletedByEvent);
     document.removeEventListener('activity-pinned', this.handlePinnedByEvent);
@@ -450,6 +452,13 @@ export default {
     displayAlert(message, type) {
       this.$root.$emit('alert-message', message, type || 'success');
     },
+    setActivityCommentSize(activityId, activityCommentSize, activityTotalCommentSize) {
+      const activity = this.activities.find(activity => activity.id === activityId);
+      if (activity) {
+        activity.totalCommentsSize = activityTotalCommentSize;
+        activity.commentsSize = activityCommentSize;
+      }
+    }
   },
 };
 </script>

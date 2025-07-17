@@ -89,6 +89,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import static org.exoplatform.social.rest.api.EntityBuilder.TOTAL_COMMENTS_COUNT;
+
 @Path(VersionResources.VERSION_ONE + "/social/activities")
 @Tag(name = VersionResources.VERSION_ONE + "/social/activities", description = "Managing activities together with comments and likes")
 public class ActivityRest implements ResourceContainer {
@@ -519,6 +521,8 @@ public class ActivityRest implements ResourceContainer {
       boolean expandSubComments = EntityBuilder.expandSubComments(expand);
       RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, expandSubComments);
       collectionComment.setSize(listAccess.getSize());
+    }
+    if (StringUtils.contains(expand, TOTAL_COMMENTS_COUNT)) {
       collectionComment.setTotalCommentsSize(activityManager.getNumberOfAllComments(activityId));
     }
     //

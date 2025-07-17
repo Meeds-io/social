@@ -76,8 +76,9 @@ export default {
       this.loading = true;
       this.$nextTick().then(() => {
         this.comments = this.$activityService.computeParentCommentsList(this.activity.comments) || [];
-        this.activity.commentsSize = this.commentsSize = this.activity.commentsCount && Number(this.activity.commentsCount) || 0;
-        this.totalCommentsSize = this.activity.totalCommentsSize = this.activity.totalCommentsCount && Number(this.activity.totalCommentsCount) || 0;
+        this.commentsSize = this.activity.commentsCount && Number(this.activity.commentsCount) || 0;
+        this.totalCommentsSize = this.activity.totalCommentsCount && Number(this.activity.totalCommentsCount) || 0;
+        this.$root.$emit('set-activity-comment-size', this.activity.id, this.commentsSize, this.totalCommentsSize);
         this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
         this.loading = false;
       });
@@ -94,8 +95,9 @@ export default {
           this.commentsSize = 0;
           this.$nextTick().then(() => {
             this.comments = data && data.comments || [];
-            this.activity.commentsSize = this.commentsSize = data && data.size && Number(data.size) || 0;
-            this.totalCommentsSize = this.activity.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
+            this.commentsSize = data && data.size && Number(data.size) || 0;
+            this.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
+            this.$root.$emit('set-activity-comment-size', this.activity.id, this.commentsSize, this.totalCommentsSize);
             this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
           });
         })

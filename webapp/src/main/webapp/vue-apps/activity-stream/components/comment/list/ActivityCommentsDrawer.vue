@@ -270,7 +270,8 @@ export default {
         .then(data => {
           let comments = data && data.comments || [];
           this.commentsSize = data && data.size && Number(data.size) || 0;
-          this.totalCommentsSize = this.activity.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
+          this.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
+          this.$root.$emit('set-activity-comment-size', this.activity.id, this.commentsSize, this.totalCommentsSize);
           this.pagesCount = parseInt((this.commentsSize + this.limit - 1) / this.limit);
           if (loadLastComments) {
             this.page = this.pagesCount;

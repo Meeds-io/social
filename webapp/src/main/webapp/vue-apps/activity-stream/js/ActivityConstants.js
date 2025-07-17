@@ -4,6 +4,6 @@ export default {
   FULL_ACTIVITY_IDS_EXPAND: 'ids,identity,likes,shared,commentsPreview,subComments,favorite',
   FULL_ACTIVITY_EXPAND: 'identity,likes,shared,commentsPreview,subComments,favorite,totalCommentsCount',
   ACTIVITY_EXPAND: 'identity,likes,shared',
-  FULL_COMMENT_EXPAND: 'identity,likes,subComments',
+  FULL_COMMENT_EXPAND: 'identity,likes,subComments,totalCommentsCount',
   COMMENT_MAX_LENGTH: 1300,
 };
