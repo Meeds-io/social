@@ -1129,6 +1129,16 @@ public class CachedActivityStorage implements ActivityStorage {
                                .build();
   }
 
+  @Override
+  public int getNumberOfAllComments(String activityId) {
+    ActivityListKey key = new ActivityListKey(activityId, ActivityType.COMMENTS);
+    return activitiesCountCache.get(new ServiceContext<IntegerData>() {
+      public IntegerData execute() {
+        return new IntegerData(storage.getNumberOfAllComments(activityId));
+      }
+    }, key).build();
+  }
+
   /**
    * {@inheritDoc}
    */

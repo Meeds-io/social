@@ -225,6 +225,8 @@ public class EntityBuilder {
 
   private static final String             COMMENT_PARAM                              = "comment";
 
+  public static final String              TOTAL_COMMENTS_COUNT                       = "totalCommentsCount";
+
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
   private static UserPortalConfigService  userPortalConfigService;
@@ -1325,6 +1327,9 @@ public class EntityBuilder {
     Map<String, List<MetadataItemEntity>> activityMetadatasToPublish = retrieveMetadataItems(activity, authentiatedUser);
     if (MapUtils.isNotEmpty(activityMetadatasToPublish)) {
       activityEntity.setMetadatas(activityMetadatasToPublish);
+    }
+    if (expandFields.contains(TOTAL_COMMENTS_COUNT)) {
+      activityEntity.setTotalCommentsCount(getActivityManager().getNumberOfAllComments(activity.getId()));
     }
     return activityEntity;
   }
