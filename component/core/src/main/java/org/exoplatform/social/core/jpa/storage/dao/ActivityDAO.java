@@ -423,7 +423,7 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @param activityId the Id of activity
    * @return the total number of comments
    */
-  long getNumberOfAllComments(long activityId);
+  int getNumberOfAllComments(long activityId);
 
   /**
    *

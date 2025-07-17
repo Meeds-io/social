@@ -626,9 +626,9 @@ public interface ActivityManager {
   /**
    * Gets the number of comments and subcomments of an activity.
    *
-   * @param existingActivity
+   * @param activityId {@link ExoSocialActivity} identifier
    * @return
    */
-  int getNumberOfAllComments(ExoSocialActivity existingActivity);
+  int getNumberOfAllComments(String activityId);
 
 }

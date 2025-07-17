@@ -824,10 +824,10 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
-  public long getNumberOfAllComments(long activityId) {
+  public int getNumberOfAllComments(long activityId) {
     TypedQuery<Long> query = getEntityManager().createNamedQuery("SocActivity.numberCommentsAndSubCommentsOfActivity", Long.class);
     query.setParameter(ACTIVITY_ID_PARAM, activityId);
-    return query.getSingleResult();
+    return query.getSingleResult().intValue();
   }
 
   @Override

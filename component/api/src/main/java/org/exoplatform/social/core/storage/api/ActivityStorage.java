@@ -631,10 +631,10 @@ public interface ActivityStorage {
   /**
    * Gets the number of comments and subcomments of an activity.
    *
-   * @param existingActivity
+   @param activityId {@link ExoSocialActivity} identifier
    * @return
    */
-  public int getNumberOfAllComments(ExoSocialActivity existingActivity);
+  public int getNumberOfAllComments(String activityId);
 
   /**
    * Gets the number of newer comments of an activity based on a comment.

@@ -1492,8 +1492,8 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
   }
 
   @Override
-  public int getNumberOfAllComments(ExoSocialActivity existingActivity) {
-    return (int) activityDAO.getNumberOfAllComments(Long.valueOf(existingActivity.getId()));
+  public int getNumberOfAllComments(String activityId) {
+    return activityDAO.getNumberOfAllComments(Long.parseLong(activityId));
   }
 
   @Override

@@ -997,8 +997,8 @@ public class ActivityManagerImpl implements ActivityManager {
   }
 
   @Override
-  public int getNumberOfAllComments(ExoSocialActivity existingActivity){
-    return activityStorage.getNumberOfAllComments(existingActivity);
+  public int getNumberOfAllComments(String activityId){
+    return activityStorage.getNumberOfAllComments(activityId);
   }
 
   public boolean isAutomaticActivity(ExoSocialActivity activity) {

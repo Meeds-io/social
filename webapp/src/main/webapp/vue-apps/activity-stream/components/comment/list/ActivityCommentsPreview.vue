@@ -95,7 +95,7 @@ export default {
           this.$nextTick().then(() => {
             this.comments = data && data.comments || [];
             this.activity.commentsSize = this.commentsSize = data && data.size && Number(data.size) || 0;
-            this.totalCommentsSize = this.activity.totalCommentsSize = this.comments[0]?.totalCommentsCount || 0;
+            this.totalCommentsSize = this.activity.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
             this.$root.$emit('activity-comments-retrieved', this.activity, this.comments);
           });
         })

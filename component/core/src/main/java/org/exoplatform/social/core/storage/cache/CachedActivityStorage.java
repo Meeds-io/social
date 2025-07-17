@@ -1129,14 +1129,12 @@ public class CachedActivityStorage implements ActivityStorage {
                                .build();
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  public int getNumberOfAllComments(final ExoSocialActivity existingActivity) {
-    ActivityListKey key = new ActivityListKey(existingActivity.getId(), ActivityType.COMMENTS);
+  @Override
+  public int getNumberOfAllComments(String activityId) {
+    ActivityListKey key = new ActivityListKey(activityId, ActivityType.COMMENTS);
     return activitiesCountCache.get(new ServiceContext<IntegerData>() {
       public IntegerData execute() {
-        return new IntegerData(storage.getNumberOfAllComments(existingActivity));
+        return new IntegerData(storage.getNumberOfAllComments(activityId));
       }
     }, key).build();
   }

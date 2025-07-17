@@ -1329,7 +1329,7 @@ public class EntityBuilder {
       activityEntity.setMetadatas(activityMetadatasToPublish);
     }
     if (expandFields.contains(TOTAL_COMMENTS_COUNT)) {
-      activityEntity.setTotalCommentsCount(getActivityManager().getNumberOfAllComments(activity));
+      activityEntity.setTotalCommentsCount(getActivityManager().getNumberOfAllComments(activity.getId()));
     }
     return activityEntity;
   }
@@ -1438,15 +1438,6 @@ public class EntityBuilder {
     }
   }
 
-  public static boolean expandTotalActivityCommentsCount(String expand) {
-    if (StringUtils.isNotEmpty(expand)) {
-      List<String> expandFields = Arrays.asList(expand.split(","));
-      return expandFields.contains(TOTAL_COMMENTS_COUNT);
-    } else {
-      return false;
-    }
-  }
-
   public static CommentEntity buildEntityFromComment(ExoSocialActivity comment,
                                                      Identity authentiatedUser,
                                                      String restPath,
@@ -1544,12 +1535,8 @@ public class EntityBuilder {
         }
       }
     }
-    int totalActivityCommentsCount = getActivityManager().getNumberOfAllComments(activity);
     for (ExoSocialActivity comment : comments) {
       CommentEntity commentInfo = buildEntityFromComment(comment, authentiatedUser, restPath, expand, true);
-      if (expandTotalActivityCommentsCount(expand)) {
-        commentInfo.setTotalCommentsCount(totalActivityCommentsCount);
-      }
       commentsEntity.add(commentInfo.getDataEntity());
     }
     return commentsEntity;
