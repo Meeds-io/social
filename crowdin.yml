@@ -370,5 +370,4 @@ files: [
     "escape_special_characters": 0,
     "escape_quotes": 0,
   }
- }
 ]
