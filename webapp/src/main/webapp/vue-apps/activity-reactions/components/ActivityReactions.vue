@@ -48,6 +48,7 @@
       :activity="activity"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
+      :total-comments-number="totalCommentsNumber"
       class="d-flex d-lg-none align-center"
       @openDrawer="openDrawer" />
   </div>
@@ -72,6 +73,10 @@ export default {
       default: 0
     },
     commentNumber: {
+      type: Number,
+      default: 0
+    },
+    totalCommentsNumber: {
       type: Number,
       default: 0
     },

@@ -72,6 +72,7 @@ import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.RestUtils;
+import org.exoplatform.social.rest.entity.ActivityCommentCollectionEntity;
 import org.exoplatform.social.rest.entity.ActivityEntity;
 import org.exoplatform.social.rest.entity.ActivitySearchResultEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
@@ -87,6 +88,8 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import static org.exoplatform.social.rest.api.EntityBuilder.TOTAL_COMMENTS_COUNT;
 
 @Path(VersionResources.VERSION_ONE + "/social/activities")
 @Tag(name = VersionResources.VERSION_ONE + "/social/activities", description = "Managing activities together with comments and likes")
@@ -513,11 +516,14 @@ public class ActivityRest implements ResourceContainer {
                                                                            sortDescending,
                                                                            offset,
                                                                            limit);
-    CollectionEntity collectionComment = new CollectionEntity(commentsEntity, EntityBuilder.COMMENTS_TYPE, offset, limit);
+    ActivityCommentCollectionEntity collectionComment = new ActivityCommentCollectionEntity(commentsEntity, EntityBuilder.COMMENTS_TYPE, offset, limit);
     if (returnSize) {
       boolean expandSubComments = EntityBuilder.expandSubComments(expand);
       RealtimeListAccess<ExoSocialActivity> listAccess = activityManager.getCommentsWithListAccess(activity, expandSubComments);
       collectionComment.setSize(listAccess.getSize());
+    }
+    if (StringUtils.contains(expand, TOTAL_COMMENTS_COUNT)) {
+      collectionComment.setTotalCommentsSize(activityManager.getNumberOfAllComments(activityId));
     }
     //
     return EntityBuilder.getResponse(collectionComment, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
