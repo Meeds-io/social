@@ -634,7 +634,9 @@ public interface ActivityStorage {
    @param activityId {@link ExoSocialActivity} identifier
    * @return
    */
-  public int getNumberOfAllComments(String activityId);
+  default int getNumberOfAllComments(String activityId) {
+    throw new UnsupportedOperationException();
+  }
 
   /**
    * Gets the number of newer comments of an activity based on a comment.

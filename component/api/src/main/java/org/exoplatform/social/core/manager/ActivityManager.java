@@ -629,6 +629,8 @@ public interface ActivityManager {
    * @param activityId {@link ExoSocialActivity} identifier
    * @return
    */
-  int getNumberOfAllComments(String activityId);
+  default int getNumberOfAllComments(String activityId) {
+    throw new UnsupportedOperationException();
+  }
 
 }
