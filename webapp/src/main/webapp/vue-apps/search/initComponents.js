@@ -9,6 +9,7 @@ import SearchOptions from './components/SearchOptions.vue';
 import SearchResultCardGroup from './components/SearchResultCardGroup.vue';
 import SearchSpaceSelector from './components/search-space-selector.vue';
 import SearchFavoriteSelector from './components/searchFavoriteSelector.vue';
+import SearchSelectedSpaceItem from './components/searchSelectedSpaceItem.vue';
 
 const components = {
   'search-application': SearchApplication,
@@ -21,7 +22,8 @@ const components = {
   'search-options': SearchOptions,
   'search-result-card-group': SearchResultCardGroup,
   'search-favorites-selector': SearchFavoriteSelector,
-  'search-space-selector': SearchSpaceSelector
+  'search-space-selector': SearchSpaceSelector,
+  'search-selected-space-item': SearchSelectedSpaceItem
 };
 
 for (const key in components) {
