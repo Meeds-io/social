@@ -996,6 +996,11 @@ public class ActivityManagerImpl implements ActivityManager {
     return false;
   }
 
+  @Override
+  public int getNumberOfAllComments(String activityId){
+    return activityStorage.getNumberOfAllComments(activityId);
+  }
+
   public boolean isAutomaticActivity(ExoSocialActivity activity) {
     // Only not automatic created comments are editable
     return activity != null

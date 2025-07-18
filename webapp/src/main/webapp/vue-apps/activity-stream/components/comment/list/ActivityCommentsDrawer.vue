@@ -71,6 +71,7 @@ export default {
   data: () => ({
     comments: [],
     commentsSize: 0,
+    totalCommentsSize: 0,
     activity: null,
     initialized: false,
     drawerOpened: false,
@@ -93,12 +94,12 @@ export default {
     commentsTitle() {
       if (!this.initialized) {
         return '';
-      } else if (this.commentsSize === 0) {
+      } else if (this.totalCommentsSize === 0) {
         return this.$t('activity.noComments');
-      } else if (this.commentsSize === 1) {
+      } else if (this.totalCommentsSize === 1) {
         return this.$t('activity.singleComment');
       } else {
-        return this.$t('activity.commentsCount', {0: this.commentsSize});
+        return this.$t('activity.commentsCount', {0: this.totalCommentsSize});
       }
     },
     enabled() {
@@ -133,6 +134,7 @@ export default {
     reset() {
       this.comments = [];
       this.commentsSize = 0;
+      this.totalCommentsSize = 0;
       this.drawerOpened = false;
       this.page = 1;
       this.offset = 0;
@@ -268,6 +270,8 @@ export default {
         .then(data => {
           let comments = data && data.comments || [];
           this.commentsSize = data && data.size && Number(data.size) || 0;
+          this.totalCommentsSize = data?.totalCommentsSize && Number(data.totalCommentsSize) || 0;
+          this.$root.$emit('set-activity-comment-size', this.activity.id, this.commentsSize, this.totalCommentsSize);
           this.pagesCount = parseInt((this.commentsSize + this.limit - 1) / this.limit);
           if (loadLastComments) {
             this.page = this.pagesCount;

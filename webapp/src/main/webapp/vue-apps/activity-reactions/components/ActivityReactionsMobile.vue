@@ -14,7 +14,7 @@
       v-if="commentNumber > 0"
       class="my-1 me-2 CommentsNumber"
       @click="openComments">
-      {{ commentNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
+      {{ totalCommentsNumber }} {{ $t('UIActivity.comment.commentsLabel') }}
     </a>
     <extension-registry-components
       :params="extensionParams"
@@ -37,6 +37,10 @@ export default {
       default: 0
     },
     commentNumber: {
+      type: Number,
+      default: 0
+    },
+    totalCommentsNumber: {
       type: Number,
       default: 0
     }

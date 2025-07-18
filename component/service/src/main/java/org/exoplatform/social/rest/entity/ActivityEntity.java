@@ -361,4 +361,14 @@ public class ActivityEntity extends BaseEntity {
     return (List<String>) getProperty("targetSpaces");
   }
 
+  public ActivityEntity setTotalCommentsCount(int totalCommentsCount) {
+    setProperty("totalCommentsCount", totalCommentsCount);
+    return this;
+  }
+
+  public int getTotalCommentsCount() {
+    Object count = getProperty("totalCommentsCount");
+    return count == null ? 0 : Integer.parseInt(count.toString());
+  }
+
 }

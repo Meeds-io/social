@@ -623,4 +623,12 @@ public interface ActivityManager {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Gets the number of comments and subcomments of an activity.
+   *
+   * @param activityId {@link ExoSocialActivity} identifier
+   * @return
+   */
+  int getNumberOfAllComments(String activityId);
+
 }

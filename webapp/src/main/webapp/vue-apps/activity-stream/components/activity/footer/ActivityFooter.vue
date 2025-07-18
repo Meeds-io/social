@@ -15,6 +15,7 @@
         :likers="likers"
         :likers-number="likersCount"
         :comment-number="commentsCount"
+        :total-comments-number="totalCommentsCount"
         class="flex-grow-1 ps-4" />
       <activity-actions
         :activity="activity"
@@ -48,6 +49,7 @@ export default {
   data: () => ({
     likersCount: 0,
     commentsCount: 0,
+    totalCommentsCount: 0,
     likers: [],
   }),
   computed: {
@@ -99,6 +101,7 @@ export default {
     },
     checkCommentsSize() {
       this.commentsCount = this.activity.commentsSize;
+      this.totalCommentsCount = this.activity.totalCommentsSize;
     },
   },
 };

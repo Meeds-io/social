@@ -77,6 +77,7 @@ import lombok.Setter;
         @NamedQuery(name = "SocActivity.findCommentsAndSubCommentsOfActivity", query = "SELECT a FROM SocActivity a "
         + " WHERE a.parent.id = :activityId OR a.parent.parent.id = :activityId ORDER BY a.posted ASC"),
         @NamedQuery(name = "SocActivity.numberCommentsOfActivity", query = "SELECT count(distinct a.id) FROM SocActivity a WHERE a.parent.id = :activityId"),
+        @NamedQuery(name = "SocActivity.numberCommentsAndSubCommentsOfActivity", query = "SELECT count(distinct a.id) FROM SocActivity a WHERE a.parent.id = :activityId OR a.parent.parent.id = :activityId"),
         @NamedQuery(name = "SocActivity.findNewerCommentsOfActivity",
                 query = "SELECT a FROM SocActivity a WHERE a.parent.id = :activityId AND a.posted > :sinceTime ORDER BY a.updatedDate ASC"),
         @NamedQuery(name = "SocActivity.findOlderCommentsOfActivity",
