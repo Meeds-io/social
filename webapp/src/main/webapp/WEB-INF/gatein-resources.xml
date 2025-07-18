@@ -1457,6 +1457,9 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
+        <module>categoryVueComponents</module>
+      </depends>
+      <depends>
         <module>autoLinker</module>
       </depends>
       <depends>
@@ -1499,6 +1502,9 @@
       </depends>
       <depends>
         <module>translationField</module>
+      </depends>
+      <depends>
+        <module>spacesListComponents</module>
       </depends>
       <depends>
         <module>cropper</module>
