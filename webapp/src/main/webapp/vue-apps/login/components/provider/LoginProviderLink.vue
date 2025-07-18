@@ -29,10 +29,9 @@
           :aria-label="providerButtonLabel"
           min-width="auto"
           color="primary"
-          class="text-none elevation-0"
+          class="text-none elevation-0 btn"
           v-bind="attrs"
           outlined
-          style="background-color:white"
           v-on="on"
           @click="clickOnProviderButton">
           <v-img
