@@ -20,13 +20,38 @@
 -->
 <template>
   <v-app>
-    <v-card flat class="d-flex full-height justify-center rounded-0 transparent">
-      <img
-        :src="platformLogo"
-        alt=""
-        width="auto"
-        class="object-fit-contain">
-    </v-card>
+    <v-hover v-slot="{ hover }">
+      <v-card flat
+        class="d-flex fill-height rounded-0 transparent"
+        :class="[verticalAlign, horizontalAlign]">
+        <div
+          v-if="$root.canEdit && hover"
+          class="position-absolute t-0 r-0"
+          :class="{
+            'l-0': $vuetify.rtl,
+            'r-0': !$vuetify.rtl,
+          }">
+          <v-fab-transition hide-on-leave>
+            <v-btn
+              :title="$t('platformLogo.settings.editTooltip')"
+              class="z-index-two me-2 mt-2"
+              small
+              icon
+              @click="$root.$emit('platform-logo-settings')">
+              <v-icon size="18">fa-cog</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </div>
+
+        <img
+          :src="platformLogo"
+          alt=""
+          width="50%"
+          class="object-fit-contain">
+      </v-card>
+    </v-hover>
+    <platform-logo-settings-drawer />
+
   </v-app>
 </template>
 
@@ -36,6 +61,34 @@ export default {
     platformLogo: {
       type: String,
       default: null,
+    },
+  },
+  computed: {
+    verticalAlign() {
+      switch (this.$root.vAlign) {
+      case 'START': {
+        return 'align-start';
+      }
+      case 'END': {
+        return 'align-end';
+      }
+      default: {
+        return 'align-center';
+      }
+      }
+    },
+    horizontalAlign() {
+      switch (this.$root.hAlign) {
+      case 'START': {
+        return 'justify-start';
+      }
+      case 'END': {
+        return 'justify-end';
+      }
+      default: {
+        return 'justify-center';
+      }
+      }
     },
   },
 };
