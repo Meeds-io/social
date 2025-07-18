@@ -21,7 +21,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 <template>
   <div class="spaceFilter d-flex flex-row">
     <v-menu
-      v-if="initialized && !selectedSpaces.length"
+      v-if="initialized"
       v-model="menu"
       :close-on-content-click="false"
       attach
@@ -68,33 +68,19 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           name="spacesSuggester"
           class="user-suggester mt-n2"
           include-spaces />
+        <search-selected-space-item
+          v-for="space in selectedSpaceItems"
+          :key="space.id"
+          :space="space"
+          @delete-selected-space="deleteSpace" />
       </v-card>
     </v-menu>
-    <div v-else class="selectedSpaces">
-      <v-chip
+    <div v-if="this.selectedSpaces.length" class="selectedSpaces">
+      <search-selected-space-item
         v-for="space in selectedSpaceItems"
         :key="space.id"
-        color="primary"
-        class="mx-1 text-body border-color">
-        <v-avatar
-          :size="10"
-          tile
-          class="my-auto me-2 spaceAvatar">
-          <img
-            :src="space.avatarUrl"
-            alt=""
-            class="object-fit-cover ma-auto"
-            loading="lazy">
-        </v-avatar>
-        <span>{{ space.displayName }}</span>
-        <v-icon
-          size="10"
-          class="ms-2"
-          right
-          @click="deleteSpace">
-          fas fa-times
-        </v-icon>
-      </v-chip>
+        :space="space"
+        @delete-selected-space="deleteSpace" />
     </div>
   </div>
 </template>
@@ -139,15 +125,14 @@ export default {
         this.selectedSpaces.push(this.space);
       }
       this.space = null;
-      this.closeMenu();
     },
     selectedSpaces() {
       const selectedSpaceIds = this.selectedSpaces.map(item => item.spaceId);
       this.$root.$emit('spaces-changed', selectedSpaceIds);
     },
     menu() {
-      if (!this.menu) {
-        this.resetChoice();
+      if (this.menu && this.selectedSpaces.length) {
+        this.choice = 'space';
       }
     }
   },
@@ -180,15 +165,13 @@ export default {
     }
   },
   methods: {
-    deleteSpace(index) {
+    deleteSpace(space) {
+      const index = this.selectedSpaces.findIndex( item => space.spaceId === item.spaceId);
       this.selectedSpaces.splice(index, 1);
     },
     closeMenu() {
       this.menu = false;
     },
-    resetChoice() {
-      this.choice = 'any';
-    }
   }
 };
 </script>
