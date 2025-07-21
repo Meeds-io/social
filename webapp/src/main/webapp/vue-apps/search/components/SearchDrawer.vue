@@ -164,7 +164,7 @@ export default {
         this.term = parameters['q'] || '';
         this.favorites = parameters['favorites'] === 'true';
         this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
-        this.selectedSpaces = parameters['spaceId'] && [parameters['spaceId']] || [];
+        this.selectedSpaces = parameters['spaces'] && parameters['spaces'].split(',') || [];
       }
     }
     this.$root.$on('spaces-changed', this.setSelectedSpaces);
@@ -205,7 +205,7 @@ export default {
         pageUri += `&tags=${this.selectedTags.join(',')}`;
       }
       if (this.selectedSpaces && this.selectedSpaces.length) {
-        pageUri += `&spaceId=${this.selectedSpaces[0]}`;
+        pageUri += `&spaces=${this.selectedSpaces.join(',')}`;
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     },
