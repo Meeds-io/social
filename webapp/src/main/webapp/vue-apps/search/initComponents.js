@@ -7,9 +7,9 @@ import SearchTagSelector from './components/SearchTagSelector.vue';
 import SearchTagList from './components/SearchTagList.vue';
 import SearchOptions from './components/SearchOptions.vue';
 import SearchResultCardGroup from './components/SearchResultCardGroup.vue';
-import SearchSpaceSelector from './components/search-space-selector.vue';
+import SearchSpaceSelector from './components/SearchSpaceSelector.vue';
 import SearchFavoriteSelector from './components/searchFavoriteSelector.vue';
-import SearchSelectedSpaceItem from './components/searchSelectedSpaceItem.vue';
+import SearchSelectedSpaceItem from './components/SearchSelectedSpaceItem.vue';
 
 const components = {
   'search-application': SearchApplication,

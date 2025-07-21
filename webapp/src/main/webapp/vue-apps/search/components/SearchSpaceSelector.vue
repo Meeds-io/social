@@ -137,34 +137,31 @@ export default {
     }
   },
   async created() {
-    let spaceId = eXo.env?.portal?.spaceId;
-    const search = window.location.search && window.location.search.substring(1);
-    if (search && !spaceId) {
-      const parameters = JSON.parse(
-        `{"${decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"')}"}`
-      );
-      spaceId = parameters['spaceId'];
+    const spaceId = eXo.env?.portal?.spaceId;
+    const search = window.location.search?.substring(1);
+    const parameters = JSON.parse(
+      `{"${decodeURI(search)
+        .replace(/"/g, '\\"')
+        .replace(/&/g, '","')
+        .replace(/=/g, '":"')}"}`
+    );
+    const spaceIds = parameters['spaces']?.split(',') || [];
+    if (!spaceIds.length && spaceId) {
+      spaceIds.push(spaceId);
     }
-    if (spaceId) {
-      try {
-        const space = await this.$spaceService.getSpaceById(spaceId);
-        if (space?.isMember) {
-          this.selectedSpaces.push({
-            ...space,
-            spaceId: space.id,
-          });
-        }
-      } finally {
-        this.initialized = true;
-      }
-    } else {
+    try {
+      await Promise.all(spaceIds.map(id => this.addSpaceIfMember(id)));
+    } finally {
       this.initialized = true;
     }
   },
   methods: {
+    async addSpaceIfMember(spaceId) {
+      const space = await this.$spaceService.getSpaceById(spaceId);
+      if (space?.isMember) {
+        this.selectedSpaces.push({ ...space, spaceId: space.id });
+      }
+    },
     deleteSpace(space) {
       const index = this.selectedSpaces.findIndex( item => space.spaceId === item.spaceId);
       this.selectedSpaces.splice(index, 1);
