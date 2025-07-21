@@ -211,9 +211,9 @@ export default {
           .replace(/=/g, '":"')}"}`
       );
       this.favorites = parameters['favorites'] === 'true';
-      const selectedSpaceId = parameters['spaceId'];
-      if (selectedSpaceId) {
-        this.selectedSpaces.push(selectedSpaceId);
+      const selectedSpaces = parameters['spaces'];
+      if (selectedSpaces) {
+        this.selectedSpaces.push(...selectedSpaces.split(','));
       }
     }
     if (this.favorites || this.term) {
@@ -359,7 +359,7 @@ export default {
           });
         }
         if (this.selectedSpaces?.length) {
-          uri += `&spaceId=${this.selectedSpaces[0]}`;
+          uri += `&spaces=${this.selectedSpaces.join(',')}`;
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
