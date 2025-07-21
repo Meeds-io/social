@@ -43,6 +43,9 @@ import SidebarListSubList from './components/list/SidebarListSubList.vue';
 
 import SidebarHomeDialog from './components/dialog/SidebarHomeDialog.vue';
 
+import SidebarUserPopup from './components/popup/SidebarUserPopup.vue';
+import SidebarUserPopupContent from './components/popup/SidebarUserPopupContent.vue';
+
 const components = {
   'sidebar': Sidebar,
   'sidebar-button': SidebarButton,
@@ -65,6 +68,8 @@ const components = {
   'sidebar-list-content': SidebarListContent,
   'sidebar-list-sub-list': SidebarListSubList,
   'sidebar-home-dialog': SidebarHomeDialog,
+  'sidebar-user-popup': SidebarUserPopup,
+  'sidebar-user-popup-content': SidebarUserPopupContent
 };
 
 for (const key in components) {

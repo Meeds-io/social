@@ -21,6 +21,7 @@ import './initWebComponents.js';
 
 import * as userService from './js/UserService.js';
 import * as spaceService from './js/SpaceService.js';
+import * as userStateService from './js/UserStateService.js';
 import * as suggesterService from './js/SuggesterService.js';
 import * as uploadService from './js/UploadService.js';
 import * as identityService from './js/IdentityService.js';
@@ -65,6 +66,9 @@ window.Object.defineProperty(Vue.prototype, '$siteService', {
 
 window.Object.defineProperty(Vue.prototype, '$userService', {
   value: userService,
+});
+window.Object.defineProperty(Vue.prototype, '$userStateService', {
+  value: userStateService,
 });
 window.Object.defineProperty(Vue.prototype, '$spaceService', {
   value: spaceService,
