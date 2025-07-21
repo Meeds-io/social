@@ -93,7 +93,6 @@ export default {
         break;
       }
       }
-      console.log('align', align);
       return align;
     }
   },
