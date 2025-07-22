@@ -139,13 +139,8 @@ export default {
   async created() {
     const spaceId = eXo.env?.portal?.spaceId;
     const search = window.location.search?.substring(1);
-    const parameters = JSON.parse(
-      `{"${decodeURI(search)
-        .replace(/"/g, '\\"')
-        .replace(/&/g, '","')
-        .replace(/=/g, '":"')}"}`
-    );
-    const spaceIds = parameters['spaces']?.split(',') || [];
+    const parameters = new URLSearchParams(search);
+    const spaceIds = parameters?.getAll('spaceId') || [];
     if (!spaceIds.length && spaceId) {
       spaceIds.push(spaceId);
     }

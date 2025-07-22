@@ -149,22 +149,17 @@ export default {
     if (this.standalone) {
       const search = window.location.search && window.location.search.substring(1);
       if (search) {
-        const parameters = JSON.parse(
-          `{"${decodeURI(search)
-            .replace(/"/g, '\\"')
-            .replace(/&/g, '","')
-            .replace(/=/g, '":"')}"}`
-        );
-        const selectedTypes = parameters['types'] && window.decodeURIComponent(parameters['types']);
+        const parameters = new URLSearchParams(search);
+        const selectedTypes = window.decodeURIComponent(parameters?.get('types'));
         if (selectedTypes && selectedTypes.trim().length) {
           this.connectors.forEach(connector => {
             connector.enabled = selectedTypes.includes(connector.name);
           });
         }
-        this.term = parameters['q'] || '';
-        this.favorites = parameters['favorites'] === 'true';
-        this.selectedTags = parameters['tags'] && parameters['tags'].split(',') || [];
-        this.selectedSpaces = parameters['spaces'] && parameters['spaces'].split(',') || [];
+        this.term = parameters?.get('q') || '';
+        this.favorites = parameters?.get('favorites') === 'true';
+        this.selectedTags = parameters?.get('tags')?.split(',') || [];
+        this.selectedSpaces = parameters.getAll('spaceId') || [];
       }
     }
     this.$root.$on('spaces-changed', this.setSelectedSpaces);
@@ -205,7 +200,9 @@ export default {
         pageUri += `&tags=${this.selectedTags.join(',')}`;
       }
       if (this.selectedSpaces && this.selectedSpaces.length) {
-        pageUri += `&spaces=${this.selectedSpaces.join(',')}`;
+        this.selectedSpaces.forEach(id => {
+          pageUri += `&spaceId=${id}`;
+        });
       }
       window.history.replaceState('', this.$t('Search.page.title'), pageUri);
     },
