@@ -31,6 +31,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -249,7 +250,7 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "User status to filter online users, ex: online") @QueryParam("status") String status,
                            @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
                            @Parameter(description = "Is connected users") @QueryParam("isConnected") String isConnected,
-                           @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") String spaceId,
+                           @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") List<String> spaceIds,
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
                            @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
@@ -280,13 +281,18 @@ public class UserRest implements ResourceContainer, Startable {
 
     if (StringUtils.isNotBlank(status) && ONLINE.equals(status)) {
       Space space = null;
-      if (StringUtils.isNotBlank(spaceId)) {
-        space = spaceService.getSpaceById(spaceId);
-        if (space != null) {
-          identities = getOnlineIdentitiesOfSpace(userStateService, userId, space, limit);
-        } else {
-          return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
+      if (CollectionUtils.isNotEmpty(spaceIds)) {
+        List<Identity> allIdentities = new ArrayList<>();
+        for (String spaceId : spaceIds) {
+          space = spaceService.getSpaceById(spaceId);
+          if (space != null) {
+            Identity[] onlineIdentity = getOnlineIdentitiesOfSpace(userStateService, userId, space, limit);
+            allIdentities.addAll(Arrays.asList(onlineIdentity));
+          } else {
+            return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
+          }
         }
+        identities = allIdentities.toArray(new Identity[0]);
       } else {
         identities = getOnlineIdentities(userStateService, userId, limit);
       }
@@ -297,8 +303,8 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setSearchEmail(searchEmail);
       filter.setSearchUserName(searchUsername);
       filter.setEnabled(!isDisabled);
-      if (StringUtils.isNotBlank(spaceId)) {
-        filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), Arrays.asList(spaceId)));
+      if (CollectionUtils.isNotEmpty(spaceIds)) {
+        filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIds));
       }
       if (target != null && excludeCurrentUser) {
         filter.setViewerIdentity(target);
