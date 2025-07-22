@@ -26,13 +26,26 @@ const appId = 'platformLogoApplication';
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 const urls = [
-
+  `/social/i18n/locale.portlet.PlatformLogo?lang=${lang}`,
+  `/layout/i18n/locale.portlet.LayoutEditor?lang=${lang}`
 ];
 
-export function init() {
+export function init(
+  portletStorageId,
+  hAlign,
+  vAlign,
+  canEdit,
+  pageRef) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
+      data: {
+        portletStorageId,
+        hAlign,
+        vAlign,
+        canEdit,
+        pageRef
+      },
       template: `<platform-logo id="${appId}" platform-logo="${eXo.env.portal.companyLogo}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n

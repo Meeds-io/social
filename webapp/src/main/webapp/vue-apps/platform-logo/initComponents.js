@@ -18,8 +18,10 @@
  */
 
 import PlatformLogo from './components/PlatformLogo.vue';
+import PlatformLogoSettingsDrawer from './components/PlatformLogoSettingsDrawer.vue';
 const components = {
   'platform-logo': PlatformLogo,
+  'platform-logo-settings-drawer': PlatformLogoSettingsDrawer,
 };
 
 for (const key in components) {
