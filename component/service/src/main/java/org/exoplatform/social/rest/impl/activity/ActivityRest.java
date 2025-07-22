@@ -999,10 +999,10 @@ public class ActivityRest implements ResourceContainer {
                                    @QueryParam(
                                      "tags"
                                    ) List<String> tagNames,
-                                   @Parameter(description = "spaces used to search activities", required = false)
+                                   @Parameter(description = "Space id used to search activities", required = false)
                                    @QueryParam(
-                                     "spaces"
-                                   ) String spaces,
+                                     "spaceId"
+                                   ) List<String> spaceIds,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1027,8 +1027,7 @@ public class ActivityRest implements ResourceContainer {
     Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
     List<Long> spaceIdentityIds = null;
-    if (!StringUtils.isBlank(spaces)) {
-      List<String> spaceIds = Arrays.asList(StringUtils.split(spaces, ','));
+    if (CollectionUtils.isNotEmpty(spaceIds)) {
       spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, spaceIds).stream().map(Long::valueOf).toList();
     }
     ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);

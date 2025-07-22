@@ -204,16 +204,11 @@ export default {
 
     const search = window.location.search && window.location.search.substring(1);
     if (search) {
-      const parameters = JSON.parse(
-        `{"${decodeURI(search)
-          .replace(/"/g, '\\"')
-          .replace(/&/g, '","')
-          .replace(/=/g, '":"')}"}`
-      );
-      this.favorites = parameters['favorites'] === 'true';
-      const selectedSpaces = parameters['spaces'];
+      const parameters = new URLSearchParams(search);
+      this.favorites = parameters?.get('favorites') === 'true';
+      const selectedSpaces = parameters.getAll('spaceId');
       if (selectedSpaces) {
-        this.selectedSpaces.push(...selectedSpaces.split(','));
+        this.selectedSpaces.push(...selectedSpaces);
       }
     }
     if (this.favorites || this.term) {
@@ -359,7 +354,9 @@ export default {
           });
         }
         if (this.selectedSpaces?.length) {
-          uri += `&spaces=${this.selectedSpaces.join(',')}`;
+          this.selectedSpaces.forEach(spaceId => {
+            uri += `&spaceId=${spaceId}`;
+          });
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
