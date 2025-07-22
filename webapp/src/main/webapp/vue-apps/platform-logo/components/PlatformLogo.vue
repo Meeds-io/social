@@ -19,14 +19,38 @@
 
 -->
 <template>
-  <v-app>
-    <v-card flat class="d-flex full-height justify-center rounded-0 transparent">
-      <img
-        :src="platformLogo"
-        alt=""
-        width="auto"
-        class="object-fit-contain">
-    </v-card>
+  <v-app class="full-height full-width">
+    <v-hover v-slot="{ hover }">
+      <v-card flat
+        class="fill-height rounded-0 transparent">
+        <div
+          v-if="$root.canEdit && hover"
+          class="position-absolute t-0 r-0"
+          :class="{
+            'l-0': $vuetify.rtl,
+            'r-0': !$vuetify.rtl,
+          }">
+          <v-fab-transition hide-on-leave>
+            <v-btn
+              :title="$t('platformLogo.settings.editTooltip')"
+              class="z-index-two me-2 mt-2"
+              small
+              icon
+              @click="$root.$emit('platform-logo-settings')">
+              <v-icon size="18">fa-cog</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </div>
+
+        <img
+          :src="platformLogo"
+          alt=""
+          class="object-fit-contain full-width full-height"
+          :style="align" />
+      </v-card>
+    </v-hover>
+    <platform-logo-settings-drawer />
+
   </v-app>
 </template>
 
@@ -37,6 +61,40 @@ export default {
       type: String,
       default: null,
     },
+  },
+  computed: {
+    align() {
+      let align = 'object-position:';
+      switch (this.$root.vAlign) {
+      case 'START': {
+        align = `${align} top`;
+        break;
+      }
+      case 'END': {
+        align = `${align} bottom`;
+        break;
+      }
+      default: {
+        align = `${align} center`;
+        break;
+      }
+      }
+      switch (this.$root.hAlign) {
+      case 'START': {
+        align = `${align} left`;
+        break;
+      }
+      case 'END': {
+        align = `${align} right`;
+        break;
+      }
+      default: {
+        align = `${align} center`;
+        break;
+      }
+      }
+      return align;
+    }
   },
 };
 </script>
