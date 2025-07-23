@@ -1,7 +1,7 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -17,28 +17,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-export function getUserStatus(userId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/state/status/${userId}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then((resp) => {
-    if (!resp?.ok) {
-      throw new Error('Error while getting user status');
-    } else {
-      return resp.json();
-    }
-  });
-}
-
-export function updateUserStatus(status) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/state/status?status=${status}`, {
-    method: 'PUT',
-    credentials: 'include',
-  }).then((resp) => {
-    if (!resp?.ok) {
-      throw new Error('Error while updating user status');
-    } else {
-      return resp.text();
-    }
-  });
+export function initCometd() {
+  Vue.prototype.$socialWebSocket.initCometd('/meeds/Application/UserState');
 }
