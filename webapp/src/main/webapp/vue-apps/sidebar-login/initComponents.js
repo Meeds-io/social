@@ -18,8 +18,11 @@
  */
 
 import SidebarLogin from './components/SidebarLogin.vue';
+import SidebarLoginSettingsDrawer from './components/SidebarLoginSettingsDrawer.vue';
+
 const components = {
   'sidebar-login': SidebarLogin,
+  'sidebar-login-settings-drawer': SidebarLoginSettingsDrawer,
 };
 
 for (const key in components) {
