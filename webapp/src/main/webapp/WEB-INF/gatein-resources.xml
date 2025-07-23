@@ -298,6 +298,13 @@
     <css-priority>1</css-priority>
   </portlet-skin>
 
+  <portlet-skin>
+    <application-name>social</application-name>
+    <portlet-name>SidebarLogin</portlet-name>
+    <skin-name>Enterprise</skin-name>
+    <additional-module>ImageCropper</additional-module>
+  </portlet-skin>
+
   <!-- ATTENTION ! <End> DO NOT DELETE -->
 
   <!-- Bootstrap Javascripts -->
@@ -2162,6 +2169,9 @@
       </depends>
       <depends>
         <module>commonVueComponents</module>
+      </depends>
+      <depends>
+        <module>imageCropper</module>
       </depends>
       <depends>
         <module>eXoVueI18n</module>

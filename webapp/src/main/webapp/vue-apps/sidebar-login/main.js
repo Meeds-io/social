@@ -27,23 +27,29 @@ const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
 const urls = [
   `/social/i18n/locale.portlet.Login?lang=${lang}`,
+  `/social/i18n/locale.portlet.SidebarLogin?lang=${lang}`,
+  `/layout/i18n/locale.portlet.LayoutEditor?lang=${lang}`,
+  `/social/i18n/locale.portlet.GeneralSettings?lang=${lang}`,
 ];
 
-export function init(backgroundPath, backgroundAlt, authenticationTitle, authenticationSubtitle) {
+export function init(branding,
+  portletStorageId,
+  hAlign,
+  vAlign,
+  pageRef,
+  canEdit) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
-        backgroundPath: backgroundPath,
-        backgroundAlt: backgroundAlt,
-        authenticationTitle: authenticationTitle,
-        authenticationSubtitle: authenticationSubtitle,
+        portletStorageId,
+        hAlign,
+        vAlign,
+        canEdit,
+        pageRef,
+        branding: JSON.parse(branding)
       },
-      template: `<sidebar-login id="${appId}"
-        :background-path="backgroundPath"
-        :background-alt="backgroundAlt"
-        :authentication-title="authenticationTitle"
-        :authentication-subtitle="authenticationSubtitle"/>`,
+      template: `<sidebar-login id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
     }, `#${appId}`, 'Sidebar Login');

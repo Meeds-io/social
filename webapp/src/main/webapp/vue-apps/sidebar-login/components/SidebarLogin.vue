@@ -19,60 +19,146 @@
 
 -->
 <template>
-  <v-app>
-    <v-card
-      flat
-      :color="this.backgroundPath && 'transparent' || 'primary'"
-      class="full-height d-flex justify-center align-center">
-      <img v-if="backgroundPath"
-           :src="backgroundPath"
-           :alt="backgroundAlt || ''"
-           class="full-height full-witdh object-fit-cover rounded-0">
+  <v-app class="full-height full-width">
+    <v-hover v-slot="{ hover }">
       <v-card
-        :class="backgroundPath && 'position-absolute t-0'"
-        tile
         flat
-        class="fill-height transparent">
-        <v-card-title class="d-flex flex-column py-0 fill-height justify-center">
-          <span class="text-title  mx-auto text-wrap text-break">
-            {{ this.title }}
-          </span>
-          <span class="text-body pa-4 text-wrap mx-auto text-break">
-            {{ this.subtitle }}
-          </span>
-        </v-card-title>
+        :color="hasCustomBackground && 'transparent' || 'primary'"
+        class="full-height d-flex"
+        :class="textAlign">
+        <div
+          v-if="$root.canEdit && hover"
+          class="position-absolute t-0 r-0"
+          :class="{
+            'l-0': $vuetify.rtl,
+            'r-0': !$vuetify.rtl,
+          }">
+          <v-fab-transition hide-on-leave>
+            <v-btn
+              :title="$t('sidebarLogin.settings.editTooltip')"
+              class="z-index-two me-2 mt-2"
+              small
+              icon
+              @click="$root.$emit('sidebar-login-settings')">
+              <v-icon size="18">fa-cog</v-icon>
+            </v-btn>
+          </v-fab-transition>
+        </div>
+
+        <img v-if="hasCustomBackground"
+             :src="backgroundPath"
+             :alt="backgroundAltText || ''"
+             class="full-height full-width object-fit-cover rounded-0">
+        <v-card
+          :class="hasCustomBackground && 'position-absolute t-0'"
+          tile
+          flat
+          class="fill-height transparent full-width">
+          <v-card-title class="d-flex flex-column pa-0 fill-height"
+            :class="[vAlign, hAlign]">
+            <span class="text-title text-wrap text-break mx-4 mt-4">
+              {{ title }}
+            </span>
+            <span class="text-body text-wrap text-break mx-4 mb-4">
+              {{ subtitle }}
+            </span>
+          </v-card-title>
+        </v-card>
       </v-card>
-    </v-card>
+    </v-hover>
+    <sidebar-login-settings-drawer :branding="branding" :background-path="backgroundPath" />
   </v-app>
 </template>
 
 <script>
 export default {
-  props: {
-    backgroundPath: {
-      type: String,
-      default: null,
-    },
-    backgroundAlt: {
-      type: String,
-      default: null,
-    },
-    authenticationTitle: {
-      type: String,
-      default: null,
-    },
-    authenticationSubtitle: {
-      type: String,
-      default: null,
-    }
-  },
+  data: () => ({
+    branding: null,
+    refreshImageIndex: Date.now(),
+    loginBackgroundData: null,
+  }),
   computed: {
     title() {
-      return this.$t(this.authenticationTitle);
+      return this.$t(this.branding?.loginTitle[eXo.env.portal.language] || this.branding?.loginTitle[this.defaultLanguage]);
     },
     subtitle() {
-      return this.$t(this.authenticationSubtitle);
+      return this.$t(this.branding?.loginSubtitle[eXo.env.portal.language] || this.branding?.loginSubtitle[this.defaultLanguage]);
     },
+    defaultLanguage() {
+      return this.branding?.defaultLanguage;
+    },
+    supportedLanguages() {
+      return this.branding?.supportedLanguages;
+    },
+    backgroundAltText() {
+      return this.branding?.loginBackgroundAltText;
+    },
+    backgroundPath() {
+      if (this.loginBackgroundData) {
+        return this.loginBackgroundData;
+      }
+      if (this.hasCustomBackground) {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${this.refreshImageIndex}`;
+      } else {
+        return null;
+      }
+    },
+    hasCustomBackground() {
+      return this.loginBackgroundData || this.branding?.loginBackground?.fileId;
+    },
+    vAlign() {
+      switch (this.$root.vAlign) {
+      case 'START': {
+        return 'justify-start';
+      }
+      case 'END': {
+        return 'justify-end';
+      }
+      default: {
+        return 'justify-center';
+
+      }
+      }
+    },
+    hAlign() {
+      switch (this.$root.hAlign) {
+      case 'START': {
+        return 'align-start';
+      }
+      case 'END': {
+        return 'align-end';
+
+      }
+      default: {
+        return 'align-center';
+      }
+      }
+    },
+    textAlign() {
+      switch (this.$root.hAlign) {
+      case 'START': {
+        return 'text-left';
+      }
+      case 'END': {
+        return 'text-right';
+      }
+      default: {
+        return 'text-center';
+      }
+      }
+    }
+  },
+  created() {
+    this.branding = this.$root.branding;
+    this.$root.$on('sidebar-login-settings-updated', this.refresh);
+  },
+  methods: {
+    refresh(branding, vAlign, hAlign, imageData) {
+      this.branding = branding;
+      this.$root.vAlign=vAlign;
+      this.$root.hAlign=hAlign;
+      this.loginBackgroundData = imageData;
+    }
   },
 };
 </script>
