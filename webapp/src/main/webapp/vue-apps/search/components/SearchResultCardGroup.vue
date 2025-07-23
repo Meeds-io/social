@@ -36,7 +36,7 @@
         <v-list-item-content>
           <v-list-item-title class="d-flex flex-row full-width align-center pt-2">
             <h1
-              class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate">
+              class="flex-grow-1 title pt-1 mb-0 ps-0 my-auto align-center text-start text-truncate font-weight-bold">
               {{ connectorName }}
             </h1>
           </v-list-item-title>
