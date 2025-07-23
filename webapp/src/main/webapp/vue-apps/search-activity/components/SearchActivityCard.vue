@@ -25,7 +25,7 @@
             <v-list-item-title class="d-flex flex-row full-width align-center">
               <div class="d-flex flex-row align-center flex-grow-1 text-truncate">
                 <span
-                  class="title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text font-weight-bold"
+                  class="title pt-1 mb-0 ps-0 my-auto text-start text-truncate primary--text"
                   :aria-label="activityTitleText">
                   {{ posterName }}
                   <span v-if="isSpaceStreamOwner">
