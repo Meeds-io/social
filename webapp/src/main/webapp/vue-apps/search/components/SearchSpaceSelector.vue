@@ -119,11 +119,13 @@ export default {
         return;
       }
       const found = this.selectedSpaces?.find(item => {
-        return item.remoteId === this.space.remoteId
-            && item.providerId === this.space.providerId;
+        return item.spaceId === this.space.spaceId;
       });
       if (!found) {
         this.selectedSpaces.push(this.space);
+        document.dispatchEvent(new CustomEvent('search-by-space', {
+          detail: this.space.spaceId
+        }));
       }
       this.space = null;
     },
