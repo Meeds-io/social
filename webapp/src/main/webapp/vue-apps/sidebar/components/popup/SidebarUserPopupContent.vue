@@ -21,14 +21,14 @@
 -->
 
 <template>
-  <v-card class="border-radius border-box-sizing">
+  <v-card class="border-radius border-box-sizing elevation-0">
     <v-list class="ma-0 py-0 text-no-wrap width-fit-content">
       <v-list-item class="py-2">
         <a
           :href="profileUri"
           rel="noopener noreferrer">
           <v-badge
-            :color="userStatusColor"
+            :color="statusColor"
             :value="true"
             class="ma-0 pa-0"
             content=""
@@ -71,12 +71,83 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+    <div class="d-flex mx-4 mb-4">
+      <v-btn-toggle
+        v-model="selectedStatus"
+        mandatory
+        group
+        dense
+        class="d-flex">
+        <div class="d-flex flex-column align-center me-9">
+          <v-btn
+            value="available"
+            active-class="btn-border-active"
+            class="border-radius border-color-primary-grey success--text pa-0"
+            width="50"
+            height="50"
+            icon
+            @click="selectStatus">
+            <v-icon size="20">
+              fas fa-hand-paper
+            </v-icon>
+          </v-btn>
+          <v-sheet
+            max-width="100"
+            class="mt-2 text-center text-caption text-truncate">
+            {{ $t('menu.user.status.available') }}
+          </v-sheet>
+        </div>
+        <div class="d-flex flex-column align-center me-9">
+          <v-btn
+            value="donotdisturb"
+            active-class="btn-border-active"
+            class="border-radius border-color-primary-grey error-color pa-0"
+            width="50"
+            height="50"
+            icon
+            @click="selectStatus">
+            <v-icon size="20">
+              fas fa-bell-slash
+            </v-icon>
+          </v-btn>
+          <v-sheet
+            max-width="100"
+            class="mt-2 text-center text-caption text-truncate">
+            {{ $t('menu.user.status.donotdisturb') }}
+          </v-sheet>
+        </div>
+        <div class="d-flex flex-column align-center">
+          <v-btn
+            value="invisible"
+            active-class="btn-border-active"
+            class="border-radius border-color-primary-grey icon-default-color pa-0"
+            width="50"
+            height="50"
+            icon
+            @click="selectStatus">
+            <v-icon size="20">
+              fas fa-eye-slash
+            </v-icon>
+          </v-btn>
+          <v-sheet
+            max-width="100"
+            class="mt-2 text-center text-caption text-truncate">
+            {{ $t('menu.user.status.invisible') }}
+          </v-sheet>
+        </div>
+      </v-btn-toggle>
+    </div>
   </v-card>
 </template>
 
 <script>
 
 export default {
+  data() {
+    return {
+      selectedStatus: null,
+    };
+  },
   props: {
     profileUri: {
       type: String,
@@ -86,10 +157,13 @@ export default {
       type: Object,
       default: null
     },
-    userStatusColor: {
-      type: String,
+    userStatus: {
+      type: Object,
       default: null
     }
+  },
+  mounted() {
+    this.selectedStatus = this.status;
   },
   computed: {
     fullName() {
@@ -97,6 +171,19 @@ export default {
     },
     avatarUrl() {
       return this.$root.avatarUrl;
+    },
+    statusColor() {
+      return this.userStatus?.color;
+    },
+    status() {
+      return this.userStatus?.status;
+    }
+  },
+  methods: {
+    selectStatus() {
+      this.$nextTick(() => {
+        this.$emit('update-status', this.selectedStatus);
+      });
     }
   }
 };

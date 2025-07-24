@@ -19,6 +19,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.settings.SettingService;
+import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
@@ -82,7 +83,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private OrganizationService organizationService;
 
-  private EXoContinuationBayeux eXoContinuationBayeux;
+  private ContinuationService continuationService;
 
   private UserStateService      userStateService;
 
@@ -105,6 +106,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private Identity                     maryIdentity;
 
   private Identity                     demoIdentity;
+  
+  private SettingService               settingsService;
 
   private List<ProfilePropertySetting>     tearDownProfilePropertyList = new ArrayList<>();
 
@@ -121,8 +124,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
     relationshipManager = getContainer().getComponentInstanceOfType(RelationshipManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    eXoContinuationBayeux = mock(EXoContinuationBayeux.class);
-    userStateService = new UserStateService(eXoContinuationBayeux, getContainer().getComponentInstanceOfType(CacheService.class));
+    settingsService = getContainer().getComponentInstanceOfType(SettingService.class);
+    continuationService = mock(ContinuationService.class);
+    userStateService = new UserStateService(continuationService,
+                                            getContainer().getComponentInstanceOfType(CacheService.class),
+                                            settingsService);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
@@ -391,7 +397,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testGetOnlineUsers() throws Exception {
     startSessionAs("root");
-    when(eXoContinuationBayeux.getConnectedUserIds()).thenReturn(new LinkedHashSet<>(Arrays.asList("john", "mary")));
+    when(continuationService.getConnectedUserIds()).thenReturn(new LinkedHashSet<>(Arrays.asList("john", "mary")));
 
     ContainerResponse response = service("GET", getURLResource("users?status=online&limit=5&offset=0"), "", null, null);
     assertNotNull(response);
@@ -408,8 +414,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     spaceTest.setMembers(new String[] { "john" });
     spaceService.updateSpace(spaceTest);
 
-    when(eXoContinuationBayeux.isPresent("john")).thenReturn(true);
-    when(eXoContinuationBayeux.isPresent("mary")).thenReturn(true);
+    when(continuationService.isPresent("john")).thenReturn(true);
+    when(continuationService.isPresent("mary")).thenReturn(true);
 
     ContainerResponse response = service("GET", getURLResource("users?status=online&spaceId=" + spaceId), "", null, null);
     assertNotNull(response);
