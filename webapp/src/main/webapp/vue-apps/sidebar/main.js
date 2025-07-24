@@ -227,6 +227,7 @@ export function init(
           async init() {
             try {
               this.settings = await this.$navigationSettingService.getSidebarConfiguration();
+              this.$userStateWebSocketService.initCometd();
             } finally {
               this.$root.$applicationLoaded();
             }

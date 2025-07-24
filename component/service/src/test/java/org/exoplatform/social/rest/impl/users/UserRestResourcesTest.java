@@ -111,6 +111,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private SpaceService                 spaceService;
 
   private OrganizationService          organizationService;
+  
+  private ContinuationService          ontinuationService;
 
   private ContinuationService continuationService;
 
