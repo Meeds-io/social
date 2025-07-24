@@ -73,11 +73,13 @@ export default {
   created() {
     this.getUserStatus();
     this.getUserInfo();
+    document.addEventListener('user-status-updated', this.handleUserStatusUpdated);
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
   },
   beforeDestroy() {
+    document.removeEventListener('user-status-updated', this.handleUserStatusUpdated);
     document.removeEventListener('click', this.handleClickOutside);
   },
   watch: {
