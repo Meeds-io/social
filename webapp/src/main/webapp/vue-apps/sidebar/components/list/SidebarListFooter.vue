@@ -123,7 +123,7 @@ export default {
     profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,
-    statusColor: 'grey'
+    statusColor: '#707070'
   }),
   computed: {
     avatarUrl() {

@@ -1460,6 +1460,10 @@
       <depends>
         <module>siteDetailsComponent</module>
       </depends>
+      <depends>
+        <module>commons-cometd3</module>
+        <as>cCometd</as>
+      </depends>
     </module>
   </portlet>
 

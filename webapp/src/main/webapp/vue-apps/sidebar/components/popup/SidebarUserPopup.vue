@@ -22,21 +22,30 @@
 
 <template>
   <v-menu
+    v-if="menu"
     ref="userMenu"
     v-model="menu"
     :position-x="menuX"
     :position-y="menuY"
     :nudge-top="20"
     :nudge-left="80"
-    content-class="z-index-modal"
+    :close-on-content-click="false"
+    :close-on-click="false"
+    content-class="z-index-modal white"
     absolute
     eager
     top
     offset-y>
     <sidebar-user-popup-content
+      id="sidebar-user-popup"
+      ref="menuContent"
       :user="user"
-      :user-status-color="statusColor"
-      :profile-uri="profileUri" />
+      :user-status="{
+        color: statusColor,
+        status: status
+      }"
+      :profile-uri="profileUri"
+      @update-status="updateUserStatus" />
   </v-menu>
 </template>
 
@@ -51,10 +60,10 @@ export default {
       menu: false,
       position: {x: 0, y: 0},
       statusMap: {
-        available: 'green',
-        dnd: 'red',
-        offline: 'grey',
-        invisible: 'grey'
+        available: '#2eb58c',
+        donotdisturb: '#bc4343',
+        offline: '#707070',
+        invisible: '#707070'
       },
       status: null,
     };
@@ -62,11 +71,13 @@ export default {
   created() {
     this.getUserStatus();
     this.getUserInfo();
+    document.addEventListener('user-status-updated', this.handleUserStatusUpdated);
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
   },
   beforeDestroy() {
+    document.removeEventListener('user-status-updated', this.handleUserStatusUpdated);
     document.removeEventListener('click', this.handleClickOutside);
   },
   watch: {
@@ -101,9 +112,13 @@ export default {
         return;
       }
       const menuEl = this.$refs.userMenu?.$el;
-      if (menuEl && !menuEl.contains(event.target)) {
-        this.menu = false;
+      const contentEl = this.$refs.menuContent.$el;
+
+      if ((menuEl && menuEl.contains(event.target)) ||
+          (contentEl && contentEl.contains(event.target))) {
+        return;
       }
+      this.menu = false;
     },
     getUserInfo() {
       this.$userService.getUser(this.userName).then(user => {
@@ -115,6 +130,16 @@ export default {
         this.status = data?.status;
       });
     },
+    updateUserStatus(status) {
+      return this.$userStateService.updateUserStatus(status).then(() => {
+        this.status = status;
+      });
+    },
+    handleUserStatusUpdated({detail: {userId, status}}) {
+      if (userId === this.userName) {
+        this.status = status;
+      }
+    }
   }
 };
 </script>
