@@ -42,6 +42,8 @@
       :params="params"
       :rememberme="rememberme" />
 
+    <portal-login-separator class="mt-5" />
+
     <form
       ref="form"
       name="form"

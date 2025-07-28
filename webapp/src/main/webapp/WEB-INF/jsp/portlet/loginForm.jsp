@@ -14,6 +14,13 @@
 <%@page import="org.exoplatform.web.register.RegisterHandler"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.json.JSONObject"%>
+<%@ page import="org.exoplatform.container.ExoContainerContext"%>
+<%@page import="org.exoplatform.services.security.ConversationState"%>
+<%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
+<%@ page import="org.exoplatform.portal.config.model.Page"%>
+<%@ page import="org.exoplatform.portal.config.UserACL"%>
+<%@ page import="io.meeds.social.translation.service.TranslationService" %>
+<%@ page import="org.exoplatform.portal.localization.LocaleContextInfoUtils" %>
 
 <%
 
@@ -50,9 +57,47 @@
                     });
   }
   // Force disabling Register Form when the platform access is restricted
-  if (securitySettingService.getRegistrationType() == UserRegistrationType.RESTRICTED) {
-    params.put(RegisterHandler.REGISTER_ENABLED, false);
-  }
+  params.put(RegisterHandler.REGISTER_ENABLED, securitySettingService.getRegistrationType() != UserRegistrationType.RESTRICTED);
+
+  String portletStorageId = ((String) request.getAttribute("portletStorageId"));
+  String settingName = ((String) request.getAttribute("settingName"));
+  String translationIdentifier;
+  Object translationIdentifierParam = request.getAttribute("translationIdentifier");
+  translationIdentifier = translationIdentifierParam instanceof String[] ? ((String[]) translationIdentifierParam)[0]
+            : ((String) translationIdentifierParam);
+  Page currentPage = rcontext.getPage();
+  boolean canEdit = ((boolean) request.getAttribute("canEdit"));
+  String pageRef = currentPage.getPageKey().format();
+
+  TranslationService translationService = CommonsUtils.getService(TranslationService.class);
+
+  String welcomeBack = translationService.getTranslationLabelOrDefault("cmsPortlet",
+            Long.parseLong(translationIdentifier), "welcomeBack", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+
+  String newHere = translationService.getTranslationLabelOrDefault("cmsPortlet",
+            Long.parseLong(translationIdentifier), "newHere", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+
+  String createAccount = translationService.getTranslationLabelOrDefault("cmsPortlet",
+            Long.parseLong(translationIdentifier), "createAccount", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+
+  String signinEmailButton = translationService.getTranslationLabelOrDefault("cmsPortlet",
+            Long.parseLong(translationIdentifier), "signinEmailButton", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+
+  String signinOption = request.getAttribute("signinOption") == null ? "loginform" : ((String[]) request.getAttribute("signinOption"))[0];
+  boolean displaySigninEmailButtonIcon = request.getAttribute("displaySigninEmailButtonIcon") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displaySigninEmailButtonIcon"))[0]);
+
+
+  params.put("portletStorageId", portletStorageId);
+  params.put("settingName", settingName);
+  params.put("translationIdentifier", translationIdentifier);
+  params.put("canEdit", canEdit);
+  params.put("pageRef", pageRef);
+  params.put("welcomeBack", welcomeBack);
+  params.put("newHere", newHere);
+  params.put("createAccount", createAccount);
+  params.put("signinOption", signinOption);
+  params.put("signinEmailButton", signinEmailButton);
+  params.put("displaySigninEmailButtonIcon", displaySigninEmailButtonIcon);
 
 %>
 <div class="VuetifyApp">
