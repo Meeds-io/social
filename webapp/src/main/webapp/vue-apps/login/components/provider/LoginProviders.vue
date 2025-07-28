@@ -46,7 +46,6 @@
           key="providerMenu"
           class="flex-grow-1 text-end mx-auto transparent" />
       </v-card>
-      <portal-login-separator class="mt-5" />
     </template>
   </v-card>
 </template>
