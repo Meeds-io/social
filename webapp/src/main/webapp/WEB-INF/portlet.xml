@@ -1204,10 +1204,18 @@
   <portlet>
     <portlet-name>LoginForm</portlet-name>
     <display-name>Login Form</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.LoginFormPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/loginForm.jsp</value>
+    </init-param>
+    <init-param>
+      <name>content-type</name>
+      <value>loginFormTranslations</value>
+    </init-param>
+    <init-param>
+      <name>layout-content-editable</name>
+      <value>true</value>
     </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
