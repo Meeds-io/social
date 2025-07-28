@@ -22,6 +22,7 @@
   <div :class="{'mx-4 mt-2': !multiValued}">
     <label class="font-weight-bold text-color text-capitalize-first-letter">
       {{ propertyLabel }}
+      <span v-if="property.required" class="ms-n1">*</span>
     </label>
     <div class="d-flex align-center">
       <v-combobox
@@ -29,6 +30,7 @@
         :items="mappedOptions"
         :ref="`propertyOptions${property.id}`"
         :name="`propertyOptions${property.id}`"
+        :required="property.required"
         class="elevation-0 mt-2 pt-0 no-border dropdownPropertyInput"
         item-text="translatedValue"
         item-value="id"
