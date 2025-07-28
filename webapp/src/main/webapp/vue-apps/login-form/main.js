@@ -30,10 +30,13 @@ const urls = [
 ];
 
 export function init(params) {
+  const jsonParams = JSON.parse(params);
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
+        portletStorageId: jsonParams.portletStorageId,
+        pageRef: jsonParams.pageRef,
         params: params,
       },
       template: `<login-form id="${appId}" :params="params"/>`,
