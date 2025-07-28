@@ -17,7 +17,6 @@
 package org.exoplatform.social.rest.impl.activity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -1002,7 +1001,7 @@ public class ActivityRest implements ResourceContainer {
                                    @Parameter(description = "Space id used to search activities", required = false)
                                    @QueryParam(
                                      "spaceId"
-                                   ) String spaceId,
+                                   ) List<Long> spaceIds,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1027,11 +1026,9 @@ public class ActivityRest implements ResourceContainer {
     Identity currentUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
 
     List<Long> spaceIdentityIds = null;
-    if (spaceId != null) {
-      spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, Arrays.asList(spaceId))
-                                   .stream()
-                                   .map(Long::valueOf)
-                                   .toList();
+    if (CollectionUtils.isNotEmpty(spaceIds)) {
+      List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
+      spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, spaceIdsString).stream().map(Long::valueOf).toList();
     }
     ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
