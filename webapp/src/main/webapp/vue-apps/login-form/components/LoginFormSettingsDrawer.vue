@@ -126,7 +126,7 @@
                 :field-name="`${provider.key}`"
                 :field-value="providerDisplayedValue(provider)"
                 class="width-auto flex-grow-1"
-                drawer-title="`${provider.key}`"
+                :drawer-title="providerKeyCapitalize(provider.key)"
                 @input="translations => translationUpdatedForProvider(provider, translations)" />
             </v-card-text>
             <div v-if="providers.length==1">
