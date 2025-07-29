@@ -23,6 +23,7 @@
     :id="id"
     :href="link"
     :target="targetLink"
+    v-if="loaded"
     min-width="auto"
     rel="nofollow noreferrer noopener"
     color="primary"
@@ -31,7 +32,7 @@
     @click="clickOnProviderButton">
     <v-list-item-icon class="me-2">
       <v-img
-        v-if="providerImage"
+        v-if="providerImage && displayProvidersIcons"
         :src="providerImage"
         height="16"
         max-width="16"
@@ -59,9 +60,20 @@ export default {
       type: Boolean,
       default: false,
     },
+    translationIdentifier: {
+      type: String,
+      default: '',
+    },
+    displayProvidersIcons: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
+    providerTranslation: '',
+    objectType: 'cmsPortlet',
+    loaded: false,
   }),
   computed: {
     providerKeyLowerCase() {
@@ -84,6 +96,9 @@ export default {
       return this.link && this.link.startsWith('/') && '_self' || '_blank';
     },
     providerButtonLabel() {
+      if (this.providerTranslation) {
+        return this.providerTranslation;
+      }
       const providerName = this.$te(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
         ? this.$t(`UILoginForm.label.provider.${this.providerKeyLowerCase}`)
         : this.providerKeyCapitalize;
@@ -100,6 +115,25 @@ export default {
         return image;
       }
     },
+  },
+  created() {
+    if (this.translationIdentifier) {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
+        }
+        this.loaded = true;
+      });
+    } else {
+      this.loaded = true;
+    }
+    this.$root.$on('login-form-settings-updated', () => {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
+        }
+      });
+    });
   },
   methods: {
     clickOnProviderButton() {
