@@ -37,14 +37,18 @@
           :is="provider.vueComponentName || 'portal-login-provider-link'"
           :display-text="providers.length === 1"
           :class="index === 0 ? 'flex-grow-0' : 'flex-grow-1 text-end'"
-          class="mx-auto" />
+          class="mx-auto"
+          :translation-identifier="translationIdentifier"
+          :display-providers-icons="providers.length != 1 || displayProvidersIcons" />
         <portal-login-providers-menu
           v-if="displayMoreMenu"
           :providers="menuProviders"
           :params="params"
           :rememberme="rememberme"
           key="providerMenu"
-          class="flex-grow-1 text-end mx-auto transparent" />
+          class="flex-grow-1 text-end mx-auto transparent"
+          :translation-identifier="translationIdentifier"
+          :display-providers-icons="providers.length != 1 || displayProvidersIcons"  />
       </v-card>
     </template>
   </v-card>
@@ -59,6 +63,14 @@ export default {
     rememberme: {
       type: Boolean,
       default: false,
+    },
+    translationIdentifier: {
+      type: String,
+      default: '',
+    },
+    displayProvidersIcons: {
+      type: Boolean,
+      default: true,
     },
   },
   data: () => ({
