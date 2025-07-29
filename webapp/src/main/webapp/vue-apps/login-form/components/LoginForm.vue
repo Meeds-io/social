@@ -57,9 +57,11 @@
           :params="values"
           :rememberme="rememberme"
           ref="loginProvidersComponent"
-          v-show="!displayForm"/>
+          v-show="!displayForm && listExternalProviders"
+          :translation-identifier="values.translationIdentifier"
+          :display-providers-icons="displayProvidersIcons" />
 
-        <portal-login-separator class="mt-5" v-if="!displayForm && signinOption !== 'noform' "/>
+        <portal-login-separator class="mt-5" v-if="!displayForm && signinOption !== 'noform' && listExternalProviders"/>
 
         <form
           ref="form"
@@ -167,8 +169,10 @@
       :translation-identifier="values.translationIdentifier"
       :register-enabled="values.registerEnabled"
       :signin-option="signinOption"
-      :providersCount="providersCount"
-      :display-signin-email-button-icon="displaySigninEmailButtonIcon" />
+      :display-signin-email-button-icon="displaySigninEmailButtonIcon"
+      :list-external-providers="listExternalProviders"
+      :display-providers-icons="displayProvidersIcons" />
+
   </v-app>
 </template>
 <script>
@@ -191,8 +195,9 @@ export default {
     createAccount: '',
     signinEmailButton: '',
     signinOption: 'loginform',
-    providersCount: 0,
     displaySigninEmailButtonIcon: true,
+    listExternalProviders: true,
+    displayProvidersIcons: true,
   }),
   watch: {
     errorMessage: {
@@ -211,23 +216,28 @@ export default {
     this.newHere = this.values?.newHere || this.$t('UILoginForm.label.registerNewAccount');
     this.createAccount = this.values?.createAccount || this.$t('UILoginForm.button.registerNewAccount');
     this.displaySigninEmailButtonIcon = this.values?.displaySigninEmailButtonIcon;
+    this.displayProvidersIcons = this.values?.displayProvidersIcons;
+    this.listExternalProviders = this.values?.listExternalProviders;
     this.signinEmailButton = this.values?.signinEmailButton || this.$t('portal.login.SigninUsingEmail');
     this.$root.$on('login-form-settings-updated', (welcomeBackTranslations,
       newHereTranslations,
       createAccountTranslations,
       signinEmailButtonTranslations,
       signinOption,
-      displaySigninEmailButtonIcon) => {
+      displaySigninEmailButtonIcon,
+      listExternalProviders,
+      displayProvidersIcons) => {
       this.welcomeBack = welcomeBackTranslations?.[eXo.env.portal.language] || this.$t('portal.login.WelcomeBack');
       this.newHere = newHereTranslations?.[eXo.env.portal.language] || this.$t('UILoginForm.label.registerNewAccount');
       this.createAccount = createAccountTranslations?.[eXo.env.portal.language] || this.$t('UILoginForm.button.registerNewAccount');
       this.signinEmailButton = signinEmailButtonTranslations?.[eXo.env.portal.language] || this.$t('portal.login.SigninUsingEmail');
       this.signinOption = signinOption || 'loginform';
       this.displaySigninEmailButtonIcon = displaySigninEmailButtonIcon;
+      this.listExternalProviders = listExternalProviders;
+      this.displayProvidersIcons = displayProvidersIcons;
     });
     this.$root.$on('login-providers-refreshed', (providers) => {
       this.displayForm = providers.length === 0;
-      this.providersCount = providers.length;
       const t = this;
       setTimeout(() => {
         t.init = true;

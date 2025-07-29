@@ -18,6 +18,7 @@
  */
 package io.meeds.social.translation.storage;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -61,6 +62,14 @@ public class TranslationStorage {
   public TranslationField getTranslationField(String objectType, String objectId, String fieldName) {
     Map<Locale, String> labels = getLabels(objectType, objectId, fieldName);
     return new TranslationField(objectType, objectId, fieldName, labels, System.currentTimeMillis());
+  }
+
+  public Map<String,TranslationField> getAllTranslationFields(String objectType, String objectId) {
+    Map<String,Map<Locale, String>> labels = getAllLabels(objectType, objectId);
+    return labels.entrySet().stream()
+          .collect(Collectors.toMap(Map.Entry::getKey,
+                                    entry -> new TranslationField(objectType, objectId, entry.getKey(), entry.getValue(),
+                                                                  System.currentTimeMillis())));
   }
 
   public Map<Locale, String> getTranslationLabels(String objectType, String objectId, String fieldName) {
@@ -181,6 +190,43 @@ public class TranslationStorage {
                           .filter(distinctByKey(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME))))
                           .collect(Collectors.toMap(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME)),
                                                     item -> item.getProperties().get(LABEL_PROPERTY_NAME)));
+    }
+  }
+
+  private Map<String,Map<Locale, String>> getAllLabels(String objectType, String objectId) {
+    MetadataObject metadataObject = new MetadataObject(objectType, objectId);
+    List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataTypeAndObject(METADATA_TYPE.getName(),metadataObject);
+
+    if (CollectionUtils.isEmpty(metadataItems)) {
+      return new HashMap<>();
+    } else {
+
+      Map<String, List<MetadataItem>> groupedItems = new HashMap<>();
+      for (MetadataItem item : metadataItems) {
+        String metadataName = item.getMetadata().getName();
+        if (!groupedItems.containsKey(metadataName)) {
+          List<MetadataItem> items = new ArrayList<>();
+          items.add(item);
+          groupedItems.put(metadataName, items);
+        } else {
+          groupedItems.get(metadataName).add(item);
+        }
+      }
+
+      Map<String, Map<Locale, String>> labelsMap = new HashMap<>();
+      for (Map.Entry<String, List<MetadataItem>> entry : groupedItems.entrySet()) {
+        String metadataName = entry.getKey();
+        List<MetadataItem> items = entry.getValue();
+        Map<Locale, String> labels = items.stream()
+                                          .filter(item -> MapUtils.isNotEmpty(item.getProperties()))
+                                          .filter(distinctByKey(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME))))
+                                          .collect(Collectors.toMap(item -> Locale.forLanguageTag(item.getProperties().get(LOCALE_PROPERTY_NAME)),
+                                                                    item -> item.getProperties().get(LABEL_PROPERTY_NAME)));
+        labelsMap.put(metadataName, labels);
+      }
+
+
+      return labelsMap;
     }
   }
 

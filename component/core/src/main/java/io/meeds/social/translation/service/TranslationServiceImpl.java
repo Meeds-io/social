@@ -88,6 +88,7 @@ public class TranslationServiceImpl implements TranslationService {
     translationPlugins.remove(objectType);
   }
 
+
   @Override
   public TranslationField getTranslationField(String objectType,
                                               String objectId,
@@ -115,6 +116,34 @@ public class TranslationServiceImpl implements TranslationService {
       translationField.setLabels(labels);
     }
     return translationField;
+  }
+
+  @Override
+  public Map<String, TranslationField> getAllTranslationFields(String objectType, String objectId, String username) throws
+                                                                                                        IllegalAccessException,
+                                                                                                        ObjectNotFoundException {
+    checkParameters(objectType, objectId);
+    checkAccessPermission(objectType, objectId, username);
+    return getAllTranslationFields(objectType, objectId);
+  }
+
+  @Override
+  public Map<String, TranslationField> getAllTranslationFields(String objectType, String objectId) throws ObjectNotFoundException {
+    Map<String,TranslationField> translationFields = translationStorage.getAllTranslationFields(objectType, objectId);
+    for (Entry<String, TranslationField> entry : translationFields.entrySet()) {
+      TranslationField translationField = entry.getValue();
+      if (translationField != null && translationField.getLabels() != null) {
+        Map<Locale, String> labels = translationField.getLabels();
+        labels = labels.entrySet()
+                       .stream()
+                       .map(labelEntry -> Pair.of(labelEntry.getKey(),
+                                                  HtmlUtils.transform(labelEntry.getValue(),
+                                                                      new HtmlTransformerContext(labelEntry.getKey()))))
+                       .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+        translationField.setLabels(labels);
+      }
+    }
+    return translationFields;
   }
 
   @Override
