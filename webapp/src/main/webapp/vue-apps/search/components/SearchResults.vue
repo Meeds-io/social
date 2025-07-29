@@ -77,6 +77,8 @@ export default {
     searching: 0,
     abortController: null,
     searchInitialized: false,
+    sortBy: '',
+    sortDescending: true,
   }),
   computed: {
     hasMore() {
@@ -188,6 +190,12 @@ export default {
         this.search();
       }
     },
+    sortBy() {
+      this.totalSize = 0;
+      if (this.searchInitialized) {
+        this.$nextTick().then(this.search);
+      }
+    }
   },
   created() {
     this.$root.$on('refresh', (searchConnector, favorites) => {
@@ -218,10 +226,12 @@ export default {
     }
     this.$root.$on('spaces-changed', this.selectSpaces);
     this.$root.$on('favorites-changed', this.selectFavorites);
+    this.$root.$on('sort-changed', this.selectSort);
   },
   beforeDestroy() {
     this.$root.$off('spaces-changed', this.selectSpaces);
     this.$root.$off('favorites-changed', this.selectFavorites);
+    this.$root.$off('sort-changed', this.selectSort);
   },
   methods: {
     selectFavorites() {
@@ -237,6 +247,10 @@ export default {
     },
     selectSpaces(spaces) {
       this.selectedSpaces = spaces || [];
+    },
+    selectSort(option, sortDescending) {
+      this.sortBy = option?.value || '';
+      this.sortDescending = sortDescending;
     },
     selectAllConnector() {
       if (this.allEnabled) {
@@ -357,6 +371,9 @@ export default {
           this.selectedSpaces.forEach(spaceId => {
             uri += `&spaceId=${spaceId}`;
           });
+        }
+        if (this.sortBy) {
+          uri += `&sortBy=${this.sortBy}&sortDescending=${this.sortDescending}`;
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
