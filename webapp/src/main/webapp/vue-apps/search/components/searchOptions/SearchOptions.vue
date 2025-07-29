@@ -99,6 +99,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
     </div>
     <search-tag-selector @tags-changed="$emit('select-tags', $event)" />
     <search-favorites-selector :favorites="favorites" />
+    <search-sort-selector class="align-end ml-auto" />
   </div>
 </template>
 
