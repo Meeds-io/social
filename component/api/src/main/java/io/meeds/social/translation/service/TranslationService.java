@@ -33,6 +33,43 @@ public interface TranslationService {
   String TRANSLATION_DELETED_EVENT_NAME = "translation.deleted";
 
   /**
+   * Retrieves the list of TranslationFields Labels for all fields of an Object
+   * (identified by its type and id). This will ensure at the same time to check
+   * the User ACL to know whether it can access object or not.
+   *
+   * @param  objectType              Object type for which the Translation
+   *                                   Metadata will be attached
+   * @param  objectId                Object unique identifier
+   * @param  username                user name accessing the list, used for ACL
+   *                                   check
+   * @return                         {@link TranslationField} of Translations
+   *                                 with a corresponding label for each saved
+   *                                 {@link Locale}
+   * @throws IllegalAccessException  When user doesn't have access permission to
+   *                                   object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  Map<String, TranslationField> getAllTranslationFields(String objectType,
+                                                 String objectId,
+                                                 String username) throws IllegalAccessException, ObjectNotFoundException;
+
+  /**
+   * Retrieves the list of TranslationFields Labels for all fields of an Object
+   * (identified by its type and id).
+   *
+   * @param  objectType              Object type for which the Translation
+   *                                   Metadata will be attached
+   * @param  objectId                Object unique identifier
+   * @return                         {@link TranslationField} of Translations
+   *                                 with a corresponding label for each saved
+   *                                 {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  Map<String, TranslationField> getAllTranslationFields(String objectType,
+                                                        String objectId) throws ObjectNotFoundException;
+
+
+  /**
    * Retrieves the list of Translation Labels for a given field of an Object
    * (identified by its type and id). This will ensure at the same time to check
    * the User ACL to know whether it can access object or not.

@@ -74,7 +74,7 @@
               @input="translationUpdatedCreateAccount" />
           </v-card-text>
         </div>
-        <div v-if="providersCount > 0" class="mb-7">
+        <div v-if="providers.length > 0" class="mb-7">
           <div class="text-header mb-4">
             {{ $t('loginForm.drawer.label.signinoptions.title') }}
           </div>
@@ -102,7 +102,42 @@
                 v-model="displaySigninEmailButtonIcon"
                 class="mt-0" />
             </v-card-text>
-
+          </div>
+        </div>
+        <div v-if="providers.length > 0" class="mb-7">
+          <div class="text-header mb-4">
+            {{ $t('loginForm.drawer.label.externalsigninoptions.title') }}
+          </div>
+          <v-card-text class="d-flex pa-0 align-center">
+            {{ $t('loginForm.drawer.label.externalsigninoptions.listProviders') }}
+            <div class="spacer" />
+            <v-switch
+              v-model="listExternalProviders"
+              class="mt-0" />
+          </v-card-text>
+          <div v-if="listExternalProviders">
+            <v-card-text class="d-flex pa-0 mb-3"
+              v-for="provider in providers"
+              :key="provider.key">
+              <translation-text-field
+                :ref="`${provider.key}ProviderTranslations`"
+                :object-id="translationIdentifier"
+                :object-type="objectType"
+                :field-name="`${provider.key}`"
+                :field-value="providerDisplayedValue(provider)"
+                class="width-auto flex-grow-1"
+                :drawer-title="providerKeyCapitalize(provider.key)"
+                @input="translations => translationUpdatedForProvider(provider, translations)" />
+            </v-card-text>
+            <div v-if="providers.length==1">
+              <v-card-text class="d-flex pa-0 align-center">
+                {{ $t('loginForm.drawer.label.signinoptions.displayIcon') }}
+                <div class="spacer" />
+                <v-switch
+                  v-model="displayProvidersIcons"
+                  class="mt-0" />
+              </v-card-text>
+            </div>
           </div>
         </div>
       </v-card>
@@ -151,18 +186,33 @@ export default {
       type: Boolean,
       default: true,
     },
+    listExternalProviders: {
+      type: Boolean,
+      default: true,
+    },
+    displayProvidersIcons: {
+      type: Boolean,
+      default: true,
+    },
   },
   data: () => ({
     drawer: false,
     loading: false,
     objectType: 'cmsPortlet',
-    translationsWelcomeBack: [],
-    translationsNewHere: [],
-    translationsCreateAccount: [],
-    translationsSigninEmailButton: [],
+    translationsWelcomeBack: {},
+    translationsNewHere: {},
+    translationsCreateAccount: {},
+    translationsSigninEmailButton: {},
+    providers: [],
   }),
   created() {
     this.$root.$on('login-form-settings', this.open);
+    this.$root.$on('login-providers-refreshed', (providers) => {
+      this.providers = providers;
+      providers.forEach((provider) => {
+        provider.translations = {};
+      });
+    });
   },
   beforeDestroy() {
     this.$root.$off('login-form-settings', this.open);
@@ -208,7 +258,6 @@ export default {
       this.loading = true;
       const promise = [];
 
-
       if (this.registerEnabled) {
         promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere));
         promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'createAccount', this.translationsCreateAccount));
@@ -220,6 +269,12 @@ export default {
         promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton));
       }
 
+      this.providers.forEach((provider) => {
+        if (provider.translations && Object.keys(provider.translations).length > 0) {
+          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
+        }
+      });
+
       promise.push(this.saveSettings());
 
       Promise.all(promise).then(() => {
@@ -229,7 +284,9 @@ export default {
           this.translationsCreateAccount,
           this.translationsSigninEmailButton,
           this.signinOption,
-          this.displaySigninEmailButtonIcon);
+          this.displaySigninEmailButtonIcon,
+          this.listExternalProviders,
+          this.displayProvidersIcons);
         this.loading = false;
         this.close();
       });
@@ -252,6 +309,12 @@ export default {
           }, {
             name: 'displaySigninEmailButtonIcon',
             value: this.displaySigninEmailButtonIcon,
+          }, {
+            name: 'listExternalProviders',
+            value: this.listExternalProviders,
+          }, {
+            name: 'displayProvidersIcons',
+            value: this.displayProvidersIcons,
           }],
         }),
       });
@@ -267,6 +330,24 @@ export default {
     },
     translationUpdatedSigninEmailButton(translations) {
       this.translationsSigninEmailButton = translations;
+    },
+    translationUpdatedForProvider(provider, translations) {
+      provider.translations = translations;
+    },
+    providerDisplayedValue(provider) {
+      return provider.translations?.[this.userLocale] || this.defaultLangValueProvider(provider);
+    },
+    defaultLangValueProvider(provider) {
+      return this.providerButtonLabel(provider.key);
+    },
+    providerButtonLabel(providerName) {
+      const translatedProviderName = this.$te(`UILoginForm.label.provider.${providerName.toLowerCase()}`)
+        ? this.$t(`UILoginForm.label.provider.${providerName.toLowerCase()}`)
+        : this.providerKeyCapitalize(providerName);
+      return this.$t('UILoginForm.label.singInWith', {0: translatedProviderName});
+    },
+    providerKeyCapitalize(providerName) {
+      return `${providerName.toLowerCase().charAt(0).toUpperCase()}${providerName.toLowerCase().substring(1)}`;
     },
   },
 };

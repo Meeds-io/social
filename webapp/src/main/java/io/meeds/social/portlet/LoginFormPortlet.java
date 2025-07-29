@@ -28,6 +28,7 @@ import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
 
 import java.security.SecureRandom;
+import java.util.Map;
 
 public class LoginFormPortlet extends CMSPortlet {
 
@@ -52,14 +53,26 @@ public class LoginFormPortlet extends CMSPortlet {
     Long initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null) != null ? Long.parseLong(preferences.getValue(DATA_INIT_PREFERENCE_NAME, null)) : null;
     if (initTranslationIdentifier != null) {
       // creation new translations
+
       try {
-        TranslationField welcomeBackTranslations = getTranslationService().getTranslationField(OBJECT_TYPE, initTranslationIdentifier, "welcomeBack");
-        if (!welcomeBackTranslations.getLabels().isEmpty()) {
-          getTranslationService().saveTranslationLabels(OBJECT_TYPE,
-                                                        Long.parseLong(currentTranslationIdentifier),
-                                                        "welcomeBack",
-                                                        welcomeBackTranslations.getLabels());
-        }
+        Map<String, TranslationField>
+            translations = getTranslationService().getAllTranslationFields(OBJECT_TYPE, initTranslationIdentifier);
+        String finalCurrentTranslationIdentifier = currentTranslationIdentifier;
+        translations.entrySet().forEach(entry -> {
+          String translationKey = entry.getKey();
+          TranslationField translationField = entry.getValue();
+          if (!translationField.getLabels().isEmpty()) {
+            try {
+              getTranslationService().saveTranslationLabels(OBJECT_TYPE,
+                                                          Long.parseLong(finalCurrentTranslationIdentifier),
+                                                          translationKey,
+                                                          translationField.getLabels());
+            } catch (ObjectNotFoundException o) {
+              //nothing to do, no translations to copy
+            }
+          }
+
+        });
       } catch (ObjectNotFoundException o) {
         //nothing to do, no translations to copy
       }

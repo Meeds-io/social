@@ -46,7 +46,9 @@
           :is="provider.vueComponentName || 'portal-login-provider-menu-link'"
           class="mx-auto"
           display-text
-          is-menu />
+          is-menu
+          :translation-identifier="translationIdentifier"
+          :display-providers-icons="displayProvidersIcons" />
       </v-list>
     </v-menu>
   </v-card>
@@ -65,6 +67,14 @@ export default {
     rememberme: {
       type: Boolean,
       default: false,
+    },
+    translationIdentifier: {
+      type: String,
+      default: '',
+    },
+    displayProvidersIcons: {
+      type: Boolean,
+      default: true,
     },
   },
 };
