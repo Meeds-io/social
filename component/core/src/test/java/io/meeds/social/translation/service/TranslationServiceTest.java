@@ -20,6 +20,7 @@ package io.meeds.social.translation.service;
 import static org.junit.Assert.assertThrows;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -251,5 +252,52 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
       }
     };
     translationService.addPlugin(translationPlugin);
+  }
+
+  public void testGetAllTranslationFields() throws IllegalAccessException, ObjectNotFoundException {
+
+    String field1 = "title1";
+    String field2 = "title2";
+
+    setTranslationPlugin(true, true, 2, 1);
+    Map<Locale, String> labels = new HashMap<>();
+    labels.put(locale, label);
+    labels.put(Locale.GERMAN, label+"-de");
+
+    translationService.saveTranslationLabels(objectType, objectId, field1, labels);
+    translationService.saveTranslationLabels(objectType, objectId, field2, labels);
+
+    Map<String, TranslationField> translationfields = translationService.getAllTranslationFields(objectType, objectId, username);
+    assertNotNull(translationfields);
+    assertEquals(2, translationfields.size());
+    assertTrue(translationfields.containsKey(field1));
+    assertTrue(translationfields.containsKey(field2));
+    for (TranslationField translationField : translationfields.values()) {
+      Map<Locale, String> translationLabels = translationField.getLabels();
+      assertNotNull(translationLabels);
+      assertFalse(translationLabels.isEmpty());
+      assertEquals(2, translationfields.size());
+      assertTrue(translationField.getLabels().containsKey(locale));
+      assertEquals(label, translationField.getLabels().get(locale));
+    }
+
+    String labelFr = label + "FR";
+    labels.put(Locale.FRENCH, labelFr);
+    translationService.saveTranslationLabels(objectType, objectId, field1, labels);
+    translationService.saveTranslationLabels(objectType, objectId, field2, labels);
+
+    translationfields = translationService.getAllTranslationFields(objectType, objectId, username);
+    assertNotNull(translationfields);
+    assertEquals(2, translationfields.size());
+    assertTrue(translationfields.containsKey(field1));
+    assertTrue(translationfields.containsKey(field2));
+    for (TranslationField translationField : translationfields.values()) {
+      assertNotNull(translationField);
+      Map<Locale, String> translationLabels = translationField.getLabels();
+      assertNotNull(translationLabels);
+      assertFalse(translationLabels.isEmpty());
+      assertEquals(label, translationLabels.get(locale));
+      assertEquals(labelFr, translationLabels.get(Locale.FRENCH));
+    }
   }
 }
