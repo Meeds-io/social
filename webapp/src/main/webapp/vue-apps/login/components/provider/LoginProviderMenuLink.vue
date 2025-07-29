@@ -60,6 +60,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    translationIdentifier: {
+      type: String,
+      default: '',
+    },
     displayProvidersIcons: {
       type: Boolean,
       default: true,
@@ -113,20 +117,20 @@ export default {
     },
   },
   created() {
-    if (this.params?.oAuthProviderLabels[this.provider?.key]) {
-      this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
+    if (this.translationIdentifier) {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
+        }
+        this.loaded = true;
+      });
+    } else {
+      this.loaded = true;
     }
-    this.loaded = true;
-    this.$root.$on('login-form-settings-providers-updated', (newProviders) => {
-      newProviders.forEach((newProvider) => {
-        if (this.provider.key === newProvider.key) {
-          if (newProvider.translations && newProvider.translations[eXo.env.portal.language]) {
-            this.providerTranslation = newProvider.translations[eXo.env.portal.language];
-          } else if (newProvider.translations && newProvider.translations[eXo.env.portal.defaultLanguage]) {
-            this.providerTranslation = newProvider.translations[eXo.env.portal.defaultLanguage];
-          } else {
-            this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
-          }
+    this.$root.$on('login-form-settings-updated', () => {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
         }
       });
     });

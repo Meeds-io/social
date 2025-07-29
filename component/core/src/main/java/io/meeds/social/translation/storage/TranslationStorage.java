@@ -64,16 +64,12 @@ public class TranslationStorage {
     return new TranslationField(objectType, objectId, fieldName, labels, System.currentTimeMillis());
   }
 
-  public Map<String, TranslationField> getAllTranslationFields(String objectType, String objectId) {
-    Map<String, Map<Locale, String>> labels = getAllLabels(objectType, objectId);
-    return labels.entrySet()
-                 .stream()
-                 .collect(Collectors.toMap(Map.Entry::getKey,
-                                           entry -> new TranslationField(objectType,
-                                                                         objectId,
-                                                                         entry.getKey(),
-                                                                         entry.getValue(),
-                                                                         System.currentTimeMillis())));
+  public Map<String,TranslationField> getAllTranslationFields(String objectType, String objectId) {
+    Map<String,Map<Locale, String>> labels = getAllLabels(objectType, objectId);
+    return labels.entrySet().stream()
+          .collect(Collectors.toMap(Map.Entry::getKey,
+                                    entry -> new TranslationField(objectType, objectId, entry.getKey(), entry.getValue(),
+                                                                  System.currentTimeMillis())));
   }
 
   public Map<Locale, String> getTranslationLabels(String objectType, String objectId, String fieldName) {

@@ -193,10 +193,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    displayWelcomeMessage: {
-      type: Boolean,
-      default: true,
-    },
     displayProvidersIcons: {
       type: Boolean,
       default: true,
@@ -216,7 +212,7 @@ export default {
     this.$root.$on('login-form-settings', this.open);
     this.$root.$on('login-providers-refreshed', (providers) => {
       this.providers = providers;
-      this.providers.forEach((provider) => {
+      providers.forEach((provider) => {
         provider.translations = {};
       });
     });
@@ -266,10 +262,6 @@ export default {
       const promise = [];
       let firstTranslation = true;
 
-      //if we have saveTranslations request, we need to ensure that the first one is executed before the others
-      //because it create the metadata for the translations
-      //if all saveTranslations are executed at the same time, we will have a "unique constraint violation" error because metadata will be created more than once
-
       if (this.registerEnabled) {
         if (firstTranslation) {
           this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere);
@@ -298,14 +290,11 @@ export default {
 
       this.providers.forEach((provider) => {
         if (provider.translations && Object.keys(provider.translations).length > 0) {
-          if (firstTranslation) {
-            this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, provider.key, provider.translations);
-            firstTranslation = false;
-          } else {
-            promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
-          }
+          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
         }
       });
+
+      promise.push(this.saveSettings());
 
       promise.push(this.saveSettings());
       Promise.all(promise).then(() => {
@@ -318,8 +307,7 @@ export default {
           this.signinOption,
           this.displaySigninEmailButtonIcon,
           this.listExternalProviders,
-          this.displayProvidersIcons,
-          this.displayWelcomeMessage);
+          this.displayProvidersIcons);
         this.loading = false;
         this.close();
       });
@@ -351,9 +339,6 @@ export default {
           }, {
             name: 'displayProvidersIcons',
             value: this.displayProvidersIcons,
-          }, {
-            name: 'displayWelcomeMessage',
-            value: this.displayWelcomeMessage,
           }],
         }),
       });

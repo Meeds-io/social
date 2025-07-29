@@ -20,28 +20,33 @@
 -->
 <template>
   <div v-if="loaded">
-    <v-btn
-      :id="id"
-      :href="link"
-      :target="targetLink"
-      :aria-label="!displayText && providerButtonLabel"
-      :title="!displayText && providerButtonLabel"
-      min-width="auto"
-      color="primary"
-      class="text-none elevation-0 white-background"
-      outlined
-      v-on="on"
-      @click="clickOnProviderButton">
-      <v-img
-        v-if="providerImage && displayProvidersIcons"
-        :src="providerImage"
-        :class="displayText && 'me-2'"
-        height="25"
-        max-width="25"
-        eager />
-      <v-icon v-else :class="providerIcon" />
-      <span v-if="displayText" class="text-body text-truncate">{{ providerButtonLabel }}</span>
-    </v-btn>
+    <v-tooltip bottom>
+      <template #activator="{ on, attrs }">
+        <v-btn
+          :id="id"
+          :href="link"
+          :target="targetLink"
+          :aria-label="providerButtonLabel"
+          min-width="auto"
+          color="primary"
+          class="text-none elevation-0 btn"
+          v-bind="attrs"
+          outlined
+          v-on="on"
+          @click="clickOnProviderButton">
+          <v-img
+            v-if="providerImage && displayProvidersIcons"
+            :src="providerImage"
+            :class="displayText && 'me-2'"
+            height="25"
+            max-width="25"
+            eager />
+          <v-icon v-else :class="providerIcon" />
+          <span v-if="displayText" class="text-body text-truncate">{{ providerButtonLabel }}</span>
+        </v-btn>
+      </template>
+      <span>{{ providerButtonLabel }}</span>
+    </v-tooltip>
   </div>
 </template>
 <script>
@@ -63,6 +68,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    translationIdentifier: {
+      type: String,
+      default: '',
+    },
     displayProvidersIcons: {
       type: Boolean,
       default: true,
@@ -70,9 +79,9 @@ export default {
   },
   data: () => ({
     defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
+    providerTranslation: '',
     objectType: 'cmsPortlet',
     loaded: false,
-    providerTranslation: '',
   }),
   computed: {
     providerKeyLowerCase() {
@@ -116,21 +125,20 @@ export default {
     },
   },
   created() {
-    if (this.params?.oAuthProviderLabels[this.provider?.key]) {
-      this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
+    if (this.translationIdentifier) {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
+        }
+        this.loaded=true;
+      });
+    } else {
+      this.loaded = true;
     }
-    this.loaded = true;
-
-    this.$root.$on('login-form-settings-providers-updated', (newProviders) => {
-      newProviders.forEach((newProvider) => {
-        if (this.provider.key === newProvider.key) {
-          if (newProvider.translations && newProvider.translations[eXo.env.portal.language]) {
-            this.providerTranslation = newProvider.translations[eXo.env.portal.language];
-          } else if (newProvider.translations && newProvider.translations[eXo.env.portal.defaultLanguage]) {
-            this.providerTranslation = newProvider.translations[eXo.env.portal.defaultLanguage];
-          } else {
-            this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
-          }
+    this.$root.$on('login-form-settings-updated', () => {
+      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
+        if (translations[eXo.env.portal.language]) {
+          this.providerTranslation = translations[eXo.env.portal.language];
         }
       });
     });
