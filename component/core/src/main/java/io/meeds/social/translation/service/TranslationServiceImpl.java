@@ -88,6 +88,7 @@ public class TranslationServiceImpl implements TranslationService {
     translationPlugins.remove(objectType);
   }
 
+
   @Override
   public TranslationField getTranslationField(String objectType,
                                               String objectId,
