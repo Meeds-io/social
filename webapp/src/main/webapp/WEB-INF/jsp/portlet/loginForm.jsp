@@ -77,15 +77,19 @@
 
   String welcomeBack = translationService.getTranslationLabelOrDefault("cmsPortlet",
             Long.parseLong(translationIdentifier), "welcomeBack", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+  welcomeBack = welcomeBack == null ? null : URLEncoder.encode(welcomeBack.replace(" ", "._.")).replace("._.", " ");
 
   String newHere = translationService.getTranslationLabelOrDefault("cmsPortlet",
             Long.parseLong(translationIdentifier), "newHere", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+  newHere = newHere == null ? null : URLEncoder.encode(newHere.replace(" ", "._.")).replace("._.", " ");
 
   String createAccount = translationService.getTranslationLabelOrDefault("cmsPortlet",
             Long.parseLong(translationIdentifier), "createAccount", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+  createAccount = createAccount == null ? null : URLEncoder.encode(createAccount.replace(" ", "._.")).replace("._.", " ");
 
   String signinEmailButton = translationService.getTranslationLabelOrDefault("cmsPortlet",
             Long.parseLong(translationIdentifier), "signinEmailButton", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+  signinEmailButton = signinEmailButton == null ? null : URLEncoder.encode(signinEmailButton.replace(" ", "._.")).replace("._.", " ");
 
   String signinOption = request.getAttribute("signinOption") == null ? "loginform" : ((String[]) request.getAttribute("signinOption"))[0];
   boolean displaySigninEmailButtonIcon = request.getAttribute("displaySigninEmailButtonIcon") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displaySigninEmailButtonIcon"))[0]);
