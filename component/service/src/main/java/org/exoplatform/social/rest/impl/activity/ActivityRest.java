@@ -1004,6 +1004,12 @@ public class ActivityRest implements ResourceContainer {
                                    @QueryParam(
                                      "spaceId"
                                    ) List<Long> spaceIds,
+                                   @Parameter(description = "Field to sort by")
+                                   @QueryParam("sort")
+                                   String sortField,
+                                   @Parameter(description = "Sort order (asc or desc)")
+                                   @QueryParam("order")
+                                   String sortDirection,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1032,7 +1038,8 @@ public class ActivityRest implements ResourceContainer {
       List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
       spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, spaceIdsString).stream().map(Long::valueOf).toList();
     }
-    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite);
+
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite, sortField, sortDirection);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
