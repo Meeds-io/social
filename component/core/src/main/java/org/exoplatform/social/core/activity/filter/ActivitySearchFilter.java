@@ -21,7 +21,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.exoplatform.social.core.search.Sorting;
 
 @Data
 @NoArgsConstructor
@@ -38,7 +37,9 @@ public class ActivitySearchFilter {
 
   private boolean      favorites;
 
-  private Sorting      sorting;
+  private String       sortField;
+
+  private String       sortDirection;
 
   public ActivitySearchFilter(String term) {
     this.term = term;

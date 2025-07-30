@@ -66,7 +66,6 @@ import org.exoplatform.social.core.identity.provider.SpaceIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ActivitySearchConnector;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
-import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -1003,12 +1002,12 @@ public class ActivityRest implements ResourceContainer {
                                    @QueryParam(
                                      "spaceId"
                                    ) List<Long> spaceIds,
-                                   @Parameter(description = "Sort field. Possible values: createdDate, startDate, endDate or relevancy.")
-                                   @QueryParam("sortBy")
+                                   @Parameter(description = "Field to sort by")
+                                   @QueryParam("sort")
                                    String sortField,
-                                   @Parameter(description = "Whether to retrieve results sorted descending or not")
-                                   @QueryParam("sortDescending")
-                                   boolean sortDescending,
+                                   @Parameter(description = "Sort order (asc or desc)")
+                                   @QueryParam("order")
+                                   String sortDirection,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
                                      "offset"
@@ -1038,7 +1037,7 @@ public class ActivityRest implements ResourceContainer {
       spaceIdentityIds = SpaceUtils.getSpaceIdentityIds(authenticatedUser, spaceIdsString).stream().map(Long::valueOf).toList();
     }
 
-    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite,buildSorting(sortField, sortDescending));
+    ActivitySearchFilter filter = new ActivitySearchFilter(query, tagNames, categoryIds, spaceIdentityIds, isFavorite, sortField, sortDirection);
     List<ActivitySearchResult> searchResults = activitySearchConnector.search(currentUserIdentity, filter, offset, limit);
     List<ActivitySearchResultEntity> results = searchResults.stream().map(searchResult -> {
       ActivitySearchResultEntity entity = EntityBuilder.buildEntityFromActivitySearchResult(searchResult);
@@ -1140,19 +1139,6 @@ public class ActivityRest implements ResourceContainer {
       lastUpdate = posterIdentity.getCacheTime() > lastUpdate ? posterIdentity.getCacheTime() : lastUpdate;
     }
     return lastUpdate;
-  }
-
-  private Sorting buildSorting(String sortField, Boolean descending) {
-    if (StringUtils.isBlank(sortField)) {
-      return null;
-    }
-    try {
-      Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.trim().toUpperCase());
-      Sorting.OrderBy orderBy = Boolean.TRUE.equals(descending) ? Sorting.OrderBy.DESC : Sorting.OrderBy.ASC;
-      return new Sorting(sortBy, orderBy);
-    } catch (IllegalArgumentException e) {
-      return null;
-    }
   }
 
 }

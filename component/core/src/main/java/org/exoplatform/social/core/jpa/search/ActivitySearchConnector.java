@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.search.Sorting;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -431,18 +430,16 @@ public class ActivitySearchConnector {
   }
 
   private String buildSortQueryStatement(ActivitySearchFilter filter) {
-    Sorting sorting = filter.getSorting();
+    String sortFiled = filter.getSortField();
+    String sortDirection = filter.getSortDirection();
 
-    if (sorting == null || sorting.sortBy == null) {
+    if (StringUtils.isBlank(sortFiled)) {
       return DEFAULT_SORTING_QUERY;
     }
 
-    return switch (sorting.sortBy) {
-    case DATE ->
-      SORTING_QUERY.replace("@sortField@", "lastUpdatedDate").replace("@sortOrder@", sorting.orderBy.name().toLowerCase());
-    case RELEVANCY ->
-      SORTING_QUERY.replace("@sortField@", "_score").replace("@sortOrder@", sorting.orderBy.name().toLowerCase());
-    default -> DEFAULT_SORTING_QUERY;
+    return switch (sortFiled) {
+    case "date" -> SORTING_QUERY.replace("@sortField@", "lastUpdatedDate").replace("@sortOrder@", sortDirection);
+    default -> SORTING_QUERY.replace("@sortField@", sortFiled).replace("@sortOrder@", sortDirection);
     };
   }
 
