@@ -212,13 +212,13 @@ export default {
   created() {
     this.values = JSON.parse(this.params);
     this.signinOption = this.values?.signinOption || 'loginform';
-    this.welcomeBack = this.values?.welcomeBack || this.$t('portal.login.WelcomeBack');
-    this.newHere = this.values?.newHere || this.$t('UILoginForm.label.registerNewAccount');
-    this.createAccount = this.values?.createAccount || this.$t('UILoginForm.button.registerNewAccount');
+    this.welcomeBack = decodeURIComponent(this.values?.welcomeBack || this.$t('portal.login.WelcomeBack'));
+    this.newHere = decodeURIComponent(this.values?.newHere || this.$t('UILoginForm.label.registerNewAccount'));
+    this.createAccount = decodeURIComponent(this.values?.createAccount || this.$t('UILoginForm.button.registerNewAccount'));
     this.displaySigninEmailButtonIcon = this.values?.displaySigninEmailButtonIcon;
     this.displayProvidersIcons = this.values?.displayProvidersIcons;
     this.listExternalProviders = this.values?.listExternalProviders;
-    this.signinEmailButton = this.values?.signinEmailButton || this.$t('portal.login.SigninUsingEmail');
+    this.signinEmailButton = decodeURIComponent(this.values?.signinEmailButton || this.$t('portal.login.SigninUsingEmail'));
     this.$root.$on('login-form-settings-updated', (welcomeBackTranslations,
       newHereTranslations,
       createAccountTranslations,
