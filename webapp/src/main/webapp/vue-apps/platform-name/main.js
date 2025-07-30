@@ -19,9 +19,6 @@
 
 import './initComponents.js';
 
-
-const appId = 'platformNameApplication';
-
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -29,7 +26,7 @@ const urls = [
 
 ];
 
-export function init(platformName) {
+export function init(appId, platformName) {
   const decodeName = decodeURIComponent(platformName);
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
