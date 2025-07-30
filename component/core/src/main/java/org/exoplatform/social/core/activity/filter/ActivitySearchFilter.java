@@ -39,6 +39,10 @@ public class ActivitySearchFilter {
 
   private boolean      favorites;
 
+  private String       sortField;
+
+  private String       sortDirection;
+
   public ActivitySearchFilter(String term) {
     this.term = term;
   }
