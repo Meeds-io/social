@@ -373,7 +373,7 @@ export default {
           });
         }
         if (this.sortBy) {
-          uri += `&sortBy=${this.sortBy}&sortDescending=${this.sortDescending}`;
+          uri += `&sort=${this.sortBy}&order=${this.sortDescending ? 'desc' : 'asc'}`;
         }
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
