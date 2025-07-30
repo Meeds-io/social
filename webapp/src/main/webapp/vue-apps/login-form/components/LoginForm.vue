@@ -25,8 +25,25 @@
         class="rounded-0 transparent pa-5"
         flat>
         <div
+          v-if="displayBackButton"
+          class="position-absolute t-0"
+          :class="{
+            'r-0': $vuetify.rtl,
+            'l-0': !$vuetify.rtl,
+          }">
+          <v-btn
+            icon
+            small
+            class="ms-2 mt-2"
+            @click="clickDisplayForm">
+            <v-icon size="18">
+              {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
+            </v-icon>
+          </v-btn>
+        </div>
+        <div
           v-if="values.canEdit && hover"
-          class="position-absolute t-0 r-0"
+          class="position-absolute t-0"
           :class="{
             'l-0': $vuetify.rtl,
             'r-0': !$vuetify.rtl,
@@ -198,6 +215,7 @@ export default {
     displaySigninEmailButtonIcon: true,
     listExternalProviders: true,
     displayProvidersIcons: true,
+    displayBackButton: false,
   }),
   watch: {
     errorMessage: {
@@ -282,6 +300,7 @@ export default {
   methods: {
     clickDisplayForm() {
       this.displayForm = !this.displayForm;
+      this.displayBackButton = !this.displayBackButton;
     },
     setupUserName(){
       const urlParams = new URLSearchParams(window.location.search);
