@@ -18,8 +18,6 @@
  */
 import './initComponents.js';
 
-const appId = 'loginFormApplication';
-
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -29,7 +27,7 @@ const urls = [
   `/social/i18n/locale.portal.login?lang=${lang}`
 ];
 
-export function init(params) {
+export function init(appId, params) {
   const jsonParams = JSON.parse(params);
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready

@@ -19,9 +19,6 @@
 
 import './initComponents.js';
 
-
-const appId = 'sidebarLoginApplication';
-
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -32,7 +29,7 @@ const urls = [
   `/social/i18n/locale.portlet.GeneralSettings?lang=${lang}`,
 ];
 
-export function init(branding,
+export function init(appId, branding,
   portletStorageId,
   hAlign,
   vAlign,

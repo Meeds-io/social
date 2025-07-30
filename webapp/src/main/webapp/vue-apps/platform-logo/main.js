@@ -19,9 +19,6 @@
 
 import './initComponents.js';
 
-
-const appId = 'platformLogoApplication';
-
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -30,7 +27,7 @@ const urls = [
   `/layout/i18n/locale.portlet.LayoutEditor?lang=${lang}`
 ];
 
-export function init(
+export function init(appId,
   portletStorageId,
   hAlign,
   vAlign,

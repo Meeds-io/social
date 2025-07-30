@@ -21,8 +21,12 @@
 <%@ page import="org.exoplatform.portal.config.UserACL"%>
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
 <%@ page import="org.exoplatform.portal.localization.LocaleContextInfoUtils" %>
-
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<portlet:defineObjects />
 <%
+
+  String id = "loginForm-" + renderRequest.getWindowID();
+
 
   JSONObject params = new JSONObject();
 
@@ -107,9 +111,9 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application white v-application--is-ltr theme--light loginForm"
-    id="loginFormApplication">
+    id="<%=id%>">
     <script type="text/javascript">
-      require(['PORTLET/social/LoginForm'], app =>app.init(JSON.stringify(<%=params.toString()%>)));
+      require(['PORTLET/social/LoginForm'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
     </script>
   </div>
 </div>
