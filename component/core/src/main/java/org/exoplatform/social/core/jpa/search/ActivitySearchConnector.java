@@ -9,10 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.search.Sorting;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -64,12 +64,29 @@ public class ActivitySearchConnector {
       "  }" +
       "},";
 
-  public static final String           CATEGORY_IDS_QUERY            = """
+  public static final String            CATEGORY_IDS_QUERY           = """
       {
         "terms":{
           "categoryId": [@categoryIds@]
         }
       }
+      """;
+
+  public static final String            DEFAULT_SORTING_QUERY        = """
+          {
+            "_score": {
+              "order": "desc"
+            }
+          }
+      """;
+
+  public static final String            SORTING_QUERY                = """
+          {
+            "@sortField@": {
+              "order": "@sortOrder@"
+            }
+          },
+          "_score"
       """;
 
   private static final String           TERM_REPLACEMENT             = "@term@";
@@ -167,11 +184,13 @@ public class ActivitySearchConnector {
     String favoriteQuery = buildFavoriteQueryStatement(metadataFilters.get(FavoriteService.METADATA_TYPE.getName()));
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     String categoryQuery = buildCategoryIdQueryStatement(filter);
+    String sortQuery = buildSortQueryStatement(filter);
     return retrieveSearchQuery().replace("@term_query@", termQuery)
                                 .replace("@favorite_query@", favoriteQuery)
                                 .replace("@tags_query@", tagsQuery)
                                 .replace("@category_query@", categoryQuery)
                                 .replace("@permissions@", StringUtils.join(streamFeedOwnerIds, ","))
+                                .replace("@sortQuery@", sortQuery)
                                 .replace("@offset@", String.valueOf(offset))
                                 .replace("@limit@", String.valueOf(limit));
   }
@@ -409,6 +428,22 @@ public class ActivitySearchConnector {
     } else {
       return SEARCH_QUERY_TERM.replace(TERM_REPLACEMENT, phrase);
     }
+  }
+
+  private String buildSortQueryStatement(ActivitySearchFilter filter) {
+    Sorting sorting = filter.getSorting();
+
+    if (sorting == null || sorting.sortBy == null) {
+      return DEFAULT_SORTING_QUERY;
+    }
+
+    return switch (sorting.sortBy) {
+    case DATE ->
+      SORTING_QUERY.replace("@sortField@", "lastUpdatedDate").replace("@sortOrder@", sorting.orderBy.name().toLowerCase());
+    case RELEVANCY ->
+      SORTING_QUERY.replace("@sortField@", "_score").replace("@sortOrder@", sorting.orderBy.name().toLowerCase());
+    default -> DEFAULT_SORTING_QUERY;
+    };
   }
 
   private Long parseLong(JSONObject hitSource, String key) {
