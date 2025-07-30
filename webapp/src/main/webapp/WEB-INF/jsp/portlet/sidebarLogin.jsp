@@ -7,9 +7,13 @@
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@ page import="org.exoplatform.portal.config.UserACL"%>
 <%@page import="org.apache.commons.text.StringEscapeUtils"%>
-
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<portlet:defineObjects />
 
 <%
+
+  String id = "sideBarLogin-" + renderRequest.getWindowID();
+
   BrandingService brandingService = CommonsUtils.getService(BrandingService.class);
   String branding = EntityBuilder.toJsonString(brandingService.getBrandingInformation(false));
 
@@ -25,9 +29,9 @@
 <div class="VuetifyApp">
   <div data-app="true"
     class="v-application white v-application--is-ltr theme--light sidebarLogin"
-    id="sidebarLoginApplication">
+    id="<%=id%>">
     <script type="text/javascript">
-      require(['PORTLET/social/SidebarLogin'], app =>app.init(
+      require(['PORTLET/social/SidebarLogin'], app =>app.init('<%=id%>',
         "<%=StringEscapeUtils.escapeJava(branding)%>",
         '<%=portletStorageId%>',
         '<%=hAlign%>',
