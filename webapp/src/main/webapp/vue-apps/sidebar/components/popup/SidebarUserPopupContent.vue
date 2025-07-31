@@ -51,7 +51,7 @@
             </v-list-item-avatar>
           </v-badge>
         </a>
-        <v-list-item-content class="pa-0">
+        <v-list-item-content class="pa-0 width-fit-content">
           <v-list-item-title class="mb-0">
             <a
               :href="profileUri"
@@ -62,7 +62,7 @@
           </v-list-item-title>
           <v-list-item-subtitle>
             <a
-              class="text-caption text-color"
+              class="text-font-small-size text-color"
               :href="profileUri"
               rel="noopener noreferrer">
               {{ $t('menu.userProfilePageLink') }}
@@ -71,14 +71,14 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
-    <div class="d-flex mx-4 mb-4">
+    <div class="d-flex justify-center mx-4 mb-4">
       <v-btn-toggle
         v-model="selectedStatus"
         mandatory
         group
         dense
         class="d-flex">
-        <div class="d-flex flex-column align-center me-9">
+        <div class="d-flex flex-column align-center me-10">
           <v-btn
             value="available"
             active-class="btn-border-active"
@@ -93,11 +93,11 @@
           </v-btn>
           <v-sheet
             max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
+            class="mt-2 text-center text-font-small-size text-truncate">
             {{ $t('menu.user.status.available') }}
           </v-sheet>
         </div>
-        <div class="d-flex flex-column align-center me-9">
+        <div class="d-flex flex-column align-center me-10">
           <v-btn
             value="donotdisturb"
             active-class="btn-border-active"
@@ -112,7 +112,7 @@
           </v-btn>
           <v-sheet
             max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
+            class="mt-2 text-center text-font-small-size text-truncate">
             {{ $t('menu.user.status.donotdisturb') }}
           </v-sheet>
         </div>
@@ -131,7 +131,7 @@
           </v-btn>
           <v-sheet
             max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
+            class="mt-2 text-center text-font-small-size text-truncate">
             {{ $t('menu.user.status.invisible') }}
           </v-sheet>
         </div>
