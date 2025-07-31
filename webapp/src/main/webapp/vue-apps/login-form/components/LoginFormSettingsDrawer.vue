@@ -257,26 +257,50 @@ export default {
     save() {
       this.loading = true;
       const promise = [];
+      let firstTranslation = true;
+
+      //if we have saveTranslations request, we need to ensure that the first one is executed before the others
+      //because it create the metadata for the translations
+      //if all saveTranslations are executed at the same time, we will have a "unique constraint violation" error because metadata will be created more than once
 
       if (this.registerEnabled) {
-        promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere));
+        if (firstTranslation) {
+          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere);
+          firstTranslation = false;
+        } else {
+          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere));
+        }
         promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'createAccount', this.translationsCreateAccount));
       } else {
-        promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack));
+        if (firstTranslation) {
+          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack);
+          firstTranslation = false;
+        } else {
+          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack));
+        }
       }
 
       if (this.signinOption === 'buttonform') {
-        promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton));
+        if (firstTranslation) {
+          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton);
+          firstTranslation = false;
+        } else {
+          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton));
+        }
       }
 
       this.providers.forEach((provider) => {
         if (provider.translations && Object.keys(provider.translations).length > 0) {
-          promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
+          if (firstTranslation) {
+            this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, provider.key, provider.translations);
+            firstTranslation = false;
+          } else {
+            promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
+          }
         }
       });
 
       promise.push(this.saveSettings());
-
       Promise.all(promise).then(() => {
         this.$root.$emit('login-form-settings-updated',
           this.translationsWelcomeBack,
@@ -290,6 +314,9 @@ export default {
         this.loading = false;
         this.close();
       });
+    },
+    async saveTranslationSynchronously(objectType, objectId, fieldName, translations) {
+      await this.$translationService.saveTranslations(objectType, objectId, fieldName, translations);
     },
     saveSettings() {
       const formData = new FormData();
