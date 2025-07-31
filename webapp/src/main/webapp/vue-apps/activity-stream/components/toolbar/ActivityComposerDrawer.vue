@@ -257,7 +257,7 @@ export default {
           || (!this.activityAttachmentsEdited && !this.messageLength && !this.activityBodyEdited)
           || (this.postInYourSpacesChoice && !(this.spaceId || this.activityType?.toString()?.includes('poll') && eXo.env.portal.spaceId))
           || (!this.postToNetwork && !eXo.env.portal.spaceId && !this.spaceId && !this.messageEdited)
-          || (this.isFilteredStream && !this.selectedCategoryIds?.length);
+          || (this.allowFilteringPerCategory && this.isFilteredStream && !this.selectedCategoryIds?.length);
     },
     metadataObjectId() {
       return this.templateParams?.metadataObjectId || this.activityId;
