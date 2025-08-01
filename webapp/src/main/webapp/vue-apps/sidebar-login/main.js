@@ -31,20 +31,30 @@ const urls = [
 
 export function init(appId, branding,
   portletStorageId,
+  translationIdentifier,
+  title,
+  subtitle,
   hAlign,
   vAlign,
   pageRef,
-  canEdit) {
+  canEdit,
+  backgroundFileId) {
+  console.log(`Sidebar Login app init:  backgroundFileId: ${backgroundFileId}`);
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
         portletStorageId,
+        translationIdentifier,
+        title,
+        subtitle,
         hAlign,
         vAlign,
         canEdit,
         pageRef,
-        branding: JSON.parse(branding)
+        backgroundFileId,
+        branding: JSON.parse(branding),
+        objectType: 'cmsPortlet',
       },
       template: `<sidebar-login id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,

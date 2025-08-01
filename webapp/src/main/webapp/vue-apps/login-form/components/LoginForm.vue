@@ -245,10 +245,10 @@ export default {
       displaySigninEmailButtonIcon,
       listExternalProviders,
       displayProvidersIcons) => {
-      this.welcomeBack = welcomeBackTranslations?.[eXo.env.portal.language] || this.$t('portal.login.WelcomeBack');
-      this.newHere = newHereTranslations?.[eXo.env.portal.language] || this.$t('UILoginForm.label.registerNewAccount');
-      this.createAccount = createAccountTranslations?.[eXo.env.portal.language] || this.$t('UILoginForm.button.registerNewAccount');
-      this.signinEmailButton = signinEmailButtonTranslations?.[eXo.env.portal.language] || this.$t('portal.login.SigninUsingEmail');
+      this.welcomeBack = welcomeBackTranslations?.[eXo.env.portal.language] || welcomeBackTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('portal.login.WelcomeBack');
+      this.newHere = newHereTranslations?.[eXo.env.portal.language] || newHereTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('UILoginForm.label.registerNewAccount');
+      this.createAccount = createAccountTranslations?.[eXo.env.portal.language] || createAccountTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('UILoginForm.button.registerNewAccount');
+      this.signinEmailButton = signinEmailButtonTranslations?.[eXo.env.portal.language] || signinEmailButtonTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('portal.login.SigninUsingEmail');
       this.signinOption = signinOption || 'loginform';
       this.displaySigninEmailButtonIcon = displaySigninEmailButtonIcon;
       this.listExternalProviders = listExternalProviders;
