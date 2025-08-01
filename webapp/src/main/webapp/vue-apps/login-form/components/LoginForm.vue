@@ -202,17 +202,6 @@
         </div>
       </v-card>
     </v-hover>
-<<<<<<< HEAD
-=======
-    <login-form-settings-drawer
-      :translation-identifier="values.translationIdentifier"
-      :register-enabled="values.registerEnabled"
-      :signin-option="signinOption"
-      :display-signin-email-button-icon="displaySigninEmailButtonIcon"
-      :list-external-providers="listExternalProviders"
-      :display-providers-icons="displayProvidersIcons" />
-
->>>>>>> 0c4ed48fa8 (feat: Add settings for external authentication providers in login form - meeds-io/MIPs#203 - MEED-9454)
   </v-app>
 </template>
 <script>
@@ -238,12 +227,9 @@ export default {
     displaySigninEmailButtonIcon: true,
     listExternalProviders: true,
     displayProvidersIcons: true,
-<<<<<<< HEAD
     displayBackButton: false,
     displayWelcomeMessage: true,
     focus: false,
-=======
->>>>>>> 0c4ed48fa8 (feat: Add settings for external authentication providers in login form - meeds-io/MIPs#203 - MEED-9454)
   }),
   watch: {
     errorMessage: {
