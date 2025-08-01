@@ -60,16 +60,15 @@ public class CmsPortletWithMetadata extends CMSPortlet {
       try {
         Map<String, TranslationField>
             translations = getTranslationService().getAllTranslationFields(OBJECT_TYPE, initTranslationIdentifier);
-        String finalCurrentTranslationIdentifier = currentTranslationIdentifier;
         translations.entrySet().forEach(entry -> {
           String translationKey = entry.getKey();
           TranslationField translationField = entry.getValue();
           if (!translationField.getLabels().isEmpty()) {
             try {
               getTranslationService().saveTranslationLabels(OBJECT_TYPE,
-                                                          Long.parseLong(finalCurrentTranslationIdentifier),
-                                                          translationKey,
-                                                          translationField.getLabels());
+                                                            initTranslationIdentifier,
+                                                            translationKey,
+                                                            translationField.getLabels());
             } catch (ObjectNotFoundException o) {
               //nothing to do, no translations to copy
             }

@@ -70,7 +70,7 @@
         </v-card>
       </v-card>
     </v-hover>
-    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" v-if="$root.canEdit" />
+    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" />
   </v-app>
 </template>
 
@@ -79,8 +79,7 @@ export default {
   data: () => ({
     branding: null,
     refreshImageIndex: Date.now(),
-    backgroundAltText: null,
-    focus: false,
+    backgroundAltText: null
   }),
   computed: {
     title() {
