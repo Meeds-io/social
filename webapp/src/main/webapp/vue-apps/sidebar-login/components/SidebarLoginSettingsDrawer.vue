@@ -40,10 +40,12 @@
         <v-card-text class="d-flex pa-0">
           <translation-text-field
             ref="titleTranslation"
+            :object-id="$root.translationIdentifier"
             v-model="titleTranslations"
+            :object-type="$root.objectType"
+            field-name="brandingTitle"
             class="width-auto flex-grow-1"
-            drawer-title="sidebarLogin.drawer.label.branding.title"
-            verify-i18n />
+            drawer-title="sidebarLogin.drawer.label.branding.title" />
         </v-card-text>
       </v-card>
 
@@ -57,6 +59,9 @@
           <translation-text-field
             ref="subtitleTranslation"
             v-model="subtitleTranslations"
+            :object-id="$root.translationIdentifier"
+            :object-type="$root.objectType"
+            field-name="brandingSubtitle"
             class="width-auto flex-grow-1"
             drawer-title="sidebarLogin.drawer.label.branding.subtitle"
             verify-i18n />
@@ -93,7 +98,6 @@
 
       <image-crop-drawer
         ref="imageCropDrawer"
-        v-model="loginBackgroundUploadId"
         :crop-options="cropOptions"
         :max-file-size="maxFileSize"
         :src="backgroundPath"
@@ -102,7 +106,7 @@
         alt
         drawer-title="generalSettings.changeLoginBackground.drawerTitle"
         @data="loginBackgroundData = $event"
-        @input="uploadId = $event"
+        @input="loginBackgroundUploadId = $event"
         @reset="cropperReset"
         @alt-text="loginBackgroundAltText = $event" />
 
@@ -194,7 +198,7 @@ export default {
       type: Object,
       default: null,
     },
-    backgroundPath: {
+    backgroundAltText: {
       type: String,
       default: null,
     },
@@ -204,14 +208,14 @@ export default {
     loading: false,
     titleTranslations: {},
     subtitleTranslations: {},
-    color: '#FFFFFF',
     hAlign: 'CENTER',
     vAlign: 'CENTER',
     loginBackgroundData: null,
-    loginBackgroundUploadId: null,
+    backgroundFileId: 0,
     loginBackgroundAltText: null,
     loginBackgroundItem: {},
-    removeBackground: false,
+    canDeleteBackground: false,
+    refreshImageIndex: Date.now(),
     maxFileSize: 2097152, // 2MB
     cropOptions() {
       return {
@@ -221,23 +225,25 @@ export default {
     },
   }),
   watch: {
-    branding(newBranding) {
-      this.titleTranslations = newBranding?.loginTitle;
-      this.subtitleTranslations = newBranding?.loginSubtitle;
-    },
-    loginBackgroundUploadId() {
-      this.removeBackground = false;
-    },
+    loginBackgroundData() {
+      this.canDeleteBackground = this.backgroundFileId !== 0 || this.loginBackgroundUploadId != null;
+    }
   },
   computed: {
-    canDeleteBackground() {
-      return !this.removeBackground && (this.branding?.loginBackground?.fileId || this.loginBackgroundData);
+    backgroundPath() {
+      if (this.backgroundFileId !== 0) {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/cmsPortlet/${this.$root.translationIdentifier}/${this.backgroundFileId}?refresh=${this.refreshImageIndex}`;
+      } else if (this.loginBackgroundData) {
+        return this.loginBackgroundData;
+      } else {
+        return null;
+      }
     },
   },
   created() {
     this.titleTranslations = this.branding?.loginTitle;
     this.subtitleTranslations = this.branding?.loginSubtitle;
-    this.loginBackgroundItem.altText = this.branding?.loginBackgroundAltText || '';
+    console.log('created sidebar login settings drawer', this.backgroundAltText);
     if (this.$refs.imageCropDrawer) {
       this.$refs.imageCropDrawer.init();
     }
@@ -252,14 +258,18 @@ export default {
       this.$refs.drawer.open();
     },
     reset() {
+      console.log('resetting sidebar login settings drawer');
       this.hAlign = this.$root.hAlign || 'CENTER';
       this.vAlign = this.$root.vAlign || 'CENTER';
+      this.backgroundFileId = this.$root.backgroundFileId || 0;
       this.removeBackground = false;
+      this.loginBackgroundData=null;
+      this.loginBackgroundUploadId=null;
+      this.loginBackgroundItem.altText = this.backgroundAltText;
+      this.canDeleteBackground = this.backgroundFileId !== 0 || this.loginBackgroundUploadId != null;
       this.loading = false;
     },
     close() {
-      this.titleTranslations = this.branding?.loginTitle;
-      this.subtitleTranslations = this.branding?.loginSubtitle;
       this.$refs.drawer.close();
     },
     savePreferences() {
@@ -267,54 +277,73 @@ export default {
       formData.append('pageRef', this.$root.pageRef);
       formData.append('applicationId', this.$root.portletStorageId);
       const params = new URLSearchParams(formData).toString();
-      return fetch(`/layout/rest/pages/application/preferences?${params}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          preferences: [{
+      const body = {
+        preferences: [
+          {
             name: 'hAlign',
             value: this.hAlign || 'CENTER',
           },
           {
             name: 'vAlign',
             value: this.vAlign || 'CENTER',
-          }],
-        }),
+          }
+        ]
+      };
+      return fetch(`/layout/rest/pages/application/preferences?${params}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
       });
     },
     restoreDefaultBackground() {
-      this.removeBackground = true;
+      this.backgroundFileId = 0;
+      this.loginBackgroundUploadId = null;
+      this.loginBackgroundData = null;
+      this.loginBackgroundAltText = this.backgroundAltText;
+      this.canDeleteBackground = false;
     },
     save() {
       this.loading = true;
-      const branding = Object.assign({}, this.branding);
-      branding.loginTitle = this.titleTranslations;
-      branding.loginSubtitle = this.subtitleTranslations;
-      branding.loginBackgroundAltText = this.loginBackgroundAltText || '';
+      this.$translationService.saveTranslations(this.$root.objectType, this.$root.translationIdentifier, 'brandingTitle', this.titleTranslations).then(() => {
+        this.$translationService.saveTranslations(this.$root.objectType, this.$root.translationIdentifier, 'brandingSubtitle', this.subtitleTranslations).then(() => {
+          if (this.loginBackgroundUploadId) {
+            const uploadedFiles = [{
+              uploadId: this.loginBackgroundUploadId,
+            }];
+            if (this.loginBackgroundAltText) {
+              uploadedFiles[0].altText = this.loginBackgroundAltText;
+            }
+            this.$fileAttachmentService.saveAttachments({
+              objectType: this.$root.objectType,
+              objectId: this.$root.translationIdentifier,
+              uploadedFiles: uploadedFiles,
+            }).then(() => {
+              this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.translationIdentifier).then(data => {
+                const imageItem = data?.attachments?.[0];
+                if (imageItem) {
+                  const fileId = imageItem.id;
+                  this.backgroundFileId = fileId;
+                  this.savePreferences().then(() => {
+                    this.$root.$emit('sidebar-login-settings-updated', this.titleTranslations, this.subtitleTranslations, this.vAlign, this.hAlign, this.backgroundFileId);
+                    this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success');
+                  }).finally(() => this.close());
+                }
+              });
+            });
+          } else {
+            this.savePreferences().then(() => {
+              this.$root.$emit('sidebar-login-settings-updated', this.titleTranslations, this.subtitleTranslations, this.vAlign, this.hAlign, this.backgroundFileId);
+              this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success');
+            }).finally(() => this.close());
+          }
 
-      if (this.loginBackgroundUploadId) {
-        branding.loginBackground = {
-          uploadId: this.loginBackgroundUploadId,
-        };
-      }
-
-      if (this.removeBackground) {
-        branding.loginBackground = {
-          uploadId: 0,
-        };
-        this.loginBackgroundData = null;
-      }
-
-      return this.savePreferences().then(() => {
-        this.$brandingService.updateBrandingInformation(branding)
-          .then(() => this.$root.$emit('sidebar-login-settings-updated', branding, this.vAlign, this.hAlign, this.loginBackgroundData))
-          .then(() => this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success'))
-          .finally(() => this.close());
+        });
       });
-    },
+
+    }
   },
 };
 </script>
