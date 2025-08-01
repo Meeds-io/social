@@ -332,6 +332,7 @@ public interface AttachmentService {
 
   /**
    * Moves attachments from a specified source object type to a specified destination object type.
+   * Initials attachments are deleted from the source object after the move.
    *
    * @param sourceObjectType          the type of the source object
    * @param sourceObjectId            the ID of the source object
@@ -341,6 +342,19 @@ public interface AttachmentService {
    * @param userIdentityId            the ID of the user performing the operation
    */
   void moveAttachments(String sourceObjectType, String sourceObjectId, String destinationObjectType, String destinationObjectId, String destinationParentObjectId, long userIdentityId);
+
+  /**
+   * Copy attachments from a specified source object type to a specified destination object type.
+   *  Initials attachments are not deleted from the source object after the move.
+   *
+   * @param sourceObjectType          the type of the source object
+   * @param sourceObjectId            the ID of the source object
+   * @param destinationObjectType     the type of the destination object
+   * @param destinationObjectId       the ID of the destination object
+   * @param destinationParentObjectId the ID of the destination's parent object
+   * @param userIdentityId            the ID of the user performing the operation
+   */
+  void copyAttachments(String sourceObjectType, String sourceObjectId, String destinationObjectType, String destinationObjectId, String destinationParentObjectId, long userIdentityId);
 
   /**
    * Creates an attachment for a specified object.

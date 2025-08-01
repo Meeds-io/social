@@ -66,7 +66,7 @@
         </v-card>
       </v-card>
     </v-hover>
-    <sidebar-login-settings-drawer :branding="branding" :background-path="backgroundPath" />
+    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" />
   </v-app>
 </template>
 
@@ -75,36 +75,28 @@ export default {
   data: () => ({
     branding: null,
     refreshImageIndex: Date.now(),
-    loginBackgroundData: null,
+    backgroundAltText: null
   }),
   computed: {
     title() {
-      return this.$t(this.branding?.loginTitle[eXo.env.portal.language] || this.branding?.loginTitle[this.defaultLanguage]);
+      const title = this.$root.title || this.branding?.loginTitle[eXo.env.portal.language] || this.branding?.loginTitle[eXo.env.portal.defaultLanguage];
+      return decodeURIComponent(this.$t(title));
     },
     subtitle() {
-      return this.$t(this.branding?.loginSubtitle[eXo.env.portal.language] || this.branding?.loginSubtitle[this.defaultLanguage]);
-    },
-    defaultLanguage() {
-      return this.branding?.defaultLanguage;
-    },
-    supportedLanguages() {
-      return this.branding?.supportedLanguages;
-    },
-    backgroundAltText() {
-      return this.branding?.loginBackgroundAltText;
+      const subtitle = this.$root.subtitle || this.branding?.loginSubtitle[eXo.env.portal.language] || this.branding?.loginSubtitle[eXo.env.portal.defaultLanguage];
+      return decodeURIComponent(this.$t(subtitle));
     },
     backgroundPath() {
-      if (this.loginBackgroundData) {
-        return this.loginBackgroundData;
-      }
-      if (this.hasCustomBackground) {
+      if (this.$root.backgroundFileId !== 0) {
+        return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/cmsPortlet/${this.$root.translationIdentifier}/${this.$root.backgroundFileId}?refresh=${this.refreshImageIndex}`;
+      } else if (this.$root.branding?.loginBackground.fileId !== 0 ) {
         return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${this.refreshImageIndex}`;
       } else {
         return null;
       }
     },
     hasCustomBackground() {
-      return this.loginBackgroundData || this.branding?.loginBackground?.fileId;
+      return this.$root.backgroundFileId !== 0 || this.$root.branding?.loginBackground.fileId !== 0 ;
     },
     vAlign() {
       switch (this.$root.vAlign) {
@@ -150,14 +142,31 @@ export default {
   },
   created() {
     this.branding = this.$root.branding;
+    this.getAltText();
     this.$root.$on('sidebar-login-settings-updated', this.refresh);
   },
   methods: {
-    refresh(branding, vAlign, hAlign, imageData) {
-      this.branding = branding;
+    refresh(titleTranslations, subtitleTranslations, vAlign, hAlign, backgroundFileId) {
+      this.$root.title = titleTranslations[eXo.env.portal.language] || titleTranslations[eXo.env.portal.defaultLanguage];
+      this.$root.subtitle = subtitleTranslations[eXo.env.portal.language] || subtitleTranslations[eXo.env.portal.defaultLanguage];
       this.$root.vAlign=vAlign;
       this.$root.hAlign=hAlign;
-      this.loginBackgroundData = imageData;
+      this.$root.backgroundFileId = backgroundFileId;
+      this.getAltText();
+    },
+    getAltText() {
+      if (this.$root.backgroundFileId !== 0) {
+        this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.translationIdentifier).then(data => {
+          const imageItem = data?.attachments?.[0];
+          if (imageItem) {
+            this.backgroundAltText = imageItem.altText;
+          }
+        });
+      } else if (this.$root.branding?.loginBackground.fileId !== 0 ) {
+        this.backgroundAltText = this.$root.branding?.loginBackgroundAltText;
+      } else {
+        this.backgroundAltText = null;
+      }
     }
   },
 };

@@ -1179,7 +1179,7 @@
   <portlet>
     <portlet-name>SidebarLogin</portlet-name>
     <display-name>Sidebar Login</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.CmsPortletWithMetadata</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/sidebarLogin.jsp</value>
@@ -1187,6 +1187,10 @@
     <init-param>
       <name>layout-content-editable</name>
       <value>true</value>
+    </init-param>
+    <init-param>
+      <name>content-type</name>
+      <value>sidebarLoginTranslations</value>
     </init-param>
     <cache-scope>PUBLIC</cache-scope>
     <supports>
@@ -1204,7 +1208,7 @@
   <portlet>
     <portlet-name>LoginForm</portlet-name>
     <display-name>Login Form</display-name>
-    <portlet-class>io.meeds.social.portlet.LoginFormPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.CmsPortletWithMetadata</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/loginForm.jsp</value>

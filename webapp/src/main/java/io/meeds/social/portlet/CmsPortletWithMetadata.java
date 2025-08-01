@@ -26,16 +26,19 @@ import javax.portlet.RenderResponse;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.social.attachment.AttachmentService;
+import org.exoplatform.social.rest.api.RestUtils;
 
 import java.security.SecureRandom;
 import java.util.Map;
 
-public class LoginFormPortlet extends CMSPortlet {
+public class CmsPortletWithMetadata extends CMSPortlet {
 
   public static final String OBJECT_TYPE = "cmsPortlet";
   public static final String TRANSLATION_IDENTIFIER = "translationIdentifier";
 
   private       TranslationService translationService;
+  private       AttachmentService  attachmentService;
   private final SecureRandom       random = new SecureRandom();
 
   @Override
@@ -50,23 +53,22 @@ public class LoginFormPortlet extends CMSPortlet {
       request.setAttribute(TRANSLATION_IDENTIFIER, currentTranslationIdentifier);
     }
 
-    Long initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null) != null ? Long.parseLong(preferences.getValue(DATA_INIT_PREFERENCE_NAME, null)) : null;
+    String initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null);
     if (initTranslationIdentifier != null) {
       // creation new translations
 
       try {
         Map<String, TranslationField>
             translations = getTranslationService().getAllTranslationFields(OBJECT_TYPE, initTranslationIdentifier);
-        String finalCurrentTranslationIdentifier = currentTranslationIdentifier;
         translations.entrySet().forEach(entry -> {
           String translationKey = entry.getKey();
           TranslationField translationField = entry.getValue();
           if (!translationField.getLabels().isEmpty()) {
             try {
               getTranslationService().saveTranslationLabels(OBJECT_TYPE,
-                                                          Long.parseLong(finalCurrentTranslationIdentifier),
-                                                          translationKey,
-                                                          translationField.getLabels());
+                                                            initTranslationIdentifier,
+                                                            translationKey,
+                                                            translationField.getLabels());
             } catch (ObjectNotFoundException o) {
               //nothing to do, no translations to copy
             }
@@ -77,6 +79,16 @@ public class LoginFormPortlet extends CMSPortlet {
         //nothing to do, no translations to copy
       }
 
+      // creation attachments
+      getAttachmentService().copyAttachments(OBJECT_TYPE,
+                                             initTranslationIdentifier,
+                                             OBJECT_TYPE,
+                                             currentTranslationIdentifier,
+                                             null,
+                                             RestUtils.getCurrentUserIdentityId());
+
+
+
       savePreference(DATA_INIT_PREFERENCE_NAME, null);
     }
   }
@@ -86,5 +98,12 @@ public class LoginFormPortlet extends CMSPortlet {
       translationService = ExoContainerContext.getService(TranslationService.class);
     }
     return translationService;
+  }
+
+  private AttachmentService getAttachmentService() {
+    if (attachmentService == null) {
+      attachmentService = ExoContainerContext.getService(AttachmentService.class);
+    }
+    return attachmentService;
   }
 }

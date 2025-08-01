@@ -360,6 +360,39 @@ public class AttachmentServiceImpl implements AttachmentService {
                               String destinationObjectId,
                               String destinationParentObjectId,
                               long userIdentityId) {
+    moveAttachments(sourceObjectType,
+                    sourceObjectId,
+                    destinationObjectType,
+                    destinationObjectId,
+                    destinationParentObjectId,
+                    userIdentityId,
+                    true);
+  }
+
+  @Override
+  public void copyAttachments(String sourceObjectType,
+                              String sourceObjectId,
+                              String destinationObjectType,
+                              String destinationObjectId,
+                              String destinationParentObjectId,
+                              long userIdentityId) {
+    moveAttachments(sourceObjectType,
+                    sourceObjectId,
+                    destinationObjectType,
+                    destinationObjectId,
+                    destinationParentObjectId,
+                    userIdentityId,
+                    false);
+  }
+
+
+
+  private void moveAttachments(String sourceObjectType,
+                              String sourceObjectId,
+                              String destinationObjectType,
+                              String destinationObjectId,
+                              String destinationParentObjectId,
+                              long userIdentityId, boolean deleteAfterMove) {
     ObjectAttachmentList objectAttachmentList = getAttachments(sourceObjectType, sourceObjectId);
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
     if (CollectionUtils.isNotEmpty(attachments)) {
@@ -376,21 +409,23 @@ public class AttachmentServiceImpl implements AttachmentService {
                            destinationParentObjectId,
                            userIdentityId,
                            properties);
-          List<MetadataItem> metadataItemToDelete =
-                                                  metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
-                                                                                                                 AttachmentService.METADATA_TYPE.getName(),
-                                                                                                                 sourceObjectType,
-                                                                                                                 sourceObjectId,
-                                                                                                                 0,
-                                                                                                                 0);
-          if (CollectionUtils.isNotEmpty(metadataItemToDelete)) {
-            metadataItemToDelete.forEach(metadataItem -> {
-              try {
-                metadataService.deleteMetadataItem(metadataItem.getId(), true);
-              } catch (ObjectNotFoundException e) {
-                LOG.error("Error when deleting metadata item", e);
-              }
-            });
+          if (deleteAfterMove) {
+            List<MetadataItem> metadataItemToDelete =
+                metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(attachment.getId(),
+                                                                               AttachmentService.METADATA_TYPE.getName(),
+                                                                               sourceObjectType,
+                                                                               sourceObjectId,
+                                                                               0,
+                                                                               0);
+            if (CollectionUtils.isNotEmpty(metadataItemToDelete)) {
+              metadataItemToDelete.forEach(metadataItem -> {
+                try {
+                  metadataService.deleteMetadataItem(metadataItem.getId(), true);
+                } catch (ObjectNotFoundException e) {
+                  LOG.error("Error when deleting metadata item", e);
+                }
+              });
+            }
           }
         } catch (Exception e) {
           LOG.error("Error when creating attachment", e);
