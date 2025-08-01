@@ -51,7 +51,7 @@
             </v-list-item-avatar>
           </v-badge>
         </a>
-        <v-list-item-content class="pa-0">
+        <v-list-item-content class="pa-0 width-fit-content">
           <v-list-item-title class="mb-0">
             <a
               :href="profileUri"
@@ -62,7 +62,7 @@
           </v-list-item-title>
           <v-list-item-subtitle>
             <a
-              class="text-caption text-color"
+              class="text-font-small-size text-color"
               :href="profileUri"
               rel="noopener noreferrer">
               {{ $t('menu.userProfilePageLink') }}
@@ -71,70 +71,35 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
-    <div class="d-flex mx-4 mb-4">
+    <div class="mb-4">
       <v-btn-toggle
         v-model="selectedStatus"
         mandatory
         group
         dense
-        class="d-flex">
-        <div class="d-flex flex-column align-center me-9">
-          <v-btn
+        class="d-flex width-full">
+        <v-row
+          class="mx-0"
+          justify="space-between">
+          <sidebar-popup-status-button
+            :label="$t('menu.user.status.available')"
+            icon="fas fa-hand-paper"
+            color-class="success--text"
             value="available"
-            active-class="btn-border-active"
-            class="border-radius border-color-primary-grey success--text pa-0"
-            width="50"
-            height="50"
-            icon
-            @click="selectStatus">
-            <v-icon size="20">
-              fas fa-hand-paper
-            </v-icon>
-          </v-btn>
-          <v-sheet
-            max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
-            {{ $t('menu.user.status.available') }}
-          </v-sheet>
-        </div>
-        <div class="d-flex flex-column align-center me-9">
-          <v-btn
+            @select="selectStatus" />
+          <sidebar-popup-status-button
+            :label="$t('menu.user.status.donotdisturb')"
             value="donotdisturb"
-            active-class="btn-border-active"
-            class="border-radius border-color-primary-grey error-color pa-0"
-            width="50"
-            height="50"
-            icon
-            @click="selectStatus">
-            <v-icon size="20">
-              fas fa-bell-slash
-            </v-icon>
-          </v-btn>
-          <v-sheet
-            max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
-            {{ $t('menu.user.status.donotdisturb') }}
-          </v-sheet>
-        </div>
-        <div class="d-flex flex-column align-center">
-          <v-btn
+            icon="fas fa-bell-slash"
+            color-class="error-color"
+            @select="selectStatus" />
+          <sidebar-popup-status-button
+            :label="$t('menu.user.status.invisible')"
             value="invisible"
-            active-class="btn-border-active"
-            class="border-radius border-color-primary-grey icon-default-color pa-0"
-            width="50"
-            height="50"
-            icon
-            @click="selectStatus">
-            <v-icon size="20">
-              fas fa-eye-slash
-            </v-icon>
-          </v-btn>
-          <v-sheet
-            max-width="100"
-            class="mt-2 text-center text-caption text-truncate">
-            {{ $t('menu.user.status.invisible') }}
-          </v-sheet>
-        </div>
+            icon="fas fa-bell-slash"
+            color-class="icon-default-color"
+            @select="selectStatus" />
+        </v-row>
       </v-btn-toggle>
     </div>
   </v-card>

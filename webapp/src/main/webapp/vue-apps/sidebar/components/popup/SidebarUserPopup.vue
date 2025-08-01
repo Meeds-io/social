@@ -29,6 +29,8 @@
     :position-y="menuY"
     :nudge-top="20"
     :nudge-left="80"
+    :max-width="300"
+    :min-width="280"
     :close-on-content-click="false"
     :close-on-click="false"
     content-class="z-index-modal white"
