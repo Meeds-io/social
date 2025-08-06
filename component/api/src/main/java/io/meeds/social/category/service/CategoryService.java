@@ -192,20 +192,6 @@ public interface CategoryService {
   /**
    * @param category {@link Category}
    * @param username User name/login
-   * @return true if can access to the category, else false
-   */
-  boolean canAccess(Category category, String username);
-
-  /**
-   * @param categoryId {@link Category} identifier
-   * @param username User name/login
-   * @return true if can access to the category, else false
-   */
-  boolean canAccess(long categoryId, String username);
-
-  /**
-   * @param category {@link Category}
-   * @param username User name/login
    * @return true if can edit to the category switch its tree ownerId, else
    *         false
    */
