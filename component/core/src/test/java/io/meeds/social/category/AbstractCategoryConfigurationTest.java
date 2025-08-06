@@ -39,13 +39,15 @@ import lombok.SneakyThrows;
 
 public abstract class AbstractCategoryConfigurationTest extends AbstractSpringConfigurationTest {
 
-  public static final String    MODULE_NAME = "io.meeds.social.category";
+  public static final String    MODULE_NAME               = "io.meeds.social.category";
 
-  public static final String    ROOT_USER   = "root";
+  public static final String    ROOT_USER                 = "root";
 
-  public static final String    JOHN_USER   = "john";
+  public static final String    JOHN_USER                 = "john";
 
-  public static final String    MARY_USER   = "mary";
+  public static final String    MARY_USER                 = "mary";
+
+  public static final String    PLATFORM_USERS_PERMISSION = "*:/platform/users";
 
   @Autowired
   protected CategoryService     categoryService;
@@ -78,10 +80,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
   protected Category buildCategoryTree() {
     long ownerIdentityId = getAdminGroupIdentityId();
     Category rootCategory = categoryService.getRootCategory(ownerIdentityId);
-    createTree(ownerIdentityId,
-               rootCategory.getId(),
-               0,
-               5);
+    createTree(ownerIdentityId, rootCategory.getId(), 0, 5);
     return rootCategory;
   }
 
@@ -93,7 +92,6 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
         category.setOwnerId(ownerId);
         category.setParentId(parentId);
         category.setIcon("test-icon");
-        category.setAccessPermissionIds(Collections.singletonList(usersGroupIdentityId));
         category = categoryService.createCategory(category, ROOT_USER);
         translationService.saveTranslationLabels(CategoryTranslationPlugin.OBJECT_TYPE,
                                                  category.getId(),
@@ -101,10 +99,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
                                                  Collections.singletonMap(Locale.ENGLISH,
                                                                           "category-" + parentId + "-" + category.getId()),
                                                  ROOT_USER);
-        createTree(ownerId,
-                   category.getId(),
-                   depth + 1,
-                   depthLimit);
+        createTree(ownerId, category.getId(), depth + 1, depthLimit);
       }
     }
   }

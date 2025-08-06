@@ -18,7 +18,6 @@
  */
 package io.meeds.social.category.storage.elasticsearch;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -62,8 +61,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
               "parentId" : {"type" : "keyword"},
               "creatorId" : {"type" : "keyword"},
               "icon" : {"type" : "keyword"},
-              "accessPermissionIds" : {"type" : "keyword"},
-              "linkPermissionIds" : {"type" : "keyword"},
+              "linkPermissions" : {"type" : "keyword"},
               "lastUpdatedDate" : {"type" : "date", "format": "epoch_millis"}
             }
           }
@@ -124,10 +122,7 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
     document.setId(id);
     document.setLastUpdatedDate(new Date());
     document.setFields(fields);
-    List<Long> accessPermissionIds = getAccessPermissionIds(category);
-    document.addListField("accessPermissionIds", accessPermissionIds.stream().map(String::valueOf).toList());
-    List<Long> linkPermissionIds = getLinkPermissionIds(category, accessPermissionIds);
-    document.addListField("linkPermissionIds", linkPermissionIds.stream().map(String::valueOf).toList());
+    document.addListField("linkPermissions", category.getLinkPermissions());
     addTranslatedNames(category, document);
     LOG.info("Category document generated for id={}", id);
     return document;
@@ -191,38 +186,6 @@ public class CategoryIndexingConnector extends ElasticIndexingServiceConnector {
 
   private String toLanguageTag(LocaleConfig localeConfig) {
     return localeConfig.getLocale().toLanguageTag();
-  }
-
-  private List<Long> getLinkPermissionIds(Category category, List<Long> accessPermissionIds) {
-    List<Long> linkPermissionIds = category.getLinkPermissionIds() == null ? new ArrayList<>() :
-                                                                           new ArrayList<>(category.getLinkPermissionIds());
-    linkPermissionIds.retainAll(accessPermissionIds);
-    if (!linkPermissionIds.contains(category.getOwnerId())) {
-      linkPermissionIds.add(category.getOwnerId());
-    }
-    return linkPermissionIds;
-  }
-
-  private List<Long> getAccessPermissionIds(Category category) {
-    List<Long> accessPermissionIds = category.getAccessPermissionIds() == null ? new ArrayList<>() :
-                                                                               new ArrayList<>(category.getAccessPermissionIds());
-    deleteNonParentPermissions(category.getParentId(), accessPermissionIds);
-    if (!accessPermissionIds.contains(category.getOwnerId())) {
-      accessPermissionIds.add(category.getOwnerId());
-    }
-    return accessPermissionIds;
-  }
-
-  private void deleteNonParentPermissions(long parentId, List<Long> accessPermissionIds) {
-    if (parentId <= 0) {
-      return;
-    }
-    Category parentCategory = getCategoryStorage().getCategory(parentId);
-    if (parentCategory.getParentId() == 0) {
-      return;
-    }
-    accessPermissionIds.retainAll(parentCategory.getAccessPermissionIds());
-    deleteNonParentPermissions(parentCategory.getParentId(), accessPermissionIds);
   }
 
 }

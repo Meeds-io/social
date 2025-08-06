@@ -224,8 +224,7 @@ export default {
         const category = this.$root.getCategory(item.id);
         category.name = item.name;
         category.icon = item.icon;
-        category.linkPermissionIds = item.linkPermissionIds;
-        category.accessPermissionIds = item.accessPermissionIds;
+        category.linkPermissions = item.linkPermissions;
       }
     },
     handleCategoryDeleted(item) {
