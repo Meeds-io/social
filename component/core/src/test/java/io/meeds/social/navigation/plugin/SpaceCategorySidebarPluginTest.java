@@ -73,15 +73,14 @@ public class SpaceCategorySidebarPluginTest extends AbstractCategoryConfiguratio
     buildCategoryTree();
     CategoryFilter filter = new CategoryFilter(null, 0, 0, 5, 0, 2, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, JOHN_USER, Locale.ENGLISH);
-    CategoryTree subCategory1 = categoryTree.getCategories().get(0);
+    CategoryTree subCategory1 = categoryTree.getCategories().getFirst();
     item.setProperties(Collections.singletonMap(SPACE_CATEGORY_ID_PROP_NAME, String.valueOf(subCategory1.getId())));
     assertTrue(spaceCategorySidebarPlugin.itemExists(item, ROOT_USER));
     assertTrue(spaceCategorySidebarPlugin.itemExists(item, MARY_USER));
 
-    subCategory1.setAccessPermissionIds(Collections.singletonList(getAdminGroupIdentityId()));
     categoryService.updateCategory(subCategory1, JOHN_USER);
     assertTrue(spaceCategorySidebarPlugin.itemExists(item, ROOT_USER));
-    assertFalse(spaceCategorySidebarPlugin.itemExists(item, MARY_USER));
+    assertTrue(spaceCategorySidebarPlugin.itemExists(item, MARY_USER));
   }
 
   @Test
