@@ -19,10 +19,8 @@
 package io.meeds.social.category.service;
 
 import static io.meeds.social.category.utils.Utils.isManagerOf;
-import static io.meeds.social.category.utils.Utils.isMemberOf;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -95,9 +93,7 @@ public class CategoryServiceImpl implements CategoryService {
     long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
     long limit = checkLimit(filter.getLimit());
     Category category = parentId == 0 ? getRootCategory(ownerId) : getCategory(parentId);
-    if (category == null
-        || !canAccess(category, username)
-        || (parentId != 0 && filter.isLinkPermission() && !canManageLink(category, username))) {
+    if (category == null || (parentId != 0 && filter.isLinkPermission() && !canManageLink(category, username))) {
       return null;
     }
     Set<Long> categoryIds = null;
@@ -107,7 +103,6 @@ public class CategoryServiceImpl implements CategoryService {
       categoryStorage.getLinkedIds(filter.getObjectType());
       categoryIds = categoryPluginService.getCategoryIds(filter.getObjectType(), filter.getSpaceId())
                                          .stream()
-                                         .filter(id -> canAccess(id, username))
                                          .flatMap(id -> Stream.concat(this.getAncestorIds(id).stream(), Stream.of(id)))
                                          .collect(Collectors.toSet());
       if (categoryIds.isEmpty() || !categoryIds.contains(category.getId())) {
@@ -149,7 +144,7 @@ public class CategoryServiceImpl implements CategoryService {
     long ownerId = checkOwnerId(filter.getOwnerId(), filter.getParentId());
     long limit = checkLimit(filter.getLimit());
     Category category = parentId == 0 ? getRootCategory(ownerId) : getCategory(parentId);
-    if (category == null || !canAccess(category, username)) {
+    if (category == null) {
       return Collections.emptyList();
     }
     List<Long> identityIds = getUserMemberIdentityIds(username);
@@ -211,8 +206,6 @@ public class CategoryServiceImpl implements CategoryService {
     Category category = getCategory(categoryId);
     if (category == null) {
       throw new ObjectNotFoundException(String.format("Category with id %s doesn't exists", categoryId));
-    } else if (!canAccess(category, username)) {
-      throw new IllegalAccessException(String.format("Category with id %s doesn't exists", categoryId));
     }
     String name = translationService.getTranslationLabelOrDefault(CategoryTranslationPlugin.OBJECT_TYPE,
                                                                   category.getId(),
@@ -232,13 +225,7 @@ public class CategoryServiceImpl implements CategoryService {
     Category rootCategory = categoryStorage.getRootCategory(ownerId);
     if (rootCategory == null && ownerId == getAdminGroupIdentityId()) {
       Identity userIdentity = identityManager.getOrCreateUserIdentity(userAcl.getSuperUser());
-      rootCategory = new Category(0l,
-                                  0l,
-                                  null,
-                                  Long.parseLong(userIdentity.getId()),
-                                  ownerId,
-                                  Collections.emptyList(),
-                                  Arrays.asList(ownerId));
+      rootCategory = new Category(0L, 0L, null, Long.parseLong(userIdentity.getId()), ownerId, List.of(ADMINISTRATORS_GROUP));
       rootCategory = categoryStorage.createCategory(rootCategory);
     }
     return rootCategory;
@@ -300,23 +287,19 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
-  public boolean canAccess(long categoryId, String username) {
-    return categoryId == 0 || canAccess(getCategory(categoryId), username);
-  }
-
-  @Override
-  public boolean canAccess(Category category, String username) {
-    return canAccess(category, username, true);
-  }
-
-  @Override
   public boolean canManageLink(long categoryId, String username) {
     return canManageLink(categoryStorage.getCategory(categoryId), username);
   }
 
   @Override
   public boolean canManageLink(Category category, String username) {
-    return canManageLink(category, username, true);
+    if (category == null || CollectionUtils.isEmpty(category.getLinkPermissions())) {
+      return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
+    } else {
+      StringUtils.join(category.getLinkPermissions(), ",");
+      org.exoplatform.services.security.Identity identity = StringUtils.isBlank(username) ? null : userAcl.getUserIdentity(username);
+      return userAcl.isMemberOf(identity, StringUtils.join(category.getLinkPermissions(), ","));
+    }
   }
 
   private long getAdminGroupIdentityId() {
@@ -598,7 +581,7 @@ public class CategoryServiceImpl implements CategoryService {
                                           long depth) {
     return ids.stream()
               .map(categoryStorage::getCategory)
-              .filter(cat -> linkPermission ? canManageLink(cat, username, false) : canAccess(cat, username, false))
+              .filter(cat -> !linkPermission || canManageLink(cat, username))
               .map(cat -> buildCategoryTree(cat,
                                             username,
                                             identityIds,
@@ -676,55 +659,13 @@ public class CategoryServiceImpl implements CategoryService {
                                                        identityIds,
                                                        Locale.ENGLISH);
     } catch (Exception e) {
-      subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit)
-                                      .stream()
-                                      .filter(id -> canAccess(id, username))
-                                      .toList();
+      subcategoryIds = categoryStorage.getSubcategoryIds(categoryId, offset, limit);
     }
     if (CollectionUtils.isNotEmpty(subcategoryIds)) {
       result.addAll(subcategoryIds);
       if (depth > 1 || depth < 0) {
         subcategoryIds.forEach(id -> addSubcategories(username, identityIds, id, offset, limit, depth - 1, result));
       }
-    }
-  }
-
-  private boolean canAccess(Category category, String username, boolean checkAncestors) {
-    if (category == null) {
-      return false;
-    } else if (isAdministrator(username)) {
-      return true;
-    } else if (category.getParentId() == 0 && category.getOwnerId() == getAdminGroupIdentityId()) {
-      return true;
-    } else if (isMemberOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)) {
-      return true;
-    } else if (CollectionUtils.isEmpty(category.getAccessPermissionIds())) {
-      return canEdit(category, username);
-    } else {
-      return (!checkAncestors || canAccess(category.getParentId(), username))
-             && category.getAccessPermissionIds()
-                        .stream()
-                        .anyMatch(id -> isMemberOf(identityManager,
-                                                   spaceService,
-                                                   userAcl,
-                                                   id,
-                                                   username));
-    }
-  }
-
-  private boolean canManageLink(Category category, String username, boolean checkAccessToAncestors) {
-    if (category == null || CollectionUtils.isEmpty(category.getLinkPermissionIds())) {
-      return category != null && isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username);
-    } else {
-      return isManagerOf(identityManager, spaceService, userAcl, category.getOwnerId(), username)
-             || (canAccess(category, username, checkAccessToAncestors)
-                 && category.getLinkPermissionIds()
-                            .stream()
-                            .anyMatch(id -> isMemberOf(identityManager,
-                                                       spaceService,
-                                                       userAcl,
-                                                       id,
-                                                       username)));
     }
   }
 
