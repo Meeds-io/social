@@ -94,45 +94,18 @@
             2
           </v-card>
           <div class="text-header mx-3">
-            {{ $t('categoryManagement.categoryAccessPermission') }}
-          </div>
-        </v-card>
-        <div v-show="step === 2" class="mb-4">
-          <div>{{ $t('categoryManagement.categoryAccessPermission.title') }}</div>
-          <div class="mb-2 text-subtitle">{{ $t('categoryManagement.categoryAccessPermission.subtitle') }}</div>
-          <category-management-permissions
-            ref="accessPermissions"
-            v-model="category.accessPermissionIds"
-            class="mb-4"
-            show-any />
-        </div>
-        <v-card
-          v-on="step3Enabled && {
-            click: () => step = 3,
-          }"
-          class="d-flex mb-4"
-          flat>
-          <v-card
-            :class="step > 2 ? 'tertiary' : 'mask-color'"
-            height="24"
-            width="24"
-            class="d-flex align-center justify-center border-radius-circle white--text"
-            flat>
-            3
-          </v-card>
-          <div class="text-header mx-3">
             {{ $t('categoryManagement.categoryLinkPermission') }}
           </div>
         </v-card>
         <div
-          v-if="step === 3 || category.linkPermissionIds?.length"
-          v-show="step === 3"
+          v-if="step === 2 || category.linkPermissions?.length"
+          v-show="step === 2"
           class="mb-4">
           <div>{{ $t('categoryManagement.categoryLinkPermission.title') }}</div>
           <div class="mb-2 text-subtitle">{{ $t('categoryManagement.categoryLinkPermission.subtitle') }}</div>
           <category-management-permissions
             ref="linkPermissions"
-            v-model="category.linkPermissionIds"
+            v-model="linkPermissions"
             class="mb-4" />
         </div>
       </div>
@@ -154,11 +127,11 @@
           {{ $t('categoryManagement.cancel') }}
         </v-btn>
         <v-btn
-          v-if="step < 3"
+          v-if="step < 2"
           :disabled="disabledNextStep"
           :loading="saving"
           class="btn primary"
-          @click="nextStep">
+          @click="step++">
           {{ $t('categoryManagement.next') }}
         </v-btn>
         <v-btn
@@ -191,6 +164,7 @@ export default {
     nameTranslations: {},
     originalNameTranslations: null,
     originalCategory: null,
+    linkPermissions: null,
   }),
   computed: {
     rules() {
@@ -224,16 +198,11 @@ export default {
     step2Enabled() {
       return !this.disabledFirstStep;
     },
-    step3Enabled() {
-      return this.step2Enabled;
-    },
     disabledNextStep() {
       if (this.step === 1) {
         return this.disabledFirstStep;
       } else if (this.step === 2) {
         return !this.step2Enabled;
-      } else if (this.step === 3) {
-        return !this.step3Enabled;
       } else {
         return false;
       }
@@ -269,22 +238,15 @@ export default {
         parentId: parentId || this.$root.categoryRootId,
         name: null,
         icon: 'fa-th-large',
-        accessPermissionIds: [],
-        linkPermissionIds: [],
         ownerId: this.$root.categoryOwnerId,
       };
       delete category.categories;
       this.category = category;
       this.name = this.category.name || null;
+      this.linkPermissions = this.category.linkPermissions || [];
       this.nameTranslations = null;
       this.initialized = false;
       this.$refs.drawer.open();
-    },
-    nextStep() {
-      if (this.step === 2 && this.drawer && this.isNew && !this.category.linkPermissionIds?.length) {
-        this.category.linkPermissionIds = this.category.accessPermissionIds.slice().filter(id => id && id !== '0');
-      }
-      this.step++;
     },
     setOriginalInfo() {
       if (!this.initialized) {
@@ -302,10 +264,8 @@ export default {
     },
     async save() {
       this.saving = true;
+      this.category.linkPermissions = this.linkPermissions;
       try {
-        if (this.category?.linkPermissionIds?.length) {
-          this.category.linkPermissionIds = this.category.linkPermissionIds.filter(id => id && id !== '0');
-        }
         if (this.isNew) {
           this.category = await this.$categoryService.createCategory(this.category);
           await this.$nextTick();
@@ -323,7 +283,7 @@ export default {
           this.$root.$emit('alert-message', this.$t('categoryManagement.categoryUpdatedSuccessfully'), 'success');
           this.$root.$emit('category-updated', this.category);
         }
-        this.close();
+        await this.close();
       } catch (e) {
         if (this.isNew) {
           this.$root.$emit('alert-message', this.$t('categoryManagement.categoryCreateError'), 'success');
