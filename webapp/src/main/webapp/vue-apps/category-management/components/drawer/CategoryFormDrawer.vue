@@ -91,7 +91,7 @@
             width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
             flat>
-            3
+            2
           </v-card>
           <div class="text-header mx-3">
             {{ $t('categoryManagement.categoryLinkPermission') }}
