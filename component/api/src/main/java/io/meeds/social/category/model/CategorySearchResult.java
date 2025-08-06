@@ -41,8 +41,7 @@ public class CategorySearchResult extends CategoryWithName {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
   }
 
   public CategorySearchResult(CategoryWithName category) {
@@ -52,8 +51,7 @@ public class CategorySearchResult extends CategoryWithName {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
   }
 
   public CategorySearchResult(CategoryWithName category, List<Long> ancestorIds) {
@@ -63,8 +61,7 @@ public class CategorySearchResult extends CategoryWithName {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
     this.ancestorIds = ancestorIds;
   }
 

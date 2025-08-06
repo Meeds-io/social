@@ -81,8 +81,8 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     buildCategoryTree();
     CategoryFilter filter = new CategoryFilter(null, 0, 0, 1, 0, 1, false, false);
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
-    CategoryTree category = categoryTree.getCategories().get(0);
-    category.setLinkPermissionIds(Collections.singletonList(getUsersGroupIdentityId()));
+    CategoryTree category = categoryTree.getCategories().getFirst();
+    category.setLinkPermissions(Collections.singletonList(PLATFORM_USERS_PERMISSION));
     categoryService.updateCategory(category, JOHN_USER);
 
     assertFalse(categoryLinkService.isLinked(category.getId(), object));
@@ -117,7 +117,7 @@ public class CategoryLinkServiceTest extends AbstractCategoryConfigurationTest {
     assertFalse(categoryLinkService.isLinked(rootCategory.getId(), object));
 
     categoryLinkService.link(rootCategory.getId(), object, ROOT_USER);
-    rootCategory.setLinkPermissionIds(Collections.singletonList(getUsersGroupIdentityId()));
+    rootCategory.setLinkPermissions(Collections.singletonList(PLATFORM_USERS_PERMISSION));
     categoryService.updateCategory(rootCategory, JOHN_USER);
 
     assertThrows(IllegalAccessException.class, () -> categoryLinkService.unlink(rootCategory.getId(), object, MARY_USER));
