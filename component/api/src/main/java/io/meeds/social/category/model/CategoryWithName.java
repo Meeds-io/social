@@ -42,8 +42,7 @@ public class CategoryWithName extends Category {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
     this.name = name;
   }
 
@@ -53,9 +52,8 @@ public class CategoryWithName extends Category {
                           String icon,
                           long creatorId,
                           long ownerId,
-                          List<Long> accessPermissionIds,
-                          List<Long> linkPermissionIds) {
-    super(id, parentId, icon, creatorId, ownerId, accessPermissionIds, linkPermissionIds);
+                          List<String> linkPermissions) {
+    super(id, parentId, icon, creatorId, ownerId, linkPermissions);
     this.name = name;
   }
 
@@ -67,8 +65,7 @@ public class CategoryWithName extends Category {
                                 getIcon(),
                                 getCreatorId(),
                                 getOwnerId(),
-                                getAccessPermissionIds(),
-                                getLinkPermissionIds());
+                                getLinkPermissions());
   }
 
 }

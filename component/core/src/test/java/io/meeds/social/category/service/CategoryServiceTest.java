@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -83,7 +82,7 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     assertNotNull(categoryTree.getCategories());
     assertEquals(2, categoryTree.getCategories().size());
 
-    CategoryTree categoryTree1 = categoryTree.getCategories().get(0);
+    CategoryTree categoryTree1 = categoryTree.getCategories().getFirst();
     assertNotNull(categoryTree1);
     assertNotNull(categoryTree1.getName());
     assertNull(categoryTree1.getCategories());
@@ -103,28 +102,28 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     assertEquals(2, categoryTree.getCategories().size());
 
     assertNotNull(categoryTree.getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories());
     assertNotNull(categoryTree.getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories());
     assertNotNull(categoryTree.getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories());
     assertTrue(CollectionUtils.isEmpty(categoryTree.getCategories()
-                                                   .get(0)
+                                                   .getFirst()
                                                    .getCategories()
-                                                   .get(0)
+                                                   .getFirst()
                                                    .getCategories()
-                                                   .get(0)
+                                                   .getFirst()
                                                    .getCategories()
-                                                   .get(0)
+                                                   .getFirst()
                                                    .getCategories()));
   }
 
@@ -145,44 +144,44 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     assertEquals(1, categoryTree.getCategories().size());
 
     CategoryTree categoryLeaf = categoryTree.getCategories()
-                                            .get(0)
+                                            .getFirst()
                                             .getCategories()
-                                            .get(0)
+                                            .getFirst()
                                             .getCategories()
-                                            .get(0)
+                                            .getFirst()
                                             .getCategories()
-                                            .get(0)
+                                            .getFirst()
                                             .getCategories()
-                                            .get(0);
+                                            .getFirst();
     assertNotNull(categoryLeaf);
     List<Long> ancestorIds = categoryService.getAncestorIds(categoryLeaf.getId());
     assertEquals(5, ancestorIds.size());
     assertEquals(categoryTree.getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getId(),
                  ancestorIds.get(0).longValue());
     assertEquals(categoryTree.getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getId(),
                  ancestorIds.get(1).longValue());
     assertEquals(categoryTree.getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getId(),
                  ancestorIds.get(2).longValue());
     assertEquals(categoryTree.getCategories()
-                             .get(0)
+                             .getFirst()
                              .getId(),
                  ancestorIds.get(3).longValue());
     assertEquals(categoryTree.getId(),
@@ -195,23 +194,23 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     assertThrows(IllegalArgumentException.class, () -> categoryService.createCategory(null, JOHN_USER));
     assertThrows(IllegalArgumentException.class, () -> {
       Category category = new Category();
-      category.setId(5l);
+      category.setId(5L);
       categoryService.createCategory(category, JOHN_USER);
     });
     assertThrows(IllegalArgumentException.class, () -> {
       Category category = new Category();
-      category.setOwnerId(-2l);
+      category.setOwnerId(-2L);
       categoryService.createCategory(category, JOHN_USER);
     });
     assertThrows(ObjectNotFoundException.class, () -> {
       Category category = new Category();
-      category.setOwnerId(1l);
-      category.setParentId(1544863l);
+      category.setOwnerId(1L);
+      category.setParentId(1544863L);
       categoryService.createCategory(category, JOHN_USER);
     });
     assertThrows(IllegalAccessException.class, () -> {
       Category category = new Category();
-      category.setOwnerId(1l);
+      category.setOwnerId(1L);
       categoryService.createCategory(category, MARY_USER);
     });
     long adminGroupIdentityId = getAdminGroupIdentityId();
@@ -255,14 +254,14 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     category = categoryService.getCategory(categoryId);
     Category categoryToUpdate2 = category;
     assertThrows(IllegalArgumentException.class, () -> {
-      categoryToUpdate2.setOwnerId(-2l);
+      categoryToUpdate2.setOwnerId(-2L);
       categoryService.updateCategory(categoryToUpdate2, JOHN_USER);
     });
 
     category = categoryService.getCategory(categoryId);
     Category categoryToUpdate3 = category;
     assertThrows(ObjectNotFoundException.class, () -> {
-      categoryToUpdate3.setParentId(1544863l);
+      categoryToUpdate3.setParentId(1544863L);
       categoryService.updateCategory(categoryToUpdate3, JOHN_USER);
     });
 
@@ -300,13 +299,13 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     long categoryId = category.getId();
     assertTrue(categoryService.canEdit(categoryId, JOHN_USER));
     assertFalse(categoryService.canEdit(categoryId, MARY_USER));
-    assertFalse(categoryService.canEdit(123456879l, JOHN_USER));
+    assertFalse(categoryService.canEdit(123456879L, JOHN_USER));
   }
 
   @Test
   @SneakyThrows
   public void testGetCategory() {
-    assertThrows(ObjectNotFoundException.class, () -> categoryService.getCategory(122546l, MARY_USER, Locale.ENGLISH));
+    assertThrows(ObjectNotFoundException.class, () -> categoryService.getCategory(122546L, MARY_USER, Locale.ENGLISH));
 
     buildCategoryTree();
     long ownerId = getAdminGroupIdentityId();
@@ -318,58 +317,53 @@ public class CategoryServiceTest extends AbstractCategoryConfigurationTest {
     CategoryTree categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertEquals(2,
                  categoryTree.getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
-                             .get(0)
+                             .getFirst()
                              .getCategories()
                              .size());
 
     CategoryTree categoryTree13 = categoryTree.getCategories()
-                                              .get(0)
+                                              .getFirst()
                                               .getCategories()
-                                              .get(0)
+                                              .getFirst()
                                               .getCategories()
-                                              .get(0);
+                                              .getFirst();
     assertNotNull(categoryService.getCategory(categoryTree13.getId(), MARY_USER, Locale.ENGLISH));
-    assertNotNull(categoryService.getCategory(categoryTree13.getCategories().get(0).getId(), MARY_USER, Locale.ENGLISH));
+    assertNotNull(categoryService.getCategory(categoryTree13.getCategories().getFirst().getId(), MARY_USER, Locale.ENGLISH));
 
-    categoryTree13.setAccessPermissionIds(Collections.singletonList(getAdminGroupIdentityId()));
     categoryService.updateCategory(categoryTree13, JOHN_USER);
-    assertThrows(IllegalAccessException.class,
-                 () -> categoryService.getCategory(categoryTree13.getId(), MARY_USER, Locale.ENGLISH));
-    assertThrows(IllegalAccessException.class,
-                 () -> categoryService.getCategory(categoryTree13.getCategories().get(0).getId(), MARY_USER, Locale.ENGLISH));
 
     categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertNotNull(categoryTree.getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0));
+                              .getFirst());
 
     filter.setLimit(1);
     categoryTree = categoryService.getCategoryTree(filter, MARY_USER, Locale.FRENCH);
     assertFalse(categoryTree.getCategories()
-                            .get(0)
+                            .getFirst()
                             .getCategories()
-                            .get(0)
+                            .getFirst()
                             .getCategories()
                             .isEmpty());
     assertNotNull(categoryTree.getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0)
+                              .getFirst()
                               .getCategories()
-                              .get(0));
+                              .getFirst());
 
     assertNotEquals(categoryTree13.getId(),
                     categoryTree.getCategories()
-                                .get(0)
+                                .getFirst()
                                 .getCategories()
-                                .get(0)
+                                .getFirst()
                                 .getCategories()
-                                .get(0)
+                                .getFirst()
                                 .getId());
   }
 

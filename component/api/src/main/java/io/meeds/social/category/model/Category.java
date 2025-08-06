@@ -32,46 +32,35 @@ public class Category implements Cloneable {
   /**
    * Technical identifier of the element
    */
-  private long       id;
+  private long         id;
 
   /**
    * Parent Tree identifier, 0 when it's the root element
    */
-  private long       parentId;
+  private long         parentId;
 
   /**
    * Fontawesome Icon identifier
    */
-  private String     icon;
+  private String       icon;
 
   /**
    * Identity Id of the category creator
    */
-  private long       creatorId;
+  private long         creatorId;
 
   /**
    * Identity Id of the owner of the tree (Owner Id who can manage the tree)
    */
-  private long       ownerId;
-
-  /**
-   * Access Permissions of the category
-   */
-  private List<Long> accessPermissionIds;
+  private long         ownerId;
 
   /**
    * Link/Use Permissions of the category
    */
-  private List<Long> linkPermissionIds;
+  private List<String> linkPermissions;
 
   @Override
   protected Category clone() { // NOSONAR
-    return new Category(id,
-                        parentId,
-                        icon,
-                        creatorId,
-                        ownerId,
-                        accessPermissionIds,
-                        linkPermissionIds);
+    return new Category(id, parentId, icon, creatorId, ownerId, linkPermissions);
   }
 }

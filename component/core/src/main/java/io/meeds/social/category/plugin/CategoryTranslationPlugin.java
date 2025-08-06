@@ -55,7 +55,7 @@ public class CategoryTranslationPlugin extends TranslationPlugin {
 
   @Override
   public boolean hasAccessPermission(long categoryId, String username) throws ObjectNotFoundException {
-    return categoryService.canAccess(categoryId, username);
+    return true;
   }
 
   @Override

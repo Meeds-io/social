@@ -200,15 +200,13 @@ public class CategorySearchConnector {
       esQuery = esQuery.replace(PARENT_ID_QUERY_REPLACEMENT, "");
       esQuery = esQuery.replace(OWNER_ID_QUERY_REPLACEMENT, "");
     }
-    if (CollectionUtils.isNotEmpty(identityIds)) {
+    if (CollectionUtils.isNotEmpty(identityIds) && filter.isLinkPermission()) {
       esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT,
                                 append + PERMISSIONS_QUERY
                                                           .replace(PERMISSIONS_REPLACEMENT,
                                                                    String.format(STRING_VALUE_FORMAT,
                                                                                  StringUtils.join(identityIds, "\",\"")))
-                                                          .replace(PERMISSIONS_FIELD_REPLACEMENT,
-                                                                   filter.isLinkPermission() ? "linkPermissionIds" :
-                                                                                             "accessPermissionIds"));
+                                                          .replace(PERMISSIONS_FIELD_REPLACEMENT,"linkPermissions"));
     } else {
       esQuery = esQuery.replace(PERMISSIONS_QUERY_REPLACEMENT, "");
     }
