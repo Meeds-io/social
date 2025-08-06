@@ -48,8 +48,7 @@ public class CategoryTree extends CategoryWithName {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
   }
 
   public CategoryTree(CategoryWithName category) {
@@ -59,8 +58,7 @@ public class CategoryTree extends CategoryWithName {
           category.getIcon(),
           category.getCreatorId(),
           category.getOwnerId(),
-          category.getAccessPermissionIds(),
-          category.getLinkPermissionIds());
+          category.getLinkPermissions());
   }
 
   public CategoryTree(CategoryTree categoryTree) {
@@ -70,8 +68,7 @@ public class CategoryTree extends CategoryWithName {
           categoryTree.getIcon(),
           categoryTree.getCreatorId(),
           categoryTree.getOwnerId(),
-          categoryTree.getAccessPermissionIds(),
-          categoryTree.getLinkPermissionIds());
+          categoryTree.getLinkPermissions());
     this.categories = categoryTree.getCategories();
     this.offset = categoryTree.getOffset();
     this.limit = categoryTree.getLimit();
