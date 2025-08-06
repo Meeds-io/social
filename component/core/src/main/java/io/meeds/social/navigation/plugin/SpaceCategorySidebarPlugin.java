@@ -62,7 +62,7 @@ public class SpaceCategorySidebarPlugin extends AbstractSpaceSidebarPlugin {
     }
     long categoryId = getCategoryId(item);
     Category category = categoryService.getCategory(categoryId);
-    return category != null && categoryService.canAccess(category, username);
+    return category != null;
   }
 
   @Override

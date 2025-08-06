@@ -266,9 +266,7 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setTemplateIds(templateIds);
     spaceFilter.setExcludedIds(excludedIds);
     if (CollectionUtils.isNotEmpty(categoryIds)) {
-      spaceFilter.setCategoryIds(categoryIds.stream()
-                                            .filter(id -> categoryService.canAccess(id, authenticatedUser))
-                                            .toList());
+      spaceFilter.setCategoryIds(categoryIds);
       if (CollectionUtils.isEmpty(spaceFilter.getCategoryIds())) {
         CollectionEntity collectionSpace = new CollectionEntity(Collections.emptyList(),
                                                                 EntityBuilder.SPACES_TYPE,

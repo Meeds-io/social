@@ -67,8 +67,6 @@ public class CategoryStorage {
 
   private static final Log          LOG                     = ExoLogger.getLogger(CategoryStorage.class);
 
-  private static final String       PROP_ACCESS_PERMISSIONS = "categoryAccessPermissions";
-
   private static final String       PROP_LINK_PERMISSIONS   = "categoryLinkPermissions";
 
   private static final String       PROP_PARENT_ID          = "categoryParentId";
@@ -222,8 +220,7 @@ public class CategoryStorage {
     if (MapUtils.isNotEmpty(metadata.getProperties())) {
       category.setIcon(MapUtils.getString(metadata.getProperties(), PROP_ICON));
       category.setParentId(MapUtils.getLong(metadata.getProperties(), PROP_PARENT_ID));
-      category.setAccessPermissionIds(toList(MapUtils.getString(metadata.getProperties(), PROP_ACCESS_PERMISSIONS)));
-      category.setLinkPermissionIds(toList(MapUtils.getString(metadata.getProperties(), PROP_LINK_PERMISSIONS)));
+      category.setLinkPermissions(toList(MapUtils.getString(metadata.getProperties(), PROP_LINK_PERMISSIONS)));
     }
     return category;
   }
@@ -234,8 +231,7 @@ public class CategoryStorage {
       properties.put(PROP_OWNER_ROOT_ID, String.valueOf(category.getOwnerId()));
     }
     properties.put(PROP_PARENT_ID, String.valueOf(category.getParentId()));
-    properties.put(PROP_LINK_PERMISSIONS, toString(category.getLinkPermissionIds()));
-    properties.put(PROP_ACCESS_PERMISSIONS, toString(category.getAccessPermissionIds()));
+    properties.put(PROP_LINK_PERMISSIONS, String.valueOf(category.getLinkPermissions()));
     properties.put(PROP_ICON, category.getIcon());
     return new Metadata(category.getId(),
                         METADATA_TYPE,
@@ -246,16 +242,10 @@ public class CategoryStorage {
                         properties);
   }
 
-  private String toString(List<Long> ids) {
-    return String.format("[%s]", ids == null ? "" : StringUtils.join(ids, ","));
-  }
-
-  private List<Long> toList(String ids) {
-    return StringUtils.isBlank(ids) ? Collections.emptyList() :
-                                    Arrays.asList(ids.substring(1, ids.length() - 1).split(","))
-                                          .stream()
+  private List<String> toList(String permissions) {
+    return StringUtils.isBlank(permissions) ? Collections.emptyList() :
+                                    Arrays.stream(permissions.substring(1, permissions.length() - 1).split(", "))
                                           .filter(StringUtils::isNotBlank)
-                                          .map(Long::parseLong)
                                           .toList();
   }
 
