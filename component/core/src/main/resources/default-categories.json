@@ -1,0 +1,206 @@
+{
+  "descriptors": [
+
+    {
+      "nameId": "statusCategory",
+      "icon": "",
+      "names":{
+        "en":"categoryManagement.category.status.name"
+      },
+      "linkPermissions":[
+        "*:/platform/users"
+      ],
+      "subCategories":[
+        {
+          "nameId": "draftCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.draft.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "publishedCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.published.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "archiveCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.archive.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        }
+      ]
+    },
+
+    {
+      "nameId": "companyResourcesCategory",
+      "icon": "",
+      "names":{
+        "en":"categoryManagement.category.companyResources.name"
+      },
+      "linkPermissions":[
+        "*:/platform/users"
+      ],
+      "subCategories":[
+        {
+          "nameId": "internalUpdatesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.internalUpdates.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "humanResourcesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.humanResources.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "financeAndAccountingCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.financeAndAccounting.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "marketingCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.marketing.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "iTCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.it.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "salesAndBusinessCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.salesAndBusiness.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        }
+      ]
+    },
+
+    {
+      "nameId": "projectsAndInitiativesCategory",
+      "icon": "",
+      "names":{
+        "en":"categoryManagement.category.projectsAndInitiatives.name"
+      },
+      "linkPermissions":[
+        "*:/platform/users"
+      ],
+      "subCategories":[
+        {
+          "nameId": "productCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.product.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "innovationCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.innovation.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "sustainabilityProgramsCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.sustainabilityPrograms.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        }
+      ]
+    },
+
+    {
+      "nameId": "knowledgeSharingCategory",
+      "icon": "",
+      "names":{
+        "en":"categoryManagement.category.knowledgeSharing.name"
+      },
+      "linkPermissions":[
+        "*:/platform/users"
+      ],
+      "subCategories": [
+        {
+          "nameId": "bestPracticesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.bestPractices.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "howToGuidesCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.howToGuides.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        },
+        {
+          "nameId": "industryNewsCategory",
+          "icon": "",
+          "names":{
+            "en":"categoryManagement.category.industryNews.name"
+          },
+          "linkPermissions":[
+            "*:/platform/users"
+          ]
+        }
+      ]
+    }
+  ]
+}
