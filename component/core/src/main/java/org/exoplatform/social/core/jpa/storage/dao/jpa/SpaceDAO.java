@@ -215,6 +215,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     TypedQuery<T> query;
     String queryName = getQueryFilterName(suffixes, count);
     if (filterNamedQueries.containsKey(queryName)) {
+      if (StringUtils.isNotBlank(filter.getRemoteId()) && isLastAccess(filter)) {
+        parameterNames.add(PARAM_USER_ID);
+      }
       query = getEntityManager().createNamedQuery(queryName, clazz);
     } else {
       String queryContent = getQueryFilterContent(filter, predicates, parameterNames, count);
