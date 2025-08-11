@@ -114,8 +114,10 @@ public class CategoryTranslationImportService {
 
   private ResourceBundle getResourceBundle(Locale locale) {
     return bundles.computeIfAbsent(locale,
-                                   l -> resourceBundleService.getResourceBundle(new String[] { "locale.portlet.Portlets",
-                                       "locale.social.Core" }, l, PortalContainer.getInstance().getPortalClassLoader()));
+                                   l -> resourceBundleService.getResourceBundle("locale.portlet.CategoryManagement",
+                                                                                l,
+                                                                                PortalContainer.getInstance()
+                                                                                               .getPortalClassLoader()));
   }
 
 }
