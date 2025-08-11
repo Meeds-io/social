@@ -97,7 +97,7 @@ public class CategoryImportService {
   @Value("${meeds.categories.import.override:false}")
   private boolean                          forceReimport;
 
-  @Value("${meeds.categories.import.version:1}")
+  @Value("${meeds.categories.import.version:2}")
   private long                             categoryImportVersion;
 
   @PostConstruct
