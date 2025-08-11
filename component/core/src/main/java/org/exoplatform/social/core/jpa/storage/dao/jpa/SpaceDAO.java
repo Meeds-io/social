@@ -309,7 +309,6 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       if (StringUtils.isNotBlank(spaceFilter.getRemoteId()) && lastAccess) {
         querySelect +=
                     " INNER JOIN s.members sm ON sm.userId = :userId AND sm.status = io.meeds.social.space.constant.SpaceMembershipStatus.MEMBER ";
-        parameterNames.add(PARAM_USER_ID);
       } else {
         querySelect += " INNER JOIN s.members sm ";
       }
@@ -387,6 +386,11 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
       suffixes.add("Keyword");
       predicates.add("(s.prettyName LIKE :keyword OR s.displayName LIKE :keyword OR s.description LIKE :keyword)");
       parameterNames.add(PARAM_KEYWORD);
+    }
+
+    if (isLastAccess(spaceFilter) && StringUtils.isNotBlank(spaceFilter.getRemoteId())) {
+      suffixes.add("UserId");
+      parameterNames.add(PARAM_USER_ID);
     }
 
     buildPermissionPredicates(spaceFilter, suffixes, predicates, parameterNames);
