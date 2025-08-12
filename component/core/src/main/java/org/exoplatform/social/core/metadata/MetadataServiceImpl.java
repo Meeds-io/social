@@ -110,6 +110,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public Metadata updateMetadata(Metadata metadata) {
+    return updateMetadata(metadata, getSuperUserIdentityId());
+  }
+
+  @Override
   public Metadata deleteMetadataById(long metadataId) {
     if (metadataId <= 0) {
       throw new IllegalArgumentException("Metadata Technical Identifier is mandatory");
