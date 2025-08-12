@@ -343,8 +343,11 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   }
 
   private String parseValue(ProfilePropertySetting profilePropertySetting, String value) {
-    if (!profilePropertySetting.isDropdownList()) {
+    if (!profilePropertySetting.isDropdownList() || StringUtils.isBlank(value)) {
       return value;
+    }
+    if (!StringUtils.isNumeric(value)) {
+      return null;
     }
     String optionValue = profilePropertySetting.getPropertyOptions()
                                                .stream()
