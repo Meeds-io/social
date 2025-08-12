@@ -67,6 +67,16 @@ public interface MetadataService {
   Metadata updateMetadata(Metadata metadata, long userIdentityId);
 
   /**
+   * Updates a {@link Metadata} object
+   *
+   * @param metadata {@link Metadata}
+   * @return updated {@link Metadata}
+   */
+  default Metadata updateMetadata(Metadata metadata) {
+    throw new UnsupportedOperationException();
+  }
+
+    /**
    * Deletes a {@link Metadata} by a given {@link Metadata} identifier
    * 
    * @param metadataId {@link Metadata} technical identifier
