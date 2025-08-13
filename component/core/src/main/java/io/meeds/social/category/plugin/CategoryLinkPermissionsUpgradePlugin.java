@@ -44,6 +44,8 @@ public class CategoryLinkPermissionsUpgradePlugin extends UpgradeProductPlugin {
 
   private static final String       PROP_ACCESS_PERMISSIONS = "categoryAccessPermissions";
 
+  private static final String       GROUP_PROVIDER_ID       = "group";
+
   private MetadataService           metadataService;
 
   private IdentityManager           identityManager;
@@ -76,7 +78,13 @@ public class CategoryLinkPermissionsUpgradePlugin extends UpgradeProductPlugin {
             long id = Long.parseLong(permissionId.trim());
             Identity identity = getIdentityManager().getIdentity(id);
             if (identity != null) {
-              upgradedPermissions.add("*:" + identity.getRemoteId());
+              String groupId = "";
+              if (identity.isSpace()) {
+                groupId = String.format("/spaces/%s", identity.getRemoteId());
+              } else if (identity.getProviderId().equals(GROUP_PROVIDER_ID)) {
+                groupId = identity.getRemoteId();
+              }
+              upgradedPermissions.add("*:" + groupId);
             }
           }
           if (!upgradedPermissions.isEmpty()) {
