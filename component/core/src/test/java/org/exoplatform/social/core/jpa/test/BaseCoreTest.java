@@ -1,20 +1,21 @@
-/*
- * Copyright (C) 2003-2012 eXo Platform SAS.
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
  *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-
 package org.exoplatform.social.core.jpa.test;
 
 import java.lang.reflect.Method;
@@ -52,14 +53,6 @@ import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.ActivityStorage;
 
-/**
- * @author <a href="mailto:thanhvc@exoplatform.com">Thanh Vu</a>
- * @version $Revision$
- */
-/**
- * @author tuvd
- *
- */
 @ConfiguredBy({
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/configuration.xml"),
   @ConfigurationUnit(scope = ContainerScope.ROOT, path = "conf/exo.social.component.core-local-root-configuration.xml"),
@@ -152,8 +145,6 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   
   /**
    * Void Callable
-   * @author thanhvc
-   *
    */
   protected static abstract class VoidCallable implements Callable<Void> {
     /** */
@@ -169,9 +160,6 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   
   /**
    * Executes in the session lifecycle
-   * @author thanhvc
-   *
-   * @param <T>
    */
   protected static interface SessionCallable<T> {
     T execute();
@@ -179,8 +167,6 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   
   /**
    * Executes the Session Void Callable
-   * @author thanhvc
-   *
    */
   protected static interface SessionVoidCallable {
     void execute();
@@ -388,8 +374,6 @@ public abstract class BaseCoreTest extends BaseExoTestCase {
   
   /**
    * Activity Builder
-   * @author thanhvc
-   *
    */
   public static class ActivityBuilder {
     /** */
