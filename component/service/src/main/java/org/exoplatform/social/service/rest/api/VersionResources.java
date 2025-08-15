@@ -1,18 +1,20 @@
-/*
- * Copyright (C) 2003-2011 eXo Platform SAS.
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
  *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 package org.exoplatform.social.service.rest.api;
 
@@ -62,8 +64,8 @@ public class VersionResources implements ResourceContainer {
   }
 
   /**
-   * Gets the latest REST API version of eXo Platform. This version number should be used as the latest and stable
-   * one which is considered to include all new features and updates of eXo Platform REST services.
+   * Gets the latest REST API version. This version number should be used as the latest and stable
+   * one which is considered to include all new features and updates REST services.
    * @param uriInfo The URI information.
    * @param format  The format of the returned result, for example, JSON or XML.
    * @request
@@ -92,8 +94,8 @@ public class VersionResources implements ResourceContainer {
 
 
   /**
-   * Gets eXo Platform REST service versions that are supported. This is for backward compatibility. If a client
-   * application is using an older eXo Platform REST APIs version, all APIs of the version still can work. The array MUST
+   * Gets REST service versions that are supported. This is for backward compatibility. If a client
+   * application is using an older REST APIs version, all APIs of the version still can work. The array MUST
    * have the latest to oldest order. For example, {{{[v2, v1, v1-beta3]}}}, but not
    * {{{[v1, v2, v1-beta3]}}}.
    * @param uriInfo The URI information.
@@ -110,7 +112,7 @@ public class VersionResources implements ResourceContainer {
    *   <version>v1-alpha3</version>
    * </versions>
    * }
-   * @return The information of the REST service versions supported by eXo Platform.
+   * @return The information of the REST service supported versions.
    * @LevelAPI Platform
    * @anchor VersionResources.getSupportedVersions
    *
