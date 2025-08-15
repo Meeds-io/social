@@ -1,4 +1,4 @@
-/*
+/**
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io

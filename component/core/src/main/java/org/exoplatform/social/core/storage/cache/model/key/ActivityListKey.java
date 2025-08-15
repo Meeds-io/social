@@ -7,7 +7,6 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
- *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
@@ -28,8 +27,6 @@ import org.exoplatform.social.core.activity.ActivityFilter;
  * Immutable activity count key.
  * This key is used to cache the activity count.
  * 
- * @author <a href="mailto:alain.defrance@exoplatform.com">Alain Defrance</a>
- * @version $Revision$
  */
 public class ActivityListKey implements CacheKey {
   private static final long serialVersionUID = -2153747306033203041L;
