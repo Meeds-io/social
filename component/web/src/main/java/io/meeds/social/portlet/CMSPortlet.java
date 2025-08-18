@@ -166,6 +166,15 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     layoutService.save(state, prefs);
   }
 
+  protected String generateRandomId() {
+    String storageId = UIPortlet.getCurrentUIPortlet() == null ? "" : UIPortlet.getCurrentUIPortlet().getStorageId();
+    String name;
+    do {
+      name = PREFIX_UNTITLED_NAME + "-" + storageId + "-" + UUID.randomUUID().toString();
+    } while (isSettingNameExists(name));
+    return name;
+  }
+
   private String getOrCreateSettingName(PortletPreferences preferences) {
     String name = preferences.getValue(NAME, null);
     if (!isInitialized(name)) {
@@ -192,15 +201,6 @@ public class CMSPortlet extends GenericDispatchedViewPortlet {
     } else {
       return INITIALIZED.computeIfAbsent(name, this::isSettingNameExists);
     }
-  }
-
-  private String generateRandomId() {
-    String storageId = UIPortlet.getCurrentUIPortlet() == null ? "" : UIPortlet.getCurrentUIPortlet().getStorageId();
-    String name;
-    do {
-      name = PREFIX_UNTITLED_NAME + "-" + storageId + "-" + UUID.randomUUID().toString();
-    } while (isSettingNameExists(name));
-    return name;
   }
 
   private CMSService getCmsService() {
