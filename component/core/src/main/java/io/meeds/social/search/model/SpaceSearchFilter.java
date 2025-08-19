@@ -57,4 +57,8 @@ public class SpaceSearchFilter {
 
   private SpaceVisibility       visibility;
 
+  private String                sortField;
+
+  private String                sortDirection;
+
 }
