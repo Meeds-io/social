@@ -162,6 +162,8 @@ public class SpaceSearchConnectorTest {
                                                      null,
                                                      null,
                                                      null,
+                                                     null,
+                                                     null,
                                                      null);
     when(client.countRequest(argThat(esQuery -> hasUserFavoriteQueryPart(esQuery)
                                                 && hasPermissionQueryPart(esQuery, MEMBER, 1, USER_NAME)),
@@ -179,6 +181,8 @@ public class SpaceSearchConnectorTest {
                                                      Collections.emptyList(),
                                                      null,
                                                      true,
+                                                     null,
+                                                     null,
                                                      null,
                                                      null,
                                                      null,
@@ -206,6 +210,8 @@ public class SpaceSearchConnectorTest {
                                                      Collections.emptyList(),
                                                      null,
                                                      true,
+                                                     null,
+                                                     null,
                                                      null,
                                                      null,
                                                      null,
@@ -245,6 +251,8 @@ public class SpaceSearchConnectorTest {
                                                      null,
                                                      null,
                                                      null,
+                                                     null,
+                                                     null,
                                                      null);
     when(client.sendRequest(argThat(esQuery -> hasCategoryIdsQueryPart(esQuery, categoryIds)),
                             eq(index))).thenReturn(SEARCH_RESULT);
@@ -265,6 +273,8 @@ public class SpaceSearchConnectorTest {
                                                                          false,
                                                                          null,
                                                                          SpaceMembershipStatus.MEMBER,
+                                                                         null,
+                                                                         null,
                                                                          null,
                                                                          null),
                                                    0,
@@ -314,6 +324,8 @@ public class SpaceSearchConnectorTest {
                                                      null,
                                                      null,
                                                      null,
+                                                     null,
+                                                     null,
                                                      null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery,
@@ -346,6 +358,8 @@ public class SpaceSearchConnectorTest {
                                                    Arrays.asList("tag1", "tag2"),
                                                    null,
                                                    null,
+                                                   null,
+                                                   null,
                                                    null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
                                                && hasPermissionQueryPart(esQuery, PERMISSIONS_FIELD, 2, "all", USER_NAME)
@@ -372,6 +386,8 @@ public class SpaceSearchConnectorTest {
                                                      false,
                                                      null,
                                                      status,
+                                                     null,
+                                                     null,
                                                      null,
                                                      null);
     when(client.sendRequest(argThat(esQuery -> hasNotUserFavoriteQueryPart(esQuery)
