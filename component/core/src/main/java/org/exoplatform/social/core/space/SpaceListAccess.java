@@ -308,7 +308,9 @@ public class SpaceListAccess implements ListAccess<Space> {
                                    filter.getTagNames(),
                                    statusType,
                                    filter.getRegistration(),
-                                   filter.getVisibility());
+                                   filter.getVisibility(),
+                                   filter.isSortingEmpty() ? null : filter.getSorting().sortBy.getFieldName(),
+                                   filter.isSortingEmpty() ? null : filter.getSorting().orderBy.name().toLowerCase());
     } else {
       return null;
     }
