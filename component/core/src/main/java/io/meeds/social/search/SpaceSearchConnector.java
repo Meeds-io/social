@@ -178,6 +178,23 @@ public class SpaceSearchConnector {
       }
       """;
 
+  public static final String           DEFAULT_SORTING_QUERY         = """
+          {
+            "_score": {
+              "order": "desc"
+            }
+          }
+      """;
+
+  public static final String           SORTING_QUERY                  = """
+          {
+            "@sortField@": {
+              "order": "@sortOrder@"
+            }
+          },
+          "_score"
+      """;
+
   private static final String          TERM_REPLACEMENT              = "@term@";
 
   private static final String          PHRASE_REPLACEMENT            = "@phrase@";
@@ -275,6 +292,7 @@ public class SpaceSearchConnector {
     String tagsQuery = buildTagsQueryStatement(metadataFilters.get(TagService.METADATA_TYPE.getName()));
     String visibilityQuery = buildVisibilityStatement(filter.getVisibility());
     String registrationQuery = buildRegistrationStatement(filter.getRegistration());
+    String sortQuery = buildSortQuery(filter);
     boolean noCommaToTemplate = StringUtils.isBlank(categoryQuery) || StringUtils.isBlank(templateQuery);
     boolean noCommaToFavorite = StringUtils.isBlank(favoriteQuery) || StringUtils.isAllBlank(templateQuery, categoryQuery);
     boolean noCommaToPermission = StringUtils.isBlank(permissionsQuery)
@@ -307,6 +325,7 @@ public class SpaceSearchConnector {
                          noCommaToRegistration ? registrationQuery :
                                                String.format(PREFIX_COMMA_TO_APPEND, registrationQuery))
                 .replace("@tags_query@", tagsQuery)
+                .replace("@sortQuery@", sortQuery)
                 .replace("@offset@",
                          String.valueOf(offset))
                 .replace("@limit@",
@@ -583,6 +602,18 @@ public class SpaceSearchConnector {
   private Long parseLong(JSONObject hitSource, String key) {
     String value = (String) hitSource.get(key);
     return StringUtils.isBlank(value) ? null : Long.parseLong(value);
+  }
+
+  private String buildSortQuery(SpaceSearchFilter filter) {
+    if (StringUtils.isBlank(filter.getSortField())) {
+      return DEFAULT_SORTING_QUERY;
+    }
+    String sortFiled = filter.getSortField();
+    String sortDirection = filter.getSortDirection();
+    return switch (sortFiled) {
+    case "date" -> SORTING_QUERY.replace("@sortField@", "lastUpdatedDate").replace("@sortOrder@", sortDirection);
+    default -> SORTING_QUERY.replace("@sortField@", sortFiled).replace("@sortOrder@", sortDirection);
+    };
   }
 
 }
