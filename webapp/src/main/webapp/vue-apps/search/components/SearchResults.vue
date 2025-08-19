@@ -372,9 +372,7 @@ export default {
             uri += `&spaceId=${spaceId}`;
           });
         }
-        if (this.sortBy) {
-          uri += `&sort=${this.sortBy}&order=${this.sortDescending ? 'desc' : 'asc'}`;
-        }
+        uri = this.appendSortParams(uri, this.sortBy, this.sortDescending);
         const fetchResultsQuery = connectorModule.fetchSearchResult ?
           connectorModule.fetchSearchResult(uri, options)
           : fetch(uri, options);
@@ -415,6 +413,20 @@ export default {
     },
     isGroupingResult(result) {
       return Array.isArray(result);
+    },
+    appendSortParams(uri, sortBy, sortDescending) {
+      let order = sortDescending ? 'desc' : 'asc';
+      order = sortBy && order || '';
+      sortDescending = sortBy && sortDescending || '';
+      uri = uri.replace('{sort}', sortBy)
+        .replace('{order}', order)
+        .replace('{sortDescending}', sortDescending);
+
+      if (this.sortBy && !uri.includes('{sort}') && !uri.includes('{order}') && !uri.includes('{sortDescending}')) {
+        const separator = uri.includes('?') ? '&' : '?';
+        uri += `${separator}sort=${sortBy}&order=${order}`;
+      }
+      return uri;
     }
   },
 };
