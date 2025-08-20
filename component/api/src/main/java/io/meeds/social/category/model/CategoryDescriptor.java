@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
@@ -19,48 +19,25 @@
 package io.meeds.social.category.model;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Category implements Cloneable {
+@AllArgsConstructor
+public class CategoryDescriptor {
 
-  /**
-   * Technical identifier of the element
-   */
-  private long         id;
+  private String                   nameId;
 
-  /**
-   * Parent Tree identifier, 0 when it's the root element
-   */
-  private long         parentId;
+  private String                   icon;
 
-  /**
-   * Fontawesome Icon identifier
-   */
-  private String       icon;
+  private List<String>             linkPermissions;
 
-  /**
-   * Identity Id of the category creator
-   */
-  private long         creatorId;
+  private Map<String, String>      names;
 
-  /**
-   * Identity Id of the owner of the tree (Owner Id who can manage the tree)
-   */
-  private long         ownerId;
+  private List<CategoryDescriptor> subCategories;
 
-  /**
-   * Link/Use Permissions of the category
-   */
-  private List<String> linkPermissions;
-
-  @Override
-  protected Category clone() { // NOSONAR
-    return new Category(id, parentId, icon, creatorId, ownerId, linkPermissions);
-  }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
  * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
@@ -25,42 +25,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class Category implements Cloneable {
+@AllArgsConstructor
+public class CategoryDescriptorList {
 
-  /**
-   * Technical identifier of the element
-   */
-  private long         id;
+  private List<CategoryDescriptor> descriptors;
 
-  /**
-   * Parent Tree identifier, 0 when it's the root element
-   */
-  private long         parentId;
-
-  /**
-   * Fontawesome Icon identifier
-   */
-  private String       icon;
-
-  /**
-   * Identity Id of the category creator
-   */
-  private long         creatorId;
-
-  /**
-   * Identity Id of the owner of the tree (Owner Id who can manage the tree)
-   */
-  private long         ownerId;
-
-  /**
-   * Link/Use Permissions of the category
-   */
-  private List<String> linkPermissions;
-
-  @Override
-  protected Category clone() { // NOSONAR
-    return new Category(id, parentId, icon, creatorId, ownerId, linkPermissions);
-  }
 }
