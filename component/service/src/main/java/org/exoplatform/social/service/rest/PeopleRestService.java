@@ -630,7 +630,7 @@ public class PeopleRestService implements ResourceContainer{
    * @throws Exception
    * @LevelAPI Platform
    * @anchor PeopleRestService.suggestUsernames
-   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRest#getUsers(UriInfo, String, boolean, boolean, String, String, String, List, boolean, String, int, int, boolean, String, boolean)}
+   * @deprecated Deprecated from 4.3.x. Replaced by a new API {@link UserRest#getUsers(UriInfo, String, boolean, boolean, String, String, String, List, boolean, String, String, String, int, int, boolean, String, boolean)}
    * 
    */
   @GET
