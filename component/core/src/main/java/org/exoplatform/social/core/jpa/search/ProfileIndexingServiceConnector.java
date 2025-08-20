@@ -272,7 +272,6 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       fields.put("enrollmentDate", profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
     Date createdDate = new Date(profile.getCreatedTime());
-
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
       if (profilePropertySetting.isVisible() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
         Object propertyValue = profile.getProperty(profilePropertySetting.getPropertyName());
