@@ -72,6 +72,9 @@ export default {
     selectSort(option) {
       this.selectedSort = option.value;
       this.$root.$emit('sort-changed', option, this.sortDescending);
+      if (this.selectedSort === 'date') {
+        document.dispatchEvent(new CustomEvent('search-sort-by-date-action'));
+      }
     },
   },
 };
