@@ -35,6 +35,7 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.social.core.search.Sorting;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -256,6 +257,8 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") List<Long> spaceIds,
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
+                           @Parameter(description = "Sort", required = false) @QueryParam("sort") String sort,
+                           @Parameter(description = "Order", required = false) @QueryParam("order") String order,
                            @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -275,7 +278,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-
+    
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
@@ -309,6 +312,14 @@ public class UserRest implements ResourceContainer, Startable {
       if (CollectionUtils.isNotEmpty(spaceIds)) {
         List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
         filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIdsString));
+      }
+      if (StringUtils.isNotBlank(sort)) {
+        Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
+        Sorting.OrderBy orderBy = Sorting.OrderBy.ASC;
+        if (StringUtils.isNotBlank(order)) {
+          orderBy = Sorting.OrderBy.valueOf(order.toUpperCase());
+        }
+        filter.setSorting(new Sorting(sortBy, orderBy));
       }
       if (target != null && excludeCurrentUser) {
         filter.setViewerIdentity(target);
