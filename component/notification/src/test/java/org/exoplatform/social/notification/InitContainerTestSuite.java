@@ -42,6 +42,8 @@ import org.exoplatform.social.notification.channel.template.SpaceInvitationMailB
 import org.exoplatform.social.notification.impl.SpaceWebNotificationServiceTest;
 import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
 
+import io.meeds.social.security.plugin.EmailOtpPluginTest;
+
 @RunWith(Suite.class)
 @SuiteClasses({
   ActivityMentionMailBuilderTest.class,
@@ -61,6 +63,7 @@ import org.exoplatform.social.notification.plugin.SocialNotificationUtilsTest;
   SpaceWebNotificationServiceTest.class,
   SocialNotificationUtilsTest.class,
   UtilsTestCase.class,
+  EmailOtpPluginTest.class,
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

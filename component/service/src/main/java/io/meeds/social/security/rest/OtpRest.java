@@ -18,38 +18,44 @@
  */
 package io.meeds.social.security.rest;
 
-import java.io.IOException;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.meeds.web.security.authenticator.DigestAuthenticatorService;
+import io.meeds.web.security.service.OtpService;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/digest")
-@Tag(name = "/digest", description = "Manage digest authentication code")
-public class DigestAuthenticatorRest {
+@RequestMapping("/otp")
+@Tag(name = "/otp", description = "Manage User API Keys")
+public class OtpRest {
 
   @Autowired
-  private DigestAuthenticatorService digestAuthenticatorService;
+  private OtpService otpService;
 
   @GetMapping
   @Secured("users")
-  @Operation(summary = "Generates a temporary password for current user", method = "GET")
+  @ResponseStatus(code = HttpStatus.NO_CONTENT)
+  @Operation(summary = "Sends an OTP code using the designated method (email, app ...)", method = "GET")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Request fullfilled"),
+    @ApiResponse(responseCode = "204", description = "Request fullfilled"),
   })
-  public String generatePassword(HttpServletRequest request) throws IOException {
-    return digestAuthenticatorService.generatePassword(request.getRemoteUser());
+  public void sendOtpCode(HttpServletRequest request,
+                          @Parameter(description = "OTP Method")
+                          @RequestParam("method")
+                          String otpMethod) {
+    otpService.sendOtpCode(request.getRemoteUser(), otpMethod);
   }
 
 }

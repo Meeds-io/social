@@ -21,7 +21,6 @@ package io.meeds.social.notification.upgrade;
 import java.util.Arrays;
 import java.util.Iterator;
 
-import org.exoplatform.commons.api.notification.channel.ChannelManager;
 import org.exoplatform.commons.api.notification.model.UserSetting;
 import org.exoplatform.commons.api.notification.service.setting.UserSettingService;
 import org.exoplatform.commons.api.settings.SettingService;
@@ -29,10 +28,6 @@ import org.exoplatform.commons.persistence.impl.EntityManagerService;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.social.notification.AbstractNotificationCoreTest;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class NotificationUpgradePluginTest extends AbstractNotificationCoreTest {// NOSONAR
 

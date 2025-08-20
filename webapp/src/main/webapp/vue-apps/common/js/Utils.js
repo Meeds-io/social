@@ -142,3 +142,38 @@ export function execShortcut(chars, listener, e) {
 export function removeShortcutsListener(chars) {
   chars.forEach(c => c && shortcutChars.delete(c));
 }
+
+export function detectOS() {
+  const userAgent = window.navigator.userAgent || window.navigator.vendor || window.opera;
+  if (/windows phone/i.test(userAgent)) {
+    return 'Windows Phone';
+  }
+  if (/windows/i.test(userAgent)) {
+    return 'Windows';
+  }
+  if (/android/i.test(userAgent)) {
+    return 'Android';
+  }
+  if (/linux/i.test(userAgent)) {
+    return 'Linux';
+  }
+  if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+    return 'iOS';
+  }
+  if (/macintosh|mac os x/i.test(userAgent)) {
+    return 'Mac';
+  }
+  return 'Unknown';
+}
+
+export function isWindowsOs() {
+  return detectOS() === 'Windows';
+}
+
+export function isLinuxOs() {
+  return detectOS() === 'Linux';
+}
+
+export function isMacOs() {
+  return detectOS() === 'Mac';
+}
