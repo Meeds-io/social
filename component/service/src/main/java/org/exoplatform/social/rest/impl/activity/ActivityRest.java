@@ -1005,10 +1005,10 @@ public class ActivityRest implements ResourceContainer {
                                      "spaceId"
                                    ) List<Long> spaceIds,
                                    @Parameter(description = "Field to sort by")
-                                   @QueryParam("sort")
+                                   @QueryParam("sortField")
                                    String sortField,
                                    @Parameter(description = "Sort order (asc or desc)")
-                                   @QueryParam("order")
+                                   @QueryParam("sortDirection")
                                    String sortDirection,
                                    @Parameter(description = "Offset", required = false) @Schema(defaultValue = "0")
                                    @QueryParam(
