@@ -74,11 +74,11 @@
             </v-list-item-title>
 
             <v-list-item-subtitle class="d-flex flex-column">
-              <span class="d-flex flex-row align-center mx-auto full-width" v-if="postedTime">
+              <span class="d-flex flex-row align-center mx-auto full-width" v-if="lastUpdatedTime">
                 <v-icon
                   size="12"
                   class="icon-default-color">fas fa-clock</v-icon>
-                <date-format class="ms-1 my-auto" :value="postedTime" />
+                <date-format class="ms-1 my-auto" :value="lastUpdatedTime" />
               </span>
               <div
                 v-if="excerptHtml"
@@ -169,11 +169,11 @@ export default {
       }
       return this.result.comment && this.result.comment.type || this.result.type;
     },
-    postedTime() {
+    lastUpdatedTime() {
       if (!this.result) {
         return '';
       }
-      return this.result.comment && this.result.comment.postedTime || this.result.postedTime;
+      return this.result?.comment?.lastUpdatedTime || this.result?.lastUpdatedTime;
     },
     link() {
       if (this.isComment) {
