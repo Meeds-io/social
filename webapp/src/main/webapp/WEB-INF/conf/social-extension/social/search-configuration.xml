@@ -123,7 +123,7 @@
               <string>spaces</string>
             </field>
             <field name="uri">
-              <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&expand=managers,favorite]]></string>
+              <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&sort={sortField}&order={sortDirection}&expand=managers,favorite]]></string>
             </field>
             <field name="enabled">
               <boolean>${search.space.enabled:true}</boolean>
