@@ -1,9 +1,9 @@
 import UserSettingSecurity from './components/UserSettingSecurity.vue';
-import UserSettingSecurityWindow from './components/UserSettingSecurityWindow.vue';
+import UserSettingSecurityPasswordDrawer from './components/UserSettingSecurityPasswordDrawer.vue';
 
 const components = {
   'user-setting-security': UserSettingSecurity,
-  'user-setting-security-window': UserSettingSecurityWindow,
+  'user-setting-security-password-drawer': UserSettingSecurityPasswordDrawer,
 };
 
 for (const key in components) {

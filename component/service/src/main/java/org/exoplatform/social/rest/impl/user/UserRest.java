@@ -912,7 +912,7 @@ public class UserRest implements ResourceContainer, Startable {
                                              @Parameter(description = "OTP Method", required = false)
                                              @FormParam("otpMethod") String otpMethod,
                                              @Parameter(description = "OTP Code", required = false)
-                                             @FormParam("otpCode") String otpCode) throws IOException {
+                                             @FormParam("otpCode") String otpCode) {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
