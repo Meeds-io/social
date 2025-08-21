@@ -415,17 +415,19 @@ export default {
       return Array.isArray(result);
     },
     appendSortParams(uri, sortBy, sortDescending) {
-      let order = sortDescending ? 'desc' : 'asc';
-      order = sortBy && order || '';
+      let sortDirection = sortDescending ? 'desc' : 'asc';
+      sortDirection = sortBy && sortDirection || '';
       sortDescending = sortBy && sortDescending || '';
-      uri = uri.replace('{sort}', sortBy)
-        .replace('{order}', order)
+
+      if (this.sortBy && !uri.includes('{sortField}') && !uri.includes('{sortDirection}') && !uri.includes('{sortDescending}')) {
+        const separator = uri.includes('?') ? '&' : '?';
+        uri += `${separator}sortField=${sortBy}&sortDirection=${sortDirection}`;
+        return uri;
+      }
+      uri = uri.replace('{sortField}', sortBy)
+        .replace('{sortDirection}', sortDirection)
         .replace('{sortDescending}', sortDescending);
 
-      if (this.sortBy && !uri.includes('{sort}') && !uri.includes('{order}') && !uri.includes('{sortDescending}')) {
-        const separator = uri.includes('?') ? '&' : '?';
-        uri += `${separator}sort=${sortBy}&order=${order}`;
-      }
       return uri;
     }
   },
