@@ -24,8 +24,7 @@
     id="SpaceMembersDrawer"
     ref="drawer"
     v-model="drawer"
-    :loading="loading"
-    allow-expand
+    :loading="saving"
     no-x-scroll
     right
     @expand-updated="expanded = $event">
@@ -53,7 +52,7 @@
             v-model="currentPassword"
             :title="$t('UserSettings.security.passwordChange.current')"
             :placeholder="$t('UserSettings.security.passwordChange.current')"
-            :readonly="loading"
+            :readonly="saving"
             name="currentPassword"
             autocomplete="current-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
@@ -74,7 +73,7 @@
             v-model="newPassword"
             :title="$t('UserSettings.security.passwordChange.new')"
             :placeholder="$t('UserSettings.security.passwordChange.new')"
-            :readonly="loading"
+            :readonly="saving"
             name="newPassword"
             autocomplete="new-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
@@ -91,7 +90,7 @@
             v-model="confirmNewPassword"
             :title="$t('UserSettings.security.passwordChange.confirmNew')"
             :placeholder="$t('UserSettings.security.passwordChange.confirmNew')"
-            :readonly="loading"
+            :readonly="saving"
             name="confirmNewPassword"
             autocomplete="new-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
@@ -111,15 +110,15 @@
         <v-btn
           :disabled="saving"
           class="btn me-2"
-          @click="$emit('back')">
+          @click="close">
           {{ $t('UserSettings.button.cancel') }}
         </v-btn>
         <v-btn
           :loading="saving"
           :disabled="disabled"
           class="btn btn-primary"
-          @click="savePassword">
-          {{ $t('UserSettings.button.confirm') }}
+          @click="save">
+          {{ $t('UserSettings.button.save') }}
         </v-btn>
       </div>
     </template>
@@ -139,7 +138,6 @@ export default {
     newPassword: null,
     confirmNewPassword: null,
     saving: false,
-    displayed: true,
   }),
   computed: {
     disabled() {
@@ -154,16 +152,6 @@ export default {
       this.resetCustomValidity();
     },
   },
-  created() {
-    document.addEventListener('hideSettingsApps', (id) => {
-      if (this.id !== id) {
-        this.displayed = false;
-      }
-    });
-    document.addEventListener('showSettingsApps', () => {
-      this.displayed = true;
-    });
-  },
   methods: {
     open() {
       this.currentPassword = null;
@@ -177,7 +165,7 @@ export default {
     resetCustomValidity() {
       this.$refs.confirmNewPassword.$el.querySelector('input').setCustomValidity('');
     },
-    savePassword() {
+    save() {
       this.resetCustomValidity();
 
       if (!this.$refs.form.$el.reportValidity()) {
@@ -196,7 +184,7 @@ export default {
         this.$userService.changePassword(eXo.env.portal.userName, this.currentPassword, this.newPassword)
           .then(() => {
             this.$root.$emit('alert-message', this.$t('UserSettings.label.changePasswordSuccess'), 'success');
-            this.$refs.form.$el.reset();
+            this.close();
           })
           .catch(e => {
             let error = String(e);
@@ -212,9 +200,7 @@ export default {
             }
             this.$root.$emit('alert-message', error, 'error');
           })
-          .finally(() => {
-            this.saving = false;
-          });
+          .finally(() => this.saving = false);
       }
     },
   },
