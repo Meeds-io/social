@@ -271,7 +271,6 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
     if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
       fields.put("enrollmentDate", profile.getProperty(Profile.ENROLLMENT_DATE).toString());
     }
-    Date createdDate = new Date(profile.getCreatedTime());
     for (ProfilePropertySetting profilePropertySetting : profilePropertyService.getPropertySettings()) {
       if (profilePropertySetting.isVisible() && !fields.containsKey(profilePropertySetting.getPropertyName())) {
         Object propertyValue = profile.getProperty(profilePropertySetting.getPropertyName());
@@ -305,7 +304,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
       fields.put("connections", "@@@[" + connectionsStr + "]@@@");
     }
 
-    Document document = new ProfileIndexDocument(id, null, createdDate, (Set<String>) null, fields);
+    Document document = new ProfileIndexDocument(id, null, new Date(), (Set<String>) null, fields);
     document.setPermissions(getGroupIdentityIds(identity));
     LOG.info("profile document generated for identity id={} remote_id={} duration_ms={}",
             id,
