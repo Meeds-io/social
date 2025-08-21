@@ -291,11 +291,16 @@ export function deleteRelationship(userId) {
   });
 }
 
-export function updateProfileField(username, name, value) {
+export function updateProfileField(username, name, value, otpMethod, otpCode) {
   const formData = new FormData();
   formData.append('name', name);
   formData.append('value', value);
-
+  if (otpMethod) {
+    formData.append('otpMethod', otpMethod);
+  }
+  if (otpCode) {
+    formData.append('otpCode', otpCode);
+  }
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${username}`, {
     method: 'PATCH',
