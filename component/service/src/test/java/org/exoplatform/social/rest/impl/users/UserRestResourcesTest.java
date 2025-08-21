@@ -19,7 +19,6 @@
 package org.exoplatform.social.rest.impl.users;
 
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.AdditionalMatchers.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -777,7 +776,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testUpdateEmailWithCorrectOTPCode() throws Exception {
     startSessionAs("root");
-    doNothing().when(otpService).validateOtp(eq("root"), eq("test"), eq("1234"));
+    doNothing().when(otpService).validateOtp("root", "test", "1234");
     String email = "root@test.com";
     byte[] formData = ("name=email&value=" + email + "&otpMethod=test&otpCode=1234").getBytes();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
