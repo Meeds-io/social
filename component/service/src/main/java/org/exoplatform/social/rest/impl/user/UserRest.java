@@ -257,8 +257,8 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") List<Long> spaceIds,
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
-                           @Parameter(description = "Sort", required = false) @QueryParam("sort") String sort,
-                           @Parameter(description = "Order", required = false) @QueryParam("order") String order,
+                           @Parameter(description = "sort Field", required = false) @QueryParam("sortField") String sortField,
+                           @Parameter(description = "sort Direction", required = false) @QueryParam("sortDirection") String sortDirection,
                            @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
@@ -313,11 +313,11 @@ public class UserRest implements ResourceContainer, Startable {
         List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
         filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIdsString));
       }
-      if (StringUtils.isNotBlank(sort)) {
-        Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sort.toUpperCase());
+      if (StringUtils.isNotBlank(sortField)) {
+        Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.toUpperCase());
         Sorting.OrderBy orderBy = Sorting.OrderBy.ASC;
-        if (StringUtils.isNotBlank(order)) {
-          orderBy = Sorting.OrderBy.valueOf(order.toUpperCase());
+        if (StringUtils.isNotBlank(sortDirection)) {
+          orderBy = Sorting.OrderBy.valueOf(sortDirection.toUpperCase());
         }
         filter.setSorting(new Sorting(sortBy, orderBy));
       }
