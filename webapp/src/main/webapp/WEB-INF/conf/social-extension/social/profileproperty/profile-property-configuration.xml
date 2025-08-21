@@ -171,7 +171,7 @@
 											<boolean>true</boolean>
 										</field>
 										<field  name="editable">
-											<boolean>true</boolean>
+											<boolean>false</boolean>
 										</field>
 										<field  name="active">
 											<boolean>true</boolean>
