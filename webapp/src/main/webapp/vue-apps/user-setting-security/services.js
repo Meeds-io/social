@@ -18,16 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import UserSettingSecurity from './components/UserSettingSecurity.vue';
-import UserSettingSecurityEmailDrawer from './components/UserSettingSecurityEmailDrawer.vue';
-import UserSettingSecurityPasswordDrawer from './components/UserSettingSecurityPasswordDrawer.vue';
+import * as otpService from './js/OtpService.js';
 
-const components = {
-  'user-setting-security': UserSettingSecurity,
-  'user-setting-security-email-drawer': UserSettingSecurityEmailDrawer,
-  'user-setting-security-password-drawer': UserSettingSecurityPasswordDrawer,
-};
-
-for (const key in components) {
-  Vue.component(key, components[key]);
+if (!Vue.prototype.$otpService) {
+  window.Object.defineProperty(Vue.prototype, '$otpService', {
+    value: otpService,
+  });
 }
