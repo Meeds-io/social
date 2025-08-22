@@ -868,6 +868,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting profilePropertySetting1 = new ProfilePropertySetting();
     profilePropertySetting1.setPropertyName("first-property");
     profilePropertySetting1.setMultiValued(false);
+    profilePropertySetting1.setEditable(true);
     profilePropertySetting1.setParentId(profilePropertySetting.getId());
     profilePropertySetting1 = profilePropertyService.createPropertySetting(profilePropertySetting1);
     tearDownProfilePropertyList.add(profilePropertySetting1);
@@ -875,6 +876,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting customSinglePropertySetting = new ProfilePropertySetting();
     customSinglePropertySetting.setPropertyName("custom-single-property");
     customSinglePropertySetting.setMultiValued(false);
+    customSinglePropertySetting.setEditable(true);
     customSinglePropertySetting = profilePropertyService.createPropertySetting(customSinglePropertySetting);
     tearDownProfilePropertyList.add(customSinglePropertySetting);
 
@@ -1119,12 +1121,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     input.append(ProfileEntity.LASTNAME);
     input.append("\":\"");
     input.append(lastName);
-    input.append("\",");
-
-    input.append("\"");
-    input.append(ProfileEntity.FULLNAME);
-    input.append("\":\"");
-    input.append(fullName);
     input.append("\",");
 
     input.append("\"");

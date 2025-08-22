@@ -41,18 +41,26 @@ const appId = 'UserSettingSecurity';
 
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
-export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    const appElement = document.createElement('div');
-    appElement.id = appId;
-
-    Vue.createApp({
-      mounted() {
-        document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
-      },
-      template: `<user-setting-security id="${appId}" v-cacheable />`,
-      i18n,
-      vuetify: Vue.prototype.vuetifyOptions,
-    }, appElement, 'User Settings Security');
-  });
+export function init(ssoEnabled, isEmailEditable) {
+  if (!isEmailEditable && ssoEnabled) {
+    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
+  } else {
+    exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+      const appElement = document.createElement('div');
+      appElement.id = appId;
+  
+      Vue.createApp({
+        data: {
+          ssoEnabled,
+          isEmailEditable,
+        },
+        mounted() {
+          document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
+        },
+        template: `<user-setting-security id="${appId}" v-cacheable />`,
+        i18n,
+        vuetify: Vue.prototype.vuetifyOptions,
+      }, appElement, 'User Settings Security');
+    });
+  }
 }
