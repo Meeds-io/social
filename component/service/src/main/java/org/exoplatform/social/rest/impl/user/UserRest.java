@@ -2045,7 +2045,10 @@ public class UserRest implements ResourceContainer, Startable {
                                   String name,
                                   Object value,
                                   boolean save) throws Exception {
-    if (Profile.EXTERNAL.equals(name)) {
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
+    if (propertySetting != null && !propertySetting.isEditable()) {
+      throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
+    } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
     } else if (Profile.USERNAME.equals(name)) {
       throw new IllegalAccessException("Not allowed to update USERNAME field");

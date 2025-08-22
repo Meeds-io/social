@@ -28,7 +28,7 @@
         {{ $t('UserSettings.security.title') }}
       </v-card-title>
       <v-list>
-        <v-list-item dense>
+        <v-list-item v-if="$root.isEmailEditable" dense>
           <v-list-item-content>
             <v-list-item-title>
               {{ $t('UserSettings.security.emailChange.title') }}
@@ -53,7 +53,7 @@
             </v-tooltip>  
           </v-list-item-action>
         </v-list-item>
-        <v-list-item dense>
+        <v-list-item v-if="!$root.ssoEnabled" dense>
           <v-list-item-content>
             <v-list-item-title>
               {{ $t('UserSettings.security.passwordChange.title') }}
