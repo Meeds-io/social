@@ -13,7 +13,7 @@
         class="form-horizontal"
         flat>
         <div
-          v-for="property in properties"
+          v-for="property in propertiesToDisplay"
           :key="property.id">
           <profile-contact-user-type-property
             v-if="property.propertyType=== 'user'"
@@ -89,6 +89,17 @@ export default {
     disabled: true,
     disabledFields: ['firstName', 'lastName', 'email']
   }),
+  computed: {
+    propertiesToDisplay() {
+      return this.isEmailPropertyHidden ? this.properties.filter(p => p.propertyName !== 'email') : this.properties;
+    },
+    emailProperty() {
+      return this.properties?.find?.(p => p.propertyName === 'email');
+    },
+    isEmailPropertyHidden() {
+      return this.emailProperty?.visible === false || this.emailProperty?.hiddenable === false;
+    },
+  },
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
     this.$root.$on('hide-profile-property', this.hideProperty);
