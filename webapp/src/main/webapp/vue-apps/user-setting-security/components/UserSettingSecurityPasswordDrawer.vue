@@ -53,17 +53,34 @@
             :title="$t('UserSettings.security.passwordChange.current')"
             :placeholder="$t('UserSettings.security.passwordChange.current')"
             :readonly="saving"
+            :type="currentPasswordType"
             name="currentPassword"
             autocomplete="current-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            type="password"
             tabindex="0"
             required="required"
             autofocus="autofocus"
             outlined
-            dense />
+            dense>
+            <template #append>
+              <v-tooltip bottom>
+                <template #activator="{on, attrs}">
+                  <v-btn
+                    v-bind="attrs"
+                    v-on="on"
+                    :aria-label="currentPasswordTypeTooltip"
+                    class="mt-n2"
+                    icon
+                    @click="switchPasswordType(1)">
+                    <v-icon size="16">{{ currentPasswordIcon }}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ currentPasswordTypeTooltip }}</span>
+              </v-tooltip>
+            </template>
+          </v-text-field>
           <div class="font-weight-bold mt-4">
             {{ $t('UserSettings.label.newPassword') }}
           </div>
@@ -74,16 +91,33 @@
             :title="$t('UserSettings.security.passwordChange.new')"
             :placeholder="$t('UserSettings.security.passwordChange.new')"
             :readonly="saving"
+            :type="newPasswordType"
             name="newPassword"
             autocomplete="new-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            type="password"
             tabindex="0"
             required="required"
             outlined
-            dense />
+            dense>
+            <template #append>
+              <v-tooltip bottom>
+                <template #activator="{on, attrs}">
+                  <v-btn
+                    v-bind="attrs"
+                    v-on="on"
+                    :aria-label="newPasswordTypeTooltip"
+                    class="mt-n2"
+                    icon
+                    @click="switchPasswordType(2)">
+                    <v-icon size="16">{{ newPasswordIcon }}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ newPasswordTypeTooltip }}</span>
+              </v-tooltip>
+            </template>
+          </v-text-field>
           <v-text-field
             id="confirmNewPassword"
             ref="confirmNewPassword"
@@ -91,16 +125,58 @@
             :title="$t('UserSettings.security.passwordChange.confirmNew')"
             :placeholder="$t('UserSettings.security.passwordChange.confirmNew')"
             :readonly="saving"
+            :type="confirmNewPasswordType"
             name="confirmNewPassword"
             autocomplete="new-password"
             prepend-inner-icon="fas fa-lock icon-default-color ms-n2"
             class="border-box-sizing full-width pa-0 mt-2"
             aria-required="true"
-            type="password"
             tabindex="0"
             required="required"
             outlined
-            dense />
+            dense>
+            <template #append>
+              <v-tooltip bottom>
+                <template #activator="{on, attrs}">
+                  <v-btn
+                    v-bind="attrs"
+                    v-on="on"
+                    :aria-label="confirmNewPasswordTypeTooltip"
+                    class="mt-n2"
+                    icon
+                    @click="switchPasswordType(3)">
+                    <v-icon size="16">{{ confirmNewPasswordIcon }}</v-icon>
+                  </v-btn>
+                </template>
+                <span>{{ confirmNewPasswordTypeTooltip }}</span>
+              </v-tooltip>
+            </template>
+          </v-text-field>
+          <div class="text-sub-title mt-2">
+            <div
+              :class="{
+                'success--text': passwordMatch,
+                'error--text': confirmNewPassword?.length && !passwordMatch,
+              }"
+              class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordMatch') }}
+            </div>
+            <div :class="{'success--text': passwordMinCharacters}" class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordMinCharacters') }}
+            </div>
+            <div :class="{'success--text': passwordOneUppercase}" class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneUppercase') }}
+            </div>
+            <div :class="{'success--text': passwordOneLowercase}" class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneLowercase') }}
+            </div>
+            <div :class="{'success--text': passwordOneNumber}" class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneNumber') }}
+            </div>
+            <div :class="{'success--text': passwordOneSpecialCharacter}" class="d-flex align-center">
+              <v-icon size="12" class="me-2">fa-check</v-icon> {{ $t('UserSettings.security.passwordChange.condition.passwordOneSpecialCharacter') }}
+            </div>
+          </div>
         </v-card>
       </v-form>
     </template>
@@ -137,6 +213,9 @@ export default {
     currentPassword: null,
     newPassword: null,
     confirmNewPassword: null,
+    currentPasswordType: 'password',
+    newPasswordType: 'password',
+    confirmNewPasswordType: 'password',
     saving: false,
   }),
   computed: {
@@ -144,7 +223,59 @@ export default {
       return !this.currentPassword?.length
         || !this.newPassword?.length
         || !this.confirmNewPassword?.length
+        || !this.passwordMatch
+        || !this.passwordMinCharacters
+        || !this.passwordOneUppercase
+        || !this.passwordOneLowercase
+        || !this.passwordOneNumber
+        || !this.passwordOneSpecialCharacter
         || this.saving;
+    },
+    passwordMatch() {
+      return this.newPassword?.length
+        && this.newPassword === this.confirmNewPassword;
+    },
+    passwordMinCharacters() {
+      return this.newPassword?.length > 8;
+    },
+    passwordOneUppercase() {
+      return this.newPassword?.length && /[A-Z]/i.test(this.newPassword);
+    },
+    passwordOneLowercase() {
+      return this.newPassword?.length && /[a-z]/i.test(this.newPassword);
+    },
+    passwordOneNumber() {
+      return this.newPassword?.length && /\d/i.test(this.newPassword);
+    },
+    passwordOneSpecialCharacter() {
+      return this.newPassword?.length && /[^\d^a-z^A-Z]/i.test(this.newPassword);
+    },
+    currentPasswordHidden() {
+      return this.currentPasswordType === 'password';
+    },
+    currentPasswordIcon() {
+      return this.currentPasswordHidden ? 'fa-eye' : 'fa-eye-slash';
+    },
+    currentPasswordTypeTooltip() {
+      return this.currentPasswordHidden ? this.$t('UserSettings.security.passwordChange.viewPassword') : this.$t('UserSettings.security.passwordChange.hidePassword');
+    },
+    newPasswordHidden() {
+      return this.newPasswordType === 'password';
+    },
+    newPasswordIcon() {
+      return this.newPasswordHidden ? 'fa-eye' : 'fa-eye-slash';
+    },
+    newPasswordTypeTooltip() {
+      return this.newPasswordHidden ? this.$t('UserSettings.security.passwordChange.viewPassword') : this.$t('UserSettings.security.passwordChange.hidePassword');
+    },
+    confirmNewPasswordHidden() {
+      return this.confirmNewPasswordType === 'password';
+    },
+    confirmNewPasswordIcon() {
+      return this.confirmNewPasswordHidden ? 'fa-eye' : 'fa-eye-slash';
+    },
+    confirmNewPasswordTypeTooltip() {
+      return this.confirmNewPasswordHidden ? this.$t('UserSettings.documents.webdav.viewPassword') : this.$t('UserSettings.documents.webdav.hidePassword');
     },
   },
   watch: {
@@ -161,6 +292,15 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
+    },
+    switchPasswordType(code) {
+      if (code === 1) {
+        this.currentPasswordType = this.currentPasswordHidden ? 'text' : 'password';
+      } else if (code === 2) {
+        this.newPasswordType = this.newPasswordHidden ? 'text' : 'password';
+      } else {
+        this.confirmNewPasswordType = this.confirmNewPasswordHidden ? 'text' : 'password';
+      }
     },
     resetCustomValidity() {
       this.$refs.confirmNewPassword.$el.querySelector('input').setCustomValidity('');
