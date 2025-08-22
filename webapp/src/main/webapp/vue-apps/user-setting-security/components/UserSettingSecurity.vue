@@ -45,7 +45,7 @@
                     small
                     icon
                     @click="$refs.emailDrawer.open()">
-                    <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
                   </v-btn>
                 </div>
               </template>
@@ -71,7 +71,7 @@
                     small
                     icon
                     @click="$refs.passwordDrawer.open()">
-                    <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
                   </v-btn>
                 </div>
               </template>
