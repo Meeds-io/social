@@ -52,7 +52,7 @@ public class HtmlUtils {
    */
   public static String process(String html, HtmlProcessorContext context) {
     HtmlProcessorService service = getHtmlProcessorService();
-    if (service == null) {
+    if (service == null || StringUtils.isBlank(html)) {
       return html;
     } else {
       try {
