@@ -1660,7 +1660,11 @@ public class UserRest implements ResourceContainer, Startable {
                                 ConversationState currentState) {
     importExecutorService.execute(() -> {
       ConversationState.setCurrent(currentState);
-      this.importUsers(fileLocation, userImportResultEntity, locale, url);
+      try {
+        this.importUsers(fileLocation, userImportResultEntity, locale, url);
+      } finally {
+        ConversationState.setCurrent(null);
+      }
     });
   }
 
