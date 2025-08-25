@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import io.meeds.social.html.model.HtmlProcessorContext;
@@ -44,8 +45,10 @@ public class HtmlProcessorServiceImpl implements HtmlProcessorService {
 
   @Override
   public String process(String html, HtmlProcessorContext context) {
-    for (HtmlProcessorPlugin plugin : processors) {
-      html = plugin.process(html, context);
+    if (StringUtils.isNotBlank(html)) {
+      for (HtmlProcessorPlugin plugin : processors) {
+        html = plugin.process(html, context);
+      }
     }
     return html;
   }
