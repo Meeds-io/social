@@ -55,6 +55,7 @@
       <artifactId>social-component-core</artifactId>
       <type>test-jar</type>
     </dependency>
+
   </dependencies>
   <build>
     <finalName>${project.artifactId}</finalName>
@@ -86,14 +87,56 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>io.openapitools.swagger</groupId>
+        <groupId>io.swagger.core.v3</groupId>
         <artifactId>swagger-maven-plugin</artifactId>
         <configuration>
-          <useResourcePackagesChildren>true</useResourcePackagesChildren>
+          <outputFileName>social-javax</outputFileName>
+          <outputPath>${project.build.directory}/swagger</outputPath>
+          <outputFormat>YAML</outputFormat>
           <resourcePackages>
-            <locations>io.meeds.social.rest.impl</locations>
+            <package>io.meeds.social</package>
+            <package>org.exoplatform.social.rest.impl</package>
           </resourcePackages>
-          <swaggerConfig>
+          <prettyPrint>TRUE</prettyPrint>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>io.github.kbuntrock</groupId>
+        <artifactId>openapi-maven-plugin</artifactId>
+        <configuration>
+          <outputDirectory>${project.build.directory}/swagger</outputDirectory>
+          <apis>
+            <api>
+              <filename>social-spring.yaml</filename>
+              <locations>
+                <location>io.meeds.social.category</location>
+                <location>io.meeds.social.cms</location>
+                <location>io.meeds.social.coediting</location>
+                <!-- do not analyze databind as the plugin does not support a parameter in the service -->
+                <!--location>io.meeds.social.databind</location-->
+                <location>io.meeds.social.navigation</location>
+                <location>io.meeds.social.observer</location>
+                <location>io.meeds.social.resource</location>
+                <location>io.meeds.social.rest.impl</location>
+                <location>io.meeds.social.security</location>
+                <location>io.meeds.social.space</location>
+                <location>io.meeds.social.translation</location>
+                <location>org.exoplatform.social.rest.impl</location>
+              </locations>
+            </api>
+          </apis>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.rameshkp</groupId>
+        <artifactId>openapi-merger-maven-plugin</artifactId>
+        <configuration>
+          <inputDir>${project.build.directory}/swagger</inputDir>
+          <outputDir>${project.build.directory}/</outputDir>
+          <outputFileFormat>YAML</outputFileFormat>
+          <outputFileName>social</outputFileName>
+          <openApi>
+            <version>3.0.3</version>
             <info>
               <title>${rest.api.doc.title}</title>
               <version>${rest.api.doc.version}</version>
@@ -103,7 +146,7 @@
                 <name>LGPL</name>
               </license>
             </info>
-          </swaggerConfig>
+          </openApi>
         </configuration>
       </plugin>
     </plugins>
