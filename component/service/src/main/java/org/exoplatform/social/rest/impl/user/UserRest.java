@@ -88,7 +88,6 @@ import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.*;
-import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
@@ -96,6 +95,8 @@ import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
+import io.meeds.web.security.service.OtpService;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -158,8 +159,6 @@ public class UserRest implements ResourceContainer, Startable {
 
   private UserACL userACL;
 
-  private ActivityRest activityRestResourcesV1;
-
   private OrganizationService organizationService;
 
   private IdentityManager identityManager;
@@ -190,10 +189,11 @@ public class UserRest implements ResourceContainer, Startable {
 
   private SettingService      settingService;
 
+  private OtpService          otpService;
+
   private ExecutorService     importExecutorService = null;
 
-  public UserRest(ActivityRest activityRestResourcesV1,
-                  UserACL userACL,
+  public UserRest(UserACL userACL,
                   OrganizationService organizationService,
                   IdentityManager identityManager,
                   RelationshipManager relationshipManager,
@@ -205,9 +205,9 @@ public class UserRest implements ResourceContainer, Startable {
                   ProfilePropertyService profilePropertyService,
                   PasswordRecoveryService passwordRecoveryService,
                   LocaleConfigService localeConfigService,
-                  SettingService settingService) {
+                  SettingService settingService,
+                  OtpService otpService) {
     this.userACL = userACL;
-    this.activityRestResourcesV1 = activityRestResourcesV1;
     this.organizationService = organizationService;
     this.identityManager = identityManager;
     this.relationshipManager = relationshipManager;
@@ -219,6 +219,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.profilePropertyService = profilePropertyService;
     this.passwordRecoveryService = passwordRecoveryService;
     this.localeConfigService = localeConfigService;
+    this.otpService = otpService;
     this.importExecutorService = Executors.newSingleThreadExecutor();
     this.settingService = settingService;
 
@@ -489,7 +490,7 @@ public class UserRest implements ResourceContainer, Startable {
 
   @POST
   @Produces(MediaType.APPLICATION_JSON)
-  @RolesAllowed("users")
+  @RolesAllowed("administrators")
   @Operation(
       summary = "Creates a new user",
       method = "POST",
@@ -509,11 +510,6 @@ public class UserRest implements ResourceContainer, Startable {
                               , required = true) UserEntity model) throws Exception {
     if (model.isNotValid()) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
-    //Check permission of current user
-    if (!RestUtils.isMemberOfAdminGroup()) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
     //check if the user is already exist
@@ -896,9 +892,16 @@ public class UserRest implements ResourceContainer, Startable {
       @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
       @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateUserProfileAttribute(@Context HttpServletRequest request,
-                                             @Parameter(description = "User name", required = true) @PathParam("id") String username,
-                                             @Parameter(description = "User profile attribute name", required = true) @FormParam("name") String name,
-                                             @Parameter(description = "User profile attribute value", required = true) @FormParam("value") String value) throws IOException {
+                                             @Parameter(description = "User name", required = true)
+                                             @PathParam("id") String username,
+                                             @Parameter(description = "User profile attribute name", required = true)
+                                             @FormParam("name") String name,
+                                             @Parameter(description = "User profile attribute value", required = true)
+                                             @FormParam("value") String value,
+                                             @Parameter(description = "OTP Method", required = false)
+                                             @FormParam("otpMethod") String otpMethod,
+                                             @Parameter(description = "OTP Code", required = false)
+                                             @FormParam("otpCode") String otpCode) {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
@@ -932,17 +935,9 @@ public class UserRest implements ResourceContainer, Startable {
         }
       }
       if (Profile.EMAIL.equals(fieldName)) {
-        String errorMessage = EMAIL_VALIDATOR.validate(locale, value);
-        if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
-        }
-        // Check if mail address is already used
-        Query query = new Query();
-        query.setEmail(value);
-        ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
-        int usersLength = users.getSize();
-        if (usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username))) {
-          return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+        Response response = checkEmail(username, value, otpMethod, otpCode, locale);
+        if (response != null) {
+          return response;
         }
       }
       if (value.equals("DEFAULT_BANNER")) {
@@ -975,9 +970,18 @@ public class UserRest implements ResourceContainer, Startable {
       @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
       @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
       @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttributes(@Context HttpServletRequest request,
-                                              @Parameter(description = "User name", required = true) @PathParam("id") String username,
-                                              @RequestBody(description = "User profile attributes map", required = true) ProfileEntity profileEntity) throws Exception {
+  public Response updateUserProfileAttributes(
+                                              @Context
+                                              HttpServletRequest request,
+                                              @Parameter(description = "User name", required = true)
+                                              @PathParam("id")
+                                              String username,
+                                              @Parameter(description = "OTP Method", required = false)
+                                              @QueryParam("otpMethod") String otpMethod,
+                                              @Parameter(description = "OTP Code", required = false)
+                                              @QueryParam("otpCode") String otpCode,
+                                              @RequestBody(description = "User profile attributes map", required = true)
+                                              ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -1008,14 +1012,12 @@ public class UserRest implements ResourceContainer, Startable {
         return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
       }
     }
-    if (email != null) {
-      String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
-      if (StringUtils.isNotBlank(errorMessage)) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
-      }
-      // Check if mail address is already used
-      if (isEmailAlreadyExists(username, email)) {
-        return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+    Identity identity = identityManager.getOrCreateUserIdentity(username);
+    if (email != null
+        && !StringUtils.equals(email, identity.getProfile().getEmail())) {
+      Response response = checkEmail(username, email, otpMethod, otpCode, locale);
+      if (response != null) {
+        return response;
       }
     }
 
@@ -1128,15 +1130,9 @@ public class UserRest implements ResourceContainer, Startable {
           return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
         }
       }
-      if (profileProperty.getPropertyName().equals(Profile.EMAIL)) {
-        String errorMessage = EMAIL_VALIDATOR.validate(locale, profileProperty.getValue());
-        if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
-        }
-        // Check if mail address is already used
-        if (isEmailAlreadyExists(username, profileProperty.getValue())) {
-          return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
-        }
+      if (profileProperty.getPropertyName().equals(Profile.EMAIL)
+          && !StringUtils.equals(profile.getEmail(), profileProperty.getValue())) {
+        return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
@@ -1213,7 +1209,6 @@ public class UserRest implements ResourceContainer, Startable {
                                  @RequestBody(description = "User object to be updated, ex:<br />" +
                                      "{<br />\"username\": \"john\"," +
                                      "<br />\"password\": \"gtngtn\"," +
-                                     "<br />\"email\": \"john@exoplatform.com\"," +
                                      "<br />\"firstname\": \"John\"," +
                                      "<br />\"lastname\": \"Smith\"<br />}", required = true) UserEntity model) throws Exception {
     UserHandler userHandler = organizationService.getUserHandler();
@@ -1223,9 +1218,6 @@ public class UserRest implements ResourceContainer, Startable {
     }
     //Check if the current user is the authenticated user
     if (!ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
-      throw new WebApplicationException(Response.Status.FORBIDDEN);
-    }
-    if(isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -1972,12 +1964,6 @@ public class UserRest implements ResourceContainer, Startable {
     if (model.getLastname() != null && !model.getLastname().isEmpty()) {
       user.setLastName(model.getLastname());
     }
-    if (model.getEmail() != null && !model.getEmail().isEmpty()) {
-      user.setEmail(model.getEmail());
-    }
-    if (model.getPassword() != null && !model.getPassword().isEmpty()) {
-      user.setPassword(model.getPassword());
-    }
   }
 
   /**
@@ -2048,7 +2034,10 @@ public class UserRest implements ResourceContainer, Startable {
                                   String name,
                                   Object value,
                                   boolean save) throws Exception {
-    if (Profile.EXTERNAL.equals(name)) {
+    ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
+    if (propertySetting != null && !propertySetting.isEditable()) {
+      throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
+    } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
     } else if (Profile.USERNAME.equals(name)) {
       throw new IllegalAccessException("Not allowed to update USERNAME field");
@@ -2088,6 +2077,28 @@ public class UserRest implements ResourceContainer, Startable {
         identityManager.updateProfile(profile, getCurrentUser(), true);
       }
     }
+  }
+
+  private Response checkEmail(String username, String email, String otpMethod, String otpCode, Locale locale) throws Exception {
+    if (StringUtils.isBlank(otpCode)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_MANDATORY").build();
+    } else if (StringUtils.isBlank(otpMethod)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_METHOD_MANDATORY").build();
+    }
+    try {
+      otpService.validateOtp(username, otpMethod, otpCode);
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:OTP_CODE_WRONG").build();
+    }
+    String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+    }
+    // Check if mail address is already used
+    if (isEmailAlreadyExists(username, email)) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity("EMAIL:ALREADY_EXISTS").build();
+    }
+    return null;
   }
 
   private StringBuilder getUrl(HttpServletRequest request) {

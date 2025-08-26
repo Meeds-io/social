@@ -20,6 +20,8 @@ package org.exoplatform.social.rest.impl.users;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -58,7 +60,6 @@ import org.exoplatform.social.core.identity.model.Profile;
 import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
 import org.exoplatform.social.core.jpa.search.ProfileSearchConnector;
 import org.exoplatform.social.core.jpa.storage.RDBMSIdentityStorageImpl;
-import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.manager.RelationshipManager;
 import org.exoplatform.social.core.mock.MockUploadService;
@@ -75,24 +76,23 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
 import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
-import org.exoplatform.social.rest.impl.activity.ActivityRest;
 import org.exoplatform.social.rest.impl.user.UserRest;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.web.security.service.OtpService;
+
 public class UserRestResourcesTest extends AbstractResourceTest {
-
-  private ActivityManager     activityManager;
-
-  private IdentityManager     identityManager;
 
   private ProfilePropertyService       profilePropertyService;
 
   private ProfileLabelService profileLabelService ;
 
   private UserACL             userACL;
+
+  private OtpService          otpService;
 
   private RelationshipManager relationshipManager;
 
@@ -132,8 +132,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
-    activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
-    identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     profilePropertyService = getContainer().getComponentInstanceOfType(ProfilePropertyService.class);
     profileLabelService = getContainer().getComponentInstanceOfType(ProfileLabelService.class);
     userACL = getContainer().getComponentInstanceOfType(UserACL.class);
@@ -148,6 +146,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
     settingService = getContainer().getComponentInstanceOfType(SettingService.class);
+    otpService = mock(OtpService.class);
     rootIdentity = createIdentity("root");
     johnIdentity = createIdentity("john");
     maryIdentity = createIdentity("mary");
@@ -157,24 +156,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(johnIdentity);
     assertNotNull(maryIdentity);
     assertNotNull(demoIdentity);
-    UserRest userRestResourcesV1 = new UserRest(
-                                                                      new ActivityRest(activityManager,
-                                                                                                  identityManager,
-                                                                                                  spaceService,
-                                                                                                  null),
-                                                                      userACL,
-                                                                      organizationService,
-                                                                      identityManager,
-                                                                      relationshipManager,
-                                                                      userStateService,
-                                                                      spaceService,
-                                                                      uploadService,
-                                                                      userSearchService,
-                                                                      imageThumbnailService,
-                                                                      profilePropertyService,
-                                                                      passwordRecoveryService,
-                                                                      localeConfigService,
-                                                                      settingService);
+    UserRest userRestResourcesV1 = new UserRest(userACL,
+                                                organizationService,
+                                                identityManager,
+                                                relationshipManager,
+                                                userStateService,
+                                                spaceService,
+                                                uploadService,
+                                                userSearchService,
+                                                imageThumbnailService,
+                                                profilePropertyService,
+                                                passwordRecoveryService,
+                                                localeConfigService,
+                                                settingService,
+                                                otpService);
     registry(userRestResourcesV1);
   }
 
@@ -242,24 +237,20 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     when(identityManager.getIdentitiesByProfileFilter(anyString(), any(), anyBoolean())).thenReturn(identityListAccess);
 
-    UserRest userRestResources = new UserRest(
-                                                                    new ActivityRest(activityManager,
-                                                                                                identityManager,
-                                                                                                spaceService,
-                                                                                                null),
-                                                                    userACL,
-                                                                    organizationService,
-                                                                    identityManager,
-                                                                    relationshipManager,
-                                                                    userStateService,
-                                                                    spaceService,
-                                                                    uploadService,
-                                                                    userSearchService,
-                                                                    imageThumbnailService,
-                                                                    profilePropertyService,
-                                                                    passwordRecoveryService,
-                                                                    localeConfigService,
-                                                                    settingService);
+    UserRest userRestResources = new UserRest(userACL,
+                                              organizationService,
+                                              identityManager,
+                                              relationshipManager,
+                                              userStateService,
+                                              spaceService,
+                                              uploadService,
+                                              userSearchService,
+                                              imageThumbnailService,
+                                              profilePropertyService,
+                                              passwordRecoveryService,
+                                              localeConfigService,
+                                              settingService,
+                                              otpService);
     registry(userRestResources);
 
     //when
@@ -743,19 +734,56 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void testUpdateProfileAttribute() throws Exception {
     startSessionAs("root");
+    String propertyName = "firstName";
+    String propertyValue = "Root";
+    byte[] formData = ("name=" + propertyName + "&value=" + propertyValue).getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
+    Identity identity = identityManager.getOrCreateUserIdentity("root");
+    assertNotNull(identity);
+    assertEquals(propertyValue, identity.getProfile().getProperty(propertyName));
+    response = service("PATCH", getURLResource("users/john"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals("User root shouldn't be able to modify john attributes", 401, response.getStatus());
+  }
+
+  public void testUpdateEmailNoOTPCode() throws Exception {
+    startSessionAs("root");
     String email = "root@test.com";
     byte[] formData = ("name=email&value=" + email).getBytes();
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
     ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
     assertNotNull(response);
-    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
-    assertNotNull(identity);
-    assertEquals(email, identity.getProfile().getEmail());
-    response = service("PATCH", getURLResource("users/john/"), "", headers, formData);
+    assertEquals(String.valueOf(response.getEntity()), 400, response.getStatus());
+  }
+
+  public void testUpdateEmailWithWrongOTPCode() throws Exception {
+    startSessionAs("root");
+    doThrow(IllegalAccessException.class).when(otpService)
+                                         .validateOtp(any(), any(), any());
+    String email = "root@test.com";
+    byte[] formData = ("name=email&value=" + email + "&otpMethod=test&otpCode=123").getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
     assertNotNull(response);
-    assertEquals("User root shouldn't be able to modify john attributes", 401, response.getStatus());
+    assertEquals(String.valueOf(response.getEntity()), 400, response.getStatus());
+  }
+
+  public void testUpdateEmailWithCorrectOTPCode() throws Exception {
+    startSessionAs("root");
+    doNothing().when(otpService).validateOtp("root", "test", "1234");
+    String email = "root@test.com";
+    byte[] formData = ("name=email&value=" + email + "&otpMethod=test&otpCode=1234").getBytes();
+    MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
+    headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
+    ContainerResponse response = service("PATCH", getURLResource("users/root/"), "", headers, formData);
+    assertNotNull(response);
+    assertEquals(String.valueOf(response.getEntity()), 204, response.getStatus());
   }
 
   public void testUpdateProfileAvatar() throws Exception {
@@ -834,6 +862,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting profilePropertySetting1 = new ProfilePropertySetting();
     profilePropertySetting1.setPropertyName("first-property");
     profilePropertySetting1.setMultiValued(false);
+    profilePropertySetting1.setEditable(true);
     profilePropertySetting1.setParentId(profilePropertySetting.getId());
     profilePropertySetting1 = profilePropertyService.createPropertySetting(profilePropertySetting1);
     tearDownProfilePropertyList.add(profilePropertySetting1);
@@ -841,6 +870,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     ProfilePropertySetting customSinglePropertySetting = new ProfilePropertySetting();
     customSinglePropertySetting.setPropertyName("custom-single-property");
     customSinglePropertySetting.setMultiValued(false);
+    customSinglePropertySetting.setEditable(true);
     customSinglePropertySetting = profilePropertyService.createPropertySetting(customSinglePropertySetting);
     tearDownProfilePropertyList.add(customSinglePropertySetting);
 
@@ -1073,7 +1103,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String phoneType = "work";
     String phoneNumber = "123456";
     String url = "fakeURL";
-    String email = "johnny@localhost.com";
 
     StringBuilder input = new StringBuilder("{");
     input.append("\"");
@@ -1089,15 +1118,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     input.append("\",");
 
     input.append("\"");
-    input.append(ProfileEntity.FULLNAME);
-    input.append("\":\"");
-    input.append(fullName);
-    input.append("\",");
-
-    input.append("\"");
     input.append(ProfileEntity.EMAIL);
     input.append("\":\"");
-    input.append(email);
+    input.append(johnIdentity.getProfile().getEmail());
     input.append("\",");
 
     input.append("\"");
@@ -1160,45 +1183,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("Content-Type", "application/x-www-form-urlencoded");
 
-    String johnEmail = "john@platform.com";
-    startSessionAs("john");
+    String user = "demo";
+    startSessionAs(user);
     ContainerResponse response = service("PATCH",
                                          getURLResource("users/john"),
                                          "",
                                          headers,
-                                         ("name=" + ProfileEntity.EMAIL + "&value=" + johnEmail).getBytes());
-    assertNotNull(response);
-    assertEquals(204, response.getStatus());
-
-    String user = "demo";
-    startSessionAs(user);
-    response = service("PATCH",
-                       getURLResource("users/john"),
-                       "",
-                       headers,
-                       ("name=" + ProfileEntity.FIRSTNAME + "&value=t").getBytes());
+                                         ("name=" + ProfileEntity.FIRSTNAME + "&value=t").getBytes());
     assertNotNull(response);
     assertEquals("demo shouldn't be allowed to update john fields. Response content: " + response.getEntity(),
-                 401,
-                 response.getStatus());
-
-    response = service("PATCH",
-                       getURLResource("users/" + user),
-                       "",
-                       headers,
-                       ("name=" + ProfileEntity.EMAIL + "&value=WRONG_FROMAT").getBytes());
-    assertNotNull(response);
-    assertEquals("Email format validation should return HTTP 400 code. Response content: " + response.getEntity(),
-                 400,
-                 response.getStatus());
-
-    response = service("PATCH",
-                       getURLResource("users/" + user),
-                       "",
-                       headers,
-                       ("name=" + ProfileEntity.EMAIL + "&value=" + johnEmail).getBytes());
-    assertNotNull(response);
-    assertEquals("Email already exists return HTTP 401 code. Response content: " + response.getEntity(),
                  401,
                  response.getStatus());
 
@@ -1228,7 +1221,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("john");
     JSONObject johnData = new JSONObject();
     johnData.put(ProfileEntity.EMAIL, johnEmail);
-    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile", johnData.toString());
+    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=test&otpCode=123", johnData.toString());
     assertNotNull(response);
     assertEquals(204, response.getStatus());
 
@@ -1248,7 +1241,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     data.put(ProfileEntity.USERNAME, user);
 
     data.put(ProfileEntity.EMAIL, "WRONG_FORMAT");
-    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile?otpMethod=test&otpCode=123", data.toString());
     assertNotNull(response);
     assertEquals("Email format validation should return HTTP 400 code. Response content: " + response.getEntity(),
                  400,
@@ -1256,13 +1249,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs(user);
     data.put(ProfileEntity.EMAIL, johnEmail);
-    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
+    response = getResponse("PATCH", "/v1/social/users/" + user + "/profile?otpMethod=test&otpCode=123", data.toString());
     assertNotNull(response);
     assertEquals("Email already exists return HTTP 401 code. Response content: " + response.getEntity(),
                  401,
                  response.getStatus());
-    data.put(ProfileEntity.EMAIL, "demo@test.com");
 
+    data.remove(ProfileEntity.EMAIL);
     data.put(ProfileEntity.FIRSTNAME, "d");
     response = getResponse("PATCH", "/v1/social/users/" + user + "/profile", data.toString());
     assertNotNull(response);
@@ -1277,7 +1270,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("LAST name format validation should return HTTP 400 code. Response content: " + response.getEntity(),
                  400,
                  response.getStatus());
-    data.put(ProfileEntity.LASTNAME, "Test");
   }
 
   public void testUpdateUserNewMultiProperties() throws Exception {
@@ -1296,7 +1288,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
   }
 
-  public void testUpdateUserPropertiesAsAdmin() throws Exception {
+  public void testUpdateUserPropertiesWithEmailAsAdmin() throws Exception {
     startSessionAs("root",true);
     ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
     ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
@@ -1307,19 +1299,51 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profilePropertySettingEntityList.add(profilePropertySettingEntity);
     ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
     assertNotNull(response);
+    assertEquals(400, response.getStatus());
+  }
+
+  public void testUpdateUserPropertiesAsAdmin() throws Exception {
+    startSessionAs("root", true);
+    ArrayList<ProfilePropertySettingEntity> profilePropertySettingEntityList = new ArrayList<>();
+
+    ProfilePropertySetting firstNameSetting = profilePropertyService.getProfileSettingByName("firstName");
+    ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
+    profilePropertySettingEntity.setPropertyName("firstName");
+    profilePropertySettingEntity.setValue("JOHN");
+    profilePropertySettingEntity.setId(firstNameSetting.getId());
+    profilePropertySettingEntityList.add(profilePropertySettingEntity);
+
+    ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
+    ProfilePropertySettingEntity emailPropertySettingEntity = new ProfilePropertySettingEntity();
+    emailPropertySettingEntity.setPropertyName("email");
+    emailPropertySettingEntity.setValue(johnIdentity.getProfile().getEmail());
+    emailPropertySettingEntity.setToHide(true);
+    emailPropertySettingEntity.setId(emailSetting.getId());
+    profilePropertySettingEntityList.add(emailPropertySettingEntity);
+
+    ContainerResponse response = getResponse("PATCH",
+                                             "/v1/social/users/john/profile/properties",
+                                             new JSONArray(profilePropertySettingEntityList).toString());
+    assertNotNull(response);
     assertEquals(200, response.getStatus());
 
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
-    assertEquals(identity.getProfile().getEmail(),"johnsmith@acme.com");
+    Identity identity = identityManager.getOrCreateUserIdentity("john");
+    assertEquals(identity.getProfile().getProperty("firstName"), "JOHN");
+    List<Long> hiddenProfilePropertyIds =
+                                        profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(johnIdentity.getId()));
+    assertNotNull(hiddenProfilePropertyIds);
+    assertTrue(hiddenProfilePropertyIds.contains(emailSetting.getId()));
   }
 
   public void testHideUserPropertiesAsAdmin() throws Exception {
     startSessionAs("root",true);
-    ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
+    String propertyName = "firstName";
+    String propertyValue = "John";
+    ProfilePropertySetting setting = profilePropertyService.getProfileSettingByName(propertyName);
     ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
-    profilePropertySettingEntity.setPropertyName("email");
-    profilePropertySettingEntity.setValue("johnsmith@acme.com");
-    profilePropertySettingEntity.setId(emailSetting.getId());
+    profilePropertySettingEntity.setPropertyName(propertyName);
+    profilePropertySettingEntity.setValue(propertyValue);
+    profilePropertySettingEntity.setId(setting.getId());
     profilePropertySettingEntity.setToHide(true);
     ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
     profilePropertySettingEntityList.add(profilePropertySettingEntity);
@@ -1333,7 +1357,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     List<Long> hiddenPropertiesId = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(identity.getId()));
-    assertTrue(hiddenPropertiesId.contains(emailSetting.getId()));
+    assertTrue(hiddenPropertiesId.contains(setting.getId()));
   }
 
   private Space getSpaceInstance(int number, String creator) throws Exception {

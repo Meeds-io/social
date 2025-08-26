@@ -1,49 +1,107 @@
+<!--
+
+ This file is part of the Meeds project (https://meeds.io/).
+
+ Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program; if not, write to the Free Software Foundation,
+ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+-->
 <template>
   <v-app>
-    <user-setting-security-window
-      v-if="displayDetails"
-      @back="closeSecurityDetail" />
     <v-card
-      v-else
       class="application-body"
       flat>
+      <v-card-title class="text-title pb-0">
+        {{ $t('UserSettings.security.title') }}
+      </v-card-title>
       <v-list>
-        <v-list-item>
+        <v-list-item v-if="$root.isEmailEditable" dense>
           <v-list-item-content>
-            <v-list-item-title class="text-title">
-              {{ $t('UserSettings.security') }}
+            <v-list-item-title>
+              {{ $t('UserSettings.security.emailChange.title') }}
             </v-list-item-title>
           </v-list-item-content>
           <v-list-item-action>
-            <span
-              :title="allowedToChangePassword ? $t('UserSettings.button.tooltip.enabled') : $t('UserSettings.button.tooltip.disabled')">
-              <v-btn
-                :disabled="!allowedToChangePassword"
-                small
-                icon
-                @click="openSecurityDetail">
-                <v-icon size="24" class="icon-default-color">
-                  {{ $vuetify.rtl && 'fa-caret-left' || 'fa-caret-right' }}
-                </v-icon>
-              </v-btn>
-            </span>
+            <v-tooltip bottom>
+              <template #activator="{on, attrs}">
+                <div
+                  v-on="on"
+                  v-bind="attrs">
+                  <v-btn
+                    :aria-label="emailChangeTooltip"
+                    small
+                    icon
+                    @click="$refs.emailDrawer.open()">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span>{{ emailChangeTooltip }}</span>
+            </v-tooltip>  
+          </v-list-item-action>
+        </v-list-item>
+        <v-list-item v-if="!$root.ssoEnabled" dense>
+          <v-list-item-content>
+            <v-list-item-title>
+              {{ $t('UserSettings.security.passwordChange.title') }}
+            </v-list-item-title>
+          </v-list-item-content>
+          <v-list-item-action>
+            <v-tooltip bottom>
+              <template #activator="{on, attrs}">
+                <div
+                  v-on="on"
+                  v-bind="attrs">
+                  <v-btn
+                    :aria-label="passwordChangeTooltip"
+                    :disabled="!allowedToChangePassword"
+                    small
+                    icon
+                    @click="$refs.passwordDrawer.open()">
+                    <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+                  </v-btn>
+                </div>
+              </template>
+              <span>{{ passwordChangeTooltip }}</span>
+            </v-tooltip>  
           </v-list-item-action>
         </v-list-item>
       </v-list>
     </v-card>
+    <user-setting-security-email-drawer
+      ref="emailDrawer" />
+    <user-setting-security-password-drawer
+      ref="passwordDrawer" />
   </v-app>
 </template>
 
 <script>
 export default {
   data: () => ({
-    id: `Security${parseInt(Math.random() * 10000)
-      .toString()
-      .toString()}`,
     displayed: true,
     allowedToChangePassword: false,
-    displayDetails: false,
   }),
+  computed: {
+    passwordChangeTooltip() {
+      return this.allowedToChangePassword ? this.$t('UserSettings.button.tooltip.enabled') : this.$t('UserSettings.button.tooltip.disabled');
+    },
+    emailChangeTooltip() {
+      return this.$t('UserSettings.security.emailChange.tooltip');
+    },
+  },
   watch: {
     displayed() {
       if (this.displayed) {
@@ -53,31 +111,26 @@ export default {
     },
   },
   created() {
-    document.addEventListener('hideSettingsApps', (event) => {
-      if (event && event.detail && this.id !== event.detail) {
-        this.displayed = false;
-      }
-    });
-    this.$userService.isSynchronizedUserAllowedToChangePassword().then(
-      (data) => {
-        this.allowedToChangePassword = data.isSynchronizedUserAllowedToChangePassword === 'true';
-      });
-    document.addEventListener('showSettingsApps', () => this.displayed = true);
+    document.addEventListener('showSettingsApps', this.showApp);
+    document.addEventListener('hideSettingsApps', this.hideApp);
+    this.init();
   },
   mounted() {
     this.$nextTick().then(() => this.$root.$applicationLoaded());
     this.$root.$updateApplicationVisibility(this.displayed);
   },
   methods: {
-    openSecurityDetail() {
-      document.dispatchEvent(new CustomEvent('hideSettingsApps', {detail: this.id}));
-      this.displayDetails = true;
+    async init() {
+      const data = await this.$userService.isSynchronizedUserAllowedToChangePassword();
+      this.allowedToChangePassword = data?.isSynchronizedUserAllowedToChangePassword === 'true';
     },
-    closeSecurityDetail() {
-      document.dispatchEvent(new CustomEvent('showSettingsApps'));
-      this.displayDetails = false;
+    showApp() {
+      this.displayed = true;
     },
-  },
+    hideApp() {
+      this.displayed = false;
+    },
+  }
 };
 </script>
 

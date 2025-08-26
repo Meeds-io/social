@@ -13,7 +13,7 @@
         class="form-horizontal"
         flat>
         <div
-          v-for="property in properties"
+          v-for="property in propertiesToDisplay"
           :key="property.id">
           <profile-contact-user-type-property
             v-if="property.propertyType=== 'user'"
@@ -43,10 +43,10 @@
                   v-model="property.value"
                   :disabled="saving || disabledField(property)"
                   :type="property.propertyName==='email' ? 'email' : 'text'"
-                  class="ignore-vuetify-classes"
-                  maxlength="2000"
                   :required="property.required"
                   :ref="`${property.propertyName}Input`" 
+                  class="ignore-vuetify-classes"
+                  maxlength="2000"
                   @change="propertyUpdated(property)"
                   @input="propertyUpdated(property)">
               </v-card-text>
@@ -89,6 +89,17 @@ export default {
     disabled: true,
     disabledFields: ['firstName', 'lastName', 'email']
   }),
+  computed: {
+    propertiesToDisplay() {
+      return this.isEmailPropertyHidden ? this.properties.filter(p => p.propertyName !== 'email') : this.properties;
+    },
+    emailProperty() {
+      return this.properties?.find?.(p => p.propertyName === 'email');
+    },
+    isEmailPropertyHidden() {
+      return this.emailProperty?.visible === false || this.emailProperty?.hiddenable === false;
+    },
+  },
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
     this.$root.$on('hide-profile-property', this.hideProperty);
@@ -115,7 +126,7 @@ export default {
       return !property.internal && this.disabledFields.includes(property.propertyName);
     },
     disabledField(property) {
-      return !property.editable || this.disabledSynchronizedField(property);
+      return !property.editable || property.propertyName === 'email' || this.disabledSynchronizedField(property);
     },
     disabledFieldTitle(property) {
       return this.disabledSynchronizedField(property) && this.$t('profileContactInformation.synchronizedUser.tooltip')
@@ -205,13 +216,6 @@ export default {
         } else if (this.fieldError && this.fieldError.indexOf('LASTNAME:') === 0) {
           const lastNameError = this.fieldError.replace('LASTNAME:', '');
           if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity(lastNameError);}
-        } else if (this.fieldError && this.fieldError.indexOf('EMAIL:') === 0) {
-          if (this.fieldError === 'EMAIL:ALREADY_EXISTS') {
-            if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity(this.$t('UsersManagement.message.userWithSameEmailAlreadyExists'));}
-          } else {
-            const emailError = this.fieldError.replace('EMAIL:', '');
-            if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity(emailError); }
-          }
         } else {
           error = error.message || String(error);
           const errorI18NKey = `UsersManagement.error.${error}`;
