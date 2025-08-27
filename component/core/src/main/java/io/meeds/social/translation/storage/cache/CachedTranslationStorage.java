@@ -63,13 +63,13 @@ public class CachedTranslationStorage extends TranslationStorage {
   }
 
   @Override
-  public TranslationField getTranslationField(String objectType, long objectId, String fieldName) {
+  public TranslationField getTranslationField(String objectType, String objectId, String fieldName) {
     TranslationField translationField = this.translationFutureCache.get(null, new CacheKey(objectType, objectId, fieldName));
     return translationField.clone();
   }
 
   @Override
-  public void deleteTranslationLabel(String objectType, long objectId, String fieldName, Locale locale) {
+  public void deleteTranslationLabel(String objectType, String objectId, String fieldName, Locale locale) {
     try {
       super.deleteTranslationLabel(objectType, objectId, fieldName, locale);
     } finally {
@@ -78,7 +78,7 @@ public class CachedTranslationStorage extends TranslationStorage {
   }
 
   @Override
-  public void deleteTranslationLabels(String objectType, long objectId) {
+  public void deleteTranslationLabels(String objectType, String objectId) {
     try {
       super.deleteTranslationLabels(objectType, objectId);
     } finally {
@@ -88,7 +88,7 @@ public class CachedTranslationStorage extends TranslationStorage {
 
   @Override
   public void saveTranslationLabel(String objectType,
-                                   long objectId,
+                                   String objectId,
                                    String fieldName,
                                    Locale locale,
                                    String label,
@@ -102,7 +102,7 @@ public class CachedTranslationStorage extends TranslationStorage {
 
   @Override
   public void saveTranslationLabels(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Map<Locale, String> labels,
                                     long audienceId, long spaceId) {
@@ -113,12 +113,12 @@ public class CachedTranslationStorage extends TranslationStorage {
     }
   }
 
-  private void clearCache(String objectType, long objectId) {
+  private void clearCache(String objectType, String objectId) {
     try {
       translationCache.select(new CachedObjectSelector<CacheKey, TranslationField>() {
         @Override
         public boolean select(CacheKey key, ObjectCacheInfo<? extends TranslationField> ocinfo) {
-          return StringUtils.equals(key.getObjectType(), objectType) && objectId == key.getObjectId();
+          return StringUtils.equals(key.getObjectType(), objectType) && StringUtils.equals(objectId, key.getObjectId());
         }
 
         @Override

@@ -53,12 +53,11 @@ public class CmsPortletWithMetadata extends CMSPortlet {
       request.setAttribute(TRANSLATION_IDENTIFIER, currentTranslationIdentifier);
     }
 
-    Long initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null) != null ? Long.parseLong(preferences.getValue(DATA_INIT_PREFERENCE_NAME, null)) : null;
+    String initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null);
     if (initTranslationIdentifier != null) {
       // creation new translations
 
       try {
-        String finalCurrentTranslationIdentifier = currentTranslationIdentifier;
         Map<String, TranslationField>
             translations = getTranslationService().getAllTranslationFields(OBJECT_TYPE, initTranslationIdentifier);
         translations.entrySet().forEach(entry -> {
@@ -67,14 +66,13 @@ public class CmsPortletWithMetadata extends CMSPortlet {
           if (!translationField.getLabels().isEmpty()) {
             try {
               getTranslationService().saveTranslationLabels(OBJECT_TYPE,
-                                                          Long.parseLong(finalCurrentTranslationIdentifier),
-                                                          translationKey,
-                                                          translationField.getLabels());
+                                                            initTranslationIdentifier,
+                                                            translationKey,
+                                                            translationField.getLabels());
             } catch (ObjectNotFoundException o) {
               //nothing to do, no translations to copy
             }
           }
-
         });
       } catch (ObjectNotFoundException o) {
         //nothing to do, no translations to copy
@@ -82,7 +80,7 @@ public class CmsPortletWithMetadata extends CMSPortlet {
 
       // creation attachments
       getAttachmentService().copyAttachments(OBJECT_TYPE,
-                                             initTranslationIdentifier.toString(),
+                                             initTranslationIdentifier,
                                              OBJECT_TYPE,
                                              currentTranslationIdentifier,
                                              null,

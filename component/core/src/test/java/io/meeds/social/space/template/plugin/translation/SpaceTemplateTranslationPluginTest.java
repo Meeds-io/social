@@ -64,24 +64,24 @@ public class SpaceTemplateTranslationPluginTest {
   @Test
   @SneakyThrows
   public void testHasEditPermission() {
-    assertFalse(translationPlugin.hasEditPermission(0, TEST_USER));
+    assertFalse(translationPlugin.hasEditPermission("0", TEST_USER));
     when(spaceTemplateService.canManageTemplates(TEST_USER)).thenReturn(true);
-    assertTrue(translationPlugin.hasEditPermission(0, TEST_USER));
+    assertTrue(translationPlugin.hasEditPermission("0", TEST_USER));
   }
 
   @Test
   @SneakyThrows
   public void testHasAccessPermission() {
-    assertThrows(ObjectNotFoundException.class, () -> translationPlugin.hasAccessPermission(2, TEST_USER));
+    assertThrows(ObjectNotFoundException.class, () -> translationPlugin.hasAccessPermission("2", TEST_USER));
     when(spaceTemplateService.canManageTemplates(TEST_USER)).thenReturn(true);
-    assertTrue(translationPlugin.hasEditPermission(0, TEST_USER));
+    assertTrue(translationPlugin.hasEditPermission("0", TEST_USER));
 
     when(spaceTemplateService.getSpaceTemplate(2)).thenReturn(spaceTemplate);
-    assertFalse(translationPlugin.hasAccessPermission(2, TEST_USER));
-    assertThrows(ObjectNotFoundException.class, () -> translationPlugin.hasAccessPermission(3, TEST_USER));
+    assertFalse(translationPlugin.hasAccessPermission("2", TEST_USER));
+    assertThrows(ObjectNotFoundException.class, () -> translationPlugin.hasAccessPermission("3", TEST_USER));
 
     when(spaceTemplateService.canViewTemplate(2, TEST_USER)).thenReturn(true);
-    assertTrue(translationPlugin.hasAccessPermission(2, TEST_USER));
+    assertTrue(translationPlugin.hasAccessPermission("2", TEST_USER));
   }
 
   @Test
@@ -91,12 +91,12 @@ public class SpaceTemplateTranslationPluginTest {
 
   @Test
   public void getAudienceId() {
-    assertEquals(0l, translationPlugin.getAudienceId(0));
+    assertEquals(0l, translationPlugin.getAudienceId("0"));
   }
 
   @Test
   public void getSpaceId() {
-    assertEquals(0l, translationPlugin.getSpaceId(0));
+    assertEquals(0l, translationPlugin.getSpaceId("0"));
   }
 
 }

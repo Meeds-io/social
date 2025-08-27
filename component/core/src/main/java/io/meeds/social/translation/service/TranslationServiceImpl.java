@@ -83,10 +83,9 @@ public class TranslationServiceImpl implements TranslationService {
     translationPlugins.remove(objectType);
   }
 
-
   @Override
   public TranslationField getTranslationField(String objectType,
-                                              long objectId,
+                                              String objectId,
                                               String fieldName,
                                               String username) throws IllegalAccessException, ObjectNotFoundException {
 
@@ -97,7 +96,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public TranslationField getTranslationField(String objectType,
-                                              long objectId,
+                                              String objectId,
                                               String fieldName) {
     TranslationField translationField = translationStorage.getTranslationField(objectType, objectId, fieldName);
     if (translationField != null && translationField.getLabels() != null) {
@@ -114,17 +113,19 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   @Override
-  public Map<String, TranslationField> getAllTranslationFields(String objectType, long objectId, String username) throws
-                                                                                                        IllegalAccessException,
-                                                                                                        ObjectNotFoundException {
+  public Map<String, TranslationField> getAllTranslationFields(String objectType,
+                                                               String objectId,
+                                                               String username) throws IllegalAccessException,
+                                                                                ObjectNotFoundException {
     checkParameters(objectType, objectId);
     checkAccessPermission(objectType, objectId, username);
     return getAllTranslationFields(objectType, objectId);
   }
 
   @Override
-  public Map<String, TranslationField> getAllTranslationFields(String objectType, long objectId) throws ObjectNotFoundException {
-    Map<String,TranslationField> translationFields = translationStorage.getAllTranslationFields(objectType, objectId);
+  public Map<String, TranslationField> getAllTranslationFields(String objectType,
+                                                               String objectId) throws ObjectNotFoundException {
+    Map<String, TranslationField> translationFields = translationStorage.getAllTranslationFields(objectType, objectId);
     for (Entry<String, TranslationField> entry : translationFields.entrySet()) {
       TranslationField translationField = entry.getValue();
       if (translationField != null && translationField.getLabels() != null) {
@@ -143,7 +144,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public String getTranslationLabel(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Locale locale) {
     String translationLabel = translationStorage.getTranslationLabel(objectType, objectId, fieldName, locale);
@@ -156,7 +157,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public String getTranslationLabelOrDefault(String objectType,
-                                             long objectId,
+                                             String objectId,
                                              String fieldName,
                                              Locale locale) {
     if (locale == null) {
@@ -182,7 +183,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public void saveTranslationLabels(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Map<Locale, String> labels,
                                     String username) throws IllegalAccessException, ObjectNotFoundException {
@@ -194,7 +195,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public void saveTranslationLabels(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Map<Locale, String> labels) throws ObjectNotFoundException {
     checkParameters(objectType, objectId, fieldName);
@@ -204,7 +205,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public void saveTranslationLabel(String objectType,
-                                   long objectId,
+                                   String objectId,
                                    String fieldName,
                                    Locale locale,
                                    String label) throws ObjectNotFoundException {
@@ -219,7 +220,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public void deleteTranslationLabels(String objectType,
-                                      long objectId,
+                                      String objectId,
                                       String username) throws IllegalAccessException, ObjectNotFoundException {
     checkParameters(objectType, objectId);
     checkEditPermission(objectType, objectId, username, NO_PERMISSION_TO_DELETE_MESSAGE);
@@ -228,7 +229,7 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   @Override
-  public void deleteTranslationLabels(String objectType, long objectId) throws ObjectNotFoundException {
+  public void deleteTranslationLabels(String objectType, String objectId) throws ObjectNotFoundException {
     checkParameters(objectType, objectId);
     deleteTranslationLabelsNoBroadcast(objectType, objectId);
     broadcastEvent(TRANSLATION_DELETED_EVENT_NAME, objectType, objectId, null, null, null);
@@ -236,7 +237,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   @Override
   public void deleteTranslationLabel(String objectType,
-                                     long objectId,
+                                     String objectId,
                                      String fieldName,
                                      Locale locale) throws ObjectNotFoundException {
     checkParameters(objectType, objectId, fieldName, locale);
@@ -246,7 +247,7 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   private void saveTranslationLabelsNoBroadcast(String objectType,
-                                                long objectId,
+                                                String objectId,
                                                 String fieldName,
                                                 Map<Locale, String> labels) throws ObjectNotFoundException {
     if (MapUtils.isEmpty(labels)) {
@@ -271,12 +272,12 @@ public class TranslationServiceImpl implements TranslationService {
     processLabelLocalesDeletion(objectType, objectId, fieldName, labelLocales);
   }
 
-  private void deleteTranslationLabelsNoBroadcast(String objectType, long objectId) {
+  private void deleteTranslationLabelsNoBroadcast(String objectType, String objectId) {
     translationStorage.deleteTranslationLabels(objectType, objectId);
     processLabelLocalesDeletion(objectType, objectId, null, Collections.emptySet());
   }
 
-  private void processLabelLocalesDeletion(String objectType, long objectId, String fieldName, Set<Locale> labelLocales) {
+  private void processLabelLocalesDeletion(String objectType, String objectId, String fieldName, Set<Locale> labelLocales) {
     // Process deletion of Field Translations
     TranslationField translationField = getTranslationField(objectType, objectId, fieldName);
     if (translationField != null && MapUtils.isNotEmpty(translationField.getLabels())) {
@@ -293,7 +294,7 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   private String processLabelLocale(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Locale locale,
                                     String label) {
@@ -306,7 +307,7 @@ public class TranslationServiceImpl implements TranslationService {
 
   private void broadcastEvent(String eventName,
                               String objectType,
-                              long objectId,
+                              String objectId,
                               String fieldName,
                               Locale locale,
                               String username) {
@@ -317,8 +318,8 @@ public class TranslationServiceImpl implements TranslationService {
     }
   }
 
-  private void checkAccessPermission(String objectType, long objectId, String username) throws ObjectNotFoundException,
-                                                                                        IllegalAccessException {
+  private void checkAccessPermission(String objectType, String objectId, String username) throws ObjectNotFoundException,
+                                                                                          IllegalAccessException {
     TranslationPlugin translationPlugin = translationPlugins.get(objectType);
     if (!translationPlugin.hasAccessPermission(objectId, username)) {
       throw new IllegalAccessException(String.format(NO_PERMISSION_TO_ACCESS_MESSAGE,
@@ -329,7 +330,7 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   private void checkEditPermission(String objectType,
-                                   long objectId,
+                                   String objectId,
                                    String username,
                                    String message) throws ObjectNotFoundException, IllegalAccessException {
     TranslationPlugin translationPlugin = translationPlugins.get(objectType);
@@ -341,7 +342,7 @@ public class TranslationServiceImpl implements TranslationService {
     }
   }
 
-  private void checkParameters(String objectType, long objectId, String fieldName, Locale locale) {
+  private void checkParameters(String objectType, String objectId, String fieldName, Locale locale) {
     checkParameters(objectType, objectId, fieldName);
     if (StringUtils.isBlank(fieldName)) {
       throw new IllegalArgumentException("Field name is mandatory");
@@ -351,18 +352,18 @@ public class TranslationServiceImpl implements TranslationService {
     }
   }
 
-  private void checkParameters(String objectType, long objectId, String fieldName) {
+  private void checkParameters(String objectType, String objectId, String fieldName) {
     checkParameters(objectType, objectId);
     if (StringUtils.isBlank(fieldName)) {
       throw new IllegalArgumentException("Field name is mandatory");
     }
   }
 
-  private void checkParameters(String objectType, long objectId) {
+  private void checkParameters(String objectType, String objectId) {
     if (StringUtils.isBlank(objectType)) {
       throw new IllegalArgumentException("Object type is mandatory");
     }
-    if (objectId <= 0) {
+    if (StringUtils.isBlank(objectId)) {
       throw new IllegalArgumentException("Object identifier is mandatory");
     }
     checkObjectTypePlugin(objectType);

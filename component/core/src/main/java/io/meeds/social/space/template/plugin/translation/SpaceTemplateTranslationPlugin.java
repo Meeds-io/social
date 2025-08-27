@@ -58,25 +58,26 @@ public class SpaceTemplateTranslationPlugin extends TranslationPlugin {
   }
 
   @Override
-  public boolean hasEditPermission(long templateId, String username) throws ObjectNotFoundException {
+  public boolean hasEditPermission(String templateId, String username) throws ObjectNotFoundException {
     return spaceTemplateService.canManageTemplates(username);
   }
 
   @Override
-  public boolean hasAccessPermission(long templateId, String username) throws ObjectNotFoundException {
-    if (spaceTemplateService.getSpaceTemplate(templateId) == null) {
+  public boolean hasAccessPermission(String templateId, String username) throws ObjectNotFoundException {
+    long id = Long.parseLong(templateId);
+    if (spaceTemplateService.getSpaceTemplate(id) == null) {
       throw new ObjectNotFoundException(String.format("Space Template with id %s not found", templateId));
     }
-    return spaceTemplateService.canViewTemplate(templateId, username);
+    return spaceTemplateService.canViewTemplate(id, username);
   }
 
   @Override
-  public long getAudienceId(long templateId) {
+  public long getAudienceId(String templateId) {
     return 0;
   }
 
   @Override
-  public long getSpaceId(long templateId) {
+  public long getSpaceId(String templateId) {
     return 0;
   }
 

@@ -37,58 +37,75 @@ public interface TranslationService {
    * (identified by its type and id). This will ensure at the same time to check
    * the User ACL to know whether it can access object or not.
    *
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  username                user name accessing the list, used for ACL
-   *                                   check
-   * @return                         {@link TranslationField} of Translations
-   *                                 with a corresponding label for each saved
-   *                                 {@link Locale}
-   * @throws IllegalAccessException  When user doesn't have access permission to
-   *                                   object
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param username user name accessing the list, used for ACL check
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
+   * @throws IllegalAccessException When user doesn't have access permission to
+   *           object
    * @throws ObjectNotFoundException When object wasn't found
    */
   Map<String, TranslationField> getAllTranslationFields(String objectType,
-                                                 long objectId,
-                                                 String username) throws IllegalAccessException, ObjectNotFoundException;
+                                                        String objectId,
+                                                        String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * Retrieves the list of TranslationFields Labels for all fields of an Object
    * (identified by its type and id).
    *
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @return                         {@link TranslationField} of Translations
-   *                                 with a corresponding label for each saved
-   *                                 {@link Locale}
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
    * @throws ObjectNotFoundException When object wasn't found
    */
   Map<String, TranslationField> getAllTranslationFields(String objectType,
-                                       long objectId) throws ObjectNotFoundException;
-
+                                                        String objectId) throws ObjectNotFoundException;
 
   /**
    * Retrieves the list of Translation Labels for a given field of an Object
    * (identified by its type and id). This will ensure at the same time to check
    * the User ACL to know whether it can access object or not.
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @param  username                user name accessing the list, used for ACL
-   *                                   check
-   * @return                         {@link TranslationField} of Translations
-   *                                 with a corresponding label for each saved
-   *                                 {@link Locale}
-   * @throws IllegalAccessException  When user doesn't have access permission to
-   *                                   object
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param username user name accessing the list, used for ACL check
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
+   * @throws IllegalAccessException When user doesn't have access permission to
+   *           object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default TranslationField getTranslationField(String objectType,
+                                               long objectId,
+                                               String fieldName,
+                                               String username) throws IllegalAccessException, ObjectNotFoundException {
+    return getTranslationField(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, username);
+  }
+
+  /**
+   * Retrieves the list of Translation Labels for a given field of an Object
+   * (identified by its type and id). This will ensure at the same time to check
+   * the User ACL to know whether it can access object or not.
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param username user name accessing the list, used for ACL check
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
+   * @throws IllegalAccessException When user doesn't have access permission to
+   *           object
    * @throws ObjectNotFoundException When object wasn't found
    */
   TranslationField getTranslationField(String objectType,
-                                       long objectId,
+                                       String objectId,
                                        String fieldName,
                                        String username) throws IllegalAccessException, ObjectNotFoundException;
 
@@ -96,32 +113,67 @@ public interface TranslationService {
    * Retrieves the list of Translation Labels for a given field of an Object
    * (identified by its type and id).
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @return                         {@link TranslationField} of Translations
-   *                                 with a corresponding label for each saved
-   *                                 {@link Locale}
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default TranslationField getTranslationField(String objectType,
+                                               long objectId,
+                                               String fieldName) throws ObjectNotFoundException {
+    return getTranslationField(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName);
+  }
+
+  /**
+   * Retrieves the list of Translation Labels for a given field of an Object
+   * (identified by its type and id).
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @return {@link TranslationField} of Translations with a corresponding label
+   *         for each saved {@link Locale}
    * @throws ObjectNotFoundException When object wasn't found
    */
   TranslationField getTranslationField(String objectType,
-                                       long objectId,
+                                       String objectId,
                                        String fieldName) throws ObjectNotFoundException;
 
   /**
    * Retrieves the Translation Label for a given field of an Object (identified
    * by its type and id) with a designated {@link Locale}. not.
    * 
-   * @param  objectType Object type for which the Translation Metadata will be
-   *                      attached
-   * @param  objectId   Object unique identifier
-   * @param  fieldName  Object field
-   * @param  locale     {@link Locale}
-   * @return            the translated label for a given {@link Locale}
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @return the translated label for a given {@link Locale}
+   */
+  default String getTranslationLabel(String objectType,
+                                     long objectId,
+                                     String fieldName,
+                                     Locale locale) {
+    return getTranslationLabel(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, locale);
+  }
+
+  /**
+   * Retrieves the Translation Label for a given field of an Object (identified
+   * by its type and id) with a designated {@link Locale}. not.
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @return the translated label for a given {@link Locale}
    */
   String getTranslationLabel(String objectType,
-                             long objectId,
+                             String objectId,
                              String fieldName,
                              Locale locale);
 
@@ -136,8 +188,26 @@ public interface TranslationService {
    * @param locale {@link Locale}
    * @return the translated label for a given {@link Locale}
    */
+  default String getTranslationLabelOrDefault(String objectType,
+                                              long objectId,
+                                              String fieldName,
+                                              Locale locale) {
+    return getTranslationLabelOrDefault(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, locale);
+  }
+
+  /**
+   * Retrieves the Translation Label for a given field of an Object (identified
+   * by its type and id) with a designated {@link Locale}. not.
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @return the translated label for a given {@link Locale}
+   */
   String getTranslationLabelOrDefault(String objectType,
-                                      long objectId,
+                                      String objectId,
                                       String fieldName,
                                       Locale locale);
 
@@ -145,21 +215,42 @@ public interface TranslationService {
    * Saves Translation Labels for a given Object's field. This will replace any
    * existing list of translations
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @param  labels                  {@link Map} of Translations with a
-   *                                   corresponding label for each
-   *                                   {@link Locale}
-   * @param  username                user name updating the list, used for ACL
-   *                                   check
-   * @throws IllegalAccessException  When user doesn't have write permission to
-   *                                   object
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @param username user name updating the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void saveTranslationLabels(String objectType,
+                                     long objectId,
+                                     String fieldName,
+                                     Map<Locale, String> labels,
+                                     String username) throws IllegalAccessException, ObjectNotFoundException {
+    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, username);
+  }
+
+  /**
+   * Saves Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @param username user name updating the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
    * @throws ObjectNotFoundException When object wasn't found
    */
   void saveTranslationLabels(String objectType,
-                             long objectId,
+                             String objectId,
                              String fieldName,
                              Map<Locale, String> labels,
                              String username) throws IllegalAccessException, ObjectNotFoundException;
@@ -168,17 +259,35 @@ public interface TranslationService {
    * Saves Translation Labels for a given Object's field. This will replace any
    * existing list of translations
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @param  labels                  {@link Map} of Translations with a
-   *                                   corresponding label for each
-   *                                   {@link Locale}
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void saveTranslationLabels(String objectType,
+                                     long objectId,
+                                     String fieldName,
+                                     Map<Locale, String> labels) throws ObjectNotFoundException {
+    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels);
+  }
+
+  /**
+   * Saves Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
    * @throws ObjectNotFoundException When object wasn't found
    */
   void saveTranslationLabels(String objectType,
-                             long objectId,
+                             String objectId,
                              String fieldName,
                              Map<Locale, String> labels) throws ObjectNotFoundException;
 
@@ -187,16 +296,37 @@ public interface TranslationService {
    * Object's field. This will not replace other existing translation for other
    * languages
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @param  locale                  {@link Locale}
-   * @param  label                   Translation label value
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @param label Translation label value
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void saveTranslationLabel(String objectType,
+                                    long objectId,
+                                    String fieldName,
+                                    Locale locale,
+                                    String label) throws ObjectNotFoundException {
+    saveTranslationLabel(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, locale, label);
+  }
+
+  /**
+   * Saves a single Translation Label with a given {@link Locale} for a given
+   * Object's field. This will not replace other existing translation for other
+   * languages
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @param label Translation label value
    * @throws ObjectNotFoundException When object wasn't found
    */
   void saveTranslationLabel(String objectType,
-                            long objectId,
+                            String objectId,
                             String fieldName,
                             Locale locale,
                             String label) throws ObjectNotFoundException;
@@ -204,41 +334,86 @@ public interface TranslationService {
   /**
    * Deletes the list of translations for a given object
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  username                user name deleting the list, used for ACL
-   *                                   check
-   * @throws IllegalAccessException  When user doesn't have write permission to
-   *                                   object
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param username user name deleting the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void deleteTranslationLabels(String objectType,
+                                       long objectId,
+                                       String username) throws IllegalAccessException, ObjectNotFoundException {
+    deleteTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), username);
+  }
+
+  /**
+   * Deletes the list of translations for a given object
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param username user name deleting the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
    * @throws ObjectNotFoundException When object wasn't found
    */
   void deleteTranslationLabels(String objectType,
-                               long objectId,
+                               String objectId,
                                String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * Deletes the list of translations for a given object
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
    * @throws ObjectNotFoundException When object wasn't found
    */
-  void deleteTranslationLabels(String objectType, long objectId) throws ObjectNotFoundException;
+  default void deleteTranslationLabels(String objectType, long objectId) throws ObjectNotFoundException {
+    deleteTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId));
+  }
+
+  /**
+   * Deletes the list of translations for a given object
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  void deleteTranslationLabels(String objectType, String objectId) throws ObjectNotFoundException;
 
   /**
    * Deletes a translation label for a given object's field
    * 
-   * @param  objectType              Object type for which the Translation
-   *                                   Metadata will be attached
-   * @param  objectId                Object unique identifier
-   * @param  fieldName               Object field
-   * @param  locale                  {@link Locale}
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void deleteTranslationLabel(String objectType,
+                                      long objectId,
+                                      String fieldName,
+                                      Locale locale) throws ObjectNotFoundException {
+    deleteTranslationLabel(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, locale);
+  }
+
+  /**
+   * Deletes a translation label for a given object's field
+   * 
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param locale {@link Locale}
    * @throws ObjectNotFoundException When object wasn't found
    */
   void deleteTranslationLabel(String objectType,
-                              long objectId,
+                              String objectId,
                               String fieldName,
                               Locale locale) throws ObjectNotFoundException;
 
