@@ -232,22 +232,22 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
       }
 
       @Override
-      public boolean hasEditPermission(long objectId, String username) throws ObjectNotFoundException {
+      public boolean hasEditPermission(String objectId, String username) throws ObjectNotFoundException {
         return hasEditPermission;
       }
 
       @Override
-      public boolean hasAccessPermission(long objectId, String username) throws ObjectNotFoundException {
+      public boolean hasAccessPermission(String objectId, String username) throws ObjectNotFoundException {
         return hasAccessPermission;
       }
 
       @Override
-      public long getSpaceId(long objectId) throws ObjectNotFoundException {
+      public long getSpaceId(String objectId) throws ObjectNotFoundException {
         return spaceId;
       }
 
       @Override
-      public long getAudienceId(long objectId) throws ObjectNotFoundException {
+      public long getAudienceId(String objectId) throws ObjectNotFoundException {
         return audienceId;
       }
     };

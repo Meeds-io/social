@@ -44,7 +44,7 @@ public abstract class TranslationPlugin extends BaseComponentPlugin {
    *                                 else false.
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract boolean hasAccessPermission(long objectId, String username) throws ObjectNotFoundException;
+  public abstract boolean hasAccessPermission(String objectId, String username) throws ObjectNotFoundException;
 
   /**
    * Checks whether the user can edit an object
@@ -55,7 +55,7 @@ public abstract class TranslationPlugin extends BaseComponentPlugin {
    *                                 false.
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract boolean hasEditPermission(long objectId, String username) throws ObjectNotFoundException;
+  public abstract boolean hasEditPermission(String objectId, String username) throws ObjectNotFoundException;
 
   /**
    * Retrieves the identity Id of the target audience for which the translations
@@ -66,7 +66,7 @@ public abstract class TranslationPlugin extends BaseComponentPlugin {
    *                                 Id as long
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract long getAudienceId(long objectId) throws ObjectNotFoundException;
+  public abstract long getAudienceId(String objectId) throws ObjectNotFoundException;
 
   /**
    * Retrieves the Space Id of the target space for which the translations
@@ -76,6 +76,6 @@ public abstract class TranslationPlugin extends BaseComponentPlugin {
    * @return                         {@link Space} Id as long
    * @throws ObjectNotFoundException thrown when the object doesn't exists
    */
-  public abstract long getSpaceId(long objectId) throws ObjectNotFoundException;
+  public abstract long getSpaceId(String objectId) throws ObjectNotFoundException;
 
 }
