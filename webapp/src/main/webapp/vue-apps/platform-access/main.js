@@ -25,6 +25,9 @@ const appId = 'PlatformAccess';
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
     Vue.createApp({
+      data: {
+        loading: false,
+      },
       template: `<portal-general-hub-access id="${appId}" />`,
       i18n,
       vuetify: Vue.prototype.vuetifyOptions,
