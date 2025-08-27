@@ -20,325 +20,333 @@
 -->
 <template>
   <v-app class="py-2 px-6">
-    <v-list-item class="px-0 mb-2" three-line>
-      <v-list-item-content class="py-0">
-        <v-list-item-subtitle class="text-title pt-2">
-          {{ $t('generalSettings.access.summary1') }}
-        </v-list-item-subtitle>
-        <v-list-item-subtitle class="text-body py-2">
-          {{ $t('generalSettings.access.summary2') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item
-      class="px-0 mt-4"
-      dense
-      @click="accessType = 'OPEN'">
-      <v-list-item-action class="me-4">
-        <v-radio-group v-model="accessType">
-          <v-radio
-            value="OPEN"
-            on-icon="fa-lg far fa-dot-circle"
-            off-icon="fa-lg far fa-circle"
-            @click="accessType = 'OPEN'" />
-        </v-radio-group>
-      </v-list-item-action>
-      <v-list-item-content class="py-0">
-        <v-list-item-title>
-          {{ $t('generalSettings.access.open') }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.open.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-    <v-list-item
-      dense
-      v-on="accessType === 'OPEN' && {
-        click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
-      }">
-      <v-list-item-action class="me-4">
-        <v-tooltip
-          :disabled="accessType === 'OPEN'"
-          bottom>
-          <template #activator="{ on, attrs }">
-            <div
-              v-bind="attrs"
-              v-on="on">
-              <v-switch
-                v-model="externalUserOpenRegistration"
-                :disabled="accessType !== 'OPEN'"
-                @click.stop="0" />
-            </div>
-          </template>
-          <span>{{ $t('generalSettings.access.openChoiceDisabled') }}</span>
-        </v-tooltip>
-      </v-list-item-action>
-      <v-list-item-content class="py-0">
-        <v-list-item-title>
-          <help-label
-            label="generalSettings.access.open.enableExternalUsers"
-            tooltip="generalSettings.access.whatIsExternalUser">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
-              </p>
+    <div v-if="initialized" class="mb-4">
+      <v-list-item class="px-0 mb-2" three-line>
+        <v-list-item-content class="py-0">
+          <v-list-item-subtitle class="text-title pt-2">
+            {{ $t('generalSettings.access.summary1') }}
+          </v-list-item-subtitle>
+          <v-list-item-subtitle class="text-body py-2">
+            {{ $t('generalSettings.access.summary2') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+  
+      <v-list-item
+        class="px-0 mt-4"
+        dense
+        @click="accessType = 'OPEN'">
+        <v-list-item-action class="me-4">
+          <v-radio-group v-model="accessType">
+            <v-radio
+              value="OPEN"
+              on-icon="fa-lg far fa-dot-circle"
+              off-icon="fa-lg far fa-circle"
+              @click="accessType = 'OPEN'" />
+          </v-radio-group>
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            {{ $t('generalSettings.access.open') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.open.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        dense
+        v-on="accessType === 'OPEN' && {
+          click: () => externalUserOpenRegistration = !externalUserOpenRegistration,
+        }">
+        <v-list-item-action class="me-4">
+          <v-tooltip
+            :disabled="accessType === 'OPEN'"
+            bottom>
+            <template #activator="{ on, attrs }">
+              <div
+                v-bind="attrs"
+                v-on="on">
+                <v-switch
+                  v-model="externalUserOpenRegistration"
+                  :disabled="accessType !== 'OPEN'"
+                  @click.stop="0" />
+              </div>
             </template>
-          </help-label>
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item
-      class="px-0 mt-4"
-      dense
-      @click="accessType = 'RESTRICTED'">
-      <v-list-item-action class="me-4">
-        <v-radio-group v-model="accessType">
-          <v-radio
-            value="RESTRICTED"
-            on-icon="fa-lg far fa-dot-circle"
-            off-icon="fa-lg far fa-circle"
-            @click="accessType = 'RESTRICTED'" />
-        </v-radio-group>
-      </v-list-item-action>
-      <v-list-item-content class="py-0">
-        <v-list-item-title>
-          {{ $t('generalSettings.access.restricted') }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          <help-label
-            label="generalSettings.access.restricted.subtitle"
-            label-class="text-subtitle"
-            tooltip="generalSettings.access.whatIsRegisteredUser">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph3') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph4') }}
-              </p>
+            <span>{{ $t('generalSettings.access.openChoiceDisabled') }}</span>
+          </v-tooltip>
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            <help-label
+              label="generalSettings.access.open.enableExternalUsers"
+              tooltip="generalSettings.access.whatIsExternalUser">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.open.enableExternalUsers.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+  
+      <v-list-item
+        class="px-0 mt-4"
+        dense
+        @click="accessType = 'RESTRICTED'">
+        <v-list-item-action class="me-4">
+          <v-radio-group v-model="accessType">
+            <v-radio
+              value="RESTRICTED"
+              on-icon="fa-lg far fa-dot-circle"
+              off-icon="fa-lg far fa-circle"
+              @click="accessType = 'RESTRICTED'" />
+          </v-radio-group>
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            {{ $t('generalSettings.access.restricted') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            <help-label
+              label="generalSettings.access.restricted.subtitle"
+              label-class="text-subtitle"
+              tooltip="generalSettings.access.whatIsRegisteredUser">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph3') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsRegisteredUser.paragraph4') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item
+        dense
+        v-on="accessType === 'RESTRICTED' && {
+          click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
+        }">
+        <v-list-item-action class="me-4">
+          <v-tooltip
+            :disabled="accessType === 'RESTRICTED'"
+            bottom>
+            <template #activator="{ on, attrs }">
+              <div
+                v-bind="attrs"
+                v-on="on">
+                <v-switch
+                  v-model="externalUserRestrictedRegistration"
+                  :disabled="accessType !== 'RESTRICTED'"
+                  @click.stop="0" />
+              </div>
             </template>
-          </help-label>
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-    <v-list-item
-      dense
-      v-on="accessType === 'RESTRICTED' && {
-        click: () => externalUserRestrictedRegistration = !externalUserRestrictedRegistration,
-      }">
-      <v-list-item-action class="me-4">
-        <v-tooltip
-          :disabled="accessType === 'RESTRICTED'"
-          bottom>
-          <template #activator="{ on, attrs }">
-            <div
-              v-bind="attrs"
-              v-on="on">
-              <v-switch
-                v-model="externalUserRestrictedRegistration"
-                :disabled="accessType !== 'RESTRICTED'"
-                @click.stop="0" />
-            </div>
-          </template>
-          <span>{{ $t('generalSettings.access.restrictedChoiceDisabled') }}</span>
-        </v-tooltip>
-      </v-list-item-action>
-      <v-list-item-content class="py-0">
-        <v-list-item-title>
-          <help-label
-            label="generalSettings.access.restricted.enableExternalUsers"
-            tooltip="generalSettings.access.whatIsExternalUser">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
-              </p>
-            </template>
-          </help-label>
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          <help-label
-            label="generalSettings.access.restricted.enableExternalUsers.subtitle"
-            label-class="text-subtitle"
-            tooltip="generalSettings.access.whatIsSpaceHost">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsSpaceHost.paragraph3') }}
-              </p>
-            </template>
-          </help-label>
-        </v-list-item-subtitle>
-      </v-list-item-content>
-    </v-list-item>
-
-    <v-list-item class="pa-0 mt-4 mb-2">
-      <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-title">
-          {{ $t('generalSettings.access.platformAuthentication') }}
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-    <v-list-item class="px-0" dense>
-      <v-list-item-content>
-        <v-list-item-title>
-          {{ $t('generalSettings.access.passwordAuthentication') }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.passwordAuthentication.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-chip class="font-italic">
-          {{ $t('generalSettings.access.default') }}
-        </v-chip>
-      </v-list-item-action>
-    </v-list-item>
-    <v-list-item class="px-0" dense>
-      <v-list-item-content>
-        <v-list-item-title>
-          {{ $t('generalSettings.access.additionalAuthentication') }}
-        </v-list-item-title>
-        <v-list-item-subtitle>
-          {{ $t('generalSettings.access.additionalAuthentication.subtitle') }}
-        </v-list-item-subtitle>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-chip class="font-italic">
-          {{ $t('generalSettings.access.contactAdministrator') }}
-        </v-chip>
-      </v-list-item-action>
-    </v-list-item>
-
-    <v-list-item class="pa-0 mt-4 mb-2">
-      <v-list-item-content class="py-2 px-0">
-        <v-list-item-title class="text-title">
-          {{ $t('generalSettings.access.startSettingPlatform') }}
-        </v-list-item-title>
-      </v-list-item-content>
-    </v-list-item>
-    <v-list-item class="my-0 px-0" dense>
-      <v-list-item-content>
-        <v-list-item-title>
-          <help-label
-            label="generalSettings.access.startSettingPlatform.spaces"
-            tooltip="generalSettings.access.whatIsDefaultSpace">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph3') }}
-              </p>
-            </template>
-          </help-label>
-        </v-list-item-title>
-        <v-list-item-subtitle v-sanitized-html="defaultSelectedSpacesTitle" />
-      </v-list-item-content>
-      <v-list-item-action class="d-flex flex-row align-center my-0">
-        <v-btn
-          icon
-          @click="$refs.defaultSpaceDrawer.open()">
-          <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-    <v-list-item class="my-0 px-0" dense>
-      <v-list-item-content>
-        <v-list-item-title>
-          <help-label
-            label="generalSettings.access.startSettingPlatform.mandatorySpaces"
-            tooltip="generalSettings.access.whatIsMandatorySpace">
-            <template slot="helpContent">
-              <p>
-                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph1') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph2') }}
-              </p>
-              <p>
-                {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph3') }}
-              </p>
-            </template>
-          </help-label>
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action class="my-0">
-        <v-btn
-          :href="mandatorySpacesLink"
-          icon>
-          <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-    <v-list-item class="px-0 my-0" dense>
-      <v-list-item-content>
-        <v-list-item-title>
-          {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
-        </v-list-item-title>
-      </v-list-item-content>
-      <v-list-item-action class="my-0">
-        <v-btn
-          :href="createUsersLink"
-          icon>
-          <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
-        </v-btn>
-      </v-list-item-action>
-    </v-list-item>
-    <div class="d-flex my-12 mx-4 justify-end">
-      <v-btn
-        :aria-label="$t('generalSettings.cancel')"
-        :disabled="loading"
-        class="btn cancel-button me-4"
-        elevation="0"
-        @click="$emit('close')">
-        <span class="text-none">
-          {{ $t('generalSettings.cancel') }}
-        </span>
-      </v-btn>
-      <v-btn
-        :aria-label="$t('generalSettings.apply')"
-        :disabled="!validForm"
-        :loading="loading"
-        color="primary"
-        class="btn btn-primary"
-        elevation="0"
-        @click="save">
-        <span class="text-none">
-          {{ $t('generalSettings.apply') }}
-        </span>
-      </v-btn>
+            <span>{{ $t('generalSettings.access.restrictedChoiceDisabled') }}</span>
+          </v-tooltip>
+        </v-list-item-action>
+        <v-list-item-content class="py-0">
+          <v-list-item-title>
+            <help-label
+              label="generalSettings.access.restricted.enableExternalUsers"
+              tooltip="generalSettings.access.whatIsExternalUser">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsExternalUser.paragraph3') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            <help-label
+              label="generalSettings.access.restricted.enableExternalUsers.subtitle"
+              label-class="text-subtitle"
+              tooltip="generalSettings.access.whatIsSpaceHost">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsSpaceHost.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsSpaceHost.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsSpaceHost.paragraph3') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
+  
+      <v-list-item class="pa-0 mt-4 mb-2">
+        <v-list-item-content class="py-2 px-0">
+          <v-list-item-title class="text-title">
+            {{ $t('generalSettings.access.platformAuthentication') }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item class="px-0" dense>
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('generalSettings.access.passwordAuthentication') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.passwordAuthentication.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+        <v-list-item-action>
+          <v-chip class="font-italic">
+            {{ $t('generalSettings.access.default') }}
+          </v-chip>
+        </v-list-item-action>
+      </v-list-item>
+      <v-list-item class="px-0" dense>
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('generalSettings.access.additionalAuthentication') }}
+          </v-list-item-title>
+          <v-list-item-subtitle>
+            {{ $t('generalSettings.access.additionalAuthentication.subtitle') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+        <v-list-item-action>
+          <v-chip class="font-italic">
+            {{ $t('generalSettings.access.contactAdministrator') }}
+          </v-chip>
+        </v-list-item-action>
+      </v-list-item>
+  
+      <v-list-item class="pa-0 mt-4 mb-2">
+        <v-list-item-content class="py-2 px-0">
+          <v-list-item-title class="text-title">
+            {{ $t('generalSettings.access.startSettingPlatform') }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <v-list-item class="my-0 px-0" dense>
+        <v-list-item-content>
+          <v-list-item-title>
+            <help-label
+              label="generalSettings.access.startSettingPlatform.spaces"
+              tooltip="generalSettings.access.whatIsDefaultSpace">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsDefaultSpace.paragraph3') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-title>
+          <v-list-item-subtitle v-sanitized-html="defaultSelectedSpacesTitle" />
+        </v-list-item-content>
+        <v-list-item-action class="d-flex flex-row align-center my-0">
+          <v-btn
+            icon
+            @click="$refs.defaultSpaceDrawer.open()">
+            <v-icon size="24" class="icon-default-color">fa-edit</v-icon>
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+      <v-list-item class="my-0 px-0" dense>
+        <v-list-item-content>
+          <v-list-item-title>
+            <help-label
+              label="generalSettings.access.startSettingPlatform.mandatorySpaces"
+              tooltip="generalSettings.access.whatIsMandatorySpace">
+              <template slot="helpContent">
+                <p>
+                  {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph1') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph2') }}
+                </p>
+                <p>
+                  {{ $t('generalSettings.access.whatIsMandatorySpace.paragraph3') }}
+                </p>
+              </template>
+            </help-label>
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="my-0">
+          <v-btn
+            :href="mandatorySpacesLink"
+            icon>
+            <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+      <v-list-item class="px-0 my-0" dense>
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t('generalSettings.access.startSettingPlatform.createUsers') }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="my-0">
+          <v-btn
+            :href="createUsersLink"
+            icon>
+            <v-icon size="24" class="icon-default-color">fa-external-link-alt</v-icon>
+          </v-btn>
+        </v-list-item-action>
+      </v-list-item>
+      <div class="d-inline pt-8">
+        <sticky-position-element
+          scroll-diff="50"
+          bottom="0">
+          <div class="d-flex justify-end py-4 pe-5">
+            <v-btn
+              :aria-label="$t('generalSettings.cancel')"
+              :disabled="$root.loading"
+              class="btn cancel-button me-4"
+              elevation="0"
+              @click="$emit('close')">
+              <span class="text-none">
+                {{ $t('generalSettings.cancel') }}
+              </span>
+            </v-btn>
+            <v-btn
+              :aria-label="$t('generalSettings.apply')"
+              :disabled="!validForm"
+              :loading="$root.loading"
+              color="primary"
+              class="btn btn-primary"
+              elevation="0"
+              @click="save">
+              <span class="text-none">
+                {{ $t('generalSettings.apply') }}
+              </span>
+            </v-btn>
+          </div>
+        </sticky-position-element>
+      </div>
     </div>
     <portal-general-default-spaces-drawer
       ref="defaultSpaceDrawer"
@@ -412,12 +420,7 @@ export default {
     },
   },
   created() {
-    this.$registrationService.getRegistrationSettings()
-      .then(data => {
-        this.registrationSettings = data;
-        this.init();
-      });
-
+    this.init();
   },
   mounted() {
     this.$nextTick().then(() => this.initialized = true);
@@ -426,7 +429,8 @@ export default {
     this.$root.$emit('close-alert-message');
   },
   methods: {
-    init() {
+    async init() {
+      this.registrationSettings = await this.$registrationService.getRegistrationSettings();
       this.accessType = this.registrationSettings?.type || 'OPEN';
       this.externalUserOpenRegistration = this.accessType === 'OPEN' && this.registrationSettings?.externalUser || false;
       this.externalUserRestrictedRegistration = this.accessType === 'RESTRICTED' && this.registrationSettings?.externalUser || false;
@@ -442,6 +446,7 @@ export default {
         .then(() => this.$emit('saved'))
         .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.registrationSavedSuccessfully'), 'success'))
         .catch(e => this.errorMessage = String(e))
+        .then(() => this.init())
         .finally(() => this.$root.loading = false);
     },
   }
