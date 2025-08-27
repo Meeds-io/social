@@ -58,21 +58,21 @@ public class TranslationStorage {
     this.metadataService = metadataService;
   }
 
-  public TranslationField getTranslationField(String objectType, long objectId, String fieldName) {
+  public TranslationField getTranslationField(String objectType, String objectId, String fieldName) {
     Map<Locale, String> labels = getLabels(objectType, objectId, fieldName);
     return new TranslationField(objectType, objectId, fieldName, labels, System.currentTimeMillis());
   }
 
-  public Map<Locale, String> getTranslationLabels(String objectType, long objectId, String fieldName) {
+  public Map<Locale, String> getTranslationLabels(String objectType, String objectId, String fieldName) {
     return getTranslationField(objectType, objectId, fieldName).getLabels();
   }
 
-  public String getTranslationLabel(String objectType, long objectId, String fieldName, Locale locale) {
+  public String getTranslationLabel(String objectType, String objectId, String fieldName, Locale locale) {
     return getTranslationLabels(objectType, objectId, fieldName).get(locale);
   }
 
   public void saveTranslationLabels(String objectType,
-                                    long objectId,
+                                    String objectId,
                                     String fieldName,
                                     Map<Locale, String> labels,
                                     long audienceId,
@@ -80,7 +80,7 @@ public class TranslationStorage {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fieldName,
                                                                                                       METADATA_TYPE.getName(),
                                                                                                       objectType,
-                                                                                                      String.valueOf(objectId),
+                                                                                                      objectId,
                                                                                                       0,
                                                                                                       -1);
     if (CollectionUtils.isNotEmpty(metadataItems)) {
@@ -101,7 +101,7 @@ public class TranslationStorage {
   }
 
   public void saveTranslationLabel(String objectType,
-                                   long objectId,
+                                   String objectId,
                                    String fieldName,
                                    Locale locale,
                                    String label,
@@ -112,16 +112,16 @@ public class TranslationStorage {
     saveTranslationLabels(objectType, objectId, fieldName, translationLabels, audienceId, spaceId);
   }
 
-  public void deleteTranslationLabels(String objectType, long objectId) {
+  public void deleteTranslationLabels(String objectType, String objectId) {
     metadataService.deleteMetadataItemsByMetadataTypeAndObject(METADATA_TYPE.getName(),
                                                                getMetadataObject(objectType, objectId, 0));
   }
 
-  public void deleteTranslationLabel(String objectType, long objectId, String fieldName, Locale locale) {
+  public void deleteTranslationLabel(String objectType, String objectId, String fieldName, Locale locale) {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fieldName,
                                                                                                       METADATA_TYPE.getName(),
                                                                                                       objectType,
-                                                                                                      String.valueOf(objectId),
+                                                                                                      objectId,
                                                                                                       0,
                                                                                                       -1);
     if (CollectionUtils.isNotEmpty(metadataItems)) {
@@ -159,18 +159,18 @@ public class TranslationStorage {
                            audienceId);
   }
 
-  private MetadataObject getMetadataObject(String objectType, long objectId, long spaceId) {
+  private MetadataObject getMetadataObject(String objectType, String objectId, long spaceId) {
     return new MetadataObject(objectType,
-                              String.valueOf(objectId),
+                              objectId,
                               null,
                               spaceId);
   }
 
-  private Map<Locale, String> getLabels(String objectType, long objectId, String fieldName) {
+  private Map<Locale, String> getLabels(String objectType, String objectId, String fieldName) {
     List<MetadataItem> metadataItems = metadataService.getMetadataItemsByMetadataNameAndTypeAndObject(fieldName,
                                                                                                       METADATA_TYPE.getName(),
                                                                                                       objectType,
-                                                                                                      String.valueOf(objectId),
+                                                                                                      objectId,
                                                                                                       0,
                                                                                                       -1);
     if (CollectionUtils.isEmpty(metadataItems)) {

@@ -18,7 +18,7 @@
  */
 package io.meeds.social.translation.rest;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
@@ -45,7 +45,7 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
 
   private String                 objectType  = OBJECT_TYPE;
 
-  private long                   objectId    = 322l;
+  private String                 objectId    = "322";
 
   private long                   spaceId     = 322l;
 
@@ -200,7 +200,7 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
 
   private ContainerResponse saveDefaultLocale(String locale) throws Exception {
     ContainerResponse response;
-    byte[] formDataInput = ("lang=" + locale).getBytes("UTF-8");
+    byte[] formDataInput = ("lang=" + locale).getBytes(StandardCharsets.UTF_8);
 
     MultivaluedMap<String, String> h = new MultivaluedMapImpl();
     h.putSingle("content-type", MediaType.APPLICATION_FORM_URLENCODED);
@@ -232,22 +232,22 @@ public class TranslationRestResourcesTest extends AbstractResourceTest {
       }
 
       @Override
-      public boolean hasEditPermission(long objectId, String username) throws ObjectNotFoundException {
+      public boolean hasEditPermission(String objectId, String username) throws ObjectNotFoundException {
         return hasEditPermission;
       }
 
       @Override
-      public boolean hasAccessPermission(long objectId, String username) throws ObjectNotFoundException {
+      public boolean hasAccessPermission(String objectId, String username) throws ObjectNotFoundException {
         return hasAccessPermission;
       }
 
       @Override
-      public long getSpaceId(long objectId) throws ObjectNotFoundException {
+      public long getSpaceId(String objectId) throws ObjectNotFoundException {
         return spaceId;
       }
 
       @Override
-      public long getAudienceId(long objectId) throws ObjectNotFoundException {
+      public long getAudienceId(String objectId) throws ObjectNotFoundException {
         return audienceId;
       }
     };
