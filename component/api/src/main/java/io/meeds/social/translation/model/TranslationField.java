@@ -36,7 +36,7 @@ public class TranslationField implements Cloneable, Serializable {
 
   private String              objectType;
 
-  private long                objectId;
+  private String              objectId;
 
   private String              fieldName;
 

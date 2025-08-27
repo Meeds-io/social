@@ -38,22 +38,22 @@ public class ProfilePropertySettingOptionTranslation extends TranslationPlugin {
   }
 
   @Override
-  public boolean hasAccessPermission(long objectId, String username) throws ObjectNotFoundException {
+  public boolean hasAccessPermission(String objectId, String username) throws ObjectNotFoundException {
     return userACL.isAdministrator(userACL.getUserIdentity(username));
   }
 
   @Override
-  public boolean hasEditPermission(long objectId, String username) throws ObjectNotFoundException {
+  public boolean hasEditPermission(String objectId, String username) throws ObjectNotFoundException {
     return userACL.isAdministrator(userACL.getUserIdentity(username));
   }
 
   @Override
-  public long getAudienceId(long objectId) throws ObjectNotFoundException {
+  public long getAudienceId(String objectId) throws ObjectNotFoundException {
     return 0;
   }
 
   @Override
-  public long getSpaceId(long objectId) throws ObjectNotFoundException {
+  public long getSpaceId(String objectId) throws ObjectNotFoundException {
     return 0;
   }
 }
