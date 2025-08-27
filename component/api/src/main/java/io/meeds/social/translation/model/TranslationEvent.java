@@ -31,7 +31,7 @@ public class TranslationEvent {
 
   private String objectType;
 
-  private long   objectId;
+  private String objectId;
 
   private String fieldName;
 

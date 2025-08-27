@@ -30,22 +30,22 @@ public class OrganizationalChartHeaderTranslation extends TranslationPlugin {
   }
 
   @Override
-  public boolean hasAccessPermission(long objectId, String username) {
+  public boolean hasAccessPermission(String objectId, String username) {
     return true;
   }
 
   @Override
-  public boolean hasEditPermission(long objectId, String username) {
+  public boolean hasEditPermission(String objectId, String username) {
     return true;
   }
 
   @Override
-  public long getAudienceId(long objectId) {
+  public long getAudienceId(String objectId) {
     return 0;
   }
 
   @Override
-  public long getSpaceId(long objectId) {
+  public long getSpaceId(String objectId) {
     return 0;
   }
 }

@@ -129,7 +129,7 @@ public class TranslationRest implements ResourceContainer {
                                        String objectType,
                                        @Parameter(description = "Object technical identifier", required = true)
                                        @PathParam("objectId")
-                                       long objectId,
+                                       String objectId,
                                        @Parameter(description = "Object field name", required = true)
                                        @PathParam("fieldName")
                                        String fieldName) {
@@ -182,7 +182,7 @@ public class TranslationRest implements ResourceContainer {
                                         String objectType,
                                         @Parameter(description = "Object technical identifier", required = true)
                                         @PathParam("objectId")
-                                        long objectId,
+                                        String objectId,
                                         @Parameter(description = "Object field name", required = true)
                                         @PathParam("fieldName")
                                         String fieldName,
@@ -225,7 +225,7 @@ public class TranslationRest implements ResourceContainer {
           String objectType,
           @Parameter(description = "Object technical identifier", required = true)
           @PathParam("objectId")
-          long objectId) {
+          String objectId) {
     try {
       translationService.deleteTranslationLabels(objectType, objectId, RestUtils.getCurrentUser());
       return Response.noContent().build();

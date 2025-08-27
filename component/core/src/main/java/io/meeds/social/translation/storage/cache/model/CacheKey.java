@@ -33,7 +33,7 @@ public class CacheKey implements Serializable {
 
   private String            objectType;
 
-  private long              objectId;
+  private String            objectId;
 
   private String            fieldName;
 

@@ -54,23 +54,23 @@ public class CategoryTranslationPlugin extends TranslationPlugin {
   }
 
   @Override
-  public boolean hasAccessPermission(long categoryId, String username) throws ObjectNotFoundException {
+  public boolean hasAccessPermission(String categoryId, String username) throws ObjectNotFoundException {
     return true;
   }
 
   @Override
-  public boolean hasEditPermission(long categoryId, String username) throws ObjectNotFoundException {
-    return categoryService.canEdit(categoryId, username);
+  public boolean hasEditPermission(String categoryId, String username) throws ObjectNotFoundException {
+    return categoryService.canEdit(Long.parseLong(categoryId), username);
   }
 
   @Override
-  public long getAudienceId(long categoryId) throws ObjectNotFoundException {
-    Category category = categoryService.getCategory(categoryId);
+  public long getAudienceId(String categoryId) throws ObjectNotFoundException {
+    Category category = categoryService.getCategory(Long.parseLong(categoryId));
     return category == null ? 0 : category.getOwnerId();
   }
 
   @Override
-  public long getSpaceId(long categoryId) throws ObjectNotFoundException {
+  public long getSpaceId(String categoryId) throws ObjectNotFoundException {
     return 0;
   }
 
