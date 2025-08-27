@@ -16,6 +16,7 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
   <v-list-item
+    v-if="space"
     :href="spaceUrl"
     @keydown.enter="setAsViewed"
     @auxclick="setAsViewed"
@@ -95,14 +96,15 @@ export default {
       return this.expanded ? 35 : 25;
     },
   },
-  created() {
+  async created() {
     this.spaceUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-    this.$spaceService.getSpaceById(this.id)
-      .then((spaceData)=> {
-        this.space = spaceData;
-        this.spaceName = spaceData?.displayName ? spaceData.displayName : this.$t('UITopBarFavoritesPortlet.label.space');
-        this.spaceUrl = `${eXo.env.portal.context}/s/${spaceData.id}`;
-      });
+    try {
+      this.space = await this.$spaceService.getSpaceById(this.id);
+      this.spaceName = this.space?.displayName ? this.space.displayName : this.$t('UITopBarFavoritesPortlet.label.space');
+      this.spaceUrl = `${eXo.env.portal.context}/s/${this.id}`;
+    } catch {
+      this.$root.$emit('favorite-removed', 'space', this.id);
+    }
   },
   methods: {
     removed() {
