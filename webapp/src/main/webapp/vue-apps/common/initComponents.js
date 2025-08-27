@@ -52,6 +52,7 @@ import NumberFormat from './components/NumberFormat.vue';
 import PublicWidgetHiddenWarning from './components/PublicWidgetHiddenWarning.vue';
 import SerializeDrawer from './components/SerializeDrawer.vue';
 import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
+import StickyPositionElement from './components/StickyPositionElement.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -99,6 +100,7 @@ const components = {
   'public-widget-hidden-warning': PublicWidgetHiddenWarning,
   'serialize-drawer': SerializeDrawer,
   'content-link-drawer': ContentLinkDrawer,
+  'sticky-position-element': StickyPositionElement,
 };
 
 for (const key in components) {
