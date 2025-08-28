@@ -85,11 +85,14 @@ import lombok.SneakyThrows;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
+  private static final String EXTERNAL4_USER_EMAIL         = "external4@external4.com";
+
   private static final String EXTERNAL3_USER_EMAIL         = "external3@external3.com";
 
   private static final String EXTERNAL2_USER_EMAIL         = "external2@external2.com";
 
   private static final String EXTERNAL1_USER_EMAIL         = "external1@external1.com";
+
 
   private static final String EXTERNAL_USER_EMAIL          = "external@external.com";
 
@@ -2304,7 +2307,25 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
     List<String> spaceIds2 = spaceService.findExternalInvitationsSpacesByEmail(EXTERNAL2_USER_EMAIL);
     assertEquals(1, spaceIds2.size());
+  }
 
+  @SneakyThrows
+  public void testSpaceInvitations() {
+    Space space = createSpace("spacename156", ROOT_NAME);
+    spaceService.saveSpaceExternalInvitation(space.getId(), EXTERNAL4_USER_EMAIL, "test");
+
+    String username = "external4";
+    User user = organizationService.getUserHandler().createUserInstance(username);
+    user.setEmail(EXTERNAL4_USER_EMAIL);
+    user.setPassword("Test1234@");
+    user.setFirstName("External");
+    user.setLastName("User");
+    organizationService.getUserHandler().createUser(user, true);
+
+    assertTrue(spaceService.isMember(space.getId(), username));
+    Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(username);
+    assertNotNull(memberships);
+    assertTrue(memberships.stream().anyMatch(m -> m.getUserName().equals(username)));
   }
 
   public void testDeleteSpaceExternalInvitation() {
