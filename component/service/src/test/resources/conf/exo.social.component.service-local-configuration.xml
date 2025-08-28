@@ -169,6 +169,11 @@
       <type>org.exoplatform.social.core.listeners.SocialUserEventListenerImpl</type>
     </component-plugin>
     <component-plugin>
+      <name>social.spaceInvitation.user.event.listener</name>
+      <set-method>addListenerPlugin</set-method>
+      <type>org.exoplatform.social.core.listeners.SpaceInvitationUserEventListener</type>
+    </component-plugin>
+    <component-plugin>
       <name>social.update.membership.event.listener</name>
       <set-method>addListenerPlugin</set-method>
       <type>org.exoplatform.social.core.listeners.SocialMembershipListenerImpl</type>
