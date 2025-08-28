@@ -68,9 +68,9 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
               :tile="!expanded"
               class="d-flex flex-column flex-grow-1 flex-shrink-1"
               flat>
-              <v-list v-if="favoritesList.length" class="pa-0">
+              <v-list v-if="favoritesToDisplay.length" class="pa-0">
                 <favorite-item
-                  v-for="favoriteItem in favoritesList"
+                  v-for="favoriteItem in favoritesToDisplay"
                   :key="favoriteItem.id"
                   :favorite="favoriteItem"
                   :activity-extensions="activityExtensions"
@@ -123,6 +123,12 @@ export default {
     activityIconExtension: 'activity-favorite-icon-extensions',
   }),
   computed: {
+    favoritesToDisplay() {
+      return this.favoritesList.filter(f => f && !f.removed).slice(0, this.limit + this.offset);
+    },
+    limitToFetch() {
+      return this.limit + this.pageSize;
+    },
     hasMore() {
       return this.limit < this.totalSize || (this.loading && !this.totalSize);
     },
@@ -147,19 +153,18 @@ export default {
   created() {
     document.addEventListener('favorites-open', this.openDrawer);
     document.addEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
-    this.$root.$on('open-favorite-drawer', () => {
-      this.refreshActivityIcon();
-      this.openDrawer();
-    });
-    this.$root.$on('close-favorite-drawer', () => {
-      this.$refs.favoritesDrawer.close();
-    });
+    this.$root.$on('favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$on('open-favorite-drawer', this.openDrawer);
+    this.$root.$on('close-favorite-drawer', this.closeDrawer);
     this.$root.$on('refresh-favorite-list', this.retrieveFavoritesList);
-
   },
   beforeDestroy() {
     document.removeEventListener('favorites-open', this.openDrawer);
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityIconExtension}-updated`, this.refreshActivityIcon);
+    this.$root.$off('favorite-removed', this.handleFavoriteRemoved);
+    this.$root.$off('open-favorite-drawer', this.openDrawer);
+    this.$root.$off('close-favorite-drawer', this.closeDrawer);
+    this.$root.$off('refresh-favorite-list', this.retrieveFavoritesList);
   },
   methods: {
     openDrawer(event) {
@@ -170,18 +175,25 @@ export default {
       this.type = null;
       this.typeLabel = this.$t('UITopBarFavoritesPortlet.types.all');
       this.retrieveFavoritesList();
+      this.refreshActivityIcon();
       window.require(['SHARED/favoriteDrawerExtensions'], () => {
         Promise.resolve(this.$utils.includeExtensions('FavoriteDrawerExtension'))
           .then(() => this.$refs.favoritesDrawer.open());
       });
+    },
+    closeDrawer() {
+      this.$refs.favoritesDrawer.close();
     },
     selectType(type, label) {
       this.type = type;
       this.typeLabel = label;
     },
     retrieveFavoritesList() {
+      if (this.loading) {
+        return;
+      }
       this.loading = true;
-      return this.$favoriteService.getFavorites(this.offset, this.limit, true, this.type)
+      return this.$favoriteService.getFavorites(this.offset, this.limitToFetch, true, this.type)
         .then(data => {
           this.totalSize = data?.size || 0;
           this.favoritesList = data?.favoritesItem || [];
@@ -195,14 +207,22 @@ export default {
     },
     refreshActivityIcon() {
       const extensions = extensionRegistry.loadExtensions(this.extensionApp, this.activityIconExtension);
-      extensions.forEach(extension => {
-        if (extension.id) {
-          this.activityExtensions.push(extension);
-        }
-      });
+      this.activityExtensions = extensions.filter(ext => ext.id);
     },
     setFavoriteAsLastAccessed(objectType, objectId) {
       return this.$favoriteService.setFavoriteAsLastAccessed(objectType, objectId);
+    },
+    async handleFavoriteRemoved(type, id) {
+      this.totalSize--;
+      const favoriteItem = this.favoritesList.find(item => item.objectType === type && item.objectId === id);
+      if (favoriteItem) {
+        this.$set(favoriteItem, 'removed', true);
+      }
+      await this.$nextTick();
+      if (this.totalSize > this.limitToFetch
+          && this.favoritesToDisplay.length < (this.limit + this.offset)) {
+        this.limit *= 2;
+      }
     },
   }
 };

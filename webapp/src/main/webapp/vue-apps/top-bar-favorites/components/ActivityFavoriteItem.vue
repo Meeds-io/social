@@ -1,5 +1,6 @@
 <template>
   <v-list-item
+    v-if="activity"
     :href="activityUrl"
     @keydown.enter="setAsViewed"
     @auxclick="setAsViewed"
@@ -129,12 +130,13 @@ export default {
       return this.activity?.identity?.profile;
     },
   },
-  created() {
+  async created() {
     this.activityUrl = `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/activity?id=${this.id}`;
-    this.$activityService.getActivityById(this.id, 'identity')
-      .then(fullActivity => {
-        this.activity = fullActivity;
-      });
+    try {
+      this.activity = await this.$activityService.getActivityById(this.id, 'identity');
+    } catch {
+      this.$root.$emit('favorite-removed', 'activity', this.id);
+    }
   },
   methods: {
     favoriteTitle(title) {
