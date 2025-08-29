@@ -95,9 +95,10 @@
             outlined
             dense />
         </template>
-        <font-icon-input
+        <portal-general-settings-navigation-settings-icon-input
+          ref="nodeIcon"
           v-model="icon"
-          :label="$t('generalSettings.sidebar.linkIcon')"
+          :site-id="siteId"
           class="mt-4 mb-2" />
       </div>
     </template>
@@ -306,6 +307,15 @@ export default {
           siteName: this.siteName,
           expandPages: this.expandPages,
         };
+        if (this.$refs?.nodeIcon) {
+          try {
+            await this.$refs.nodeIcon?.save?.();
+          } catch (e) {
+            this.loading = false;
+            this.$root.$emit('alert-message', this.$t('generalSettings.errorUpdatingNodeImage'), 'error');
+            throw e;
+          }
+        }
         if (this.isSiteOption && this.expandPages === 'true') {
           this.item.items = this.site.siteNavigations.map(n => (n.visibility?.toLowerCase?.() === 'displayed' || n.visibility?.toLowerCase?.() === 'temporal') && {
             name: n.label,

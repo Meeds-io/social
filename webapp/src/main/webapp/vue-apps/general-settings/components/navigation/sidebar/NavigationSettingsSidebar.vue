@@ -150,7 +150,9 @@
                 min-width="24"
                 class="d-flex align-center justify-center me-4"
                 flat>
-                <v-icon size="20">{{ item.icon || 'fa-folder' }}</v-icon>
+                <portal-general-settings-navigation-settings-icon
+                  :icon="item.icon || 'fa-folder'"
+                  :icon-size="20" />
               </v-card>
               {{ $t(item.name) }}
             </template>

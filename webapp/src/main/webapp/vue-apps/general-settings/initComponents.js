@@ -46,6 +46,9 @@ import NavigationSettingsSidebar from './components/navigation/sidebar/Navigatio
 import NavigationSettingsSidebarPreview from './components/navigation/sidebar/NavigationSettingsSidebarPreview.vue';
 import NavigationSettingsSidebarPreviewItem from './components/navigation/sidebar/NavigationSettingsSidebarPreviewItem.vue';
 import NavigationSettingsSidebarAddButton from './components/navigation/sidebar/NavigationSettingsSidebarAddButton.vue';
+import NavigationSettingsIcon from './components/navigation/sidebar/NavigationSettingsIcon.vue';
+import NavigationSettingsIconInput from './components/navigation/sidebar/NavigationSettingsIconInput.vue';
+
 import NavigationSettingsAddSidebarLinkDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarLinkDrawer.vue';
 import NavigationSettingsAddSidebarSiteDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSiteDrawer.vue';
 import NavigationSettingsAddSidebarSpacesDrawer from './components/navigation/sidebar/drawer/NavigationSettingsAddSidebarSpacesDrawer.vue';
@@ -93,7 +96,9 @@ const components = {
   'portal-general-settings-navigation-settings-sidebar-add-button': NavigationSettingsSidebarAddButton,
   'portal-general-settings-navigation-settings-sidebar-add-link-drawer': NavigationSettingsAddSidebarLinkDrawer,
   'portal-general-settings-navigation-settings-sidebar-add-site-drawer': NavigationSettingsAddSidebarSiteDrawer,
-  'portal-general-settings-navigation-settings-sidebar-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
+  'portal-general-settings-navigation-settings-icon-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
+  'portal-general-settings-navigation-settings-icon-input': NavigationSettingsIconInput,
+  'portal-general-settings-navigation-settings-icon': NavigationSettingsIcon,
 };
 
 for (const key in components) {
