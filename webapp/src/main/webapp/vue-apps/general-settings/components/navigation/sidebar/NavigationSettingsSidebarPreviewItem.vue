@@ -35,7 +35,9 @@
     <template v-if="displaySpacesList">
       <v-list-item class="d-flex">
         <v-list-item-avatar class="me-2 my-auto" min-width="36">
-          <v-icon size="20">{{ item.icon || 'fa-folder' }}</v-icon>
+          <portal-general-settings-navigation-settings-icon
+            :icon-size="20"
+            :icon="item.icon" />
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title class="logoTitle menu-text-color text-truncate">
@@ -56,7 +58,10 @@
     v-else
     class="d-flex">
     <v-list-item-avatar class="me-2 my-auto" min-width="36">
-      <v-icon v-if="!item.avatar" size="20">{{ item.icon || 'fa-folder' }}</v-icon>
+      <portal-general-settings-navigation-settings-icon
+        v-if="!item.avatar"
+        :icon-size="20"
+        :icon="item.icon || 'fa-folder'" />
     </v-list-item-avatar>
     <v-list-item-avatar
       v-if="item.avatar"
