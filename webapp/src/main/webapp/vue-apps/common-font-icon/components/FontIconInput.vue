@@ -21,7 +21,7 @@
     <div v-if="!noLabel" class="mb-2">{{ label || $t('nodeIconPickerDrawer.label') }}</div>
     <div class="d-flex align-center">
       <v-icon
-        v-if="!noIcon"
+        v-if="!noIcon && value"
         size="40"
         class="icon-default-color me-4">
         {{ value }}
@@ -65,6 +65,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    noDefault: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     icon: null,
@@ -74,7 +78,11 @@ export default {
     value: {
       immediate: true,
       handler() {
-        this.icon = this.value || 'fa-question-circle';
+        if (this.noDefault) {
+          this.icon = this.value;
+        } else {
+          this.icon = this.value || 'fa-question-circle';
+        }
       },
     },
     icon() {
