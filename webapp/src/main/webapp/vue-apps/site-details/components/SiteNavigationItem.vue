@@ -24,7 +24,24 @@
     class="d-flex px-0"
     @mouseover="showAction = true"
     @mouseleave="showAction = false">
-    <v-list-item-icon size="20" class="d-flex align-center justify-center my-auto ms-0 me-3">
+    <v-list-item-avatar
+      v-if="iconUrl"
+      class="d-flex align-center justify-center my-auto ms-0 me-3"
+      min-width="20"
+      width="20"
+      height="20"
+      tile>
+      <img
+        :src="iconUrl"
+        alt=""
+        class="no-border-radius object-fit-contain"
+        width="auto"
+        height="auto">
+    </v-list-item-avatar>
+    <v-list-item-icon
+      v-else
+      size="20"
+      class="d-flex align-center justify-center my-auto ms-0 me-3">
       <v-icon size="20" class="icon-default-color">
         {{ icon }}
       </v-icon>
@@ -98,8 +115,19 @@ export default {
     rel() {
       return this.$navigationUtils.getNavigationNodeRel(this.navigation);
     },
+    iconUrl() {
+      if (this.navigation?.icon?.includes?.('base64') || this.navigation?.icon?.includes?.('/')) {
+        return this.navigation.icon;
+      } else {
+        return null;
+      }
+    },
     icon() {
-      return this.navigation?.icon || 'fa-folder';
+      if (this.iconUrl) {
+        return null;
+      } else {
+        return this.navigation?.icon || 'fa-folder';
+      }
     },
     isNodeGroup() {
       return !this.navigation.pageKey;
