@@ -29,6 +29,7 @@ import io.meeds.spring.kernel.PortalApplicationContextInitializer;
 @SpringBootApplication(scanBasePackages = {
   SocialApplication.MODULE_NAME,
   SocialApplication.PORTAL_WEB_SECURITY_MODULE_NAME,
+  SocialApplication.PORTAL_MODULE_NAME,
   AvailableIntegration.KERNEL_MODULE,
   AvailableIntegration.JPA_MODULE,
   AvailableIntegration.WEB_MODULE,
@@ -37,6 +38,7 @@ import io.meeds.spring.kernel.PortalApplicationContextInitializer;
 })
 @EnableJpaRepositories(basePackages = {
   SocialApplication.MODULE_NAME,
+  SocialApplication.PORTAL_MODULE_NAME,
   SocialApplication.PORTAL_WEB_SECURITY_MODULE_NAME,
 })
 @PropertySource("classpath:application.properties")
@@ -45,6 +47,8 @@ import io.meeds.spring.kernel.PortalApplicationContextInitializer;
 public class SocialApplication extends PortalApplicationContextInitializer {
 
   public static final String MODULE_NAME                     = "io.meeds.social";
+
+  public static final String PORTAL_MODULE_NAME              = "io.meeds.portal";
 
   public static final String PORTAL_WEB_SECURITY_MODULE_NAME = "io.meeds.web.security";
 
