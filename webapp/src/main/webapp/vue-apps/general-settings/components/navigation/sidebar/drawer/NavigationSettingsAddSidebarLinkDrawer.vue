@@ -76,9 +76,10 @@
             false-value="_blank"
             class="ma-0 width-fit-content" />
         </div>
-        <font-icon-input
+        <portal-general-settings-navigation-settings-icon-input
+          ref="nodeIcon"
           v-model="icon"
-          :label="$t('generalSettings.sidebar.linkIcon')"
+          :site-id="defaultSiteId"
           class="mt-4 mb-2" />
       </div>
     </template>
@@ -109,6 +110,7 @@ export default {
     settings: null,
     isNew: false,
     item: null,
+    defaultSiteId: null,
     names: {},
     descriptions: {},
     link: null,
@@ -170,12 +172,17 @@ export default {
   created() {
     this.$root.$on('sidebar-item-add-link', this.open);
     this.$root.$on('sidebar-item-edit-link', this.open);
+    this.init();
   },
   beforeDestroy() {
     this.$root.$off('sidebar-item-add-link', this.open);
     this.$root.$off('sidebar-item-edit-link', this.open);
   },
   methods: {
+    async init() {
+      const globalSite = await this.$siteService.getSite('PORTAL', 'global');
+      this.defaultSiteId = globalSite?.siteId;
+    },
     open(settings, item) {
       this.settings = settings;
       this.item = item || {
@@ -200,7 +207,16 @@ export default {
       this.names = item?.properties?.names && JSON.parse(item?.properties?.names) || {};
       this.descriptions = item?.properties?.descriptions && JSON.parse(item?.properties?.descriptions) || {};
     },
-    apply() {
+    async apply() {
+      if (this.$refs?.nodeIcon) {
+        try {
+          this.icon = await this.$refs.nodeIcon?.save?.();
+        } catch (e) {
+          this.loading = false;
+          this.$root.$emit('alert-message', this.$t('generalSettings.errorUpdatingNodeImage'), 'error');
+          throw e;
+        }
+      }
       this.item.name = this.names[eXo.env.portal.language] || this.names[eXo.env.portal.defaultLanguage];
       this.item.icon = this.icon || 'fa-globe';
       this.item.url = this.link;

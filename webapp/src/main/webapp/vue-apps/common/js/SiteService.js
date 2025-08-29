@@ -123,7 +123,7 @@ export function getSite(siteType, siteName, params) {
     });
   }
   const dataParams = new URLSearchParams(formData).toString();
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${siteType}/${siteName}?${dataParams}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${siteType}/${siteName.replaceAll('/', ':')}?${dataParams}`, {
     method: 'GET',
     credentials: 'include',
   }).then(resp => {

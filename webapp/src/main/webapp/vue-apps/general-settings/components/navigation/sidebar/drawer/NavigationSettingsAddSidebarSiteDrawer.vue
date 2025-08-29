@@ -288,6 +288,15 @@ export default {
     async apply() {
       this.saving = true;
       try {
+        if (this.$refs?.nodeIcon) {
+          try {
+            this.icon = await this.$refs.nodeIcon?.save?.();
+          } catch (e) {
+            this.loading = false;
+            this.$root.$emit('alert-message', this.$t('generalSettings.errorUpdatingNodeImage'), 'error');
+            throw e;
+          }
+        }
         await this.retrieveSite();
         this.item.name = this.isPageOption ? this.page.label : this.site.displayName;
         this.item.url = this.isPageOption ? `/portal/${this.siteName}/${this.page.uri}` : `/portal/${this.siteName}`;
@@ -307,15 +316,6 @@ export default {
           siteName: this.siteName,
           expandPages: this.expandPages,
         };
-        if (this.$refs?.nodeIcon) {
-          try {
-            await this.$refs.nodeIcon?.save?.();
-          } catch (e) {
-            this.loading = false;
-            this.$root.$emit('alert-message', this.$t('generalSettings.errorUpdatingNodeImage'), 'error');
-            throw e;
-          }
-        }
         if (this.isSiteOption && this.expandPages === 'true') {
           this.item.items = this.site.siteNavigations.map(n => (n.visibility?.toLowerCase?.() === 'displayed' || n.visibility?.toLowerCase?.() === 'temporal') && {
             name: n.label,
