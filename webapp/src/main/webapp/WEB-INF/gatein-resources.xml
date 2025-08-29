@@ -246,7 +246,7 @@
     <css-priority>2</css-priority>
   </portlet-skin>
 
-  <!-- TODO <Start> Deprecated WebUI Portlets skins to move -->
+  <!-- TopBar Notification Style -->
   <portlet-skin>
     <application-name>social</application-name>
     <portlet-name>TopBarNotification</portlet-name>
@@ -254,7 +254,6 @@
     <css-path>/skin/css/portlet/TopBarNotification/Style.css</css-path>
     <css-priority>1</css-priority>
   </portlet-skin>
-  <!-- TODO <End> Deprecated WebUI Portlets skins to move -->
 
   <!-- ATTENTION ! <Start> DO NOT DELETE -->
   <portlet-skin>

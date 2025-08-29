@@ -22,22 +22,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.security.auth.login.LoginException;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.DisabledUserException;
@@ -52,17 +46,7 @@ import org.exoplatform.services.security.Authenticator;
 import org.exoplatform.services.security.Credential;
 import org.exoplatform.services.security.PasswordCredential;
 import org.exoplatform.services.security.UsernameCredential;
-import org.exoplatform.web.application.AbstractApplicationMessage;
 import org.exoplatform.web.security.AuthenticationRegistry;
-import org.exoplatform.webui.exception.MessageException;
-import org.exoplatform.webui.form.UIForm;
-import org.exoplatform.webui.form.UIFormStringInput;
-import org.exoplatform.webui.form.validator.MandatoryValidator;
-import org.exoplatform.webui.form.validator.PasswordStringLengthValidator;
-import org.exoplatform.webui.form.validator.PersonalNameValidator;
-import org.exoplatform.webui.form.validator.StringLengthValidator;
-import org.exoplatform.webui.form.validator.UserConfigurableValidator;
-import org.exoplatform.webui.form.validator.Validator;
 
 import io.meeds.oauth.common.OAuthConstants;
 import io.meeds.oauth.contant.OAuthConst;
@@ -73,31 +57,63 @@ import io.meeds.oauth.spi.OAuthPrincipal;
 import io.meeds.oauth.spi.OAuthProviderType;
 import io.meeds.oauth.utils.OAuthUtils;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
 public class OAuthLoginServletFilter extends OAuthAbstractFilter {
 
-  private static final String PASSWORD_PARAM                    = "password";
+  private static final String            EMAIL_ADDRESS_PARAM               = "emailAddress";
 
-  private static final String INVITATION_CONFIRM_ERROR_PARAM    = "invitationConfirmError";
+  private static final String            USERNAME_PARAM                    = "username";
 
-  private final Log           log                               = ExoLogger.getLogger(OAuthLoginServletFilter.class);
+  public static final String             EMAIL_PARAM                       = "email";
 
-  public static final String  CONTROLLER_PARAM_NAME             = "login_controller";
+  public static final String             LASTNAME_PARAM                    = "lastName";
 
-  public static final String  CANCEL_OAUTH                      = "oauth_cancel";
+  public static final String             FIRSTNAME_PARAM                   = "firstName";
 
-  public static final String  CONFIRM_ACCOUNT                   = "confirm_account";
+  public static final String             PASSWORD_PARAM                    = "password";
 
-  public static final String  REGISTER_NEW_ACCOUNT              = "register";
+  private static final String            INVITATION_CONFIRM_ERROR_PARAM    = "invitationConfirmError";
 
-  public static final String  CONFIRM_REGISTER_ACCOUNT          = "submit_register";
+  private final Log                      log                               = ExoLogger.getLogger(OAuthLoginServletFilter.class);
 
-  public static final String  SESSION_ATTR_REGISTER_NEW_ACCOUNT = "__oauth_create_new_account";
+  public static final String             CONTROLLER_PARAM_NAME             = "login_controller";
 
-  private static final String SESSION_ATTR_IS_ON_FLY_ERROR      = "isOnFlyError";
+  public static final String             CANCEL_OAUTH                      = "oauth_cancel";
 
-  private static final String OAUTH_REGISTER_JSP_PATH           = "/WEB-INF/jsp/login/oauth_register.jsp";           // NOSONAR
+  public static final String             CONFIRM_ACCOUNT                   = "confirm_account";
 
-  private static final String OAUTH_INVITATION_JSP_PATH         = "/WEB-INF/jsp/login/oauth_invitation.jsp";         // NOSONAR
+  public static final String             REGISTER_NEW_ACCOUNT              = "register";
+
+  public static final String             CONFIRM_REGISTER_ACCOUNT          = "submit_register";
+
+  public static final String             SESSION_ATTR_REGISTER_NEW_ACCOUNT = "__oauth_create_new_account";
+
+  private static final String            SESSION_ATTR_IS_ON_FLY_ERROR      = "isOnFlyError";
+
+  private static final String            OAUTH_REGISTER_JSP_PATH           = "/WEB-INF/jsp/login/oauth_register.jsp";           // NOSONAR
+
+  private static final String            OAUTH_INVITATION_JSP_PATH         = "/WEB-INF/jsp/login/oauth_invitation.jsp";         // NOSONAR
+
+  public static final UserFieldValidator USERNAME_VALIDATOR                = new UserFieldValidator("userName", true, false);
+
+  public static final UserFieldValidator PASSWORD_VALIDATOR                =
+                                                            new UserFieldValidator(PASSWORD_PARAM, false, false, 8, 255);
+
+  public static final UserFieldValidator LASTNAME_VALIDATOR                =
+                                                            new UserFieldValidator(LASTNAME_PARAM, false, true);
+
+  public static final UserFieldValidator FIRSTNAME_VALIDATOR               =
+                                                             new UserFieldValidator(FIRSTNAME_PARAM, false, true);
+
+  public static final UserFieldValidator EMAIL_VALIDATOR                   = new UserFieldValidator(EMAIL_PARAM, false, false);
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -116,8 +132,9 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
 
     AuthenticationRegistry authenticationRegistry = getService(AuthenticationRegistry.class);
     ResourceBundleService resourceBundleService = getService(ResourceBundleService.class);
+    Locale locale = request.getLocale();
     ResourceBundle resourceBundle = resourceBundleService.getResourceBundle(resourceBundleService.getSharedResourceBundleNames(),
-                                                                            request.getLocale());
+                                                                            locale);
     MessageResolver messageResolver = new MessageResolver(resourceBundle);
     ServletContext context = getContext();
 
@@ -198,11 +215,10 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     String password = request.getParameter(PASSWORD_PARAM);
     Credential[] credentials =
                              new Credential[] {
-                                 new UsernameCredential(username), new PasswordCredential(password)
+                               new UsernameCredential(username), new PasswordCredential(password)
                              };
     Authenticator authenticator = getService(Authenticator.class);
     try {
-      OrganizationService organizationService = getService(OrganizationService.class);
       boolean isAuthenticated = StringUtils.isNotBlank(authenticator.validateUser(credentials));
       if (isAuthenticated) {
         OAuthRegistrationService oAuthRegistrationService = getService(OAuthRegistrationService.class);
@@ -236,11 +252,9 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     getContext().getRequestDispatcher(OAUTH_INVITATION_JSP_PATH).forward(request, response);
   }
 
-  private OAuthPrincipal getPrincipal(HttpServletRequest request, AuthenticationRegistry authenticationRegistry) {
-    OAuthPrincipal principal =
-                             (OAuthPrincipal) authenticationRegistry.getAttributeOfClient(request,
-                                                                                          OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
-    return principal;
+  private OAuthPrincipal<?> getPrincipal(HttpServletRequest request, AuthenticationRegistry authenticationRegistry) {
+    return (OAuthPrincipal<?>) authenticationRegistry.getAttributeOfClient(request,
+                                                                           OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
   }
 
   private String getUserName(HttpServletRequest request, AuthenticationRegistry authenticationRegistry) {
@@ -249,32 +263,40 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     return user == null ? null : user.getUserName();
   }
 
-  private void processCreateNewAccount(HttpServletRequest req, HttpServletResponse res,
-                                       MessageResolver bundle, AuthenticationRegistry authReg,
+  private void processCreateNewAccount(HttpServletRequest req,
+                                       HttpServletResponse res,
+                                       MessageResolver bundle,
+                                       AuthenticationRegistry authReg,
                                        User portalUser) throws IOException, ServletException {
 
-    String username = req.getParameter("username");
+    String username = req.getParameter(USERNAME_PARAM);
     String password = req.getParameter(PASSWORD_PARAM);
     String password2 = req.getParameter("password2");
-    String firstName = req.getParameter("firstName");
-    String lastName = req.getParameter("lastName");
+    String firstName = req.getParameter(FIRSTNAME_PARAM);
+    String lastName = req.getParameter(LASTNAME_PARAM);
     String displayName = req.getParameter("displayName");
-    String email = req.getParameter("email");
+    String email = req.getParameter(EMAIL_PARAM);
 
     portalUser.setUserName(username);
     portalUser.setPassword(password);
+    portalUser.setDisplayName(displayName);
     portalUser.setFirstName(firstName);
     portalUser.setLastName(lastName);
-    portalUser.setDisplayName(displayName);
     portalUser.setEmail(email);
 
-    List<String> errors = new ArrayList<String>();
-    Set<String> errorFields = new HashSet<String>();
+    List<String> errors = new ArrayList<>();
+    Set<String> errorFields = new HashSet<>();
     OrganizationService orgService = getService(OrganizationService.class);
 
-    validateUser(portalUser, password2, orgService, bundle, errors, errorFields);
+    validateUser(portalUser,
+                 password2,
+                 orgService,
+                 bundle,
+                 req.getLocale(),
+                 errors,
+                 errorFields);
 
-    if (errors.size() == 0) {
+    if (errors.isEmpty()) {
       try {
         orgService.getUserHandler().createUser(portalUser, true);
         UserProfileHandler profileHandler = orgService.getUserProfileHandler();
@@ -282,9 +304,7 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
         if (newUserProfile == null) {
           newUserProfile = orgService.getUserProfileHandler().createUserProfileInstance(portalUser.getUserName());
         }
-        OAuthPrincipal oauthPrincipal =
-                                      (OAuthPrincipal) authReg.getAttributeOfClient(req,
-                                                                                    OAuthConstants.ATTRIBUTE_AUTHENTICATED_OAUTH_PRINCIPAL);
+        OAuthPrincipal<?> oauthPrincipal = getPrincipal(req, authReg);
         newUserProfile.setAttribute(oauthPrincipal.getOauthProviderType().getUserNameAttrName(), oauthPrincipal.getUserName());
 
         try {
@@ -328,74 +348,78 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     getContext().getRequestDispatcher(OAUTH_REGISTER_JSP_PATH).forward(req, res);
   }
 
-  private void validateUser(User user, String password2, OrganizationService orgService,
-                            MessageResolver bundle, List<String> errorMessages, Set<String> errorFields) {
-    Validator validator;
-    Validator mandatory = new MandatoryValidator();
-    Validator stringLength;
-    ResourceBundle rb = bundle.getBundle();
-    //
+  private void validateUser(User user,
+                            String password2,
+                            OrganizationService organizationService,
+                            MessageResolver bundle,
+                            Locale locale,
+                            List<String> errorMessages,
+                            Set<String> errorFields) {
     String username = user.getUserName();
-    validator = new UserConfigurableValidator(UserConfigurableValidator.USERNAME,
-                                              UserConfigurableValidator.DEFAULT_LOCALIZATION_KEY);
-    validate("username", username, new Validator[] {
-        mandatory, validator
-    }, rb, errorMessages, errorFields);
-    if (!errorFields.contains("username")) {
+    String firstName = user.getFirstName();
+    String lastName = user.getLastName();
+    String email = user.getEmail();
+    String password = user.getPassword();
+
+    validate(USERNAME_VALIDATOR,
+             USERNAME_PARAM,
+             username,
+             locale,
+             errorMessages,
+             errorFields);
+    if (!errorFields.contains(USERNAME_PARAM)) {
       try {
-        if (orgService.getUserHandler().findUserByName(username, UserStatus.ANY) != null) {
-          errorFields.add("username");
+        if (organizationService.getUserHandler().findUserByName(username, UserStatus.ANY) != null) {
+          errorFields.add(USERNAME_PARAM);
           errorMessages.add(bundle.resolve("UIAccountInputSet.msg.user-exist", username));
         }
       } catch (Exception ex) {
         log.warn("Can not check username exist or not for: " + username);
       }
     }
-
-    //
-    String password = user.getPassword();
-    validator = new PasswordStringLengthValidator(6, 30);
-    validate(PASSWORD_PARAM, password, new Validator[] {
-        mandatory, validator
-    }, rb, errorMessages, errorFields);
-    if (!errorFields.contains(PASSWORD_PARAM)) {
-      if (!password.equals(password2)) {
-        errorMessages.add(bundle.resolve("UIAccountForm.msg.password-is-not-match"));
-        errorFields.add("password2");
-      }
+    validate(USERNAME_VALIDATOR,
+             USERNAME_PARAM,
+             username,
+             locale,
+             errorMessages,
+             errorFields);
+    validate(FIRSTNAME_VALIDATOR,
+             FIRSTNAME_PARAM,
+             firstName,
+             locale,
+             errorMessages,
+             errorFields);
+    validate(LASTNAME_VALIDATOR,
+             LASTNAME_PARAM,
+             lastName,
+             locale,
+             errorMessages,
+             errorFields);
+    validate(EMAIL_VALIDATOR,
+             EMAIL_ADDRESS_PARAM,
+             email,
+             locale,
+             errorMessages,
+             errorFields);
+    validate(PASSWORD_VALIDATOR,
+             PASSWORD_PARAM,
+             password,
+             locale,
+             errorMessages,
+             errorFields);
+    if (!errorFields.contains(PASSWORD_PARAM)
+        && !password.equals(password2)) {
+      errorMessages.add(bundle.resolve("UIAccountForm.msg.password-is-not-match"));
+      errorFields.add("password2");
     }
 
-    stringLength = new StringLengthValidator(1, 45);
-    validator = new PersonalNameValidator();
-    String firstName = user.getFirstName();
-    String lastName = user.getLastName();
-    validate("firstName", firstName, new Validator[] {
-        mandatory, stringLength, validator
-    }, rb, errorMessages, errorFields);
-    validate("lastName", lastName, new Validator[] {
-        mandatory, stringLength, validator
-    }, rb, errorMessages, errorFields);
-
-    stringLength = new StringLengthValidator(0, 90);
-    validator = new UserConfigurableValidator("displayname", UserConfigurableValidator.KEY_PREFIX + "displayname", false);
-    String displayName = user.getDisplayName();
-    validate("displayName", displayName, new Validator[] {
-        stringLength, validator
-    }, rb, errorMessages, errorFields);
-
-    //
-    validator = new UserConfigurableValidator(UserConfigurableValidator.EMAIL);
-    String email = user.getEmail();
-    validate("emailAddress", email, new Validator[] {
-        mandatory, validator
-    }, rb, errorMessages, errorFields);
-    if (!errorFields.contains("emailAddress")) {
+    if (!errorFields.contains(EMAIL_ADDRESS_PARAM)) {
       try {
         Query query = new Query();
         query.setEmail(email);
-        ListAccess<User> users = orgService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
+        ListAccess<User> users = organizationService.getUserHandler().findUsersByQuery(query, UserStatus.ANY);
         if (users != null && users.getSize() > 0) {
-          errorFields.add("emailAddress");
+          errorFields.add(EMAIL_ADDRESS_PARAM);
           errorMessages.add(bundle.resolve("UIAccountInputSet.msg.email-exist", email));
         }
       } catch (Exception ex) {
@@ -404,32 +428,16 @@ public class OAuthLoginServletFilter extends OAuthAbstractFilter {
     }
   }
 
-  private void validate(String field, String value, Validator[] validators, final ResourceBundle bundle,
-                        List<String> errorMessages, Set<String> errorFields) {
-    try {
-      UIForm form = new UIForm() {
-        @Override
-        public String getLabel(String label) throws Exception {
-          return this.getLabel(bundle, label);
-        }
-      };
-      form.setId("UIRegisterForm");
-      UIFormStringInput uiFormStringInput = new UIFormStringInput(field, field, value);
-      form.addUIFormInput(uiFormStringInput);
-      for (Validator validator : validators) {
-        validator.validate(uiFormStringInput);
-      }
-    } catch (Exception e) {
-      errorFields.add(field);
-      if (e instanceof MessageException) {
-        MessageException mex = (MessageException) e;
-        AbstractApplicationMessage msg = mex.getDetailMessage();
-        msg.setResourceBundle(bundle);
-        errorMessages.add(msg.getMessage());
-      } else {
-        log.debug(e);
-        errorMessages.add(field + " error");
-      }
+  private void validate(UserFieldValidator validator,
+                        String fieldName,
+                        String value,
+                        Locale locale,
+                        List<String> errorMessages,
+                        Set<String> errorFields) {
+    String errorMessage = validator.validate(locale, value);
+    if (StringUtils.isNotBlank(errorMessage)) {
+      errorFields.add(fieldName);
+      errorMessages.add(errorMessage);
     }
   }
 
