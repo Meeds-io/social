@@ -16,7 +16,20 @@
             size="36"
             class="ma-0"
             tile>
-            <v-icon size="28">{{ $root.siteIcon || 'fa-folder' }}</v-icon>
+            <v-img
+              v-if="iconUrl"
+              :src="iconUrl"
+              :max-height="iconSize"
+              :height="iconSize"
+              :max-width="iconSize"
+              contain
+              eager />
+            <v-icon
+              v-else
+              :size="iconSize"
+              class="icon-default-color">
+              {{ icon || 'fa-folder' }}
+            </v-icon>
           </v-list-item-avatar>
         </template>
         {{ $root.siteTitle }}
@@ -36,6 +49,9 @@
 </template>
 <script>
 export default {
+  data: () => ({
+    iconSize: 28,
+  }),
   computed: {
     tooltip() {
       return this.$root.isSitePage && this.$t('menu.pageNameTooltip', {
@@ -43,6 +59,20 @@ export default {
       }) || this.$t('menu.siteNameTooltip', {
         0: this.$root.siteTitle,
       });
+    },
+    iconUrl() {
+      if (this.$root.siteIcon?.includes?.('base64') || this.$root.siteIcon?.includes?.('/')) {
+        return this.$root.siteIcon;
+      } else {
+        return null;
+      }
+    },
+    icon() {
+      if (this.iconUrl) {
+        return null;
+      } else {
+        return this.$root.siteIcon;
+      }
     },
   },
 };

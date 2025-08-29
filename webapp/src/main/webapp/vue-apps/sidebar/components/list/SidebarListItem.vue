@@ -90,15 +90,15 @@
       :title="tooltip"
       :value="item.url"
       :disabled="!item.url"
-      :class="!$root.expand && avatar && 'ms-n2px'"
+      :class="(!$root.expand || !item.avatar) && avatar && 'ms-n2px'"
       class="d-flex ps-3"
       dense>
       <v-list-item-avatar
-        v-if="$root.expand || !avatar"
+        v-if="icon || ($root.expand && item.avatar)"
         class="my-auto me-2"
         min-width="40">
         <v-icon
-          v-if="!avatar"
+          v-if="icon"
           class="icon-default-color"
           size="18">
           {{ icon || 'fa-folder' }}
@@ -106,7 +106,7 @@
       </v-list-item-avatar>
       <v-list-item-avatar
         v-if="avatar"
-        :class="$root.expand && 'me-2' || 'ms-2'"
+        :class="($root.expand && item.avatar) && 'me-2' || 'ms-2'"
         class="my-auto"
         min-width="28"
         width="28"

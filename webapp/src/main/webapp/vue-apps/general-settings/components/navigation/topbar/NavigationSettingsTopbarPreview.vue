@@ -52,11 +52,13 @@
     </div>
     <div class="d-flex">
       <div>
-        <v-icon size="33">{{ firstSidebarSiteIcon }}</v-icon>
+        <portal-general-settings-navigation-settings-icon
+          :icon="firstSidebarSiteIcon"
+          :icon-size="33" />
       </div>
       <div v-if="displaySiteName" class="ps-2 ms-3 align-self-center d-none d-sm-flex">
         <div class="logoTitle text-body font-weight-bold menu-text-color text-truncate">
-          {{ firstSidebarSiteName }}
+          {{ $t(firstSidebarSiteName) }}
         </div>
       </div>
     </div>
@@ -77,11 +79,10 @@
           max-height="22"
           max-width="22"
           contain />
-        <v-icon
+        <portal-general-settings-navigation-settings-icon
           v-else-if="app.icon"
-          size="22">
-          {{ app.icon }}
-        </v-icon>
+          :icon="app.icon"
+          :icon-size="22" />
       </v-btn>
     </div>
   </v-card>
