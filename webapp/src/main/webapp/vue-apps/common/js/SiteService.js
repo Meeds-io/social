@@ -99,19 +99,30 @@ export function getSitesByFilter({
 
 export function getSite(siteType, siteName, params) {
   const formData = new FormData();
-  formData.append('lang', params.lang);
-  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
-  formData.append('expandNavigations', params.expandNavigations);
-  formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
-  formData.append('excludeGroupNodesWithoutPageChildNodes', params.excludeGroupNodesWithoutPageChildNodes);
-  formData.append('temporalCheck', params.temporalCheck);
-  if (params.visibility) {
+  if (params?.lang) {
+    formData.append('lang', params?.lang);
+  }
+  if (params?.excludeEmptyNavigationSites) {
+    formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
+  }
+  if (params?.expandNavigations) {
+    formData.append('expandNavigations', params.expandNavigations);
+  }
+  if (params?.excludeEmptyNavigationSites) {
+    formData.append('excludeEmptyNavigationSites', params.excludeEmptyNavigationSites);
+  }
+  if (params?.excludeGroupNodesWithoutPageChildNodes) {
+    formData.append('excludeGroupNodesWithoutPageChildNodes', params.excludeGroupNodesWithoutPageChildNodes);
+  }
+  if (params?.temporalCheck) {
+    formData.append('temporalCheck', params.temporalCheck);
+  }
+  if (params?.visibility) {
     params.visibility.forEach(visibility => {
       formData.append('visibility', visibility);
     });
   }
   const dataParams = new URLSearchParams(formData).toString();
-
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites/${siteType}/${siteName}?${dataParams}`, {
     method: 'GET',
     credentials: 'include',

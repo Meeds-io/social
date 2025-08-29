@@ -24,12 +24,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
 import org.exoplatform.social.attachment.model.*;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.metadata.model.MetadataType;
 
 public interface AttachmentService {

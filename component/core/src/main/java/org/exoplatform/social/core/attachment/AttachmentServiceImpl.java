@@ -32,6 +32,7 @@ import java.util.Set;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.ObjectAlreadyExistsException;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
@@ -47,7 +48,6 @@ import org.exoplatform.social.attachment.model.ObjectAttachmentId;
 import org.exoplatform.social.attachment.model.ObjectAttachmentList;
 import org.exoplatform.social.attachment.model.ObjectAttachmentOperationReport;
 import org.exoplatform.social.attachment.model.UploadedAttachmentDetail;
-import org.exoplatform.social.common.ObjectAlreadyExistsException;
 import org.exoplatform.social.core.attachment.storage.FileAttachmentStorage;
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.metadata.MetadataService;
