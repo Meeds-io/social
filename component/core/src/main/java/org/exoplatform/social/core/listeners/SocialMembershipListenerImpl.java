@@ -18,7 +18,6 @@
  */
 package org.exoplatform.social.core.listeners;
 
-import java.util.List;
 
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
@@ -35,7 +34,6 @@ import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.MembershipEventListener;
 import org.exoplatform.services.organization.MembershipTypeHandler;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.User;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.IdentityRegistry;
@@ -56,8 +54,6 @@ import org.exoplatform.social.core.storage.cache.CachedActivityStorage;
 public class SocialMembershipListenerImpl extends MembershipEventListener {
 
   private static final Log LOG = ExoLogger.getLogger(SocialMembershipListenerImpl.class);
-
-  private static final String PLATFORM_EXTERNALS_GROUP = "/platform/externals";
 
   @Override
   public void preDelete(Membership m) throws Exception {
@@ -180,22 +176,6 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
         // Refresh GroupNavigation
         refreshNavigation();
       }
-
-    }
-    // only trigger when the Organization service adds new membership to
-    // Externals group
-    else if (m.getGroupId().equals(PLATFORM_EXTERNALS_GROUP)) {
-      OrganizationService orgService = CommonsUtils.getService(OrganizationService.class);
-      SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
-      User user = orgService.getUserHandler().findUserByName(m.getUserName());
-
-      List<String> spacesToJoin = spaceService.findExternalInvitationsSpacesByEmail(user.getEmail());
-
-      for (String spaceId : spacesToJoin) {
-        Space space = spaceService.getSpaceById(spaceId);
-        spaceService.addMember(space, user.getUserName());
-      }
-      spaceService.deleteExternalUserInvitations(user.getEmail());
     } else if (m.getGroupId().startsWith(SpaceUtils.PLATFORM_USERS_GROUP)) {
       clearIdentityCaching();
     }
