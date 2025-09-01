@@ -1,0 +1,277 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
+package io.meeds.social.core.identity.service;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.config.UserACL;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserStatus;
+import org.exoplatform.services.organization.search.UserSearchService;
+import org.exoplatform.services.security.MembershipEntry;
+import org.exoplatform.social.core.identity.model.Identity;
+import org.exoplatform.social.core.identity.model.Profile;
+import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvider;
+import org.exoplatform.social.core.manager.IdentityManager;
+import org.exoplatform.social.core.profile.ProfileFilter;
+import org.exoplatform.social.core.search.Sorting;
+import org.exoplatform.social.core.space.SpaceUtils;
+
+import io.meeds.social.core.identity.model.IdentityExportFilter;
+
+import lombok.SneakyThrows;
+
+@Service
+public class UserExportService {
+
+  public static final String  DELEGATED_GROUP      = "/platform/delegated";
+
+  private static final String INTERNAL             = "internal";
+
+  private static final String CONNECTED            = "connected";
+
+  private static final int    PAGINATION_PAGE_SIZE = 10;
+
+  @Autowired
+  private IdentityManager     identityManager;
+
+  @Autowired
+  private UserSearchService   userSearchService;
+
+  @Autowired
+  private OrganizationService organizationService;
+
+  @Autowired
+  private UserACL             userAcl;
+
+  @SneakyThrows
+  public InputStream exportUsers(IdentityExportFilter exportFilter,
+                                 String username) {
+    int offset = 0;
+    int limit = PAGINATION_PAGE_SIZE;
+
+    File file = Files.createTempFile("users", ".csv").toFile();
+    OutputStream outputStream = new FileOutputStream(file);
+    try (PrintWriter writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);) {
+      writer.write(String.format("userName,firstName,lastName,email,enabled,type,groups%n"));
+
+      Identity[] identities;
+      do {
+        identities = getUsers(exportFilter, username, offset, limit);
+        if (identities == null || identities.length == 0) {
+          break;
+        } else {
+          for (Identity identity : identities) {
+            String userName = identity.getRemoteId();
+            Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(userName);
+            writer.write(String.format("%s,%s,%s,%s,%s,%s,%s%n",
+                                       userName,
+                                       identity.getProfile().getProperty(Profile.FIRST_NAME),
+                                       identity.getProfile().getProperty(Profile.LAST_NAME),
+                                       identity.getProfile().getEmail(),
+                                       identity.isEnable() ? "TRUE" : "FALSE",
+                                       identity.isExternal() ? "Guest" : "Internal",
+                                       memberships.stream().map(m -> m.getGroupId()).collect(Collectors.joining(";"))));
+          }
+        }
+        offset += limit;
+        limit = offset + PAGINATION_PAGE_SIZE;
+      } while (identities.length >= PAGINATION_PAGE_SIZE);
+    }
+    return new FileInputStream(file);
+  }
+
+  private Identity[] getUsers(IdentityExportFilter userExportFilter, String username, int offset, int limit) throws Exception {
+    Identity viewerIdentity = identityManager.getOrCreateUserIdentity(username);
+    org.exoplatform.services.security.Identity viewerAclIdentity = userAcl.getUserIdentity(username);
+
+    ProfileFilter filter = computeFilter(userExportFilter, viewerIdentity);
+    Identity[] identities;
+    if (isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity)) {
+      identities = getDelegatedAdminUsers(viewerAclIdentity,
+                                          userExportFilter.getQuery(),
+                                          userExportFilter.isDisabled(),
+                                          offset,
+                                          limit);
+    } else if (userExportFilter.isDisabled()
+               && StringUtils.isNotBlank(userExportFilter.getQuery())) {
+      identities = searchUsers(userExportFilter.getQuery(),
+                               offset,
+                               limit);
+    } else {
+      identities = loadUsers(filter, offset, limit);
+    }
+    return identities;
+  }
+
+  private ProfileFilter computeFilter(IdentityExportFilter exportFilter, Identity viewerIdentity) {
+    ProfileFilter filter = new ProfileFilter();
+    applySpaceIdsFilter(filter, exportFilter, viewerIdentity);
+    applySortFilter(filter, exportFilter);
+    applyExcludeCurrentUserFilter(exportFilter, viewerIdentity, filter);
+    applyUserPropertiesFilter(filter, exportFilter);
+    return filter;
+  }
+
+  private void applyExcludeCurrentUserFilter(IdentityExportFilter userExportFilter,
+                                             Identity viewerIdentity,
+                                             ProfileFilter filter) {
+    if (viewerIdentity != null
+        && userExportFilter.isExcludeCurrentUser()) {
+      filter.setViewerIdentity(viewerIdentity);
+    }
+  }
+
+  private void applySpaceIdsFilter(ProfileFilter filter, IdentityExportFilter userExportFilter, Identity viewerIdentity) {
+    List<Long> spaceIds = userExportFilter.getSpaceIds();
+    if (CollectionUtils.isNotEmpty(spaceIds)) {
+      List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
+      filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(viewerIdentity.getRemoteId(), spaceIdsString));
+    }
+  }
+
+  private void applySortFilter(ProfileFilter filter, IdentityExportFilter userExportFilter) {
+    String sortField = userExportFilter.getSortField();
+    String sortDirection = userExportFilter.getSortDirection();
+    if (StringUtils.isNotBlank(sortField)) {
+      Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.toUpperCase());
+      Sorting.OrderBy orderBy = Sorting.OrderBy.ASC;
+      if (StringUtils.isNotBlank(sortDirection)) {
+        orderBy = Sorting.OrderBy.valueOf(sortDirection.toUpperCase());
+      }
+      filter.setSorting(new Sorting(sortBy, orderBy));
+    }
+  }
+
+  private String applyUserPropertiesFilter(ProfileFilter filter, IdentityExportFilter userExportFilter) {
+    String filterText = userExportFilter.getQuery();
+    filter.setName(filterText == null || filterText.isEmpty() ? "" : filterText);
+    filter.setSearchEmail(userExportFilter.isSearchEmail());
+    filter.setSearchUserName(userExportFilter.isSearchUsername());
+    filter.setEnabled(!userExportFilter.isDisabled());
+    String userType = userExportFilter.getUserType();
+    if (!userExportFilter.isDisabled()) {
+      filter.setUserType(userType);
+      filter.setConnected(userExportFilter.getIsConnected() != null ? userExportFilter.getIsConnected().equals(CONNECTED) : null);
+      filter.setEnrollmentStatus(userExportFilter.getEnrollmentStatus());
+    }
+    return userType;
+  }
+
+  private Identity[] loadUsers(ProfileFilter filter,
+                               int offset,
+                               int limit) throws Exception {
+    return identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
+                                                        filter,
+                                                        true)
+                          .load(offset, limit);
+  }
+
+  private Identity[] searchUsers(String filterText, int offset, int limit) throws Exception {
+    ListAccess<User> usersListAccess = userSearchService.searchUsers(filterText, UserStatus.DISABLED);
+    int totalSize = usersListAccess.getSize();
+    int limitToFetch = limit;
+    if (totalSize < (offset + limitToFetch)) {
+      limitToFetch = totalSize - offset;
+    }
+    User[] users;
+    if (limitToFetch <= 0) {
+      users = new User[0];
+    } else {
+      users = usersListAccess.load(offset, limitToFetch);
+    }
+    return Arrays.stream(users)
+                 .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
+                 .toArray(Identity[]::new);
+  }
+
+  private Identity[] getDelegatedAdminUsers(org.exoplatform.services.security.Identity userIdentity,
+                                            String filterText,
+                                            boolean disabledUsers,
+                                            int offset,
+                                            int limit) throws Exception {
+    List<String> groupIds = getDelegatedAdminGroups(userIdentity);
+
+    ListAccess<User> usersListAccess = null;
+    if (CollectionUtils.isNotEmpty(groupIds)) {
+      Query query = new Query();
+      if (filterText != null && !filterText.isEmpty()) {
+        query.setUserName(filterText);
+      }
+      usersListAccess = organizationService.getUserHandler()
+                                           .findUsersByQuery(query,
+                                                             groupIds,
+                                                             disabledUsers ? UserStatus.DISABLED : UserStatus.ENABLED);
+    }
+
+    int totalSize = usersListAccess == null ? 0 : usersListAccess.getSize();
+    int limitToFetch = limit;
+    if (totalSize < (offset + limitToFetch)) {
+      limitToFetch = totalSize - offset;
+    }
+    User[] users;
+    if (limitToFetch <= 0 || usersListAccess == null) {
+      users = new User[0];
+    } else {
+      users = usersListAccess.load(offset, limitToFetch);
+    }
+
+    return Arrays.stream(users)
+                 .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
+                 .toArray(Identity[]::new);
+  }
+
+  private List<String> getDelegatedAdminGroups(org.exoplatform.services.security.Identity userIdentity) {
+    return userIdentity.getMemberships()
+                       .stream()
+                       .filter(m -> m.getMembershipType().equals("manager")
+                                    && !m.getGroup().equals(DELEGATED_GROUP)
+                                    && !m.getGroup().startsWith("/spaces/"))
+                       .map(MembershipEntry::getGroup)
+                       .toList();
+  }
+
+  private boolean isDelegatedAdminUser(String userType, org.exoplatform.services.security.Identity userAclIdentity) {
+    return !userAcl.isAdministrator(userAclIdentity)
+           && userAclIdentity.isMemberOf(DELEGATED_GROUP)
+           && userType != null
+           && !userType.equals(INTERNAL);
+  }
+
+}
