@@ -22,6 +22,16 @@
           <users-management-import-csv-button />
         </div>
       </div>
+      <v-btn
+        :href="exportLink"
+        :outlined="usersSelected"
+        target="_blank"
+        color="primary"
+        elevation="0"
+        class="ms-2">
+        <v-icon size="14" class="me-2">fa-file-excel</v-icon>
+        {{ $t('UsersManagement.selection.export') }}
+      </v-btn>
       <template v-if="usersSelected">
         <v-btn
           outlined
@@ -48,15 +58,6 @@
           {{ $t('UsersManagement.selection.disable') }}
         </v-btn>
       </template>
-      <v-btn
-        v-else
-        :href="exportLink"
-        target="_blank"
-        color="primary"
-        class="btn ms-2">
-        <v-icon size="14" class="me-2">fa-file-excel</v-icon>
-        {{ $t('UsersManagement.selection.export') }}
-      </v-btn>
     </v-toolbar-title>
     <v-spacer />
     <v-scale-transition>
