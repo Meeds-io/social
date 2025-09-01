@@ -83,6 +83,7 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.web.security.service.OtpService;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
@@ -108,6 +109,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private MockUploadService   uploadService;
 
   private UserSearchService   userSearchService;
+
+  private UserExportService            userExportService;
 
   private ImageThumbnailService        imageThumbnailService;
 
@@ -148,6 +151,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
+    userExportService = mock(UserExportService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
@@ -170,6 +174,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 spaceService,
                                                 uploadService,
                                                 userSearchService,
+                                                userExportService,
                                                 imageThumbnailService,
                                                 profilePropertyService,
                                                 passwordRecoveryService,
@@ -251,6 +256,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               spaceService,
                                               uploadService,
                                               userSearchService,
+                                              userExportService,
                                               imageThumbnailService,
                                               profilePropertyService,
                                               passwordRecoveryService,
