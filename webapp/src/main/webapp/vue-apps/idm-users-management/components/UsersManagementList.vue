@@ -194,7 +194,7 @@ export default {
       const userType = this.userType || '';
       const isConnectedParam = this.isConnected ? `&isConnected=${this.isConnected}` : '';
       const enrollmentStatusParam = this.enrollmentStatus ? `&enrollmentStatus=${this.enrollmentStatus}` : '';
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?isDisabled=${isDisabled}&status=${status}&userType=${userType}${isConnectedParam}${enrollmentStatusParam}`;
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?&q=${this.keyword || ''}&searchEmail=true&searchUserName=true&isDisabled=${isDisabled}&status=${status}&userType=${userType}${isConnectedParam}${enrollmentStatusParam}`;
     },
     filteredUsers() {
       if (!this.keyword || !this.loading) {
@@ -432,7 +432,7 @@ export default {
         this.enrollmentStatus = null;
       }
       await this.$nextTick();
-      return fetch(`${this.retrieveListLink}&q=${this.keyword || ''}&searchEmail=true&searchUserName=true&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      return fetch(`${this.retrieveListLink}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
