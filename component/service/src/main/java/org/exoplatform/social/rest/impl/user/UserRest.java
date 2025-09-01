@@ -18,24 +18,60 @@
  */
 package org.exoplatform.social.rest.impl.user;
 
-import static org.exoplatform.social.rest.api.RestUtils.*;
+import static org.exoplatform.social.rest.api.RestUtils.getCurrentUser;
+import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
+import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
+import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.CacheControl;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Request;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.social.core.search.Sorting;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -56,7 +92,14 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.*;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.Membership;
+import org.exoplatform.services.organization.MembershipType;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.Query;
+import org.exoplatform.services.organization.User;
+import org.exoplatform.services.organization.UserHandler;
+import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -79,6 +122,7 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -88,13 +132,24 @@ import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
 import org.exoplatform.social.rest.api.UserImportResultEntity;
-import org.exoplatform.social.rest.entity.*;
+import org.exoplatform.social.rest.entity.CollectionEntity;
+import org.exoplatform.social.rest.entity.DataEntity;
+import org.exoplatform.social.rest.entity.ExperienceEntity;
+import org.exoplatform.social.rest.entity.IMEntity;
+import org.exoplatform.social.rest.entity.PhoneEntity;
+import org.exoplatform.social.rest.entity.ProfileEntity;
+import org.exoplatform.social.rest.entity.ProfilePropertySettingEntity;
+import org.exoplatform.social.rest.entity.SpaceEntity;
+import org.exoplatform.social.rest.entity.URLEntity;
+import org.exoplatform.social.rest.entity.UserEntity;
 import org.exoplatform.social.service.rest.Util;
 import org.exoplatform.social.service.rest.api.VersionResources;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.social.core.identity.model.IdentityExportFilter;
+import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.web.security.service.OtpService;
 
@@ -168,6 +223,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private UserStateService userStateService;
 
+  private UserExportService userExportService;
+
   private SpaceService spaceService;
 
   private UserSearchService userSearchService;
@@ -202,6 +259,7 @@ public class UserRest implements ResourceContainer, Startable {
                   SpaceService spaceService,
                   UploadService uploadService,
                   UserSearchService userSearchService,
+                  UserExportService userExportService,
                   ImageThumbnailService imageThumbnailService,
                   ProfilePropertyService profilePropertyService,
                   PasswordRecoveryService passwordRecoveryService,
@@ -216,6 +274,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.spaceService = spaceService;
     this.uploadService = uploadService;
     this.userSearchService = userSearchService;
+    this.userExportService = userExportService;
     this.imageThumbnailService = imageThumbnailService;
     this.profilePropertyService = profilePropertyService;
     this.passwordRecoveryService = passwordRecoveryService;
@@ -248,6 +307,7 @@ public class UserRest implements ResourceContainer, Startable {
       @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
       @ApiResponse (responseCode = "400", description = "Invalid query input") })
   public Response getUsers(@Context UriInfo uriInfo,
+                           @Context HttpServletRequest request,
                            @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
                            @Parameter(description = "Is search with email") @QueryParam("searchEmail") boolean searchEmail,
                            @Parameter(description = "Is search with username") @QueryParam("searchUsername") boolean searchUsername,
@@ -257,28 +317,44 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") List<Long> spaceIds,
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
+                           @Parameter(description = "the current user will be excluded in the list") @Schema(defaultValue = "false") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser,
+                           @Parameter(description = "Whether to export users or not") @Schema(defaultValue = "false") @QueryParam("export") boolean exportFile,
                            @Parameter(description = "sort Field", required = false) @QueryParam("sortField") String sortField,
                            @Parameter(description = "sort Direction", required = false) @QueryParam("sortDirection") String sortDirection,
                            @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
                            @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
                            @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
-                           @Parameter(description = "the current user will be excluded in the list") @Schema(defaultValue = "false") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
 
-    String userId;
-    try {
-      userId = ConversationState.getCurrent().getIdentity().getUserId();
-    } catch (Exception e) {
-      return Response.status(HTTPStatus.UNAUTHORIZED).build();
-    }
-    if (StringUtils.isBlank(userId)) {
-      return Response.status(HTTPStatus.UNAUTHORIZED).build();
-    }
-
-    if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
+    String username = request.getRemoteUser();
+    if (!userACL.getSuperUser().equals(username)
+        && !RestUtils.isMemberOfAdminGroup()
+        && !RestUtils.isMemberOfDelegatedGroup()
+        && userType != null
+        && !userType.equals(INTERNAL)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
-    
+
+    if (exportFile) {
+      IdentityExportFilter userExportFilter = new IdentityExportFilter(q,
+                                                                       searchEmail,
+                                                                       searchUsername,
+                                                                       status,
+                                                                       userType,
+                                                                       isConnected,
+                                                                       spaceIds,
+                                                                       isDisabled,
+                                                                       enrollmentStatus,
+                                                                       excludeCurrentUser,
+                                                                       sortField,
+                                                                       sortDirection);
+      InputStream inputStream = userExportService.exportUsers(userExportFilter, username);
+      String filename = "users";
+      return Response.ok(AutoCloseInputStream.builder().setInputStream(inputStream).get())
+                     .header("Content-Disposition", "attachment; filename=" + filename + ".csv")
+                     .header("Content-Type", "text/csv")
+                     .build();
+    }
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
@@ -292,7 +368,7 @@ public class UserRest implements ResourceContainer, Startable {
         for (Long spaceId : spaceIds) {
           space = spaceService.getSpaceById(spaceId);
           if (space != null) {
-            Identity[] onlineIdentity = getOnlineIdentitiesOfSpace(userStateService, userId, space, limit);
+            Identity[] onlineIdentity = getOnlineIdentitiesOfSpace(userStateService, username, space, limit);
             allIdentities.addAll(Arrays.asList(onlineIdentity));
           } else {
             return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
@@ -300,10 +376,10 @@ public class UserRest implements ResourceContainer, Startable {
         }
         identities = allIdentities.toArray(new Identity[0]);
       } else {
-        identities = getOnlineIdentities(userStateService, userId, limit);
+        identities = getOnlineIdentities(userStateService, username, limit);
       }
     } else {
-      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setSearchEmail(searchEmail);
@@ -329,53 +405,55 @@ public class UserRest implements ResourceContainer, Startable {
         filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
         filter.setEnrollmentStatus(enrollmentStatus);
       }
-      if (RestUtils.isMemberOfDelegatedGroup() && !RestUtils.isMemberOfAdminGroup() && userType != null && !userType.equals(INTERNAL)) {
+      if (!RestUtils.isMemberOfAdminGroup()
+          && RestUtils.isMemberOfDelegatedGroup()
+          && userType != null && !userType.equals(INTERNAL)) {
         Query query = new Query();
         if (q != null && !q.isEmpty()) {
           query.setUserName(q);
         }
-        ListAccess<User> usersListAccess = null;
-        User[] users;
         List<String> groupIds = organizationService.getMembershipHandler()
-                                                   .findMembershipsByUser(userId)
+                                                   .findMembershipsByUser(username)
                                                    .stream()
                                                    .filter(x -> x.getMembershipType().equals("manager")
                                                        && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
                                                        && !x.getGroupId().startsWith("/spaces/"))
                                                    .map(Membership::getGroupId)
-                                                   .collect(Collectors.toList());
+                                                   .toList();
 
-        if (groupIds.size() > 0) {
+        ListAccess<User> usersListAccess = null;
+        if (CollectionUtils.isNotEmpty(groupIds)) {
           usersListAccess = organizationService.getUserHandler()
                                                .findUsersByQuery(query,
                                                                  groupIds,
                                                                  isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
         }
 
-        totalSize = usersListAccess.getSize();
+        totalSize = usersListAccess == null ? 0 : usersListAccess.getSize();
         int limitToFetch = limit;
         if (totalSize < (offset + limitToFetch)) {
           limitToFetch = totalSize - offset;
         }
-        if (limitToFetch <= 0) {
+
+        User[] users;
+        if (limitToFetch <= 0 || usersListAccess == null) {
           users = new User[0];
         } else {
           users = usersListAccess.load(offset, limitToFetch);
         }
-        identities =
-            Arrays.stream(users)
-                  .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
-                  .toArray(Identity[]::new);
 
+        identities = Arrays.stream(users)
+                           .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
+                           .toArray(Identity[]::new);
       } else if (isDisabled && q != null && !q.isEmpty()) {
-        ListAccess<User> usersListAccess;
-        User[] users;
-        usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
+        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
         totalSize = usersListAccess.getSize();
         int limitToFetch = limit;
         if (totalSize < (offset + limitToFetch)) {
           limitToFetch = totalSize - offset;
         }
+
+        User[] users;
         if (limitToFetch <= 0) {
           users = new User[0];
         } else {
@@ -392,7 +470,7 @@ public class UserRest implements ResourceContainer, Startable {
         }
       }
     }
-    List<DataEntity> profileInfos = new ArrayList<DataEntity>();
+    List<DataEntity> profileInfos = new ArrayList<>();
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
       //
