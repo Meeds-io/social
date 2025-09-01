@@ -604,8 +604,7 @@ public class PeopleRestService implements ResourceContainer{
         opt.setValue(userName);
         opt.setText(fullName);
         opt.setAvatarUrl(identity.getProfile() == null ? null : identity.getProfile().getAvatarUrl());
-      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || (!spaceSrv.isInvitedUser(space, userName)
-                 && !spaceSrv.isPendingUser(space, userName) && !spaceSrv.isMember(space, userName)))) {
+      } else if (USER_TO_INVITE.equals(typeOfRelation) && (space == null || !spaceSrv.isMember(space, userName))) {
         opt.setType("user");
         opt.setValue(userName);
         opt.setText(fullName + " (" + userName + ")");
