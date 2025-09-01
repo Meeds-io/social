@@ -364,11 +364,6 @@ public class IdentityManagerImpl implements IdentityManager {
   }
 
   @Override
-  public Identity getIdentity(String id) {
-    return getIdentity(id, true);
-  }
-
-  @Override
   public long getIdentitiesCount(String providerId) {
     return identityStorage.getIdentitiesCount(providerId);
   }

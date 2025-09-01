@@ -48,6 +48,15 @@
           {{ $t('UsersManagement.selection.disable') }}
         </v-btn>
       </template>
+      <v-btn
+        v-else
+        :href="exportLink"
+        target="_blank"
+        color="primary"
+        class="btn ms-2">
+        <v-icon size="14" class="me-2">fa-file-excel</v-icon>
+        {{ $t('UsersManagement.selection.export') }}
+      </v-btn>
     </v-toolbar-title>
     <v-spacer />
     <v-scale-transition>
@@ -83,9 +92,14 @@
     </v-btn>
   </v-toolbar>
 </template>
-
 <script>
 export default {
+  props: {
+    exportUsersUrl: {
+      type: String,
+      default: null,
+    }
+  },
   data: () => ({
     filter: 'ENABLED',
     initialized: false,
@@ -96,6 +110,11 @@ export default {
     dropdown: false,
     isDelegatedAdministrator: true,
   }),
+  computed: {
+    exportLink() {
+      return `${this.exportUsersUrl}&export=true`;
+    },
+  },
   watch: {
     keyword() {
       this.$root.$emit('searchUser', this.keyword, this.filter);
