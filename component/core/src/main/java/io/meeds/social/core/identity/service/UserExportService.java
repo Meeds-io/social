@@ -28,7 +28,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -117,27 +119,37 @@ public class UserExportService {
     return new FileInputStream(file);
   }
 
-  private Identity[] getUsers(IdentityExportFilter userExportFilter, String username, int offset, int limit) throws Exception {
+  private Identity[] getUsers(IdentityExportFilter exportFilter, String username, int offset, int limit) throws Exception {
     Identity viewerIdentity = identityManager.getOrCreateUserIdentity(username);
     org.exoplatform.services.security.Identity viewerAclIdentity = userAcl.getUserIdentity(username);
 
-    ProfileFilter filter = computeFilter(userExportFilter, viewerIdentity);
-    Identity[] identities;
-    if (isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity)) {
-      identities = getDelegatedAdminUsers(viewerAclIdentity,
-                                          userExportFilter.getQuery(),
-                                          userExportFilter.isDisabled(),
-                                          offset,
-                                          limit);
-    } else if (userExportFilter.isDisabled()
-               && StringUtils.isNotBlank(userExportFilter.getQuery())) {
-      identities = searchUsers(userExportFilter.getQuery(),
-                               offset,
-                               limit);
+    ProfileFilter filter = computeFilter(exportFilter, viewerIdentity);
+    if (CollectionUtils.isNotEmpty(exportFilter.getIncludeUsers())) {
+      boolean delegatedAdminUser = isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity);
+      List<String> groupIds = delegatedAdminUser ? getDelegatedAdminGroups(viewerAclIdentity) : Collections.emptyList();
+      return exportFilter.getIncludeUsers()
+                         .stream()
+                         .filter(StringUtils::isNotBlank)
+                         .map(identityManager::getOrCreateUserIdentity)
+                         .filter(Objects::nonNull)
+                         .filter(i -> !delegatedAdminUser || isMemberOf(i.getRemoteId(), groupIds))
+                         .skip(offset)
+                         .limit(limit)
+                         .toArray(Identity[]::new);
+    } else if (isDelegatedAdminUser(filter.getUserType(), viewerAclIdentity)) {
+      return getDelegatedAdminUsers(viewerAclIdentity,
+                                    exportFilter.getQuery(),
+                                    exportFilter.isDisabled(),
+                                    offset,
+                                    limit);
+    } else if (exportFilter.isDisabled()
+               && StringUtils.isNotBlank(exportFilter.getQuery())) {
+      return searchUsers(exportFilter.getQuery(),
+                         offset,
+                         limit);
     } else {
-      identities = loadUsers(filter, offset, limit);
+      return loadUsers(filter, offset, limit);
     }
-    return identities;
   }
 
   private ProfileFilter computeFilter(IdentityExportFilter exportFilter, Identity viewerIdentity) {
@@ -272,6 +284,11 @@ public class UserExportService {
            && userAclIdentity.isMemberOf(DELEGATED_GROUP)
            && userType != null
            && !userType.equals(INTERNAL);
+  }
+
+  private boolean isMemberOf(String username, List<String> groupIds) {
+    org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
+    return userAclIdentity != null && groupIds.stream().anyMatch(userAclIdentity::isMemberOf);
   }
 
 }

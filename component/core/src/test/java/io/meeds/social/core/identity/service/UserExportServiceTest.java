@@ -247,4 +247,42 @@ public class UserExportServiceTest {
     assertEquals(EXPORTED_USER_LINE, line);
   }
 
+  @Test
+  @SneakyThrows
+  public void testExportIncludedUsers() {
+    IdentityExportFilter filter = new IdentityExportFilter();
+    filter.setIncludeUsers(Collections.singletonList(TEST_USER2));
+    filter.setUserType(EXTERNAL_USER_TYPE);
+
+    Identity identity = mock(Identity.class);
+    Profile profile = mock(Profile.class);
+    when(identity.getRemoteId()).thenReturn(TEST_USER2);
+    when(identity.getProfile()).thenReturn(profile);
+    when(profile.getProperty(Profile.FIRST_NAME)).thenReturn(FIRST_NAME);
+    when(profile.getProperty(Profile.LAST_NAME)).thenReturn(LAST_NAME);
+    when(profile.getEmail()).thenReturn(EMAIL);
+    when(identity.isEnable()).thenReturn(true);
+    when(identity.isExternal()).thenReturn(false);
+    when(identityManager.getOrCreateUserIdentity(TEST_USER2)).thenReturn(identity);
+
+    org.exoplatform.services.security.Identity viewerAclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    org.exoplatform.services.security.Identity userAclIdentity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER1)).thenReturn(viewerAclIdentity);
+    when(userAcl.getUserIdentity(TEST_USER2)).thenReturn(userAclIdentity);
+    when(viewerAclIdentity.isMemberOf(UserExportService.DELEGATED_GROUP)).thenReturn(true);
+    when(viewerAclIdentity.getMemberships()).thenReturn(Collections.singleton(new MembershipEntry(DELEGATED_GROUP, "manager")));
+    when(userAclIdentity.isMemberOf(DELEGATED_GROUP)).thenReturn(true);
+
+    Membership membership = mock(Membership.class);
+    when(membership.getGroupId()).thenReturn(USERS_GROUP);
+    when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(membership));
+
+    InputStream in = service.exportUsers(filter, TEST_USER1);
+    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+    String header = reader.readLine();
+    String line = reader.readLine();
+    assertTrue(header.contains(USER_NAME_FIELD));
+    assertEquals(EXPORTED_USER_LINE, line);
+  }
+
 }
