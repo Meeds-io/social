@@ -90,33 +90,33 @@
       :title="tooltip"
       :value="item.url"
       :disabled="!item.url"
-      :class="!$root.expand && item.avatar && 'ms-n2px'"
+      :class="(!$root.expand || !item.avatar) && avatar && 'ms-n2px'"
       class="d-flex ps-3"
       dense>
       <v-list-item-avatar
-        v-if="$root.expand || !item.avatar"
+        v-if="icon || ($root.expand && item.avatar)"
         class="my-auto me-2"
         min-width="40">
         <v-icon
-          v-if="!item.avatar"
+          v-if="icon"
           class="icon-default-color"
           size="18">
-          {{ item.icon || 'fa-folder' }}
+          {{ icon || 'fa-folder' }}
         </v-icon>
       </v-list-item-avatar>
       <v-list-item-avatar
-        v-if="item.avatar"
-        :class="$root.expand && 'me-2' || 'ms-2'"
+        v-if="avatar"
+        :class="($root.expand && item.avatar) && 'me-2' || 'ms-2'"
         class="my-auto"
         min-width="28"
         width="28"
         height="28"
         tile>
         <img
-          :src="item.avatar"
+          :src="avatar"
           alt=""
-          class="border-radius"
-          width="28"
+          class="border-radius object-fit-contain"
+          width="auto"
           height="auto">
       </v-list-item-avatar>
       <v-card
@@ -345,6 +345,23 @@ export default {
     },
     displaySpacesList() {
       return this.hasItems || !this.displayOnlyWhenMember || !this.notSpaceMember;
+    },
+    iconUrl() {
+      if (!this.item.avatar && (this.item?.icon?.includes?.('base64') || this.item?.icon?.includes?.('/'))) {
+        return this.item.icon;
+      } else {
+        return null;
+      }
+    },
+    icon() {
+      if (this.item.avatar || this.iconUrl) {
+        return null;
+      } else {
+        return this.item?.icon;
+      }
+    },
+    avatar() {
+      return this.item.avatar || this.iconUrl;
     },
   },
   watch: {
