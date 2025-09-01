@@ -318,6 +318,7 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
                            @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
                            @Parameter(description = "the current user will be excluded in the list") @Schema(defaultValue = "false") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser,
+                           @Parameter(description = "List of included users") @Schema(defaultValue = "false") @QueryParam("includeUser") List<String> includeUsers,
                            @Parameter(description = "Whether to export users or not") @Schema(defaultValue = "false") @QueryParam("export") boolean exportFile,
                            @Parameter(description = "sort Field", required = false) @QueryParam("sortField") String sortField,
                            @Parameter(description = "sort Direction", required = false) @QueryParam("sortDirection") String sortDirection,
@@ -337,6 +338,7 @@ public class UserRest implements ResourceContainer, Startable {
 
     if (exportFile) {
       IdentityExportFilter userExportFilter = new IdentityExportFilter(q,
+                                                                       includeUsers,
                                                                        searchEmail,
                                                                        searchUsername,
                                                                        status,
