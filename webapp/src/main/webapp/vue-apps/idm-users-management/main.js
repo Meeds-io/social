@@ -15,13 +15,16 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 const appId = 'UsersManagement';
 
 //getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+const lang = eXo?.env?.portal?.language || 'en';
 
 //should expose the locale ressources as REST API 
-const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.UsersManagement?lang=${lang}`,
+];
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       mounted() {
