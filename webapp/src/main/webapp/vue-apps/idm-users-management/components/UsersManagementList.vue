@@ -309,6 +309,7 @@ export default {
       this.searchUsers();
     },
     filter() {
+      this.$emit('filter-updated', this.filter);
       this.options.page = 1;
       this.searchUsers();
     },
