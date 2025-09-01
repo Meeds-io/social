@@ -189,12 +189,24 @@ export default {
   }),
   computed: {
     retrieveListLink() {
-      const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      const status = this.filter || 'ENABLED';
-      const userType = this.userType || '';
-      const isConnectedParam = this.isConnected ? `&isConnected=${this.isConnected}` : '';
-      const enrollmentStatusParam = this.enrollmentStatus ? `&enrollmentStatus=${this.enrollmentStatus}` : '';
-      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?&q=${this.keyword || ''}&searchEmail=true&searchUserName=true&isDisabled=${isDisabled}&status=${status}&userType=${userType}${isConnectedParam}${enrollmentStatusParam}`;
+      const form = new FormData();
+      form.append('isDisabled', this.filter === 'ENABLED' ? 'false':'true');
+      form.append('searchEmail', 'true');
+      form.append('searchUserName', 'true');
+      form.append('userType', this.userType || '');
+      form.append('status', this.filter || 'ENABLED');
+      form.append('q', this.keyword || '');
+      if (this.isConnected) {
+        form.append('isConnected', this.isConnected);
+      }
+      if (this.enrollmentStatus) {
+        form.append('enrollmentStatus', this.enrollmentStatus);
+      }
+      if (this.selectedUsers) {
+        this.selectedUsers.forEach(u => form.append('includeUser', u.userName));
+      }
+      const params = new URLSearchParams(form).toString();
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?${params}`;
     },
     filteredUsers() {
       if (!this.keyword || !this.loading) {
