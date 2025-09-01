@@ -284,7 +284,9 @@ public interface IdentityManager {
    * @deprecated Use getIdentity(Long) rather than getIdentity(String) since the id is no more an UUID inherited from JCR
    */
   @Deprecated(forRemoval = true, since = "7.0")
-  Identity getIdentity(String id);
+  default Identity getIdentity(String id) {
+    return getIdentity(id, true);
+  }
 
   default Identity getIdentity(long id) {
     return getIdentity(String.valueOf(id));
