@@ -42,6 +42,7 @@
           {{ $t('UsersManagement.selection.onboard') }}
         </v-btn>
         <v-btn
+          v-if="disabledUsers"
           outlined
           color="primary"
           class="ms-2 multiSelect"
@@ -50,6 +51,7 @@
           {{ $t('UsersManagement.selection.enable') }}
         </v-btn>
         <v-btn
+          v-else
           outlined
           color="primary"
           class="ms-2 multiSelect"
@@ -99,7 +101,11 @@ export default {
     exportUsersUrl: {
       type: String,
       default: null,
-    }
+    },
+    disabledUsers: {
+      type: Boolean,
+      default: false,
+    },
   },
   data: () => ({
     filter: 'ENABLED',
