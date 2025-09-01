@@ -29,28 +29,30 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class IdentityExportFilter {
 
-  String     query;
+  String       query;
 
-  boolean    searchEmail;
+  List<String> includeUsers;
 
-  boolean    searchUsername;
+  boolean      searchEmail;
 
-  String     status;
+  boolean      searchUsername;
 
-  String     userType;
+  String       status;
 
-  String     isConnected;
+  String       userType;
 
-  List<Long> spaceIds;
+  String       isConnected;
 
-  boolean    isDisabled;
+  List<Long>   spaceIds;
 
-  String     enrollmentStatus;
+  boolean      isDisabled;
 
-  boolean    excludeCurrentUser;
+  String       enrollmentStatus;
 
-  String     sortField;
+  boolean      excludeCurrentUser;
 
-  String     sortDirection;
+  String       sortField;
+
+  String       sortDirection;
 
 }
