@@ -369,5 +369,14 @@ files: [
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
     "escape_quotes": 0,
- }
+  },
+  {
+    "source": "/webapp/src/main/resources/locale/portlet/UsersManagement_en.properties",
+    "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
+    "translation_replace": { YML_CROWDIN_LANGUAGES_ARG },
+    "dest": "hub/social/webapp/UsersManagement.properties",
+    "update_option": "update_as_unapproved",
+    "escape_special_characters": 0,
+    "escape_quotes": 0,
+  },
 ]
