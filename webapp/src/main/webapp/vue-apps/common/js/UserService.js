@@ -398,7 +398,7 @@ export function checkImportUsersProgress(uploadId) {
     if (!resp || !resp.ok) {
       return resp.text();
     } else {
-      return resp.json();
+      return resp?.json?.()?.catch?.(() => null);
     }
   }).then(data => {
     if (typeof data === 'string') {
@@ -420,7 +420,7 @@ export function cleanImportUsers(uploadId) {
     if (!resp || !resp.ok) {
       return resp.text();
     } else {
-      return resp.json();
+      return resp?.json?.()?.catch?.(() => null);
     }
   }).then(data => {
     if (typeof data === 'string') {

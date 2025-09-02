@@ -186,6 +186,8 @@ export default {
         this.openAlert(alertObj);
       }
     });
+    document.addEventListener('alert-message-switch-type', (event) => this.alertType = event?.detail);
+    document.addEventListener('alert-message-switch-dismissible', (event) => this.alertDismissible = event?.detail);
     document.addEventListener('alert-message-html', (event) => {
       const alertObj = event?.detail && Object.assign({
         useHtml: true,
