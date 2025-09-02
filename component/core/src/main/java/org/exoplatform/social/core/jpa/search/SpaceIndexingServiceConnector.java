@@ -98,11 +98,11 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     fields.put("registration", space.getRegistration());
     fields.put("templateId", String.valueOf(space.getTemplateId()));
 
-    Date createdDate = new Date(space.getCreatedTime());
+    Date updatedDate = new Date(space.getLastUpdatedTime());
 
     DocumentWithMetadata document = new DocumentWithMetadata();
     document.setId(id);
-    document.setLastUpdatedDate(createdDate);
+    document.setLastUpdatedDate(updatedDate);
     document.setFields(fields);
 
     setPermissions(space, document);

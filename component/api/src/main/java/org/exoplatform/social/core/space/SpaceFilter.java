@@ -87,9 +87,13 @@ public class SpaceFilter implements Cloneable {
     return Stream.of(status, extraStatus).filter(Objects::nonNull).toList();
   }
 
+  public boolean isSortingEmpty() {
+    return sorting == null;
+  }
+
   public Sorting getSorting() {
     if (sorting == null) {
-      sorting = new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC);
+      return new Sorting(Sorting.SortBy.TITLE, Sorting.OrderBy.ASC);
     }
     return sorting;
   }
