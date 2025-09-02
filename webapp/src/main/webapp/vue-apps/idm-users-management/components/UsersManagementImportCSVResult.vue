@@ -1,12 +1,17 @@
 <template>
-  <v-flex>
-    <v-alert v-if="displayAlert" :type="alertType">
+  <div class="d-flex justify-center">
+    <v-progress-circular
+      v-if="!finished"
+      :value="progressPercentage"
+      color="primary"
+      class="me-4 my-auto" />
+    <div class="d-flex flex-column me-2">
       <users-management-import-csv-error-message v-if="error" :error="error" />
       <template v-else-if="uploading">
         {{ $t('UsersManagement.uploadingCSVFile') }}
       </template>
       <template v-else-if="progress">
-        <ul>
+        <ul class="ps-0">
           <li>
             <template v-if="finished">
               {{ $t('UsersManagement.finishedImportingCSVFile', {0: progress.count}) }}
@@ -23,7 +28,7 @@
           </li>
         </ul>
       </template>
-    </v-alert>
+    </div>
     <exo-drawer
       ref="errorDrawer"
       right>
@@ -65,19 +70,26 @@
         </v-data-table>
       </template>
     </exo-drawer>
-  </v-flex>
+  </div>
 </template>
-
 <script>
 export default {
+  props: {
+    options: {
+      type: Object,
+      default: null,
+    },
+  },
   data: () => ({
-    uploadId: null,
     progress: null,
     error: null,
     errorHeaders: [{value: 'userName'},{value: 'message'}],
     itemsPerPageOptions: [20, 50, 100],
   }),
   computed: {
+    uploadId() {
+      return this.options.uploadId;
+    },
     warnsCount() {
       return this.warnMessages.length;
     },
@@ -110,55 +122,51 @@ export default {
     imported() {
       return this.progress && this.progress.processedCount >= this.progress.count;
     },
+    progressPercentage() {
+      return this.progress ? parseInt(this.progress.processedCount * 100 / this.progress.count) : 0;
+    },
     finished() {
       return this.error || this.imported;
     },
-    alertType() {
-      return this.error ? 'error' : this.finished ? 'success' : 'info';
-    },
-    displayAlert() {
-      return this.uploading || this.progress || this.finished;
-    },
   },
   watch: {
-    uploadId() {
-      this.progress = null;
-      this.error = null;
-    },
     finished(newValue, oldValue) {
       if (this.finished && this.uploadId) {
         this.$userService.cleanImportUsers(this.uploadId)
           .then(result => {
-            this.progress = result;
+            if (result) {
+              this.progress = result;
+            }
           });
       }
       // If finished Broacast event
       if (newValue && newValue !== oldValue) {
-        this.$root.$emit('importCSVFinished', this.uploadId, this.progress);
+        document.dispatchEvent(new CustomEvent('alert-message-switch-type', {detail: 'success'}));
+        document.dispatchEvent(new CustomEvent('alert-message-switch-dismissible', {detail: true}));
+        document.dispatchEvent(new CustomEvent('importCSVFinished', {detail: {
+          uploadId: this.uploadId,
+          progress: this.progress,
+        }}));
       }
     },
   },
   created() {
-    this.$root.$on('importCSVStarted', uploadId => this.uploadId = uploadId);
-    this.$root.$on('importCSVProgress', this.watchProgress);
-    this.$root.$on('importCSVError', (error) => this.error = error);
+    this.init();
   },
   methods: {
-    watchProgress() {
+    init() {
       if (this.uploadId && !this.finished) {
         return this.$userService.checkImportUsersProgress(this.uploadId)
           .then(result => {
-            window.setTimeout(() => this.progress = result,200);
-          })
-          .then(() => this.$nextTick())
-          .catch(error => {
-            if (String(error).indexOf('SyntaxError') < 0) {
-              this.error = error;
+            if (result) {
+              window.setTimeout(() => this.progress = result, 200);
             }
           })
+          .then(() => this.$nextTick())
+          .catch(error => this.error = error)
           .finally(() => {
             if (!this.finished) {
-              window.setTimeout(this.watchProgress, 500);
+              window.setTimeout(this.init, 500);
             }
           });
       }

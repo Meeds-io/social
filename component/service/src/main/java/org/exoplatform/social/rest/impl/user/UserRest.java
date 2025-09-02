@@ -23,11 +23,8 @@ import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentities;
 import static org.exoplatform.social.rest.api.RestUtils.getOnlineIdentitiesOfSpace;
 import static org.exoplatform.social.rest.api.RestUtils.getUserIdentity;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,7 +33,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -45,7 +41,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -85,16 +80,12 @@ import org.exoplatform.commons.file.model.FileInfo;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
-import org.exoplatform.container.component.RequestLifeCycle;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.Membership;
-import org.exoplatform.services.organization.MembershipType;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
@@ -131,7 +122,6 @@ import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.social.rest.api.EntityBuilder;
 import org.exoplatform.social.rest.api.ErrorResource;
 import org.exoplatform.social.rest.api.RestUtils;
-import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ExperienceEntity;
@@ -148,8 +138,11 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
-import io.meeds.social.core.identity.model.IdentityExportFilter;
+import io.meeds.social.core.identity.model.UserExportFilter;
+import io.meeds.social.core.identity.model.UserExportResult;
+import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
+import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.web.security.service.OtpService;
 
@@ -161,97 +154,111 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.SneakyThrows;
 
 /**
- *
  * Provides REST Services for manipulating jobs related to users.
- *
  */
 
 @Path(VersionResources.VERSION_ONE + "/social/users")
-@Tag(name = VersionResources.VERSION_ONE + "/social/users", description = "Operations on users with their activities, connections and spaces")
+@Tag(name = VersionResources.VERSION_ONE +
+    "/social/users", description = "Operations on users with their activities, connections and spaces")
 public class UserRest implements ResourceContainer, Startable {
 
-  public static final String  PROFILE_DEFAULT_BANNER_URL = "/skin/images/banner/DefaultUserBanner.png";
+  private static final String UPLOAD_ID_PROGRESS_NOT_FOUND = "UPLOAD_ID_PROGRESS:NOT_FOUND";
 
-  public static final String  PROFILE_DEFAULT_AVATAR_URL = "/skin/images/avatar/DefaultUserAvatar.png";
+  private static final String             EMAIL_MSG_PREFIX            = "EMAIL:";
 
-  private static final String ONLINE              = "online";
+  private static final String             FIRSTNAME_MSG_PREFIX        = "FIRSTNAME:";
 
-  private static final String INTERNAL              = "internal";
+  private static final String             LASTNAME_MSG_PREFIX         = "LASTNAME:";
 
-  private static final String CONNECTED              = "connected";
+  private static final String             PASSWORD_MSG_PREFIX         = "PASSWORD:";
 
-  public static final String USER_CARD_SETTINGS      = "UserCardSettings";
+  private static final String             USERNAME_MSG_PREFIX         = "USERNAME:";
 
-  private static final CacheControl CACHE_CONTROL               = new CacheControl();
+  private static final String             IMAGE_PNG_MEDIA_TYPE        = "image/png";
 
-  private static final Date         DEFAULT_IMAGES_LAST_MODIFED = new Date();
+  private static final String             THIRD_USER_FIELD            = "thirdField";
 
-  private static final long         DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
+  private static final String             SECOND_USER_FIELD           = "secondField";
+
+  private static final String             FIRST_USER_FIELD            = "firstField";
+
+  public static final String              PROFILE_DEFAULT_BANNER_URL  = "/skin/images/banner/DefaultUserBanner.png";
+
+  public static final String              PROFILE_DEFAULT_AVATAR_URL  = "/skin/images/avatar/DefaultUserAvatar.png";
+
+  private static final String             ONLINE                      = "online";
+
+  private static final String             INTERNAL                    = "internal";
+
+  private static final String             CONNECTED                   = "connected";
+
+  public static final String              USER_CARD_SETTINGS          = "UserCardSettings";
+
+  private static final CacheControl       CACHE_CONTROL               = new CacheControl();
+
+  private static final Date               DEFAULT_IMAGES_LAST_MODIFED = new Date();
+
+  private static final long               DEFAULT_IMAGES_HASH         = DEFAULT_IMAGES_LAST_MODIFED.getTime();
 
   // 3 days
-  private static final int          CACHE_IN_SECONDS            = 3 * 86400;
+  private static final int                CACHE_IN_SECONDS            = 3 * 86400;
 
-  private static final int          CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
+  private static final int                CACHE_IN_MILLI_SECONDS      = CACHE_IN_SECONDS * 1000;
 
-  public static final UserFieldValidator       USERNAME_VALIDATOR             = new UserFieldValidator("userName", true, false);
+  private static final UserFieldValidator USERNAME_VALIDATOR          = new UserFieldValidator("userName", true, false);
 
-  public static final UserFieldValidator       EMAIL_VALIDATOR                = new UserFieldValidator("email", false, false);
+  private static final UserFieldValidator EMAIL_VALIDATOR             = new UserFieldValidator("email", false, false);
 
-  public static final UserFieldValidator       LASTNAME_VALIDATOR             = new UserFieldValidator("lastName", false, true);
+  private static final UserFieldValidator LASTNAME_VALIDATOR          = new UserFieldValidator("lastName", false, true);
 
-  public static final UserFieldValidator       FIRSTNAME_VALIDATOR            = new UserFieldValidator("firstName", false, true);
+  private static final UserFieldValidator FIRSTNAME_VALIDATOR         = new UserFieldValidator("firstName", false, true);
 
-  public static final UserFieldValidator       PASSWORD_VALIDATOR             = new UserFieldValidator("password", false, false, 8, 255);
+  private static final UserFieldValidator PASSWORD_VALIDATOR          = new UserFieldValidator("password", false, false, 8, 255);
 
-  public static final List<UserFieldValidator> USER_FIELD_VALIDATORS          = Arrays.asList(USERNAME_VALIDATOR,
-                                                                                              EMAIL_VALIDATOR,
-                                                                                              LASTNAME_VALIDATOR,
-                                                                                              FIRSTNAME_VALIDATOR,
-                                                                                              PASSWORD_VALIDATOR);
+  private UserACL                         userACL;
 
-  private static Map<String, UserImportResultEntity> importUsersProcessing       = new HashMap<>();
+  private OrganizationService             organizationService;
 
-  private UserACL userACL;
+  private IdentityManager                 identityManager;
 
-  private OrganizationService organizationService;
+  private RelationshipManager             relationshipManager;
 
-  private IdentityManager identityManager;
+  private UserStateService                userStateService;
 
-  private RelationshipManager relationshipManager;
+  private UserExportService               userExportService;
 
-  private UserStateService userStateService;
+  private UserImportService               userImportService;
 
-  private UserExportService userExportService;
+  private SpaceService                    spaceService;
 
-  private SpaceService spaceService;
+  private UserSearchService               userSearchService;
 
-  private UserSearchService userSearchService;
+  private ImageThumbnailService           imageThumbnailService;
 
-  private ImageThumbnailService imageThumbnailService;
+  private ProfilePropertyService          profilePropertyService;
 
-  private ProfilePropertyService profilePropertyService;
+  private PasswordRecoveryService         passwordRecoveryService;
 
-  private PasswordRecoveryService passwordRecoveryService;
+  private LocaleConfigService             localeConfigService;
 
-  private LocaleConfigService localeConfigService;
+  private static final Log                LOG                         = ExoLogger.getLogger(UserRest.class);
 
-  private static final Log LOG = ExoLogger.getLogger(UserRest.class);
+  private byte[]                          defaultUserAvatar           = null;
 
-  private byte[]              defaultUserAvatar = null;
+  private byte[]                          defaultUserBanner           = null;
 
-  private byte[]              defaultUserBanner = null;
+  private UploadService                   uploadService;
 
-  private UploadService       uploadService;
+  private SettingService                  settingService;
 
-  private SettingService      settingService;
+  private OtpService                      otpService;
 
-  private OtpService          otpService;
+  private ExecutorService                 importExecutorService       = null;
 
-  private ExecutorService     importExecutorService = null;
-
-  public UserRest(UserACL userACL,
+  public UserRest(UserACL userACL, // NOSONAR
                   OrganizationService organizationService,
                   IdentityManager identityManager,
                   RelationshipManager relationshipManager,
@@ -260,6 +267,7 @@ public class UserRest implements ResourceContainer, Startable {
                   UploadService uploadService,
                   UserSearchService userSearchService,
                   UserExportService userExportService,
+                  UserImportService userImportService,
                   ImageThumbnailService imageThumbnailService,
                   ProfilePropertyService profilePropertyService,
                   PasswordRecoveryService passwordRecoveryService,
@@ -275,6 +283,7 @@ public class UserRest implements ResourceContainer, Startable {
     this.uploadService = uploadService;
     this.userSearchService = userSearchService;
     this.userExportService = userExportService;
+    this.userImportService = userImportService;
     this.imageThumbnailService = imageThumbnailService;
     this.profilePropertyService = profilePropertyService;
     this.passwordRecoveryService = passwordRecoveryService;
@@ -293,39 +302,91 @@ public class UserRest implements ResourceContainer, Startable {
 
   @GET
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets all users",
-      method = "GET",
-      description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"."
-          + "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users."
-          + "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1."
-          + "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored,"
-          + "the current user \"excludeCurrentUser\" will be excluded")
+  @Operation(summary = "Gets all users", method = "GET", description = "Using the query param \"q\" to filter the target users, ex: \"q=jo*\" returns all the users beginning by \"jo\"." +
+      "Using the query param \"status\" to filter the target users, ex: \"status=online*\" returns the visible online users." +
+      "Using the query params \"status\" and \"spaceId\" together to filter the target users, ex: \"status=online*\" and \"spaceId=1*\" returns the visible online users who are member of space with id=1." +
+      "The params \"status\" and \"spaceId\" cannot be used with \"q\" param since it will falsify the \"limit\" param which is 20 by default. If these 3 parameters are used together, the parameter \"q\" will be ignored," +
+      "the current user \"excludeCurrentUser\" will be excluded")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUsers(@Context UriInfo uriInfo,
-                           @Context HttpServletRequest request,
-                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
-                           @Parameter(description = "Is search with email") @QueryParam("searchEmail") boolean searchEmail,
-                           @Parameter(description = "Is search with username") @QueryParam("searchUsername") boolean searchUsername,
-                           @Parameter(description = "User status to filter online users, ex: online") @QueryParam("status") String status,
-                           @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
-                           @Parameter(description = "Is connected users") @QueryParam("isConnected") String isConnected,
-                           @Parameter(description = "Space id to filter only its members, ex: 1") @QueryParam("spaceId") List<Long> spaceIds,
-                           @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
-                           @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment") @QueryParam("enrollmentStatus") String enrollmentStatus,
-                           @Parameter(description = "the current user will be excluded in the list") @Schema(defaultValue = "false") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser,
-                           @Parameter(description = "List of included users") @Schema(defaultValue = "false") @QueryParam("includeUser") List<String> includeUsers,
-                           @Parameter(description = "Whether to export users or not") @Schema(defaultValue = "false") @QueryParam("export") boolean exportFile,
-                           @Parameter(description = "sort Field", required = false) @QueryParam("sortField") String sortField,
-                           @Parameter(description = "sort Direction", required = false) @QueryParam("sortDirection") String sortDirection,
-                           @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
-                           @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
-                           @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                           @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getUsers( // NOSONAR
+                           @Context
+                           UriInfo uriInfo,
+                           @Context
+                           HttpServletRequest request,
+                           @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name")
+                           @QueryParam("q")
+                           String q,
+                           @Parameter(description = "Is search with email")
+                           @QueryParam("searchEmail")
+                           boolean searchEmail,
+                           @Parameter(description = "Is search with username")
+                           @QueryParam("searchUsername")
+                           boolean searchUsername,
+                           @Parameter(description = "User status to filter online users, ex: online")
+                           @QueryParam("status")
+                           String status,
+                           @Parameter(description = "User type to filter, ex: internal, external")
+                           @DefaultValue("internal")
+                           @QueryParam("userType")
+                           String userType,
+                           @Parameter(description = "Is connected users")
+                           @QueryParam("isConnected")
+                           String isConnected,
+                           @Parameter(description = "Space id to filter only its members, ex: 1")
+                           @QueryParam("spaceId")
+                           List<Long> spaceIds,
+                           @Parameter(description = "Is disabled users")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("isDisabled")
+                           boolean isDisabled,
+                           @Parameter(description = "Enrollment status, ex: enrolled, not enrolled, no possible enrollment")
+                           @QueryParam("enrollmentStatus")
+                           String enrollmentStatus,
+                           @Parameter(description = "the current user will be excluded in the list")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("excludeCurrentUser")
+                           boolean excludeCurrentUser,
+                           @Parameter(description = "List of included users")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("includeUser")
+                           List<String> includeUsers,
+                           @Parameter(description = "Returning the progress of a ")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("exportId")
+                           String exportId,
+                           @Parameter(description = "Whether to export users or not")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("export")
+                           boolean exportFile,
+                           @Parameter(description = "Whether to download exported users")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("download")
+                           boolean download,
+                           @Parameter(description = "sort Field", required = false)
+                           @QueryParam("sortField")
+                           String sortField,
+                           @Parameter(description = "sort Direction", required = false)
+                           @QueryParam("sortDirection")
+                           String sortDirection,
+                           @Parameter(description = "Offset")
+                           @Schema(defaultValue = "0")
+                           @QueryParam("offset")
+                           int offset,
+                           @Parameter(description = "Limit")
+                           @Schema(defaultValue = "20")
+                           @QueryParam("limit")
+                           int limit,
+                           @Parameter(description = "Returning the number of users found or not")
+                           @Schema(defaultValue = "false")
+                           @QueryParam("returnSize")
+                           boolean returnSize,
+                           @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                           @QueryParam("expand")
+                           String expand) throws Exception {
 
     String username = request.getRemoteUser();
     if (!userACL.getSuperUser().equals(username)
@@ -336,26 +397,43 @@ public class UserRest implements ResourceContainer, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    if (exportFile) {
-      IdentityExportFilter userExportFilter = new IdentityExportFilter(q,
-                                                                       includeUsers,
-                                                                       searchEmail,
-                                                                       searchUsername,
-                                                                       status,
-                                                                       userType,
-                                                                       isConnected,
-                                                                       spaceIds,
-                                                                       isDisabled,
-                                                                       enrollmentStatus,
-                                                                       excludeCurrentUser,
-                                                                       sortField,
-                                                                       sortDirection);
-      InputStream inputStream = userExportService.exportUsers(userExportFilter, username);
-      String filename = "users";
-      return Response.ok(AutoCloseInputStream.builder().setInputStream(inputStream).get())
-                     .header("Content-Disposition", "attachment; filename=" + filename + ".csv")
-                     .header("Content-Type", "text/csv")
-                     .build();
+    if (StringUtils.isNotBlank(exportId) && download) {
+      try {
+        InputStream inputStream = userExportService.downloadUsersExport(exportId, username);
+        return Response.ok(AutoCloseInputStream.builder().setInputStream(inputStream).get())
+                       .header("Content-Disposition", "attachment; filename=users.csv")
+                       .header("Content-Type", "text/csv")
+                       .build();
+      } catch (IllegalAccessException | ObjectNotFoundException | IllegalStateException e) {
+        return Response.status(Response.Status.NOT_FOUND).entity(UPLOAD_ID_PROGRESS_NOT_FOUND).build();
+      }
+    } else if (StringUtils.isNotBlank(exportId)) {
+      try {
+        UserExportResult exportResult = userExportService.getUsersExportResult(exportId, username);
+        if (exportResult == null) {
+          return Response.status(Response.Status.NOT_FOUND).entity(UPLOAD_ID_PROGRESS_NOT_FOUND).build();
+        } else {
+          return Response.ok(exportResult).type(RestUtils.getJsonMediaType()).build();
+        }
+      } catch (IllegalAccessException e) {
+        return Response.status(Response.Status.NOT_FOUND).entity(UPLOAD_ID_PROGRESS_NOT_FOUND).build();
+      }
+    } else if (exportFile) {
+      UserExportFilter userExportFilter = new UserExportFilter(q,
+                                                               includeUsers,
+                                                               searchEmail,
+                                                               searchUsername,
+                                                               status,
+                                                               userType,
+                                                               isConnected,
+                                                               spaceIds,
+                                                               isDisabled,
+                                                               enrollmentStatus,
+                                                               excludeCurrentUser,
+                                                               sortField,
+                                                               sortDirection);
+      UserExportResult exportResult = userExportService.exportUsers(userExportFilter, username);
+      return Response.ok(exportResult).type(RestUtils.getJsonMediaType()).build();
     }
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
@@ -373,7 +451,10 @@ public class UserRest implements ResourceContainer, Startable {
             Identity[] onlineIdentity = getOnlineIdentitiesOfSpace(userStateService, username, space, limit);
             allIdentities.addAll(Arrays.asList(onlineIdentity));
           } else {
-            return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"), uriInfo, RestUtils.getJsonMediaType(), Response.Status.NOT_FOUND);
+            return EntityBuilder.getResponse(new ErrorResource("space " + spaceId + " does not exist", "space not found"),
+                                             uriInfo,
+                                             RestUtils.getJsonMediaType(),
+                                             Response.Status.NOT_FOUND);
           }
         }
         identities = allIdentities.toArray(new Identity[0]);
@@ -381,7 +462,7 @@ public class UserRest implements ResourceContainer, Startable {
         identities = getOnlineIdentities(userStateService, username, limit);
       }
     } else {
-      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
+      Identity target = identityManager.getOrCreateUserIdentity(username);
       ProfileFilter filter = new ProfileFilter();
       filter.setName(q == null || q.isEmpty() ? "" : q);
       filter.setSearchEmail(searchEmail);
@@ -409,7 +490,8 @@ public class UserRest implements ResourceContainer, Startable {
       }
       if (!RestUtils.isMemberOfAdminGroup()
           && RestUtils.isMemberOfDelegatedGroup()
-          && userType != null && !userType.equals(INTERNAL)) {
+          && userType != null
+          && !userType.equals(INTERNAL)) {
         Query query = new Query();
         if (q != null && !q.isEmpty()) {
           query.setUserName(q);
@@ -418,8 +500,8 @@ public class UserRest implements ResourceContainer, Startable {
                                                    .findMembershipsByUser(username)
                                                    .stream()
                                                    .filter(x -> x.getMembershipType().equals("manager")
-                                                       && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
-                                                       && !x.getGroupId().startsWith("/spaces/"))
+                                                                && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
+                                                                && !x.getGroupId().startsWith("/spaces/"))
                                                    .map(Membership::getGroupId)
                                                    .toList();
 
@@ -462,12 +544,12 @@ public class UserRest implements ResourceContainer, Startable {
           users = usersListAccess.load(offset, limitToFetch);
         }
         identities = Arrays.stream(users)
-                           .map(user -> identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName()))
+                           .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
                            .toArray(Identity[]::new);
       } else {
         ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
         identities = list.load(offset, limit);
-        if(returnSize) {
+        if (returnSize) {
           totalSize = list.getSize();
         }
       }
@@ -490,27 +572,52 @@ public class UserRest implements ResourceContainer, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("/advancedfilter")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets all users or connections by advanced filter",
-      method = "POST",
-      description = "")
+  @Operation(summary = "Gets all users or connections by advanced filter", method = "POST", description = "")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUsersOrConnectionsByAdvancedFilter(@Context UriInfo uriInfo,
-                                                        @Parameter(description = "User type to filter, ex: internal, external") @DefaultValue("internal") @QueryParam("userType") String userType,
-                                                        @Parameter(description = "Filter type to filter , ex all , connection") @DefaultValue("all") @QueryParam("filterType") String filterType,
-                                                        @Parameter(description = "Is disabled users") @Schema(defaultValue = "false") @QueryParam("isDisabled") boolean isDisabled,
-                                                        @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
-                                                        @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
-                                                        @Parameter(description = "Returning the number of users found or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                                        @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
-                                                        @RequestBody(description = "pam user settings profile", required = true) Map<String, String> settings,
-                                                        @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name") @QueryParam("q") String q,
-                                                        @Parameter(description = "Whether to search for exact word or words containing it") @QueryParam("wildCardSearch") String wildcardSearch,
-                                                        @Parameter(description = "Whether to exclude current user from search result") @QueryParam("excludeCurrentUser") boolean excludeCurrentUser) throws Exception {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "404", description = "Resource not found") })
+  public Response getUsersOrConnectionsByAdvancedFilter(// NOSONAR
+                                                        @Context
+                                                        UriInfo uriInfo,
+                                                        @Parameter(description = "User type to filter, ex: internal, external")
+                                                        @DefaultValue("internal")
+                                                        @QueryParam("userType")
+                                                        String userType,
+                                                        @Parameter(description = "Filter type to filter , ex all , connection")
+                                                        @DefaultValue("all")
+                                                        @QueryParam("filterType")
+                                                        String filterType,
+                                                        @Parameter(description = "Is disabled users")
+                                                        @Schema(defaultValue = "false")
+                                                        @QueryParam("isDisabled")
+                                                        boolean isDisabled,
+                                                        @Parameter(description = "Offset")
+                                                        @Schema(defaultValue = "0")
+                                                        @QueryParam("offset")
+                                                        int offset,
+                                                        @Parameter(description = "Limit")
+                                                        @Schema(defaultValue = "20")
+                                                        @QueryParam("limit")
+                                                        int limit,
+                                                        @Parameter(description = "Returning the number of users found or not")
+                                                        @Schema(defaultValue = "false")
+                                                        @QueryParam("returnSize")
+                                                        boolean returnSize,
+                                                        @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                                                        @QueryParam("expand")
+                                                        String expand,
+                                                        @RequestBody(description = "pam user settings profile", required = true)
+                                                        Map<String, String> settings,
+                                                        @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name")
+                                                        @QueryParam("q")
+                                                        String q,
+                                                        @Parameter(description = "Whether to search for exact word or words containing it")
+                                                        @QueryParam("wildCardSearch")
+                                                        String wildcardSearch,
+                                                        @Parameter(description = "Whether to exclude current user from search result")
+                                                        @QueryParam("excludeCurrentUser")
+                                                        boolean excludeCurrentUser) throws Exception {
 
     String userId;
     try {
@@ -523,12 +630,15 @@ public class UserRest implements ResourceContainer, Startable {
     }
 
     try {
-      Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
+      Identity target = identityManager.getOrCreateUserIdentity(userId);
       if (target == null) {
         throw new WebApplicationException(Response.Status.BAD_REQUEST);
       }
 
-      if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup() && userType != null && !userType.equals(INTERNAL)) {
+      if (!userACL.getSuperUser().equals(userId) && !RestUtils.isMemberOfAdminGroup()
+          && !RestUtils.isMemberOfDelegatedGroup()
+          && userType != null
+          && !userType.equals(INTERNAL)) {
         throw new WebApplicationException(Response.Status.FORBIDDEN);
       }
 
@@ -554,7 +664,12 @@ public class UserRest implements ResourceContainer, Startable {
       if (StringUtils.isNotBlank(wildcardSearch)) {
         filter.setWildcardSearch(Boolean.parseBoolean(wildcardSearch));
       }
-      ListAccess<Identity> list = filterType.equals("all") ? identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true) : relationshipManager.getConnectionsByFilter(target, filter);
+      ListAccess<Identity> list =
+                                filterType.equals("all") ?
+                                                         identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
+                                                                                                      filter,
+                                                                                                      true) :
+                                                         relationshipManager.getConnectionsByFilter(target, filter);
       identities = list.load(offset, limit);
       if (returnSize) {
         totalSize = list.getSize();
@@ -582,33 +697,35 @@ public class UserRest implements ResourceContainer, Startable {
   @POST
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("administrators")
-  @Operation(
-      summary = "Creates a new user",
-      method = "POST",
-      description = "This creates the user if the authenticated user is in the /platform/administrators group.")
+  @Operation(summary = "Creates a new user", method = "POST", description = "This creates the user if the authenticated user is in the /platform/administrators group.")
   @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response addUser(@Context UriInfo uriInfo,
-                          @Context HttpServletRequest request,
-                          @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response addUser(
+                          @Context
+                          UriInfo uriInfo,
+                          @Context
+                          HttpServletRequest request,
+                          @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                          @QueryParam("expand")
+                          String expand,
                           @RequestBody(description = "User object to be created, ex:<br />" +
                               "{<br />\"username\": \"john\"," +
                               "<br />\"password\": \"gtngtn\"," +
                               "<br />\"email\": \"john@exoplatform.com\"," +
                               "<br />\"firstname\": \"John\"," +
-                              "<br />\"lastname\": \"Smith\"<br />}"
-                              , required = true) UserEntity model) throws Exception {
+                              "<br />\"lastname\": \"Smith\"<br />}", required = true)
+                          UserEntity model) throws Exception {
     if (model.isNotValid()) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
     }
 
-    //check if the user is already exist
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, model.getUsername());
+    // check if the user is already exist
+    Identity identity = identityManager.getOrCreateUserIdentity(model.getUsername());
     if (identity != null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    if(isEmailAlreadyExists(model.getUsername(), model.getEmail())) {
+    if (isEmailAlreadyExists(model.getUsername(), model.getEmail())) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -616,30 +733,30 @@ public class UserRest implements ResourceContainer, Startable {
 
     String errorMessage = USERNAME_VALIDATOR.validate(locale, model.getUsername());
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("USERNAME:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(USERNAME_MSG_PREFIX + errorMessage).build();
     }
 
     errorMessage = PASSWORD_VALIDATOR.validate(locale, model.getPassword());
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("PASSWORD:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(PASSWORD_MSG_PREFIX + errorMessage).build();
     }
 
     errorMessage = LASTNAME_VALIDATOR.validate(locale, model.getLastname());
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(LASTNAME_MSG_PREFIX + errorMessage).build();
     }
 
     errorMessage = FIRSTNAME_VALIDATOR.validate(locale, model.getFirstname());
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(FIRSTNAME_MSG_PREFIX + errorMessage).build();
     }
 
     errorMessage = EMAIL_VALIDATOR.validate(locale, model.getEmail());
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
     }
 
-    //Create new user
+    // Create new user
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.createUserInstance(model.getUsername());
     user.setFirstName(model.getFirstname());
@@ -648,27 +765,34 @@ public class UserRest implements ResourceContainer, Startable {
     user.setPassword(model.getPassword());
     userHandler.createUser(user, true);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(model.getUsername(), uriInfo.getPath(), expand),
+                                     uriInfo,
+                                     RestUtils.getJsonMediaType(),
+                                     Response.Status.OK);
   }
 
   @GET
   @Path("{id}")
   @RolesAllowed("users")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-      summary = "Gets a specific user by user name",
-      method = "GET",
-      description = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets a specific user by user name", method = "GET", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUserById(@Context UriInfo uriInfo,
-                              @Context Request request,
-                              @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                              @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getUserById(
+                              @Context
+                              UriInfo uriInfo,
+                              @Context
+                              Request request,
+                              @Parameter(description = "User name", required = true)
+                              @PathParam("id")
+                              String id,
+                              @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                              @QueryParam("expand")
+                              String expand) {
+    Identity identity = identityManager.getOrCreateUserIdentity(id);
     //
     if (identity == null) {
       throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -680,34 +804,49 @@ public class UserRest implements ResourceContainer, Startable {
     String expandedSettings = expand;
     if (expand != null && expand.contains("settings")) {
       expandedSettings =
-          String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings().stream().filter(prop -> prop.isVisible() || prop.isEditable()).toList(),
-                                                                                          profilePropertyService,
-                                                                                          ProfilePropertyService.LABELS_OBJECT_TYPE,
-                                                                                          Long.parseLong(identity.getId()))));
+                       String.valueOf(Objects.hash(EntityBuilder.buildEntityProfilePropertySettingList(profilePropertyService.getPropertySettings()
+                                                                                                                             .stream()
+                                                                                                                             .filter(prop -> prop.isVisible()
+                                                                                                                                             || prop.isEditable())
+                                                                                                                             .toList(),
+                                                                                                       profilePropertyService,
+                                                                                                       ProfilePropertyService.LABELS_OBJECT_TYPE,
+                                                                                                       Long.parseLong(identity.getId()))));
     }
 
     // Get configured properties for cache
     // Get values of properties configured for the user card
     List<String> configuredCardProperties = new ArrayList<>();
-    SettingValue<?> userCardFirstFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
-    SettingValue<?> userCardSecondFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
-    SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
-    if(userCardFirstFieldSetting != null) {
+    SettingValue<?> userCardFirstFieldSetting =
+                                              settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                 new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                     USER_CARD_SETTINGS),
+                                                                 "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting =
+                                               settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                  new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                      USER_CARD_SETTINGS),
+                                                                  "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting =
+                                              settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                 new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                     USER_CARD_SETTINGS),
+                                                                 "UserCardThirdFieldSetting");
+    if (userCardFirstFieldSetting != null) {
       configuredCardProperties.add((String) userCardFirstFieldSetting.getValue());
     } else {
       configuredCardProperties.add("position");
     }
-    if(userCardSecondFieldSetting != null) {
+    if (userCardSecondFieldSetting != null) {
       configuredCardProperties.add((String) userCardSecondFieldSetting.getValue());
     } else {
       configuredCardProperties.add("team");
     }
-    if(userCardThirdFieldSetting != null) {
+    if (userCardThirdFieldSetting != null) {
       configuredCardProperties.add((String) userCardThirdFieldSetting.getValue());
     } else {
       configuredCardProperties.add("city");
     }
-
 
     long cacheTime = identity.getCacheTime();
     String eTagValue = String.valueOf(Objects.hash(cacheTime, authenticatedUser, expandedSettings, configuredCardProperties));
@@ -728,22 +867,23 @@ public class UserRest implements ResourceContainer, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("email/{email}")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets a specific user by user email",
-      method = "GET",
-      description = "This can only be done by the logged in user.")
+  @Operation(summary = "Gets a specific user by user email", method = "GET", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "404", description = "Resource not found"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input")})
-  public Response getUserByEmail(@Context UriInfo uriInfo,
-                                 @Parameter(description = "User email", required = true) @PathParam("email") String email) throws JSONException {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getUserByEmail(
+                                 @Context
+                                 UriInfo uriInfo,
+                                 @Parameter(description = "User email", required = true)
+                                 @PathParam("email")
+                                 String email) throws JSONException {
     User user = getUserByEmail(email);
     if (user == null) {
       return Response.ok().entity("{\"id\":\"" + null + "\"}").build();
     }
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+    Identity identity = identityManager.getOrCreateUserIdentity(user.getUserName());
 
     JSONObject jsonProfile = new JSONObject();
     jsonProfile.put("avatarUrl", identity.getProfile().getAvatarUrl());
@@ -761,27 +901,34 @@ public class UserRest implements ResourceContainer, Startable {
 
   @GET
   @Path("{id}/avatar")
-  @Operation(
-      summary = "Gets a specific user avatar by username",
-      method = "GET",
-      description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @Operation(summary = "Gets a specific user avatar by username", method = "GET", description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
   @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUserAvatarById(@Context UriInfo uriInfo,
-                                    @Context Request request,
-                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getUserAvatarById( // NOSONAR
+                                    @Context
+                                    UriInfo uriInfo,
+                                    @Context
+                                    Request request,
+                                    @Parameter(description = "User name", required = true)
+                                    @PathParam("id")
+                                    String id,
                                     @Parameter(description = "Whether to retrieve avatar by identity id or username", required = true)
                                     @DefaultValue("false")
                                     @QueryParam("byId")
                                     boolean byId,
-                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'") @QueryParam("lastModified") String lastModified,
-                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.") @DefaultValue("100x100") @QueryParam("size") String size,
-                                    @Parameter(
-                                        description = "A mandatory valid token that is used to authorize anonymous request"
-                                    ) @QueryParam("r") String token) throws IOException {
+                                    @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
+                                    @QueryParam("lastModified")
+                                    String lastModified,
+                                    @Parameter(description = "Resized avatar size. Use 0x0 for original size.")
+                                    @DefaultValue("100x100")
+                                    @QueryParam("size")
+                                    String size,
+                                    @Parameter(description = "A mandatory valid token that is used to authorize anonymous request")
+                                    @QueryParam("r")
+                                    String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Identity identity = null;
@@ -791,8 +938,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (isDefault) {
       lastUpdated = DEFAULT_IMAGES_LAST_MODIFED.getTime();
     } else {
-      identity = byId ? identityManager.getIdentity(id)
-                      : identityManager.getOrCreateUserIdentity(id);
+      identity = byId ? identityManager.getIdentity(Long.parseLong(id)) : identityManager.getOrCreateUserIdentity(id);
       if (identity == null || !identity.isUser()) {
         LOG.debug("Identity of user {} is not found, thus no avatar will be returned", id);
         return Response.status(Status.NOT_FOUND).build();
@@ -808,7 +954,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (isDefault) {
       eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     } else if (lastUpdated != null) {
-      eTag = new EntityTag(lastUpdated+"-"+size);
+      eTag = new EntityTag(lastUpdated + "-" + size);
     }
 
     builder = eTag == null ? null : request.evaluatePreconditions(eTag);
@@ -836,18 +982,20 @@ public class UserRest implements ResourceContainer, Startable {
               } else {
                 FileInfo fileInfo = avatarFile.getFileInfo();
                 FileItem file = imageThumbnailService.getOrCreateThumbnail(FileThumbnailPlugin.FILE_TYPE,
-                        Long.toString(fileInfo.getId()),
-                        fileInfo.getUpdater(),
-                        dimension[0],
-                        dimension[1]);
+                                                                           Long.toString(fileInfo.getId()),
+                                                                           fileInfo.getUpdater(),
+                                                                           dimension[0],
+                                                                           dimension[1]);
                 avatarContent = file != null ? file.getAsByte() : avatarFile.getAsByte();
               }
             }
           } catch (Exception e) {
-            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned", identity.getId(), e);
+            LOG.error("Error while resizing avatar of user identity with Id {}, original Image will be returned",
+                      identity.getId(),
+                      e);
           }
           if (avatarContent != null) {
-            builder = Response.ok(avatarContent, "image/png");
+            builder = Response.ok(avatarContent, IMAGE_PNG_MEDIA_TYPE);
           }
         }
       }
@@ -855,7 +1003,7 @@ public class UserRest implements ResourceContainer, Startable {
 
     if (builder == null) {
       InputStream stream = identityManager.getAvatarInputStream(identity);
-      builder = Response.ok(stream, "image/png");
+      builder = Response.ok(stream, IMAGE_PNG_MEDIA_TYPE);
     }
     builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
     if (eTag != null) {
@@ -874,18 +1022,20 @@ public class UserRest implements ResourceContainer, Startable {
 
   @GET
   @Path("{id}/banner")
-  @Operation(
-      summary = "Gets a specific user banner by username",
-      method = "GET",
-      description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
+  @Operation(summary = "Gets a specific user banner by username", method = "GET", description = "The user avatar will be returned only if there is a currently authenticated user or an anonymous user that has a valid token generated by a Server encryption key.")
   @ApiResponses(value = {
-      @ApiResponse (responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse (responseCode = "404", description = "Resource not found"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
-  public Response getUserBannerById(@Context UriInfo uriInfo,
-                                    @Context Request request,
-                                    @Parameter(description = "User name", required = true) @PathParam("id") String id,
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "404", description = "Resource not found"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response getUserBannerById( // NOSONAR
+                                    @Context
+                                    UriInfo uriInfo,
+                                    @Context
+                                    Request request,
+                                    @Parameter(description = "User name", required = true)
+                                    @PathParam("id")
+                                    String id,
                                     @Parameter(description = "Whether to retrieve banner by identity id or username", required = true)
                                     @DefaultValue("false")
                                     @QueryParam("byId")
@@ -893,9 +1043,9 @@ public class UserRest implements ResourceContainer, Startable {
                                     @Parameter(description = "The value of lastModified parameter will determine whether the query should be cached by browser or not. If not set, no 'expires HTTP Header will be sent'")
                                     @QueryParam("lastModified")
                                     String lastModified,
-                                    @Parameter(
-                                        description = "A mandatory valid token that is used to authorize anonymous request"
-                                    ) @QueryParam("r") String token) throws IOException {
+                                    @Parameter(description = "A mandatory valid token that is used to authorize anonymous request")
+                                    @QueryParam("r")
+                                    String token) throws IOException {
 
     boolean isDefault = StringUtils.equals(LinkProvider.DEFAULT_IMAGE_REMOTE_ID, id);
     Identity identity = null;
@@ -905,8 +1055,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (isDefault) {
       lastUpdated = DEFAULT_IMAGES_LAST_MODIFED.getTime();
     } else {
-      identity = byId ? identityManager.getIdentity(id)
-                      : identityManager.getOrCreateUserIdentity(id);
+      identity = byId ? identityManager.getIdentity(Long.parseLong(id)) : identityManager.getOrCreateUserIdentity(id);
       if (identity == null || !identity.isUser()) {
         LOG.debug("Identity of user {} is not found, thus no banner will be returned", id);
         return Response.status(Status.NOT_FOUND).build();
@@ -948,7 +1097,7 @@ public class UserRest implements ResourceContainer, Startable {
              * set the banner content-type to "image/png". So, its data would be
              * recognized as "image" by the user-agent
              */
-            builder = Response.ok(stream, "image/png");
+            builder = Response.ok(stream, IMAGE_PNG_MEDIA_TYPE);
             builder.lastModified(lastUpdated == null ? DEFAULT_IMAGES_LAST_MODIFED : new Date(lastUpdated));
 
             if (eTag != null) {
@@ -978,29 +1127,32 @@ public class UserRest implements ResourceContainer, Startable {
   @Path("{id}")
   @Operation(summary = "Update user property", method = "PATCH", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttribute(@Context HttpServletRequest request,
+    @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response updateUserProfileAttribute(@Context
+  HttpServletRequest request,
                                              @Parameter(description = "User name", required = true)
-                                             @PathParam("id") String username,
+                                             @PathParam("id")
+                                             String username,
                                              @Parameter(description = "User profile attribute name", required = true)
-                                             @FormParam("name") String name,
+                                             @FormParam("name")
+                                             String name,
                                              @Parameter(description = "User profile attribute value", required = true)
-                                             @FormParam("value") String value,
+                                             @FormParam("value")
+                                             String value,
                                              @Parameter(description = "OTP Method", required = false)
-                                             @FormParam("otpMethod") String otpMethod,
+                                             @FormParam("otpMethod")
+                                             String otpMethod,
                                              @Parameter(description = "OTP Code", required = false)
-                                             @FormParam("otpCode") String otpCode) {
+                                             @FormParam("otpCode")
+                                             String otpCode) {
     if (StringUtils.isBlank(name)) {
       return Response.status(Status.BAD_REQUEST).entity("'name' parameter is mandatory").build();
     }
     if (value == null) {
       return Response.status(Status.BAD_REQUEST).entity("'value' parameter is mandatory").build();
-    }
-    if (StringUtils.isBlank(username)) {
-      return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
     String currentUser = getCurrentUser();
     if (!StringUtils.equals(currentUser, username) && !RestUtils.isMemberOfAdminGroup()) {
@@ -1016,13 +1168,13 @@ public class UserRest implements ResourceContainer, Startable {
       if (Profile.FIRST_NAME.equals(fieldName)) {
         String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, value);
         if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+          return Response.status(Response.Status.BAD_REQUEST).entity(FIRSTNAME_MSG_PREFIX + errorMessage).build();
         }
       }
       if (Profile.LAST_NAME.equals(fieldName)) {
         String errorMessage = LASTNAME_VALIDATOR.validate(locale, value);
         if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+          return Response.status(Response.Status.BAD_REQUEST).entity(LASTNAME_MSG_PREFIX + errorMessage).build();
         }
       }
       if (Profile.EMAIL.equals(fieldName)) {
@@ -1036,7 +1188,7 @@ public class UserRest implements ResourceContainer, Startable {
         profile.setBannerUrl("DEFAULT_BANNER");
         profile.removeProperty(name);
         identityManager.updateProfile(profile, getCurrentUser(), true);
-      } else{
+      } else {
         updateProfileField(profile, fieldName, value, true);
       }
     } catch (IllegalAccessException e) {
@@ -1052,15 +1204,12 @@ public class UserRest implements ResourceContainer, Startable {
 
   @PATCH
   @Path("{id}/profile")
-  @Operation(
-      summary = "Update set of properties in user profile",
-      method = "PATCH",
-      description = "This can only be done by the logged in user.")
+  @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
   @ApiResponses(value = {
-      @ApiResponse (responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse (responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse (responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse (responseCode = "400", description = "Invalid query input") })
+    @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
   public Response updateUserProfileAttributes(
                                               @Context
                                               HttpServletRequest request,
@@ -1068,9 +1217,11 @@ public class UserRest implements ResourceContainer, Startable {
                                               @PathParam("id")
                                               String username,
                                               @Parameter(description = "OTP Method", required = false)
-                                              @QueryParam("otpMethod") String otpMethod,
+                                              @QueryParam("otpMethod")
+                                              String otpMethod,
                                               @Parameter(description = "OTP Code", required = false)
-                                              @QueryParam("otpCode") String otpCode,
+                                              @QueryParam("otpCode")
+                                              String otpCode,
                                               @RequestBody(description = "User profile attributes map", required = true)
                                               ProfileEntity profileEntity) throws Exception {
     if (StringUtils.isBlank(username)) {
@@ -1094,13 +1245,13 @@ public class UserRest implements ResourceContainer, Startable {
     if (firstName != null) {
       String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, firstName);
       if (StringUtils.isNotBlank(errorMessage)) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(FIRSTNAME_MSG_PREFIX + errorMessage).build();
       }
     }
     if (lastName != null) {
       String errorMessage = LASTNAME_VALIDATOR.validate(locale, lastName);
       if (StringUtils.isNotBlank(errorMessage)) {
-        return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+        return Response.status(Response.Status.BAD_REQUEST).entity(LASTNAME_MSG_PREFIX + errorMessage).build();
       }
     }
     Identity identity = identityManager.getOrCreateUserIdentity(username);
@@ -1125,39 +1276,39 @@ public class UserRest implements ResourceContainer, Startable {
     return Response.noContent().build();
   }
 
-  private Map<String, Object> extractPropertiesFromEntities(ProfileEntity profileEntity) {
+  @SuppressWarnings("unchecked")
+  private Map<String, Object> extractPropertiesFromEntities(ProfileEntity profileEntity) { // NOSONAR
     Map<String, Object> userProfileProperties = new HashMap<>();
-    for(String key: profileEntity.getDataEntity().keySet()) {
-      if(profileEntity.getDataEntity().get(key) instanceof List<?>) {
+    for (String key : profileEntity.getDataEntity().keySet()) {
+      if (profileEntity.getDataEntity().get(key) instanceof List<?>) {
         List<Map<String, String>> properties = new ArrayList<>();
-        if(key.equalsIgnoreCase(Profile.CONTACT_IMS)) {
+        if (key.equalsIgnoreCase(Profile.CONTACT_IMS)) {
           List<IMEntity> imsEntities = (List<IMEntity>) profileEntity.getDataEntity().get(key);
-          for(IMEntity im : imsEntities){
+          for (IMEntity im : imsEntities) {
             Map<String, String> imMap = new HashMap<>();
             imMap.put(im.getImType(), im.getImId());
             properties.add(imMap);
           }
-        } else if(key.equalsIgnoreCase(Profile.CONTACT_PHONES)) {
+        } else if (key.equalsIgnoreCase(Profile.CONTACT_PHONES)) {
           List<PhoneEntity> phoneEntities = (List<PhoneEntity>) profileEntity.getDataEntity().get(key);
-          for(PhoneEntity phoneEntity : phoneEntities){
+          for (PhoneEntity phoneEntity : phoneEntities) {
             Map<String, String> phoneMap = new HashMap<>();
             phoneMap.put(phoneEntity.getPhoneType(), phoneEntity.getPhoneNumber());
             properties.add(phoneMap);
           }
 
-        } else if(key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
+        } else if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
           List<URLEntity> urlEntities = (List<URLEntity>) profileEntity.getDataEntity().get(key);
-          for(URLEntity url : urlEntities){
+          for (URLEntity url : urlEntities) {
             Map<String, String> urlMap = new HashMap<>();
             urlMap.put(url.getUrl(), url.getUrl());
             properties.add(urlMap);
           }
-        } else if(key.equalsIgnoreCase(Profile.EXPERIENCES)) {
-          @SuppressWarnings("unchecked")
+        } else if (key.equalsIgnoreCase(Profile.EXPERIENCES)) {
           List<ExperienceEntity> experienceEntities = (List<ExperienceEntity>) profileEntity.getDataEntity().get(key);
-          for(ExperienceEntity experienceEntity : experienceEntities) {
+          for (ExperienceEntity experienceEntity : experienceEntities) {
             Map<String, String> experienceMap = new HashMap<>();
-            if(StringUtils.isNotBlank(experienceEntity.getId())) {
+            if (StringUtils.isNotBlank(experienceEntity.getId())) {
               experienceMap.put(Profile.EXPERIENCES_ID, experienceEntity.getId());
             }
             experienceMap.put(Profile.EXPERIENCES_COMPANY, experienceEntity.getCompany());
@@ -1182,16 +1333,16 @@ public class UserRest implements ResourceContainer, Startable {
   @Path("{id}/profile/properties")
   @Operation(summary = "Update set of properties in user profile", method = "PATCH", description = "This can only be done by the logged in user.")
   @ApiResponses(value = { @ApiResponse(responseCode = "204", description = "Request fulfilled but not content returned"),
-      @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
-      @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input") })
-  public Response updateUserProfileAttributes(@Context
-                                              HttpServletRequest request,
+    @ApiResponse(responseCode = "500", description = "Internal server error due to data encoding"),
+    @ApiResponse(responseCode = "403", description = "Unothorized to modify user profile"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input") })
+  public Response updateUserProfileAttributes(@Context // NOSONAR
+  HttpServletRequest request,
                                               @Parameter(description = "User name", required = true)
                                               @PathParam("id")
                                               String username,
                                               @RequestBody(description = "User profile attributes map", required = true)
-                                              List<ProfilePropertySettingEntity> profilePropertySettingEntities) throws Exception {
+                                              List<ProfilePropertySettingEntity> profilePropertySettingEntities) {
     if (StringUtils.isBlank(username)) {
       return Response.status(Status.BAD_REQUEST).entity("'username' path parameter is empty").build();
     }
@@ -1212,13 +1363,13 @@ public class UserRest implements ResourceContainer, Startable {
       if (profileProperty.getPropertyName().equals(Profile.FIRST_NAME)) {
         String errorMessage = FIRSTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
         if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("FIRSTNAME:" + errorMessage).build();
+          return Response.status(Response.Status.BAD_REQUEST).entity(FIRSTNAME_MSG_PREFIX + errorMessage).build();
         }
       }
       if (profileProperty.getPropertyName().equals(Profile.LAST_NAME)) {
         String errorMessage = LASTNAME_VALIDATOR.validate(locale, profileProperty.getValue());
         if (StringUtils.isNotBlank(errorMessage)) {
-          return Response.status(Response.Status.BAD_REQUEST).entity("LASTNAME:" + errorMessage).build();
+          return Response.status(Response.Status.BAD_REQUEST).entity(LASTNAME_MSG_PREFIX + errorMessage).build();
         }
       }
       if (profileProperty.getPropertyName().equals(Profile.EMAIL)
@@ -1228,15 +1379,16 @@ public class UserRest implements ResourceContainer, Startable {
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
           updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
-          updateProfilePropertyVisibility(userIdentity,profileProperty);
+          updateProfilePropertyVisibility(userIdentity, profileProperty);
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
           profileProperty.getChildren().forEach(profilePropertySettingEntity -> {
             if (profilePropertySettingEntity.getValue() != null && !profilePropertySettingEntity.getValue().isBlank()
-                && (profilePropertySettingEntity.getPropertyName() != null && !profilePropertySettingEntity.getPropertyName().isBlank()
-                || profileProperty.isMultiValued())) {
+                && (profilePropertySettingEntity.getPropertyName() != null
+                    && !profilePropertySettingEntity.getPropertyName().isBlank()
+                    || profileProperty.isMultiValued())) {
               Map<String, String> childrenMap = new HashMap<>();
-              if (profilePropertySettingEntity.getPropertyName()!=null) {
+              if (profilePropertySettingEntity.getPropertyName() != null) {
                 childrenMap.put("key", profilePropertySettingEntity.getPropertyName());
               }
               childrenMap.put("value", profilePropertySettingEntity.getValue());
@@ -1244,7 +1396,7 @@ public class UserRest implements ResourceContainer, Startable {
             }
           });
           updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
-          updateProfilePropertyVisibility(userIdentity,profileProperty);
+          updateProfilePropertyVisibility(userIdentity, profileProperty);
         }
       } catch (IllegalAccessException e) {
         LOG.error("User {} is not allowed to update attributes", currentUser);
@@ -1261,19 +1413,22 @@ public class UserRest implements ResourceContainer, Startable {
   @DELETE
   @Path("{id}")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Deletes a specific user by user name",
-      method = "DELETE",
-      description = "This deletes the user if the authenticated user is in the /platform/administrators group.")
-  public Response deleteUserById(@Context UriInfo uriInfo,
-                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand) throws Exception {
-    //Check permission of current user
+  @Operation(summary = "Deletes a specific user by user name", method = "DELETE", description = "This deletes the user if the authenticated user is in the /platform/administrators group.")
+  public Response deleteUserById(
+                                 @Context
+                                 UriInfo uriInfo,
+                                 @Parameter(description = "User name", required = true)
+                                 @PathParam("id")
+                                 String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                                 @QueryParam("expand")
+                                 String expand) throws Exception {
+    // Check permission of current user
     if (!RestUtils.isMemberOfAdminGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+    Identity identity = identityManager.getOrCreateUserIdentity(id);
     if (identity == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -1283,31 +1438,38 @@ public class UserRest implements ResourceContainer, Startable {
     UserHandler userHandler = organizationService.getUserHandler();
     userHandler.removeUser(id, false);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand),
+                                     uriInfo,
+                                     RestUtils.getJsonMediaType(),
+                                     Response.Status.OK);
   }
 
   @PUT
   @Path("{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(
-      summary = "Updates a specific user by user name",
-      method = "PUT",
-      description = "This updates the user if he is the authenticated user.")
-  public Response updateUserById(@Context UriInfo uriInfo,
-                                 @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                 @Parameter(description = "Asking for a full representation of a specific subresource if any") @QueryParam("expand") String expand,
+  @Operation(summary = "Updates a specific user by user name", method = "PUT", description = "This updates the user if he is the authenticated user.")
+  public Response updateUserById(
+                                 @Context
+                                 UriInfo uriInfo,
+                                 @Parameter(description = "User name", required = true)
+                                 @PathParam("id")
+                                 String id,
+                                 @Parameter(description = "Asking for a full representation of a specific subresource if any")
+                                 @QueryParam("expand")
+                                 String expand,
                                  @RequestBody(description = "User object to be updated, ex:<br />" +
                                      "{<br />\"username\": \"john\"," +
                                      "<br />\"password\": \"gtngtn\"," +
                                      "<br />\"firstname\": \"John\"," +
-                                     "<br />\"lastname\": \"Smith\"<br />}", required = true) UserEntity model) throws Exception {
+                                     "<br />\"lastname\": \"Smith\"<br />}", required = true)
+                                 UserEntity model) throws Exception {
     UserHandler userHandler = organizationService.getUserHandler();
     User user = userHandler.findUserByName(id);
     if (user == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    //Check if the current user is the authenticated user
+    // Check if the current user is the authenticated user
     if (!ConversationState.getCurrent().getIdentity().getUserId().equals(id)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
@@ -1315,19 +1477,22 @@ public class UserRest implements ResourceContainer, Startable {
     fillUserFromModel(user, model);
     userHandler.saveUser(user, true);
     //
-    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
+    return EntityBuilder.getResponse(EntityBuilder.buildEntityProfile(id, uriInfo.getPath(), expand),
+                                     uriInfo,
+                                     RestUtils.getJsonMediaType(),
+                                     Response.Status.OK);
   }
 
   @PATCH
   @Path("onboard/{id}")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(
-      summary = "Send onBoarding email to a specific user",
-      method = "PATCH",
-      description = "This send onBoarding email to a specific user.")
-  public Response sendOnBoardingEmail(@Context HttpServletRequest request,
-                                      @Parameter(description = "User name", required = true) @PathParam("id") String id) throws Exception {
+  @Operation(summary = "Send onBoarding email to a specific user", method = "PATCH", description = "This send onBoarding email to a specific user.")
+  public Response sendOnBoardingEmail(@Context
+  HttpServletRequest request,
+                                      @Parameter(description = "User name", required = true)
+                                      @PathParam("id")
+                                      String id) throws Exception {
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
@@ -1336,8 +1501,8 @@ public class UserRest implements ResourceContainer, Startable {
     if (user == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    StringBuilder url = getUrl(request);
-    sendOnBoardingEmail((UserImpl) user, url);
+    String url = getUrl(request);
+    sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
     return Response.ok().build();
   }
 
@@ -1346,74 +1511,38 @@ public class UserRest implements ResourceContainer, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
   @Operation(summary = "Make action on list of users", method = "PATCH", description = "This will realize the action on the list of users if possible")
-  public Response bulk(@Context HttpServletRequest request,
-                       @Parameter(description = "Action", required = true) @PathParam("action") String action,
-                       @Parameter(description = "User List", required = true) List<String> users) throws Exception {
+  public Response bulk(@Context
+  HttpServletRequest request,
+                       @Parameter(description = "Action", required = true)
+                       @PathParam("action")
+                       String action,
+                       @Parameter(description = "User List", required = true)
+                       List<String> users) throws Exception {
 
     if (!RestUtils.isMemberOfAdminGroup() && !RestUtils.isMemberOfDelegatedGroup()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
+    String currentUsername = request.getRemoteUser();
     List<String> updatedUsers = new ArrayList<>();
     switch (action) {
     case "onboard":
-      StringBuilder url = getUrl(request);
+      String url = getUrl(request);
       for (String username : users) {
-        UserHandler userHandler = organizationService.getUserHandler();
-        User user = userHandler.findUserByName(username);
-        if (user == null) {
-          LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
-          continue;
-        }
-        Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, username);
-        if (identity == null) {
-          LOG.warn("Cannot find identity by username {} for onboarding, he is disabled or not existing", username);
-          continue;
-        }
-        if (Util.isExternal(identity.getId())) {
-          LOG.warn("User {} is external, he cannot be enrolled.", username);
-          continue;
-        }
-        if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
-          LOG.warn("User {} is already logged in, he cannot be enrolled", username);
-          continue;
-        }
-        sendOnBoardingEmail((UserImpl) user, url);
-        updatedUsers.add(username);
+        onboardUser(username, updatedUsers, url);
       }
       break;
     case "enable":
       for (String username : users) {
-        UserHandler userHandler = organizationService.getUserHandler();
-        User user = userHandler.findUserByName(username, UserStatus.DISABLED);
-        if (user == null) {
-          LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
-          continue;
-        }
-        organizationService.getUserHandler().setEnabled(username, true, true);
-        updatedUsers.add(username);
+        enableUser(username, updatedUsers);
       }
       break;
     case "disable":
       for (String username : users) {
-        UserHandler userHandler = organizationService.getUserHandler();
-        User user = userHandler.findUserByName(username, UserStatus.ENABLED);
-        if (user == null) {
-          LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
-          continue;
-        }
-        String currentUsername = ConversationState.getCurrent().getIdentity().getUserId();
-        if (StringUtils.equals(currentUsername, user.getUserName())) {
-          LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
-          continue;
-        }
-        if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
-          LOG.warn("Try to suspend superuser account {}. Not allowed", username);
-          continue;
-        }
-        organizationService.getUserHandler().setEnabled(username, false, true);
-        updatedUsers.add(username);
+        disableUser(username, updatedUsers, currentUsername);
       }
       break;
+    default:
+      return Response.status(Response.Status.BAD_REQUEST).entity("Not Supported Action").build();
     }
     return Response.ok(updatedUsers).build();
   }
@@ -1421,16 +1550,24 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("{id}/connections")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets connections of a specific user",
-      method = "GET",
-      description = "This can only be done by the logged in user.")
-  public Response getConnectionsOfUser(@Context UriInfo uriInfo,
-                                       @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                       @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name", required = false) @QueryParam("q") String q,
-                                       @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+  @Operation(summary = "Gets connections of a specific user", method = "GET", description = "This can only be done by the logged in user.")
+  public Response getConnectionsOfUser(
+                                       @Context
+                                       UriInfo uriInfo,
+                                       @Parameter(description = "User name", required = true)
+                                       @PathParam("id")
+                                       String id,
+                                       @Parameter(description = "User name information to filter, ex: user name, last name, first name or full name", required = false)
+                                       @QueryParam("q")
+                                       String q,
+                                       @Parameter(description = "Returning the number of connections or not")
+                                       @Schema(defaultValue = "false")
+                                       @QueryParam("returnSize")
+                                       boolean returnSize,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                       @QueryParam("expand")
+                                       String expand) throws Exception {
+    Identity target = identityManager.getOrCreateUserIdentity(id);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -1438,18 +1575,18 @@ public class UserRest implements ResourceContainer, Startable {
     int limit = RestUtils.getLimit(uriInfo);
     int offset = RestUtils.getOffset(uriInfo);
 
-    List<DataEntity> profileInfos = new ArrayList<DataEntity>();
+    List<DataEntity> profileInfos = new ArrayList<>();
     ProfileFilter profileFilter = new ProfileFilter();
     profileFilter.setName(q);
     ListAccess<Identity> listAccess = relationshipManager.getConnectionsByFilter(target, profileFilter);
-    Identity []identities = listAccess.load(offset, limit);
+    Identity[] identities = listAccess.load(offset, limit);
     for (Identity identity : identities) {
       ProfileEntity profileInfo = EntityBuilder.buildEntityProfile(identity.getProfile(), uriInfo.getPath(), expand);
       //
       profileInfos.add(profileInfo.getDataEntity());
     }
     CollectionEntity collectionUser = new CollectionEntity(profileInfos, EntityBuilder.USERS_TYPE, offset, limit);
-    if(returnSize) {
+    if (returnSize) {
       collectionUser.setSize(listAccess.getSize());
     }
     return EntityBuilder.getResponse(collectionUser, uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -1459,11 +1596,18 @@ public class UserRest implements ResourceContainer, Startable {
   @Path("connections/invitations")
   @RolesAllowed("users")
   @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
-  public Response getInvitationsOfUser(@Context UriInfo uriInfo,
-                                       @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+  public Response getInvitationsOfUser(
+                                       @Context
+                                       UriInfo uriInfo,
+                                       @Parameter(description = "Returning the number of connections or not")
+                                       @Schema(defaultValue = "false")
+                                       @QueryParam("returnSize")
+                                       boolean returnSize,
+                                       @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                       @QueryParam("expand")
+                                       String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+    Identity target = identityManager.getOrCreateUserIdentity(currentUser);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -1489,11 +1633,18 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("connections/pending")
   @Operation(summary = "Gets received invitations of current user", method = "GET", description = "This can only be done by the logged in user.")
-  public Response getPendingOfUser(@Context UriInfo uriInfo,
-                                   @Parameter(description = "Returning the number of connections or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false) @QueryParam("expand") String expand) throws Exception {
+  public Response getPendingOfUser(
+                                   @Context
+                                   UriInfo uriInfo,
+                                   @Parameter(description = "Returning the number of connections or not")
+                                   @Schema(defaultValue = "false")
+                                   @QueryParam("returnSize")
+                                   boolean returnSize,
+                                   @Parameter(description = "Asking for a full representation of a specific subresource if any", required = false)
+                                   @QueryParam("expand")
+                                   String expand) throws Exception {
     String currentUser = ConversationState.getCurrent().getIdentity().getUserId();
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, currentUser);
+    Identity target = identityManager.getOrCreateUserIdentity(currentUser);
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
@@ -1519,38 +1670,52 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("{id}/spaces")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets spaces of a specific user",
-      method = "GET",
-      description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  public Response getSpacesOfUser(@Context UriInfo uriInfo,
-                                  @Parameter(description = "User name", required = true) @PathParam("id") String id,
-                                  @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
-                                  @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
-                                  @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
+  @Operation(summary = "Gets spaces of a specific user", method = "GET", description = "This returns a list of spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  public Response getSpacesOfUser(
+                                  @Context
+                                  UriInfo uriInfo,
+                                  @Parameter(description = "User name", required = true)
+                                  @PathParam("id")
+                                  String id,
+                                  @Parameter(description = "Offset")
+                                  @Schema(defaultValue = "0")
+                                  @QueryParam("offset")
+                                  int offset,
+                                  @Parameter(description = "Limit")
+                                  @Schema(defaultValue = "20")
+                                  @QueryParam("limit")
+                                  int limit,
+                                  @Parameter(description = "Returning the number of spaces or not")
+                                  @Schema(defaultValue = "false")
+                                  @QueryParam("returnSize")
+                                  boolean returnSize,
+                                  @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>")
+                                  @QueryParam("expand")
+                                  String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    Identity target = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
-    //Check if the given user exists
+    Identity target = identityManager.getOrCreateUserIdentity(id);
+    // Check if the given user exists
     if (target == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    //Check permission of authenticated user : he must be an admin or he is the given user
+    // Check permission of authenticated user : he must be an admin or he is the
+    // given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
     if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(id)) {
-      //Check permission of spaces to retrieve owner : authenticated user must be in a confirmed relationship with spaces to retrieve's owner
-      Identity authenticatedUserIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, authenticatedUser);
-      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, id);
+      // Check permission of spaces to retrieve owner : authenticated user must
+      // be in a confirmed relationship with spaces to retrieve's owner
+      Identity authenticatedUserIdentity = identityManager.getOrCreateUserIdentity(authenticatedUser);
+      Identity userIdentity = identityManager.getOrCreateUserIdentity(id);
       Relationship relationship = relationshipManager.get(authenticatedUserIdentity, userIdentity);
       if (relationship == null || relationship.getStatus() != Relationship.Type.CONFIRMED) {
         throw new WebApplicationException(Response.Status.FORBIDDEN);
       }
     }
 
-    List<DataEntity> spaceInfos = new ArrayList<DataEntity>();
+    List<DataEntity> spaceInfos = new ArrayList<>();
     ListAccess<Space> listAccess = spaceService.getMemberSpaces(id);
 
     for (Space space : listAccess.load(offset, limit)) {
@@ -1569,39 +1734,58 @@ public class UserRest implements ResourceContainer, Startable {
   @GET
   @Path("{userId}/spaces/{profileId}")
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets commons spaces of current user",
-      method = "GET",
-      description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
-  public Response getCommonSpacesOfUser(@Context UriInfo uriInfo,
-                                        @Parameter(description = "User Id", required = true) @PathParam("userId") String userId,
-                                        @Parameter(description = "Profile Id", required = true) @PathParam("profileId") String profileId,
-                                        @Parameter(description = "Offset") @Schema(defaultValue = "0") @QueryParam("offset") int offset,
-                                        @Parameter(description = "Limit") @Schema(defaultValue = "20") @QueryParam("limit") int limit,
-                                        @Parameter(description = "Returning the number of spaces or not") @Schema(defaultValue = "false") @QueryParam("returnSize") boolean returnSize,
-                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>") @QueryParam("expand") String expand) throws Exception {
+  @Operation(summary = "Gets commons spaces of current user", method = "GET", description = "This returns a list of commons spaces in the following cases: <br/><ul><li>the given user is the authenticated user</li><li>the authenticated user is in the group /platform/administrators</li></ul>")
+  public Response getCommonSpacesOfUser(
+                                        @Context
+                                        UriInfo uriInfo,
+                                        @Parameter(description = "User Id", required = true)
+                                        @PathParam("userId")
+                                        String userId,
+                                        @Parameter(description = "Profile Id", required = true)
+                                        @PathParam("profileId")
+                                        String profileId,
+                                        @Parameter(description = "Offset")
+                                        @Schema(defaultValue = "0")
+                                        @QueryParam("offset")
+                                        int offset,
+                                        @Parameter(description = "Limit")
+                                        @Schema(defaultValue = "20")
+                                        @QueryParam("limit")
+                                        int limit,
+                                        @Parameter(description = "Returning the number of spaces or not")
+                                        @Schema(defaultValue = "false")
+                                        @QueryParam("returnSize")
+                                        boolean returnSize,
+                                        @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>members</em> or <em>managers</em>")
+                                        @QueryParam("expand")
+                                        String expand) throws Exception {
 
     offset = offset > 0 ? offset : RestUtils.getOffset(uriInfo);
     limit = limit > 0 ? limit : RestUtils.getLimit(uriInfo);
 
-    Identity currentUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, userId);
-    Identity userProfile = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, profileId);
-    //Check if the current user and profile user exists
+    Identity currentUser = identityManager.getOrCreateUserIdentity(userId);
+    Identity userProfile = identityManager.getOrCreateUserIdentity(profileId);
+    // Check if the current user and profile user exists
     if (currentUser == null || userProfile == null) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
 
-    //Check permission of authenticated user : he must be an admin or he is the given user
+    // Check permission of authenticated user : he must be an admin or he is the
+    // given user
     String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId) ) {
+    if (!userACL.getSuperUser().equals(authenticatedUser) && !authenticatedUser.equals(userId)) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
-    ListAccess<Space> commonSpacesAccessList = spaceService.getCommonSpaces(userId,profileId);
+    ListAccess<Space> commonSpacesAccessList = spaceService.getCommonSpaces(userId, profileId);
 
     List<DataEntity> commonSpaceInfos = Arrays.stream(commonSpacesAccessList.load(offset, limit))
-                                              .map(space -> EntityBuilder.buildEntityFromSpace(space, userId, uriInfo.getPath(), expand).getDataEntity())
-                                              .collect(Collectors.toList());
+                                              .map(space -> EntityBuilder.buildEntityFromSpace(space,
+                                                                                               userId,
+                                                                                               uriInfo.getPath(),
+                                                                                               expand)
+                                                                         .getDataEntity())
+                                              .toList();
     CollectionEntity collectionSpace = new CollectionEntity(commonSpaceInfos, EntityBuilder.SPACES_TYPE, offset, limit);
     if (returnSize) {
       collectionSpace.setSize(commonSpacesAccessList.getSize());
@@ -1613,83 +1797,102 @@ public class UserRest implements ResourceContainer, Startable {
   @Produces(MediaType.APPLICATION_JSON)
   @Path("csv")
   @RolesAllowed("administrators")
-  @Operation(
-      summary = "Import users using CSV file",
-      description = "Import users using CSV file that has a header defining user fields names."
-          + "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position",
-      method = "POST")
-  public Response importUsers(@Context HttpServletRequest request,
-                              @Parameter(description = "CSV File uploadId retrieved after uploading", required = true) @FormParam("uploadId") String uploadId,
-                              @Parameter(description = "Get processing progress percentage of imported file") @Schema(defaultValue = "false") @FormParam("progress") boolean progress,
-                              @Parameter(description = "Whether clean file after processing or not") @Schema(defaultValue = "false") @FormParam("clean") boolean clean,
-                              @Parameter(description = "Whether process importing users in a sync or async way of current request") @Schema(defaultValue = "false") @FormParam("sync") boolean sync) {
+  @Operation(summary = "Import users using CSV file", description = "Import users using CSV file that has a header defining user fields names." +
+      "exemple of first line of CSV file: userName,firstName,lastName,password,email,groups,aboutMe,timeZone,company,position", method = "POST")
+  public Response importUsers(@Context
+  HttpServletRequest request,
+                              @Parameter(description = "CSV File uploadId retrieved after uploading", required = true)
+                              @FormParam("uploadId")
+                              String uploadId,
+                              @Parameter(description = "Get processing progress percentage of imported file")
+                              @Schema(defaultValue = "false")
+                              @FormParam("progress")
+                              boolean progress,
+                              @Parameter(description = "Whether clean file after processing or not")
+                              @Schema(defaultValue = "false")
+                              @FormParam("clean")
+                              boolean clean,
+                              @Parameter(description = "Whether process importing users in a sync or async way of current request")
+                              @Schema(defaultValue = "false")
+                              @FormParam("sync")
+                              boolean sync) {
     if (StringUtils.isBlank(uploadId)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID:MANDATORY").build();
     }
 
-    UploadResource uploadResource = uploadService.getUploadResource(uploadId);
-    if (uploadResource == null) {
-      return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID:NOT_FOUND").build();
-    }
-
-    UserImportResultEntity existingImportResult = importUsersProcessing.get(uploadId);
-    if (clean || progress) {
-      if (existingImportResult == null) {
-        return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID_PROGRESS:NOT_FOUND").build();
+    Locale locale = request.getLocale();
+    String url = getUrl(request);
+    if (clean) {
+      userImportService.cleanUsersImportResult(uploadId);
+      return Response.noContent().build();
+    } else if (progress) {
+      UserImportResult importResult = userImportService.getUsersImportResult(uploadId);
+      if (importResult == null) {
+        return Response.status(Response.Status.NOT_FOUND).entity(UPLOAD_ID_PROGRESS_NOT_FOUND).build();
+      } else {
+        return Response.ok(importResult).build();
       }
-      if (clean) {
-        uploadService.removeUploadResource(uploadId);
-        importUsersProcessing.remove(uploadId);
+    } else {
+      try {
+        userImportService.importUsers(uploadId,
+                                      request.getRemoteUser(),
+                                      locale,
+                                      url,
+                                      sync);
+        return Response.noContent().build();
+      } catch (IllegalArgumentException e) {
+        return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+      } catch (Exception e) {
+        LOG.warn("Error while importing users", e);
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
       }
-      return Response.ok(existingImportResult.clone()).build();
-    } else if (existingImportResult != null) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("UPLOAD_ID_PROCESSING:ALREADY_PROCESSING").build();
     }
-
-    Locale locale = request == null ? Locale.ENGLISH : request.getLocale();
-    StringBuilder url = getUrl(request);
-    Response errorResponse = importUsers(uploadId, uploadResource.getStoreLocation(), locale, url, sync);
-    return errorResponse == null ? Response.noContent().build() : errorResponse;
   }
 
   @GET
   @Path("userCardSettings")
   @Produces(MediaType.APPLICATION_JSON)
   @RolesAllowed("users")
-  @Operation(
-      summary = "Gets the field settings of a user card",
-      description = "Gets the field settings of a user card",
-      method = "GET")
+  @Operation(summary = "Gets the field settings of a user card", description = "Gets the field settings of a user card", method = "GET")
   @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
-      @ApiResponse(responseCode = "400", description = "Invalid query input"),
-      @ApiResponse(responseCode = "401", description = "User does not have permissions to get it"),
-      @ApiResponse(responseCode = "404", description = "Setting does not exist"),
-      @ApiResponse(responseCode = "500", description = "Internal server error")})
-  public Response getUserCardSettings(@Context Request request) {
+    @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+    @ApiResponse(responseCode = "400", description = "Invalid query input"),
+    @ApiResponse(responseCode = "401", description = "User does not have permissions to get it"),
+    @ApiResponse(responseCode = "404", description = "Setting does not exist"),
+    @ApiResponse(responseCode = "500", description = "Internal server error") })
+  public Response getUserCardSettings(@Context
+  Request request) {
 
-    SettingValue<?> userCardFirstFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardFirstFieldSetting");
-    SettingValue<?> userCardSecondFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardSecondFieldSetting");
-    SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL, new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS), "UserCardThirdFieldSetting");
+    SettingValue<?> userCardFirstFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                   new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                   "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                    new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                    "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                   new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                   "UserCardThirdFieldSetting");
 
     JSONObject userCardSettings = new JSONObject();
-    if(userCardFirstFieldSetting != null) {
-      userCardSettings.put("firstField", userCardFirstFieldSetting.getValue());
+    if (userCardFirstFieldSetting != null) {
+      userCardSettings.put(FIRST_USER_FIELD, userCardFirstFieldSetting.getValue());
     } else {
-      userCardSettings.put("firstField", "position");
+      userCardSettings.put(FIRST_USER_FIELD, "position");
     }
-    if(userCardSecondFieldSetting != null) {
-      userCardSettings.put("secondField", userCardSecondFieldSetting.getValue());
+    if (userCardSecondFieldSetting != null) {
+      userCardSettings.put(SECOND_USER_FIELD, userCardSecondFieldSetting.getValue());
     } else {
-      userCardSettings.put("secondField", "team");
+      userCardSettings.put(SECOND_USER_FIELD, "team");
     }
-    if(userCardThirdFieldSetting != null) {
-      userCardSettings.put("thirdField", userCardThirdFieldSetting.getValue());
+    if (userCardThirdFieldSetting != null) {
+      userCardSettings.put(THIRD_USER_FIELD, userCardThirdFieldSetting.getValue());
     } else {
-      userCardSettings.put("thirdField", "city");
+      userCardSettings.put(THIRD_USER_FIELD, "city");
     }
 
-    String eTagValue = String.valueOf(Objects.hash(userCardSettings.get("firstField"), userCardSettings.get("secondField"), userCardSettings.get("thirdField")));
+    String eTagValue = String.valueOf(Objects.hash(userCardSettings.get(FIRST_USER_FIELD),
+                                                   userCardSettings.get(SECOND_USER_FIELD),
+                                                   userCardSettings.get(THIRD_USER_FIELD)));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
@@ -1700,326 +1903,12 @@ public class UserRest implements ResourceContainer, Startable {
     return builder.build();
   }
 
-  private Response importUsers(String uploadId, String fileLocation, Locale locale, StringBuilder url, boolean sync) {
-    UserImportResultEntity userImportResultEntity = new UserImportResultEntity();
-    importUsersProcessing.put(uploadId, userImportResultEntity);
-
-    // count file lines
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
-      userImportResultEntity.setCount(reader.lines().count() - 1);
-    } catch (FileNotFoundException e) {
-      return Response.status(Response.Status.NOT_FOUND).entity("UPLOAD_ID_FILE:NOT_FOUND").build();
-    } catch (IOException e) {
-      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("ERROR_READING_FILE").build();
-    }
-
-    if (userImportResultEntity.getCount() < 1) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("BAD_FORMAT:FILE_EMPTY").build();
-    }
-
-    if (sync) {
-      importUsers(fileLocation, userImportResultEntity, locale, url);
-    } else {
-      importUsersAsync(fileLocation, userImportResultEntity, locale, url, ConversationState.getCurrent());
-    }
-    return null;
-  }
-
   private void updateProfilePropertyVisibility(Identity userIdentity, ProfilePropertySettingEntity profileProperty) {
     if (profileProperty.isToHide()) {
       profilePropertyService.hidePropertySetting(Long.parseLong(userIdentity.getId()), profileProperty.getId());
     } else if (profileProperty.isToShow()) {
       profilePropertyService.showPropertySetting(Long.parseLong(userIdentity.getId()), profileProperty.getId());
     }
-  }
-
-  private void importUsersAsync(String fileLocation,
-                                UserImportResultEntity userImportResultEntity,
-                                Locale locale,
-                                StringBuilder url,
-                                ConversationState currentState) {
-    importExecutorService.execute(() -> {
-      ConversationState.setCurrent(currentState);
-      try {
-        this.importUsers(fileLocation, userImportResultEntity, locale, url);
-      } finally {
-        ConversationState.setCurrent(null);
-      }
-    });
-  }
-
-  private void importUsers(String fileLocation,
-                           UserImportResultEntity userImportResultEntity,
-                           Locale locale,
-                           StringBuilder url) {
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileLocation))) {
-      // Retrieve header line and import others
-      String headerLine = null;
-      headerLine = reader.readLine();
-      if (StringUtils.isBlank(headerLine)) {
-        return;
-      }
-      List<String> fields = new ArrayList<>(Arrays.stream(headerLine.split(",")).map(String::trim).toList());
-      List<String> standardFields = List.of("userName", "password", "groups", "aboutMe", "timeZone", "enabled");
-      List<String> systemParentAndMultivaluedFields = Arrays.asList("user", "phones", "ims", "urls", "manager");
-      List<String> unauthorizedFields = new ArrayList<>();
-      ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
-      RequestLifeCycle.begin(PortalContainer.getInstance());
-      try {
-        for (String field : fields) {
-          if(!standardFields.contains(field)) {
-            if (!field.contains(".")) {
-              ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(field);
-              if (propertySetting == null) {
-                userImportResultEntity.addWarnMessage("ALL", "PROFILE_PROPERTY_DOES_NOT_EXIST:" + field);
-                unauthorizedFields.add(field);
-              } else if (propertySetting.isHasChildProperties()) {
-                userImportResultEntity.addWarnMessage("ALL", "PARENT_PROPERTY_SHOULD_NOT_HAVE_VALUES:" + field);
-                unauthorizedFields.add(field);
-              } else if(propertySetting.isMultiValued() && !systemParentAndMultivaluedFields.contains(field)) {
-                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_FIELD_MULTIVALUED:" + field);
-                unauthorizedFields.add(field);
-              }
-            } else {
-              String[] fieldNames = field.split("\\.");
-              ProfilePropertySetting parentProperty = profilePropertyService.getProfileSettingByName(fieldNames[0]);
-              if (fieldNames.length > 2) {
-                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MORE_THAN_ONE_PARENT:" + field);
-                unauthorizedFields.add(field);
-              } else if (parentProperty == null) {
-                userImportResultEntity.addWarnMessage("ALL", "PROPERTY_HAS_MISSING_PARENT_PROPERTY:" + field);
-                unauthorizedFields.add(field);
-              } else if (parentProperty.isMultiValued() && !systemParentAndMultivaluedFields.contains(parentProperty.getPropertyName())) {
-                userImportResultEntity.addWarnMessage("ALL", "CUSTOM_PARENT_FIELD:" + field);
-                unauthorizedFields.add(field);
-              }
-            }
-          }
-        }
-      } finally {
-        RequestLifeCycle.end();
-      }
-
-      String userCSVLine = reader.readLine();
-      while (userCSVLine != null) {
-        ExoContainerContext.setCurrentContainer(PortalContainer.getInstance());
-        RequestLifeCycle.begin(PortalContainer.getInstance());
-        String userName = null;
-        try { // NOSONAR
-          userImportResultEntity.incrementProcessed();
-          if (StringUtils.isBlank(userCSVLine)) {
-            userCSVLine = reader.readLine();
-            continue;
-          }
-
-          userName = importUser(userImportResultEntity, locale, url, fields, unauthorizedFields, userCSVLine);
-        } catch (Throwable e) {
-          LOG.warn("Error importing user data {}", userName, e);
-
-          if (StringUtils.isNotBlank(userName)) {
-            userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
-          }
-        } finally {
-          RequestLifeCycle.end();
-        }
-        userCSVLine = reader.readLine();
-      }
-    } catch (Exception e) {
-      LOG.error("Error while importing CSV file", e);
-    }
-  }
-
-  private String importUser(UserImportResultEntity userImportResultEntity,
-                            Locale locale,
-                            StringBuilder url,
-                            List<String> fields,
-                            List<String> fieldsToRemove,
-                            String userCSVLine) throws Exception {
-    List<String> userProperties = Arrays.asList(userCSVLine.split(","));
-    JSONObject userObject = new JSONObject();
-    for (int i = 0; i < fields.size(); i++) {
-      if (i < userProperties.size()) {
-        userObject.put(fields.get(i), userProperties.get(i));
-      }
-    }
-    UserImpl user = EntityBuilder.fromJsonString(userObject.toString(), UserImpl.class);
-    String userName = user.getUserName();
-    if (StringUtils.isBlank(userName)) {
-      userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT:MISSING_USERNAME");
-      return userName;
-    }
-    if (userProperties.size() < fields.size()) {
-      userImportResultEntity.addErrorMessage(userName, "BAD_LINE_FORMAT");
-      return userName;
-    }
-
-    String errorMessage = null;
-    try {
-      errorMessage = validateUser(userObject, locale);
-    } catch (Exception e) {
-      errorMessage = "USER_VALIDATION_ERROR:" + e.getMessage();
-    }
-    if (StringUtils.isNotBlank(errorMessage)) {
-      userImportResultEntity.addErrorMessage(userName, errorMessage);
-      return userName;
-    }
-    boolean onboardUser = !userObject.isNull("onboardUser") && userObject.getString("onboardUser").equals("true");
-    boolean userStatus = !userObject.isNull("enabled") && ( "true".equalsIgnoreCase(userObject.getString("enabled")) ||"false".equalsIgnoreCase(userObject.getString("enabled")));
-
-    User existingUser = organizationService.getUserHandler().findUserByName(userName, UserStatus.ANY);
-    if (existingUser != null ) {
-      if(LOG.isDebugEnabled()){
-        LOG.debug("Skipping password update for: {}",userName);
-      }
-      // skipping password overwrite from csvLine
-      user.setPassword(null);
-      if (userStatus) {
-        organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
-        user.setEnabled(true);
-      }
-      organizationService.getUserHandler().saveUser(user, true);
-      onboardUser = onboardUser && existingUser.isEnabled() && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
-    }
-    else {
-      if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
-        userImportResultEntity.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
-        return userName;
-      }
-      try {
-        organizationService.getUserHandler().createUser(user, true);
-      } catch (Exception e) {
-        LOG.warn("Error importing user {}", userName, e);
-        userImportResultEntity.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
-        return userName;
-      }
-    }
-
-    if (!userObject.isNull("groups")) {
-      String groups = userObject.getString("groups");
-      if (StringUtils.isNotBlank(groups)) {
-        String[] groupsList = groups.split(";");
-        for (String groupMembershipExpression : groupsList) {
-          String membershipType =
-              groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[0])
-                                                      : SpaceUtils.MEMBER;
-          String groupId = groupMembershipExpression.contains(":") ? StringUtils.trim(groupMembershipExpression.split(":")[1])
-                                                                   : groupMembershipExpression;
-          if (groupId.equals("/platform/externals")) continue;
-          Group groupObject = organizationService.getGroupHandler().findGroupById(groupId);
-          if (groupObject == null) {
-            userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:" + groupId);
-            continue;
-          }
-          MembershipType membershipTypeObject =
-              organizationService.getMembershipTypeHandler().findMembershipType(membershipType);
-          if (membershipTypeObject == null) {
-            userImportResultEntity.addWarnMessage(userName, "MEMBERSHIP_TYPE_NOT_EXISTS:" + membershipType);
-            continue;
-          }
-          try {
-            organizationService.getMembershipHandler().linkMembership(user, groupObject, membershipTypeObject, true);
-          } catch (Exception e) {
-            userImportResultEntity.addWarnMessage(userName, "IMPORT_MEMBERSHIP_ERROR:" + e.getMessage());
-          }
-        }
-      } else {
-        userImportResultEntity.addWarnMessage(userName, "GROUP_NOT_EXISTS:");
-      }
-    }
-    //onboard user if the onboardUser csv field is true, the user is enabled and not yet logged in 
-    if (onboardUser) {
-      sendOnBoardingEmail(user, url);
-    }
-
-    if (userStatus) {
-      organizationService.getUserHandler().setEnabled(userName, Boolean.parseBoolean(userObject.getString("enabled")), true);
-    }
-
-    // Delete imported User object properties
-    userObject.remove("userName");
-    userObject.remove("firstName");
-    userObject.remove("lastName");
-    userObject.remove("password");
-    userObject.remove("email");
-    userObject.remove("groups");
-    userObject.remove("enabled");
-
-    // Delete properties to ignore
-    fieldsToRemove.forEach(userObject::remove);
-
-    Map<String, Object> userProfileProperties = new HashMap<>();
-    Iterator<String> properties = userObject.keys();
-    while(properties.hasNext()) {
-      String propertyName = properties.next();
-      String propertyValue = userObject.getString(propertyName);
-      ProfilePropertySetting propertySetting;
-      ProfilePropertySetting parentPropertySetting = null;
-      if(propertyName.contains(".")) {
-        String[] propertyNames = propertyName.split("\\.");
-        String childProperty = propertyNames[1];
-
-        propertySetting =
-            profilePropertyService.getProfileSettingByName(propertyName) != null ? profilePropertyService.getProfileSettingByName(propertyName)
-                                                                                 : profilePropertyService.getProfileSettingByName(childProperty);
-      } else {
-        propertySetting = profilePropertyService.getProfileSettingByName(propertyName);
-      }
-      if (propertySetting != null && propertySetting.getParentId() != null) {
-        parentPropertySetting = profilePropertyService.getProfileSettingById(propertySetting.getParentId());
-      }
-      Map<String, String> childPropertyMap = new HashMap<>();
-      childPropertyMap.put("value", propertyValue);
-      if (propertySetting != null && propertySetting.isMultiValued()) {
-        userProfileProperties.computeIfAbsent(propertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
-        @SuppressWarnings("unchecked")
-        ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(propertySetting.getPropertyName());
-        for (String val : propertyValue.split(";")) {
-          Map<String, String> childProperty = new HashMap<>();
-          childProperty.put("value", val);
-          values.add(childProperty);
-        }
-        userProfileProperties.put(propertySetting.getPropertyName(), values);
-      } else if (parentPropertySetting != null){
-        childPropertyMap.put("key", propertySetting.getPropertyName());
-        userProfileProperties.computeIfAbsent(parentPropertySetting.getPropertyName(), k -> new ArrayList<Map<String, String>>());
-        @SuppressWarnings("unchecked")
-        ArrayList<Map<String, String>> values = (ArrayList<Map<String, String>>) userProfileProperties.get(parentPropertySetting.getPropertyName());
-        values.add(childPropertyMap);
-        userProfileProperties.put(parentPropertySetting.getPropertyName(), values);
-      } else {
-        userProfileProperties.put(propertyName, propertyValue);
-      }
-    }
-    String warnMessage = null;
-    try {
-      saveProfile(userName, userProfileProperties);
-    } catch (ObjectNotFoundException e) {
-      // Not a mandatory operation such as IDM store updates
-      // This may happen when user is disabled
-      LOG.debug("User Identity profile {} wasn't found, ignore processing", userName);
-    } catch (IdentityStorageException e) {
-      LOG.warn("Error saving user profile {}", userName, e);
-      warnMessage = e.getMessageKey();
-    } catch (Exception e) {
-      LOG.warn("Error saving user profile {}", userName, e);
-      warnMessage = "CREATE_USER_PROFILE_ERROR:" + e.getMessage();
-    }
-    if (warnMessage != null) {
-      userImportResultEntity.addWarnMessage(userName, warnMessage);
-    }
-    return userName;
-  }
-
-  private String validateUser(JSONObject userObject, Locale locale) throws Exception {
-    String errorMessage = null;
-    Iterator<UserFieldValidator> iterator = USER_FIELD_VALIDATORS.iterator();
-    while (iterator.hasNext() && errorMessage == null) {
-      UserFieldValidator userFieldValidator = iterator.next();
-      String fieldName = userFieldValidator.getField();
-      String fieldValue = userObject.getString(fieldName);
-      errorMessage = userFieldValidator.validate(locale, fieldValue);
-    }
-    return errorMessage;
   }
 
   private boolean isEmailAlreadyExists(String username, String email) throws Exception {
@@ -2030,7 +1919,8 @@ public class UserRest implements ResourceContainer, Startable {
     return usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username));
   }
 
-  private void saveProfile(String username, Map<String, Object> profileProperties) throws Exception {
+  private void saveProfile(String username, Map<String, Object> profileProperties) throws IllegalAccessException,
+                                                                                   ObjectNotFoundException {
     Identity userIdentity = getUserIdentity(username);
     if (userIdentity == null) {
       throw new ObjectNotFoundException("User identity of " + username + " wasn't found. It can be due to a disabled user.");
@@ -2064,7 +1954,8 @@ public class UserRest implements ResourceContainer, Startable {
    * @return true if email is existing in system.
    */
   private User getUserByEmail(String email) {
-    if (email == null) return null;
+    if (email == null)
+      return null;
     try {
       Query query = new Query();
       query.setEmail(email);
@@ -2086,7 +1977,7 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
 
-    ResponseBuilder builder = Response.ok(new ByteArrayInputStream(defaultUserAvatar), "image/png");
+    ResponseBuilder builder = Response.ok(new ByteArrayInputStream(defaultUserAvatar), IMAGE_PNG_MEDIA_TYPE);
     builder.lastModified(DEFAULT_IMAGES_LAST_MODIFED);
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     builder.tag(eTag);
@@ -2104,27 +1995,28 @@ public class UserRest implements ResourceContainer, Startable {
       }
     }
 
-    ResponseBuilder builder = Response.ok(new ByteArrayInputStream(defaultUserBanner), "image/png");
+    ResponseBuilder builder = Response.ok(new ByteArrayInputStream(defaultUserBanner), IMAGE_PNG_MEDIA_TYPE);
     builder.lastModified(DEFAULT_IMAGES_LAST_MODIFED);
     EntityTag eTag = new EntityTag(String.valueOf(DEFAULT_IMAGES_HASH));
     builder.tag(eTag);
     return builder;
   }
 
-  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws Exception {
+  private void sendOnBoardingEmail(UserImpl user, StringBuilder url) throws IllegalAccessException {
     Locale locale = localeConfigService.getDefaultLocaleConfig().getLocale();
     boolean onBoardingEmailSent = passwordRecoveryService.sendOnboardingEmail(user, locale, url);
     if (onBoardingEmailSent) {
-      Identity userIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user.getUserName());
+      Identity userIdentity = identityManager.getOrCreateUserIdentity(user.getUserName());
       Profile profile = userIdentity.getProfile();
       updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
     }
   }
 
+  @SneakyThrows
   private void updateProfileField(Profile profile,
                                   String name,
                                   Object value,
-                                  boolean save) throws Exception {
+                                  boolean save) throws IllegalAccessException {
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
     if (propertySetting != null && !propertySetting.isEditable()) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
@@ -2183,7 +2075,7 @@ public class UserRest implements ResourceContainer, Startable {
     }
     String errorMessage = EMAIL_VALIDATOR.validate(locale, email);
     if (StringUtils.isNotBlank(errorMessage)) {
-      return Response.status(Response.Status.BAD_REQUEST).entity("EMAIL:" + errorMessage).build();
+      return Response.status(Response.Status.BAD_REQUEST).entity(EMAIL_MSG_PREFIX + errorMessage).build();
     }
     // Check if mail address is already used
     if (isEmailAlreadyExists(username, email)) {
@@ -2192,7 +2084,52 @@ public class UserRest implements ResourceContainer, Startable {
     return null;
   }
 
-  private StringBuilder getUrl(HttpServletRequest request) {
+  @SneakyThrows
+  private void onboardUser(String username, List<String> updatedUsers, String url) throws IllegalAccessException {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(username);
+    if (user == null) {
+      LOG.warn("Cannot find user by username {} for onboarding, he is disabled or not existing", username);
+    } else {
+      Identity identity = identityManager.getOrCreateUserIdentity(username);
+      if (Util.isExternal(identity.getId())) {
+        LOG.warn("User {} is external, he cannot be enrolled.", username);
+      } else if (!user.getLastLoginTime().equals(user.getCreatedDate())) {
+        LOG.warn("User {} is already logged in, he cannot be enrolled", username);
+      } else {
+        sendOnBoardingEmail((UserImpl) user, new StringBuilder(url));
+        updatedUsers.add(username);
+      }
+    }
+  }
+
+  private void enableUser(String username, List<String> updatedUsers) throws Exception {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(username, UserStatus.DISABLED);
+    if (user == null) {
+      LOG.warn("Username {} is not found in disabled user list. He does not exists, or he is already enabled", username);
+    } else {
+      organizationService.getUserHandler().setEnabled(username, true, true);
+      updatedUsers.add(username);
+    }
+  }
+
+  private void disableUser(String username, List<String> updatedUsers, String currentUsername) throws Exception {
+    UserHandler userHandler = organizationService.getUserHandler();
+    User user = userHandler.findUserByName(username, UserStatus.ENABLED);
+    if (user == null) {
+      LOG.warn("Username {} is not found in enabled user list. He does not exists, or he is already disabled", username);
+    } else if (StringUtils.equals(currentUsername, user.getUserName())) {
+      LOG.warn("User {} tries to suspend his own account. Not allowed", currentUsername);
+    } else if (StringUtils.equals(userACL.getSuperUser(), user.getUserName())) {
+      LOG.warn("Try to suspend superuser account {}. Not allowed", username);
+    } else {
+      organizationService.getUserHandler().setEnabled(username, false, true);
+      updatedUsers.add(username);
+    }
+  }
+
+  private String getUrl(HttpServletRequest request) {
     StringBuilder url = new StringBuilder();
     if (request != null) {
       url.append(request.getScheme()).append("://").append(request.getServerName());
@@ -2202,6 +2139,6 @@ public class UserRest implements ResourceContainer, Startable {
       PortalContainer container = PortalContainer.getCurrentInstance(request.getServletContext());
       url.append(container.getPortalContext().getContextPath());
     }
-    return url;
+    return url.toString();
   }
 }
