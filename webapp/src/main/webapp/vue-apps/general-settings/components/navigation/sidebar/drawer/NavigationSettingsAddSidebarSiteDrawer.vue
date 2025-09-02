@@ -172,8 +172,8 @@ export default {
     },
     modified() {
       return this.isNew
-        || (this.isSiteOption && (this.siteId !== this.item?.properties?.siteId || this.item?.properties?.expandPages !== this.expandPages))
-        || (this.isPageOption && this.nodeId !== this.item?.properties?.navigationNodeId);
+        || (this.isSiteOption && (this.siteId !== this.item?.properties?.siteId || this.item?.properties?.expandPages !== this.expandPages || this.item?.icon !== this.icon))
+        || (this.isPageOption && (this.nodeId !== this.item?.properties?.navigationNodeId || this.item?.icon !== this.icon));
     },
     isSiteOption() {
       return this.option === 'SITE' || this.expandPages === 'true';
