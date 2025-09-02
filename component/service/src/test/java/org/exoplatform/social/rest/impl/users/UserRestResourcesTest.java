@@ -19,7 +19,10 @@
 package org.exoplatform.social.rest.impl.users;
 
 import static org.junit.Assert.assertNotEquals;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -32,17 +35,23 @@ import java.io.FileReader;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.commons.api.settings.SettingService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
+import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
@@ -71,7 +80,6 @@ import org.exoplatform.social.core.service.LinkProvider;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.api.ErrorResource;
-import org.exoplatform.social.rest.api.UserImportResultEntity;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.rest.entity.ProfileEntity;
@@ -82,34 +90,38 @@ import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
+import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
+import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
 
   private ProfilePropertyService       profilePropertyService;
 
-  private ProfileLabelService profileLabelService ;
+  private ProfileLabelService          profileLabelService;
 
-  private UserACL             userACL;
+  private UserACL                      userACL;
 
-  private OtpService          otpService;
+  private OtpService                   otpService;
 
-  private RelationshipManager relationshipManager;
+  private RelationshipManager          relationshipManager;
 
-  private SpaceService        spaceService;
+  private SpaceService                 spaceService;
 
-  private OrganizationService organizationService;
+  private OrganizationService          organizationService;
 
-  private EXoContinuationBayeux eXoContinuationBayeux;
+  private EXoContinuationBayeux        eXoContinuationBayeux;
 
-  private UserStateService      userStateService;
+  private UserStateService             userStateService;
 
-  private MockUploadService   uploadService;
+  private MockUploadService            uploadService;
 
-  private UserSearchService   userSearchService;
+  private UserSearchService            userSearchService;
 
   private UserExportService            userExportService;
+
+  private UserImportService            userImportService;
 
   private ImageThumbnailService        imageThumbnailService;
 
@@ -127,7 +139,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   private Identity                     demoIdentity;
 
-  private List<ProfilePropertySetting>     tearDownProfilePropertyList = new ArrayList<>();
+  private List<ProfilePropertySetting> tearDownProfilePropertyList = new ArrayList<>();
 
   @Override
   public void setUp() throws Exception {
@@ -146,6 +158,14 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
     userExportService = mock(UserExportService.class);
+    userImportService = new UserImportService();
+    userImportService.setIdentityManager(identityManager);
+    userImportService.setOrganizationService(organizationService);
+    userImportService.setProfilePropertyService(profilePropertyService);
+    userImportService.setLocaleConfigService(localeConfigService);
+    userImportService.setPasswordRecoveryService(passwordRecoveryService);
+    userImportService.setUploadService(uploadService);
+
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
     passwordRecoveryService = getContainer().getComponentInstanceOfType(PasswordRecoveryService.class);
     localeConfigService = getContainer().getComponentInstanceOfType(LocaleConfigService.class);
@@ -169,6 +189,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 uploadService,
                                                 userSearchService,
                                                 userExportService,
+                                                userImportService,
                                                 imageThumbnailService,
                                                 profilePropertyService,
                                                 passwordRecoveryService,
@@ -180,7 +201,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
   public void tearDown() throws Exception {
     super.tearDown();
-    for(ProfilePropertySetting propertySetting : tearDownProfilePropertyList){
+    for (ProfilePropertySetting propertySetting : tearDownProfilePropertyList) {
       profilePropertyService.deleteProfilePropertySetting(propertySetting.getId());
     }
     removeResource(UserRest.class);
@@ -198,35 +219,35 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   public void testSearchUsers() throws Exception {
 
     startSessionAs("root");
-    //when
+    // when
     ContainerResponse response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
-    //then
+    // then
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
 
-    //when
+    // when
     organizationService.getUserHandler().setEnabled("mary", false, false);
     response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
 
-    //then
+    // then
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
-    //then
+    // then
     organizationService.getUserHandler().setEnabled("mary", true, false);
     response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
 
-    //then
+    // then
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
-    
+
     // test when isDisabled false
     removeResource(UserRest.class);
     identityManager = mock(IdentityManager.class);
-    
+
     ListAccess<Identity> identityListAccess = new ListAccess<Identity>() {
       public Identity[] load(int index, int length) {
         List<Identity> identities = new ArrayList();
@@ -251,6 +272,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               uploadService,
                                               userSearchService,
                                               userExportService,
+                                              userImportService,
                                               imageThumbnailService,
                                               profilePropertyService,
                                               passwordRecoveryService,
@@ -259,52 +281,52 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               otpService);
     registry(userRestResources);
 
-    //when
+    // when
     response = service("GET", getURLResource("users?q=mar&limit=5&offset=0"), "", null, null);
 
-    //then
+    // then
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
-    //when
+    // when
     response = service("GET", getURLResource("users?q=mar&isDisabled=false&limit=5&offset=0"), "", null, null);
 
-    //then
+    // then
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
   }
-   
+
   public void testGetDisabledUsers() throws Exception {
     startSessionAs("root");
     ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
-    //then
+    // then
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertNotNull(collections);
     int initialSize = collections.getEntities().size();
 
-    //when
+    // when
     maryIdentity.setEnable(false);
     johnIdentity.setEnable(false);
     identityManager.updateIdentity(maryIdentity);
     identityManager.updateIdentity(johnIdentity);
     response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
-    //then
+    // then
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(initialSize + 2, collections.getEntities().size());
 
-    //when
+    // when
     maryIdentity.setEnable(true);
     johnIdentity.setEnable(true);
     identityManager.updateIdentity(maryIdentity);
     identityManager.updateIdentity(johnIdentity);
     response = service("GET", getURLResource("users?limit=5&offset=0&isDisabled=true"), "", null, null);
-    //then
+    // then
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
@@ -317,7 +339,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profile.setProperty(Profile.EXTERNAL, "true");
     identityManager.updateProfile(profile);
 
-    // when 
+    // when
     ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);
     // then
     assertNotNull(response);
@@ -341,7 +363,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
   }
-  
+
   public void testGetAllUsersWithExtraFields() throws Exception {
     Space spaceTest = getSpaceInstance(700, "root");
     spaceTest.getId();
@@ -536,7 +558,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
-    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte[]) response.getEntity()));
     assertEquals(100, receivedImage.getWidth());
     assertEquals(100, receivedImage.getHeight());
 
@@ -551,12 +573,12 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, user);
     String avatarUrl = identity.getProfile().getAvatarUrl().replace("/portal/rest", "");
-    avatarUrl+="&size=0x0";
+    avatarUrl += "&size=0x0";
     ContainerResponse response = service("GET", avatarUrl, "", null, null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
 
-    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte [])response.getEntity()));
+    BufferedImage receivedImage = ImageIO.read(new ByteArrayInputStream((byte[]) response.getEntity()));
     assertEquals(512, receivedImage.getWidth());
     assertEquals(512, receivedImage.getHeight());
 
@@ -849,7 +871,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     byte[] formDataDefaultBanner = ("name=banner&value=DEFAULT_BANNER").getBytes();
     ContainerResponse responseDefaultBanner = service("PATCH", getURLResource("users/root/"), "", headers, formDataDefaultBanner);
     identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
-    //assertEquals("DEFAULT_BANNER", identity.getProfile().getBannerUrl());
+    // assertEquals("DEFAULT_BANNER", identity.getProfile().getBannerUrl());
     assertNull(identity.getProfile().getProperty("banner"));
     assertNotNull(responseDefaultBanner);
     assertEquals(String.valueOf(responseDefaultBanner.getEntity()), 204, responseDefaultBanner.getStatus());
@@ -886,7 +908,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     String uploadId = "users-with-profile-settings.csv";
     URL resource = getClass().getClassLoader().getResource("users-with-profile-settings.csv");
     uploadService.createUploadResource(uploadId, resource.getFile(), "users-with-profile-settings.csv", "text/csv");
-    ContainerResponse response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&sync=true").getBytes());
+    ContainerResponse response = service("POST",
+                                         getURLResource("users/csv"),
+                                         "",
+                                         headers,
+                                         ("uploadId=" + uploadId + "&sync=true").getBytes());
     assertNotNull(response);
     assertNull(response.getEntity());
     assertEquals(204, response.getStatus());
@@ -910,7 +936,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals("test", importedUserProfile.getProperty("custom-single-property"));
 
     // should not import multivalued properties
-    List<Map<String, String>> customMultiValuedProperty = (ArrayList<Map<String, String>>)importedUserProfile.getProperty("custom-multi-property");
+    List<Map<String, String>> customMultiValuedProperty =
+                                                        (ArrayList<Map<String, String>>) importedUserProfile.getProperty("custom-multi-property");
     assertNull(customMultiValuedProperty);
 
   }
@@ -928,7 +955,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                          ("uploadId=" + uploadId + "&sync=true").getBytes());
     assertNotNull(response);
 
-    assertEquals(404, response.getStatus());
+    assertEquals(400, response.getStatus());
 
     URL resource = getClass().getClassLoader().getResource("users-empty.csv");
     uploadService.createUploadResource(uploadId, resource.getFile(), "users-empty.csv", "text/csv");
@@ -965,8 +992,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    UserImportResultEntity importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(response.getEntity().getClass(), UserImportResult.class);
+    UserImportResult importResultEntity = (UserImportResult) response.getEntity();
     assertEquals(4, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
     UploadResource uploadResource = uploadService.getUploadResource(uploadId);
@@ -977,11 +1004,11 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     List<String> userNames = new ArrayList<>();
     List<String> passWords = new ArrayList<>();
 
-    while (User!= null){
-    List<String> userProperties = Arrays.asList(User.split(","));
-     userNames.add(userProperties.get(0));
-     passWords.add(userProperties.get(3));
-     User = reader.readLine();
+    while (User != null) {
+      List<String> userProperties = Arrays.asList(User.split(","));
+      userNames.add(userProperties.get(0));
+      passWords.add(userProperties.get(3));
+      User = reader.readLine();
     }
 
     assertNull(importResultEntity.getErrorMessages());
@@ -992,15 +1019,15 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(response.getEntity().getClass(), UserImportResult.class);
+    importResultEntity = (UserImportResult) response.getEntity();
     assertEquals(4, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
 
     assertNull(importResultEntity.getErrorMessages());
     assertNull(importResultEntity.getWarnMessages());
 
-    for(int i=0;i<(userNames.size());i++) {
+    for (int i = 0; i < (userNames.size()); i++) {
       String userEnabled = organizationService.getUserHandler().findUserByName(userNames.get(i), UserStatus.ANY).getUserName();
       boolean result = organizationService.getUserHandler().authenticate(userEnabled, passWords.get(i));
       assertTrue(result);
@@ -1014,17 +1041,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(response.getEntity().getClass(), UserImportResult.class);
+    importResultEntity = (UserImportResult) response.getEntity();
     assertEquals(2, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
 
     assertNull(importResultEntity.getErrorMessages());
     assertNull(importResultEntity.getWarnMessages());
-    String  userEnabled = organizationService.getUserHandler().findUserByName("usera", UserStatus.ANY).getUserName();
+    String userEnabled = organizationService.getUserHandler().findUserByName("usera", UserStatus.ANY).getUserName();
     boolean result = organizationService.getUserHandler().authenticate(userEnabled, "successuser11");
     assertTrue(result);
-    String  userDisabled = organizationService.getUserHandler().findUserByName("userb", UserStatus.DISABLED).getUserName();
+    String userDisabled = organizationService.getUserHandler().findUserByName("userb", UserStatus.DISABLED).getUserName();
     try {
       organizationService.getUserHandler().authenticate(userDisabled, "successuser22");
       fail("disabled user");
@@ -1048,8 +1075,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(response.getEntity().getClass(), UserImportResult.class);
+    importResultEntity = (UserImportResult) response.getEntity();
     assertEquals(2, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
 
@@ -1067,13 +1094,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(uploadResource);
     response = service("POST", getURLResource("users/csv"), "", headers, ("uploadId=" + uploadId + "&clean=true").getBytes());
     assertNotNull(response);
-    assertNotNull(response.getEntity());
-    assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    importResultEntity = (UserImportResultEntity) response.getEntity();
-    assertEquals(4, importResultEntity.getCount());
-    assertNull(importResultEntity.getErrorMessages());
-    assertNull(importResultEntity.getWarnMessages());
+    assertEquals(204, response.getStatus());
     uploadResource = uploadService.getUploadResource(uploadId);
     assertNull(uploadResource);
 
@@ -1089,8 +1110,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertNotNull(response);
     assertNotNull(response.getEntity());
     assertEquals(200, response.getStatus());
-    assertEquals(response.getEntity().getClass(), UserImportResultEntity.class);
-    importResultEntity = (UserImportResultEntity) response.getEntity();
+    assertEquals(response.getEntity().getClass(), UserImportResult.class);
+    importResultEntity = (UserImportResult) response.getEntity();
     assertEquals(6, importResultEntity.getCount());
     assertEquals(importResultEntity.getCount(), importResultEntity.getProcessedCount());
     assertNotNull(importResultEntity.getErrorMessages());
@@ -1227,7 +1248,9 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     startSessionAs("john");
     JSONObject johnData = new JSONObject();
     johnData.put(ProfileEntity.EMAIL, johnEmail);
-    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile?otpMethod=test&otpCode=123", johnData.toString());
+    ContainerResponse response = getResponse("PATCH",
+                                             "/v1/social/users/john/profile?otpMethod=test&otpCode=123",
+                                             johnData.toString());
     assertNotNull(response);
     assertEquals(204, response.getStatus());
 
@@ -1287,23 +1310,27 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profilePropertySettingEntityChild.setPropertyName("subField");
     profilePropertySettingEntityChild.setValue("subfield value");
     profilePropertySettingEntity.setChildren(Collections.singletonList(profilePropertySettingEntityChild));
-    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    ArrayList<ProfilePropertySettingEntity> profilePropertySettingEntityList = new ArrayList<>();
     profilePropertySettingEntityList.add(profilePropertySettingEntity);
-    ContainerResponse response = getResponse("PATCH", "/v1/social/users/root/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    ContainerResponse response = getResponse("PATCH",
+                                             "/v1/social/users/root/profile/properties",
+                                             new JSONArray(profilePropertySettingEntityList).toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
   }
 
   public void testUpdateUserPropertiesWithEmailAsAdmin() throws Exception {
-    startSessionAs("root",true);
+    startSessionAs("root", true);
     ProfilePropertySetting emailSetting = profilePropertyService.getProfileSettingByName("email");
     ProfilePropertySettingEntity profilePropertySettingEntity = new ProfilePropertySettingEntity();
     profilePropertySettingEntity.setPropertyName("email");
     profilePropertySettingEntity.setValue("johnsmith@acme.com");
     profilePropertySettingEntity.setId(emailSetting.getId());
-    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    ArrayList<ProfilePropertySettingEntity> profilePropertySettingEntityList = new ArrayList<>();
     profilePropertySettingEntityList.add(profilePropertySettingEntity);
-    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    ContainerResponse response = getResponse("PATCH",
+                                             "/v1/social/users/john/profile/properties",
+                                             new JSONArray(profilePropertySettingEntityList).toString());
     assertNotNull(response);
     assertEquals(400, response.getStatus());
   }
@@ -1342,7 +1369,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testHideUserPropertiesAsAdmin() throws Exception {
-    startSessionAs("root",true);
+    startSessionAs("root", true);
     String propertyName = "firstName";
     String propertyValue = "John";
     ProfilePropertySetting setting = profilePropertyService.getProfileSettingByName(propertyName);
@@ -1351,15 +1378,13 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     profilePropertySettingEntity.setValue(propertyValue);
     profilePropertySettingEntity.setId(setting.getId());
     profilePropertySettingEntity.setToHide(true);
-    ArrayList< ProfilePropertySettingEntity > profilePropertySettingEntityList =  new ArrayList<>();
+    ArrayList<ProfilePropertySettingEntity> profilePropertySettingEntityList = new ArrayList<>();
     profilePropertySettingEntityList.add(profilePropertySettingEntity);
-    ContainerResponse response = getResponse("PATCH", "/v1/social/users/john/profile/properties", new JSONArray(profilePropertySettingEntityList).toString());
+    ContainerResponse response = getResponse("PATCH",
+                                             "/v1/social/users/john/profile/properties",
+                                             new JSONArray(profilePropertySettingEntityList).toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-
-
-
-
 
     Identity identity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     List<Long> hiddenPropertiesId = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(identity.getId()));
@@ -1398,9 +1423,8 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     endSession();
   }
 
-
   private void uploadUserAvatar(String user) throws Exception {
-    uploadUserAvatar(user,"blank.gif");
+    uploadUserAvatar(user, "blank.gif");
   }
 
   private void uploadUserAvatar(String user, String resourceName) throws Exception {
@@ -1423,10 +1447,16 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     Identity johnIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "john");
     Identity maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
 
-    //mock ProfileSearchConnector
+    // mock ProfileSearchConnector
     ProfileSearchConnector profileSearchConnector = mock(ProfileSearchConnector.class);
     RDBMSIdentityStorageImpl rdbmsIdentityStorage = getContainer().getComponentInstanceOfType(RDBMSIdentityStorageImpl.class);
-    when(profileSearchConnector.search(any(), any(), any(), anyLong(), anyLong())).thenReturn(Arrays.asList(rootIdentity.getId(), johnIdentity.getId(), maryIdentity.getId()));
+    when(profileSearchConnector.search(any(),
+                                       any(),
+                                       any(),
+                                       anyLong(),
+                                       anyLong())).thenReturn(Arrays.asList(rootIdentity.getId(),
+                                                                            johnIdentity.getId(),
+                                                                            maryIdentity.getId()));
     rdbmsIdentityStorage.setProfileSearchConnector(profileSearchConnector);
 
     Profile profile = rootIdentity.getProfile();
@@ -1437,10 +1467,10 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     headers.putSingle("content-type", "application/json");
     headers.putSingle("content-length", "" + jsonData.length);
     ContainerResponse response = service("POST",
-                    getURLResource("users/advancedfilter?offset=0&limit=10&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&filterType=all&returnSize=true"),
-                    "",
-                     headers,
-                     jsonData);
+                                         getURLResource("users/advancedfilter?offset=0&limit=10&expand=all,spacesCount,relationshipStatus,connectionsCount,binding&filterType=all&returnSize=true"),
+                                         "",
+                                         headers,
+                                         jsonData);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     Object collections = response.getEntity();
@@ -1455,7 +1485,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     Identity rootIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "root");
     Identity maryIdentity = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "mary");
 
-    //mock ProfileSearchConnector
+    // mock ProfileSearchConnector
     ProfileSearchConnector profileSearchConnector = mock(ProfileSearchConnector.class);
     RDBMSIdentityStorageImpl rdbmsIdentityStorage = getContainer().getComponentInstanceOfType(RDBMSIdentityStorageImpl.class);
     when(profileSearchConnector.search(any(),
@@ -1474,12 +1504,16 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     identityManager.updateProfile(rootProfile, true);
     MultivaluedMap<String, String> headers = new MultivaluedMapImpl();
     headers.putSingle("content-type", "application/json");
-    ContainerResponse response = service("GET", getURLResource("users/root?expand=settings,manager,managedUsersCount"), "", headers, null);
+    ContainerResponse response = service("GET",
+                                         getURLResource("users/root?expand=settings,manager,managedUsersCount"),
+                                         "",
+                                         headers,
+                                         null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     DataEntity dataEntity = (DataEntity) response.getEntity();
-    assertEquals(1, ((List<DataEntity>)dataEntity.get("managers")).size());
-    assertEquals(0 , (int) dataEntity.get("managedUsersCount"));
+    assertEquals(1, ((List<DataEntity>) dataEntity.get("managers")).size());
+    assertEquals(0, (int) dataEntity.get("managedUsersCount"));
     endSession();
   }
 }

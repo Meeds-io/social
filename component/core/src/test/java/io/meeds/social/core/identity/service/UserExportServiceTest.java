@@ -19,6 +19,7 @@
 package io.meeds.social.core.identity.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -27,11 +28,18 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -39,6 +47,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Membership;
@@ -56,12 +65,15 @@ import org.exoplatform.social.core.identity.provider.OrganizationIdentityProvide
 import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.profile.ProfileFilter;
 
-import io.meeds.social.core.identity.model.IdentityExportFilter;
+import io.meeds.social.core.identity.model.UserExportFilter;
+import io.meeds.social.core.identity.model.UserExportResult;
 
 import lombok.SneakyThrows;
 
 @RunWith(MockitoJUnitRunner.class)
 public class UserExportServiceTest {
+
+  private static final String                        EXPORT_ID          = "123";
 
   private static final String                        DELEGATED_GROUP    = "/delegated_group";
 
@@ -120,12 +132,31 @@ public class UserExportServiceTest {
   public void setUp() {
     when(organizationService.getMembershipHandler()).thenReturn(membershipHandler);
     when(organizationService.getUserHandler()).thenReturn(userHandler);
+    service.init();
+  }
+
+  @After
+  public void teardown() {
+    service.stop();
+  }
+
+  @Test
+  @SneakyThrows
+  public void testExportUsers() {
+    UserExportFilter filter = new UserExportFilter();
+    UserExportResult exportResult = service.exportUsers(filter, TEST_USER1);
+    assertNotNull(exportResult);
+    assertNotNull(exportResult.getExportId());
+    assertNotNull(exportResult.retrieveExportPath());
   }
 
   @Test
   @SneakyThrows
   public void testExportUsersWritesCsv() {
-    IdentityExportFilter filter = new IdentityExportFilter();
+    UserExportFilter filter = new UserExportFilter();
+    filter.setSortField("title");
+    filter.setSortDirection("desc");
+    filter.setExcludeCurrentUser(true);
     Identity identity = mock(Identity.class);
     Profile profile = mock(Profile.class);
 
@@ -149,18 +180,21 @@ public class UserExportServiceTest {
     when(membership.getGroupId()).thenReturn(USERS_GROUP);
     when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(membership));
 
-    InputStream in = service.exportUsers(filter, TEST_USER1);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    String header = reader.readLine();
-    String line = reader.readLine();
-    assertTrue(header.contains(USER_NAME_FIELD));
-    assertEquals(EXPORTED_USER_LINE, line);
+    UserExportResult exportResult = prepareExportResult();
+    service.exportUsers(filter, TEST_USER1, exportResult);
+    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      String header = reader.readLine();
+      String line = reader.readLine();
+      assertTrue(header.contains(USER_NAME_FIELD));
+      assertEquals(EXPORTED_USER_LINE, line);
+    }
   }
 
   @Test
   @SneakyThrows
   public void testGetUsersDelegatedAdmin() {
-    IdentityExportFilter filter = new IdentityExportFilter();
+    UserExportFilter filter = new UserExportFilter();
     filter.setUserType(EXTERNAL_USER_TYPE);
 
     Identity identity = mock(Identity.class);
@@ -193,18 +227,86 @@ public class UserExportServiceTest {
     when(user.getUserName()).thenReturn(TEST_USER2);
     when(identityManager.getOrCreateUserIdentity(TEST_USER2)).thenReturn(identity);
 
-    InputStream in = service.exportUsers(filter, TEST_USER1);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    String header = reader.readLine();
-    String line = reader.readLine();
-    assertTrue(header.contains(USER_NAME_FIELD));
-    assertEquals(EXPORTED_USER_LINE, line);
+    UserExportResult exportResult = prepareExportResult();
+    service.exportUsers(filter, TEST_USER1, exportResult);
+    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      String header = reader.readLine();
+      String line = reader.readLine();
+      assertTrue(header.contains(USER_NAME_FIELD));
+      assertEquals(EXPORTED_USER_LINE, line);
+    }
+  }
+
+  @Test
+  @SneakyThrows
+  public void testDownloadUsersExportSuccess() {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    File tempFile = File.createTempFile("users", ".csv");
+    try (FileWriter fw = new FileWriter(tempFile)) {
+      fw.write("data");
+    }
+    result.setExportPath(tempFile.getAbsolutePath());
+    result.setFinished(true);
+
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+
+    try (InputStream in = service.downloadUsersExport(EXPORT_ID, TEST_USER1)) {
+      String content = new BufferedReader(new InputStreamReader(in)).readLine();
+      assertEquals("data", content);
+    }
+  }
+
+  @Test(expected = IllegalAccessException.class)
+  public void testDownloadUsersExportWrongUser() throws IllegalAccessException, ObjectNotFoundException {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    result.setFinished(true);
+    result.setExportPath("/path/to/file");
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+    service.downloadUsersExport(EXPORT_ID, TEST_USER2);
+  }
+
+  @Test(expected = IllegalStateException.class)
+  public void testDownloadUsersExportNotFinished() throws IllegalAccessException, ObjectNotFoundException {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    result.setFinished(false);
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+    service.downloadUsersExport(EXPORT_ID, TEST_USER1);
+  }
+
+  @Test(expected = ObjectNotFoundException.class)
+  public void testDownloadUsersExportFileNotFound() throws IllegalAccessException, ObjectNotFoundException {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    result.setFinished(true);
+    result.setExportPath("missing.csv");
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+    service.downloadUsersExport(EXPORT_ID, TEST_USER1);
+  }
+
+  @Test
+  public void testGetUsersExportResultSuccess() throws IllegalAccessException {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+    assertEquals(result, service.getUsersExportResult(EXPORT_ID, TEST_USER1));
+  }
+
+  @Test(expected = IllegalAccessException.class)
+  public void testGetUsersExportResultWrongUser() throws IllegalAccessException {
+    UserExportResult result = new UserExportResult();
+    result.setUsername(TEST_USER1);
+    service.exportUsersProcessing.put(EXPORT_ID, result);
+    service.getUsersExportResult(EXPORT_ID, TEST_USER2);
   }
 
   @Test
   @SneakyThrows
   public void testGetUsersDisabledQuerySearch() {
-    IdentityExportFilter filter = new IdentityExportFilter();
+    UserExportFilter filter = new UserExportFilter();
     filter.setDisabled(true);
     filter.setQuery(QUERY_TERM);
 
@@ -239,18 +341,21 @@ public class UserExportServiceTest {
     when(user.getUserName()).thenReturn(TEST_USER2);
     when(identityManager.getOrCreateUserIdentity(TEST_USER2)).thenReturn(identity);
 
-    InputStream in = service.exportUsers(filter, TEST_USER1);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    String header = reader.readLine();
-    String line = reader.readLine();
-    assertTrue(header.contains(USER_NAME_FIELD));
-    assertEquals(EXPORTED_USER_LINE, line);
+    UserExportResult exportResult = prepareExportResult();
+    service.exportUsers(filter, TEST_USER1, exportResult);
+    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      String header = reader.readLine();
+      String line = reader.readLine();
+      assertTrue(header.contains(USER_NAME_FIELD));
+      assertEquals(EXPORTED_USER_LINE, line);
+    }
   }
 
   @Test
   @SneakyThrows
   public void testExportIncludedUsers() {
-    IdentityExportFilter filter = new IdentityExportFilter();
+    UserExportFilter filter = new UserExportFilter();
     filter.setIncludeUsers(Collections.singletonList(TEST_USER2));
     filter.setUserType(EXTERNAL_USER_TYPE);
 
@@ -277,12 +382,27 @@ public class UserExportServiceTest {
     when(membership.getGroupId()).thenReturn(USERS_GROUP);
     when(membershipHandler.findMembershipsByUser(TEST_USER2)).thenReturn(List.of(membership));
 
-    InputStream in = service.exportUsers(filter, TEST_USER1);
-    BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-    String header = reader.readLine();
-    String line = reader.readLine();
-    assertTrue(header.contains(USER_NAME_FIELD));
-    assertEquals(EXPORTED_USER_LINE, line);
+    UserExportResult exportResult = prepareExportResult();
+    service.exportUsers(filter, TEST_USER1, exportResult);
+    try (InputStream in = new FileInputStream(exportResult.retrieveExportPath())) {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+      String header = reader.readLine();
+      String line = reader.readLine();
+      assertTrue(header.contains(USER_NAME_FIELD));
+      assertEquals(EXPORTED_USER_LINE, line);
+    }
+  }
+
+  private UserExportResult prepareExportResult() throws IOException {
+    String exportId = UUID.randomUUID().toString();
+    File file = Files.createTempFile(String.format("users-%s_", exportId), ".csv").toFile();
+    file.deleteOnExit();
+
+    UserExportResult exportResult = new UserExportResult();
+    exportResult.setExportId(exportId);
+    exportResult.setExportPath(file.getAbsolutePath());
+    exportResult.setUsername(TEST_USER1);
+    return exportResult;
   }
 
 }
