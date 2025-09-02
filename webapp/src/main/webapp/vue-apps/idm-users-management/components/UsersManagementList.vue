@@ -1,6 +1,5 @@
 <template>
   <div>
-    <users-management-import-csv-result class="px-4" />
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
       :message="deleteConfirmMessage"
@@ -307,6 +306,9 @@ export default {
   watch: {
     options() {
       this.searchUsers();
+    },
+    totalSize() {
+      this.$emit('total-size-updated', this.totalSize);
     },
     filter() {
       this.$emit('filter-updated', this.filter);

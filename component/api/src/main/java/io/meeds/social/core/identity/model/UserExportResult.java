@@ -18,8 +18,6 @@
  */
 package io.meeds.social.core.identity.model;
 
-import java.util.List;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -27,32 +25,51 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IdentityExportFilter {
+public class UserExportResult {
 
-  String       query;
+  private static final long MAX_DELAY_DOWNLOAD = 3600000l;
 
-  List<String> includeUsers;
+  private String            username;
 
-  boolean      searchEmail;
+  private String            exportId;
 
-  boolean      searchUsername;
+  private String            exportPath;
 
-  String       status;
+  private long              processedCount;
 
-  String       userType;
+  private boolean           finished;
 
-  String       isConnected;
+  private long              startTime          = System.currentTimeMillis();
 
-  List<Long>   spaceIds;
+  private long              endTime;
 
-  boolean      isDisabled;
+  public String retrieveExportPath() {
+    return exportPath;
+  }
 
-  String       enrollmentStatus;
+  protected String getExportPath() {
+    return exportPath;
+  }
 
-  boolean      excludeCurrentUser;
+  public void incrementProcessed() {
+    this.processedCount++;
+  }
 
-  String       sortField;
+  public void setFinished(boolean finished) {
+    if (finished) {
+      this.endTime = System.currentTimeMillis();
+    } else {
+      this.endTime = 0;
+    }
+    this.finished = finished;
+  }
 
-  String       sortDirection;
+  public long getProcessingTime() {
+    return (finished ? System.currentTimeMillis() : endTime) - startTime;
+  }
+
+  public boolean isOutdated() {
+    return finished && (System.currentTimeMillis() - endTime) > MAX_DELAY_DOWNLOAD;
+  }
 
 }

@@ -20,6 +20,7 @@ package io.meeds.social.core.identity.service;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -29,8 +30,15 @@ import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,6 +46,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Membership;
@@ -55,40 +64,118 @@ import org.exoplatform.social.core.profile.ProfileFilter;
 import org.exoplatform.social.core.search.Sorting;
 import org.exoplatform.social.core.space.SpaceUtils;
 
-import io.meeds.social.core.identity.model.IdentityExportFilter;
+import io.meeds.common.ContainerTransactional;
+import io.meeds.social.core.identity.model.UserExportFilter;
+import io.meeds.social.core.identity.model.UserExportResult;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.SneakyThrows;
 
 @Service
 public class UserExportService {
 
-  public static final String  DELEGATED_GROUP      = "/platform/delegated";
+  public static final String              INTERNAL              = "Internal";
 
-  private static final String INTERNAL             = "internal";
+  public static final String              GUEST                 = "Guest";
 
-  private static final String CONNECTED            = "connected";
+  public static final String              DELEGATED_GROUP       = "/platform/delegated";
 
-  private static final int    PAGINATION_PAGE_SIZE = 10;
+  private static final String             CONNECTED             = "connected";
 
-  @Autowired
-  private IdentityManager     identityManager;
+  private static final int                PAGINATION_PAGE_SIZE  = 10;
 
-  @Autowired
-  private UserSearchService   userSearchService;
+  protected Map<String, UserExportResult> exportUsersProcessing = new ConcurrentHashMap<>();
 
   @Autowired
-  private OrganizationService organizationService;
+  private IdentityManager                 identityManager;
 
   @Autowired
-  private UserACL             userAcl;
+  private UserSearchService               userSearchService;
+
+  @Autowired
+  private OrganizationService             organizationService;
+
+  @Autowired
+  private UserACL                         userAcl;
+
+  private ExecutorService                 exportExecutorService;
+
+  @PostConstruct
+  public void init() {
+    this.exportExecutorService = Executors.newSingleThreadExecutor();
+  }
+
+  @PreDestroy
+  public void stop() {
+    this.exportExecutorService.shutdownNow();
+  }
+
+  public InputStream downloadUsersExport(String exportId, String username) throws IllegalAccessException,
+                                                                           ObjectNotFoundException {
+    UserExportResult exportResult = exportUsersProcessing.get(exportId);
+    if (!exportResult.getUsername().equals(username)) {
+      throw new IllegalAccessException();
+    } else if (exportResult.isFinished()) {
+      try { // NOSONAR
+        return new FileInputStream(exportResult.retrieveExportPath());
+      } catch (FileNotFoundException e) {
+        throw new ObjectNotFoundException(String.format("Export users file with id '%s' not found", exportId));
+      } finally {
+        exportUsersProcessing.remove(exportId);
+      }
+    } else {
+      throw new IllegalStateException(String.format("Export users file with id '%s' not finished yet", exportId));
+    }
+  }
+
+  public UserExportResult getUsersExportResult(String exportId, String username) throws IllegalAccessException {
+    UserExportResult exportResult = exportUsersProcessing.get(exportId);
+    if (!exportResult.getUsername().equals(username)) {
+      throw new IllegalAccessException();
+    } else {
+      return exportUsersProcessing.get(exportId);
+    }
+  }
 
   @SneakyThrows
-  public InputStream exportUsers(IdentityExportFilter exportFilter,
-                                 String username) {
+  public UserExportResult exportUsers(UserExportFilter exportFilter,
+                                      String username) {
+    cleanUpOutdated();
+    String exportId = UUID.randomUUID().toString();
+    File file = Files.createTempFile(String.format("users-%s_", exportId), ".csv").toFile();
+    file.deleteOnExit();
+
+    UserExportResult exportResult = new UserExportResult();
+    exportResult.setExportId(exportId);
+    exportResult.setExportPath(file.getAbsolutePath());
+    exportResult.setUsername(username);
+    exportUsersProcessing.put(exportId, exportResult);
+    exportUsersAsync(exportFilter, username, exportResult);
+    return exportResult;
+  }
+
+  protected void exportUsersAsync(UserExportFilter exportFilter,
+                                  String username,
+                                  UserExportResult exportResult) {
+    exportExecutorService.execute(() -> exportUsersTransactional(exportFilter, username, exportResult));
+  }
+
+  @ContainerTransactional
+  protected void exportUsersTransactional(UserExportFilter exportFilter,
+                                          String username,
+                                          UserExportResult exportResult) {
+    exportUsers(exportFilter, username, exportResult);
+  }
+
+  @SneakyThrows
+  protected void exportUsers(UserExportFilter exportFilter,
+                             String username,
+                             UserExportResult exportResult) {
     int offset = 0;
     int limit = PAGINATION_PAGE_SIZE;
+    File file = new File(exportResult.retrieveExportPath());
 
-    File file = Files.createTempFile("users", ".csv").toFile();
     OutputStream outputStream = new FileOutputStream(file);
     try (PrintWriter writer = new PrintWriter(outputStream, true, StandardCharsets.UTF_8);) {
       writer.write(String.format("userName,firstName,lastName,email,enabled,type,groups%n"));
@@ -108,18 +195,19 @@ public class UserExportService {
                                        identity.getProfile().getProperty(Profile.LAST_NAME),
                                        identity.getProfile().getEmail(),
                                        identity.isEnable() ? "TRUE" : "FALSE",
-                                       identity.isExternal() ? "Guest" : "Internal",
+                                       identity.isExternal() ? GUEST : INTERNAL,
                                        memberships.stream().map(m -> m.getGroupId()).collect(Collectors.joining(";"))));
+            exportResult.incrementProcessed();
           }
         }
         offset += limit;
         limit = offset + PAGINATION_PAGE_SIZE;
       } while (identities.length >= PAGINATION_PAGE_SIZE);
+      exportResult.setFinished(true);
     }
-    return new FileInputStream(file);
   }
 
-  private Identity[] getUsers(IdentityExportFilter exportFilter, String username, int offset, int limit) throws Exception {
+  private Identity[] getUsers(UserExportFilter exportFilter, String username, int offset, int limit) throws Exception {
     Identity viewerIdentity = identityManager.getOrCreateUserIdentity(username);
     org.exoplatform.services.security.Identity viewerAclIdentity = userAcl.getUserIdentity(username);
 
@@ -152,7 +240,7 @@ public class UserExportService {
     }
   }
 
-  private ProfileFilter computeFilter(IdentityExportFilter exportFilter, Identity viewerIdentity) {
+  private ProfileFilter computeFilter(UserExportFilter exportFilter, Identity viewerIdentity) {
     ProfileFilter filter = new ProfileFilter();
     applySpaceIdsFilter(filter, exportFilter, viewerIdentity);
     applySortFilter(filter, exportFilter);
@@ -161,7 +249,7 @@ public class UserExportService {
     return filter;
   }
 
-  private void applyExcludeCurrentUserFilter(IdentityExportFilter userExportFilter,
+  private void applyExcludeCurrentUserFilter(UserExportFilter userExportFilter,
                                              Identity viewerIdentity,
                                              ProfileFilter filter) {
     if (viewerIdentity != null
@@ -170,7 +258,7 @@ public class UserExportService {
     }
   }
 
-  private void applySpaceIdsFilter(ProfileFilter filter, IdentityExportFilter userExportFilter, Identity viewerIdentity) {
+  private void applySpaceIdsFilter(ProfileFilter filter, UserExportFilter userExportFilter, Identity viewerIdentity) {
     List<Long> spaceIds = userExportFilter.getSpaceIds();
     if (CollectionUtils.isNotEmpty(spaceIds)) {
       List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
@@ -178,7 +266,7 @@ public class UserExportService {
     }
   }
 
-  private void applySortFilter(ProfileFilter filter, IdentityExportFilter userExportFilter) {
+  private void applySortFilter(ProfileFilter filter, UserExportFilter userExportFilter) {
     String sortField = userExportFilter.getSortField();
     String sortDirection = userExportFilter.getSortDirection();
     if (StringUtils.isNotBlank(sortField)) {
@@ -191,7 +279,7 @@ public class UserExportService {
     }
   }
 
-  private String applyUserPropertiesFilter(ProfileFilter filter, IdentityExportFilter userExportFilter) {
+  private String applyUserPropertiesFilter(ProfileFilter filter, UserExportFilter userExportFilter) {
     String filterText = userExportFilter.getQuery();
     filter.setName(filterText == null || filterText.isEmpty() ? "" : filterText);
     filter.setSearchEmail(userExportFilter.isSearchEmail());
@@ -243,7 +331,7 @@ public class UserExportService {
     ListAccess<User> usersListAccess = null;
     if (CollectionUtils.isNotEmpty(groupIds)) {
       Query query = new Query();
-      if (filterText != null && !filterText.isEmpty()) {
+      if (StringUtils.isNotBlank(filterText)) {
         query.setUserName(filterText);
       }
       usersListAccess = organizationService.getUserHandler()
@@ -283,12 +371,22 @@ public class UserExportService {
     return !userAcl.isAdministrator(userAclIdentity)
            && userAclIdentity.isMemberOf(DELEGATED_GROUP)
            && userType != null
-           && !userType.equals(INTERNAL);
+           && !userType.equalsIgnoreCase(INTERNAL);
   }
 
   private boolean isMemberOf(String username, List<String> groupIds) {
     org.exoplatform.services.security.Identity userAclIdentity = userAcl.getUserIdentity(username);
     return userAclIdentity != null && groupIds.stream().anyMatch(userAclIdentity::isMemberOf);
+  }
+
+  private void cleanUpOutdated() {
+    Iterator<Entry<String, UserExportResult>> iterator = exportUsersProcessing.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, UserExportResult> entry = iterator.next();
+      if (entry.getValue().isOutdated()) {
+        iterator.remove();
+      }
+    }
   }
 
 }
