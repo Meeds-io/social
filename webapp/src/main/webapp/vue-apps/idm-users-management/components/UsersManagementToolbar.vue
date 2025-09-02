@@ -23,12 +23,12 @@
         </div>
       </div>
       <v-btn
-        :href="exportLink"
-        :outlined="usersSelected"
-        target="_blank"
+        :loading="exporting"
         color="primary"
         elevation="0"
-        class="ms-2">
+        class="ms-2"
+        outlined
+        @click="exportUsers">
         <v-icon size="14" class="me-2">fa-file-excel</v-icon>
         {{ $t('UsersManagement.selection.export') }}
       </v-btn>
@@ -106,6 +106,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    totalSize: {
+      type: Number,
+      default: () => 0,
+    },
   },
   data: () => ({
     filter: 'ENABLED',
@@ -115,6 +119,8 @@ export default {
     numberOfFilters: 0,
     selectedFiler: null,
     dropdown: false,
+    exportId: null,
+    exporting: false,
     isDelegatedAdministrator: true,
   }),
   computed: {
@@ -159,13 +165,34 @@ export default {
       this.selectedFiler = selectedFiler;
       this.numberOfFilters = this.countFiltersMethods(selectedFiler);
     },
-    countFiltersMethods(selectedFiler ) {
+    countFiltersMethods(selectedFiler) {
       let filterCount = 0;
       if (selectedFiler != null) {
         filterCount++;
       }
       return filterCount;
-    }
+    },
+    exportUsers() {
+      this.exporting = true;
+      return fetch(this.exportLink, {
+        credentials: 'include'
+      }).then(resp => resp?.ok && resp.json())
+        .then(exportResult => this.exportId = exportResult.exportId)
+        .then(() => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          alertComponent: 'users-management-export-csv-result',
+          alertComponentParams: {
+            options: {
+              exportLink: this.exportLink,
+              exportId: this.exportId,
+              totalUsers: this.totalSize,
+            },
+          },
+          alertDismissible: false,
+          alertTimeout: 864000000,
+        }})))
+        .catch(error => this.$root.$emit('alert-message', error, 'error'))
+        .finally(() => this.exporting = false);
+    },
   }
 };
 </script>

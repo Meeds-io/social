@@ -6,6 +6,7 @@ import UsersManagementUserMembershipDrawer from './components/UsersManagementUse
 import UsersManagementImportCSVButton from './components/UsersManagementImportCSVButton.vue';
 import UsersManagementImportCSVErrorMessage from './components/UsersManagementImportCSVErrorMessage.vue';
 import UsersManagementImportCSVResult from './components/UsersManagementImportCSVResult.vue';
+import UsersManagementExportCSVResult from './components/UsersManagementExportCSVResult.vue';
 import UsersManagementFilterDrawer from './components/UsersManagementFilterDrawer.vue';
 
 const components = {
@@ -17,6 +18,7 @@ const components = {
   'users-management-import-csv-button': UsersManagementImportCSVButton,
   'users-management-import-csv-result': UsersManagementImportCSVResult,
   'users-management-import-csv-error-message': UsersManagementImportCSVErrorMessage,
+  'users-management-export-csv-result': UsersManagementExportCSVResult,
   'users-management-filter-drawer': UsersManagementFilterDrawer,
 };
 
