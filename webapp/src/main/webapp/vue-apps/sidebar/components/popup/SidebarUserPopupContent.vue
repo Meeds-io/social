@@ -30,7 +30,7 @@
           <v-badge
             :color="statusColor"
             :value="true"
-            class="ma-0 pa-0"
+            class="mx-0 ms-0 pa-0 me-2"
             content=""
             offset-x="16"
             offset-y="16"
@@ -62,7 +62,7 @@
           </v-list-item-title>
           <v-list-item-subtitle>
             <a
-              class="text-font-small-size text-color"
+              class="text-subtitle"
               :href="profileUri"
               rel="noopener noreferrer">
               {{ $t('menu.userProfilePageLink') }}
@@ -82,18 +82,21 @@
           class="mx-0"
           justify="space-between">
           <sidebar-popup-status-button
+            :selected-status="selectedStatus"
             :label="$t('menu.user.status.available')"
             icon="fas fa-hand-paper"
             color-class="success--text"
             value="available"
             @select="selectStatus" />
           <sidebar-popup-status-button
+            :selected-status="selectedStatus"
             :label="$t('menu.user.status.donotdisturb')"
             value="donotdisturb"
             icon="fas fa-bell-slash"
             color-class="error-color"
             @select="selectStatus" />
           <sidebar-popup-status-button
+            :selected-status="selectedStatus"
             :label="$t('menu.user.status.invisible')"
             value="invisible"
             icon="fas fa-bell-slash"
