@@ -39,7 +39,8 @@
     </v-btn>
     <v-sheet
       max-width="100"
-      class="mt-2 mx-auto text-font-small-size text-center text-truncate">
+      :class="{'text-color': isSelected}"
+      class="mt-2 mx-auto text-subtitle text-center text-truncate">
       {{ label }}
     </v-sheet>
   </v-col>
@@ -64,6 +65,15 @@ export default {
     colorClass: {
       type: String,
       default: null
+    },
+    selectedStatus: {
+      type: String,
+      default: null
+    }
+  },
+  computed: {
+    isSelected() {
+      return this.selectedStatus === this.value;
     }
   }
 };

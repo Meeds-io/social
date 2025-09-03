@@ -54,7 +54,7 @@
         <v-badge
           :color="statusColor"
           :value="true"
-          class="my-auto pa-0"
+          class="my-auto me-2 pa-0"
           content=""
           offset-x="8"
           offset-y="8"
