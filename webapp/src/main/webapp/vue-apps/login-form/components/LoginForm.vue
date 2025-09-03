@@ -22,7 +22,8 @@
   <v-app class="mx-auto" v-show="this.init">
     <v-hover v-slot="{ hover }">
       <v-card
-        class="rounded-0 transparent pa-5"
+        class="rounded-0 transparent pa-5 mx-auto"
+        max-width="375"
         flat>
         <div
           v-if="displayBackButton"
