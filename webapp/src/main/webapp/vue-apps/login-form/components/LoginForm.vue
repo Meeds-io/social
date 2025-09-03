@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-app class="mx-auto" v-show="this.init">
+  <v-app class="mx-auto" v-show="this.init" style="max-width: 375px;">
     <v-hover v-slot="{ hover }">
       <v-card
         class="rounded-0 transparent pa-5"
