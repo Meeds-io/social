@@ -175,7 +175,7 @@
             style="background-color:white"
             @click="clickDisplayForm()">
             <span class="text-body">
-              <v-icon class="me-2" v-if="displaySigninEmailButtonIcon">fas fa-envelope</v-icon>
+              <v-icon class="me-2" v-if="displaySigninEmailButtonIcon" color="primary">fas fa-envelope</v-icon>
               {{ signinEmailButton }}
             </span>
           </v-btn>
