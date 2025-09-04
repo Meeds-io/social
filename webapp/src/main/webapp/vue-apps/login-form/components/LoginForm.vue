@@ -34,7 +34,7 @@
           <v-btn
             icon
             small
-            class="ms-2 mt-2"
+            class="mt-5"
             @click="clickDisplayForm">
             <v-icon size="18">
               {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
