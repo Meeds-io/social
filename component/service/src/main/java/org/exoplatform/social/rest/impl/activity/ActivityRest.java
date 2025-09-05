@@ -18,11 +18,7 @@
  */
 package org.exoplatform.social.rest.impl.activity;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.DELETE;
@@ -59,6 +55,7 @@ import org.exoplatform.social.core.activity.ActivityFilter;
 import org.exoplatform.social.core.activity.ActivityStreamType;
 import org.exoplatform.social.core.activity.filter.ActivitySearchFilter;
 import org.exoplatform.social.core.activity.model.ActivitySearchResult;
+import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ActivityStream.Type;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -412,6 +409,8 @@ public class ActivityRest implements ResourceContainer {
     activity.setFiles(model.getFiles());
     activity.setUpdated(System.currentTimeMillis());
     activityManager.updateActivity(activity, true);
+
+    updateSharedActionsCacheTime(activity);
 
     ActivityEntity activityInfo = EntityBuilder.buildEntityFromActivity(activity, currentUser, uriInfo.getPath(), expand);
     return EntityBuilder.getResponse(activityInfo.getDataEntity(), uriInfo, RestUtils.getJsonMediaType(), Response.Status.OK);
@@ -1141,6 +1140,17 @@ public class ActivityRest implements ResourceContainer {
       lastUpdate = posterIdentity.getCacheTime() > lastUpdate ? posterIdentity.getCacheTime() : lastUpdate;
     }
     return lastUpdate;
+  }
+
+  private void updateSharedActionsCacheTime(ExoSocialActivity activity) {
+    Set<ActivityShareAction> sharedActions = activity.getShareActions();
+    for (ActivityShareAction action : sharedActions) {
+      for (Long id : action.getSharedActivityIds()) {
+        ExoSocialActivity sharedactivity =  activityManager.getActivity(id.toString());
+        sharedactivity.setCacheTime(System.currentTimeMillis());
+        activityManager.updateActivity(sharedactivity);
+      }
+    }
   }
 
 }
