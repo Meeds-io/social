@@ -49,10 +49,11 @@
       <v-spacer v-if="$root.expand" />
       <div v-else class="me-3"></div>
       <v-list-item-action
-        :class="$root.expand && 'mx-0' || 'ms-1 me-0'"
+        :class="$root.expand && 'mx-0' || 'ms-2'"
         class="my-auto d-flex flex-row">
         <v-badge
           :color="statusColor"
+          :class="{'me-2': $root.expand}"
           :value="true"
           class="my-auto pa-0"
           content=""
