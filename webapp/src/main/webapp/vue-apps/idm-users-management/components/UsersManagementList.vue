@@ -38,17 +38,6 @@
         </div>
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
-      <template #item.enabled="{ item }">
-        <div
-          :title="item.enabled && $t(`UsersManagement.button.enabled`) || $t(`UsersManagement.button.disabled`)"
-          class="d-flex">
-          <v-switch
-            v-model="item.enabled"
-            class="my-0 mx-auto"
-            @change="saveUserStatus(item)" />
-        </div>
-      </template>
-      <!-- eslint-disable vue/valid-v-slot -->
       <template #item.isInternal="{ item }">
         <div v-if="item.isInternal" class="displayedIconClass">
           <div :title="createdTitle(item.createdDate)">
@@ -70,17 +59,6 @@
         {{ item && item.external === 'true' ? $t(`UsersManagement.type.external`) : $t(`UsersManagement.type.internal`) }}
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
-      <template #item.role="{ item }">
-        <v-btn
-          :title="$t('UsersManagement.button.membership')"
-          primary
-          icon
-          text
-          @click="$root.$emit('openUserMemberships', item)">
-          <i class="uiIconGroup"></i>
-        </v-btn>
-      </template>
-      <!-- eslint-disable vue/valid-v-slot -->
       <template #item.actions="{ item }">
         <v-menu offset-x offset-y>
           <template #activator="{on, attrs}">
@@ -97,6 +75,7 @@
             <v-tooltip :disabled="item.isInternal" bottom>
               <template #activator="{on, attrs}">
                 <v-list-item
+                  v-if="!$root.isDelegatedAdministrator"
                   v-on="on"
                   v-bind="attrs"
                   :disabled="!item.isInternal"
@@ -112,7 +91,46 @@
               <span>{{ $t('UsersManagement.tooltip.editSynchronzedUser') }}</span>
             </v-tooltip>
             <v-list-item
-              v-if="isSuperUser"
+              v-if="item.enrollmentStatus === 'reInviteToJoin' || item.enrollmentStatus === 'inviteToJoin'"
+              class="px-2"
+              dense
+              @click="sendOnBoardingEmail(item.username)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14">fa-user-plus</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.onboard') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              class="px-2"
+              dense
+              @click="$root.$emit('openUserMemberships', item)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14">fa-users</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">{{ $t('UsersManagement.userMemberships') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              v-if="item.enabled"
+              class="px-2"
+              dense
+              @click="saveUserStatus(item, false)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14">fa-user-slash</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.disable') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              v-else
+              class="px-2"
+              dense
+              @click="saveUserStatus(item, true)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14">fa-user</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.enable') }}</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              v-if="$root.isSuperUser"
               :disabled="!item.isInternal"
               class="px-2"
               dense
@@ -151,7 +169,6 @@ export default {
     createdDate: 0,
     totalSize: 0,
     initialized: false,
-    isSuperUser: false,
     loading: true,
     fullDateFormat: {
       day: 'numeric',
@@ -280,6 +297,11 @@ export default {
     selectedUsers(selectedUsers) {
       document.dispatchEvent( new CustomEvent('multiSelect', {detail: {usersSelected: selectedUsers.length > 0}}));
     },
+    initialized(_newVal, oldVal) {
+      if (!oldVal) {
+        this.$root.$applicationLoaded();
+      }
+    },
     keyword() {
       this.options.page = 1;
       this.searchUsers();
@@ -292,10 +314,6 @@ export default {
     },
   },
   created() {
-    this.$userService.isSuperUser().then(
-      (data) => {
-        this.isSuperUser = data.isSuperUser === 'true';
-      });
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
     this.$root.$on('multiSelectAction', this.multiSelectAction);
@@ -308,25 +326,20 @@ export default {
     },
     multiSelectAction(action) {
       const selectedUsers = [];
-      let msg ='';
       if (this.selectedUsers.length > 0) {
         for (let i = 0; i < this.selectedUsers.length; i++) {
           selectedUsers.push(this.selectedUsers[i].userName);
         }
         this.selectedUsers = [];
         this.loading = true;
-        this.$userService.multiSelectAction(action, selectedUsers).then(data => {
-          if (data.length > 0) {
-            msg = this.$t(`UsersManagement.selection.success.${  action}`);
-          }
-        }).finally(() => {
-          if (!this.initialized) {
-            this.$root.$applicationLoaded();
-          }
-          this.searchUsers();
-          this.initialized = true;
-          this.$root.$emit('alert-message', msg, 'success');
-        });
+        this.$userService.multiSelectAction(action, selectedUsers)
+          .then(data => {
+            if (data.length > 0) {
+              this.$root.$emit('alert-message', `UsersManagement.selection.success.${action}`, 'success');
+            }
+          })
+          .then(this.searchUsers)
+          .finally(() => this.loading = false);
       }
     },
     synchronizedTitle(synchronizedDate) {
@@ -355,27 +368,30 @@ export default {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users/${userNameDeleted}`, {
         method: 'DELETE',
         credentials: 'include',
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          if (resp && resp.status === 400) {
-            return resp.text().then(error => {
-              throw new Error(error);
-            });
+      })
+        .then(resp => {
+          if (!resp || !resp.ok) {
+            if (resp && resp.status === 400) {
+              return resp.text().then(error => {
+                throw new Error(error);
+              });
+            } else {
+              throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+            }
           } else {
-            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+            self.users = self.users.filter(u => u.userName !== userNameDeleted);
           }
-        } else {
-          self.users = self.users.filter(u => u.userName !== userNameDeleted);
-        }
-      }).catch(error => {
-        error = error.message || String(error);
-        const errorI18NKey = `UsersManagement.error.${error}`;
-        const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
-        if (errorI18N !== errorI18NKey) {
-          error = errorI18N;
-        }
-        this.$root.$emit('alert-message', error, 'error');
-      }).finally(() => this.loading = false);
+        })
+        .catch(error => {
+          error = error.message || String(error);
+          const errorI18NKey = `UsersManagement.error.${error}`;
+          const errorI18N = this.$t(errorI18NKey, {0: this.selectedUser.fullname});
+          if (errorI18N !== errorI18NKey) {
+            error = errorI18N;
+          }
+          this.$root.$emit('alert-message', error, 'error');
+        })
+        .finally(() => this.loading = false);
     },
     searchUsers() {
       this.loading = true;
@@ -388,70 +404,67 @@ export default {
       return fetch(`${this.retrieveListLink}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
-      }).then(resp => {
-        if (!resp || !resp.ok) {
-          throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
-        } else {
-          return resp.json();
-        }
-      }).then(data => {
-        const entities = data.entities || data.users;
-        entities.forEach(user => {
-          user.enabled = user.enabled || false;
-          user.userName = user.userName || user.username || '';
-          user.firstName = user.firstName || user.firstname || '';
-          user.lastName = user.lastName || user.lastname || '';
-          user.email = user.email || '';
-          if (user.synchronizedDate) {
-            user.synchronizedDate = Number(user.synchronizedDate);
-          }
-          if (user.createdDate) {
-            user.createdDate = Number(user.createdDate);
-          }
-          if (user.lastLoginTime) {
-            user.lastLoginTime = Number(user.lastLoginTime);
-            if (user.enrollmentDate != null) {
-              user.enrollmentStatus = 'invitationAccepted';
-              user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
-            } else {
-              user.enrollmentStatus = 'alreadyConnected';
-              user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
-            }
-          } else {
-            user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
-            if (user.external === 'true') {
-              user.enrollmentStatus = 'cannotBeEnrolled';
-              user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
-            } else if (user.enrollmentDate != null) {
-              user.enrollmentStatus = 'reInviteToJoin';
-              user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
-            } else {
-              user.enrollmentStatus = 'inviteToJoin';
-              user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
-            }
-          }
-        });
-        this.users = entities;
-        this.totalSize = data && data.size || 0;
-        return this.$nextTick();
       })
-        .finally(() => {
-          if (!this.initialized) {
-            this.$root.$applicationLoaded();
+        .then(resp => {
+          if (!resp || !resp.ok) {
+            throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
+          } else {
+            return resp.json();
           }
-          this.loading = false;
-          this.initialized = true;
-        });
+        })
+        .then(data => {
+          const entities = data.entities || data.users;
+          entities.forEach(user => {
+            user.enabled = user.enabled || false;
+            user.userName = user.userName || user.username || '';
+            user.firstName = user.firstName || user.firstname || '';
+            user.lastName = user.lastName || user.lastname || '';
+            user.email = user.email || '';
+            if (user.synchronizedDate) {
+              user.synchronizedDate = Number(user.synchronizedDate);
+            }
+            if (user.createdDate) {
+              user.createdDate = Number(user.createdDate);
+            }
+            if (user.lastLoginTime) {
+              user.lastLoginTime = Number(user.lastLoginTime);
+              if (user.enrollmentDate != null) {
+                user.enrollmentStatus = 'invitationAccepted';
+                user.enrollmentDetails= this.$t('UsersManagement.enrollment.invitationAccepted', {0: this.formatDate(Number(user.enrollmentDate))});
+              } else {
+                user.enrollmentStatus = 'alreadyConnected';
+                user.enrollmentDetails= this.$t('UsersManagement.enrollment.alreadyConnected');
+              }
+            } else {
+              user.connectionStatus = this.$t('UsersManagement.lastConnection.neverConnected');
+              if (user.external === 'true') {
+                user.enrollmentStatus = 'cannotBeEnrolled';
+                user.enrollmentDetails = this.$t('UsersManagement.enrollment.cannotBeEnrolled');
+              } else if (user.enrollmentDate != null) {
+                user.enrollmentStatus = 'reInviteToJoin';
+                user.enrollmentDetails = this.$t('UsersManagement.enrollment.reInviteToJoin', {0: this.formatDate(Number(user.enrollmentDate))});
+              } else {
+                user.enrollmentStatus = 'inviteToJoin';
+                user.enrollmentDetails = this.$t('UsersManagement.enrollment.inviteToJoin');
+              }
+            }
+          });
+          this.users = entities;
+          this.totalSize = data && data.size || 0;
+          return this.$nextTick();
+        })
+        .finally(() => this.loading = false);
     },
-    saveUserStatus(user) {
+    saveUserStatus(user, enabled) {
       this.error = null;
       this.user = {
         userName: user.userName,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        enabled: user.enabled,
+        enabled: enabled,
       };
+      this.loading = true;
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/users`, {
         method: 'PUT',
         credentials: 'include',
@@ -478,14 +491,9 @@ export default {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
-      })        .finally(() => {
-        if (!this.initialized) {
-          this.$root.$applicationLoaded();
-        }
-        this.searchUsers();
-        this.loading = false;
-        this.initialized = true;
-      });
+      })
+        .then(this.searchUsers)
+        .finally(() => this.loading = false);
     },
     formatDate(time) {
       return this.$dateUtil.formatDateObjectToDisplay(new Date(time),this.fullDateFormat, this.lang);
@@ -501,14 +509,9 @@ export default {
         } else {
           throw new Error('Error sending onBoarding email');
         }
-      }).finally(() => {
-        if (!this.initialized) {
-          this.$root.$applicationLoaded();
-        }
-        this.searchUsers();
-        this.loading = false;
-        this.initialized = true;
-      });
+      })
+        .then(this.searchUsers)
+        .finally(() => this.loading = false);
     },
     applyAdvancedFilter(filter) {
       this.filter = filter;
