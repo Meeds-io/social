@@ -1099,6 +1099,7 @@
   <portlet>
     <name>UserSettingNotifications</name>
     <module>
+      <load-group>UserSettingNotificationsGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/userSettingNotifications.bundle.js</path>
