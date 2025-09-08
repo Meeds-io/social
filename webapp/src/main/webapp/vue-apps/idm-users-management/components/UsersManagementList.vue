@@ -162,11 +162,7 @@ export default {
     selectedUsers: [],
     deleteConfirmMessage: null,
     keyword: null,
-    filter: 'ENABLED',
-    selectedFiler: null,
-    isConnected: null,
-    userType: null,
-    enrollmentStatus: null,
+    filter: null,
     lang: eXo.env.portal.language,
     options: {
       page: 1,
@@ -187,16 +183,28 @@ export default {
     }
   }),
   computed: {
+    status() {
+      return this.filter?.status || 'ENABLED';
+    },
+    type() {
+      return this.filter?.type;
+    },
+    connectionStatus() {
+      return this.filter?.connectionStatus;
+    },
+    enrollmentStatus() {
+      return this.filter?.enrollmentStatus;
+    },
     retrieveListLink() {
       const form = new FormData();
-      form.append('isDisabled', this.filter === 'ENABLED' ? 'false':'true');
+      form.append('isDisabled', this.status === 'ENABLED' ? 'false':'true');
       form.append('searchEmail', 'true');
       form.append('searchUserName', 'true');
-      form.append('userType', this.userType || '');
-      form.append('status', this.filter || 'ENABLED');
+      form.append('userType', this.type || '');
+      form.append('status', this.status || 'ENABLED');
       form.append('q', this.keyword || '');
-      if (this.isConnected) {
-        form.append('isConnected', this.isConnected);
+      if (this.connectionStatus) {
+        form.append('isConnected', this.connectionStatus);
       }
       if (this.enrollmentStatus) {
         form.append('enrollmentStatus', this.enrollmentStatus);
@@ -311,7 +319,7 @@ export default {
       this.$emit('total-size-updated', this.totalSize);
     },
     filter() {
-      this.$emit('filter-updated', this.filter);
+      this.$emit('filter-updated', this.status);
       this.options.page = 1;
       this.searchUsers();
     },
@@ -423,30 +431,14 @@ export default {
         this.$root.$emit('alert-message', error, 'error');
       }).finally(() => this.loading = false);
     },
-    async searchUsers() {
+    searchUsers() {
+      this.loading = true;
       const page = this.options && this.options.page;
       let itemsPerPage = this.options && this.options.itemsPerPage;
       if (itemsPerPage <= 0) {
         itemsPerPage = this.totalSize || 20;
       }
       const offset = (page - 1) * itemsPerPage;
-      this.loading = true;
-      if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {
-        this.userType = this.selectedFiler;
-      } else {
-        this.userType = null;
-      }
-      if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {
-        this.isConnected = this.selectedFiler;
-      } else {
-        this.isConnected = null;
-      }
-      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {
-        this.enrollmentStatus = this.selectedFiler;
-      } else {
-        this.enrollmentStatus = null;
-      }
-      await this.$nextTick();
       return fetch(`${this.retrieveListLink}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
@@ -581,8 +573,8 @@ export default {
         this.initialized = true;
       });
     },
-    applyAdvancedFilter(selectedFiler) {
-      this.selectedFiler = selectedFiler;
+    applyAdvancedFilter(filter) {
+      this.filter = filter;
       this.searchUsers();
     }
   },
