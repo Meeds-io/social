@@ -27,10 +27,20 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
+      data: {
+        isDelegatedAdministrator: false,
+        isSuperUser: false,
+      },
       computed: {
         isMobile() {
           return this.$vuetify.breakpoint.mobile;
         },
+      },
+      async created() {
+        const d = await this.$userService.isDelegatedAdministrator();
+        this.isDelegatedAdministrator = d.result === 'true';
+        const s = await this.$userService.isSuperUser();
+        this.isSuperUser = s.isSuperUser === 'true';
       },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
