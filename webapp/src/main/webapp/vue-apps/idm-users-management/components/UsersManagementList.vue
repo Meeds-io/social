@@ -1,6 +1,5 @@
 <template>
   <div>
-    <users-management-import-csv-result class="px-4" />
     <exo-confirm-dialog
       ref="deleteConfirmDialog"
       :message="deleteConfirmMessage"
@@ -188,6 +187,26 @@ export default {
     }
   }),
   computed: {
+    retrieveListLink() {
+      const form = new FormData();
+      form.append('isDisabled', this.filter === 'ENABLED' ? 'false':'true');
+      form.append('searchEmail', 'true');
+      form.append('searchUserName', 'true');
+      form.append('userType', this.userType || '');
+      form.append('status', this.filter || 'ENABLED');
+      form.append('q', this.keyword || '');
+      if (this.isConnected) {
+        form.append('isConnected', this.isConnected);
+      }
+      if (this.enrollmentStatus) {
+        form.append('enrollmentStatus', this.enrollmentStatus);
+      }
+      if (this.selectedUsers) {
+        this.selectedUsers.forEach(u => form.append('includeUser', u.userName));
+      }
+      const params = new URLSearchParams(form).toString();
+      return `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?${params}`;
+    },
     filteredUsers() {
       if (!this.keyword || !this.loading) {
         return this.users.slice();
@@ -288,7 +307,11 @@ export default {
     options() {
       this.searchUsers();
     },
+    totalSize() {
+      this.$emit('total-size-updated', this.totalSize);
+    },
     filter() {
+      this.$emit('filter-updated', this.filter);
       this.options.page = 1;
       this.searchUsers();
     },
@@ -306,6 +329,12 @@ export default {
         this.loading = true;
         this.waitForEndTyping();
       }
+    },
+    retrieveListLink: {
+      immediate: true,
+      handler() {
+        this.$emit('list-link-updated', this.retrieveListLink);
+      },
     },
   },
   created() {
@@ -341,7 +370,6 @@ export default {
             this.$root.$applicationLoaded();
           }
           this.searchUsers();
-          this.loading = false;
           this.initialized = true;
           this.$root.$emit('alert-message', msg, 'success');
         });
@@ -395,7 +423,7 @@ export default {
         this.$root.$emit('alert-message', error, 'error');
       }).finally(() => this.loading = false);
     },
-    searchUsers() {
+    async searchUsers() {
       const page = this.options && this.options.page;
       let itemsPerPage = this.options && this.options.itemsPerPage;
       if (itemsPerPage <= 0) {
@@ -403,11 +431,23 @@ export default {
       }
       const offset = (page - 1) * itemsPerPage;
       this.loading = true;
-      const isDisabled = this.filter === 'ENABLED' ? 'false':'true';
-      if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {this.userType = this.selectedFiler;}
-      if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {this.isConnected = this.selectedFiler;}
-      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {this.enrollmentStatus = this.selectedFiler;}
-      return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users?q=${this.keyword || ''}&searchEmail=true&searchUserName=true&isDisabled=${isDisabled}&status=${this.filter || 'ENABLED'}&userType=${this.userType || ''}${(this.isConnected != null ? `&isConnected=${(this.isConnected)}` : '')}${(this.enrollmentStatus != null ? `&enrollmentStatus=${(this.enrollmentStatus)}` : '')}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
+      if (this.selectedFiler != null && (this.selectedFiler === 'internal' || this.selectedFiler === 'external'))  {
+        this.userType = this.selectedFiler;
+      } else {
+        this.userType = null;
+      }
+      if (this.selectedFiler != null && (this.selectedFiler === 'connected' || this.selectedFiler === 'neverConnected'))  {
+        this.isConnected = this.selectedFiler;
+      } else {
+        this.isConnected = null;
+      }
+      if (this.selectedFiler != null && (this.selectedFiler === 'enrolled' || this.selectedFiler === 'notEnrolled' || this.selectedFiler === 'noEnrollmentPossible'))  {
+        this.enrollmentStatus = this.selectedFiler;
+      } else {
+        this.enrollmentStatus = null;
+      }
+      await this.$nextTick();
+      return fetch(`${this.retrieveListLink}&offset=${offset || 0}&limit=${itemsPerPage}&returnSize=true`, {
         method: 'GET',
         credentials: 'include',
       }).then(resp => {
@@ -463,9 +503,6 @@ export default {
           }
           this.loading = false;
           this.initialized = true;
-          this.isConnected = null;
-          this.userType = null;
-          this.enrollmentStatus = null;
         });
     },
     waitForEndTyping() {

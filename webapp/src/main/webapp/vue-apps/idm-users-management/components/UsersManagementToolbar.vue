@@ -23,32 +23,43 @@
         </div>
       </div>
       <v-btn
-        :disabled="!usersSelected"
-        outlined
+        :loading="exporting"
         color="primary"
-        class="mx-1 multiSelect"
-        @click="multiSelectAction('onboard')">
-        <i class="uiIconInviteUser me-2"></i>
-        {{ $t('UsersManagement.selection.onboard') }}
-      </v-btn>
-      <v-btn
-        :disabled="!usersSelected"
+        elevation="0"
+        class="ms-2"
         outlined
-        color="primary"
-        class="multiSelect"
-        @click="multiSelectAction('enable')">
-        <i class="uiIconValidateUser me-2"></i>
-        {{ $t('UsersManagement.selection.enable') }}
+        @click="exportUsers">
+        <v-icon size="14" class="me-2">fa-file-excel</v-icon>
+        {{ $t('UsersManagement.selection.export') }}
       </v-btn>
-      <v-btn
-        :disabled="!usersSelected"
-        outlined
-        color="primary"
-        class="multiSelect"
-        @click="multiSelectAction('disable')">
-        <i class="uiIconRejectUser me-2"></i>
-        {{ $t('UsersManagement.selection.disable') }}
-      </v-btn>
+      <template v-if="usersSelected">
+        <v-btn
+          outlined
+          color="primary"
+          class="ms-2 multiSelect"
+          @click="multiSelectAction('onboard')">
+          <i class="uiIconInviteUser me-2"></i>
+          {{ $t('UsersManagement.selection.onboard') }}
+        </v-btn>
+        <v-btn
+          v-if="disabledUsers"
+          outlined
+          color="primary"
+          class="ms-2 multiSelect"
+          @click="multiSelectAction('enable')">
+          <i class="uiIconValidateUser me-2"></i>
+          {{ $t('UsersManagement.selection.enable') }}
+        </v-btn>
+        <v-btn
+          v-else
+          outlined
+          color="primary"
+          class="ms-2 multiSelect"
+          @click="multiSelectAction('disable')">
+          <i class="uiIconRejectUser me-2"></i>
+          {{ $t('UsersManagement.selection.disable') }}
+        </v-btn>
+      </template>
     </v-toolbar-title>
     <v-spacer />
     <v-scale-transition>
@@ -84,9 +95,22 @@
     </v-btn>
   </v-toolbar>
 </template>
-
 <script>
 export default {
+  props: {
+    exportUsersUrl: {
+      type: String,
+      default: null,
+    },
+    disabledUsers: {
+      type: Boolean,
+      default: false,
+    },
+    totalSize: {
+      type: Number,
+      default: () => 0,
+    },
+  },
   data: () => ({
     filter: 'ENABLED',
     initialized: false,
@@ -95,8 +119,15 @@ export default {
     numberOfFilters: 0,
     selectedFiler: null,
     dropdown: false,
+    exportId: null,
+    exporting: false,
     isDelegatedAdministrator: true,
   }),
+  computed: {
+    exportLink() {
+      return `${this.exportUsersUrl}&export=true`;
+    },
+  },
   watch: {
     keyword() {
       this.$root.$emit('searchUser', this.keyword, this.filter);
@@ -134,13 +165,34 @@ export default {
       this.selectedFiler = selectedFiler;
       this.numberOfFilters = this.countFiltersMethods(selectedFiler);
     },
-    countFiltersMethods(selectedFiler ) {
+    countFiltersMethods(selectedFiler) {
       let filterCount = 0;
       if (selectedFiler != null) {
         filterCount++;
       }
       return filterCount;
-    }
+    },
+    exportUsers() {
+      this.exporting = true;
+      return fetch(this.exportLink, {
+        credentials: 'include'
+      }).then(resp => resp?.ok && resp.json())
+        .then(exportResult => this.exportId = exportResult.exportId)
+        .then(() => document.dispatchEvent(new CustomEvent('alert-message', {detail: {
+          alertComponent: 'users-management-export-csv-result',
+          alertComponentParams: {
+            options: {
+              exportLink: this.exportLink,
+              exportId: this.exportId,
+              totalUsers: this.totalSize,
+            },
+          },
+          alertDismissible: false,
+          alertTimeout: 864000000,
+        }})))
+        .catch(error => this.$root.$emit('alert-message', error, 'error'))
+        .finally(() => this.exporting = false);
+    },
   }
 };
 </script>
