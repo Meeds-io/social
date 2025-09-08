@@ -138,7 +138,7 @@ export default {
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
     document.addEventListener('multiSelect', this.updateSelectedUsers);
   },
-  updated() {
+  mounted() {
     // Workaround to hide DropDown Menu on initialization
     // that causes html breaking sometimes
     window.setTimeout(() => this.initialized = true, 1000);
