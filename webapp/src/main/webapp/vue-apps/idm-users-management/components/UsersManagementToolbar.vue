@@ -18,7 +18,7 @@
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
         <div
-          v-if="!isDelegatedAdministrator"
+          v-if="!$root.isDelegatedAdministrator"
           :class="dropdown && 'open' || ''"
           class="btn-group">
           <v-btn
@@ -104,7 +104,6 @@ export default {
     dropdown: false,
     exportId: null,
     exporting: false,
-    isDelegatedAdministrator: true,
   }),
   computed: {
     exportLink() {
@@ -138,7 +137,6 @@ export default {
   created() {
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
     document.addEventListener('multiSelect', this.updateSelectedUsers);
-    this.init();
   },
   updated() {
     // Workaround to hide DropDown Menu on initialization
@@ -150,10 +148,6 @@ export default {
     this.$root.$off('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   methods: {
-    async init() {
-      const data = await this.$userService.isDelegatedAdministrator();
-      this.isDelegatedAdministrator = data.result === 'true';
-    },
     updateSelectedUsers(event) {
       this.usersSelected = event.detail.usersSelected;
     },
