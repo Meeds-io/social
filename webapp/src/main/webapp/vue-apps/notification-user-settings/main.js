@@ -30,6 +30,9 @@ export function init(settings) {
         settings: settings,
         autoOpen: window.location.hash === '#notifications',
       },
+      created() {
+        this.$utils.includeExtensions('UserSettingsNotificationsExtension');
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
