@@ -4,10 +4,8 @@
     ref="userFormDrawer"
     right
     @closed="drawer = false">
-    <template slot="title">
-      {{ title }}
-    </template>
-    <template slot="content">
+    <template #title>{{ title }}</template>
+    <template #content>
       <v-form
         ref="userForm"
         class="form-horizontal pt-0 pb-4"
