@@ -26,6 +26,14 @@
             :settings="notificationSettings" />
         </template>
 
+        <extension-registry-components
+          name="UserSettingsNotifications"
+          type="user-settings-notifications-extension"
+          parent-element="div"
+          element="div"
+          element-class="full-width"
+          class="d-flex" />
+
         <v-list-item>
           <v-list-item-content>
             <v-list-item-title>
