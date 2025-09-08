@@ -1,123 +1,144 @@
 <template>
   <exo-drawer
     id="usersFilterDrawer"
-    ref="usersFilterDrawer" 
-    right
-    @closed="drawer = false">
-    <template slot="title">
-      {{ $t('UsersManagement.filter') }}
+    ref="drawer"
+    v-model="drawer"
+    :right="!$vuetify.rtl">
+    <template #title>{{ $t('UsersManagement.filter') }}</template>
+    <template #content>
+      <div flat class="pa-5">
+        <div class="text-header mb-2">{{ $t('UsersManagement.filter.profileStatus') }}</div>
+        <v-radio-group
+          v-model="status"
+          class="mt-0">
+          <v-radio
+            :label="$t('UsersManagement.status.enabled')"
+            value="ENABLED"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.status.disabled')"
+            value="DISABLED"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+        </v-radio-group>
+        <div class="text-header mt-4 mb-2">{{ $t('UsersManagement.filter.profileType') }}</div>
+        <v-radio-group
+          v-model="type"
+          class="mt-0">
+          <v-radio
+            :label="$t('UsersManagement.filter.all')"
+            value="ALL"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.type.internal')"
+            value="internal"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.type.external')"
+            value="external"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+        </v-radio-group>
+        <div class="text-header mt-4 mb-2">{{ $t('UsersManagement.filter.connectionStatus') }}</div>
+        <v-radio-group
+          v-model="connectionStatus"
+          class="mt-0">
+          <v-radio
+            :label="$t('UsersManagement.filter.all')"
+            value="ALL"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.lastConnection.connected')"
+            value="connected"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.lastConnection.neverConnected')"
+            value="neverConnected"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+        </v-radio-group>
+        <div class="text-header mt-4 mb-2">{{ $t('UsersManagement.filter.enrollmentStatus') }}</div>
+        <v-radio-group
+          v-model="enrollmentStatus"
+          class="mt-0">
+          <v-radio
+            :label="$t('UsersManagement.filter.all')"
+            value="ALL"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.enrollment.enrolled')"
+            value="enrolled"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.enrollment.notEnrolled')"
+            value="notEnrolled"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+          <v-radio
+            :label="$t('UsersManagement.enrollment.noEnrollmentPossible')"
+            value="noEnrollmentPossible"
+            on-icon="fa-lg far fa-dot-circle"
+            off-icon="fa-lg far fa-circle" />
+        </v-radio-group>
+      </div>
     </template>
-    <template slot="content">
-      <v-list>
-        <v-card flat class="pa-2">
-          <v-radio-group
-            v-model="selectedFiler"
-            class="mt-0">
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.lastConnection.connected')"
-              @click="resetOption(selectedFiler)"
-              value="connected" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.lastConnection.neverConnected')"
-              @click="resetOption(selectedFiler)"
-              value="neverConnected" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.enrollment.enrolled')"
-              @click="resetOption(selectedFiler)"
-              value="enrolled" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.enrollment.notEnrolled')"
-              @click="resetOption(selectedFiler)"
-              value="notEnrolled" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.enrollment.noEnrollmentPossible')"
-              @click="resetOption(selectedFiler)"
-              value="noEnrollmentPossible" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.type.internal')"
-              @click="resetOption(selectedFiler)"
-              value="internal" />
-            <v-radio
-              class="pa-2"
-              :label="$t('UsersManagement.type.external')"
-              @click="resetOption(selectedFiler)"
-              value="external" />
-          </v-radio-group>
-        </v-card>
-      </v-list>
-    </template>
-    <template slot="footer">
+    <template #footer>
       <div class="d-flex">
-        <v-btn
-          class="ps-0"
-          color="primary"
-          text
-          @click="resetFilter">
-          <v-icon class="pe-1">mdi-reload</v-icon>
-          {{ $t('UsersManagement.filter.reset') }}
-        </v-btn>
         <v-spacer />
         <v-btn
           class="btn me-2"
-          @click="cancel">
+          @click="close">
           {{ $t('UsersManagement.button.cancel') }}
         </v-btn>
         <v-btn
           class="btn btn-primary"
-          @click="save">
+          @click="apply">
           {{ $t('UsersManagement.button.save') }}
         </v-btn>
       </div>
     </template>
   </exo-drawer>
 </template>
-
 <script>
 export default {
   data: () => ({
     drawer: false,
-    selectedFiler: null,
-    previouslySelected: null,
+    status: 'ENABLED',
+    type: 'ALL',
+    connectionStatus: 'ALL',
+    enrollmentStatus: 'ALL',
   }),
-  watch: {
-    drawer() {
-      if (this.drawer) {
-        this.$refs.usersFilterDrawer.open();
-      } else {
-        this.$refs.usersFilterDrawer.close();
-      }
+  computed: {
+    filter() {
+      return {
+        status: this.status, // Enabled / Disabled
+        type: this.type === 'ALL' ? null : this.type, // Internals / Externals
+        connectionStatus: this.connectionStatus === 'ALL' ? null : this.connectionStatus, // Connected / Never Connected
+        enrollmentStatus: this.enrollmentStatus === 'ALL' ? null : this.enrollmentStatus, // Email sent / Not yet invited / No enrollment possible
+      };
     },
   },
   created() {
-    this.$root.$on('advancedFilter', this.advancedFilter);
+    this.$root.$on('advancedFilter', this.open);
   },
   methods: {
-    advancedFilter(selectedFiler) {
-      this.selectedFiler = selectedFiler;
-      this.drawer = true;
+    open(filter) {
+      this.filter = filter;
+      this.$refs.drawer.open();
     },
-    cancel() {
-      this.drawer = false;
+    close() {
+      this.$refs.drawer.close();
     },
-    save() {
-      this.$root.$emit('applyAdvancedFilter',this.selectedFiler);
-      this.$refs.usersFilterDrawer.close();
-    },
-    resetFilter() {
-      this.selectedFiler = null;
-      this.previouslySelected = null;
-    },
-    resetOption(selectedFiler) {
-      if (selectedFiler === this.previouslySelected) {
-        this.selectedFiler = null;
-      }
-      this.previouslySelected = this.selectedFiler;
+    apply() {
+      this.$root.$emit('applyAdvancedFilter',this.filter);
+      this.close();
     },
   },
 };
