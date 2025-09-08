@@ -708,6 +708,9 @@
         <path>/js/idmUsersManagement.bundle.js</path>
       </script>
       <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
+      <depends>
         <module>commonVueComponents</module>
       </depends>
       <depends>
