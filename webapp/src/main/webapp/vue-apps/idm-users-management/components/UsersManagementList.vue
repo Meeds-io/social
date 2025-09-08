@@ -71,7 +71,7 @@
               <v-icon size="20">fas fa-ellipsis-v</v-icon>
             </v-btn>
           </template>
-          <v-list dense>
+          <v-list class="position-relative" dense>
             <v-tooltip :disabled="item.isInternal" bottom>
               <template #activator="{on, attrs}">
                 <v-list-item
@@ -90,16 +90,29 @@
               </template>
               <span>{{ $t('UsersManagement.tooltip.editSynchronzedUser') }}</span>
             </v-tooltip>
-            <v-list-item
-              v-if="item.enrollmentStatus === 'reInviteToJoin' || item.enrollmentStatus === 'inviteToJoin'"
-              class="px-2"
-              dense
-              @click="sendOnBoardingEmail(item.username)">
-              <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14">fa-user-plus</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.onboard') }}</v-list-item-title>
-            </v-list-item>
+            <v-tooltip bottom>
+              <template #activator="{on, attrs}">
+                <div v-on="on" v-bind="attrs">
+                  <v-list-item
+                    :disabled="item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'"
+                    class="px-2"
+                    dense
+                    @click="sendOnBoardingEmail(item.username)">
+                    <v-list-item-icon class="mx-1 justify-center">
+                      <v-icon
+                        size="14"
+                        :class="{
+                          'text--disabled': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
+                        }">
+                        fa-user-plus
+                      </v-icon>
+                    </v-list-item-icon>
+                    <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.onboard') }}</v-list-item-title>
+                  </v-list-item>
+                </div>
+              </template>
+              <span>{{ item.enrollmentDetails }}</span>
+            </v-tooltip>
             <v-list-item
               class="px-2"
               dense
