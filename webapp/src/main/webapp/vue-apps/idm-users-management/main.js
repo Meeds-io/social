@@ -27,6 +27,11 @@ export function init() {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
+      computed: {
+        isMobile() {
+          return this.$vuetify.breakpoint.mobile;
+        },
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },

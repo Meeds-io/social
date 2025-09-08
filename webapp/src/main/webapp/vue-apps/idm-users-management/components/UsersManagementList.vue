@@ -13,9 +13,9 @@
       :title="$t('UsersManagement.title.deleteCurrentUserWarning')"
       :ok-label="$t('UsersManagement.button.ok')" />
     <v-data-table
+      v-model="selectedUsers"
       :headers="headers"
       :items="filteredUsers"
-      v-model="selectedUsers"
       :loading="loading"
       :options.sync="options"
       :server-items-length="totalSize"
@@ -25,7 +25,8 @@
       :no-data-text="$t('UsersManagement.noData')"
       show-select
       class="data-table-light-border">
-      <template slot="item.lastConnexion" slot-scope="{ item }">
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.lastConnexion="{ item }">
         <div v-if="item.lastLoginTime">
           <date-format
             :value="item.lastLoginTime"
@@ -36,51 +37,8 @@
           {{ item.connectionStatus }}
         </div>
       </template>
-      <template slot="item.enrollmentDate" slot-scope="{ item }">
-        <div
-          :title="item.enrollmentDetails"
-          v-if="item.enrollmentStatus === 'invitationAccepted'"
-          class="d-inline">
-          <v-badge
-            bottom
-            color="white"
-            flat
-            class="mailBadge"
-            offset-x="8"
-            offset-y="12">
-            <span slot="badge"><v-icon class="successColor mt-n1 me-0" size="16">mdi-check-circle</v-icon></span>
-            <v-icon size="22" color="primary">mdi-email</v-icon>
-          </v-badge>
-        </div>
-        <div
-          :title="item.enrollmentDetails"
-          v-else-if="item.enrollmentStatus === 'reInviteToJoin'"
-          class="d-inline">
-          <v-badge
-            bottom
-            color="white"
-            flat
-            class="mailBadge"
-            offset-x="15"
-            offset-y="19">
-            <span slot="badge"><v-icon class="errorColor mt-n1 me-0" size="16">mdi-help-circle</v-icon></span>
-            <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
-          </v-badge>
-        </div>
-        <div
-          :title="item.enrollmentDetails"
-          v-else-if="item.enrollmentStatus === 'inviteToJoin'"
-          class="d-inline">
-          <v-btn icon @click="sendOnBoardingEmail(item.username)"><v-icon size="22" color="primary">mdi-email</v-icon></v-btn>
-        </div>
-        <div
-          :title="item.enrollmentDetails"
-          v-else
-          class="d-inline mailBadge">
-          <v-icon class="disabled" size="22">mdi-email</v-icon>
-        </div>
-      </template>
-      <template slot="item.enabled" slot-scope="{ item }">
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.enabled="{ item }">
         <div
           :title="item.enabled && $t(`UsersManagement.button.enabled`) || $t(`UsersManagement.button.disabled`)"
           class="d-flex">
@@ -90,15 +48,12 @@
             @change="saveUserStatus(item)" />
         </div>
       </template>
-      <template slot="item.isInternal" slot-scope="{ item }">
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.isInternal="{ item }">
         <div v-if="item.isInternal" class="displayedIconClass">
-          <v-btn
-            :title="createdTitle(item.createdDate)"
-            primary
-            icon
-            text>
-            <i class="uiIconSoupCan"></i>
-          </v-btn>
+          <div :title="createdTitle(item.createdDate)">
+            <v-icon size="20">fa-database</v-icon>
+          </div>
         </div>
         <div v-else class="displayedIconClass">
           <v-btn
@@ -110,10 +65,12 @@
           </v-btn>
         </div>
       </template>
-      <template slot="item.external" slot-scope="{ item }">
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.external="{ item }">
         {{ item && item.external === 'true' ? $t(`UsersManagement.type.external`) : $t(`UsersManagement.type.internal`) }}
       </template>
-      <template slot="item.role" slot-scope="{ item }">
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.role="{ item }">
         <v-btn
           :title="$t('UsersManagement.button.membership')"
           primary
@@ -123,37 +80,59 @@
           <i class="uiIconGroup"></i>
         </v-btn>
       </template>
-      <template slot="item.edit" slot-scope="{ item }">
-        <span :title="item.isInternal ? $t('UsersManagement.button.editUser') : $t('UsersManagement.tooltip.editSynchronzedUser')">
-          <v-btn
-            :disabled="!item.isInternal"
-            icon
-            text
-            @click="$root.$emit('editUser', item)">
-            <i :class="!item.isInternal ? 'uiDiseabledIconEdit' : 'uiIconEdit'" class="uiIconEdit"></i>
-          </v-btn>
-        </span>
-      </template>
-      <template slot="item.delete" slot-scope="{ item }">
-        <v-btn
-          :title="$t('UsersManagement.button.deleteUser')"
-          primary
-          icon
-          text
-          @click="deleteUser(item)">
-          <i class="uiIconTrash trashIconColor"></i>
-        </v-btn>
+      <!-- eslint-disable vue/valid-v-slot -->
+      <template #item.actions="{ item }">
+        <v-menu offset-x offset-y>
+          <template #activator="{on, attrs}">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+              :title="$t('UsersManagement.userActions')"
+              :aria-label="$t('UsersManagement.userActions')"
+              icon>
+              <v-icon size="20">fas fa-ellipsis-v</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense>
+            <v-tooltip :disabled="item.isInternal" bottom>
+              <template #activator="{on, attrs}">
+                <v-list-item
+                  v-on="on"
+                  v-bind="attrs"
+                  :disabled="!item.isInternal"
+                  class="px-2"
+                  dense
+                  @click="$root.$emit('editUser', item)">
+                  <v-list-item-icon class="mx-1 justify-center">
+                    <v-icon size="14">fa-edit</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-title class="ps-0">{{ $t('UsersManagement.edit') }}</v-list-item-title>
+                </v-list-item>
+              </template>
+              <span>{{ $t('UsersManagement.tooltip.editSynchronzedUser') }}</span>
+            </v-tooltip>
+            <v-list-item
+              v-if="isSuperUser"
+              :disabled="!item.isInternal"
+              class="px-2"
+              dense
+              @click="deleteUser(item)">
+              <v-list-item-icon class="mx-1 justify-center">
+                <v-icon size="14" color="error">fa-trash</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="ps-0">
+                <div class="error--text">{{ $t('UsersManagement.button.deleteUser') }}</div>
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
     </v-data-table>
   </div>
 </template>
-
 <script>
 export default {
   data: () => ({
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
     itemsPerPageOptions: [20, 50, 100],
     users: [],
     user: null,
@@ -180,7 +159,7 @@ export default {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }
+    },
   }),
   computed: {
     status() {
@@ -234,6 +213,7 @@ export default {
         align: 'center',
         class: 'headerPadding',
         sortable: false,
+        show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.firstName'),
         value: 'firstName',
@@ -252,26 +232,14 @@ export default {
         align: 'center',
         class: 'headerPadding',
         sortable: false,
+        show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.lastConnection'),
         value: 'lastConnexion',
         align: 'center',
         class: 'headerPadding',
         sortable: false,
-      },{
-        text: this.$t && this.$t('UsersManagement.enrollment'),
-        value: 'enrollmentDate',
-        align: 'center',
-        width: '80px',
-        class: 'headerPadding',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.status'),
-        value: 'enabled',
-        align: 'center',
-        width: '80px',
-        class: 'headerPadding',
-        sortable: false,
+        show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.source'),
         value: 'isInternal',
@@ -279,6 +247,7 @@ export default {
         width: '80px',
         class: 'headerPadding',
         sortable: false,
+        show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.type'),
         value: 'external',
@@ -286,28 +255,13 @@ export default {
         width: '80px',
         class: 'headerPadding',
         sortable: false,
+        show: !this.$root.isMobile
       }, {
-        text: this.$t && this.$t('UsersManagement.role'),
-        value: 'role',
+        text: this.$t && this.$t('UsersManagement.actions'),
+        value: 'actions',
         align: 'center',
-        width: '60px',
         class: 'headerPadding',
         sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.edit'),
-        value: 'edit',
-        align: 'center',
-        width: '60px',
-        class: 'headerPadding',
-        sortable: false,
-      }, {
-        text: this.$t && this.$t('UsersManagement.delete'),
-        value: 'delete',
-        align: 'center',
-        width: '80px',
-        class: 'headerPadding',
-        sortable: false,
-        show: this.isSuperUser
       }].filter(x => x.show == null || x.show === true);
     },
   },
@@ -328,15 +282,7 @@ export default {
     },
     keyword() {
       this.options.page = 1;
-      if (!this.keyword) {
-        this.searchUsers();
-        return;
-      }
-      this.startTypingKeywordTimeout = Date.now();
-      if (!this.loading) {
-        this.loading = true;
-        this.waitForEndTyping();
-      }
+      this.searchUsers();
     },
     retrieveListLink: {
       immediate: true,
@@ -496,15 +442,6 @@ export default {
           this.loading = false;
           this.initialized = true;
         });
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
-          this.searchUsers();
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
     },
     saveUserStatus(user) {
       this.error = null;
