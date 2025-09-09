@@ -17,27 +17,34 @@
     @filter-text-input-end-typing="keyword = $event">
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
-        <div
-          v-if="!$root.isDelegatedAdministrator"
-          :class="dropdown && 'open' || ''"
-          class="btn-group">
-          <v-btn
-            class="btn btn-primary addNewUserButton"
-            @click="$root.$emit('addNewUser')">
-            <i class="uiIconAddUser uiIconWhite me-md-3"></i>
-            <span class="d-none d-sm-inline">
-              {{ $t('UsersManagement.addUser') }}
-            </span>
-          </v-btn>
-          <v-btn
-            class="btn btn-primary dropdown-toggle width-auto pa-0"
-            @click.prevent.stop="dropdown = true">
-            <span class="caret my-0 mx-3"></span>
-          </v-btn>
-          <div v-if="initialized" class="dropdown-menu">
-            <users-management-import-csv-button />
-          </div>
-        </div>
+        <v-menu v-model="menu" offset-y>
+          <!-- eslint-disable vue/valid-v-slot -->
+          <template #activator="{on, attrs}">
+            <div class="d-flex border-radius overflow-hidden">
+              <v-btn
+                class="btn btn-primary addNewUserButton"
+                tile
+                @click="$root.$emit('addNewUser')">
+                <i class="uiIconAddUser uiIconWhite me-md-3"></i>
+                <span class="d-none d-sm-inline">
+                  {{ $t('UsersManagement.addUser') }}
+                </span>
+              </v-btn>
+              <v-divider vertical />
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                class="btn btn-primary overflow-hidden pa-0"
+                min-width="30"
+                tile
+                @click.prevent.stop="menu = !menu">
+                <v-icon size="20">{{ menu ? 'fa-caret-up' : 'fa-caret-down' }}</v-icon>
+              </v-btn>
+            </div>
+          </template>
+          <users-management-import-csv-button
+            class="full-width border-box-sizing" />
+        </v-menu>
         <v-btn
           :loading="exporting"
           color="primary"
@@ -101,7 +108,7 @@ export default {
     keyword: null,
     usersSelected: false,
     filter: null,
-    dropdown: false,
+    menu: false,
     exportId: null,
     exporting: false,
   }),
@@ -126,22 +133,17 @@ export default {
     filter() {
       this.$root.$emit('searchUser', this.keyword, this.filter);
     },
-    dropdown() {
-      if (this.dropdown) {
-        document.addEventListener('click', this.closeDropdown);
+    menu() {
+      if (this.menu) {
+        document.addEventListener('click', this.closeMenu);
       } else {
-        document.removeEventListener('click', this.closeDropdown);
+        document.removeEventListener('click', this.closeMenu);
       }
     },
   },
   created() {
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
     document.addEventListener('multiSelect', this.updateSelectedUsers);
-  },
-  mounted() {
-    // Workaround to hide DropDown Menu on initialization
-    // that causes html breaking sometimes
-    window.setTimeout(() => this.initialized = true, 1000);
   },
   beforeDestroy() {
     document.removeEventListener('multiSelect', this.updateSelectedUsers);
@@ -157,9 +159,9 @@ export default {
     applyAdvancedFilter(filter) {
       this.filter = filter;
     },
-    closeDropdown() {
-      if (this.dropdown) {
-        this.dropdown = false;
+    closeMenu() {
+      if (this.menu) {
+        this.menu = false;
       }
     },
     exportUsers() {
