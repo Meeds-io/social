@@ -11,7 +11,6 @@
       text: $t('UsersManagement.filterBy')
     }"
     :filters-count="filtersCount"
-    class="px-1"
     compact
     @filter-button-click="$root.$emit('advancedFilter')"
     @filter-text-input-end-typing="keyword = $event">
