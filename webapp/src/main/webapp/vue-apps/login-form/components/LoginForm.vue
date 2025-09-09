@@ -170,9 +170,9 @@
         <div v-else-if="!displayForm && signinOption !== 'noform'" class="mt-4 center text-body">
           <v-btn
             color="primary"
-            class="elevation-0"
+            class="elevation-0 loginFormSigninEmailButton"
             outlined
-            style="background-color:white"
+            style="background-color:white;"
             @click="clickDisplayForm()">
             <span class="text-body">
               <v-icon class="me-2" v-if="displaySigninEmailButtonIcon" color="primary">fas fa-envelope</v-icon>
@@ -336,3 +336,14 @@ export default {
   },
 };
 </script>
+
+<style lang="scss">
+  .loginFormSigninEmailButton {
+    min-height: 36px;
+    height: 100% !important;
+  }
+  .loginFormSigninEmailButton > .v-btn__content {
+    max-width: 100%;
+    white-space: normal;
+  }
+</style>
