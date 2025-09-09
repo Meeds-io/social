@@ -63,8 +63,7 @@
         <v-menu
           :ref="`menu${item.id}`"
           offset-x
-          offset-y
-          @input="handleMenuOpened(item.id, $event)">
+          offset-y>
           <template #activator="{on, attrs}">
             <v-btn
               v-bind="attrs"
@@ -73,7 +72,8 @@
               :id="`menuButton${item.id}`"
               :title="$t('UsersManagement.userActions')"
               :aria-label="$t('UsersManagement.userActions')"
-              icon>
+              icon
+              @mouseup="handleMenuOpened(item.id, $event)">
               <v-icon size="20">fas fa-ellipsis-v</v-icon>
             </v-btn>
           </template>
@@ -535,11 +535,10 @@ export default {
     },
     handleMenuOpened(id, open) {
       if (open) {
+        this.closeMenu();
         this.menuButton = this.$refs[`menuButton${id}`];
-        document.addEventListener('click', this.closeMenu);
-      } else {
         document.removeEventListener('click', this.closeMenu);
-        this.menuButton = null;
+        document.addEventListener('click', this.closeMenu);
       }
     },
     closeMenu() {
