@@ -348,7 +348,7 @@ public class EntityBuilder {
     userEntity.setBanner(profile.getBannerUrl());
     userEntity.setDefaultAvatar(profile.isDefaultAvatar());
     userEntity.setIsAdmin(isAdmin);
-    if (isAdmin) {
+    if (isAdmin || RestUtils.isMemberOfDelegatedGroup()) {
       if (profile.getProperty(Profile.ENROLLMENT_DATE) != null) {
         userEntity.setEnrollmentDate(profile.getProperty(Profile.ENROLLMENT_DATE).toString());
       }
