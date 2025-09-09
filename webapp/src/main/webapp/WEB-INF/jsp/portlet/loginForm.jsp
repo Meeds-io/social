@@ -95,6 +95,7 @@
   boolean displaySigninEmailButtonIcon = request.getAttribute("displaySigninEmailButtonIcon") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displaySigninEmailButtonIcon"))[0]);
   boolean listExternalProviders = request.getAttribute("listExternalProviders") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("listExternalProviders"))[0]);
   boolean displayProvidersIcons = request.getAttribute("displayProvidersIcons") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displayProvidersIcons"))[0]);
+  boolean displayWelcomeMessage = request.getAttribute("displayWelcomeMessage") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displayWelcomeMessage"))[0]);
 
 
   params.put("portletStorageId", portletStorageId);
@@ -110,6 +111,7 @@
   params.put("displaySigninEmailButtonIcon", displaySigninEmailButtonIcon);
   params.put("listExternalProviders", listExternalProviders);
   params.put("displayProvidersIcons", displayProvidersIcons);
+  params.put("displayWelcomeMessage", displayWelcomeMessage);
 
 %>
 <div class="VuetifyApp">

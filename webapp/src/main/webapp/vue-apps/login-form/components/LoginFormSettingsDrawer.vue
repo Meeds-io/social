@@ -34,10 +34,16 @@
       <v-card
         class="ma-4"
         flat>
-        <div class="text-header mb-4">
-          {{ $t('loginForm.drawer.label.welcome.title') }}
-        </div>
-        <div v-if="!registerEnabled" class="mb-7">
+        <v-card-text class="d-flex pa-0">
+          <div class="text-header mb-4">
+            {{ $t('loginForm.drawer.label.welcome.title') }}
+          </div>
+          <div class="spacer" />
+          <v-switch
+            v-model="displayWelcomeMessage"
+            class="mt-0" />
+        </v-card-text>
+        <div v-if="!registerEnabled && displayWelcomeMessage" class="mb-7">
           <v-card-text class="d-flex pa-0">
             <translation-text-field
               ref="welcomeBackTranslations"
@@ -50,7 +56,7 @@
               @input="translationUpdatedWelcomeBack" />
           </v-card-text>
         </div>
-        <div v-else class="mb-7">
+        <div v-else-if="displayWelcomeMessage" class="mb-7">
           <v-card-text class="d-flex pa-0 mb-3">
             <translation-text-field
               ref="newHereTranslations"
@@ -190,6 +196,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    displayWelcomeMessage: {
+      type: Boolean,
+      default: true,
+    },
     displayProvidersIcons: {
       type: Boolean,
       default: true,
@@ -310,7 +320,8 @@ export default {
           this.signinOption,
           this.displaySigninEmailButtonIcon,
           this.listExternalProviders,
-          this.displayProvidersIcons);
+          this.displayProvidersIcons,
+          this.displayWelcomeMessage);
         this.loading = false;
         this.close();
       });
@@ -342,6 +353,9 @@ export default {
           }, {
             name: 'displayProvidersIcons',
             value: this.displayProvidersIcons,
+          }, {
+            name: 'displayWelcomeMessage',
+            value: this.displayWelcomeMessage,
           }],
         }),
       });
