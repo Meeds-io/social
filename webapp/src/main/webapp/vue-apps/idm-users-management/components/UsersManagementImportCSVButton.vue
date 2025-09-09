@@ -1,7 +1,7 @@
 <template>
   <v-btn
     :loading="uploading"
-    class="btn dropdown-button"
+    class="btn"
     @click="openFileSelection">
     <i class="uiIconImport me-md-3"></i>
     {{ $t('UsersManagement.importCSV') }}
@@ -15,7 +15,6 @@
       @change="importUsers" />
   </v-btn>
 </template>
-
 <script>
 export default {
   data: () => ({

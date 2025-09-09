@@ -483,11 +483,9 @@ public class UserRest implements ResourceContainer, Startable {
       if (target != null && excludeCurrentUser) {
         filter.setViewerIdentity(target);
       }
-      if (!isDisabled) {
-        filter.setUserType(userType);
-        filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
-        filter.setEnrollmentStatus(enrollmentStatus);
-      }
+      filter.setUserType(userType);
+      filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
+      filter.setEnrollmentStatus(enrollmentStatus);
       if (!RestUtils.isMemberOfAdminGroup()
           && RestUtils.isMemberOfDelegatedGroup()
           && userType != null
