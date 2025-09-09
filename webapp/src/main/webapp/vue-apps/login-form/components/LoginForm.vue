@@ -59,7 +59,7 @@
             </v-btn>
           </v-fab-transition>
         </div>
-        <div v-if="registerEnabled" class="widget-text-header align-center">
+        <div v-if="registerEnabled && displayWelcomeMessage" class="widget-text-header align-center">
           {{ newHere }}
           <a
             :title="createAccount"
@@ -68,7 +68,7 @@
             {{ createAccount }}
           </a>
         </div>
-        <div v-else class="widget-text-header align-center">{{ welcomeBack }}</div>
+        <div v-else-if="displayWelcomeMessage" class="widget-text-header align-center">{{ welcomeBack }}</div>
 
         <portal-login-providers
           :params="values"
@@ -188,7 +188,8 @@
       :signin-option="signinOption"
       :display-signin-email-button-icon="displaySigninEmailButtonIcon"
       :list-external-providers="listExternalProviders"
-      :display-providers-icons="displayProvidersIcons" />
+      :display-providers-icons="displayProvidersIcons"
+      :display-welcome-message="displayWelcomeMessage" />
 
   </v-app>
 </template>
@@ -216,6 +217,7 @@ export default {
     listExternalProviders: true,
     displayProvidersIcons: true,
     displayBackButton: false,
+    displayWelcomeMessage: true,
   }),
   watch: {
     errorMessage: {
@@ -234,6 +236,7 @@ export default {
     this.newHere = decodeURIComponent(this.values?.newHere || this.$t('UILoginForm.label.registerNewAccount'));
     this.createAccount = decodeURIComponent(this.values?.createAccount || this.$t('UILoginForm.button.registerNewAccount'));
     this.displaySigninEmailButtonIcon = this.values?.displaySigninEmailButtonIcon;
+    this.displayWelcomeMessage = this.values?.displayWelcomeMessage;
     this.displayProvidersIcons = this.values?.displayProvidersIcons;
     this.listExternalProviders = this.values?.listExternalProviders;
     this.signinEmailButton = decodeURIComponent(this.values?.signinEmailButton || this.$t('portal.login.SigninUsingEmail'));
@@ -244,7 +247,8 @@ export default {
       signinOption,
       displaySigninEmailButtonIcon,
       listExternalProviders,
-      displayProvidersIcons) => {
+      displayProvidersIcons,
+      displayWelcomeMessage) => {
       this.welcomeBack = welcomeBackTranslations?.[eXo.env.portal.language] || welcomeBackTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('portal.login.WelcomeBack');
       this.newHere = newHereTranslations?.[eXo.env.portal.language] || newHereTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('UILoginForm.label.registerNewAccount');
       this.createAccount = createAccountTranslations?.[eXo.env.portal.language] || createAccountTranslations?.[eXo.env.portal.defaultLanguage] || this.$t('UILoginForm.button.registerNewAccount');
@@ -253,6 +257,7 @@ export default {
       this.displaySigninEmailButtonIcon = displaySigninEmailButtonIcon;
       this.listExternalProviders = listExternalProviders;
       this.displayProvidersIcons = displayProvidersIcons;
+      this.displayWelcomeMessage = displayWelcomeMessage;
     });
     this.$root.$on('login-providers-refreshed', (providers) => {
       this.displayForm = providers.length === 0;
