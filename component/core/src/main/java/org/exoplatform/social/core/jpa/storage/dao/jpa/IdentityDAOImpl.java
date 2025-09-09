@@ -397,15 +397,15 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
     }
     if (isConnected != null) {
-      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
+      queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_conn_lastLoginTime \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_conn_lastLoginTime.identity_id \n");
       if (isConnected) {
-        queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+        queryStringBuilder.append("   AND identity_prop_conn_lastLoginTime.name = 'lastLoginTime' \n");
       } else {
         queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+        queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+        queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' ) \n");
       }
-      queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-      queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' ) \n");
     }
 
     if (isEnrollmentStatusFilter) {
@@ -426,14 +426,14 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'enrollmentDate' )\n");
 
-          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
+          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_lastLoginTime \n");
+          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_lastLoginTime.identity_id \n");
           queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
 
-          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
+          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
           queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
@@ -448,14 +448,12 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'enrollmentDate' )\n");
 
-          queryStringBuilder.append("  INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
-          queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-          queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-          queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
+          queryStringBuilder.append("  INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_lastLoginTime \n");
+          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_lastLoginTime.identity_id \n");
+          queryStringBuilder.append("   AND identity_prop_enroll_lastLoginTime.name = 'lastLoginTime' \n");
 
-          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+          queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
+          queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
           queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
           queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
           queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
@@ -514,8 +512,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       }
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
       if (isUserTypeFilter) {
-        queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+        queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_utype_external \n");
+        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_utype_external.identity_id \n");
         if (userType.equals(INTERNAL)) {
           queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
         } else {
@@ -526,15 +524,15 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
         queryStringBuilder.append("   AND properties_tmp.value = 'true' ) \n");
       }
       if (isConnected != null) {
-        queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
+        queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_conn_lastLoginTime \n");
+        queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_conn_lastLoginTime.identity_id \n");
         if (isConnected) {
-          queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+          queryStringBuilder.append("   AND identity_prop_conn_lastLoginTime.name = 'lastLoginTime' \n");
         } else {
           queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
+          queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
+          queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
         }
-        queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-        queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
       }
       if (isEnrollmentStatusFilter) {
         switch (enrollmentStatus) {
@@ -554,14 +552,14 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
             queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
             queryStringBuilder.append("   AND properties_tmp.name = 'enrollmentDate' )\n");
 
-            queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
+            queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_lastLoginTime \n");
+            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_lastLoginTime.identity_id \n");
             queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
             queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
             queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
 
-            queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+            queryStringBuilder.append(" INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
+            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
             queryStringBuilder.append("   AND NOT EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
             queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
             queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
@@ -576,11 +574,9 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
             queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
             queryStringBuilder.append("   AND properties_tmp.name = 'enrollmentDate' )\n");
 
-            queryStringBuilder.append("  INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_lastLoginTime \n");
-            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_lastLoginTime.identity_id \n");
-            queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
-            queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
-            queryStringBuilder.append("   AND properties_tmp.name = 'lastLoginTime' )\n");
+            queryStringBuilder.append("  INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_lastLoginTime \n");
+            queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_lastLoginTime.identity_id \n");
+            queryStringBuilder.append("   AND identity_prop_enroll_lastLoginTime.name = 'lastLoginTime' \n");
             break;
           }
           default:
@@ -615,8 +611,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
         queryStringBuilder.append(" \n");
       }
       queryStringBuilder.append(" FROM SOC_IDENTITIES identity_1 \n");
-      queryStringBuilder.append("   INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_external \n");
-      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_external.identity_id \n");
+      queryStringBuilder.append("   INNER JOIN SOC_IDENTITY_PROPERTIES identity_prop_enroll_external \n");
+      queryStringBuilder.append("   ON identity_1.identity_id = identity_prop_enroll_external.identity_id \n");
       queryStringBuilder.append("   AND EXISTS ( SELECT properties_tmp.identity_id FROM SOC_IDENTITY_PROPERTIES as properties_tmp \n");
       queryStringBuilder.append("   WHERE properties_tmp.identity_id = identity_1.identity_id \n");
       queryStringBuilder.append("   AND properties_tmp.name = 'external' \n");
