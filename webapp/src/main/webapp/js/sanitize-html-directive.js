@@ -49,6 +49,10 @@
       if (content && content.includes('<div><![CDATA[') && content.includes(']]></div>')) {
         content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
       }
+      if (content && content.includes('<iframe') && content.includes('</iframe>')) {
+        content = content.replace(/<div[^>]*><iframe[^>]*><\/iframe><\/div>/g, '');
+      }
+
     }
     el.innerHTML = content && ExtendedDomPurify.purify(content) || '';
   });
