@@ -60,109 +60,12 @@
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.actions="{ item }">
-        <v-menu
-          :ref="`menu${item.id}`"
-          offset-x
-          offset-y>
-          <template #activator="{on, attrs}">
-            <v-btn
-              v-bind="attrs"
-              v-on="on"
-              :ref="`menuButton${item.id}`"
-              :id="`menuButton${item.id}`"
-              :title="$t('UsersManagement.userActions')"
-              :aria-label="$t('UsersManagement.userActions')"
-              icon
-              @mouseup="handleMenuOpened(item.id, $event)">
-              <v-icon size="20">fas fa-ellipsis-v</v-icon>
-            </v-btn>
-          </template>
-          <v-list class="position-relative" dense>
-            <v-tooltip :disabled="item.isInternal" bottom>
-              <template #activator="{on, attrs}">
-                <v-list-item
-                  v-if="!$root.isDelegatedAdministrator"
-                  v-on="on"
-                  v-bind="attrs"
-                  :disabled="!item.isInternal"
-                  class="px-2"
-                  dense
-                  @click="$root.$emit('editUser', item)">
-                  <v-list-item-icon class="mx-1 justify-center">
-                    <v-icon size="14">fa-edit</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-title class="ps-0">{{ $t('UsersManagement.edit') }}</v-list-item-title>
-                </v-list-item>
-              </template>
-              <span>{{ $t('UsersManagement.tooltip.editSynchronzedUser') }}</span>
-            </v-tooltip>
-            <v-tooltip bottom>
-              <template #activator="{on, attrs}">
-                <div v-on="on" v-bind="attrs">
-                  <v-list-item
-                    :disabled="item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'"
-                    class="px-2"
-                    dense
-                    @click="sendOnBoardingEmail(item.username)">
-                    <v-list-item-icon class="mx-1 justify-center">
-                      <v-icon
-                        size="14"
-                        :class="{
-                          'text--disabled': item.enrollmentStatus !== 'reInviteToJoin' && item.enrollmentStatus !== 'inviteToJoin'
-                        }">
-                        fa-user-plus
-                      </v-icon>
-                    </v-list-item-icon>
-                    <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.onboard') }}</v-list-item-title>
-                  </v-list-item>
-                </div>
-              </template>
-              <span>{{ item.enrollmentDetails }}</span>
-            </v-tooltip>
-            <v-list-item
-              class="px-2"
-              dense
-              @click="$root.$emit('openUserMemberships', item)">
-              <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14">fa-users</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="ps-0">{{ $t('UsersManagement.userMemberships') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-if="item.enabled"
-              class="px-2"
-              dense
-              @click="saveUserStatus(item, false)">
-              <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14">fa-user-slash</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.disable') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-else
-              class="px-2"
-              dense
-              @click="saveUserStatus(item, true)">
-              <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14">fa-user</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="ps-0">{{ $t('UsersManagement.selection.enable') }}</v-list-item-title>
-            </v-list-item>
-            <v-list-item
-              v-if="$root.isSuperUser"
-              :disabled="!item.isInternal"
-              class="px-2"
-              dense
-              @click="deleteUser(item)">
-              <v-list-item-icon class="mx-1 justify-center">
-                <v-icon size="14" color="error">fa-trash</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="ps-0">
-                <div class="error--text">{{ $t('UsersManagement.button.deleteUser') }}</div>
-              </v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <users-management-item-menu
+          :item="item"
+          @onboard="sendOnBoardingEmail(item.username)"
+          @enable="saveUserStatus(item, true)"
+          @disable="saveUserStatus(item, false)"
+          @delete="deleteUser(item)" />
       </template>
     </v-data-table>
   </div>
@@ -523,26 +426,15 @@ export default {
       return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/onboard/${username}`, {
         method: 'PATCH',
         credentials: 'include',
-      }).then((resp) => {
-        if (resp && resp.ok) {
-          return resp.json();
-        } else {
-          throw new Error('Error sending onBoarding email');
-        }
       })
+        .then((resp) => {
+          if (!resp?.ok) {
+            throw new Error('Error sending onBoarding email');
+          }
+        })
+        .then(this.$nextTick)
         .then(this.searchUsers)
         .finally(() => this.loading = false);
-    },
-    handleMenuOpened(id, open) {
-      if (open) {
-        this.closeMenu();
-        this.menuButton = this.$refs[`menuButton${id}`];
-        document.removeEventListener('click', this.closeMenu);
-        document.addEventListener('click', this.closeMenu);
-      }
-    },
-    closeMenu() {
-      this.menuButton?.$el?.click?.();
     },
     applyAdvancedFilter(filter) {
       this.filter = filter;
