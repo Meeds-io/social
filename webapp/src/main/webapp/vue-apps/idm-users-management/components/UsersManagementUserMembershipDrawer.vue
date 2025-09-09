@@ -9,6 +9,7 @@
     <template #title>{{ $t('UsersManagement.editMembershipsOfUser', {0: user?.fullname}) }}</template>
     <template #content>
       <application-toolbar
+        v-if="!$root.isDelegatedAdministrator"
         class="px-1 mt-4"
         compact>
         <template #left>
@@ -21,7 +22,7 @@
           </v-btn>
         </template>
       </application-toolbar>
-      <v-expand-y-transition>
+      <v-expand-y-transition v-if="!$root.isDelegatedAdministrator">
         <identity-suggester
           v-if="displayAddGroup"
           ref="groupInput"
@@ -50,6 +51,7 @@
           <v-list-item-action class="pa-0 ma-0">
             <select
               v-model="g.membershipType"
+              :disabled="$root.isDelegatedAdministrator"
               aria-label="hidden"
               class="ignore-vuetify-classes width-auto pa-0 ma-0">
               <option
@@ -79,7 +81,7 @@
               </template>
             </v-list-item-title>
           </v-list-item-content>
-          <v-list-item-action class="pa-0 my-auto">
+          <v-list-item-action v-if="!$root.isDelegatedAdministrator" class="pa-0 my-auto">
             <v-btn
               :title="$t('siteNavigation.label.deleteCustomGroup')"
               icon
@@ -104,7 +106,7 @@
         </v-list-item>
       </v-list>
     </template>
-    <template #footer>
+    <template v-if="!$root.isDelegatedAdministrator" #footer>
       <div class="d-flex">
         <v-spacer />
         <v-btn
