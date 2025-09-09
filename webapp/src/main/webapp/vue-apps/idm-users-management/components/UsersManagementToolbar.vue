@@ -17,7 +17,7 @@
     @filter-text-input-end-typing="keyword = $event">
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
-        <v-menu v-model="menu" offset-y>
+        <v-menu v-if="!$root.isDelegatedAdministrator" v-model="menu" offset-y>
           <!-- eslint-disable vue/valid-v-slot -->
           <template #activator="{on, attrs}">
             <div class="d-flex border-radius overflow-hidden">
@@ -47,9 +47,9 @@
         </v-menu>
         <v-btn
           :loading="exporting"
+          :class="!$root.isDelegatedAdministrator && 'ms-2'"
           color="primary"
           elevation="0"
-          class="ms-2"
           outlined
           @click="exportUsers">
           <v-icon size="14" class="me-2">fa-file-excel</v-icon>
