@@ -60,11 +60,17 @@
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.actions="{ item }">
-        <v-menu offset-x offset-y>
+        <v-menu
+          :ref="`menu${item.id}`"
+          offset-x
+          offset-y
+          @input="handleMenuOpened(item.id, $event)">
           <template #activator="{on, attrs}">
             <v-btn
               v-bind="attrs"
               v-on="on"
+              :ref="`menuButton${item.id}`"
+              :id="`menuButton${item.id}`"
               :title="$t('UsersManagement.userActions')"
               :aria-label="$t('UsersManagement.userActions')"
               icon>
@@ -171,6 +177,7 @@ export default {
     selectedUser: null,
     selectedUsers: [],
     deleteConfirmMessage: null,
+    tableMenus: {},
     keyword: null,
     filter: null,
     lang: eXo.env.portal.language,
@@ -526,10 +533,22 @@ export default {
         .then(this.searchUsers)
         .finally(() => this.loading = false);
     },
+    handleMenuOpened(id, open) {
+      if (open) {
+        this.menuButton = this.$refs[`menuButton${id}`];
+        document.addEventListener('click', this.closeMenu);
+      } else {
+        document.removeEventListener('click', this.closeMenu);
+        this.menuButton = null;
+      }
+    },
+    closeMenu() {
+      this.menuButton?.$el?.click?.();
+    },
     applyAdvancedFilter(filter) {
       this.filter = filter;
       this.searchUsers();
-    }
+    },
   },
 };
 </script>
