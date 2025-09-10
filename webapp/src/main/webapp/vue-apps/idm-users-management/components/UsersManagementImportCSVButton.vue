@@ -3,7 +3,7 @@
     :loading="uploading"
     class="btn"
     @click="openFileSelection">
-    <i class="uiIconImport me-md-3"></i>
+    <v-icon class="me-3 icon-default-color" size="18">fa-upload</v-icon>
     {{ $t('UsersManagement.importCSV') }}
     <v-file-input
       v-if="!uploading"
