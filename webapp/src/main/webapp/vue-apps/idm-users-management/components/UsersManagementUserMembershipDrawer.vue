@@ -53,7 +53,8 @@
               v-model="g.membershipType"
               :disabled="$root.isDelegatedAdministrator"
               aria-label="hidden"
-              class="ignore-vuetify-classes width-auto pa-0 ma-0">
+              class="ignore-vuetify-classes width-auto pa-0 ma-0"
+              @change="setAsModified">
               <option
                 v-for="role in rolesToDisplay"
                 :key="role.value"
@@ -155,10 +156,10 @@ export default {
       }));
     },
     membershipsArray() {
-      return this.memberships?.map?.(m => ({
-        ...m,
-        isSpace: m.groupId?.startsWith?.('/spaces/'),
-      })) || [];
+      return this.memberships?.map?.(m => {
+        m.isSpace = m.groupId?.startsWith?.('/spaces/');
+        return m;
+      }) || [];
     },
     initialized() {
       return this.size !== -1;
@@ -199,6 +200,9 @@ export default {
     this.init();
   },
   methods: {
+    setAsModified() {
+      this.modified = true;
+    },
     async init() {
       this.loading = true;
       try {
@@ -254,7 +258,7 @@ export default {
         }
       }).then(memberships => {
         this.memberships.push(...(memberships?.entities || []));
-        this.originalMemberships.push(...(memberships?.entities || []));
+        this.originalMemberships = JSON.parse(JSON.stringify(this.memberships));
         if (!this.initialized) {
           this.size = memberships?.size || 0;
         }
