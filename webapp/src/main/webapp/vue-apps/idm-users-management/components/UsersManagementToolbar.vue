@@ -16,7 +16,10 @@
     @filter-text-input-end-typing="keyword = $event">
     <template #left>
       <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
-        <v-menu v-if="!$root.isDelegatedAdministrator" v-model="menu" offset-y>
+        <v-menu
+          v-if="!$root.isDelegatedAdministrator"
+          v-model="menu"
+          offset-y>
           <!-- eslint-disable vue/valid-v-slot -->
           <template #activator="{on, attrs}">
             <div class="d-flex border-radius overflow-hidden">
