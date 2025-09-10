@@ -440,7 +440,6 @@
                 <include>portlet/Sidebar/Style.less</include>
                 <include>portlet/IDMGroupsManagement/Style.less</include>
                 <include>portlet/IDMMembershipTypesManagement/Style.less</include>
-                <include>portlet/IDMUsersManagement/Style.less</include>
                 <include>portlet/PeopleList/Style.less</include>
                 <include>portlet/PeopleOverview/Style.less</include>
                 <include>portlet/ProfileAboutMe/Style.less</include>
