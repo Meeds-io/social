@@ -33,7 +33,7 @@
             <v-list-item
               :class="goBackButton && 'ps-1'"
               class="pe-0">
-              <v-list-item-action v-if="goBackButton" class="drawerIcons me-2">
+              <v-list-item-action v-if="goBackButton && !useFilter" class="drawerIcons me-2">
                 <v-btn
                   icon
                   @click="goBack">
@@ -43,12 +43,51 @@
                 </v-btn>
               </v-list-item-action>
               <v-list-item-content class="drawerTitle align-start text-header-title">
-                <div class="text-truncate full-width">
+                <div
+                  v-if="!showFilter"
+                  class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
+                <div class="d-flex">
+                  <v-text-field
+                    v-if="showFilter"
+                    v-model="filterText"
+                    :placeholder="resolvedFilterPlaceholder"
+                    prepend-inner-icon="fa-filter"
+                    append-outer-icon="fa-times"
+                    class="my-0 ms-0 me-4 pa-0"
+                    closeable
+                    hide-details
+                    @click:append-outer="filterText = ''">
+                    <template #prepend>
+                      <v-btn
+                        icon
+                        class="pa-0 ma-0"
+                        @click="showFilter = !showFilter">
+                        <v-icon
+                          class="icon-default-color"
+                          size="20">
+                          fa-arrow-left
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                  </v-text-field>
+                </div>
               </v-list-item-content>
-              <v-list-item-action class="drawerIcons align-end d-flex flex-row">
+              <v-list-item-action
+                v-if="!showFilter"
+                class="drawerIcons align-end d-flex flex-row pe-3">
                 <slot name="titleIcons"></slot>
+                <v-btn
+                  v-if="useFilter"
+                  icon
+                  @click="showFilter = !showFilter">
+                  <v-icon
+                    class="icon-default-color"
+                    size="20">
+                    fa-filter
+                  </v-icon>
+                </v-btn>
                 <v-btn
                   v-if="allowExpand && !isMobile"
                   :title="expandTooltip"
@@ -59,7 +98,10 @@
                 <v-btn
                   :title="$t('label.close')"
                   icon>
-                  <v-icon @click="close()">mdi-close</v-icon>
+                  <v-icon
+                    class="icon-default-color"
+                    size="20"
+                    @click="close()">fa-times</v-icon>
                 </v-btn>
               </v-list-item-action>
             </v-list-item>
@@ -199,6 +241,14 @@ export default {
     hideFooterDivider: {
       type: Boolean,
       default: false,
+    },
+    useFilter: {
+      type: Boolean,
+      default: false
+    },
+    filterPlaceholder: {
+      type: String,
+      default: null
     }
   },
   data: () => ({
@@ -209,6 +259,8 @@ export default {
     modalOpened: false,
     increaseZindex: false,
     drawerZIndex: 1035,
+    showFilter: false,
+    filterText: ''
   }),
   computed: {
     zIndex() {
@@ -235,6 +287,9 @@ export default {
     expandTooltip() {
       return this.expand && this.$t('label.collapse') || this.$t('label.expand');
     },
+    resolvedFilterPlaceholder() {
+      return this.filterPlaceholder || this.$t('label.filter');
+    }
   },
   watch: {
     value() {
@@ -293,6 +348,9 @@ export default {
       this.$emit('input', this.drawer);
       this.expand = this.expanded;
     },
+    filterText() {
+      this.$emit('filter-updated', this.filterText);
+    }
   },
   created() {
     if (!eXo.openedDrawers) {
@@ -333,6 +391,7 @@ export default {
       } else {
         this.drawer = true;
       }
+      this.showFilter = false;
     },
     mountOnParent() {
       // Re-append the drawer to open in order
