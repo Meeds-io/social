@@ -24,6 +24,8 @@
           <template #activator="{on, attrs}">
             <div class="d-flex border-radius overflow-hidden">
               <v-btn
+                :width="$root.isMobile && 36 || 'auto'"
+                :class="$root.isMobile && 'border-box-sizing'"
                 class="btn btn-primary addNewUserButton"
                 tile
                 @click="$root.$emit('addNewUser')">
@@ -32,22 +34,25 @@
                   {{ $t('UsersManagement.addUser') }}
                 </span>
               </v-btn>
-              <v-divider vertical />
-              <v-btn
-                v-bind="attrs"
-                v-on="on"
-                class="btn btn-primary overflow-hidden pa-0"
-                min-width="30"
-                tile
-                @click.prevent.stop="menu = !menu">
-                <v-icon size="20">{{ menu ? 'fa-caret-up' : 'fa-caret-down' }}</v-icon>
-              </v-btn>
+              <template v-if="!$root.isMobile">
+                <v-divider vertical />
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  class="btn btn-primary overflow-hidden pa-0"
+                  min-width="30"
+                  tile
+                  @click.prevent.stop="menu = !menu">
+                  <v-icon size="20">{{ menu ? 'fa-caret-up' : 'fa-caret-down' }}</v-icon>
+                </v-btn>
+              </template>
             </div>
           </template>
           <users-management-import-csv-button
             class="full-width border-box-sizing" />
         </v-menu>
         <v-btn
+          v-if="!$root.isMobile"
           :loading="exporting"
           :class="!$root.isDelegatedAdministrator && 'ms-2'"
           color="primary"
