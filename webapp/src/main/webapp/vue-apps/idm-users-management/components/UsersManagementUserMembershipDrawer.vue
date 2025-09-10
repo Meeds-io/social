@@ -137,7 +137,7 @@ export default {
     displayAddGroup: false,
     selectedGroup: null,
     defaultRole: '*',
-    pageSize: 10,
+    pageSize: Math.max(2, Math.round((window.innerHeight - 250) / 48)),
     page: 1,
     size: -1,
     offset: 0,
@@ -257,7 +257,9 @@ export default {
           return resp.json();
         }
       }).then(memberships => {
-        this.memberships.push(...(memberships?.entities || []));
+        const sortedMemberships = memberships?.entities || [];
+        sortedMemberships?.sort((m1, m2) => m1.groupLabel?.localeCompare(m2.groupLabel))
+        this.memberships.push(...sortedMemberships);
         this.originalMemberships = JSON.parse(JSON.stringify(this.memberships));
         if (!this.initialized) {
           this.size = memberships?.size || 0;
