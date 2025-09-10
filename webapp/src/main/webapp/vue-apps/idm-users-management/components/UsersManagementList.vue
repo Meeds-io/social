@@ -23,7 +23,8 @@
       :loading-text="$t('UsersManagement.loadingResults')"
       :no-results-text="$t('UsersManagement.noResultsFound')"
       :no-data-text="$t('UsersManagement.noData')"
-      show-select
+      :mobile-breakpoint="0"
+      :show-select="!$root.isMobile"
       class="data-table-light-border">
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.lastConnexion="{ item }">
