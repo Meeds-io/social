@@ -51,7 +51,7 @@
           elevation="0"
           outlined
           @click="exportUsers">
-          <v-icon size="14" class="me-2">fa-file-excel</v-icon>
+          <v-icon class="me-2" size="18">fa-file-excel</v-icon>
           {{ $t('UsersManagement.selection.export') }}
         </v-btn>
         <template v-if="usersSelected">
@@ -60,7 +60,7 @@
             color="primary"
             class="ms-2 multiSelect"
             @click="multiSelectAction('onboard')">
-            <i class="uiIconInviteUser me-2"></i>
+            <v-icon class="me-2" size="18">fa-user-plus</v-icon>
             {{ $t('UsersManagement.selection.onboard') }}
           </v-btn>
           <v-btn
@@ -69,7 +69,7 @@
             color="primary"
             class="ms-2 multiSelect"
             @click="multiSelectAction('enable')">
-            <i class="uiIconValidateUser me-2"></i>
+            <v-icon class="me-2" size="18">fa-user-check</v-icon>
             {{ $t('UsersManagement.selection.enable') }}
           </v-btn>
           <v-btn
@@ -78,7 +78,7 @@
             color="primary"
             class="ms-2 multiSelect"
             @click="multiSelectAction('disable')">
-            <i class="uiIconRejectUser me-2"></i>
+            <v-icon class="me-2" size="18">fa-user-minus</v-icon>
             {{ $t('UsersManagement.selection.disable') }}
           </v-btn>
         </template>

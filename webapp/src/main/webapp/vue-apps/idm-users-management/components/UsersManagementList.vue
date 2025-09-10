@@ -40,18 +40,31 @@
       <!-- eslint-disable vue/valid-v-slot -->
       <template #item.isInternal="{ item }">
         <div v-if="item.isInternal" class="displayedIconClass">
-          <div :title="createdTitle(item.createdDate)">
-            <v-icon size="20">fa-database</v-icon>
-          </div>
+          <v-tooltip bottom>
+            <template #activator="{on, attrs}">
+              <v-icon
+                v-on="on"
+                v-bind="attrs"
+                size="20">
+                fa-database
+              </v-icon>
+            </template>
+            <span>{{ createdTitle(item.createdDate) }}</span>
+          </v-tooltip>
         </div>
         <div v-else class="displayedIconClass">
-          <v-btn
-            :title="synchronizedTitle(item.synchronizedDate)"
-            primary
-            icon
-            text>
-            <i class="uiIconManageApplication"><span class="synchronizedIconClass">SYNC</span></i>
-          </v-btn>
+          <v-tooltip bottom>
+            <template #activator="{on, attrs}">
+              <v-icon
+                v-on="on"
+                v-bind="attrs"
+                color="primary"
+                size="20">
+                fa-network-wired
+              </v-icon>
+            </template>
+            <span>{{ synchronizedTitle(item.synchronizedDate) }}</span>
+          </v-tooltip>
         </div>
       </template>
       <!-- eslint-disable vue/valid-v-slot -->
@@ -151,33 +164,33 @@ export default {
         text: this.$t && this.$t('UsersManagement.userName'),
         value: 'userName',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
         show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.firstName'),
         value: 'firstName',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.lastName'),
         value: 'lastName',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
       }, {
         text: this.$t && this.$t('UsersManagement.email'),
         value: 'email',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
         show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.lastConnection'),
         value: 'lastConnexion',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
         show: !this.$root.isMobile
       }, {
@@ -185,7 +198,7 @@ export default {
         value: 'isInternal',
         align: 'center',
         width: '80px',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
         show: !this.$root.isMobile
       }, {
@@ -193,14 +206,14 @@ export default {
         value: 'external',
         align: 'center',
         width: '80px',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
         show: !this.$root.isMobile
       }, {
         text: this.$t && this.$t('UsersManagement.actions'),
         value: 'actions',
         align: 'center',
-        class: 'headerPadding',
+        class: 'px-2',
         sortable: false,
       }].filter(x => x.show == null || x.show === true);
     },
