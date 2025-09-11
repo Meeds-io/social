@@ -60,10 +60,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    translationIdentifier: {
-      type: String,
-      default: '',
-    },
     displayProvidersIcons: {
       type: Boolean,
       default: true,
@@ -117,22 +113,14 @@ export default {
     },
   },
   created() {
-    if (this.translationIdentifier) {
-      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
-        if (translations[eXo.env.portal.language]) {
-          this.providerTranslation = translations[eXo.env.portal.language];
-        }
-        this.loaded = true;
-      });
-    } else {
-      this.loaded = true;
+    if (this.params?.oAuthProviderLabels[this.provider?.key]) {
+      this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
     }
+    this.loaded = true;
     this.$root.$on('login-form-settings-updated', () => {
-      this.$translationService.getTranslations(this.objectType, this.translationIdentifier, this.provider.key).then(translations => {
-        if (translations[eXo.env.portal.language]) {
-          this.providerTranslation = translations[eXo.env.portal.language];
-        }
-      });
+      if (this.params?.oAuthProviderLabels[this.provider?.key]) {
+        this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
+      }
     });
   },
   methods: {

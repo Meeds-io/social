@@ -14,13 +14,13 @@
 <%@page import="org.exoplatform.web.register.RegisterHandler"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.json.JSONObject"%>
+<%@page import="org.json.JSONArray"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.services.security.ConversationState"%>
 <%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@ page import="org.exoplatform.portal.config.model.Page"%>
 <%@ page import="org.exoplatform.portal.config.UserACL"%>
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
-<%@ page import="org.exoplatform.portal.localization.LocaleContextInfoUtils" %>
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 <portlet:defineObjects />
 <%
@@ -52,7 +52,17 @@
                       if (MapUtils.isNotEmpty(extendedParams)) {
                         extendedParams.forEach((key, value) -> {
                           try {
-                            params.put(key, value);
+                            if (key.equals("extendedAuthProviderType")) {
+                              if (params.has("extendedAuthProviderType")) {
+                                params.getJSONArray("extendedAuthProviderType").put(value);
+                              } else {
+                                JSONArray array = new JSONArray();
+                                array.put(value);
+                                params.put("extendedAuthProviderType", array);
+                              }
+                            } else {
+                              params.put(key, value);
+                            }
                           } catch (Exception e) {
                             // Handle potential JSON exceptions
                           }
@@ -76,19 +86,19 @@
   TranslationService translationService = CommonsUtils.getService(TranslationService.class);
 
   String welcomeBack = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "welcomeBack", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+            Long.parseLong(translationIdentifier), "welcomeBack", request.getLocale());
   welcomeBack = welcomeBack == null ? null : URLEncoder.encode(welcomeBack.replace(" ", "._.")).replace("._.", " ");
 
   String newHere = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "newHere", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+            Long.parseLong(translationIdentifier), "newHere", request.getLocale());
   newHere = newHere == null ? null : URLEncoder.encode(newHere.replace(" ", "._.")).replace("._.", " ");
 
   String createAccount = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "createAccount", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+            Long.parseLong(translationIdentifier), "createAccount", request.getLocale());
   createAccount = createAccount == null ? null : URLEncoder.encode(createAccount.replace(" ", "._.")).replace("._.", " ");
 
   String signinEmailButton = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "signinEmailButton", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+            Long.parseLong(translationIdentifier), "signinEmailButton", request.getLocale());
   signinEmailButton = signinEmailButton == null ? null : URLEncoder.encode(signinEmailButton.replace(" ", "._.")).replace("._.", " ");
 
   String signinOption = request.getAttribute("signinOption") == null ? "loginform" : ((String[]) request.getAttribute("signinOption"))[0];
@@ -98,6 +108,35 @@
   boolean displayWelcomeMessage = request.getAttribute("displayWelcomeMessage") == null ? true : Boolean.parseBoolean(((String[]) request.getAttribute("displayWelcomeMessage"))[0]);
 
 
+  JSONArray allAuthProviderTypes = new JSONArray();
+
+  JSONArray oAuthProviderTypes = params.has("oAuthProviderTypes") ? (JSONArray) params.get("oAuthProviderTypes") : null;
+  if (oAuthProviderTypes != null) {
+    for(int i = 0; i < oAuthProviderTypes.length(); i++){
+       allAuthProviderTypes.put(oAuthProviderTypes.get(i));
+    }
+  }
+  JSONArray extendedAuthProviderType = params.has("extendedAuthProviderType") ? (JSONArray) params.get("extendedAuthProviderType") : null;
+  if (extendedAuthProviderType!=null) {
+    for(int i = 0; i < extendedAuthProviderType.length(); i++){
+       allAuthProviderTypes.put(extendedAuthProviderType.get(i));
+    }
+  }
+  JSONObject oAuthProviderLabels = new JSONObject();
+  if (allAuthProviderTypes.length() > 0) {
+    for (int i = 0; i < allAuthProviderTypes.length(); i++) {
+      String providerType = allAuthProviderTypes.getString(i);
+      String providerLabel = translationService.getTranslationLabelOrDefault("cmsPortlet",
+            Long.parseLong(translationIdentifier), providerType,
+            request.getLocale());
+      if (providerLabel != null) {
+        oAuthProviderLabels.put(providerType,providerLabel);
+      }
+      params.put(providerType,providerLabel);
+    }
+  }
+  params.put("oAuthProviderLabels", oAuthProviderLabels);
+  params.put("allAuthProviderTypes", allAuthProviderTypes);
   params.put("portletStorageId", portletStorageId);
   params.put("settingName", settingName);
   params.put("translationIdentifier", translationIdentifier);
