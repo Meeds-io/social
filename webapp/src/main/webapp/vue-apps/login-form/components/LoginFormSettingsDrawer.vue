@@ -184,10 +184,6 @@ export default {
       type: String,
       default: 'loginform',
     },
-    providersCount: {
-      type: Number,
-      default: 0,
-    },
     displaySigninEmailButtonIcon: {
       type: Boolean,
       default: true,
@@ -219,7 +215,7 @@ export default {
     this.$root.$on('login-form-settings', this.open);
     this.$root.$on('login-providers-refreshed', (providers) => {
       this.providers = providers;
-      providers.forEach((provider) => {
+      this.providers.forEach((provider) => {
         provider.translations = {};
       });
     });

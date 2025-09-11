@@ -39,7 +39,6 @@ export function init(appId, branding,
   pageRef,
   canEdit,
   backgroundFileId) {
-  console.log(`Sidebar Login app init:  backgroundFileId: ${backgroundFileId}`);
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({

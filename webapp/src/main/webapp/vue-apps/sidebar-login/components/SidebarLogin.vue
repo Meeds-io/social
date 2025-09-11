@@ -19,12 +19,12 @@
 
 -->
 <template>
-  <v-app class="full-height full-width">
+  <v-app class="full-window-height full-width">
     <v-hover v-slot="{ hover }">
       <v-card
         flat
         :color="hasCustomBackground && 'transparent' || 'primary'"
-        class="full-height d-flex"
+        class="rounded-0  transparent full-height d-flex"
         :class="textAlign">
         <div
           v-if="$root.canEdit && hover"
