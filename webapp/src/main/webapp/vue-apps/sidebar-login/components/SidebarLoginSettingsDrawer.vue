@@ -243,7 +243,6 @@ export default {
   created() {
     this.titleTranslations = this.branding?.loginTitle;
     this.subtitleTranslations = this.branding?.loginSubtitle;
-    console.log('created sidebar login settings drawer', this.backgroundAltText);
     if (this.$refs.imageCropDrawer) {
       this.$refs.imageCropDrawer.init();
     }
@@ -258,7 +257,6 @@ export default {
       this.$refs.drawer.open();
     },
     reset() {
-      console.log('resetting sidebar login settings drawer');
       this.hAlign = this.$root.hAlign || 'CENTER';
       this.vAlign = this.$root.vAlign || 'CENTER';
       this.backgroundFileId = this.$root.backgroundFileId || 0;

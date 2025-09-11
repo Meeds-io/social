@@ -24,7 +24,7 @@
       <v-card
         flat
         :color="hasCustomBackground && 'transparent' || 'primary'"
-        class="full-height d-flex"
+        class="rounded-0  transparent full-height d-flex"
         :class="textAlign">
         <div
           v-if="$root.canEdit && hover"
