@@ -47,7 +47,6 @@
           class="mx-auto"
           display-text
           is-menu
-          :translation-identifier="translationIdentifier"
           :display-providers-icons="displayProvidersIcons" />
       </v-list>
     </v-menu>
@@ -67,10 +66,6 @@ export default {
     rememberme: {
       type: Boolean,
       default: false,
-    },
-    translationIdentifier: {
-      type: String,
-      default: '',
     },
     displayProvidersIcons: {
       type: Boolean,

@@ -75,7 +75,6 @@
           :rememberme="rememberme"
           ref="loginProvidersComponent"
           v-show="!displayForm && listExternalProviders"
-          :translation-identifier="values.translationIdentifier"
           :display-providers-icons="displayProvidersIcons" />
 
         <portal-login-separator class="mt-5" v-if="!displayForm && signinOption !== 'noform' && listExternalProviders"/>
