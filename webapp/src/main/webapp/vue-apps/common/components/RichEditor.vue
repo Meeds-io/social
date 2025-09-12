@@ -759,7 +759,7 @@ export default {
                   .then(isMember => {
                     if (isMember) {
                       const profile = identity.profile;
-                      profile.isMember = isMember === true;
+                      profile.isMember = isMember;
                       return profile;
                     } else {
                       return null;
