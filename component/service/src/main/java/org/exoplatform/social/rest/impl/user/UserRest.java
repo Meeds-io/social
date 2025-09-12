@@ -85,7 +85,6 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Membership;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.Query;
 import org.exoplatform.services.organization.User;
@@ -97,6 +96,7 @@ import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.common.Utils;
@@ -483,11 +483,9 @@ public class UserRest implements ResourceContainer, Startable {
       if (target != null && excludeCurrentUser) {
         filter.setViewerIdentity(target);
       }
-      if (!isDisabled) {
-        filter.setUserType(userType);
-        filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
-        filter.setEnrollmentStatus(enrollmentStatus);
-      }
+      filter.setUserType(userType);
+      filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
+      filter.setEnrollmentStatus(enrollmentStatus);
       if (!RestUtils.isMemberOfAdminGroup()
           && RestUtils.isMemberOfDelegatedGroup()
           && userType != null
@@ -496,14 +494,13 @@ public class UserRest implements ResourceContainer, Startable {
         if (q != null && !q.isEmpty()) {
           query.setUserName(q);
         }
-        List<String> groupIds = organizationService.getMembershipHandler()
-                                                   .findMembershipsByUser(username)
-                                                   .stream()
-                                                   .filter(x -> x.getMembershipType().equals("manager")
-                                                                && !x.getGroupId().equals(RestUtils.DELEGATED_GROUP)
-                                                                && !x.getGroupId().startsWith("/spaces/"))
-                                                   .map(Membership::getGroupId)
-                                                   .toList();
+        List<String> groupIds = ConversationState.getCurrent()
+                                                 .getIdentity()
+                                                 .getMemberships()
+                                                 .stream()
+                                                 .filter(m -> StringUtils.equals("manager", m.getMembershipType()) || StringUtils.equals("*", m.getMembershipType()))
+                                                 .map(MembershipEntry::getGroup)
+                                                 .toList();
 
         ListAccess<User> usersListAccess = null;
         if (CollectionUtils.isNotEmpty(groupIds)) {

@@ -1,99 +1,98 @@
 <template>
-  <v-toolbar id="usersManagementToolbar" flat>
-    <v-toolbar-title class="nav-collapse overflow-visible d-flex">
-      <div
-        v-if="!isDelegatedAdministrator"
-        :class="dropdown && 'open' || ''"
-        class="btn-group">
+  <application-toolbar
+    id="usersManagementToolbar"
+    :right-text-filter="status === 'ENABLED' && {
+      minCharacters: 1,
+      placeholder: $t('UsersManagement.filterBy'),
+      tooltip: $t('UsersManagement.filterBy'),
+    }"
+    :right-filter-button="{
+      hide: false,
+      text: $t('UsersManagement.filterBy')
+    }"
+    :filters-count="filtersCount"
+    compact
+    @filter-button-click="$root.$emit('advancedFilter')"
+    @filter-text-input-end-typing="keyword = $event">
+    <template #left>
+      <div class="d-flex position-absolute zindex-1 mt-n1 t-0">
+        <v-menu
+          v-if="!$root.isDelegatedAdministrator"
+          v-model="menu"
+          offset-y>
+          <!-- eslint-disable vue/valid-v-slot -->
+          <template #activator="{on, attrs}">
+            <div class="d-flex border-radius overflow-hidden">
+              <v-btn
+                :width="$root.isMobile && 36 || 'auto'"
+                :class="$root.isMobile && 'border-box-sizing'"
+                class="btn btn-primary addNewUserButton"
+                tile
+                @click="$root.$emit('addNewUser')">
+                <i class="uiIconAddUser uiIconWhite me-md-3"></i>
+                <span class="d-none d-sm-inline">
+                  {{ $t('UsersManagement.addUser') }}
+                </span>
+              </v-btn>
+              <template v-if="!$root.isMobile">
+                <v-divider vertical />
+                <v-btn
+                  v-bind="attrs"
+                  v-on="on"
+                  class="btn btn-primary overflow-hidden pa-0"
+                  min-width="30"
+                  tile
+                  @click.prevent.stop="menu = !menu">
+                  <v-icon size="20">{{ menu ? 'fa-caret-up' : 'fa-caret-down' }}</v-icon>
+                </v-btn>
+              </template>
+            </div>
+          </template>
+          <users-management-import-csv-button
+            class="full-width border-box-sizing" />
+        </v-menu>
         <v-btn
-          class="btn btn-primary addNewUserButton"
-          @click="$root.$emit('addNewUser')">
-          <i class="uiIconAddUser uiIconWhite me-md-3"></i>
-          <span class="d-none d-sm-inline">
-            {{ $t('UsersManagement.addUser') }}
-          </span>
+          v-if="!$root.isMobile"
+          :loading="exporting"
+          :class="!$root.isDelegatedAdministrator && 'ms-2'"
+          color="primary"
+          elevation="0"
+          outlined
+          @click="exportUsers">
+          <v-icon class="me-2" size="18">fa-file-excel</v-icon>
+          {{ $t('UsersManagement.selection.export') }}
         </v-btn>
-        <v-btn
-          class="btn btn-primary dropdown-toggle width-auto pa-0"
-          @click.prevent.stop="dropdown = true">
-          <span class="caret my-0 mx-3"></span>
-        </v-btn>
-        <div v-if="initialized" class="dropdown-menu">
-          <users-management-import-csv-button />
-        </div>
+        <template v-if="usersSelected">
+          <v-btn
+            outlined
+            color="primary"
+            class="ms-2 multiSelect"
+            @click="multiSelectAction('onboard')">
+            <v-icon class="me-2" size="18">fa-user-plus</v-icon>
+            {{ $t('UsersManagement.selection.onboard') }}
+          </v-btn>
+          <v-btn
+            v-if="disabledUsers"
+            outlined
+            color="primary"
+            class="ms-2 multiSelect"
+            @click="multiSelectAction('enable')">
+            <v-icon class="me-2" size="18">fa-user-check</v-icon>
+            {{ $t('UsersManagement.selection.enable') }}
+          </v-btn>
+          <v-btn
+            v-else
+            outlined
+            color="primary"
+            class="ms-2 multiSelect"
+            @click="multiSelectAction('disable')">
+            <v-icon class="me-2" size="18">fa-user-minus</v-icon>
+            {{ $t('UsersManagement.selection.disable') }}
+          </v-btn>
+        </template>
       </div>
-      <v-btn
-        :loading="exporting"
-        color="primary"
-        elevation="0"
-        class="ms-2"
-        outlined
-        @click="exportUsers">
-        <v-icon size="14" class="me-2">fa-file-excel</v-icon>
-        {{ $t('UsersManagement.selection.export') }}
-      </v-btn>
-      <template v-if="usersSelected">
-        <v-btn
-          outlined
-          color="primary"
-          class="ms-2 multiSelect"
-          @click="multiSelectAction('onboard')">
-          <i class="uiIconInviteUser me-2"></i>
-          {{ $t('UsersManagement.selection.onboard') }}
-        </v-btn>
-        <v-btn
-          v-if="disabledUsers"
-          outlined
-          color="primary"
-          class="ms-2 multiSelect"
-          @click="multiSelectAction('enable')">
-          <i class="uiIconValidateUser me-2"></i>
-          {{ $t('UsersManagement.selection.enable') }}
-        </v-btn>
-        <v-btn
-          v-else
-          outlined
-          color="primary"
-          class="ms-2 multiSelect"
-          @click="multiSelectAction('disable')">
-          <i class="uiIconRejectUser me-2"></i>
-          {{ $t('UsersManagement.selection.disable') }}
-        </v-btn>
-      </template>
-    </v-toolbar-title>
-    <v-spacer />
-    <v-scale-transition>
-      <v-text-field
-        v-if="filter === 'ENABLED'"
-        v-model="keyword"
-        :placeholder="$t('UsersManagement.filterBy')"
-        prepend-inner-icon="fa-filter"
-        class="inputUserFilter pa-0 me-3 my-auto"
-        hide-details />
-    </v-scale-transition>
-    <v-scale-transition>
-      <select
-        v-model="filter"
-        class="selectUsersFilter width-auto my-auto me-2 pe-2 ignore-vuetify-classes d-none d-sm-inline">
-        <option value="ENABLED">
-          {{ $t('UsersManagement.status.enabled') }}
-        </option>
-        <option value="DISABLED">
-          {{ $t('UsersManagement.status.disabled') }}
-        </option>
-      </select>
-    </v-scale-transition>
-    <v-btn
-      v-if="filter === 'ENABLED' && !isDelegatedAdministrator"
-      min-width="auto"
-      outlined
-      @click="$root.$emit('advancedFilter', selectedFiler)">
-      <i class="uiSettingsIcon"></i>
-      <div v-if="numberOfFilters > 0" class="pb-1">
-        ({{ numberOfFilters }})
-      </div>
-    </v-btn>
-  </v-toolbar>
+    </template>
+  </application-toolbar>
 </template>
 <script>
 export default {
@@ -112,20 +111,26 @@ export default {
     },
   },
   data: () => ({
-    filter: 'ENABLED',
     initialized: false,
     keyword: null,
     usersSelected: false,
-    numberOfFilters: 0,
-    selectedFiler: null,
-    dropdown: false,
+    filter: null,
+    menu: false,
     exportId: null,
     exporting: false,
-    isDelegatedAdministrator: true,
   }),
   computed: {
     exportLink() {
       return `${this.exportUsersUrl}&export=true`;
+    },
+    status() {
+      return this.filter?.status || 'ENABLED';
+    },
+    filtersCount() {
+      return (this.status !== 'ENABLED' ? 1 : 0)
+        + (this.filter?.type ? 1 : 0)
+        + (this.filter?.connectionStatus ? 1 : 0)
+        + (this.filter?.enrollmentStatus ? 1 : 0);
     },
   },
   watch: {
@@ -135,24 +140,21 @@ export default {
     filter() {
       this.$root.$emit('searchUser', this.keyword, this.filter);
     },
+    menu() {
+      if (this.menu) {
+        document.addEventListener('click', this.closeMenu);
+      } else {
+        document.removeEventListener('click', this.closeMenu);
+      }
+    },
   },
   created() {
-    this.$userService.isDelegatedAdministrator().then(
-      (data) => {
-        this.isDelegatedAdministrator = data.result === 'true';
-      });
-    document.addEventListener('multiSelect', this.updateSelectedUsers);
-    document.addEventListener('click', () => {
-      if (this.dropdown) {
-        this.dropdown = false;
-      }
-    });
     this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
+    document.addEventListener('multiSelect', this.updateSelectedUsers);
   },
-  updated() {
-    // Workaround to hide DropDown Menu on initialization
-    // that causes html breaking sometimes
-    window.setTimeout(() => this.initialized = true, 1000);
+  beforeDestroy() {
+    document.removeEventListener('multiSelect', this.updateSelectedUsers);
+    this.$root.$off('applyAdvancedFilter', this.applyAdvancedFilter);
   },
   methods: {
     updateSelectedUsers(event) {
@@ -161,16 +163,13 @@ export default {
     multiSelectAction(action) {
       this.$root.$emit('multiSelectAction', action);
     },
-    applyAdvancedFilter(selectedFiler) {
-      this.selectedFiler = selectedFiler;
-      this.numberOfFilters = this.countFiltersMethods(selectedFiler);
+    applyAdvancedFilter(filter) {
+      this.filter = filter;
     },
-    countFiltersMethods(selectedFiler) {
-      let filterCount = 0;
-      if (selectedFiler != null) {
-        filterCount++;
+    closeMenu() {
+      if (this.menu) {
+        this.menu = false;
       }
-      return filterCount;
     },
     exportUsers() {
       this.exporting = true;

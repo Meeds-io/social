@@ -206,14 +206,6 @@
 
   <portlet-skin>
     <application-name>social</application-name>
-    <portlet-name>IDMUsersManagement</portlet-name>
-    <skin-name>Enterprise</skin-name>
-    <css-path>/skin/css/portlet/IDMUsersManagement/Style.css</css-path>
-    <css-priority>1</css-priority>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>social</application-name>
     <portlet-name>IDMGroupsManagement</portlet-name>
     <skin-name>Enterprise</skin-name>
     <css-path>/skin/css/portlet/IDMGroupsManagement/Style.css</css-path>
@@ -707,6 +699,9 @@
         <minify>false</minify>
         <path>/js/idmUsersManagement.bundle.js</path>
       </script>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
       <depends>
         <module>commonVueComponents</module>
       </depends>
