@@ -96,7 +96,7 @@ const components = {
   'portal-general-settings-navigation-settings-sidebar-add-button': NavigationSettingsSidebarAddButton,
   'portal-general-settings-navigation-settings-sidebar-add-link-drawer': NavigationSettingsAddSidebarLinkDrawer,
   'portal-general-settings-navigation-settings-sidebar-add-site-drawer': NavigationSettingsAddSidebarSiteDrawer,
-  'portal-general-settings-navigation-settings-icon-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
+  'portal-general-settings-navigation-settings-sidebar-add-spaces-drawer': NavigationSettingsAddSidebarSpacesDrawer,
   'portal-general-settings-navigation-settings-icon-input': NavigationSettingsIconInput,
   'portal-general-settings-navigation-settings-icon': NavigationSettingsIcon,
 };
