@@ -756,10 +756,10 @@ export default {
               }
               if (spaceId) {
                 return this.$spaceService.isSpaceMember(spaceId, username)
-                  .then(data => {
-                    if (data) {
+                  .then(isMember => {
+                    if (isMember) {
                       const profile = identity.profile;
-                      profile.isMember = data?.isMember === 'true';
+                      profile.isMember = isMember;
                       return profile;
                     } else {
                       return null;
