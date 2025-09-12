@@ -152,6 +152,8 @@ public class ActivityRest implements ResourceContainer {
                                 @QueryParam("returnSize") boolean returnSize,
                                 @Parameter(description = "Asking for a full representation of a specific subresource, ex: <em>comments</em> or <em>likes</em>", required = false)
                                 @QueryParam("expand") String expand,
+                                @Parameter(description = "Returning the pinned activities sorted in order or not", required = false)
+                                @QueryParam("showPinned") boolean showPinned,
                                 @Parameter(description = "Activity stream type. Possible values: ALL_STREAM, USER_STREAM, USER_FAVORITE_STREAM, MANAGE_SPACES_STREAM, FAVORITE_SPACES_STREAM.", required = false)
                                 @QueryParam("streamType") ActivityStreamType streamType) {
 
@@ -168,6 +170,7 @@ public class ActivityRest implements ResourceContainer {
 
     boolean canPost;
     ActivityFilter activityFilter = new ActivityFilter();
+    activityFilter.setShowPinned(showPinned);
     activityFilter.setCategoryIds(categoryIds);
     activityFilter.setExcludedCategoryIds(excludedCategoryIds);
     if (!StringUtils.isBlank(spaceId)) {

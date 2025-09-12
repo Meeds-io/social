@@ -5,6 +5,7 @@ export function getActivitiesByFilter({
   expand,
   categoryIds,
   excludedCategoryIds,
+  showPinned
 }) {
   const formData = new FormData();
 
@@ -30,6 +31,10 @@ export function getActivitiesByFilter({
 
   if (expand) {
     formData.append('expand', expand);
+  }
+
+  if (showPinned) {
+    formData.append('showPinned', showPinned);
   }
 
   const params = decodeURIComponent(new URLSearchParams(formData).toString());
