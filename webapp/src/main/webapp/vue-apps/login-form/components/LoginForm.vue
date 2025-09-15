@@ -20,6 +20,14 @@
 -->
 <template>
   <v-app class="mx-auto" v-show="this.init" style="max-width: 375px;">
+    <login-form-settings-drawer
+          :translation-identifier="values.translationIdentifier"
+          :register-enabled="values.registerEnabled"
+          :signin-option="signinOption"
+          :display-signin-email-button-icon="displaySigninEmailButtonIcon"
+          :list-external-providers="listExternalProviders"
+          :display-providers-icons="displayProvidersIcons"
+          :display-welcome-message="displayWelcomeMessage" />
     <v-hover v-slot="{ hover }">
       <v-card
         class="rounded-0 transparent pa-5"
@@ -181,15 +189,6 @@
         </div>
       </v-card>
     </v-hover>
-    <login-form-settings-drawer
-      :translation-identifier="values.translationIdentifier"
-      :register-enabled="values.registerEnabled"
-      :signin-option="signinOption"
-      :display-signin-email-button-icon="displaySigninEmailButtonIcon"
-      :list-external-providers="listExternalProviders"
-      :display-providers-icons="displayProvidersIcons"
-      :display-welcome-message="displayWelcomeMessage" />
-
   </v-app>
 </template>
 <script>
