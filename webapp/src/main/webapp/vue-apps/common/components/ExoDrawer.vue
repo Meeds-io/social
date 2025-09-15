@@ -48,54 +48,52 @@
                   class="text-truncate full-width">
                   <slot name="title"></slot>
                 </div>
-                <div class="d-flex">
-                  <v-text-field
-                    ref="filter"
-                    v-if="showFilter"
-                    v-model="filterText"
-                    :placeholder="resolvedFilterPlaceholder"
-                    class="my-0 ms-0 me-4 pa-0"
-                    hide-details
-                    @focus="filterFocused = true"
-                    @blur="filterFocused = false">
-                    <template #prepend-inner>
+                <v-text-field
+                  ref="filter"
+                  v-if="showFilter"
+                  v-model="filterText"
+                  :placeholder="resolvedFilterPlaceholder"
+                  class="d-flex my-0 ms-0 me-4 pa-0"
+                  hide-details
+                  @focus="filterFocused = true"
+                  @blur="filterFocused = false">
+                  <template #prepend-inner>
+                    <v-icon
+                      :class="{'primary--text': !!filterText || filterFocused }"
+                      class="mt-1"
+                      size="16">
+                      fa-filter
+                    </v-icon>
+                  </template>
+                  <template #prepend>
+                    <v-btn
+                      icon
+                      class="pa-0 mb-n6px mx-0 mt-0"
+                      @click="showFilter = !showFilter">
                       <v-icon
-                        :class="{'primary--text': !!filterText || filterFocused }"
-                        class="mt-1"
-                        size="16">
-                        fa-filter
+                        class="icon-default-color"
+                        size="20">
+                        fa-arrow-left
                       </v-icon>
-                    </template>
-                    <template #prepend>
-                      <v-btn
-                        icon
-                        class="pa-0 mb-n6px mx-0 mt-0"
-                        @click="showFilter = !showFilter">
-                        <v-icon
-                          class="icon-default-color"
-                          size="20">
-                          fa-arrow-left
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <template
-                      v-if="!!filterText"
-                      #append>
-                      <v-btn
-                        class="pa-0 mt-1 mx-0 mb-0"
-                        width="24"
-                        height="24"
-                        icon
-                        @click="filterText = ''">
-                        <v-icon
-                          class="primary--text"
-                          size="16">
-                          fa-times
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                  </v-text-field>
-                </div>
+                    </v-btn>
+                  </template>
+                  <template
+                    v-if="!!filterText"
+                    #append>
+                    <v-btn
+                      class="pa-0 mt-1 mx-0 mb-0"
+                      width="24"
+                      height="24"
+                      icon
+                      @click="filterText = ''">
+                      <v-icon
+                        class="primary--text"
+                        size="16">
+                        fa-times
+                      </v-icon>
+                    </v-btn>
+                  </template>
+                </v-text-field>
               </v-list-item-content>
               <v-list-item-action
                 v-if="!showFilter"
