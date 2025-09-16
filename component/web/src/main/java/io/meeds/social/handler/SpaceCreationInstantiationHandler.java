@@ -42,7 +42,6 @@ import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.WebRequestHandler;
 import org.exoplatform.web.security.security.AbstractTokenService;
 import org.exoplatform.web.security.security.CookieTokenService;
-import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,39 +53,33 @@ import java.io.IOException;
 @Component
 public class SpaceCreationInstantiationHandler extends WebRequestHandler {
 
-  private static final Log       LOG = ExoLogger.getLogger(SpaceCreationInstantiationHandler.class);
+  private static final Log LOG = ExoLogger.getLogger(SpaceCreationInstantiationHandler.class);
 
-  public static final String     NAME = "space-creation-instantiation";
+  public static final String NAME = "space-creation-instantiation";
 
-  public static final String     TOKEN_TYPE = "SPACE_CREATION_INSTANCE";
+  public static final String TOKEN_TYPE = "SPACE_CREATION_INSTANCE";
 
-  public static final String     HANDLER_SPACE_CREATION_EVENT = "handler.space.creation";
-
-  private final SpaceService     spaceService;
+  private final SpaceService spaceService;
 
   private final WebAppController webAppController;
 
-  private final PortalContainer  container;
+  private final PortalContainer container;
 
-  private final ServletContext   servletContext;
+  private final ServletContext servletContext;
 
-  private final UploadService    uploadService;
-
-  private final ListenerService  listenerService;
+  private final UploadService uploadService;
 
 
   @Autowired
   public SpaceCreationInstantiationHandler(WebAppController webAppController,
                                            SpaceService spaceService,
                                            PortalContainer container,
-                                           UploadService uploadService,
-                                           ListenerService listenerService) {
+                                           UploadService uploadService) {
     this.webAppController = webAppController;
     this.spaceService = spaceService;
     this.container = container;
     this.servletContext = container.getPortalContext();
     this.uploadService = uploadService;
-    this.listenerService = listenerService;
     }
 
   @PostConstruct
@@ -121,7 +114,6 @@ public class SpaceCreationInstantiationHandler extends WebRequestHandler {
         space = spaceService.createSpace(space, user);
         saveSpaceAvatar(space, model);
         saveSpaceBanner(model, space);
-        listenerService.broadcast(HANDLER_SPACE_CREATION_EVENT, user, space);
         RequestLifeCycle.restartTransaction();
         removeTokenCookie(request, response);
         tokenService.deleteToken(token, TOKEN_TYPE);
