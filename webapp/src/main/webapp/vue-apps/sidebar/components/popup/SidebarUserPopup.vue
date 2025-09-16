@@ -73,13 +73,11 @@ export default {
   created() {
     this.getUserStatus();
     this.getUserInfo();
-    document.addEventListener('user-status-updated', this.handleUserStatusUpdated);
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
   },
   beforeDestroy() {
-    document.removeEventListener('user-status-updated', this.handleUserStatusUpdated);
     document.removeEventListener('click', this.handleClickOutside);
   },
   watch: {
@@ -135,12 +133,15 @@ export default {
     updateUserStatus(status) {
       return this.$userStateService.updateUserStatus(status).then(() => {
         this.status = status;
+        document.dispatchEvent(
+          new CustomEvent('user-status-updated', {
+            detail: {
+              userId: this.userName,
+              status
+            }
+          })
+        );
       });
-    },
-    handleUserStatusUpdated({detail: {userId, status}}) {
-      if (userId === this.userName) {
-        this.status = status;
-      }
     }
   }
 };
