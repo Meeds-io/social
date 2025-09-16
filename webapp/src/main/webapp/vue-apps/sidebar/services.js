@@ -18,16 +18,9 @@
  */
 
 import * as navigationSettingService from './js/NavigationSettingService.js';
-import * as userStateWebSocketService from './js/WebSocket.js';
 
 if (!Vue.prototype.$navigationSettingService) {
   window.Object.defineProperty(Vue.prototype, '$navigationSettingService', {
     value: navigationSettingService,
-  });
-}
-
-if (!Vue.prototype.$userStateWebSocketService) {
-  window.Object.defineProperty(Vue.prototype, '$userStateWebSocketService', {
-    value: userStateWebSocketService,
   });
 }
