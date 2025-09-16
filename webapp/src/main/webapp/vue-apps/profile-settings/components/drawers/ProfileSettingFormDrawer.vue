@@ -364,7 +364,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="isSaveButtonDisabled || saving || !valid"
+          :disabled="saveDisabled"
           :loading="saving"
           class="btn btn-primary"
           @click="saveSetting">
@@ -410,7 +410,13 @@ export default {
     initialSetting: {},
     initialLabels: [],
     areLabelsChanged: false,
-    translationsUpdated: false
+    translationsUpdated: false,
+    isUserCardFieldSettings: false,
+    userCardSettingsContextKey: 'GLOBAL',
+    userCardSettingScopeKey: 'GLOBAL',
+    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
+    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
+    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
   }),
   computed: {
     propertyTypes () {
@@ -444,6 +450,9 @@ export default {
     },
     isUserType() {
       return this.setting.propertyType === 'user';
+    },
+    saveDisabled() {
+      return this.isSaveButtonDisabled || this.saving || !this.valid || (this.setting.multiValued && this.isUserCardFieldSettings);
     }
   },
   watch: {
@@ -475,6 +484,34 @@ export default {
     'setting.dropdownList': function () {
       if (this.isDropdownList) {
         this.setting.propertyType = this.propertyTypes[0];
+      }
+    },
+    'setting.multiValued': function ()  {
+      if (this.setting.multiValued) {
+        this.isUserCardFieldSettings = true;
+        this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardFirstFieldSettingKey)
+          .then(firstField => {
+            if (firstField.value === this.setting?.propertyName) {
+              this.isUserCardFieldSettings = true;
+            } else {
+              this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardSecondFieldSettingKey)
+                .then(secondField => {
+                  if (secondField.value === this.setting?.propertyName) {
+                    this.isUserCardFieldSettings = true;
+                  } else {
+                    this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardThirdFieldSettingKey)
+                      .then(secondField => {
+                        if (secondField.value === this.setting?.propertyName) {
+                          this.isUserCardFieldSettings = true;
+                        }
+                      })
+                      .catch(() => this.isUserCardFieldSettings = true);
+                  }
+                })
+                .catch(() => this.isUserCardFieldSettings = true);
+            }
+          })
+          .catch(() => this.isUserCardFieldSettings = true);
       }
     }
   },

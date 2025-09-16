@@ -550,7 +550,12 @@ public class EntityBuilder {
   
   private static String getProfilePropertyValue(Profile profile, String propertyName) {
     ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-    String profilePropertyValue = (String) profile.getProperty(propertyName);
+    String profilePropertyValue;
+    if (profile.getProperty(propertyName) instanceof List) {
+      profilePropertyValue = profile.getProperty(propertyName).toString();
+    } else {
+      profilePropertyValue = (String) profile.getProperty(propertyName);
+    }
     return propertySetting != null && propertySetting.isDropdownList()
         && NumberUtils.isCreatable(profilePropertyValue) ? getTranslationService().getTranslationLabelOrDefault(PROFILE_PROPERTY_OBJECT_TYPE, Long.parseLong(profilePropertyValue), PROFILE_PROPERTY_FIELD_NAME, LocaleContextInfoUtils.getUserLocale(getCurrentUserName())) : profilePropertyValue;
   }
