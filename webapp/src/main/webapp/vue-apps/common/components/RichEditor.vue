@@ -551,7 +551,6 @@ export default {
       content = content.replace(/]]&gt;/g, ']]>');
       content = content.replace(/&lt;!\[CDATA\[/g, '<![CDATA[');
       content = content.replace(/<div><!\[CDATA\[(.*)]]><\/div>/g, '');
-      content = content.replace(/ {2}/g, '&nbsp;&nbsp;');
       return this.replaceWithSuggesterClass(content);
     },
     getContentToCompare(content) {
@@ -686,6 +685,8 @@ export default {
       }
     },
     replaceWithSuggesterClass(message) {
+      message = message.replace(/&nbsp;|&#160;/g, ' ');
+      message = message.replace(/\u00A0/g, ' ');
       const tempdiv = $('<div class=\'temp\'/>').html(message || '');
       tempdiv.find('a[href*="/profile"]')
         .each(function() {
