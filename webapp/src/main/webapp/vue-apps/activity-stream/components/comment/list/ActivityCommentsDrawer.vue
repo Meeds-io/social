@@ -233,10 +233,10 @@ export default {
         });
       }
     },
-    displayCommentRichEditor(commentId) {
+    displayCommentRichEditor() {
       this.hideCommentRichEditor();
       this.$nextTick().then(() => {
-        this.selectedCommentIdToReply = commentId;
+        this.selectedCommentIdToReply = null;
         this.newCommentEditor = true;
       });
     },
