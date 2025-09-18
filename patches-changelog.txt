@@ -1,0 +1,5 @@
+              2025-09-18 eXo Support <support@exoplatform.org> 
+
+   # 7.1.0-exo-M16 Patches changelog: 
+
+
