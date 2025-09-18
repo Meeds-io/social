@@ -346,7 +346,7 @@ export default {
         categoryIds: this.selectedCategoryIds,
         excludedCategoryIds: this.excludeCategoryIds,
         expand: this.$activityConstants.FULL_ACTIVITY_IDS_EXPAND,
-        showPinned: true
+        showPinned: !!this.spaceId
       })
         .then(data => {
           this.$emit('can-post-loaded', data.canPost);
