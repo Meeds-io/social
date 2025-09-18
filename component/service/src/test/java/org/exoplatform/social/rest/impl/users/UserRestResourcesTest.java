@@ -50,7 +50,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.mortbay.cometd.continuation.EXoContinuationBayeux;
 
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
