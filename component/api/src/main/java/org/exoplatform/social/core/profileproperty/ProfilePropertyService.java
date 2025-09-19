@@ -157,4 +157,12 @@ public interface ProfilePropertyService {
    * @return {@link List} of {@link String}
    */
   List<String> getExcludedAnalyticsIndexProperties();
+
+  /**
+   * Check if the property name appears in the first,
+   * second or third field of the profile card
+   *
+   * @param propertyName property name
+   */
+  boolean isUserCardFieldSettings(String propertyName);
 }

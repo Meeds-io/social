@@ -410,13 +410,7 @@ export default {
     initialSetting: {},
     initialLabels: [],
     areLabelsChanged: false,
-    translationsUpdated: false,
-    isUserCardFieldSettings: false,
-    userCardSettingsContextKey: 'GLOBAL',
-    userCardSettingScopeKey: 'GLOBAL',
-    userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
-    userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
-    userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
+    translationsUpdated: false
   }),
   computed: {
     propertyTypes () {
@@ -452,7 +446,7 @@ export default {
       return this.setting.propertyType === 'user';
     },
     saveDisabled() {
-      return this.isSaveButtonDisabled || this.saving || !this.valid || (this.setting.multiValued && this.isUserCardFieldSettings);
+      return this.isSaveButtonDisabled || this.saving || !this.valid || (this.setting.multiValued && this.setting.canEditMultiValued);
     }
   },
   watch: {
@@ -484,34 +478,6 @@ export default {
     'setting.dropdownList': function () {
       if (this.isDropdownList) {
         this.setting.propertyType = this.propertyTypes[0];
-      }
-    },
-    'setting.multiValued': function ()  {
-      if (this.setting.multiValued) {
-        this.isUserCardFieldSettings = true;
-        this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardFirstFieldSettingKey)
-          .then(firstField => {
-            if (firstField.value === this.setting?.propertyName) {
-              this.isUserCardFieldSettings = true;
-            } else {
-              this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardSecondFieldSettingKey)
-                .then(secondField => {
-                  if (secondField.value === this.setting?.propertyName) {
-                    this.isUserCardFieldSettings = true;
-                  } else {
-                    this.$settingService.getSettingValue(this.userCardSettingsContextKey, '', this.userCardSettingScopeKey, 'UserCardSettings', this.userCardThirdFieldSettingKey)
-                      .then(secondField => {
-                        if (secondField.value === this.setting?.propertyName) {
-                          this.isUserCardFieldSettings = true;
-                        }
-                      })
-                      .catch(() => this.isUserCardFieldSettings = true);
-                  }
-                })
-                .catch(() => this.isUserCardFieldSettings = true);
-            }
-          })
-          .catch(() => this.isUserCardFieldSettings = true);
       }
     }
   },

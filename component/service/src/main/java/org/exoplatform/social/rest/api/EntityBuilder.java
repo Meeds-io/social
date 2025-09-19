@@ -2104,6 +2104,7 @@ public class EntityBuilder {
                                                                                                     objectType);
       if (profilePropertySettingEntity != null) {
         profilePropertySettingEntity.setHidden(hiddenPropertyIds.contains(profilePropertySettingEntity.getId()));
+        profilePropertySettingEntity.setCanEditMultiValued(profilePropertyService.isUserCardFieldSettings(profilePropertySettingEntity.getPropertyName()));
         profilePropertySettingsList.add(profilePropertySettingEntity);
       }
     }
