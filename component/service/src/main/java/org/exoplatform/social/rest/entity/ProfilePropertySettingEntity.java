@@ -83,7 +83,7 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isDefault;
 
-  private boolean                            canEditMultiValued;
+  private boolean                            isUserCardFieldSettings;
 
   public List<ProfilePropertySettingEntity> getChildren() {
     if (children != null) {

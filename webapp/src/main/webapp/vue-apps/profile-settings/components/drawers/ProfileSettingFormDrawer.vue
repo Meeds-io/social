@@ -287,7 +287,7 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.multiValued"
-                :disabled="saving || setting.default"
+                :disabled="saving || setting.default || setting.userCardFieldSettings"
                 :ripple="false"
                 color="primary"
                 class="requiredSwitcher my-auto" />
@@ -364,7 +364,7 @@
           {{ $t('profileSettings.button.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="saveDisabled"
+          :disabled="isSaveButtonDisabled || saving || !valid"
           :loading="saving"
           class="btn btn-primary"
           @click="saveSetting">
@@ -444,9 +444,6 @@ export default {
     },
     isUserType() {
       return this.setting.propertyType === 'user';
-    },
-    saveDisabled() {
-      return this.isSaveButtonDisabled || this.saving || !this.valid || (this.setting.multiValued && this.setting.canEditMultiValued);
     }
   },
   watch: {
