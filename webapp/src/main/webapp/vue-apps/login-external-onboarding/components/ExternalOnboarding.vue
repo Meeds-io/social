@@ -19,13 +19,7 @@
 
 -->
 <template>
-  <portal-login-template
-    :params="params"
-    branding-image
-    hide-success-message
-    center>
-    <portal-external-onboarding-main :params="params" />
-  </portal-login-template>
+  <portal-external-onboarding-main :params="jsonParams" />
 </template>
 <script>
 export default {
@@ -35,8 +29,13 @@ export default {
       default: null,
     },
   },
+  data() {
+    return {
+      jsonParams: null,
+    };
+  },
   created() {
-    document.title = this.$t('externalOnboarding.pagetitle');
+    this.jsonParams = JSON.parse(this.params);
   },
   mounted() {
     this.$root.$applicationLoaded();
