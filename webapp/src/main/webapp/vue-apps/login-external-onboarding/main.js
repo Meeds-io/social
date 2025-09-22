@@ -26,8 +26,6 @@ if (components && components.length > 0) {
   });
 }
 
-const appId = 'externalRegisterApplication';
-
 //getting language of the PLF
 const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
 
@@ -37,16 +35,16 @@ const urls = [
   `/social/i18n/locale.portal.login?lang=${lang}`
 ];
 
-export function init(params) {
+export function init(id,params) {
   exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale ressources are ready
     Vue.createApp({
       data: {
         params: params,
       },
-      template: `<portal-external-onboarding id="${appId}" :params="params" />`,
+      template: `<portal-external-onboarding id="${id}" :params="params" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n
-    }, `#${appId}`, 'External Onboarding');
+    }, `#${id}`, 'External Onboarding');
   });
 }

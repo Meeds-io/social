@@ -277,8 +277,8 @@ export default {
     },
     initialUri() {
       const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('initialUri')) {
-        return urlParams.get('initialUri');
+      if (urlParams.has('initialURI')) {
+        return urlParams.get('initialURI');
       }
       return null;
     },
