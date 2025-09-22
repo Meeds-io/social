@@ -40,10 +40,10 @@
   <v-card
     v-else
     flat>
-    <v-card-title class="primary--text text-break text-header px-0">
+    <v-card-title class="text-break text-body px-0">
       {{ $t('onboarding.summary1') }}
     </v-card-title>
-    <v-card-title class="primary--text text-break text-header pa-0">
+    <v-card-title class="text-break text-body pa-0">
       {{ $t('onboarding.summary2') }}
     </v-card-title>
 
@@ -145,7 +145,7 @@
               dense
               @click:append="toggleShow" />
           </v-card>
-          <span class="caption">{{ $t('onboarding.passwordCondition') }}</span>
+          <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
           <v-card width="350" flat>
             <v-text-field
               id="password2"
@@ -164,7 +164,7 @@
               dense
               @click:append="toggleConfirmShow" />
           </v-card>
-          <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
+          <span class="mt-4 text-body">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card
             class="d-flex mt-4"
             width="350"
@@ -196,12 +196,12 @@
             :aria-label="$t('onboarding.save')"
             :disabled="disabled"
             :loading="loading"
-            type="submit"
             width="222"
             max-width="100%"
             color="primary"
             class="login-button btn-primary text-none mx-auto"
-            elevation="0">
+            elevation="0"
+            @click="validateForm()">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -231,6 +231,7 @@ export default {
     loading: false,
     error: null,
     errorField: null,
+    success: false,
   }),
   computed: {
     passwordType() {
@@ -251,7 +252,7 @@ export default {
         || !this.captcha?.length;
     },
     confirmed() {
-      return !!this.params?.success?.length;
+      return this.success;
     },
   },
   watch: {
@@ -286,9 +287,46 @@ export default {
     },
     validateForm() {
       this.loading = this.$refs.form.reportValidity();
-      window.setTimeout(() => this.loading = false, 10000);
-      return !this.disabled;
+      if (!this.disabled) {
+        let body = `action=saveExternal&email=${encodeURIComponent(this.email)}&firstName=${encodeURIComponent(this.firstName)}&lastName=${encodeURIComponent(this.lastName)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}&captcha=${encodeURIComponent(this.captcha)}`;
+        if (this.username) {
+          body += `&username=${encodeURIComponent(this.username)}`;
+        }
+        let url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
+        for (const [key, value] of new URLSearchParams(window.location.search)) {
+          url += `${key}=${value}&`;
+        }
+        return fetch(url, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `${body}`,
+        }).then((resp) => {
+          if (!resp || !resp.ok) {
+            resp.json().then((data) => {
+              this.error = data.error;
+              this.errorField = data.errorField;
+              if (!this.errorField) {
+                this.$root.$emit('alert-message', this.error, 'error');
+              }
+              this.loading = false;
+            });
+          } else {
+            if (resp.redirected) {
+              window.location.href = resp.url;
+            } else {
+              this.success = true;
+            }
+            this.loading=false;
+          }
+        });
+      } else {
+        this.loading=false;
+        return false;
+      }
     },
-  },
+  }
 };
 </script>
