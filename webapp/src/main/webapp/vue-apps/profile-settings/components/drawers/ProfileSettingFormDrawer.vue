@@ -287,7 +287,7 @@
             <v-list-item-action>
               <v-switch
                 v-model="setting.multiValued"
-                :disabled="saving || setting.default"
+                :disabled="saving || setting.default || setting.userCardFieldSettings"
                 :ripple="false"
                 color="primary"
                 class="requiredSwitcher my-auto" />

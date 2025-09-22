@@ -23,7 +23,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
 import org.picocontainer.Startable;
@@ -91,6 +93,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private List<String>                               excludedQuickSearchProps               = new ArrayList<>();
 
   private List<String>                               excludedAnalyticsIndexProps            = new ArrayList<>();
+
+  private static final String                        USER_CARD_SETTINGS                     = "UserCardSettings";
 
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
@@ -204,6 +208,9 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     if (profilePropertySetting.isHiddenbale()
         && getUnhiddenableProfileProperties().contains(profilePropertySetting.getPropertyName())) {
       throw new IllegalArgumentException(String.format("%s cannot be hidden", profilePropertySetting.getPropertyName()));
+    }
+    if (profilePropertySetting.isMultiValued() && isUserCardFieldSettings(profilePropertySetting.getPropertyName())) {
+      throw new IllegalArgumentException(String.format("%s cannot be multivalued", profilePropertySetting.getPropertyName()));
     }
     if (!isGroupSynchronizedEnabledProperty(profilePropertySetting)) {
       profilePropertySetting.setGroupSynchronized(false);
@@ -409,6 +416,21 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
       return parent == null || !synchronizedGroupDisabledProperties.contains(parent.getPropertyName());
     }
     return true;
+  }
+
+  public boolean isUserCardFieldSettings(String propertyName) {
+    SettingValue<?> userCardFirstFieldSetting = settingService.get(Context.GLOBAL,
+                                                                   new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                   "UserCardFirstFieldSetting");
+    SettingValue<?> userCardSecondFieldSetting = settingService.get(Context.GLOBAL,
+                                                                   new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                   "UserCardSecondFieldSetting");
+    SettingValue<?> userCardThirdFieldSetting = settingService.get(Context.GLOBAL,
+                                                                   new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                   "UserCardThirdFieldSetting");
+    return Stream.of(userCardFirstFieldSetting, userCardSecondFieldSetting, userCardThirdFieldSetting)
+                 .filter(Objects::nonNull)
+                 .anyMatch(setting -> propertyName.equals(setting.getValue()));                                            
   }
 
 }
