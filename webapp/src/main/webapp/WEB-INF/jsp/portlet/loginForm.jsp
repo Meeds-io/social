@@ -17,7 +17,6 @@
 <%@page import="org.json.JSONArray"%>
 <%@ page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="org.exoplatform.services.security.ConversationState"%>
-<%@ page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@ page import="org.exoplatform.portal.config.model.Page"%>
 <%@ page import="org.exoplatform.portal.config.UserACL"%>
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
