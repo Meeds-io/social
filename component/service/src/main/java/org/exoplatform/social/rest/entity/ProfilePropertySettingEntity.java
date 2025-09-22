@@ -83,6 +83,8 @@ public class ProfilePropertySettingEntity {
 
   private boolean                            isDefault;
 
+  private boolean                            isUserCardFieldSettings;
+
   public List<ProfilePropertySettingEntity> getChildren() {
     if (children != null) {
       return children;
