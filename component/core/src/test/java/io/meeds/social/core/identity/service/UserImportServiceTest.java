@@ -56,6 +56,7 @@ import org.mockito.junit.MockitoRule;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.GroupHandler;
 import org.exoplatform.services.organization.MembershipHandler;
@@ -153,6 +154,9 @@ public class UserImportServiceTest {
 
   @Mock
   private ExecutorService         executorService;
+
+  @Mock
+  private UserACL                 userAcl;
 
   @InjectMocks
   private UserImportService       service;
@@ -407,6 +411,7 @@ public class UserImportServiceTest {
     s.setPropertyName(COMPANY_PROP);
     s.setEditable(false);
     when(profilePropertyService.getProfileSettingByName(COMPANY_PROP)).thenReturn(s);
+    when(userAcl.getSuperUser()).thenReturn("root");
 
     service.updateProfileField(profile,
                                COMPANY_PROP,

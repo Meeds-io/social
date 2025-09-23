@@ -73,6 +73,7 @@ import org.exoplatform.social.core.storage.IdentityStorageException;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.portal.config.UserACL;
 
 import io.meeds.common.ContainerTransactional;
 import io.meeds.social.core.identity.model.UserImportResult;
@@ -193,6 +194,9 @@ public class UserImportService {
   @Autowired
   @Setter
   private UploadService                         uploadService;
+
+  @Autowired
+  private UserACL                               userAcl;
 
   private Group                                 externalsGroup                    = null;
 
@@ -597,7 +601,7 @@ public class UserImportService {
                                     boolean save,
                                     String modifierUsername) throws IllegalAccessException, IOException {
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
-    if (propertySetting != null && !propertySetting.isEditable()) {
+    if (propertySetting != null && !propertySetting.isEditable() && !StringUtils.equals(userAcl.getSuperUser(), modifierUsername)) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
