@@ -299,6 +299,7 @@ export default {
               thirdField: thirdField
             };
             this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.success'), 'success');
+            this.getSettings();
             this.$refs.userCardSettings.close();
           }).catch(() => {
             this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.error'), 'error');
