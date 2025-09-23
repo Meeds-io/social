@@ -20,7 +20,7 @@
 -->
 <template>
   <v-card flat>
-    <v-card-title class="primary--text px-0">
+    <v-card-title class="text-header px-0">
       {{ $t('forgotpassword.resetPassword') }}
     </v-card-title>
 
@@ -29,7 +29,8 @@
       name="resetPasswordForm"
       method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
+      class="d-flex ma-0 flex-column"
+      @submit="submitForm()">
       <input
         type="hidden"
         name="action"
@@ -93,12 +94,12 @@
           <v-btn
             :aria-label="$t('forgotpassword.send')"
             :disabled="!username"
-            type="submit"
             width="222"
             max-width="100%"
             color="primary"
             class="mx-auto login-button btn-primary text-none"
-            elevation="0">
+            elevation="0"
+            @click="submitForm()">
             {{ $t('forgotpassword.send') }}
           </v-btn>
         </v-row>
@@ -163,6 +164,29 @@ export default {
     },
     toggleConfirmShow() {
       this.showConfirmPassword = !this.showConfirmPassword;
+    },
+    submitForm() {
+      const body = `action=resetPassword&username=${encodeURIComponent(this.username)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}`;
+      return fetch(this.formUrl, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `${body}`,
+      }).then((resp) => {
+        if (!resp || !resp.ok) {
+          resp.json().then((data) => {
+            if (data.error) {
+              this.$root.$emit('alert-message', data.error, 'error');
+            }
+          });
+        } else {
+          if (resp.redirected) {
+            window.location.href = resp.url;
+          }
+        }
+      });
     },
   },
 };
