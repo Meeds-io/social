@@ -22,7 +22,7 @@
   <v-card
     width="350px"
     max-width="100%"
-    class="mx-auto"
+    class="mx-auto transparent"
     flat>
     <portal-forgot-password-expired
       v-if="action === 'expired'"
