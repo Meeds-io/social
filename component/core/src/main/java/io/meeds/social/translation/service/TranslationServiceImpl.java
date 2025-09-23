@@ -31,6 +31,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import org.exoplatform.commons.exception.ObjectNotFoundException;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.HTMLSanitizer;
 import org.exoplatform.services.listener.ListenerService;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -43,6 +45,7 @@ import io.meeds.social.translation.model.TranslationEvent;
 import io.meeds.social.translation.model.TranslationField;
 import io.meeds.social.translation.plugin.TranslationPlugin;
 import io.meeds.social.translation.storage.TranslationStorage;
+import org.exoplatform.social.core.utils.MentionUtils;
 
 public class TranslationServiceImpl implements TranslationService {
 
@@ -56,6 +59,8 @@ public class TranslationServiceImpl implements TranslationService {
 
   private static final String            NO_PERMISSION_TO_DELETE_MESSAGE =
                                                                          "User %s doesn't have enough permissions to delete translations of object of type %s identified by %s";
+
+  private String                         portalOwner;
 
   private LocaleConfigService            localeConfigService;
 
@@ -268,11 +273,7 @@ public class TranslationServiceImpl implements TranslationService {
                                     String fieldName,
                                     Locale locale,
                                     String label) {
-    return HtmlUtils.process(label,
-                             new HtmlProcessorContext(objectType,
-                                                      String.valueOf(objectId),
-                                                      fieldName,
-                                                      locale));
+    return HtmlUtils.process(processMentions(label), new HtmlProcessorContext(objectType, String.valueOf(objectId), fieldName, locale));
   }
 
   private void broadcastEvent(String eventName,
@@ -343,6 +344,19 @@ public class TranslationServiceImpl implements TranslationService {
     if (!translationPlugins.containsKey(objectType)) {
       throw new IllegalStateException("TranslationPlugin associated to " + objectType + " wasn't found");
     }
+  }
+
+  private String processMentions(String label) {
+    String sanitizedBody = HTMLSanitizer.sanitize(label);
+    sanitizedBody = sanitizedBody.replace("&#64;", "@");
+    return MentionUtils.substituteUsernames(getPortalOwner(), sanitizedBody);
+  }
+
+  private String getPortalOwner() {
+    if (portalOwner == null) {
+      portalOwner = CommonsUtils.getCurrentPortalOwner();
+    }
+    return portalOwner;
   }
 
 }
