@@ -19,12 +19,9 @@
 
 -->
 <template>
-  <portal-login-template
-    :params="params"
-    branding-image
-    center>
-    <portal-forgot-password-main :params="params" />
-  </portal-login-template>
+  <v-app>
+    <portal-forgot-password-main :params="jsonParams" />
+  </v-app>
 </template>
 <script>
 export default {
@@ -34,8 +31,13 @@ export default {
       default: null,
     },
   },
+  data() {
+    return {
+      jsonParams: null,
+    };
+  },
   created() {
-    document.title = this.$t('forgotpassword.pagetitle');
+    this.jsonParams = JSON.parse(this.params);
   },
   mounted() {
     this.$root.$applicationLoaded();
