@@ -19,8 +19,8 @@
 
 -->
 <template>
-  <v-card flat>
-    <v-card-title class="primary--text text-font-size px-0">
+  <v-card flat class="transparent">
+    <v-card-title class="text-header px-0">
       <span class="mx-auto text-center">{{ $t('forgotpassword.linkExpired') }}</span>
     </v-card-title>
     <div class="d-flex ma-0 flex-column">
