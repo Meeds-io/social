@@ -1253,4 +1253,24 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>ForgotPassword</portlet-name>
+    <display-name>Forgot Password</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/forgotPassword.jsp</value>
+    </init-param>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.ForgotPassword</resource-bundle>
+    <portlet-info>
+      <title>Forgot Password</title>
+      <keywords>forgot</keywords>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
