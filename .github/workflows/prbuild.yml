@@ -15,7 +15,7 @@ jobs:
       pull-requests: write
     steps:
       - name: PR Build
-        uses: exo-actions/pr-action@v1
+        uses: exo-actions/pr-action@migrate
         with:
           maven_profiles: 'exo-release,coverage'
           jdk_major_version: 21
