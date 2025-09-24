@@ -22,7 +22,7 @@
   <v-card
     width="600px"
     max-width="100%"
-    class="mx-auto px-4"
+    class="mx-auto px-4 transparent"
     flat>
     <portal-internal-onboarding-expired
       v-if="action === 'expired'"
