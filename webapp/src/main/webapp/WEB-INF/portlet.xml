@@ -1272,5 +1272,23 @@
       <keywords>forgot</keywords>
     </portlet-info>
   </portlet>
-
+  <portlet>
+    <portlet-name>InternalOnboarding</portlet-name>
+    <display-name>Internal Onboarding</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/internalOnboarding.jsp</value>
+    </init-param>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.InternalOnboarding</resource-bundle>
+    <portlet-info>
+      <title>Internal Onboarding</title>
+      <keywords>internal</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>
