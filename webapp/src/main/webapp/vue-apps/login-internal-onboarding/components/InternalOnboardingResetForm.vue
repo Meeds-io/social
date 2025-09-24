@@ -19,11 +19,11 @@
 
 -->
 <template>
-  <v-card flat>
-    <v-card-title class="primary--text text-break text-header px-0">
+  <v-card flat class="transparent">
+    <v-card-title class="text-break text-body px-0">
       {{ $t('onboarding.summary1') }}
     </v-card-title>
-    <v-card-title class="primary--text text-break text-header pa-0">
+    <v-card-title class="text-break text-body pa-0">
       {{ $t('onboarding.summary2') }}
     </v-card-title>
 
@@ -41,7 +41,7 @@
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat>
+          <v-card width="350" flat class="transparent">
             <v-text-field
               id="username"
               v-model="username"
@@ -55,9 +55,10 @@
               required="required"
               readonly
               outlined
-              dense />
+              dense
+              background-color="white"/>
           </v-card>
-          <v-card width="350" flat>
+          <v-card width="350" flat class="transparent">
             <v-text-field
               id="password"
               v-model="password"
@@ -74,10 +75,11 @@
               required="required"
               outlined
               dense
-              @click:append="toggleShow" />
+              @click:append="toggleShow"
+              background-color="white"/>
           </v-card>
-          <span class="caption">{{ $t('onboarding.passwordCondition') }}</span>
-          <v-card width="350" flat>
+          <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
+          <v-card width="350" flat class="transparent">
             <v-text-field
               id="password2"
               v-model="confirmPassword"
@@ -92,11 +94,12 @@
               required="required"
               outlined
               dense
-              @click:append="toggleConfirmShow" />
+              @click:append="toggleConfirmShow"
+              background-color="white"/>
           </v-card>
-          <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
+          <span class="mt-4 text-body">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card
-            class="d-flex mt-4"
+            class="d-flex mt-4 transparent"
             width="350"
             flat>
             <v-img
@@ -117,19 +120,20 @@
               type="text"
               required="required"
               outlined
-              dense />
+              dense
+              background-color="white" />
           </v-card>
         </v-row>
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
             :disabled="!username"
-            type="submit"
             width="222"
             max-width="100%"
             color="primary"
             class="login-button btn-primary text-none mx-auto"
-            elevation="0">
+            elevation="0"
+            @click="submitForm()">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -173,6 +177,33 @@ export default {
     toggleConfirmShow() {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
-  },
+    submitForm() {
+      let url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
+      for (const [key, value] of new URLSearchParams(window.location.search)) {
+        url += `${key}=${value}&`;
+      }
+      const body = `action=resetPassword&username=${encodeURIComponent(this.username)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}&captcha=${encodeURIComponent(this.captcha)}`;
+      return fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `${body}`,
+      }).then((resp) => {
+        if (!resp || !resp.ok) {
+          resp.json().then((data) => {
+            if (data.error) {
+              this.$root.$emit('alert-message', data.error, 'error');
+            }
+          });
+        } else {
+          if (resp.redirected) {
+            window.location.href = resp.url;
+          }
+        }
+      });
+    },
+  }
 };
 </script>
