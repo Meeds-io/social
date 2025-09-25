@@ -19,13 +19,9 @@
 
 -->
 <template>
-  <portal-login-template
-    :params="params"
-    hide-success-message
-    branding-image
-    center>
-    <portal-register-main :params="params" />
-  </portal-login-template>
+  <v-app>
+    <portal-register-main :params="jsonParams" />
+  </v-app>
 </template>
 <script>
 export default {
@@ -34,9 +30,13 @@ export default {
       type: Object,
       default: null,
     },
+  }, data() {
+    return {
+      jsonParams: null,
+    };
   },
   created() {
-    document.title = this.$t('UILoginForm.label.ForAccount');
+    this.jsonParams = JSON.parse(this.params);
   },
   mounted() {
     this.$root.$applicationLoaded();
