@@ -23,7 +23,7 @@
     v-if="registerEnabled"
     :width="confirmed && 600 || 350"
     max-width="100%"
-    class="mx-auto"
+    class="mx-auto transparent"
     flat>
     <portal-register-extensions :params="params" />
   </v-card>
