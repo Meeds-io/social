@@ -1291,4 +1291,23 @@
       <keywords>internal</keywords>
     </portlet-info>
   </portlet>
+  <portlet>
+    <portlet-name>RegisterForm</portlet-name>
+    <display-name>Register Form</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/registerForm.jsp</value>
+    </init-param>
+    <cache-scope>PUBLIC</cache-scope>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.RegisterForm</resource-bundle>
+    <portlet-info>
+      <title>Register Form</title>
+      <keywords>register</keywords>
+    </portlet-info>
+  </portlet>
 </portlet-app>
