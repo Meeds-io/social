@@ -25,7 +25,7 @@
     autocomplete="off"
     class="d-flex ma-0 flex-column">
     <div class="d-flex flex-column">
-      <div class="mb-5 mx-auto text-header primary--text">{{ $t('onboarding.emailSummary') }}</div>
+      <div class="mb-5 mx-auto text-header">{{ $t('onboarding.emailSummary') }}</div>
       <v-row class="ma-0 pa-0">
         <v-text-field
           id="email"
@@ -41,10 +41,11 @@
           tabindex="0"
           required="required"
           outlined
-          dense />
+          dense
+          background-color="white" />
         <span class="mt-4">{{ $t('onboarding.captchaCondition') }}</span>
         <v-card
-          class="d-flex mt-4"
+          class="d-flex mt-4 transparent"
           width="350"
           flat>
           <v-img
@@ -65,19 +66,20 @@
             type="text"
             required="required"
             outlined
-            dense />
+            dense
+            background-color="white" />
         </v-card>
       </v-row>
       <v-row class="mx-0 mt-4 pa-0">
         <v-btn
           :aria-label="$t('forgotpassword.send')"
           :disabled="disabled"
-          type="submit"
           width="222"
           max-width="100%"
           color="primary"
           class="mx-auto login-button btn-primary text-none"
-          elevation="0">
+          elevation="0"
+          @click="submitForm()">
           {{ $t('forgotpassword.send') }}
         </v-btn>
       </v-row>
@@ -121,6 +123,38 @@ export default {
   },
   mounted() {
     this.email = this.params?.email;
-  }, 
+  },
+  methods: {
+    submitForm() {
+      const url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
+      const body = `email=${encodeURIComponent(this.email)}&captcha=${encodeURIComponent(this.captcha)}`;
+      return fetch(url, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `${body}`,
+      }).then((resp) => {
+        if (!resp || !resp.ok) {
+          resp.json().then((data) => {
+            if (data.error) {
+              this.$root.$emit('alert-message', data.error, 'error');
+            }
+          });
+        } else {
+          if (resp.redirected) {
+            window.location.href = resp.url;
+          } else {
+            resp.json().then((data) => {
+              if (data.success) {
+                this.$root.$emit('register-success');
+              }
+            });
+          }
+        }
+      });
+    },
+  },
 };
 </script>

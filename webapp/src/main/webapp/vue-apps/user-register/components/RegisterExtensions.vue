@@ -23,7 +23,7 @@
     v-if="confirmed"
     width="600px"
     max-width="100%"
-    class="mx-auto px-4"
+    class="mx-auto px-4 transparent"
     flat>
     <div class="d-flex flex-column align-center justify-center pt-10 pb-5">
       <v-icon size="80" color="tertiary">
@@ -57,10 +57,21 @@ export default {
       default: null,
     },
   },
+  data() {
+    return {
+      success: false,
+    };
+  },
   computed: {
     confirmed() {
-      return !!this.params?.success?.length;
+      return this.success;
     },
+  },
+  created() {
+    this.success = false;
+    this.$root.$on('register-success', () => {
+      this.success = true;
+    });
   },
 };
 </script>
