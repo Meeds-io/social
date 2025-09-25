@@ -65,3 +65,17 @@
 #HamburgerMenuSpaceLeftNavigationActions i.v-icon {
   font-size: 20px !important;
 }
+
+#sidebar-user-popup {
+  .btn-border-active {
+    &.v-btn--active {
+      border: 1px solid currentColor !important;
+      &::before {
+        opacity: 0 !important;
+      }
+      &:hover::before {
+        opacity: 0.08 !important;
+      }
+    }
+  }
+}

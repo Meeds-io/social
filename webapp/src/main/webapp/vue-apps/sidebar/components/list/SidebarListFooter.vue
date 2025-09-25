@@ -49,33 +49,33 @@
       <v-spacer v-if="$root.expand" />
       <div v-else class="me-3"></div>
       <v-list-item-action
-        :class="$root.expand && 'mx-0' || 'ms-1 me-0'"
+        :class="$root.expand && 'mx-0' || 'ms-2'"
         class="my-auto d-flex flex-row">
-        <v-tooltip top>
-          <template #activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              v-on="on"
-              :href="profileUri"
-              :aria-label="$t('menu.userProfilePageLink')"
-              :class="!$root.expand && 'ms-n2px'"
-              class="accountTitleItem my-auto"
-              icon>
-              <v-avatar
-                :href="profileUri"
-                class="userAvatar"
-                size="24">
-                <img
-                  :src="avatarUrl"
-                  alt=""
-                  height="24"
-                  width="24"
-                  contain>
-              </v-avatar>
-            </v-btn>
-          </template>
-          <span>{{ $t('menu.userProfilePageLink') }}</span>
-        </v-tooltip>
+        <v-badge
+          :color="statusColor"
+          :class="{'me-2': $root.expand}"
+          :value="true"
+          class="my-auto pa-0"
+          content=""
+          offset-x="8"
+          offset-y="8"
+          bordered
+          bottom
+          overlap
+          dot>
+          <v-avatar
+            :href="profileUri"
+            class="userAvatar clickable"
+            size="24"
+            @click.stop="openMenu($event)">
+            <img
+              :src="avatarUrl"
+              alt=""
+              height="24"
+              width="24"
+              contain>
+          </v-avatar>
+        </v-badge>
         <v-tooltip v-if="$root.expand" top>
           <template #activator="{ on, attrs }">
             <v-btn
@@ -110,9 +110,13 @@
         </v-tooltip>
       </v-list-item-action>
     </v-list-item>
+    <sidebar-user-popup
+      ref="menu"
+      @user-status-updated="statusColor = $event" />
   </v-card>
 </template>
 <script>
+
 export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
@@ -120,12 +124,17 @@ export default {
     profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,
-    userName: eXo.env.portal.userName,
+    statusColor: '#707070'
   }),
   computed: {
     avatarUrl() {
       return this.$root.avatarUrl;
-    },
+    }
   },
+  methods: {
+    openMenu(event) {
+      this.$refs?.menu?.open(event.clientX, event.clientY);
+    }
+  }
 };
 </script>
