@@ -53,7 +53,7 @@ import PublicWidgetHiddenWarning from './components/PublicWidgetHiddenWarning.vu
 import SerializeDrawer from './components/SerializeDrawer.vue';
 import ContentLinkDrawer from './components/ContentLinkDrawer.vue';
 import StickyPositionElement from './components/StickyPositionElement.vue';
-import StickyArrowButton from './components/StickyArrowButton.vue';
+import FloatingArrowButton from './components/FloatingArrowButton.vue';
 
 const components = {
   'card-carousel': CardCarousel,
@@ -102,7 +102,7 @@ const components = {
   'serialize-drawer': SerializeDrawer,
   'content-link-drawer': ContentLinkDrawer,
   'sticky-position-element': StickyPositionElement,
-  'sticky-arrow-button': StickyArrowButton
+  'floating-arrow-button': FloatingArrowButton
 };
 
 for (const key in components) {
