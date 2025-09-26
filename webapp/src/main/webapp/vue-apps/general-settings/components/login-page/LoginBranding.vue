@@ -19,316 +19,94 @@
 
 -->
 <template>
-  <v-row class="ma-0">
-    <v-col cols="12" class="pa-0">
-      <div class="d-flex flex-wrap-reverse">
-        <v-card
-          color="transparent"
-          :min-width="hasImage && 'auto' || width"
-          :width="hasImage && 'auto' || width"
-          :min-height="height"
-          :height="height"
-          class="position-relative mx-auto me-md-4 ms-md-0 mb-4"
-          flat
-          tile>
-          <v-btn
-            v-if="hasImage && loginBackgroundUploadId"
-            :title="$t('generalSettings.loginBackgroundCancelImageChoice')"
-            :loading="deleting"
-            color="primary"
-            class="position-absolute r-3 mt-2 z-index-two white"
-            icon
-            border
-            outlined
-            @click="deleteBackground">
-            <v-icon size="18">fas fa-undo</v-icon>
-          </v-btn>
-          <v-btn
-            v-else-if="canDeleteDefaultBackground"
-            :title="$t('generalSettings.loginBackgroundRestoreDefaultBackground')"
-            :loading="deleting"
-            color="error"
-            class="position-absolute r-3 mt-2 z-index-two white"
-            icon
-            border
-            outlined
-            @click="deleteDefaultBackground">
-            <v-icon size="22">fas fa-trash</v-icon>
-          </v-btn>
-          <img
-            v-if="hasImage"
-            :src="loginBackgroundSrc"
-            style="height: 100%;"
-            alt=""
-            lazy>
-          <v-card
-            :class="hasImage && 'position-absolute t-0'"
-            min-width="100%"
-            height="100%"
-            tile
-            flat
-            class="fill-height width-min-content flex-shrink-1 transparent">
-            <nav class="fill-height flex-grow-1">
-              <portal-login-introduction :color="hasImage && 'transparent' || 'primary'">
-                <template #title>
-                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'} !important;`" class="text-title">{{ $t(title) }}</span>
-                </template>
-                <template #subtitle>
-                  <span :style="`color: ${hasImage && loginBackgroundTextColor || '#ffffff'} !important;`" class="text-body">{{ $t(subtitle) }}</span>
-                </template>
-              </portal-login-introduction>
-            </nav>
-          </v-card>
-        </v-card>
-        <v-card
-          class="flex-grow-1 flex-shrink-0"
-          flat>
-          <div class="text-header my-0">
-            {{ $t('generalSettings.loginTitle.title') }}
-          </div>
-          <div class="text-subtitle me-2">
-            {{ $t('generalSettings.loginTitle.subtitle') }}
-          </div>
-          <v-card max-width="350px" flat>
-            <translation-text-field
-              v-model="loginTitle"
-              id="loginTitle"
-              :placeholder="$t('generalSettings.loginTitle.placeholder')"
-              :default-language="defaultLanguage"
-              :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateTitle"
-              verify-i18n />
-          </v-card>
-          <div class="text-header mb-0 mt-4">
-            {{ $t('generalSettings.loginSubtitle.title') }}
-          </div>
-          <div class="text-subtitle me-2">
-            {{ $t('generalSettings.loginSubtitle.subtitle') }}
-          </div>
-          <v-card max-width="350px" flat>
-            <translation-text-field
-              v-model="loginSubtitle"
-              id="loginSubtitle"
-              :placeholder="$t('generalSettings.loginSubtitle.placeholder')"
-              :default-language="defaultLanguage"
-              :supported-languages="supportedLanguages"
-              drawer-title="generalSettings.translateSubtitle"
-              verify-i18n />
-          </v-card>
-          <div class="text-header mb-0 mt-4">
-            {{ $t('generalSettings.loginBackground.title') }}
-          </div>
-          <div class="text-subtitle me-2">
-            {{ $t('generalSettings.loginBackground.subtitle') }}
-          </div>
-          <portal-general-settings-login-background-selector
-            ref="loginBackground"
-            v-model="loginBackgroundUploadId"
-            :default-data="defaultLoginBackgroundSrc"
-            :aspect-ratio="aspectRatio"
-            :alt-text="defaultLoginBackgroundAltText"
-            @data-updated="updateLoginBackgroundData"
-            @text-color-updated="loginBackgroundTextColor = $event" 
-            @text-alt-updated="loginBackgroundAltText = $event" />
-        </v-card>
-      </div>
-    </v-col>
-    <v-col
-      cols="12"
-      class="pa-0">
-      <div class="d-flex my-12 justify-end">
-        <v-btn
-          :aria-label="$t('generalSettings.cancel')"
-          :disabled="loading"
-          class="btn cancel-button me-4"
-          elevation="0"
-          @click="$emit('close')">
-          <span class="text-none">
-            {{ $t('generalSettings.cancel') }}
-          </span>
-        </v-btn>
-        <v-btn
-          :aria-label="$t('generalSettings.apply')"
-          :disabled="!validForm"
-          :loading="loading"
-          color="primary"
-          class="btn btn-primary"
-          elevation="0"
-          @click="save">
-          <span class="text-none">
-            {{ $t('generalSettings.apply') }}
-          </span>
-        </v-btn>
-      </div>
-    </v-col>
-  </v-row>
+  <v-card class="col-md-6 col-12" flat v-show="initialized">
+    <div class="option-item"  v-for="(option, index) in options"
+      :key="index"
+      :option="option">
+      <v-list-item
+        class="pa-0">
+        <v-list-item-content>
+          <v-list-item-title>
+            {{ $t(`generalSettings.login.pageTile.${option?.name}.label`) }}
+          </v-list-item-title>
+        </v-list-item-content>
+        <v-list-item-action class="d-flex flex-row my-auto">
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                icon
+                @click="preview(option)">
+                <v-icon size="18" class="icon-default-color">fa-eye</v-icon>
+              </v-btn>
+            </template>
+            {{ $t('generalSettings.login.preview.tooltip') }}
+          </v-tooltip>
+          <v-tooltip bottom>
+            <template #activator="{ on, attrs }">
+              <v-btn
+                v-bind="attrs"
+                v-on="on"
+                icon
+                @click="edit(option)">
+                <v-icon size="18" class="icon-default-color">fa-edit</v-icon>
+              </v-btn>
+            </template>
+            {{ $t('generalSettings.login.edit.tooltip') }}
+          </v-tooltip>
+        </v-list-item-action>
+      </v-list-item>
+    </div>
+  </v-card>
 </template>
 <script>
 export default {
-  props: {
-    branding: {
-      type: Object,
-      default: null,
-    },
-  },
   data: () => ({
-    loginTitle: {},
-    loginSubtitle: {},
-    loginBackgroundAltText: {},
-    loginBackgroundUploadId: null,
-    loginBackgroundData: null,
-    loginBackgroundTextColor: null,
-    errorMessage: null,
-    aspectRatio: 16 / 9 / 2.5,
-    height: 400,
-    deleting: false,
-    refreshImageIndex: Date.now(),
+    siteNavigation: null,
+    initialized: false,
+    options: [
+      {
+        name: 'login',
+        id: null,
+      },
+      {
+        name: 'external-registration',
+        id: null,
+      },
+      {
+        name: 'forgot-password',
+        id: null,
+      },
+      {
+        name: 'on-boarding',
+        id: null,
+      },
+      {
+        name: 'register',
+        id: null,
+      },
+    ]
   }),
-  computed: {
-    isDefaultBackgroundDeleted() {
-      return this.loginBackgroundUploadId === '0';
-    },
-    hasCustomBackground() {
-      return this.loginBackgroundUploadId && !this.isDefaultBackgroundDeleted;
-    },
-    hasDefaultBackground() {
-      return this.branding?.loginBackground?.size && !this.isDefaultBackgroundDeleted;
-    },
-    hasImage() {
-      return this.hasCustomBackground || this.hasDefaultBackground;
-    },
-    width() {
-      return this.height * this.aspectRatio;
-    },
-    defaultLanguage() {
-      return this.branding?.defaultLanguage;
-    },
-    supportedLanguages() {
-      return this.branding?.supportedLanguages;
-    },
-    defaultLoginTitle() {
-      return this.branding?.loginTitle || {};
-    },
-    defaultLoginSubtitle() {
-      return this.branding?.loginSubtitle || {};
-    },
-    defaultLoginBackgroundAltText() {
-      return this.branding?.loginBackgroundAltText || '';
-    },
-    defaultLoginBackgroundSrc() {
-      return this.hasDefaultBackground && `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/platform/branding/loginBackground?v=${this.refreshImageIndex}` || null;
-    },
-    canDeleteDefaultBackground() {
-      return this.branding?.loginBackground?.fileId && !this.isDefaultBackgroundDeleted;
-    },
-    loginBackgroundSrc() {
-      if (this.hasCustomBackground) {
-        return this.$utils.convertImageDataAsSrc(this.loginBackgroundData);
-      } else if (this.hasDefaultBackground) {
-        return this.defaultLoginBackgroundSrc;
-      } else {
-        return null;
-      }
-    },
-    title() {
-      return this.loginTitle[this.defaultLanguage];
-    },
-    subtitle() {
-      return this.loginSubtitle[this.defaultLanguage];
-    },
-    validForm() {
-      return this.changed;
-    },
-    changed() {
-      if (!this.branding) {
-        return false;
-      }
-      if (this.loginBackgroundUploadId) {
-        return true;
-      }
-      if (this.loginBackgroundData && this.loginBackgroundTextColor !== this.branding?.loginBackgroundTextColor) {
-        return true;
-      }
-      const oldBranding = JSON.parse(JSON.stringify(this.branding));
-      const newBranding = Object.assign(JSON.parse(JSON.stringify(this.branding)), {
-        loginTitle: this.loginTitle,
-        loginSubtitle: this.loginSubtitle,
-        loginBackgroundAltText: this.loginBackgroundAltText,
+  created() {
+    Vue.prototype.$siteService.getSite('portal','global',{'expandNavigations': true}).then((site) => {
+      this.options.forEach(option => {
+        const navigationNode = site.siteNavigations.find(nav => nav.name === option.name);
+        if (navigationNode) {
+          option.id = navigationNode.id;
+        }
       });
-      return JSON.stringify(oldBranding) !== JSON.stringify(newBranding);
-    },
-  },
-  watch: {
-    errorMessage() {
-      if (this.errorMessage) {
-        this.$root.$emit('alert-message', this.$t(this.errorMessage), 'error');
-      } else {
-        this.$root.$emit('close-alert-message');
-      }
-    },
-    changed() {
-      this.$emit('changed', this.changed);
-    },
-    loginBackgroundAltText() {
-      this.branding.loginBackgroundAltText = this.loginBackgroundAltText;
-    }
-  },  
-  mounted() {
-    this.init();
+      this.initialized = true;
+    });
   },
   methods: {
-    init() {
-      this.loginBackgroundUploadId = null;
-      this.refreshImageIndex = Date.now();
-      this.loginTitle = this.defaultLoginTitle && JSON.parse(JSON.stringify(this.defaultLoginTitle)) || {};
-      this.loginSubtitle = this.defaultLoginSubtitle && JSON.parse(JSON.stringify(this.defaultLoginSubtitle)) || {};
-      this.loginBackgroundAltText = this.branding.loginBackgroundAltText;
-      this.loginBackgroundTextColor = this.branding?.loginBackgroundTextColor;
-      this.loginBackgroundData = this.defaultLoginBackgroundSrc;
-      this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
+    preview(option) {
+      window.open(`${eXo.env.portal.context}/${eXo.env.portal.defaultPortal}/${option.name}`, '_blank');
     },
-    save() {
-      this.errorMessage = null;
+    edit(option) {
+      window.open(`${eXo.env.portal.context}/${eXo.env.portal.portalName}/layout-editor?nodeId=${option.id}`, '_blank');
 
-      const branding = Object.assign({}, this.branding);
-      this.$refs.loginBackground.preSave(branding);
-      branding.loginTitle = this.loginTitle;
-      branding.loginSubtitle = this.loginSubtitle;
-      branding.loginBackgroundAltText = this.loginBackgroundAltText;
-
-      this.$root.loading = true;
-      return this.$brandingService.updateBrandingInformation(branding)
-        .then(() => this.$emit('saved'))
-        .then(() => this.$root.$emit('alert-message', this.$t('generalSettings.savedSuccessfully'), 'success'))
-        .catch(e => this.errorMessage = String(e))
-        .finally(() => this.$root.loading = false);
-    },
-    deleteDefaultBackground() {
-      this.deleting = true;
-      window.setTimeout(() => {
-        this.loginBackgroundData = null;
-        this.loginBackgroundUploadId = '0';
-        this.loginBackgroundTextColor = null;
-        this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor, this.loginBackgroundUploadId);
-        this.$nextTick(() => this.deleting = false);
-      }, 50);
-    },
-    deleteBackground() {
-      this.deleting = true;
-      window.setTimeout(() => {
-        this.loginBackgroundData = this.defaultLoginBackgroundSrc;
-        this.loginBackgroundUploadId = null;
-        this.$refs.loginBackground.init(this.loginBackgroundData, this.loginBackgroundTextColor);
-        this.$nextTick(() => this.deleting = false);
-      }, 50);
-    },
-    updateLoginBackgroundData(imageData) {
-      if (imageData) {
-        this.loginBackgroundData = imageData;
-      } else if (this.loginBackgroundUploadId !== '0') {
-        this.loginBackgroundData = this.defaultLoginBackgroundSrc;
-      }
-    },
+    }
   }
 };
 </script>
