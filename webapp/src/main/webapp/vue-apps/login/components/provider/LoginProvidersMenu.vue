@@ -29,10 +29,10 @@
           :aria-label="$t('UILoginForm.label.moreProviders')"
           min-width="auto"
           color="primary"
-          class="btn"
           outlined
           v-bind="attrs"
-          v-on="on">
+          v-on="on"
+          style="background-color:white;">
           <v-icon size="20">fas fa-ellipsis-h</v-icon>
         </v-btn>
       </template>
