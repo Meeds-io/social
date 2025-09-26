@@ -77,6 +77,7 @@ export default {
     defaultProviders: ['facebook', 'openid', 'linkedin', 'twitter', 'google'],
     objectType: 'cmsPortlet',
     loaded: false,
+    providerTranslation: '',
   }),
   computed: {
     providerKeyLowerCase() {
@@ -124,10 +125,19 @@ export default {
       this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
     }
     this.loaded = true;
-    this.$root.$on('login-form-settings-updated', () => {
-      if (this.params?.oAuthProviderLabels[this.provider?.key]) {
-        this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
-      }
+
+    this.$root.$on('login-form-settings-providers-updated', (newProviders) => {
+      newProviders.forEach((newProvider) => {
+        if (this.provider.key === newProvider.key) {
+          if (newProvider.translations && newProvider.translations[eXo.env.portal.language]) {
+            this.providerTranslation = newProvider.translations[eXo.env.portal.language];
+          } else if (newProvider.translations && newProvider.translations[eXo.env.portal.defaultLanguage]) {
+            this.providerTranslation = newProvider.translations[eXo.env.portal.defaultLanguage];
+          } else {
+            this.providerTranslation = this.params.oAuthProviderLabels[this.provider.key];
+          }
+        }
+      });
     });
   },
   methods: {
