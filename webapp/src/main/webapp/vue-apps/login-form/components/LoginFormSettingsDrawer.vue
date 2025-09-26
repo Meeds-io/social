@@ -308,6 +308,7 @@ export default {
 
       promise.push(this.saveSettings());
       Promise.all(promise).then(() => {
+        this.$root.$emit('login-form-settings-providers-updated', this.providers);
         this.$root.$emit('login-form-settings-updated',
           this.translationsWelcomeBack,
           this.translationsNewHere,
