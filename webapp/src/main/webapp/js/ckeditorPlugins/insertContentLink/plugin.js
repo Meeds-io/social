@@ -109,9 +109,8 @@
   
       function matchCallback(text, offset) {
         const left = text.slice(0, offset);
-        let match = left?.split(/\s/)?.pop?.()?.trim?.()?.match?.(/^\/([a-z]*)(:[^>^<^.]*)?$/);
+        let match = left.match(/\/([a-z]*)(:[^>^<^.]*)?$/);
         if (match?.length) {
-          match = left.match(/\/([a-z]*)(:[^>^<^.]*)?$/);
           return {
             start: match.index + 1,
             end: offset,
