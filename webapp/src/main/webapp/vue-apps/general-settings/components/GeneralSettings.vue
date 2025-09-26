@@ -75,9 +75,6 @@
             <portal-general-settings-branding-login
               v-else-if="$root.selectedTab === 'login'"
               ref="loginSettings"
-              :branding="branding"
-              @saved="init"
-              @changed="changed = $event"
               @close="close" />
             <portal-general-settings-navigation-settings
               v-else-if="$root.selectedTab === 'navigation'"
