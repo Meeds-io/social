@@ -32,7 +32,7 @@
           outlined
           v-bind="attrs"
           v-on="on"
-          style="background-color:white;">
+          class="white-background">
           <v-icon size="20">fas fa-ellipsis-h</v-icon>
         </v-btn>
       </template>

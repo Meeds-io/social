@@ -29,12 +29,11 @@
           :aria-label="providerButtonLabel"
           min-width="auto"
           color="primary"
-          class="text-none elevation-0"
+          class="text-none elevation-0 white-background"
           v-bind="attrs"
           outlined
           v-on="on"
-          @click="clickOnProviderButton"
-          style="background-color:white;">
+          @click="clickOnProviderButton">
           <v-img
             v-if="providerImage && displayProvidersIcons"
             :src="providerImage"
