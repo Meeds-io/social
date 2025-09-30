@@ -20,33 +20,28 @@
 -->
 <template>
   <div v-if="loaded">
-    <v-tooltip bottom>
-      <template #activator="{ on, attrs }">
-        <v-btn
-          :id="id"
-          :href="link"
-          :target="targetLink"
-          :aria-label="providerButtonLabel"
-          min-width="auto"
-          color="primary"
-          class="text-none elevation-0 white-background"
-          v-bind="attrs"
-          outlined
-          v-on="on"
-          @click="clickOnProviderButton">
-          <v-img
-            v-if="providerImage && displayProvidersIcons"
-            :src="providerImage"
-            :class="displayText && 'me-2'"
-            height="25"
-            max-width="25"
-            eager />
-          <v-icon v-else :class="providerIcon" />
-          <span v-if="displayText" class="text-body text-truncate">{{ providerButtonLabel }}</span>
-        </v-btn>
-      </template>
-      <span>{{ providerButtonLabel }}</span>
-    </v-tooltip>
+    <v-btn
+      :id="id"
+      :href="link"
+      :target="targetLink"
+      :aria-label="providerButtonLabel"
+      :title="providerButtonLabel"
+      min-width="auto"
+      color="primary"
+      class="text-none elevation-0 white-background"
+      outlined
+      v-on="on"
+      @click="clickOnProviderButton">
+      <v-img
+        v-if="providerImage && displayProvidersIcons"
+        :src="providerImage"
+        :class="displayText && 'me-2'"
+        height="25"
+        max-width="25"
+        eager />
+      <v-icon v-else :class="providerIcon" />
+      <span v-if="displayText" class="text-body text-truncate">{{ providerButtonLabel }}</span>
+    </v-btn>
   </div>
 </template>
 <script>
