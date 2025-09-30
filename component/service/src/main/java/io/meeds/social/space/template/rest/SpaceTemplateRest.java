@@ -64,14 +64,13 @@ public class SpaceTemplateRest {
   @Operation(summary = "Retrieve space templates", method = "GET", description = "This retrieves space templates")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"), })
   public List<SpaceTemplate> getSpaceTemplates(HttpServletRequest request,
-                                               Pageable pageable,
                                                @Parameter(description = "Whether include disabled templates or not")
                                                @RequestParam("includeDisabled")
                                                boolean includeDisabled) {
     SpaceTemplateFilter spaceTemplateFilter = new SpaceTemplateFilter(request.getRemoteUser(),
                                                                       request.getLocale(),
                                                                       includeDisabled);
-    return spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, pageable, true);
+    return spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
   }
 
   @GetMapping("{id}")
