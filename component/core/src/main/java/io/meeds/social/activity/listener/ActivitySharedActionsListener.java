@@ -25,6 +25,8 @@ import org.exoplatform.social.core.activity.ActivityListener;
 import org.exoplatform.social.core.activity.model.ActivityShareAction;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -46,11 +48,13 @@ public class ActivitySharedActionsListener implements ActivityListener {
 
   public void updateActivity(ActivityLifeCycleEvent event) {
     Set<ActivityShareAction> sharedActions = event.getActivity().getShareActions();
-    for (ActivityShareAction action : sharedActions) {
-      for (Long id : action.getSharedActivityIds()) {
-        ExoSocialActivity sharedactivity =  activityManager.getActivity(id.toString());
-        sharedactivity.setCacheTime(System.currentTimeMillis());
-        activityManager.updateActivity(sharedactivity);
+    if (CollectionUtils.isNotEmpty(sharedActions)) {
+      for (ActivityShareAction action : sharedActions) {
+        for (Long id : action.getSharedActivityIds()) {
+          ExoSocialActivity sharedactivity =  activityManager.getActivity(id.toString());
+          sharedactivity.setCacheTime(System.currentTimeMillis());
+          activityManager.updateActivity(sharedactivity);
+        }
       }
     }
   }
