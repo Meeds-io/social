@@ -126,7 +126,7 @@
         if (!menuOpen) {
           getWindow().document.addEventListener('parent-element-scrolled', openCommandMenu);
           editor.removeListener('key', onKeyShortcut);
-          editor.on('key', onKeyShortcut);
+          editor.on('key', onKeyShortcut, null, null, 10);
           menuOpen = true;
         }
         range = evt.data.range;
