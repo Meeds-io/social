@@ -43,6 +43,7 @@
             icon
             small
             class="mt-5"
+            :title="$t('loginForm.settings.back')"
             @click="clickDisplayForm">
             <v-icon size="18">
               {{ $vuetify.rtl && 'fa fa-arrow-right' || 'fa fa-arrow-left' }}
