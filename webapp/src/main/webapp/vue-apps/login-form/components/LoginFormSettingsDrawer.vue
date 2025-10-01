@@ -41,6 +41,7 @@
           <div class="spacer" />
           <v-switch
             v-model="displayWelcomeMessage"
+            ref="switchWelcomeMessage"
             class="mt-0" />
         </v-card-text>
         <div v-if="!registerEnabled && displayWelcomeMessage" class="mb-7">
