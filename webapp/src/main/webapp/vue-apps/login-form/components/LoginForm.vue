@@ -115,7 +115,6 @@
                 name="username"
                 aria-required="true"
                 type="text"
-                tabindex="0"
                 required="required"
                 outlined
                 dense
