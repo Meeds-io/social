@@ -133,7 +133,6 @@
                 :title="$t('portal.login.Password')"
                 :placeholder="$t('portal.login.Password')"
                 :type="passwordType"
-                :append-icon="showPassword ? 'fas fa-eye-slash text-font-size mt-0' : 'fas fa-eye text-font-size mt-0'"
                 prepend-inner-icon="fas fa-lock ms-n2 grey--text text--lighten-1"
                 class="login-password border-box-sizing"
                 name="password"
@@ -141,8 +140,17 @@
                 required="required"
                 outlined
                 dense
-                @click:append="toggleShow"
-                background-color="white" />
+                background-color="white">
+                <template #append>
+                  <v-icon
+                  class="v-input__icon text-font-size mt-0"
+                  @click="toggleShow"
+                  :aria-label="showPassword ? $t('loginForm.hidePassword') : $t('loginForm.showPassword')">
+                    {{showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}}
+                  </v-icon>
+
+                </template>
+              </v-text-field>
             </v-row>
             <v-row class="d-flex flex-column flex-sm-row ma-0 py-0 px-3 px-sm-0" flat>
               <v-checkbox
@@ -167,7 +175,6 @@
             <v-row class="mx-0 mt-8 pa-0 loginButton">
               <v-btn
                 id="loginButton"
-                :aria-label="$t('portal.login.Signin')"
                 :type="'submit'"
                 :loading="loading"
                 width="222"
