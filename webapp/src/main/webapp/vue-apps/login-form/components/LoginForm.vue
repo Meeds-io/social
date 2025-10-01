@@ -111,6 +111,7 @@
               <v-text-field
                 id="username"
                 v-model="username"
+                autocomplete="username"
                 :title="$t('portal.login.Username')"
                 :placeholder="$t('portal.login.Username')"
                 :autofocus="'autofocus'"
@@ -128,6 +129,7 @@
               <v-text-field
                 id="password"
                 v-model="password"
+                autocomplete="current-password"
                 :title="$t('portal.login.Password')"
                 :placeholder="$t('portal.login.Password')"
                 :type="passwordType"
