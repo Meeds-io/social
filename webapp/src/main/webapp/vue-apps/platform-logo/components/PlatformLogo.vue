@@ -25,7 +25,7 @@
         flat
         class="fill-height rounded-0 transparent">
         <div
-          v-if="$root.canEdit && hover"
+          v-if="$root.canEdit"
           class="position-absolute t-0 r-0"
           :class="{
             'l-0': $vuetify.rtl,
@@ -37,7 +37,11 @@
               class="z-index-two me-2 mt-2"
               small
               icon
-              @click="$root.$emit('platform-logo-settings')">
+              @click="$root.$emit('platform-logo-settings')"
+              taxindex="0"
+              @focus="focus = true"
+              @focusout="focus = false"
+              :style="{ opacity: (focus || hover) ? 1 : 0 }">
               <v-icon size="18">fa-cog</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -62,6 +66,9 @@ export default {
       default: null,
     },
   },
+  data: () => ({
+    focus: false,
+  }),
   computed: {
     align() {
       let align = 'object-position:';
