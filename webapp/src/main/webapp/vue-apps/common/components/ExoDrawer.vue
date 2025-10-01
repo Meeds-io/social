@@ -417,6 +417,10 @@ export default {
         this.drawer = true;
       }
       this.resetFilter();
+      this.$nextTick(() => {
+        window.setTimeout(() =>
+          this.$el.querySelector('input')?.focus(), 50);
+      });
     },
     mountOnParent() {
       // Re-append the drawer to open in order
