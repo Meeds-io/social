@@ -27,7 +27,7 @@
         class="rounded-0  transparent full-height d-flex"
         :class="textAlign">
         <div
-          v-if="$root.canEdit && hover"
+          v-if="$root.canEdit"
           class="position-absolute t-0 r-0"
           :class="{
             'l-0': $vuetify.rtl,
@@ -39,7 +39,11 @@
               class="z-index-two me-2 mt-2"
               small
               icon
-              @click="$root.$emit('sidebar-login-settings')">
+              @click="$root.$emit('sidebar-login-settings')"
+              taxindex="0"
+              @focus="focus = true"
+              @focusout="focus = false"
+              :style="{ opacity: (focus || hover) ? 1 : 0 }">
               <v-icon size="18">fa-cog</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -80,7 +84,8 @@ export default {
   data: () => ({
     branding: null,
     refreshImageIndex: Date.now(),
-    backgroundAltText: null
+    backgroundAltText: null,
+    focus: false,
   }),
   computed: {
     title() {
