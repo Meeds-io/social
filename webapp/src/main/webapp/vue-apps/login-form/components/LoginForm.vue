@@ -51,7 +51,7 @@
           </v-btn>
         </div>
         <div
-          v-if="values.canEdit && hover"
+          v-if="values.canEdit"
           class="position-absolute t-0"
           :class="{
             'l-0': $vuetify.rtl,
@@ -63,7 +63,11 @@
               class="z-index-two me-2 mt-2"
               small
               icon
-              @click="$root.$emit('login-form-settings')">
+              @click="$root.$emit('login-form-settings')"
+              taxindex="0"
+              @focus="focus = true"
+              @focusout="focus = false"
+              :style="{ opacity: (focus || hover) ? 1 : 0 }">
               <v-icon size="18">fa-cog</v-icon>
             </v-btn>
           </v-fab-transition>
@@ -223,6 +227,7 @@ export default {
     displayProvidersIcons: true,
     displayBackButton: false,
     displayWelcomeMessage: true,
+    focus: false,
   }),
   watch: {
     errorMessage: {
