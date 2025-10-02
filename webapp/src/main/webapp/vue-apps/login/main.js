@@ -25,28 +25,3 @@ if (components && components.length > 0) {
     Vue.component(cmp.componentName, cmp.componentOptions);
   });
 }
-
-const appId = 'loginApplication';
-
-//getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
-
-//should expose the locale ressources as REST API 
-const urls = [
-  `/social/i18n/locale.portlet.Login?lang=${lang}`,
-  `/social/i18n/locale.portal.login?lang=${lang}`
-];
-
-export function init(params) {
-  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
-    // init Vue app when locale ressources are ready
-    Vue.createApp({
-      data: {
-        params: params,
-      },
-      template: `<portal-login id="${appId}" :params="params" />`,
-      vuetify: Vue.prototype.vuetifyOptions,
-      i18n
-    }, `#${appId}`, 'Login');
-  }).finally(() => Vue.prototype.$utils.includeExtensions('LoginExtension'));
-}
