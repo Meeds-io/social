@@ -27,7 +27,8 @@
           :display-signin-email-button-icon="displaySigninEmailButtonIcon"
           :list-external-providers="listExternalProviders"
           :display-providers-icons="displayProvidersIcons"
-          :display-welcome-message="displayWelcomeMessage" />
+          :display-welcome-message="displayWelcomeMessage"
+          v-if="values.canEdit"/>
     <v-hover v-slot="{ hover }">
       <v-card
         class="rounded-0 transparent pa-5"
