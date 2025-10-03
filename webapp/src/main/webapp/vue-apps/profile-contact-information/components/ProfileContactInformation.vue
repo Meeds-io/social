@@ -197,7 +197,8 @@ export default {
         ? parent.propertyOptions?.find(option => `${option.id}` === `${property.value}`) : null;
     },
     excludedDropdown(property, parent) {
-      return !property.children?.length && parent.dropdownList && !this.getPropertyOption(property, parent);
+      return (!property.children?.length && parent.dropdownList && !this.getPropertyOption(property, parent))
+             || (!parent.dropdownList && parent.propertyOptions?.find(option => `${option.id}` === `${parent.value}`));
     },
   },
 };
