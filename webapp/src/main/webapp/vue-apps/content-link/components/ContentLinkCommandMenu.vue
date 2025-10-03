@@ -290,7 +290,7 @@ export default {
       this.loading = true;
       try {
         if (this.keyword?.length && this.plugin?.objectType) {
-          this.links = await this.$contentLinkService.searchLinks(this.plugin?.objectType, this.keyword, 0, 10);
+          this.links = await this.$contentLinkService.searchLinks(this.plugin?.objectType, this.normaliserEspaces(String(this.keyword || '')), 0, 10);
         } else {
           this.links = [];
         }
@@ -340,6 +340,13 @@ export default {
       if (!event.target.closest('#contentLinkCommandMenu')) {
         this.unWatch();
       }
+    },
+    normaliserEspaces(texte) {
+      return texte.replace(/\u00A0/g, ' ')
+        .replace(/\u2007/g, ' ')
+        .replace(/\u202F/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
     },
     unWatch() {
       if (this.textWatcher) {
