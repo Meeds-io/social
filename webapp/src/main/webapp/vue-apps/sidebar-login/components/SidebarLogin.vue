@@ -66,7 +66,7 @@
         </v-card>
       </v-card>
     </v-hover>
-    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" />
+    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" v-if="$root.canEdit" />
   </v-app>
 </template>
 
