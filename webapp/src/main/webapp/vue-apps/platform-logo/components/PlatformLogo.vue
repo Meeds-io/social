@@ -53,7 +53,7 @@
           :style="align" />
       </v-card>
     </v-hover>
-    <platform-logo-settings-drawer />
+    <platform-logo-settings-drawer v-if="$root.canEdit" />
 
   </v-app>
 </template>
