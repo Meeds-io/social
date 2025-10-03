@@ -2,7 +2,10 @@
   <div class="overflow-hidden">
     <div
       class="richEditor"
-      :class="largeToolbar && 'large-toolbar'">
+      :class="{
+        'hide-toolbar': hideToolbar,
+        'large-toolbar': largeToolbar,
+      }">
       <textarea
         ref="editor"
         :id="ckEditorInstanceId"
@@ -37,7 +40,6 @@
       @changed="emitChanges" />
   </div>
 </template>
-
 <script>
 export default {
   props: {
@@ -161,17 +163,37 @@ export default {
       type: Boolean,
       default: false
     },
-    toolbarPosition: {
-      type: String,
-      default: () => 'bottom',
-    },
     disableAutoGrow: {
       type: Boolean,
       default: false,
     },
+    autoGrowMaxHeight: {
+      type: Number,
+      default: () => 300,
+    },
+    toolbarPosition: {
+      type: String,
+      default: () => 'bottom',
+    },
     largeToolbar: {
       type: Boolean,
       default: false,
+    },
+    hideToolbar: {
+      type: Boolean,
+      default: false,
+    },
+    dense: {
+      type: Boolean,
+      default: false,
+    },
+    bodyClass: {
+      type: String,
+      default: null,
+    },
+    parentClass: {
+      type: String,
+      default: null,
     },
   },
   data: () => ({
@@ -395,7 +417,9 @@ export default {
         extraPlugins,
         removePlugins,
         editorplaceholder: this.placeholder,
-        toolbar,
+        toolbar: this.hideToolbar ? [] : toolbar,
+        toolbarLocation: this.toolbarPosition,
+        toolbarCanCollapse: this.hideToolbar,
         allowedContent: true,
         enterMode: this.enterMode,
         typeOfRelation: this.suggestorTypeOfRelation,
@@ -405,12 +429,12 @@ export default {
         activityId: this.activityId,
         startupFocus: this.autofocus && this.focusPosition,
         pasteFilter: 'p; div; a[!href]; strong; i',
-        toolbarLocation: this.toolbarPosition,
         supportsOembed: this.supportsOembed,
+        bodyClass: this.dense ? `${this.bodyClass || ''} dense-margin` : this.bodyClass,
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
-        options.autoGrow_maxHeight = 300;
+        options.autoGrow_maxHeight = this.autoGrowMaxHeight;
       }
       let firstScrollableParent;
       $(this.$refs.editor).ckeditor({...options,
@@ -431,6 +455,18 @@ export default {
             }
             firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
             firstScrollableParent.addEventListener('scroll', self.controlParentScroll);
+            if (self.parentClass) {
+              self.parentClass.split(' ')
+                .map(a => a?.trim?.())
+                .filter(a => a?.length)
+                .forEach(a => {
+                  try {
+                    self.editor.container.addClass(a);
+                  } catch (e) {
+                    console.warn('Error adding class ', a, ' in editor container', e);
+                  }
+                });
+            }
           },
           embedHandleResponse: function (embedResponse) {
             self.installOembed(embedResponse);
