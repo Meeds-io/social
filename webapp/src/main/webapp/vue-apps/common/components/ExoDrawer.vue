@@ -125,7 +125,9 @@
                   <v-icon
                     class="icon-default-color"
                     size="20"
-                    @click="close()">fa-times</v-icon>
+                    @click="close()">
+                    fa-times
+                  </v-icon>
                 </v-btn>
               </v-list-item-action>
             </v-list-item>
@@ -153,7 +155,10 @@
         <v-divider
           v-show="$slots.footer && !hideFooterDivider"
           class="my-0" />
-        <v-flex v-show="$slots.footer" class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
+        <v-flex
+          v-show="$slots.footer"
+          :class="footerClass"
+          class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
           <slot v-if="$slots.footer" name="footer"></slot>
         </v-flex>
         <exo-confirm-dialog
@@ -169,7 +174,6 @@
     </div>
   </v-navigation-drawer>
 </template>
-
 <script>
 export default {
   props: {
@@ -273,7 +277,11 @@ export default {
     filterPlaceholder: {
       type: String,
       default: null
-    }
+    },
+    footerClass: {
+      type: String,
+      default: null
+    },
   },
   data: () => ({
     initialized: false,
