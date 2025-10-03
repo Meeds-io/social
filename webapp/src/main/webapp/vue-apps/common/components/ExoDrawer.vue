@@ -30,10 +30,17 @@
       <v-layout class="fill-height" column>
         <template v-if="$slots.title">
           <v-flex class="mx-0 drawerHeader flex-grow-0">
-            <v-list-item
-              :class="goBackButton && 'ps-1'"
-              class="pe-0">
-              <v-list-item-action v-if="goBackButton && !useFilter" class="drawerIcons me-2">
+            <v-list-item class="px-0">
+              <v-card
+                v-if="expand && $slots.fullAppLeftTitle"
+                :width="drawerWidth"
+                :max-width="drawerWidth"
+                min-height="60"
+                class="px-4 border-box-sizing text-header-title d-flex align-center light-grey-background-color"
+                flat>
+                <slot name="fullAppLeftTitle"></slot>
+              </v-card>
+              <v-list-item-action v-if="goBackButton && !useFilter" class="drawerIcons ps-1 me-2">
                 <v-btn
                   icon
                   @click="goBack">
@@ -42,7 +49,7 @@
                   </v-icon>
                 </v-btn>
               </v-list-item-action>
-              <v-list-item-content class="drawerTitle align-start text-header-title">
+              <v-list-item-content :class="goBackButton ? 'ps-2' : 'ps-4'" class="drawerTitle align-start text-header-title">
                 <div
                   v-if="!showFilter"
                   class="text-truncate full-width">
@@ -140,26 +147,39 @@
               class="position-absolute" />
           </div>
         </template>
-        <v-flex
-          :class="{
-            'overflow-x-auto': !noXScroll,
-            'overflow-x-hidden': noXScroll,
-            'overflow-y-auto': !noYScroll,
-            'overflow-y-hidden': noYScroll,
-            'pt-4': bottomDrawer,
-          }"
-          class="drawerContent flex-grow-1 border-box-sizing">
-          <slot name="content"></slot>
-          <attachments-draggable-zone />    
-        </v-flex>
-        <v-divider
-          v-show="$slots.footer && !hideFooterDivider"
-          class="my-0" />
-        <v-flex
-          v-show="$slots.footer"
-          :class="footerClass"
-          class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
-          <slot v-if="$slots.footer" name="footer"></slot>
+        <v-flex class="flex-grow-1 border-box-sizing overflow-hidden">
+          <div class="d-flex flex-row fill-height">
+            <v-card
+              v-if="expand && $slots.fullAppLeftContent"
+              :width="drawerWidth"
+              class="flex-grow-0 flex-shrink-0 fill-height light-grey-background-color overflow-x-auto overflow-y-auto specific-scrollbar"
+              flat>
+              <slot name="fullAppLeftContent"></slot>
+            </v-card>
+            <div class="d-flex flex-column fill-height flex-grow-1 flex-shrink-1 overflow-hidden">
+              <div
+                :class="{
+                  'overflow-x-auto': !noXScroll,
+                  'overflow-x-hidden': noXScroll,
+                  'overflow-y-auto': !noYScroll,
+                  'overflow-y-hidden': noYScroll,
+                  'pt-4': bottomDrawer,
+                }"
+                class="drawerContent flex-grow-1 flex-shrink-1 fill-height specific-scrollbar">
+                <slot name="content"></slot>
+                <attachments-draggable-zone />
+              </div>
+              <v-divider
+                v-show="$slots.footer && !hideFooterDivider"
+                class="my-0" />
+              <v-flex
+                v-show="$slots.footer"
+                :class="footerClass"
+                class="drawerFooter border-box-sizing flex-grow-0 px-4 py-3">
+                <slot v-if="$slots.footer" name="footer"></slot>
+              </v-flex>
+            </div>
+          </div>
         </v-flex>
         <exo-confirm-dialog
           v-if="confirmClose"
