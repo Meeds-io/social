@@ -43,18 +43,3 @@
     </div>
   </v-card>
 </template>
-<script>
-export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
-  computed: {
-    formUrl() {
-      return window.location.pathname;
-    },
-  },
-};
-</script>

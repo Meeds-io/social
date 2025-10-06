@@ -20,24 +20,43 @@
 -->
 <template>
   <v-app>
-    <portal-forgot-password-main :params="jsonParams" />
+    <v-card
+        width="350px"
+        max-width="100%"
+        class="mx-auto transparent"
+        flat>
+        <portal-forgot-password-expired
+          v-if="action === 'expired'"/>
+        <portal-forgot-password-reset-form
+          v-else-if="action === 'resetPassword'"
+          :username-param='this.username'
+          :token-param='this.token' />
+        <portal-forgot-password-email-form
+          v-else/>
+      </v-card>
   </v-app>
 </template>
 <script>
 export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
-  data() {
-    return {
-      jsonParams: null,
-    };
-  },
+  data: () => ({
+    username: '',
+    action: '',
+    token: ''
+  }),
   created() {
-    this.jsonParams = JSON.parse(this.params);
+    this.token = new URLSearchParams(window.location.search).get('token');
+    if (this.token) {
+      this.$loginService.verifyToken(this.token, 'forgot-password').then((resp) => {
+        if (!resp || !resp.ok) {
+          this.action = 'expired';
+        } else {
+          resp.json().then((data) => {
+            this.username = data.username || '';
+            this.action = 'resetPassword';
+          });
+        }
+      });
+    }
   },
   mounted() {
     this.$root.$applicationLoaded();

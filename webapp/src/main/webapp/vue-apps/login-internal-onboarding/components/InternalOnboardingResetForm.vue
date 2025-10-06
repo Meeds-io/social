@@ -31,11 +31,8 @@
       name="resetPasswordForm"
       method="post"
       autocomplete="off"
-      class="d-flex ma-0 flex-column">
-      <input
-        type="hidden"
-        name="action"
-        value="resetPassword">
+      class="d-flex ma-0 flex-column"
+      @submit.prevent="submitForm()">
       <div>
         <v-card-title class="px-0 mt-4 text-break text-header">
           {{ $t('onboarding.yourPasswordTitle') }}
@@ -44,7 +41,7 @@
           <v-card width="350" flat class="transparent">
             <v-text-field
               id="username"
-              v-model="username"
+              v-model="usernameParam"
               :title="$t('portal.login.Username')"
               :placeholder="$t('portal.login.Username')"
               name="username"
@@ -103,7 +100,7 @@
             width="350"
             flat>
             <v-img
-              src="/portal/on-boarding?serveCaptcha=true"
+              src="/social/rest/login/captcha?name=on-boarding"
               width="150"
               heigh="40"
               class="primary me-2 rounded-lg"
@@ -127,13 +124,13 @@
         <v-row class="mx-0 my-8 pa-0">
           <v-btn
             :aria-label="$t('onboarding.save')"
-            :disabled="!username"
+            :disabled="!usernameParam || !password || !confirmPassword"
             width="222"
             max-width="100%"
             color="primary"
             class="login-button btn-primary text-none mx-auto"
             elevation="0"
-            @click="submitForm()">
+            type="submit">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -144,13 +141,16 @@
 <script>
 export default {
   props: {
-    params: {
-      type: Object,
+    usernameParam: {
+      type: String,
+      default: null,
+    },
+    tokenParam: {
+      type: String,
       default: null,
     },
   },
   data: () => ({
-    username: '',
     password: '',
     confirmPassword: '',
     captcha: '',
@@ -165,11 +165,6 @@ export default {
       return this.showConfirmPassword ? 'text' :'password';
     },
   },
-  mounted() {
-    this.username = this.params?.username;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
-  },
   methods: {
     toggleShow() {
       this.showPassword = !this.showPassword;
@@ -178,25 +173,18 @@ export default {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
     submitForm() {
-      let url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
-      for (const [key, value] of new URLSearchParams(window.location.search)) {
-        url += `${key}=${value}&`;
-      }
-      const body = `action=resetPassword&username=${encodeURIComponent(this.username)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}&captcha=${encodeURIComponent(this.captcha)}`;
-      return fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${body}`,
-      }).then((resp) => {
+      this.$loginService.setPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam, this.captcha).then((resp) => {
         if (!resp || !resp.ok) {
-          resp.json().then((data) => {
-            if (data.error) {
-              this.$root.$emit('alert-message', data.error, 'error');
-            }
-          });
+          if (resp.status === '404') {
+            //token expired
+            window.reload();
+          } else {
+            resp.json().then((data) => {
+              if (data.error) {
+                this.$root.$emit('alert-message', this.$t(data.error), 'error');
+              }
+            });
+          }
         } else {
           if (resp.redirected) {
             window.location.href = resp.url;

@@ -35,28 +35,17 @@ import java.util.Map;
 public class CmsPortletWithMetadata extends CMSPortlet {
 
   public static final String OBJECT_TYPE = "cmsPortlet";
-  public static final String TRANSLATION_IDENTIFIER = "translationIdentifier";
 
   private       TranslationService translationService;
+
   private       AttachmentService  attachmentService;
-  private final SecureRandom       random = new SecureRandom();
 
   @Override
   protected void setViewRequestAttributes(String name, RenderRequest request, RenderResponse response) {
     PortletPreferences preferences = request.getPreferences();
-    String currentTranslationIdentifier = preferences.getValue(TRANSLATION_IDENTIFIER,null);
-    if (currentTranslationIdentifier == null) {
-      // If translation identifier is not set, generate a new one
-      Long randomIdentifier = random.nextLong() & Long.MAX_VALUE;
-      currentTranslationIdentifier = String.valueOf(randomIdentifier);
-      savePreference(TRANSLATION_IDENTIFIER, currentTranslationIdentifier);
-      request.setAttribute(TRANSLATION_IDENTIFIER, currentTranslationIdentifier);
-    }
-
     String initTranslationIdentifier = preferences.getValue(DATA_INIT_PREFERENCE_NAME,null);
     if (initTranslationIdentifier != null) {
       // creation new translations
-
       try {
         Map<String, TranslationField>
             translations = getTranslationService().getAllTranslationFields(OBJECT_TYPE, initTranslationIdentifier);
@@ -66,7 +55,7 @@ public class CmsPortletWithMetadata extends CMSPortlet {
           if (!translationField.getLabels().isEmpty()) {
             try {
               getTranslationService().saveTranslationLabels(OBJECT_TYPE,
-                                                            initTranslationIdentifier,
+                                                            name,
                                                             translationKey,
                                                             translationField.getLabels());
             } catch (ObjectNotFoundException o) {
@@ -83,7 +72,7 @@ public class CmsPortletWithMetadata extends CMSPortlet {
       getAttachmentService().copyAttachments(OBJECT_TYPE,
                                              initTranslationIdentifier,
                                              OBJECT_TYPE,
-                                             currentTranslationIdentifier,
+                                             name,
                                              null,
                                              RestUtils.getCurrentUserIdentityId());
 

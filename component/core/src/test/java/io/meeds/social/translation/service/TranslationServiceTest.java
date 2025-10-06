@@ -39,7 +39,7 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
 
   private String                 objectType  = OBJECT_TYPE;
 
-  private String                   objectId    = "322";
+  private String                 objectId    = "322";
 
   private String                 fieldName   = "title";
 

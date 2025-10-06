@@ -29,35 +29,32 @@
   String portletStorageId = ((String) request.getAttribute("portletStorageId"));
   String hAlign = request.getAttribute("hAlign") == null ? "CENTER" : ((String[]) request.getAttribute("hAlign"))[0];
   String vAlign = request.getAttribute("vAlign") == null ? "CENTER" : ((String[]) request.getAttribute("vAlign"))[0];
+  String settingName = ((String) request.getAttribute("settingName"));
 
 
   Page currentPage = PortalRequestContext.getCurrentInstance().getPage();
   boolean canEdit = ExoContainerContext.getService(UserACL.class).hasEditPermission(currentPage, ConversationState.getCurrent().getIdentity());
   String pageRef = currentPage.getPageKey().format();
 
-  String translationIdentifier;
-  Object translationIdentifierParam = request.getAttribute("translationIdentifier");
-  translationIdentifier = translationIdentifierParam instanceof String[] ? ((String[]) translationIdentifierParam)[0]
-            : ((String) translationIdentifierParam);
   TranslationService translationService = CommonsUtils.getService(TranslationService.class);
 
   String title = translationService.getTranslationLabelOrDefault(objectType,
-              Long.parseLong(translationIdentifier), "brandingTitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+              settingName, "brandingTitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
   title = title == null ? null : URLEncoder.encode(title.replace(" ", "._.")).replace("._.", " ");
 
   String subtitle = translationService.getTranslationLabelOrDefault(objectType,
-                Long.parseLong(translationIdentifier), "brandingSubtitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+                settingName, "brandingSubtitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
   subtitle = subtitle == null ? null : URLEncoder.encode(subtitle.replace(" ", "._.")).replace("._.", " ");
 
 
   AttachmentService attachmentService = CommonsUtils.getService(AttachmentService.class);
-  ObjectAttachmentList attachments = attachmentService.getAttachments(objectType, translationIdentifier);
+  ObjectAttachmentList attachments = attachmentService.getAttachments(objectType, settingName);
   String backgroundFileId = "0";
   if (attachments.getAttachments().size() > 0) {
     backgroundFileId = attachments.getAttachments().get(0).getId();
     PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
     PortalHttpServletResponseWrapper responseWrapper = (PortalHttpServletResponseWrapper) rcontext.getResponse();
-    responseWrapper.addHeader("Link", "</portal/rest/v1/social/attachments/cmsPortlet/" + translationIdentifier + "/" + backgroundFileId + ">; rel=prefetch; as=image; crossorigin=use-credentials", false);
+    responseWrapper.addHeader("Link", "</portal/rest/v1/social/attachments/cmsPortlet/" + settingName + "/" + backgroundFileId + ">; rel=prefetch; as=image; crossorigin=use-credentials", false);
   }
 %>
 <div class="VuetifyApp">
@@ -68,7 +65,7 @@
       require(['PORTLET/social/SidebarLogin'], app =>app.init('<%=id%>',
         "<%=StringEscapeUtils.escapeJava(branding)%>",
         '<%=portletStorageId%>',
-        '<%=translationIdentifier%>',
+        '<%=settingName%>',
         <%=title == null ? null : String.format("'%s'",title)%>,
         <%=subtitle == null ? null : String.format("'%s'",subtitle)%>,
         '<%=hAlign%>',
