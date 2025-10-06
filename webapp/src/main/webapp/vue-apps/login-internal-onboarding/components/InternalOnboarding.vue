@@ -20,24 +20,44 @@
 -->
 <template>
   <v-app>
-    <portal-internal-onboarding-main :params="jsonParams" />
+    <v-card
+        width="600px"
+        max-width="100%"
+        class="mx-auto px-4 transparent"
+        flat>
+        <portal-internal-onboarding-expired
+          v-if="action === 'expired'" />
+        <portal-internal-onboarding-reset-form
+          v-else-if="action === 'createUser'"
+          :username-param='this.username'
+          :token-param='this.token'/>
+      </v-card>
   </v-app>
 </template>
 <script>
 export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  }, data() {
-    return {
-      jsonParams: null,
-    };
-  },
+  data: () => ({
+    username: '',
+    action: '',
+  }),
   created() {
-    this.jsonParams = JSON.parse(this.params);
+    this.token = new URLSearchParams(window.location.search).get('token');
+    if (this.token) {
+      this.$loginService.verifyToken(this.token, 'onboard').then((resp) => {
+        if (!resp || !resp.ok) {
+          this.action = 'expired';
+        } else if (resp.redirected) {
+          window.location.href = resp.url;
+        } else {
+          resp.json().then((data) => {
+            this.username = data.username || '';
+            this.action = 'createUser';
+          });
+        }
+      });
+    }
   },
+
   mounted() {
     this.$root.$applicationLoaded();
   },

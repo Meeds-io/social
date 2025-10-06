@@ -20,24 +20,67 @@
 -->
 <template>
   <v-app>
-    <portal-external-onboarding-main :params="jsonParams" />
+    <v-card
+      width="600px"
+      max-width="100%"
+      class="mx-auto px-4 transparent"
+      flat>
+      <portal-external-onboarding-already-authenticated
+        v-if="authenticated" />
+      <portal-external-onboarding-expired
+        v-else-if="action === 'expired'" />
+      <portal-external-onboarding-create-user-form
+        v-else-if="action === 'createUser'"
+        :identifier='this.email'
+        :token-param='this.token' />
+    </v-card>
   </v-app>
 </template>
 <script>
 export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
-  data() {
-    return {
-      jsonParams: null,
-    };
-  },
+  data: () => ({
+    email: '',
+    action: '',
+    token: ''
+  }),
   created() {
-    this.jsonParams = JSON.parse(this.params);
+    const searchParams = new URLSearchParams(window.location.search);
+    this.token = searchParams.get('token');
+    this.action = searchParams.get('action');
+    if (this.token) {
+      if (this.action === 'validateEmail') {
+        this.$loginService.finishRegistration(this.token, 'email-validation').then((resp) => {
+          if (!resp || !resp.ok) {
+            this.action = 'expired';
+          } else if (resp.redirected) {
+            window.location.href = resp.url;
+          } else {
+            resp.json().then((data) => {
+              this.email = data.username || '';
+              this.action = 'createUser';
+            });
+          }
+        });
+      } else {
+        this.$loginService.verifyToken(this.token, 'external-registration').then((resp) => {
+          if (!resp || !resp.ok) {
+            this.action = 'expired';
+          } else if (resp.redirected) {
+            window.location.href = resp.url;
+          } else {
+            resp.json().then((data) => {
+              this.email = data.username || '';
+              this.action = 'createUser';
+            });
+          }
+        });
+      }
+    }
+  },
+  computed: {
+    authenticated() {
+      return eXo.env.portal.userName && eXo.env.portal.userName !== '';
+    },
   },
   mounted() {
     this.$root.$applicationLoaded();

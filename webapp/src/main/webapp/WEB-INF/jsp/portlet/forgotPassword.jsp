@@ -5,9 +5,6 @@
 <portlet:defineObjects />
 <%
   String id = "forgotPassword-" + renderRequest.getWindowID();
-  JSONObject params = new JSONObject();
-
-  Collections.list(request.getAttributeNames()).forEach(s -> params.put(s, request.getAttribute(s)));
 
 %>
 <div class="VuetifyApp">
@@ -15,7 +12,7 @@
     class="v-application white v-application--is-ltr theme--light forgotPassword"
     id="<%=id%>">
     <script type="text/javascript">
-      require(['PORTLET/social/ForgotPassword'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
+      require(['PORTLET/social/ForgotPassword'], app =>app.init('<%=id%>'));
     </script>
   </div>
 </div>

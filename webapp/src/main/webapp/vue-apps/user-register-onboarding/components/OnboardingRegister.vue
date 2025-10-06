@@ -23,7 +23,8 @@
     name="registerForm"
     method="post"
     autocomplete="off"
-    class="d-flex ma-0 flex-column">
+    class="d-flex ma-0 flex-column"
+    @submit.prevent="submitForm()">
     <div class="d-flex flex-column">
       <div class="mb-5 mx-auto text-header">{{ $t('onboarding.emailSummary') }}</div>
       <v-row class="ma-0 pa-0">
@@ -49,7 +50,7 @@
           width="350"
           flat>
           <v-img
-            src="/portal/register?serveCaptcha=true"
+            src="/social/rest/login/captcha?name=register"
             width="150"
             heigh="40"
             class="primary me-2 rounded-lg"
@@ -79,7 +80,7 @@
           color="primary"
           class="mx-auto login-button btn-primary text-none"
           elevation="0"
-          @click="submitForm()">
+          type="submit">
           {{ $t('forgotpassword.send') }}
         </v-btn>
       </v-row>
@@ -126,20 +127,11 @@ export default {
   },
   methods: {
     submitForm() {
-      const url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
-      const body = `email=${encodeURIComponent(this.email)}&captcha=${encodeURIComponent(this.captcha)}`;
-      return fetch(url, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${body}`,
-      }).then((resp) => {
+      this.$loginService.requestRegister(this.email, this.captcha).then((resp) => {
         if (!resp || !resp.ok) {
           resp.json().then((data) => {
             if (data.error) {
-              this.$root.$emit('alert-message', data.error, 'error');
+              this.$root.$emit('alert-message', this.$t(data.error), 'error');
             }
           });
         } else {

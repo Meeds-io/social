@@ -18,14 +18,12 @@
  */
 
 import ForgotPassword from './components/ForgotPassword.vue';
-import ForgotPasswordMain from './components/ForgotPasswordMain.vue';
 import ForgotPasswordEmailForm from './components/ForgotPasswordEmailForm.vue';
 import ForgotPasswordExpired from './components/ForgotPasswordExpired.vue';
 import ForgotPasswordResetForm from './components/ForgotPasswordResetForm.vue';
 
 const components = {
   'portal-forgot-password': ForgotPassword,
-  'portal-forgot-password-main': ForgotPasswordMain,
   'portal-forgot-password-expired': ForgotPasswordExpired,
   'portal-forgot-password-email-form': ForgotPasswordEmailForm,
   'portal-forgot-password-reset-form': ForgotPasswordResetForm,

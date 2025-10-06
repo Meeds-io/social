@@ -11,7 +11,6 @@
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.apache.commons.collections.MapUtils"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
-<%@page import="org.exoplatform.web.register.RegisterHandler"%>
 <%@page import="io.meeds.portal.security.constant.UserRegistrationType"%>
 <%@page import="org.json.JSONObject"%>
 <%@page import="org.json.JSONArray"%>
@@ -70,14 +69,10 @@
                     });
   }
   // Force disabling Register Form when the platform access is restricted
-  params.put(RegisterHandler.REGISTER_ENABLED, securitySettingService.getRegistrationType() != UserRegistrationType.RESTRICTED);
+  params.put("registerEnabled", securitySettingService.getRegistrationType() != UserRegistrationType.RESTRICTED);
 
   String portletStorageId = ((String) request.getAttribute("portletStorageId"));
   String settingName = ((String) request.getAttribute("settingName"));
-  String translationIdentifier;
-  Object translationIdentifierParam = request.getAttribute("translationIdentifier");
-  translationIdentifier = translationIdentifierParam instanceof String[] ? ((String[]) translationIdentifierParam)[0]
-            : ((String) translationIdentifierParam);
   Page currentPage = rcontext.getPage();
   boolean canEdit = ((boolean) request.getAttribute("canEdit"));
   String pageRef = currentPage.getPageKey().format();
@@ -85,19 +80,19 @@
   TranslationService translationService = CommonsUtils.getService(TranslationService.class);
 
   String welcomeBack = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "welcomeBack", request.getLocale());
+            settingName, "welcomeBack", request.getLocale());
   welcomeBack = welcomeBack == null ? null : URLEncoder.encode(welcomeBack.replace(" ", "._.")).replace("._.", " ");
 
   String newHere = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "newHere", request.getLocale());
+            settingName, "newHere", request.getLocale());
   newHere = newHere == null ? null : URLEncoder.encode(newHere.replace(" ", "._.")).replace("._.", " ");
 
   String createAccount = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "createAccount", request.getLocale());
+            settingName, "createAccount", request.getLocale());
   createAccount = createAccount == null ? null : URLEncoder.encode(createAccount.replace(" ", "._.")).replace("._.", " ");
 
   String signinEmailButton = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), "signinEmailButton", request.getLocale());
+            settingName, "signinEmailButton", request.getLocale());
   signinEmailButton = signinEmailButton == null ? null : URLEncoder.encode(signinEmailButton.replace(" ", "._.")).replace("._.", " ");
 
   String signinOption = request.getAttribute("signinOption") == null ? "loginform" : ((String[]) request.getAttribute("signinOption"))[0];
@@ -126,7 +121,7 @@
     for (int i = 0; i < allAuthProviderTypes.length(); i++) {
       String providerType = allAuthProviderTypes.getString(i);
       String providerLabel = translationService.getTranslationLabelOrDefault("cmsPortlet",
-            Long.parseLong(translationIdentifier), providerType,
+            settingName, providerType,
             request.getLocale());
       if (providerLabel != null) {
         oAuthProviderLabels.put(providerType,providerLabel);
@@ -137,8 +132,7 @@
   params.put("oAuthProviderLabels", oAuthProviderLabels);
   params.put("allAuthProviderTypes", allAuthProviderTypes);
   params.put("portletStorageId", portletStorageId);
-  params.put("settingName", settingName);
-  params.put("translationIdentifier", translationIdentifier);
+  params.put("translationIdentifier", settingName);
   params.put("canEdit", canEdit);
   params.put("pageRef", pageRef);
   params.put("welcomeBack", welcomeBack);

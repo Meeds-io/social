@@ -20,15 +20,6 @@
 -->
 <template>
   <v-app class="mx-auto" v-show="this.init" style="max-width: 375px;">
-    <login-form-settings-drawer
-          :translation-identifier="values.translationIdentifier"
-          :register-enabled="values.registerEnabled"
-          :signin-option="signinOption"
-          :display-signin-email-button-icon="displaySigninEmailButtonIcon"
-          :list-external-providers="listExternalProviders"
-          :display-providers-icons="displayProvidersIcons"
-          :display-welcome-message="displayWelcomeMessage"
-          v-if="values.canEdit"/>
     <v-hover v-slot="{ hover }">
       <v-card
         class="rounded-0 transparent pa-5"
@@ -187,17 +178,33 @@
         <div v-else-if="!displayForm && signinOption !== 'noform'" class="mt-4 center text-body">
           <v-btn
             color="primary"
-            class="elevation-0 loginFormSigninEmailButton white-background"
+            class="elevation-0 white-background full-height mutliple-lines"
             outlined
             @click="clickDisplayForm()">
-            <span class="text-body">
-              <v-icon class="me-2" v-if="displaySigninEmailButtonIcon" color="primary">fas fa-envelope</v-icon>
-              {{ signinEmailButton }}
-            </span>
+            <v-card
+              class="text-wrap d-flex align-center"
+              min-height="36"
+              color="transparent"
+              flat>
+              <span class="text-body">
+                <v-icon class="me-2" v-if="displaySigninEmailButtonIcon" color="primary">fas fa-envelope</v-icon>
+                {{ signinEmailButton }}
+              </span>
+            </v-card>
           </v-btn>
         </div>
       </v-card>
     </v-hover>
+    <login-form-settings-drawer
+      v-if="values.canEdit"
+      :translation-identifier="values.translationIdentifier"
+      :register-enabled="values.registerEnabled"
+      :signin-option="signinOption"
+      :display-signin-email-button-icon="displaySigninEmailButtonIcon"
+      :list-external-providers="listExternalProviders"
+      :display-providers-icons="displayProvidersIcons"
+      :display-welcome-message="displayWelcomeMessage"
+      :providers-data="providers"/>
   </v-app>
 </template>
 <script>
@@ -237,6 +244,7 @@ export default {
     },
   },
   created() {
+    console.log('LoginForm component created');
     this.values = JSON.parse(this.params);
     this.signinOption = this.values?.signinOption || 'loginform';
     this.welcomeBack = decodeURIComponent(this.values?.welcomeBack || this.$t('portal.login.WelcomeBack'));
@@ -343,14 +351,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-  .loginFormSigninEmailButton {
-    min-height: 36px;
-    height: 100% !important;
-  }
-  .loginFormSigninEmailButton > .v-btn__content {
-    max-width: 100%;
-    white-space: normal;
-  }
-</style>

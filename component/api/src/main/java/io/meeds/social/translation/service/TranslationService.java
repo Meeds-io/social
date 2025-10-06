@@ -50,8 +50,8 @@ public interface TranslationService {
    * @throws ObjectNotFoundException When object wasn't found
    */
   Map<String, TranslationField> getAllTranslationFields(String objectType,
-                                                 String objectId,
-                                                 String username) throws IllegalAccessException, ObjectNotFoundException;
+                                                        String objectId,
+                                                        String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
    * Retrieves the list of TranslationFields Labels for all fields of an Object
