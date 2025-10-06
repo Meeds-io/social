@@ -275,6 +275,7 @@ export default {
       const formData = new FormData();
       formData.append('pageRef', this.$root.pageRef);
       formData.append('applicationId', this.$root.portletStorageId);
+      formData.append('keepExisting', 'true');
       const params = new URLSearchParams(formData).toString();
       const body = {
         preferences: [

@@ -4,7 +4,7 @@
 <%@ page import="org.exoplatform.container.PortalContainer"%>
 <%@ page import="org.exoplatform.web.login.UIParamsExtension"%>
 <%@ page import="org.apache.commons.collections.CollectionUtils"%>
-<%@ page import="org.exoplatform.web.register.RegisterHandler"%>
+<%@ page import="org.exoplatform.web.login.LoginHandler"%>
 <%@page import="org.apache.commons.collections.MapUtils"%>
 <%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
 <%@page import="org.exoplatform.web.ControllerContext"%>
@@ -19,8 +19,6 @@
   String id = "registerForm-" + renderRequest.getWindowID();
   JSONObject params = new JSONObject();
 
-  Collections.list(request.getAttributeNames()).forEach(s -> params.put(s, request.getAttribute(s)));
-
   PortalContainer portalContainer = PortalContainer.getCurrentInstance(session.getServletContext());
   String contextPath = portalContainer.getPortalContext().getContextPath();
   PortalRequestContext rcontext = (PortalRequestContext) PortalRequestContext.getCurrentInstance();
@@ -29,10 +27,9 @@
   List<UIParamsExtension> paramsExtensions = portalContainer.getComponentInstancesOfType(UIParamsExtension.class);
   if (CollectionUtils.isNotEmpty(paramsExtensions)) {
    paramsExtensions.stream()
-                   .filter(extension -> extension.getExtensionNames().contains(RegisterHandler.REGISTER_EXTENSION_NAME))
+                   .filter(extension -> extension.getExtensionNames().contains(LoginHandler.REGISTER_EXTENSION_NAME))
                    .forEach(paramsExtension -> {
-                     Map<String, Object> extendedParams = paramsExtension.extendParameters(controllerContext,
-                                                                                           RegisterHandler.REGISTER_EXTENSION_NAME);
+                     Map<String, Object> extendedParams = paramsExtension.extendParameters(controllerContext,LoginHandler.REGISTER_EXTENSION_NAME);
 
                      if (MapUtils.isNotEmpty(extendedParams)) {
                        extendedParams.forEach((key, value) -> {
@@ -61,7 +58,11 @@
     class="v-application white v-application--is-ltr theme--light registerForm"
     id="<%=id%>">
     <script type="text/javascript">
-      require(['PORTLET/social/RegisterForm'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
+      if (eXo.env.portal.userName && eXo.env.portal.userName !== '' ) {
+        window.location.href='/';
+      } else {
+        require(['PORTLET/social/RegisterForm'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
+      }
     </script>
   </div>
 </div>

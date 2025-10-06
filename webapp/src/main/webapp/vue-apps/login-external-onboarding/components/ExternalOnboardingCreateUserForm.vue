@@ -54,19 +54,7 @@
       method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
-      @submit="validateForm()">
-      <input
-        type="hidden"
-        name="action"
-        value="saveExternal">
-      <input
-        type="hidden"
-        :value="username"
-        name="username">
-      <input
-        type="hidden"
-        :value="initialURI"
-        name="initialURI">
+      @submit.prevent="validateForm()">
       <div>
         <v-card-title class="px-0 mt-4 text-break text-header">
           {{ $t('onboarding.yourProfileTitle') }}
@@ -176,7 +164,7 @@
             width="350"
             flat>
             <v-img
-              src="/portal/external-registration?serveCaptcha=true"
+              src="/social/rest/login/captcha?name=external-registration"
               width="150"
               heigh="40"
               class="primary me-2 rounded-lg"
@@ -208,7 +196,7 @@
             color="primary"
             class="login-button btn-primary text-none mx-auto"
             elevation="0"
-            @click="validateForm()">
+            type="submit">
             {{ $t('onboarding.save') }}
           </v-btn>
         </v-row>
@@ -219,8 +207,12 @@
 <script>
 export default {
   props: {
-    params: {
-      type: Object,
+    identifier: {
+      type: String,
+      default: null,
+    },
+    tokenParam: {
+      type: String,
       default: null,
     },
   },
@@ -272,18 +264,14 @@ export default {
           element.setCustomValidity('');
         };
       }
-    },
+    }
   },
   mounted() {
-    this.username = this.params?.username;
-    this.email = this.params?.email;
-    this.firstName = this.params?.firstName;
-    this.lastName = this.params?.lastName;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
-    this.initialURI = this.params?.initialURI;
-    this.errorField = this.params?.errorField;
-    this.error = this.params?.error;
+    if (this.identifier && this.identifier.includes('@')) {
+      this.email = this.identifier;
+    } else {
+      this.username = this.identifier;
+    }
   },
   methods: {
     toggleShow() {
@@ -295,40 +283,47 @@ export default {
     validateForm() {
       this.loading = this.$refs.form.reportValidity();
       if (!this.disabled) {
-        let body = `action=saveExternal&email=${encodeURIComponent(this.email)}&firstName=${encodeURIComponent(this.firstName)}&lastName=${encodeURIComponent(this.lastName)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}&captcha=${encodeURIComponent(this.captcha)}`;
-        if (this.username) {
-          body += `&username=${encodeURIComponent(this.username)}`;
-        }
-        let url = `${eXo.env.portal.context}/${eXo.env.portal.selectedNodeUri}?`;
-        for (const [key, value] of new URLSearchParams(window.location.search)) {
-          url += `${key}=${value}&`;
-        }
-        return fetch(url, {
-          method: 'POST',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `${body}`,
-        }).then((resp) => {
-          if (!resp || !resp.ok) {
-            resp.json().then((data) => {
-              this.error = data.error;
-              this.errorField = data.errorField;
-              if (!this.errorField) {
-                this.$root.$emit('alert-message', this.error, 'error');
-              }
-              this.loading = false;
-            });
-          } else {
-            if (resp.redirected) {
-              window.location.href = resp.url;
+        if (!this.username) {
+          this.$loginService.register(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha).then((resp) => {
+            if (!resp || !resp.ok) {
+              resp.json().then((data) => {
+                this.error = data.error;
+                this.errorField = data.errorField;
+                if (!this.errorField) {
+                  this.$root.$emit('alert-message', this.error, 'error');
+                }
+                this.loading = false;
+              });
             } else {
-              this.success = true;
+              if (resp.redirected) {
+                window.location.href = resp.url;
+              } else {
+                this.success = true;
+              }
+              this.loading=false;
             }
-            this.loading=false;
-          }
-        });
+          });
+        } else {
+          this.$loginService.sendEmailVerificationEmail(this.email, this.firstName, this.lastName, this.password, this.confirmPassword, this.tokenParam, this.captcha, this.username).then((resp) => {
+            if (!resp || !resp.ok) {
+              resp.json().then((data) => {
+                this.error = data.error;
+                this.errorField = data.errorField;
+                if (!this.errorField) {
+                  this.$root.$emit('alert-message', this.error, 'error');
+                }
+                this.loading = false;
+              });
+            } else {
+              if (resp.redirected) {
+                window.location.href = resp.url;
+              } else {
+                this.success = true;
+              }
+              this.loading=false;
+            }
+          });
+        }
       } else {
         this.loading=false;
         return false;

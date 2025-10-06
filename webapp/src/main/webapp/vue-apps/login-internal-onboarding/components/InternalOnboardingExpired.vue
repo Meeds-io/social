@@ -19,7 +19,7 @@
 
 -->
 <template>
-  <v-card flat class="transparent">
+  <v-card color="transparent" flat>
     <v-card-title class="text-font-size px-0">
       <span class="mx-auto text-center">{{ $t('onboarding.linkExpired') }}</span>
     </v-card-title>
@@ -44,12 +44,6 @@
 </template>
 <script>
 export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
   computed: {
     formUrl() {
       return window.location.pathname;

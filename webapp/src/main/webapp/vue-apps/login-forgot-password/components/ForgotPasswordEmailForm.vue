@@ -32,8 +32,7 @@
       method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
-      @submit="submitForm()">
-
+      @submit.prevent="submitForm()">
       <input
         type="hidden"
         name="action"
@@ -43,7 +42,6 @@
         type="hidden"
         name="initialURI"
         :value="initialUri">
-
       <div class="pa-0">
         <v-row class="ma-0 pa-0">
           <v-text-field
@@ -72,7 +70,7 @@
             color="primary"
             class="mx-auto login-button btn-primary text-none"
             elevation="0"
-            @click="submitForm()">
+            type="submit">
             {{ $t('forgotpassword.send') }}
           </v-btn>
         </v-row>
@@ -99,53 +97,27 @@
 </template>
 <script>
 export default {
-  props: {
-    params: {
-      type: Object,
-      default: null,
-    },
-  },
   data: () => ({
     username: '',
   }),
-  computed: {
-    initialUri() {
-      return this.params?.initialUri;
-    },
-    formUrl() {
-      return window.location.pathname;
-    },
-  },
   methods: {
     submitForm() {
-      const body = `action=send&username=${encodeURIComponent(this.username)}`;
-      return fetch(this.formUrl, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${body}`,
-      }).then((resp) => {
+      this.$loginService.requestResetPassword(this.username).then((resp) => {
         if (!resp || !resp.ok) {
           resp.json().then((data) => {
             if (data.error) {
-              this.$root.$emit('alert-message', data.error, 'error');
+              this.$root.$emit('alert-message', this.$t(data.error), 'error');
             }
           });
         } else {
-
           resp.json().then((data) => {
             if (data.success) {
-              this.$root.$emit('alert-message', data.success, 'success');
+              this.$root.$emit('alert-message', this.$t(data.success), 'success');
             }
           });
         }
       });
     },
-  },
-  mounted() {
-    this.username = this.params?.username;
-  },
+  }
 };
 </script>

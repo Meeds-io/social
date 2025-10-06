@@ -19,7 +19,7 @@
 import './initComponents.js';
 
 //getting language of the PLF
-const lang = typeof eXo !== 'undefined' ? eXo.env.portal.language : 'en';
+const lang = eXo?.env?.portal?.language || 'en';
 
 //should expose the locale ressources as REST API 
 const urls = [

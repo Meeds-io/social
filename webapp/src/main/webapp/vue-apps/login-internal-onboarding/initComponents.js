@@ -18,13 +18,11 @@
  */
 
 import InternalOnboarding from './components/InternalOnboarding.vue';
-import InternalOnboardingMain from './components/InternalOnboardingMain.vue';
 import InternalOnboardingExpired from './components/InternalOnboardingExpired.vue';
 import InternalOnboardingResetForm from './components/InternalOnboardingResetForm.vue';
 
 const components = {
   'portal-internal-onboarding': InternalOnboarding,
-  'portal-internal-onboarding-main': InternalOnboardingMain,
   'portal-internal-onboarding-expired': InternalOnboardingExpired,
   'portal-internal-onboarding-reset-form': InternalOnboardingResetForm,
 };

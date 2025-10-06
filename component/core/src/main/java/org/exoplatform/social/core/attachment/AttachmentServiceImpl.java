@@ -388,11 +388,12 @@ public class AttachmentServiceImpl implements AttachmentService {
 
 
   private void moveAttachments(String sourceObjectType,
-                              String sourceObjectId,
-                              String destinationObjectType,
-                              String destinationObjectId,
-                              String destinationParentObjectId,
-                              long userIdentityId, boolean deleteAfterMove) {
+                               String sourceObjectId,
+                               String destinationObjectType,
+                               String destinationObjectId,
+                               String destinationParentObjectId,
+                               long userIdentityId,
+                               boolean deleteAfterMove) {
     ObjectAttachmentList objectAttachmentList = getAttachments(sourceObjectType, sourceObjectId);
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
     if (CollectionUtils.isNotEmpty(attachments)) {

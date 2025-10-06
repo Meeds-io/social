@@ -27,7 +27,7 @@
     :loading="loading"
     eager
     @closed="reset">
-    <template slot="title">
+    <template #title>
       {{ $t('loginForm.drawer.settings.title') }}
     </template>
     <template v-if="drawer" #content>
@@ -201,6 +201,10 @@ export default {
       type: Boolean,
       default: true,
     },
+    providersData: {
+      type: Array,
+      default: () => [],
+    },
   },
   data: () => ({
     drawer: false,
@@ -213,12 +217,10 @@ export default {
     providers: [],
   }),
   created() {
+    console.log('LoginFormSettingsDrawer - created');
     this.$root.$on('login-form-settings', this.open);
     this.$root.$on('login-providers-refreshed', (providers) => {
-      this.providers = providers;
-      this.providers.forEach((provider) => {
-        provider.translations = {};
-      });
+      this.initProviders(providers);
     });
   },
   beforeDestroy() {
@@ -331,6 +333,7 @@ export default {
       const formData = new FormData();
       formData.append('pageRef', this.$root.pageRef);
       formData.append('applicationId', this.$root.portletStorageId);
+      formData.append('keepExisting', 'true');
       const params = new URLSearchParams(formData).toString();
       return fetch(`/layout/rest/pages/application/preferences?${params}`, {
         method: 'PATCH',
@@ -387,6 +390,13 @@ export default {
     },
     providerKeyCapitalize(providerName) {
       return `${providerName.toLowerCase().charAt(0).toUpperCase()}${providerName.toLowerCase().substring(1)}`;
+    },
+    initProviders(providers) {
+      console.log('LoginFormSettingsDrawer - login-providers-refreshed event received', providers);
+      this.providers = providers;
+      this.providers.forEach((provider) => {
+        provider.translations = {};
+      });
     },
   },
 };

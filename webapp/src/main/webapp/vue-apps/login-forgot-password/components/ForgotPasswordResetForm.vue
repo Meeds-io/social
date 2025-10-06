@@ -25,27 +25,16 @@
     </v-card-title>
 
     <form
-      :action="formUrl"
       name="resetPasswordForm"
       method="post"
       autocomplete="off"
       class="d-flex ma-0 flex-column"
-      @submit="submitForm()">
-      <input
-        type="hidden"
-        name="action"
-        value="resetPassword">
-      <input
-        v-if="initialUri"
-        type="hidden"
-        name="initialURI"
-        :value="initialUri">
-
+      @submit.prevent="submitForm()">
       <div class="pa-0">
         <v-row class="ma-0 pa-0">
           <v-text-field
             id="username"
-            v-model="username"
+            v-model="usernameParam"
             :title="$t('portal.login.Username')"
             :placeholder="$t('portal.login.Username')"
             name="username"
@@ -96,13 +85,13 @@
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn
             :aria-label="$t('forgotpassword.send')"
-            :disabled="!username"
+            :disabled="!usernameParam || !password || !confirmPassword"
             width="222"
             max-width="100%"
             color="primary"
             class="mx-auto login-button btn-primary text-none"
             elevation="0"
-            @click="submitForm()">
+            type="submit">
             {{ $t('forgotpassword.send') }}
           </v-btn>
         </v-row>
@@ -130,36 +119,28 @@
 <script>
 export default {
   props: {
-    params: {
-      type: Object,
+    usernameParam: {
+      type: String,
+      default: null,
+    },
+    tokenParam: {
+      type: String,
       default: null,
     },
   },
   data: () => ({
-    username: '',
     password: '',
     confirmPassword: '',
     showPassword: false,
     showConfirmPassword: false,
   }),
   computed: {
-    initialUri() {
-      return this.params?.initialUri;
-    },
-    formUrl() {
-      return this.params?.formUrl;
-    },
     passwordType() {
       return this.showPassword ? 'text' :'password';
     },
     passwordConfirmType() {
       return this.showConfirmPassword ? 'text' :'password';
     },
-  },
-  mounted() {
-    this.username = this.params?.username;
-    this.password = this.params?.password;
-    this.confirmPassword = this.params?.password2;
   },
   methods: {
     toggleShow() {
@@ -169,21 +150,18 @@ export default {
       this.showConfirmPassword = !this.showConfirmPassword;
     },
     submitForm() {
-      const body = `action=resetPassword&username=${encodeURIComponent(this.username)}&password=${encodeURIComponent(this.password)}&password2=${encodeURIComponent(this.confirmPassword)}`;
-      return fetch(this.formUrl, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `${body}`,
-      }).then((resp) => {
+      this.$loginService.resetPassword(this.usernameParam, this.password, this.confirmPassword, this.tokenParam).then((resp) => {
         if (!resp || !resp.ok) {
-          resp.json().then((data) => {
-            if (data.error) {
-              this.$root.$emit('alert-message', data.error, 'error');
-            }
-          });
+          if (resp.status === '404') {
+            //token expired
+            window.reload();
+          } else {
+            resp.json().then((data) => {
+              if (data.error) {
+                this.$root.$emit('alert-message', this.$t(data.error), 'error');
+              }
+            });
+          }
         } else {
           if (resp.redirected) {
             window.location.href = resp.url;
