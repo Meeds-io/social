@@ -232,9 +232,9 @@ public class LinkProvider {
                       .append(" data-role=\"")
                       .append(role)
                       .append("\">")
-                      .append("<i aria-hidden=\"true\" class=\"v-icon fa ")
+                      .append("<i aria-hidden=\"true\" class=\"me-1 v-icon fa ")
                       .append(getRoleIcon(role))
-                      .append("\" style=\"font-size: var(--appTextFontSize, var(--allPagesBaseTextFontSize, 16px));\"></i> ")
+                      .append("\" style=\"font-size: var(--appTextFontSize, var(--allPagesBaseTextFontSize, 16px));\"></i>")
                       .append(getGroupRoleLabel(role, locale))
                       .append("</a>")
                       .toString();
