@@ -283,6 +283,7 @@ export default {
   created() {
     // Load CKEditor only when needed
     window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester']);
+    document.addEventListener('activity-composer-edited', this.handleEditorInputChange);
     this.updateSpaceId();
   },
   mounted() {
@@ -297,6 +298,7 @@ export default {
     }
   },
   beforeDestroy() {
+    document.removeEventListener('activity-composer-edited', this.handleEditorInputChange);
     this.destroyCKEditor();
   },
   methods: {
@@ -920,6 +922,18 @@ export default {
           reject(e);
         }
       });
+    },
+    handleEditorInputChange() {
+      let content = this.editor.getData();
+      content = this.replaceWithSuggesterClass(content);
+      this.inputVal = content;
+      this.updateInput(this.inputVal);
+      if (this.editorReady && this.supportsOembed) {
+        this.setOembedParams({
+          default_title: this.getContentToSave(this.inputVal),
+          comment: this.getContentNoEmbed(this.inputVal),
+        });
+      }
     }
   }
 };
