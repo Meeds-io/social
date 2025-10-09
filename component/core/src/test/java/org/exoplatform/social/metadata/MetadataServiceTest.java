@@ -446,6 +446,8 @@ public class MetadataServiceTest extends AbstractCoreTest {
     assertEquals(storedMetadataItem3.getId(), metadataItems.get(0).getId());
     assertEquals(storedMetadataItem.getId(), metadataItems.get(1).getId());
 
+    assertEquals(2l, metadataService.countMetadataItemsByFilter(metadataFilter).longValue());
+
     objectId = "objectId10598";
     metadataItemObject = newMetadataObjectInstance(objectType, objectId, parentObjectId);
 

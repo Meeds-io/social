@@ -280,7 +280,7 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
   }
 
   public List<MetadataItemEntity> getMetadataItemsByFilter(MetadataFilter filter, long metadataType, long offset, long limit) {
-    Query query = buildMetadataFilterQuery(filter, metadataType);
+    Query query = buildMetadataFilterQuery(filter, metadataType, false);
     if (offset > 0) {
       query.setFirstResult((int) offset);
     }
@@ -289,6 +289,11 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     }
     List<MetadataItemEntity> resultList = query.getResultList();
     return resultList == null ? Collections.emptyList() : resultList;
+  }
+
+  public Long countMetadataItemsByFilter(MetadataFilter filter, long metadataType) {
+    Query query = buildMetadataFilterQuery(filter, metadataType, true);
+    return (Long) query.getSingleResult();
   }
 
   public List<MetadataItemEntity> getMetadataItemsByTypeAndSpaceIdAndCreatorId(long metadataType,
@@ -511,14 +516,21 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
     return totalUpdated;
   }
 
-  private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType) {
+  private Query buildMetadataFilterQuery(MetadataFilter filter, long metadataType, boolean count) {
 
     String[] allowedSortFields = new String[] { "UPDATED_DATE", "CREATED_DATE" };
     StringBuilder query = new StringBuilder();
-    query.append("""
-        SELECT metadataItems.* FROM SOC_METADATA_ITEMS metadataItems
-        INNER JOIN SOC_METADATAS  ON metadataItems.METADATA_ID = SOC_METADATAS.METADATA_ID\s
-        AND SOC_METADATAS.TYPE=""");
+    if (count) {
+      query.append("""
+          SELECT COUNT(DISTINCT metadataItems.METADATA_ITEM_ID) FROM SOC_METADATA_ITEMS metadataItems
+          INNER JOIN SOC_METADATAS  ON metadataItems.METADATA_ID = SOC_METADATAS.METADATA_ID\s
+          AND SOC_METADATAS.TYPE=""");
+    } else {
+      query.append("""
+           SELECT metadataItems.* FROM SOC_METADATA_ITEMS metadataItems
+           INNER JOIN SOC_METADATAS  ON metadataItems.METADATA_ID = SOC_METADATAS.METADATA_ID\s
+           AND SOC_METADATAS.TYPE=""");
+    }
     query.append(metadataType);
     query.append(" AND SOC_METADATAS.NAME ='");
     query.append(filter.getMetadataName());
@@ -575,13 +587,17 @@ public class MetadataItemDAO extends GenericDAOJPAImpl<MetadataItemEntity, Long>
       query.append(combinedPropertiesQuery);
       query.append(") )");
     }
-    query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
-    if (filter.getSortField() != null && Arrays.asList(allowedSortFields).contains(filter.getSortField())) {
-      query.append(" ORDER BY metadataItems.%s DESC, metadataItems.METADATA_ID DESC".formatted(filter.getSortField()));
+    if (count) {
+      return getEntityManager().createNativeQuery(query.toString(), Long.class);
     } else {
-      query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
+      query.append(" GROUP BY metadataItems.METADATA_ITEM_ID");
+      if (filter.getSortField() != null && Arrays.asList(allowedSortFields).contains(filter.getSortField())) {
+        query.append(" ORDER BY metadataItems.%s DESC, metadataItems.METADATA_ID DESC".formatted(filter.getSortField()));
+      } else {
+        query.append(" ORDER BY metadataItems.CREATED_DATE DESC, metadataItems.METADATA_ID DESC");
+      }
+      return getEntityManager().createNativeQuery(query.toString(), MetadataItemEntity.class);
     }
-    return getEntityManager().createNativeQuery(query.toString(), MetadataItemEntity.class);
   }
 
   private void buildPropertiesQuery(StringBuilder query, Map<String, String> properties) {

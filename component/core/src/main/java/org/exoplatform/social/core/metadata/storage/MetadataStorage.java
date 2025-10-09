@@ -283,6 +283,11 @@ public class MetadataStorage {
     return metadataItemEntities.stream().map(this::fromEntity).toList();
   }
 
+  public long countMetadataItemsByFilter(MetadataFilter metadataFilter) {
+    MetadataType metadataType = getMetadataTypeWithCheck(metadataFilter.getMetadataTypeName());
+    return metadataItemDAO.countMetadataItemsByFilter(metadataFilter, metadataType.getId());
+  }
+
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
                                                                                       String metadataTypeName,
                                                                                       String objectType,
@@ -357,7 +362,7 @@ public class MetadataStorage {
   }
 
   public void deleteMetadataItemsByMetadata(long metadataType, String metadataName) {
-    
+
     metadataItemDAO.deleteMetadataItemsByMetadata(metadataType, metadataName);
   }
 
