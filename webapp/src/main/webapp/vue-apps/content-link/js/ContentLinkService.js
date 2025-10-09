@@ -44,19 +44,6 @@ export function searchLinks(objectType, query, offset, limit) {
   });
 }
 
-export function getLink(objectType, objectId) {
-  return fetch(`/social/rest/contentLinks/link/${objectType}/${objectId}`, {
-    method: 'GET',
-    credentials: 'include',
-  }).then((resp) => {
-    if (resp?.ok) {
-      return resp.json();
-    } else {
-      throw new Error('Error when getting content link');
-    }
-  });
-}
-
 export function saveLinks(objectType, objectId, fieldName, links) {
   return fetch(`/social/rest/contentLinks/${objectType}/${objectId}?fieldName=${fieldName}`, {
     method: 'PUT',

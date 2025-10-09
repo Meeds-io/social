@@ -290,23 +290,7 @@ export default {
       this.loading = true;
       try {
         if (this.keyword?.length && this.plugin?.objectType) {
-          const keyword = this.normaliserEspaces(String(this.keyword || ''));
-          let results = await this.$contentLinkService.searchLinks(
-            this.plugin?.objectType,
-            keyword,
-            0,
-            10
-          );
-          if ((!results || results.length === 0) && /^[0-9a-fA-F-]+$/.test(keyword)) {
-            const result = await this.$contentLinkService.getLink(
-              this.plugin?.objectType,
-              keyword
-            );
-            if (result) {
-              results = [result];
-            }
-          }
-          this.links = results || [];
+          this.links = await this.$contentLinkService.searchLinks(this.plugin?.objectType, this.normaliserEspaces(String(this.keyword || '')), 0, 10);
         } else {
           this.links = [];
         }

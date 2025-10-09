@@ -70,4 +70,9 @@ public interface ContentLinkPluginService {
    */
   List<ContentLinkExtension> getExtensions();
 
+  /**
+   * @param objectType Object type
+   * Determines whether the given keyword represents an identifier.
+   */
+  boolean isId(String objectType, String keyword);
 }
