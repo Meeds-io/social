@@ -77,7 +77,7 @@ public class ContentLinkServiceImpl implements ContentLinkService {
                                                    int offset,
                                                    int limit) {
     keyword = StringUtils.trim(keyword);
-    if (StringUtils.isNumeric(keyword)) {
+    if (contentLinkPluginService.isId(objectType, keyword) ) {
       try {
         ContentLink link = getLink(new ContentLinkIdentifier(objectType, keyword, locale), username);
         return Collections.singletonList(new ContentLinkSearchResult(link));
