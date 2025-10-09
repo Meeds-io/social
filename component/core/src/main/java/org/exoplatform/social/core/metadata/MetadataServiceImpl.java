@@ -428,6 +428,11 @@ public class MetadataServiceImpl implements MetadataService, Startable {
   }
 
   @Override
+  public Long countMetadataItemsByFilter(MetadataFilter filter) {
+    return metadataStorage.countMetadataItemsByFilter(filter);
+  }
+
+  @Override
   public List<MetadataItem> getMetadataItemsByMetadataNameAndTypeAndObjectAndSpaceIds(String metadataName,
                                                                                       String metadataTypeName,
                                                                                       String objectType,
