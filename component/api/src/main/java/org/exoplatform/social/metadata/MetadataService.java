@@ -745,6 +745,14 @@ public interface MetadataService {
   }
 
   /**
+   * @param filter {@link MetadataFilter} metadata filter
+   * @return {@link MetadataItem} count
+   */
+  default Long countMetadataItemsByFilter(MetadataFilter filter) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Delete associated Metadata items to a {@link Metadata} identified by its
    * type/name
    * 
