@@ -11,6 +11,13 @@
       @select-tags="selectTags"
       @select-all-connector="selectAllConnector"
       @select-connector="selectConnector" />
+    <extension-registry-components
+      :params="searchComponentParams"
+      name="SearchResult"
+      type="search-result-grouping-card"
+      parent-element="div"
+      element="div"
+      class=" d-flex flex-column" />
     <div v-if="hasResults" class="searchResultsParent d-flex flex-column border-box-sizing">
       <div
         v-for="result in resultsArray"
@@ -58,10 +65,6 @@ export default {
     connectors: {
       type: Array,
       default: () => [],
-    },
-    standalone: {
-      type: Boolean,
-      default: false,
     },
   },
   data: () => ({
@@ -156,6 +159,16 @@ export default {
         return indexA - indexB;
       });
       return finalResults;
+    },
+    searchComponentParams() {
+      return {
+        connectors: this.enabledConnectors,
+        term: this.term,
+        isFavorite: this.favorites,
+        tags: this.selectedTags,
+        spaces: this.selectedSpaces,
+        sortBy: this.sortBy,
+      };
     },
   },
   watch: {

@@ -26,7 +26,6 @@
             ref="results"
             :connectors="connectors"
             :term="term"
-            :standalone="standalone"
             @loading="loading = $event"
             @favorites-changed="favorites = $event"
             @tags-changed="selectedTags = $event"
