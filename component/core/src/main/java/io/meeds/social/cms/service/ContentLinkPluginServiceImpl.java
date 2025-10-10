@@ -73,6 +73,12 @@ public class ContentLinkPluginServiceImpl implements ContentLinkPluginService {
   }
 
   @Override
+  public boolean isId(String objectType, String keyword) {
+    ContentLinkPlugin contentLinkPlugin = plugins.get(objectType);
+    return contentLinkPlugin.isId(keyword);
+  }
+
+  @Override
   @SneakyThrows
   public ContentLink getLink(ContentLinkIdentifier linkIdentifier) {
     String title = getPlugin(linkIdentifier.getObjectType()).getContentTitle(linkIdentifier.getObjectId(),
