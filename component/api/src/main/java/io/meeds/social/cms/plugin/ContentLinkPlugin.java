@@ -21,6 +21,7 @@ package io.meeds.social.cms.plugin;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.services.security.Identity;
 
 import io.meeds.social.cms.model.ContentLink;
@@ -57,5 +58,13 @@ public interface ContentLinkPlugin {
    * @return corresponding {@link ContentLink} if found, else null
    */
   String getContentTitle(String objectId, Locale locale);
+
+  /**
+   * @param keyword Keyword Determines whether the given keyword represents an
+   *          identifier.
+   */
+  default boolean isId(String keyword) {
+    return StringUtils.isNumeric(keyword);
+  }
 
 }
