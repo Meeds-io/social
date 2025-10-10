@@ -32,14 +32,14 @@ document.onclick = (event) => {
   }
 };
 
-export function init(tagName) {
+export async function init(tagName) {
   if (initialized || !document.querySelector(`#${appId}`)) {
     return;
   }
   initialized = true;
   const connectors = JSON.parse(document.getElementById('searchConnectorsDefaultValue').value);
   const skinUrls = JSON.parse(document.getElementById('searchSkinUrlsDefaultValue').value);
-  Vue.createApp({
+  await new Promise(resolve => Vue.createApp({
     data: {
       tagName,
       connectors,
@@ -50,8 +50,12 @@ export function init(tagName) {
         return this.$vuetify.breakpoint.smAndDown;
       }
     },
+    created() {
+      resolve();
+    },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
     vuetify: Vue.prototype.vuetifyOptions,
     i18n: exoi18n.i18n,
-  }, `#${appId}`, appName);
+  }, `#${appId}`, appName));
+  Vue.prototype.$utils.includeExtensions('SearchExtension');
 }

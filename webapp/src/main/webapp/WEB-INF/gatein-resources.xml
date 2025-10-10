@@ -673,6 +673,7 @@
   <portlet>
     <name>Search</name>
     <module>
+      <load-group>search-extensions</load-group>
       <script>
         <minify>false</minify>
         <path>/js/searchApplication.bundle.js</path>
