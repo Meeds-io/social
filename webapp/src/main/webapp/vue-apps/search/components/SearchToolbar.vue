@@ -13,7 +13,8 @@
       prepend-inner-icon="fas fa-search"
       type="text"
       autofocus
-      class="border-box-sizing" />
+      class="border-box-sizing"
+      @keypress.enter="searchByEnter" />
   </div>
 </template>
 <script>
@@ -33,6 +34,7 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     term: null,
+    changed: false,
     typing: false,
   }),
   computed: {
@@ -50,11 +52,14 @@ export default {
       if (!this.term) {
         this.$emit('input', this.term);
         return;
-      }
-      this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
-      if (!this.typing) {
-        this.typing = true;
-        this.waitForEndTyping();
+      } else if (this.$root.disableAutoSearch) {
+        this.changed = true;
+      } else {
+        this.startTypingKeywordTimeout = Date.now() + this.startSearchAfterInMilliseconds;
+        if (!this.typing) {
+          this.typing = true;
+          this.waitForEndTyping();
+        }
       }
     },
   },
@@ -76,6 +81,11 @@ export default {
     }
   },
   methods: {
+    searchByEnter() {
+      if (this.$root.disableAutoSearch && this.changed) {
+        this.$emit('input', this.term);
+      }
+    },
     waitForEndTyping() {
       window.setTimeout(() => {
         if (Date.now() > this.startTypingKeywordTimeout) {

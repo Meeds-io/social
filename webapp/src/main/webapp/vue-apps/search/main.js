@@ -41,6 +41,7 @@ export async function init(tagName) {
   const skinUrls = JSON.parse(document.getElementById('searchSkinUrlsDefaultValue').value);
   await new Promise(resolve => Vue.createApp({
     data: {
+      disableAutoSearch: false,
       tagName,
       connectors,
       skinUrls,
@@ -51,7 +52,13 @@ export async function init(tagName) {
       }
     },
     created() {
+      document.addEventListener('search-disable-auto-search', this.setDisableAutoSearch);
       resolve();
+    },
+    methods: {
+      setDisableAutoSearch() {
+        this.disableAutoSearch = true;
+      },
     },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
     vuetify: Vue.prototype.vuetifyOptions,
