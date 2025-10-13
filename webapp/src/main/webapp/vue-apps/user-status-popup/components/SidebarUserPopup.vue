@@ -76,9 +76,11 @@ export default {
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
+    document.addEventListener('user-status-updated', this.handleCurrentUserStatusUpdated);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleClickOutside);
+    document.removeEventListener('user-status-updated', this.handleCurrentUserStatusUpdated);
   },
   watch: {
     menu() {
@@ -142,7 +144,12 @@ export default {
           })
         );
       });
-    }
+    },
+    handleCurrentUserStatusUpdated({detail: {userId, status}}) {
+      if (this.userName === userId) {
+        this.status = status;
+      }
+    },
   }
 };
 </script>

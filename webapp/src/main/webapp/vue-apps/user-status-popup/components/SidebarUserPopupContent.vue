@@ -135,10 +135,10 @@ export default {
   },
   computed: {
     fullName() {
-      return this.user?.fullname;
+      return this.$currentUserIdentity.profile.fullname;
     },
     avatarUrl() {
-      return this.$root.avatarUrl;
+      return this.$currentUserIdentity.profile.avatar ;
     },
     statusColor() {
       return this.userStatus?.color;
