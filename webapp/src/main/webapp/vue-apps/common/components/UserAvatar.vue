@@ -380,7 +380,7 @@ export default {
       }
     },
     isExternal() {
-      return this.userIdentity && Object.hasOwn(this.userIdentity, 'isInternal') ? !this.userIdentity?.isInternal : this.userIdentity?.external === 'true';
+      return this.userIdentity?.external === 'true';
     },
     externalTag() {
       return `( ${this.$t('userAvatar.external.label')} )`;
