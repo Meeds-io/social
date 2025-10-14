@@ -257,7 +257,6 @@ export default {
       this.$refs.drawer.open();
     },
     reset() {
-      console.log('resetting sidebar login settings drawer');
       this.hAlign = this.$root.hAlign || 'CENTER';
       this.vAlign = this.$root.vAlign || 'CENTER';
       this.backgroundFileId = this.$root.backgroundFileId || 0;
