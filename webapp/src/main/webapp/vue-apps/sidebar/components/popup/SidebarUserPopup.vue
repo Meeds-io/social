@@ -76,9 +76,11 @@ export default {
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
+    document.addEventListener('user-status-updated', status => this.handleStatusChangeEvent(status));
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleClickOutside);
+    document.removeEventListener('user-status-updated', status => this.handleStatusChangeEvent(status));
   },
   watch: {
     menu() {
@@ -137,11 +139,16 @@ export default {
           new CustomEvent('user-status-updated', {
             detail: {
               userId: this.userName,
-              status
+              status: this.status,
+              color: this.statusMap?.[this.status]
             }
           })
         );
+        this.$nextTick().then(() => this.menu = false);
       });
+    },
+    handleStatusChangeEvent(statusEvent) {
+      this.status = statusEvent.detail.status;
     }
   }
 };

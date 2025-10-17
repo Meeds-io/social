@@ -126,6 +126,12 @@ export default {
     productLink: eXo.env.portal.productLink,
     statusColor: '#707070'
   }),
+  created() {
+    document.addEventListener('user-status-updated', status => this.statusColor = status.color);
+  },
+  beforeDestroy() {
+    document.removeEventListener('user-status-updated', status => this.statusColor = status.color);
+  },
   computed: {
     avatarUrl() {
       return this.$root.avatarUrl;
