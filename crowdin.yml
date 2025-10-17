@@ -21,7 +21,7 @@ files: [
     "source" : "/component/core/src/main/resources/locale/social/Core_en.properties",
 
     "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest" : "hub/social/component/Core.properties",
     "update_option" : "update_as_unapproved",
     "escape_special_characters": 0,
@@ -31,7 +31,7 @@ files: [
     "source" : "/component/service/src/main/resources/locale/social/Webui_en.properties",
 
     "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest" : "hub/social/component/Webui.properties",
     "update_option" : "update_as_unapproved",
     "escape_special_characters": 0,
@@ -41,7 +41,7 @@ files: [
     "source" : "/component/service/src/main/resources/locale/social/menu/webui_en.properties",
 
     "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest" : "hub/social/menu/webui.properties",
     "update_option" : "update_as_unapproved",
     "escape_special_characters": 0,
@@ -52,7 +52,7 @@ files: [
     "source" : "/webapp/src/main/resources/locale/notification/template/Notification_en.properties",
 
     "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest" : "hub/social/extension/Notification.properties",
     "update_option" : "update_as_unapproved",
     "escape_special_characters": 0,
@@ -62,7 +62,7 @@ files: [
     "source" : "/webapp/src/main/resources/locale/portal/HamburgerMenu_en.properties",
 
     "translation" : "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest" : "hub/social/extension/hamburgerMenu.properties",
     "update_option" : "update_as_unapproved",
     "escape_special_characters": 0,
@@ -72,7 +72,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portal_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/portal.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -82,7 +82,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/Portlets_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapps.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -92,7 +92,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/GeneralSettings_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/GeneralSettings.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -102,7 +102,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/SpaceInfosPortlet_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpaceInfosPortlet.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -112,7 +112,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/whoisonline/whoisonline_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/whoisonline.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -122,7 +122,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/GettingStartedPortlet_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/GettingStarted.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -132,7 +132,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ExternalSpacesListApplication_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ExternalSpacesListApplication.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -142,7 +142,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/PeopleListApplication_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/PeopleListApplication.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -152,7 +152,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/PeopleOverview_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/PeopleOverview.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -162,7 +162,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ProfileAboutMe_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ProfileAboutMe.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -172,7 +172,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ProfileContactInformation_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ProfileContactInformation.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -182,7 +182,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ProfileHeader_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ProfileHeader.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -192,7 +192,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ProfileWorkExperience_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ProfileWorkExperience.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -202,7 +202,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/SpacesAdministrationPortlet_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpaceAdministrationPortlet.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -212,7 +212,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/SpacesListApplication_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpacesListApplication.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -222,7 +222,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/UserPopup_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/UserPopup.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -232,7 +232,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/SpacesOverview_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpacesOverview.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -242,7 +242,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/SuggestionsPortlet_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SuggestionsPortlet.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -252,7 +252,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/ComplementaryFilter_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ComplementaryFilter.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -262,7 +262,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/social/UserSettings_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/UserSettings.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -272,7 +272,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/Login_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/Login.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -282,7 +282,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/UserNotificationPortlet_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/UserNotificationPortlet.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -292,7 +292,7 @@ files: [
     "source": "/webapp/src/main/resources/locale/portlet/NotificationAdministration_en.properties",
 
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/NotificationAdministration.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -301,7 +301,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/SpaceTemplatesManagement_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpaceTemplatesManagement.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -310,7 +310,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/SimpleStorage_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SimpleStorage.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -319,7 +319,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/PlatformAdminsWidget_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/PlatformAdminsWidget.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -328,7 +328,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/PlatformAccess_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/PlatformAccess.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -337,7 +337,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/CategoryManagement_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/CategoryManagement.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -346,7 +346,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/ContentLink_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/ContentLink.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -355,7 +355,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/social/SpaceCreation_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace" : {YML_CROWDIN_LANGUAGES_ARG},
+    "translation_replace" : {"_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW"},
     "dest": "hub/social/webapp/SpaceCreation.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -364,7 +364,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/EmojiPicker_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace": { YML_CROWDIN_LANGUAGES_ARG },
+    "translation_replace": { "_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW" },
     "dest": "hub/social/webapp/EmojiPicker.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
@@ -373,7 +373,7 @@ files: [
   {
     "source": "/webapp/src/main/resources/locale/portlet/UsersManagement_en.properties",
     "translation": "%original_path%/%file_name%!_%locale_with_underscore%.%file_extension%",
-    "translation_replace": { YML_CROWDIN_LANGUAGES_ARG },
+    "translation_replace": { "_en!": "","ar_SA": "ar","ar_OM": "aro","ca_ES": "ca","co_FR": "co","cs_CZ": "cs","de_DE": "de","el_GR": "el","en_US": "en","es_ES": "es_ES","et_EE": "et","fa_IR": "fa","fi_FI": "fi","fil_PH": "fil","fr_FR": "fr","he_IL": "he","hr_HR": "hr","hu_HU": "hu","id_ID": "id","it_IT": "it","ja_JP": "ja","ko_KR": "ko","lt_LT": "lt","nl_NL": "nl","no_NO": "no","pl_PL": "pl","pt_BR": "pt_BR","pt_PT": "pt_PT","ro_RO": "ro","ru_RU": "ru","sk_SK": "sk","sl_SI": "sl","sq_AL": "sq","sv_SE": "sv_SE","th_TH": "th","tr_TR": "tr","uk_UA": "uk","vi_VN": "vi","zh_CN": "zh_CN","zh_TW": "zh_TW" },
     "dest": "hub/social/webapp/UsersManagement.properties",
     "update_option": "update_as_unapproved",
     "escape_special_characters": 0,
