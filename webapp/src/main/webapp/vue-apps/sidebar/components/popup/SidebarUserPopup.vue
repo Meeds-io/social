@@ -76,11 +76,11 @@ export default {
   },
   mounted() {
     document.addEventListener('click', this.handleClickOutside);
-    document.addEventListener('user-status-updated', status => this.handleStatusChangeEvent(status));
+    document.addEventListener('user-status-updated', this.handleStatusChangeEvent);
   },
   beforeDestroy() {
     document.removeEventListener('click', this.handleClickOutside);
-    document.removeEventListener('user-status-updated', status => this.handleStatusChangeEvent(status));
+    document.removeEventListener('user-status-updated', this.handleStatusChangeEvent);
   },
   watch: {
     menu() {

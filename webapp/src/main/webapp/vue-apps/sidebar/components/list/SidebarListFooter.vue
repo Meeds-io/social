@@ -127,10 +127,10 @@ export default {
     statusColor: '#707070'
   }),
   created() {
-    document.addEventListener('user-status-updated', status => this.statusColor = status.color);
+    document.addEventListener('user-status-updated', this.changeStatusColor);
   },
   beforeDestroy() {
-    document.removeEventListener('user-status-updated', status => this.statusColor = status.color);
+    document.removeEventListener('user-status-updated', this.changeStatusColor);
   },
   computed: {
     avatarUrl() {
@@ -140,6 +140,9 @@ export default {
   methods: {
     openMenu(event) {
       this.$refs?.menu?.open(event.clientX, event.clientY);
+    },
+    changeStatusColor(statusObject) {
+      this.statusColor = statusObject.detail.color;
     }
   }
 };
