@@ -216,7 +216,6 @@ export default {
     providers: [],
   }),
   created() {
-    console.log('LoginFormSettingsDrawer - created');
     this.$root.$on('login-form-settings', this.open);
     this.$root.$on('login-providers-refreshed', (providers) => {
       this.initProviders(providers);
@@ -391,7 +390,6 @@ export default {
       return `${providerName.toLowerCase().charAt(0).toUpperCase()}${providerName.toLowerCase().substring(1)}`;
     },
     initProviders(providers) {
-      console.log('LoginFormSettingsDrawer - login-providers-refreshed event received', providers);
       this.providers = providers;
       this.providers.forEach((provider) => {
         provider.translations = {};

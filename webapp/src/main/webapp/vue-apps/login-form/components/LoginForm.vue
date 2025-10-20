@@ -244,7 +244,6 @@ export default {
     },
   },
   created() {
-    console.log('LoginForm component created');
     this.values = JSON.parse(this.params);
     this.signinOption = this.values?.signinOption || 'loginform';
     this.welcomeBack = decodeURIComponent(this.values?.welcomeBack || this.$t('portal.login.WelcomeBack'));
