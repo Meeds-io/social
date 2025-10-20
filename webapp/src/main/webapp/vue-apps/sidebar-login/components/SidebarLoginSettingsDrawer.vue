@@ -45,7 +45,8 @@
             :object-type="$root.objectType"
             field-name="brandingTitle"
             class="width-auto flex-grow-1"
-            drawer-title="sidebarLogin.drawer.label.branding.title" />
+            drawer-title="sidebarLogin.drawer.label.branding.title"
+            verify-i18n />
         </v-card-text>
       </v-card>
 
@@ -74,7 +75,7 @@
         <div class="text-header">
           {{ $t('sidebarLogin.drawer.label.branding.background') }}
         </div>
-        <div class="spacer" />
+        <div class="spacer"></div>
         <v-btn
           v-if="canDeleteBackground"
           :title="$t('sidebarLogin.drawer.label.branding.background.restore')"
@@ -113,62 +114,62 @@
       <v-card
         class="ma-4"
         flat>
-          <div class="text-header">
-            {{ $t('layout.alignApp') }}
+        <div class="text-header">
+          {{ $t('layout.alignApp') }}
+        </div>
+        <div class="d-flex">
+          <div class="col-6 pa-0">
+            <v-radio-group v-model="hAlign" class="ma-0">
+              <v-radio
+                value="START"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignLeft') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="CENTER"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignCenter') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="END"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignRight') }}</span>
+                </template>
+              </v-radio>
+            </v-radio-group>
           </div>
-          <div class="d-flex">
-            <div class="col-6 pa-0">
-              <v-radio-group v-model="hAlign" class="ma-0">
-                <v-radio
-                  value="START"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignLeft') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="CENTER"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignCenter') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="END"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignRight') }}</span>
-                  </template>
-                </v-radio>
-              </v-radio-group>
-            </div>
-            <div class="col-6 pa-0">
-              <v-radio-group v-model="vAlign" class="ma-0">
-                <v-radio
-                  value="START"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignTop') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="CENTER"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignMiddle') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="END"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignBottom') }}</span>
-                  </template>
-                </v-radio>
-              </v-radio-group>
-            </div>
+          <div class="col-6 pa-0">
+            <v-radio-group v-model="vAlign" class="ma-0">
+              <v-radio
+                value="START"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignTop') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="CENTER"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignMiddle') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="END"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignBottom') }}</span>
+                </template>
+              </v-radio>
+            </v-radio-group>
           </div>
-        </v-card>
+        </div>
+      </v-card>
     </template>
     <template #footer>
       <div class="d-flex align-center">
