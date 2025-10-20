@@ -408,11 +408,11 @@ public class AttachmentServiceTest extends AbstractCoreTest {
     attachmentService.copyAttachments(OBJECT_TYPE, objectId, DEST_OBJECT_TYPE, destinationObjectId, destinationParentObjectId, Long.parseLong(identityId));
 
     // Verify the attachments are moved to the destination object
+    // and the initial attachment have been duplicated
     ObjectAttachmentList destinationObjectAttachmentList = attachmentService.getAttachments(DEST_OBJECT_TYPE, destinationObjectId);
     assertNotNull(destinationObjectAttachmentList);
     assertEquals(1, destinationObjectAttachmentList.getAttachments().size());
-    assertEquals(fileId, destinationObjectAttachmentList.getAttachments().get(0).getId());
-    assertEquals(fileId, destinationObjectAttachmentList.getAttachments().get(0).getId());
+    assertTrue(!fileId.equals(destinationObjectAttachmentList.getAttachments().get(0).getId()));
 
     // Verify the attachments are NOT removed from the source object
     ObjectAttachmentList sourceObjectAttachmentList = attachmentService.getAttachments(OBJECT_TYPE, objectId);
