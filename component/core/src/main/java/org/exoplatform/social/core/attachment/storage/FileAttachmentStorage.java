@@ -52,6 +52,31 @@ public class FileAttachmentStorage {
     this.imageThumbnailService = imageThumbnailService;
   }
 
+  public String copyAttachment(ObjectAttachmentId sourceAttachmentId, long userIdentityId) {
+    try {
+      FileItem sourceFile = fileService.getFile(Long.parseLong(sourceAttachmentId.getFileId()));
+      if (sourceFile == null) {
+        return null;
+      }
+      FileItem newFileItem =  new FileItem(null,
+                                            sourceFile.getFileInfo().getName(),
+                                            sourceFile.getFileInfo().getMimetype(),
+                                            FILE_API_NAMESPACE,
+                                            sourceFile.getFileInfo().getSize(),
+                                            new Date(),
+                                            String.valueOf(userIdentityId),
+                                           false,
+                                            sourceFile.getAsStream());
+      newFileItem = fileService.writeFile(newFileItem);
+      return String.valueOf(newFileItem.getFileInfo().getId());
+    } catch (Exception e) {
+      LOG.error("Unable to copy attachment with id " + sourceAttachmentId, e);
+      return null;
+    }
+
+  }
+
+
   public String uploadAttachment(Long attachmentId,
                                  String objectType,
                                  String objectId,

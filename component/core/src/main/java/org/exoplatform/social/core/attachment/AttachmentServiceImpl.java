@@ -403,8 +403,20 @@ public class AttachmentServiceImpl implements AttachmentService {
         Map<String, String> properties = new HashMap<>();
         properties.put(ATTACHMENT_ALT_TEXT, altText);
         properties.put(ATTACHMENT_FORMAT, format);
+        String attachmentIdToLink = attachment.getId();
         try {
-          createAttachment(attachment.getId(),
+          //need to copy the existing attachment before linking it to the new object
+          //if not copied, when removed the attachment from the destObject, it will be also removed from the sourceObject
+          if (!deleteAfterMove) {
+            //if the link between the attachment and the source object is deleted after move, no need to copy the attachment
+            attachmentIdToLink = attachmentStorage.copyAttachment(new ObjectAttachmentId(attachment.getId(),
+                                             sourceObjectType,
+                                             sourceObjectId),
+                                             userIdentityId);
+          }
+
+
+          createAttachment(attachmentIdToLink,
                            destinationObjectType,
                            destinationObjectId,
                            destinationParentObjectId,
