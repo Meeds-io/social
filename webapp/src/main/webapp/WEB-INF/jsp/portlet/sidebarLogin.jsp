@@ -9,7 +9,6 @@
 <%@page import="org.apache.commons.text.StringEscapeUtils"%>
 <%@ page import="java.net.URLEncoder"%>
 <%@ page import="io.meeds.social.translation.service.TranslationService" %>
-<%@ page import="org.exoplatform.portal.localization.LocaleContextInfoUtils" %>
 <%@ page import="org.exoplatform.commons.file.model.FileItem" %>
 <%@ page import="org.exoplatform.commons.file.services.FileService" %>
 <%@page import="org.exoplatform.web.PortalHttpServletResponseWrapper"%>
@@ -39,11 +38,11 @@
   TranslationService translationService = CommonsUtils.getService(TranslationService.class);
 
   String title = translationService.getTranslationLabelOrDefault(objectType,
-              settingName, "brandingTitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+              settingName, "brandingTitle", request.getLocale());
   title = title == null ? null : URLEncoder.encode(title.replace(" ", "._.")).replace("._.", " ");
 
   String subtitle = translationService.getTranslationLabelOrDefault(objectType,
-                settingName, "brandingSubtitle", LocaleContextInfoUtils.getUserLocale(request.getRemoteUser()));
+                settingName, "brandingSubtitle", request.getLocale());
   subtitle = subtitle == null ? null : URLEncoder.encode(subtitle.replace(" ", "._.")).replace("._.", " ");
 
 
