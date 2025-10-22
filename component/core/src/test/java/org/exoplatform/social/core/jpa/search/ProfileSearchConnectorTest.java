@@ -425,8 +425,8 @@ public class ProfileSearchConnectorTest {
                 "          }\n" +
                 "      }\n" +
                 ",  {\n" +
-                "    \"query_string\": {\n" +
-                "      \"query\": \"testProperty:*valueProperty*\"\n" +
+                "    \"match_phrase\": {\n" +
+                "      \"testProperty\": \"valueProperty\"\n" +
                 "    }\n" +
                 " }\n" +
                 "    ]\n" +
