@@ -20,7 +20,7 @@
             :property="property"
             @property-updated="propertyUpdated" />
           <profile-contact-edit-multi-field
-            v-else-if="property.multiValued || property?.children?.length"
+            v-else-if="property.multiValued || (property?.children?.some(child => child.default) ?? false)"
             :property="property"
             :disabled="disabledField(property)"
             @propertyUpdated="propertyUpdated" />
@@ -98,7 +98,7 @@ export default {
     },
     isEmailPropertyHidden() {
       return this.emailProperty?.visible === false || this.emailProperty?.hiddenable === false;
-    },
+    }
   },
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
@@ -137,7 +137,6 @@ export default {
     },
     save() {
       this.fieldError = false;
-      
       this.resetCustomValidity();
       let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
       if (proptocheck && proptocheck.children.length > 0) {
@@ -255,6 +254,9 @@ export default {
     },
     propertyUpdated(item) {
       this.disabled = false;
+      if (item.value && (!item.multiValued && item.children.length)) {
+        item.children = [];
+      }
       if (!this.propertiesToSave.some(e => e.id === item.id)) {
         this.propertiesToSave.push(item);
       }    
