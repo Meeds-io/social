@@ -543,16 +543,11 @@ public class ProfileSearchConnector {
                        }
                       """.formatted(expression.toString()));
           } else {
-            String searchedText;
-            if(filter.isWildcardSearch()) {
-              searchedText = StorageUtils.ASTERISK_STR + removeAccents(value) + StorageUtils.ASTERISK_STR;
-            } else {
-              searchedText = removeAccents(value);
-            }
+            String searchedText = removeAccents(value);
             query.append("""
                     {
-                      "query_string": {
-                        "query": "%s:%s"
+                      "match_phrase": {
+                        "%s": "%s"
                       }
                    }
                   """.formatted(property.getPropertyName().replace(" ", "\\\\ "), searchedText));
