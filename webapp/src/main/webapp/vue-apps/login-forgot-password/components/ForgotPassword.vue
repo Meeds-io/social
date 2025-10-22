@@ -21,19 +21,19 @@
 <template>
   <v-app>
     <v-card
-        width="350px"
-        max-width="100%"
-        class="mx-auto transparent"
-        flat>
-        <portal-forgot-password-expired
-          v-if="action === 'expired'"/>
-        <portal-forgot-password-reset-form
-          v-else-if="action === 'resetPassword'"
-          :username-param='this.username'
-          :token-param='this.token' />
-        <portal-forgot-password-email-form
-          v-else/>
-      </v-card>
+      width="350px"
+      max-width="100%"
+      class="mx-auto transparent"
+      flat>
+      <portal-forgot-password-expired
+        v-if="action === 'expired'" />
+      <portal-forgot-password-reset-form
+        v-else-if="action === 'resetPassword'"
+        :username-param="this.username"
+        :token-param="this.token" />
+      <portal-forgot-password-email-form
+        v-else />
+    </v-card>
   </v-app>
 </template>
 <script>

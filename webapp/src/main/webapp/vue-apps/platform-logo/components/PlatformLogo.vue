@@ -21,7 +21,8 @@
 <template>
   <v-app class="full-height full-width">
     <v-hover v-slot="{ hover }">
-      <v-card flat
+      <v-card
+        flat
         class="fill-height rounded-0 transparent">
         <div
           v-if="$root.canEdit && hover"
@@ -46,11 +47,10 @@
           :src="platformLogo"
           alt=""
           class="object-fit-contain full-width full-height"
-          :style="align" />
+          :style="align">
       </v-card>
     </v-hover>
     <platform-logo-settings-drawer v-if="$root.canEdit" />
-
   </v-app>
 </template>
 

@@ -59,7 +59,7 @@
             required="required"
             outlined
             dense
-            background-color="white"/>
+            background-color="white" />
         </v-row>
         <v-row class="mx-0 mt-8 pa-0">
           <v-btn

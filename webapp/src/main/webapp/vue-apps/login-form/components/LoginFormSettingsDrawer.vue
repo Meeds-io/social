@@ -38,7 +38,7 @@
           <div class="text-header mb-4">
             {{ $t('loginForm.drawer.label.welcome.title') }}
           </div>
-          <div class="spacer" />
+          <div class="spacer"></div>
           <v-switch
             v-model="displayWelcomeMessage"
             class="mt-0" />
@@ -103,7 +103,7 @@
             </v-card-text>
             <v-card-text class="d-flex pa-0 align-center">
               {{ $t('loginForm.drawer.label.signinoptions.displayIcon') }}
-              <div class="spacer" />
+              <div class="spacer"></div>
               <v-switch
                 v-model="displaySigninEmailButtonIcon"
                 class="mt-0" />
@@ -116,13 +116,14 @@
           </div>
           <v-card-text class="d-flex pa-0 align-center">
             {{ $t('loginForm.drawer.label.externalsigninoptions.listProviders') }}
-            <div class="spacer" />
+            <div class="spacer"></div>
             <v-switch
               v-model="listExternalProviders"
               class="mt-0" />
           </v-card-text>
           <div v-if="listExternalProviders">
-            <v-card-text class="d-flex pa-0 mb-3"
+            <v-card-text
+              class="d-flex pa-0 mb-3"
               v-for="provider in providers"
               :key="provider.key">
               <translation-text-field
@@ -138,7 +139,7 @@
             <div v-if="providers.length==1">
               <v-card-text class="d-flex pa-0 align-center">
                 {{ $t('loginForm.drawer.label.signinoptions.displayIcon') }}
-                <div class="spacer" />
+                <div class="spacer"></div>
                 <v-switch
                   v-model="displayProvidersIcons"
                   class="mt-0" />
