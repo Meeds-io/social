@@ -19,7 +19,10 @@
 
 -->
 <template>
-  <v-app class="mx-auto" v-show="this.init" style="max-width: 375px;">
+  <v-app
+    class="mx-auto"
+    v-show="this.init"
+    style="max-width: 375px;">
     <v-hover v-slot="{ hover }">
       <v-card
         class="rounded-0 transparent pa-5"
@@ -82,7 +85,7 @@
           v-show="!displayForm && listExternalProviders"
           :display-providers-icons="displayProvidersIcons" />
 
-        <portal-login-separator class="mt-5" v-if="!displayForm && signinOption !== 'noform' && listExternalProviders"/>
+        <portal-login-separator class="mt-5" v-if="!displayForm && signinOption !== 'noform' && listExternalProviders" />
 
         <form
           ref="form"
@@ -115,7 +118,7 @@
                 required="required"
                 outlined
                 dense
-                background-color="white"/>
+                background-color="white" />
             </v-row>
             <v-row class="ma-0 pa-0">
               <v-text-field
@@ -135,12 +138,11 @@
                 background-color="white">
                 <template #append>
                   <v-icon
-                  class="v-input__icon text-font-size mt-0"
-                  @click="toggleShow"
-                  :aria-label="showPassword ? $t('loginForm.hidePassword') : $t('loginForm.showPassword')">
-                    {{showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'}}
+                    class="v-input__icon text-font-size mt-0"
+                    @click="toggleShow"
+                    :aria-label="showPassword ? $t('loginForm.hidePassword') : $t('loginForm.showPassword')">
+                    {{ showPassword ? 'fas fa-eye-slash' : 'fas fa-eye' }}
                   </v-icon>
-
                 </template>
               </v-text-field>
             </v-row>
@@ -191,7 +193,10 @@
               color="transparent"
               flat>
               <span class="text-body">
-                <v-icon class="me-2" v-if="displaySigninEmailButtonIcon" color="primary">fas fa-envelope</v-icon>
+                <v-icon
+                  class="me-2"
+                  v-if="displaySigninEmailButtonIcon"
+                  color="primary">fas fa-envelope</v-icon>
                 {{ signinEmailButton }}
               </span>
             </v-card>
@@ -208,7 +213,7 @@
       :list-external-providers="listExternalProviders"
       :display-providers-icons="displayProvidersIcons"
       :display-welcome-message="displayWelcomeMessage"
-      :providers-data="providers"/>
+      :providers-data="providers" />
   </v-app>
 </template>
 <script>

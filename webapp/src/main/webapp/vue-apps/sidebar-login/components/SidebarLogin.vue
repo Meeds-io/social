@@ -49,16 +49,18 @@
           </v-fab-transition>
         </div>
 
-        <img v-if="hasCustomBackground"
-             :src="backgroundPath"
-             :alt="backgroundAltText || ''"
-             class="full-height full-width object-fit-cover rounded-0">
+        <img
+          v-if="hasCustomBackground"
+          :src="backgroundPath"
+          :alt="backgroundAltText || ''"
+          class="full-height full-width object-fit-cover rounded-0">
         <v-card
           :class="hasCustomBackground && 'position-absolute t-0'"
           tile
           flat
           class="fill-height transparent full-width">
-          <v-card-title class="d-flex flex-column pa-0 fill-height"
+          <v-card-title
+            class="d-flex flex-column pa-0 fill-height"
             :class="[vAlign, hAlign]">
             <span class="text-title text-wrap text-break mx-4 mt-4">
               {{ title }}
@@ -70,7 +72,10 @@
         </v-card>
       </v-card>
     </v-hover>
-    <sidebar-login-settings-drawer :branding="branding" :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null" v-if="$root.canEdit" />
+    <sidebar-login-settings-drawer
+      :branding="branding"
+      :background-alt-text="this.$root.backgroundFileId !== 0 ? backgroundAltText : null"
+      v-if="$root.canEdit" />
   </v-app>
 </template>
 

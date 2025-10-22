@@ -33,7 +33,7 @@
           :term="term" />
       </div>
     </div>
-    <v-flex v-if="noResults" class="searchNoResultsParent d-flex my-auto border-box-sizing">
+    <v-flex v-if="noResults && !$root.disablePlaceholder" class="searchNoResultsParent d-flex my-auto border-box-sizing">
       <div class="d-flex flex-column ma-auto text-center text-subtitle">
         <div class="position-relative">
           <i class="uiIconSearchLight icon-default-color my-auto position-relative">

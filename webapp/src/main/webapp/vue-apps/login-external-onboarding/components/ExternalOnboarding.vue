@@ -31,8 +31,8 @@
         v-else-if="action === 'expired'" />
       <portal-external-onboarding-create-user-form
         v-else-if="action === 'createUser'"
-        :identifier='this.email'
-        :token-param='this.token' />
+        :identifier="this.email"
+        :token-param="this.token" />
     </v-card>
   </v-app>
 </template>
