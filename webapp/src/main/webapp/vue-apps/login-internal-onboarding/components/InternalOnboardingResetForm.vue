@@ -38,7 +38,10 @@
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="username"
               v-model="usernameParam"
@@ -53,9 +56,12 @@
               readonly
               outlined
               dense
-              background-color="white"/>
+              background-color="white" />
           </v-card>
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="password"
               v-model="password"
@@ -73,10 +79,13 @@
               outlined
               dense
               @click:append="toggleShow"
-              background-color="white"/>
+              background-color="white" />
           </v-card>
           <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="password2"
               v-model="confirmPassword"
@@ -92,7 +101,7 @@
               outlined
               dense
               @click:append="toggleConfirmShow"
-              background-color="white"/>
+              background-color="white" />
           </v-card>
           <span class="mt-4 text-body">{{ $t('onboarding.captchaCondition') }}</span>
           <v-card

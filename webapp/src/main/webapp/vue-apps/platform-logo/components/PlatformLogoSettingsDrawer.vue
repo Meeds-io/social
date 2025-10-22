@@ -35,81 +35,81 @@
         max-width="100%"
         class="ma-4"
         flat>
-          <div class="text-header mb-2">
-            {{ $t('layout.alignApp') }}
-          </div>
-          <div class="d-flex">
-            <div class="col-6 pa-0">
-              <v-radio-group v-model="hAlign" class="ma-0">
-                <v-radio
-                  value="START"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignLeft') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="CENTER"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignCenter') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="END"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignRight') }}</span>
-                  </template>
-                </v-radio>
-              </v-radio-group>
-            </div>
-            <div class="col-6 pa-0">
-              <v-radio-group v-model="vAlign" class="ma-0">
-                <v-radio
-                  value="START"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignTop') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="CENTER"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignMiddle') }}</span>
-                  </template>
-                </v-radio>
-                <v-radio
-                  value="END"
-                  class="ma-0 pa-0">
-                  <template #label>
-                    <span class="text-body">{{ $t('layout.alignBottom') }}</span>
-                  </template>
-                </v-radio>
-              </v-radio-group>
-            </div>
-          </div>
-        </v-card>
-      </template>
-      <template #footer>
-        <div class="d-flex align-center">
-          <v-btn
-            :disabled="loading"
-            :title="$t('platformLogo.drawer.settings.cancel')"
-            class="btn ms-auto me-2"
-            @click="close()">
-            {{ $t('platformLogo.drawer.settings.cancel') }}
-          </v-btn>
-          <v-btn
-            :loading="loading"
-            :title="$t('platformLogo.drawer.settings.save')"
-            color="primary"
-            elevation="0"
-            @click="save()">
-            {{ $t('platformLogo.drawer.settings.save') }}
-          </v-btn>
+        <div class="text-header mb-2">
+          {{ $t('layout.alignApp') }}
         </div>
+        <div class="d-flex">
+          <div class="col-6 pa-0">
+            <v-radio-group v-model="hAlign" class="ma-0">
+              <v-radio
+                value="START"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignLeft') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="CENTER"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignCenter') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="END"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignRight') }}</span>
+                </template>
+              </v-radio>
+            </v-radio-group>
+          </div>
+          <div class="col-6 pa-0">
+            <v-radio-group v-model="vAlign" class="ma-0">
+              <v-radio
+                value="START"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignTop') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="CENTER"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignMiddle') }}</span>
+                </template>
+              </v-radio>
+              <v-radio
+                value="END"
+                class="ma-0 pa-0">
+                <template #label>
+                  <span class="text-body">{{ $t('layout.alignBottom') }}</span>
+                </template>
+              </v-radio>
+            </v-radio-group>
+          </div>
+        </div>
+      </v-card>
+    </template>
+    <template #footer>
+      <div class="d-flex align-center">
+        <v-btn
+          :disabled="loading"
+          :title="$t('platformLogo.drawer.settings.cancel')"
+          class="btn ms-auto me-2"
+          @click="close()">
+          {{ $t('platformLogo.drawer.settings.cancel') }}
+        </v-btn>
+        <v-btn
+          :loading="loading"
+          :title="$t('platformLogo.drawer.settings.save')"
+          color="primary"
+          elevation="0"
+          @click="save()">
+          {{ $t('platformLogo.drawer.settings.save') }}
+        </v-btn>
+      </div>
     </template>
   </exo-drawer>
 </template>

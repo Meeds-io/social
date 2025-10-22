@@ -46,7 +46,7 @@
           :rememberme="rememberme"
           key="providerMenu"
           class="flex-grow-1 text-end mx-auto transparent"
-          :display-providers-icons="providers.length != 1 || displayProvidersIcons"  />
+          :display-providers-icons="providers.length != 1 || displayProvidersIcons" />
       </v-card>
     </template>
   </v-card>

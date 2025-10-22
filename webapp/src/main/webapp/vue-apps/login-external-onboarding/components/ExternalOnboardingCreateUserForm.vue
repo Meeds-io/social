@@ -60,7 +60,10 @@
           {{ $t('onboarding.yourProfileTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="email"
               ref="email"
@@ -78,7 +81,7 @@
               required="required"
               outlined
               dense
-              background-color="white"/>
+              background-color="white" />
             <v-text-field
               id="firstName"
               ref="firstName"
@@ -96,7 +99,7 @@
               maxlength="255"
               outlined
               dense
-              background-color="white"/>
+              background-color="white" />
             <v-text-field
               id="lastName"
               ref="lastName"
@@ -112,14 +115,17 @@
               maxlength="255"
               outlined
               dense
-              background-color="white"/>
+              background-color="white" />
           </v-card>
         </v-row>
         <v-card-title class="px-0 text-break text-header">
           {{ $t('onboarding.yourPasswordTitle') }}
         </v-card-title>
         <v-row class="ma-0 pa-0">
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="password"
               ref="password"
@@ -139,7 +145,10 @@
               @click:append="toggleShow" />
           </v-card>
           <span class="text-subtitle">{{ $t('onboarding.passwordCondition') }}</span>
-          <v-card width="350" flat class="transparent">
+          <v-card
+            width="350"
+            flat
+            class="transparent">
             <v-text-field
               id="password2"
               ref="password2"

@@ -19,8 +19,13 @@
 
 -->
 <template>
-  <v-card class="col-md-6 col-12" flat v-show="initialized">
-    <div class="option-item"  v-for="(option, index) in options"
+  <v-card
+    class="col-md-6 col-12"
+    flat
+    v-show="initialized">
+    <div
+      class="option-item"
+      v-for="(option, index) in options"
       :key="index"
       :option="option">
       <v-list-item

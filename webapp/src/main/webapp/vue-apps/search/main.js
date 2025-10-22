@@ -42,6 +42,7 @@ export async function init(tagName) {
   await new Promise(resolve => Vue.createApp({
     data: {
       disableAutoSearch: false,
+      disablePlaceholder: false,
       tagName,
       connectors,
       skinUrls,
@@ -53,11 +54,15 @@ export async function init(tagName) {
     },
     created() {
       document.addEventListener('search-disable-auto-search', this.setDisableAutoSearch);
+      document.addEventListener('search-disable-no-result', this.setDisablePlaceholder);
       resolve();
     },
     methods: {
       setDisableAutoSearch() {
         this.disableAutoSearch = true;
+      },
+      setDisablePlaceholder() {
+        this.disablePlaceholder = true;
       },
     },
     template: `<search-application id="${appId}" :connectors="connectors" :skin-urls="skinUrls" />`,
