@@ -27,6 +27,7 @@
     :permanent="permanent"
     :show-overlay="showOverlay"
     :is-branding-layout="false"
+    :autofocus="false"
     no-external-overlay
     attached
     left>

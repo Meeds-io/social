@@ -23,7 +23,9 @@
     height="100%"
     max-height="100%"
     max-width="100vw"
-    class="drawerParent overflow-initial">
+    class="drawerParent overflow-initial"
+    ref="drawerParent"
+    tabindex="0">
     <div
       v-if="initialized || eager"
       class="pa-0 fill-width fill-height">
@@ -302,6 +304,10 @@ export default {
       type: String,
       default: null
     },
+    autofocus: {
+      type: Boolean,
+      default: true
+    }
   },
   data: () => ({
     initialized: false,
@@ -445,10 +451,12 @@ export default {
         this.drawer = true;
       }
       this.resetFilter();
-      this.$nextTick(() => {
-        window.setTimeout(() =>
-          this.$el.querySelector('input')?.focus(), 50);
-      });
+      if (this.autofocus) {
+        this.$nextTick(() => {
+          window.setTimeout(() =>
+            this.$refs.drawerParent?.$el.focus(), 50);
+        });
+      }
     },
     mountOnParent() {
       // Re-append the drawer to open in order
