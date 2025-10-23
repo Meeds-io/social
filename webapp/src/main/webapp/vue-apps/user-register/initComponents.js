@@ -20,12 +20,14 @@ import Register from './components/Register.vue';
 import RegisterMain from './components/RegisterMain.vue';
 import RegisterExtensions from './components/RegisterExtensions.vue';
 import RegisterSeparator from './components/RegisterSeparator.vue';
+import RegisterAlreadyAuthenticated from './components/RegisterAlreadyAuthenticated.vue';
 
 const components = {
   'portal-register': Register,
   'portal-register-main': RegisterMain,
   'portal-register-extensions': RegisterExtensions,
   'portal-register-separator': RegisterSeparator,
+  'portal-register-already-authenticated': RegisterAlreadyAuthenticated,
 };
 
 for (const key in components) {

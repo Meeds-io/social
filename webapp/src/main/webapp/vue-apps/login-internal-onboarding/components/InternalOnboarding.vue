@@ -25,8 +25,9 @@
       max-width="100%"
       class="mx-auto px-4 transparent"
       flat>
+      <portal-internal-onboarding-already-authenticated v-if="authenticated" />
       <portal-internal-onboarding-expired
-        v-if="action === 'expired'" />
+        v-else-if="action === 'expired'" />
       <portal-internal-onboarding-reset-form
         v-else-if="action === 'createUser'"
         :username-param="this.username"
@@ -40,6 +41,12 @@ export default {
     username: '',
     action: '',
   }),
+  computed: {
+    authenticated() {
+      console.log('OnboardingResigter authenticated ? ', eXo.env.portal.userName && eXo.env.portal.userName !== '');
+      return eXo.env.portal.userName && eXo.env.portal.userName !== '';
+    },
+  },
   created() {
     this.token = new URLSearchParams(window.location.search).get('token');
     if (this.token) {
