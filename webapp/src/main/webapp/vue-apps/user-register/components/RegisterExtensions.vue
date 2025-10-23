@@ -68,7 +68,6 @@ export default {
     },
   },
   created() {
-    console.log('RegisterExtensions created', this.params);
     this.success = false;
     this.$root.$on('register-success', () => {
       this.success = true;

@@ -58,11 +58,7 @@
     class="v-application white v-application--is-ltr theme--light registerForm"
     id="<%=id%>">
     <script type="text/javascript">
-      if (eXo.env.portal.userName && eXo.env.portal.userName !== '' ) {
-        window.location.href='/';
-      } else {
-        require(['PORTLET/social/RegisterForm'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
-      }
+      require(['PORTLET/social/RegisterForm'], app =>app.init('<%=id%>',JSON.stringify(<%=params.toString()%>)));
     </script>
   </div>
 </div>
