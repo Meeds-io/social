@@ -20,7 +20,8 @@
 -->
 <template>
   <v-app>
-    <portal-register-main :params="jsonParams" />
+    <portal-register-already-authenticated v-if="authenticated" />
+    <portal-register-main v-else :params="jsonParams" />
   </v-app>
 </template>
 <script>
@@ -35,7 +36,13 @@ export default {
       jsonParams: null,
     };
   },
+  computed: {
+    authenticated() {
+      return eXo.env.portal.userName && eXo.env.portal.userName !== '';
+    },
+  },
   created() {
+    console.log('Register.vue');
     this.jsonParams = JSON.parse(this.params);
   },
   mounted() {
