@@ -42,6 +42,7 @@ export default {
     },
   },
   created() {
+    console.log('Register.vue');
     this.jsonParams = JSON.parse(this.params);
   },
   mounted() {
