@@ -21,17 +21,18 @@
 <template>
   <v-app>
     <v-card
-        width="600px"
-        max-width="100%"
-        class="mx-auto px-4 transparent"
-        flat>
-        <portal-internal-onboarding-expired
-          v-if="action === 'expired'" />
-        <portal-internal-onboarding-reset-form
-          v-else-if="action === 'createUser'"
-          :username-param='this.username'
-          :token-param='this.token'/>
-      </v-card>
+      width="600px"
+      max-width="100%"
+      class="mx-auto px-4 transparent"
+      flat>
+      <portal-internal-onboarding-already-authenticated v-if="authenticated" />
+      <portal-internal-onboarding-expired
+        v-else-if="action === 'expired'" />
+      <portal-internal-onboarding-reset-form
+        v-else-if="action === 'createUser'"
+        :username-param="this.username"
+        :token-param="this.token" />
+    </v-card>
   </v-app>
 </template>
 <script>
@@ -40,6 +41,11 @@ export default {
     username: '',
     action: '',
   }),
+  computed: {
+    authenticated() {
+      return eXo.env.portal.userName && eXo.env.portal.userName !== '';
+    },
+  },
   created() {
     this.token = new URLSearchParams(window.location.search).get('token');
     if (this.token) {
