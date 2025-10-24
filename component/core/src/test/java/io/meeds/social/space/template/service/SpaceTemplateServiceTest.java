@@ -301,7 +301,9 @@ public class SpaceTemplateServiceTest {
                              Arrays.asList(SPACE_CATEGORY_ID),
                              SpaceVisibility.PRIVATE,
                              SpaceRegistration.VALIDATION,
-                             true);
+                             true,
+                             null,
+                             0);
   }
 
 }
