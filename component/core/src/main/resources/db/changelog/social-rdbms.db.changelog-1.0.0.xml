@@ -1235,5 +1235,22 @@
         defaultValueBoolean="false"></column>
     </addColumn>
   </changeSet>
+  
+  <changeSet author="social" id="1.0.0-mip-227-01">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="SUBSPACES_MAX_LIMIT" type="int" defaultValueNumeric="0"/>
+    </addColumn>
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="ALLOWED_SUBSPACE_TEMPLATES" type="CLOB"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-mip-227-02">
+    <addColumn tableName="SOC_SPACES">
+      <column name="PARENT_SPACE_ID" type="BIGINT">
+        <constraints foreignKeyName="FK_SOC_SPACES_PARENT" references="SOC_SPACES(SPACE_ID)"/>
+      </column>
+    </addColumn>
+  </changeSet>
 
 </databaseChangeLog>
