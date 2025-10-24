@@ -263,7 +263,7 @@ export default {
     close() {
       this.$refs.drawer.close();
     },
-    save() {
+    async save() {
       this.loading = true;
       const promise = [];
       let firstTranslation = true;
@@ -274,7 +274,7 @@ export default {
 
       if (this.registerEnabled) {
         if (firstTranslation) {
-          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere);
+          await this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere);
           firstTranslation = false;
         } else {
           promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'newHere', this.translationsNewHere));
@@ -282,7 +282,7 @@ export default {
         promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'createAccount', this.translationsCreateAccount));
       } else {
         if (firstTranslation) {
-          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack);
+          await this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack);
           firstTranslation = false;
         } else {
           promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'welcomeBack', this.translationsWelcomeBack));
@@ -291,23 +291,25 @@ export default {
 
       if (this.signinOption === 'buttonform') {
         if (firstTranslation) {
-          this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton);
+          await this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton);
           firstTranslation = false;
         } else {
           promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, 'signinEmailButton', this.translationsSigninEmailButton));
         }
       }
 
-      this.providers.forEach((provider) => {
+      for (const provider of this.providers) {
         if (provider.translations && Object.keys(provider.translations).length > 0) {
           if (firstTranslation) {
-            this.saveTranslationSynchronously(this.objectType, this.translationIdentifier, provider.key, provider.translations);
+            /* eslint-disable no-await-in-loop */
+            await this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations);
             firstTranslation = false;
+            /* eslint-enable no-await-in-loop */
           } else {
             promise.push(this.$translationService.saveTranslations(this.objectType, this.translationIdentifier, provider.key, provider.translations));
           }
         }
-      });
+      }
 
       promise.push(this.saveSettings());
       Promise.all(promise).then(() => {
@@ -325,9 +327,6 @@ export default {
         this.loading = false;
         this.close();
       });
-    },
-    async saveTranslationSynchronously(objectType, objectId, fieldName, translations) {
-      await this.$translationService.saveTranslations(objectType, objectId, fieldName, translations);
     },
     saveSettings() {
       const formData = new FormData();
