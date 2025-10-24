@@ -37,6 +37,8 @@
         :rel="navigationNodeRel"
         :link="hasPage"
         :aria-label="navigation.label"
+        :aria-current="isSelected && 'true'"
+        :aria-selected="isSelected && 'true'"
         :class="`mx-auto text-break ${notClickable}`"
         :value="navigationNodeUri"
         v-on="on"
