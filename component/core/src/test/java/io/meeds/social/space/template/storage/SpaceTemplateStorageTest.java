@@ -191,7 +191,9 @@ public class SpaceTemplateStorageTest {
                                    Arrays.asList(String.valueOf(SPACE_CATEGORY_ID)),
                                    SpaceVisibility.PRIVATE,
                                    SpaceRegistration.VALIDATION,
-                                   true);
+                                   true,
+                                   null,
+                                   0);
   }
 
   private SpaceTemplate newSpaceTemplate() {
@@ -213,7 +215,9 @@ public class SpaceTemplateStorageTest {
                              Arrays.asList(SPACE_CATEGORY_ID),
                              SpaceVisibility.PRIVATE,
                              SpaceRegistration.VALIDATION,
-                             true);
+                             true,
+                             null,
+                             0);
   }
 
 }
