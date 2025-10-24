@@ -31,6 +31,8 @@
     :close-on-click="false"
     :close-on-content-click="false"
     id="contentLinkCommandMenu"
+    eager
+    attach
     z-index="2000"
     absolute
     offset-y
@@ -156,6 +158,8 @@ export default {
     endTypingKeywordTimeout: 50,
     startTypingKeywordTimeout: 0,
     width: 280,
+    menuHeight: 0,
+    position: null,
   }),
   computed: {
     filteredPlugins() {
@@ -186,10 +190,25 @@ export default {
         document.addEventListener('custom-link-item-select-up', this.selectItemTop);
         document.addEventListener('custom-link-item-select-down', this.selectItemBottom);
       } else {
+        this.menuHeight = 0;
         document.removeEventListener('mousedown', this.handleMousedown);
         document.removeEventListener('custom-link-item-select', this.selectCurrentItem);
         document.removeEventListener('custom-link-item-select-up', this.selectItemTop);
         document.removeEventListener('custom-link-item-select-down', this.selectItemBottom);
+      }
+    },
+    menuHeight() {
+      if (this.menuHeight) {
+        const innerHeight = window.innerHeight;
+        if (innerHeight < parseInt(this.position.top) + this.menuHeight) {
+          if (-parseInt(this.position.top) + this.menuHeight > 0) {
+            this.top = 0;
+          } else {
+            this.top = -parseInt(this.position.top) + this.menuHeight;
+          }
+        } else {
+          this.top = -parseInt(this.position.top) - 18;
+        }
       }
     },
     async isCommandFiltering() {
@@ -245,6 +264,16 @@ export default {
         this.query = `${textToInsert}:`;
       }
     },
+    calculateMenuHeight() {
+      this.$nextTick(() => {
+        setTimeout(() => {
+          const menuElement = document.getElementById('contentLinkCommandMenu').firstElementChild;
+          if (menuElement) {
+            this.menuHeight = menuElement.offsetHeight;
+          }
+        },50);
+      });
+    },
     async selectItem(link) {
       if (this.menu && link) {
         const range = this.range;
@@ -289,6 +318,7 @@ export default {
     async search() {
       this.loading = true;
       try {
+        this.menuHeight = 0;
         if (this.keyword?.length && this.plugin?.objectType) {
           this.links = await this.$contentLinkService.searchLinks(this.plugin?.objectType, this.normaliserEspaces(String(this.keyword || '')), 0, 10);
         } else {
@@ -297,6 +327,7 @@ export default {
         await this.$nextTick();
         this.selectedItemIndex = 0;
       } finally {
+        this.calculateMenuHeight();
         this.loading = false;
       }
     },
@@ -314,9 +345,12 @@ export default {
       this.range = range;
       await this.$nextTick();
       if (this.filteredPlugins?.length || this.isItemFiltering) {
+        this.position = position;
         this.selectedItemIndex = this.selectedItemIndex || 0;
-        this.left = -Math.min(parseInt(position.left) + this.width, window.innerWidth);
-        this.top = -parseInt(position.top) - 20;
+        if (!this.menu) {
+          this.left = -Math.min(parseInt(position.left) + this.width, window.innerWidth);
+          this.top = -parseInt(position.top) - 20;
+        }
         if (this.isItemFiltering) {
           const commandParts = command.split(':');
           this.keyword = commandParts[1];
@@ -332,6 +366,7 @@ export default {
           }
         }
         this.menu = true;
+        this.calculateMenuHeight();
       } else {
         this.unWatch();
       }
