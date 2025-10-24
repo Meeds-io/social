@@ -252,6 +252,102 @@
             admins
             space-admin />
         </div>
+        <v-card
+          v-on="step5Enabled && {
+            click: () => step = 5,
+          }"
+          class="d-flex mb-4"
+          flat>
+          <v-card
+            :class="step > 4 ? 'tertiary' : 'mask-color'"
+            height="24"
+            width="24"
+            class="d-flex align-center justify-center border-radius-circle white--text"
+            flat>
+            5
+          </v-card>
+          <div class="text-header mx-3">
+            {{ $t('spaceTemplate.subspacesConfigurationStep') }}
+          </div>
+        </v-card>
+        <div v-if="step === 5" class="d-flex flex-column mb-4">
+          <div class="d-flex flex-column">
+            <div class="d-flex py-2">
+              <div class="flex-grow-1">
+                {{ $t('spaceTemplate.subspacesConfigurationStepCanHaveSubspaces') }}
+              </div>
+              <div class="position-relative mx-8">
+                <v-switch v-model="canHaveSubspaces" class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
+              </div>
+            </div>
+          </div>
+          <template v-if="canHaveSubspaces">
+            <div class="d-flex flex-column">
+              <div class="d-flex">
+                <div class="flex-grow-1 align-self-center">
+                  {{ $t('spaceTemplate.subspacesConfigurationStepSetMaximumLimit') }}
+                </div>
+                <div class="position-relative">
+                  <v-card
+                    v-if="subspacesMaxLimit === 0"
+                    class="d-flex flex-row align-center justify-center"
+                    flat>
+                    <v-btn
+                      icon>
+                      <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+                    </v-btn>
+                    <v-card-text class="pa-0">{{ $t('spaceTemplate.subspacesConfigurationStepNoLimit') }}</v-card-text>
+                    <v-btn
+                      icon
+                      @click="subspacesMaxLimit++">
+                      <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+                    </v-btn>
+                  </v-card>
+                  <number-input
+                    v-else
+                    v-model="subspacesMaxLimit"
+                    :max="maxSubspacesMaxLimit"
+                    :min="minSubspacesMaxLimit"
+                    :step="1"
+                    :label="$t('spaceTemplate.subspacesConfigurationStepMaxLimit')"
+                    class="ms-auto"
+                    editable />
+                </div>
+              </div>
+            </div>
+            <div class="flex-grow-1 pt-2">
+              <space-templates-management-suggester
+                v-model="subspaceTemplate"
+                :labels="suggesterLabels"
+                @input="selectSpaceTemplate($event)"
+                multiple />
+              <v-list
+                class="pa-0"
+                dense
+                v-if="selectedSubspaceTemplates.length">
+                <v-list-item
+                  class="pa-0"
+                  dense>
+                  <v-list-item-content class="me-2 pa-0 text-truncate">
+                    <v-list-item-title class="text-truncate">
+                      {{ $t('spaceTemplate.subspacesConfigurationStepTemplate') }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-action class="mx-0 my-auto">
+                    {{ $t('spaceTemplate.subspacesConfigurationStepMaxLimit') }}
+                  </v-list-item-action>
+                </v-list-item>
+                <v-divider />
+              </v-list>
+              <space-templates-management-subspace-template-list
+                v-for="t in selectedSubspaceTemplates"
+                :key="t.id"
+                :space-template="t"
+                :global-limit="subspacesMaxLimit"
+                class="px-0" />
+            </div>
+          </template>
+        </div>
       </div>
     </template>
     <template #footer>
@@ -271,7 +367,7 @@
           {{ $t('spaceTemplate.cancel') }}
         </v-btn>
         <v-btn
-          v-if="step < 4"
+          v-if="step < 5"
           :disabled="disabledNextStep"
           :loading="saving"
           class="btn primary"
@@ -313,6 +409,13 @@ export default {
     spaceFieldProperties: false,
     spaceFieldAccessControl: false,
     spacesManagementUrl: '/portal/administration/home/organisation/spaces',
+    canHaveSubspaces: false,
+    subspacesMaxLimit: 0,
+    subspaceTemplate: null,
+    selectedSubspaceTemplates: [],
+    maxSubspacesMaxLimit: 100,
+    minSubspacesMaxLimit: 0,
+    invalidSubspacesMaxLimit: false,
   }),
   computed: {
     rules() {
@@ -344,6 +447,9 @@ export default {
     step4Enabled() {
       return this.step3Enabled;
     },
+    step5Enabled() {
+      return this.step4Enabled;
+    },
     disabledNextStep() {
       if (this.step === 1) {
         return this.disabledFirstStep;
@@ -374,7 +480,9 @@ export default {
       return !this.name?.length
           || this.name.length > this.maxNameLength
           || (this.description?.length && this.description.length > this.maxDescriptionLength)
-          || (!this.spaceTemplate?.spaceFields?.includes?.('name') && !this.spaceTemplate?.spaceFields?.includes?.('invitation'));
+          || (!this.spaceTemplate?.spaceFields?.includes?.('name') && !this.spaceTemplate?.spaceFields?.includes?.('invitation'))
+          || (this.canHaveSubspaces && !this.selectedSubspaceTemplates.length)
+          || (this.selectedSubspaceTemplates.length > 0 && this.subspacesMaxLimit > 0 && this.selectedSubspaceTemplates.some(t => t.subspacesMaxLimit > this.subspacesMaxLimit));
     },
     permissionsStepDescription1() {
       return this.$t('spaceTemplate.permissionsStepDescription1', {
@@ -387,6 +495,14 @@ export default {
         0: `<a href="${this.spacesManagementUrl}">`,
         1: '</a>',
       });
+    },
+    suggesterLabels() {
+      return {
+        label: this.$t('spaceTemplate.templateSuggester.label'),
+        searchPlaceholder: this.$t('spaceTemplate.templateSuggester.searchPlaceholder'),
+        placeholder: this.$t('spaceTemplate.templateSuggester.placeholder'),
+        noDataLabel: this.$t('spaceTemplate.templateSuggester.noDataLabel'),
+      };
     },
   },
   watch: {
@@ -442,6 +558,11 @@ export default {
         this.spaceTemplate.spaceFields.splice(this.spaceTemplate.spaceFields.indexOf('access'), 1);
       }
     },
+    canHaveSubspaces() {
+      if (!this.canHaveSubspaces) {
+        this.resetSubspaceTemplateSection();
+      }
+    }
   },
   created() {
     this.$root.$on('space-templates-characteristics-open', this.open);
@@ -466,6 +587,17 @@ export default {
       this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
       this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
       this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
+      this.canHaveSubspaces = Array.isArray(spaceTemplate?.allowedSubspaceTemplates) &&
+                              spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
+                              spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
+      this.selectedSubspaceTemplates = this.canHaveSubspaces && (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
+        const [id, max] = item.split(':');
+        return {
+          id,
+          subspacesMaxLimit: Number(max) || 0
+        };
+      });
+      this.subspacesMaxLimit = spaceTemplate?.subspacesMaxLimit;
       this.$refs.drawer.open();
     },
     async close() {
@@ -483,6 +615,16 @@ export default {
     async save() {
       this.saving = true;
       try {
+        if (this.canHaveSubspaces && this.selectedSubspaceTemplates.length > 0) {
+          this.spaceTemplate.allowedSubspaceTemplates = this.selectedSubspaceTemplates.map(t => {
+            const max = t.subspacesMaxLimit ?? 0;
+            return `${t.id}:${max}`;
+          });
+          this.spaceTemplate.subspacesMaxLimit = this.subspacesMaxLimit;
+        } else {
+          this.spaceTemplate.allowedSubspaceTemplates = [];
+          this.spaceTemplate.subspacesMaxLimit = null;
+        }
         if (this.isNew) {
           this.spaceTemplate = await this.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
           await this.$nextTick();
@@ -510,6 +652,15 @@ export default {
         this.saving = false;
       }
     },
+    selectSpaceTemplate(value) {
+      this.selectedSubspaceTemplates = value;
+    },
+    resetSubspaceTemplateSection() {
+      this.selectedSubspaceTemplates = [];
+      this.subspaceTemplate = null;
+      this.subspacesMaxLimit = 0;
+      this.invalidSubspacesMaxLimit = false;
+    }
   },
 };
 </script>
