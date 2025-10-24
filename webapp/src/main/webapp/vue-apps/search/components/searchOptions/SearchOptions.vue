@@ -44,7 +44,11 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
           <i class="fas fa-chevron-down"></i>
         </v-chip>
       </template>
-      <v-list dense class="pa-0">
+      <v-list 
+        dense 
+        class="pa-0"
+        role="group" 
+        :aria-label="$t('search.connector.label.all.menu')">
         <v-list-item @click="$emit('select-all-connector')">
           <v-list-item-title class="d-flex align-center">
             <v-checkbox
