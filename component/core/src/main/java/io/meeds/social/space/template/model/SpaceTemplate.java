@@ -70,6 +70,10 @@ public class SpaceTemplate implements Cloneable {
 
   private boolean           spaceAllowContentCreation;
 
+  private List<String>      allowedSubspaceTemplates;
+
+  private Integer           subspacesMaxLimit;
+
   @Override
   public SpaceTemplate clone() { // NOSONAR
     return new SpaceTemplate(id,
@@ -90,7 +94,9 @@ public class SpaceTemplate implements Cloneable {
                              spaceDefaultCategoryIds,
                              spaceDefaultVisibility,
                              spaceDefaultRegistration,
-                             spaceAllowContentCreation);
+                             spaceAllowContentCreation,
+                             allowedSubspaceTemplates,
+                             subspacesMaxLimit);
   }
 
   public SpaceVisibility getSpaceDefaultVisibility() {
