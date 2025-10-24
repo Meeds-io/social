@@ -34,7 +34,9 @@
       <site-navigation-item
         :navigation="item"
         :enable-change-home="enableChangeHome"
-        :enable-unread="firstNavigationId === item.id" />
+        :enable-unread="firstNavigationId === item.id"
+        :aria-current="isActive(item) && 'true'"
+        :aria-selected="isActive(item) && 'true'" />
     </template>
   </v-treeview>
 </template>
@@ -124,6 +126,9 @@ export default {
       } else {
         return [];
       }
+    },
+    isActive(item) {
+      return this.active?.includes(item.uri);
     },
   },
 };
