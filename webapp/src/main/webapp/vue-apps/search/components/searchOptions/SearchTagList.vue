@@ -14,7 +14,7 @@
         :color="open && 'primary' || ''"
         :aria-label="$t('search.filter.tag')"
         tabindex="0"
-        class="text-body text-header-color me-1"
+        class="text-body border-color text-header-color me-1"
         v-bind="attrs"
         v-on="on"
         @keydown.enter="on.click">
