@@ -135,6 +135,13 @@ export default {
     },
     menu() {
       if (this.menu && this.selectedSpaces.length) {
+        this.$nextTick(() => {
+          const radioGroup = this.$el.querySelector('[role="radiogroup"]');
+          if (radioGroup) {
+            radioGroup.removeAttribute('aria-labelledby');
+            radioGroup.setAttribute('aria-label', this.$t('search.space.filter.menu'));
+          }
+        });
         this.choice = 'space';
       }
     }
