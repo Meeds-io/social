@@ -60,13 +60,15 @@ public class UserProfileComparator {
           && (((newValue instanceof String) && StringUtils.isNotBlank(newValue.toString()))
               || ((newValue instanceof List) && !((List<?>) newValue).isEmpty())
               || (newValue instanceof Date));
-    } else if (oldValue instanceof String) {
-      newValue = newValue == null ? StringUtils.EMPTY : String.valueOf(newValue);
-      return !StringUtils.equals((String) oldValue, (String) newValue);
+    } else if ((oldValue instanceof String && newValue instanceof List) || (oldValue instanceof List && newValue instanceof String)) {
+      return true;
     } else if (oldValue instanceof List) {
       List<Map<String, Object>> newValueList = (List<Map<String, Object>>) newValue;
       List<Map<String, Object>> oldValueList = (List<Map<String, Object>>) oldValue;
       return !isEquals(oldValueList, newValueList);
+    } else if (oldValue instanceof String) {
+      newValue = newValue == null ? StringUtils.EMPTY : String.valueOf(newValue);
+      return !StringUtils.equals((String) oldValue, (String) newValue);
     } else {
       return !ObjectUtils.equals(newValue, oldValue);
     }
