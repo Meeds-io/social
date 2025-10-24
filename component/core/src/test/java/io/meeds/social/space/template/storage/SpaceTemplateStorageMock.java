@@ -56,7 +56,9 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       Arrays.asList(SPACE_CATEGORY_ID),
                                       SpaceVisibility.PRIVATE,
                                       SpaceRegistration.OPEN,
-                                      false);
+                                      false,
+                                      null,
+                                      0);
   }
 
   @Override
