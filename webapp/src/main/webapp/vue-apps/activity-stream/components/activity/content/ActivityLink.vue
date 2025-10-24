@@ -4,7 +4,6 @@
     :element="htmlElement"
     :href="link"
     :target="linkTarget"
-    :aria-label="$t('news.activity.clickToAccessArticle',{0: titleText})"
     :class="mainClass">
     <template v-if="useMobileView">
       <div class="border-box-sizing flex">
