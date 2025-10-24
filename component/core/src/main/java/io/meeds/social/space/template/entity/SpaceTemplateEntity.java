@@ -102,4 +102,11 @@ public class SpaceTemplateEntity {
   @Column(name = "SPACE_ALLOW_CONTENT_CREATION")
   private boolean           spaceAllowContentCreation;
 
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "ALLOWED_SUBSPACE_TEMPLATES")
+  private List<String> allowedSubspaceTemplates;
+
+  @Column(name = "SUBSPACES_MAX_LIMIT")
+  private Integer subspacesMaxLimit;
+
 }
