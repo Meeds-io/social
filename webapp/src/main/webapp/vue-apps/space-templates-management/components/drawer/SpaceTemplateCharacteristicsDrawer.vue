@@ -253,7 +253,7 @@
             space-admin />
         </div>
         <v-card
-          v-on="step4Enabled && {
+          v-on="step5Enabled && {
             click: () => step = 5,
           }"
           class="d-flex mb-4"
@@ -264,7 +264,7 @@
             width="24"
             class="d-flex align-center justify-center border-radius-circle white--text"
             flat>
-            4
+            5
           </v-card>
           <div class="text-header mx-3">
             {{ $t('spaceTemplate.subspacesConfigurationStep') }}
@@ -367,7 +367,7 @@
           {{ $t('spaceTemplate.cancel') }}
         </v-btn>
         <v-btn
-          v-if="step < 4"
+          v-if="step < 5"
           :disabled="disabledNextStep"
           :loading="saving"
           class="btn primary"
@@ -446,6 +446,9 @@ export default {
     },
     step4Enabled() {
       return this.step3Enabled;
+    },
+    step5Enabled() {
+      return this.step4Enabled;
     },
     disabledNextStep() {
       if (this.step === 1) {
@@ -584,8 +587,10 @@ export default {
       this.spaceFieldInvitation = spaceTemplate.spaceFields.includes('invitation') || false;
       this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
       this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
-      this.canHaveSubspaces = !!spaceTemplate?.allowedSubspaceTemplates?.length;
-      this.selectedSubspaceTemplates = (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
+      this.canHaveSubspaces = Array.isArray(spaceTemplate?.allowedSubspaceTemplates) &&
+                              spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
+                              spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
+      this.selectedSubspaceTemplates = this.canHaveSubspaces && (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
         const [id, max] = item.split(':');
         return {
           id,
@@ -610,7 +615,7 @@ export default {
     async save() {
       this.saving = true;
       try {
-        if (this.canHaveSubspaces && this.selectedSubspaceTemplates?.length) {
+        if (this.canHaveSubspaces && this.selectedSubspaceTemplates.length > 0) {
           this.spaceTemplate.allowedSubspaceTemplates = this.selectedSubspaceTemplates.map(t => {
             const max = t.subspacesMaxLimit ?? 0;
             return `${t.id}:${max}`;
