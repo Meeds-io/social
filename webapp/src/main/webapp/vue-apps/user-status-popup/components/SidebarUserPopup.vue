@@ -25,10 +25,9 @@
     v-if="menu"
     ref="userMenu"
     v-model="menu"
-    :position-x="menuX"
-    :position-y="menuY"
-    :nudge-top="20"
-    :nudge-left="80"
+    :attach="attachTo || ''"
+    :nudge-top="positionTop"
+    :nudge-right="positionRight"
     :max-width="300"
     :min-width="280"
     :close-on-content-click="false"
@@ -54,6 +53,20 @@
 <script>
 
 export default {
+  props: {
+    attachTo: {
+      type: String,
+      default: ''
+    },
+    positionTop: {
+      type: Number,
+      default: 0
+    },
+    positionRight: {
+      type: Number,
+      default: 0
+    },
+  },
   data() {
     return {
       userName: eXo.env.portal.userName,
@@ -83,9 +96,6 @@ export default {
     document.removeEventListener('user-status-updated', this.handleStatusChangeEvent);
   },
   watch: {
-    menu() {
-      this.$root.allowClosing = !this.menu;
-    },
     status() {
       this.$emit('user-status-updated', this.statusColor);
     }
@@ -94,12 +104,6 @@ export default {
     statusColor() {
       return this.statusMap?.[this.status];
     },
-    menuX() {
-      return this.position?.x;
-    },
-    menuY() {
-      return this.position?.y;
-    }
   },
   methods: {
     open(x, y) {
