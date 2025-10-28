@@ -111,7 +111,7 @@ export default {
     },
     filteredProperties() {
       return this.properties.filter(property => property.visible && !this.excludedDropdown(property, property)
-               && (property.value || (property.children?.some(e => e.value && !this.excludedDropdown(e, property)))));
+               && (property.value || (property.multiValued && (property.children?.some(e => e.value && !this.excludedDropdown(e, property))))));
     },
     title() {
       return this.owner && this.$t('profileContactInformation.yourContactInformation') || this.$t('profileContactInformation.contactInformation');
