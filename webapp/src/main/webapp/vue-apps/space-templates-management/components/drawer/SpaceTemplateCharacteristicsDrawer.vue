@@ -344,7 +344,8 @@
                 :key="t.id"
                 :space-template="t"
                 :global-limit="subspacesMaxLimit"
-                class="px-0" />
+                class="px-0"
+                @remove-item="removeSelectedSpaceTemplate" />
             </div>
           </template>
         </div>
@@ -660,7 +661,12 @@ export default {
       this.subspaceTemplate = null;
       this.subspacesMaxLimit = 0;
       this.invalidSubspacesMaxLimit = false;
-    }
+    },
+    removeSelectedSpaceTemplate(templateId) {
+      this.selectedSubspaceTemplates = this.selectedSubspaceTemplates.filter(
+        t => Number(t.id) !== templateId
+      );
+    },
   },
 };
 </script>
