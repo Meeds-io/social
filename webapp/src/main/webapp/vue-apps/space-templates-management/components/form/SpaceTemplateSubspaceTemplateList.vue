@@ -31,7 +31,7 @@
           {{ spaceTemplateName }}
         </v-list-item-title>
       </v-list-item-content>
-      <v-list-item-action class="mx-0 my-auto">
+      <v-list-item-action class="mx-0 my-auto flex-row">
         <div class="position-relative d-flex flex-column justify-center">
           <v-card
             v-if="subspacesMaxLimit === 0"
@@ -59,6 +59,12 @@
             editable
             @valid="invalidSubspacesMaxLimit = !$event" />
         </div>
+        <v-btn
+          class="my-auto"
+          icon
+          @click="$emit('remove-item', spaceTemplate.id)">
+          <v-icon size="18" color="error">fa-trash</v-icon>
+        </v-btn>
       </v-list-item-action>
     </v-list-item>
     <span v-if="invalidSubspacesMaxLimit" class="error-color">{{ $t('spaceTemplate.subspacesConfigurationStepMaxLimitWarning') }} {{ globalLimit }}</span>
@@ -93,6 +99,18 @@ export default {
     }
   },
   watch: {
+    spaceTemplate: {
+      async handler(newVal) {
+        if (!newVal) {
+          return;
+        }
+        if (!this.spaceTemplateName) {
+          const subspacesMaxLimit = newVal?.subspacesMaxLimit;
+          this.spaceTemplate = await this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplateId);
+          this.subspacesMaxLimit = subspacesMaxLimit;
+        }
+      },
+    },
     subspacesMaxLimit() {
       this.$set(this.spaceTemplate, 'subspacesMaxLimit', this.subspacesMaxLimit);
       this.invalidSubspacesMaxLimit = this.globalLimit > 0 && (this.subspacesMaxLimit > this.globalLimit || this.subspacesMaxLimit === 0);
