@@ -170,6 +170,9 @@ export default {
     },
     isAdmin() {
       return this.user?.isAdmin;
+    },
+    userFullname() {
+      return this.user?.fullname;
     }
   },
   watch: {
@@ -178,6 +181,10 @@ export default {
         this.$root.$emit('alert-message', this.errorMessage, 'error');
       }
     },
+    userFullname() {
+      const companyName = eXo.env.portal.companyName;
+      window.document.title = this.$t('profileHeader.page.title',{0: this.userFullname, 1: companyName});
+    }
   },
   created() {
     window.addEventListener('resize', this.calculateAppWidth);
