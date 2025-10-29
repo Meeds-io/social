@@ -8,8 +8,8 @@
       }">
       <textarea
         ref="editor"
-        :id="ckEditorInstanceId"
         v-model="inputVal"
+        :id="ckEditorInstanceId"
         cols="30"
         rows="10"
         class="textarea"></textarea>
@@ -146,6 +146,10 @@ export default {
     objectId: {
       type: String,
       default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     },
     disableImageAttachment: {
       type: Boolean,
@@ -300,7 +304,13 @@ export default {
           }
         }
       }
-    }
+    },
+    disabled() {
+      if (this.editor) {
+        this.editor.setReadOnly(this.disabled);
+        this.editor.editable().$.setAttribute('contenteditable', `${!this.disabled}`);
+      }
+    },
   },
   created() {
     // Load CKEditor only when needed
@@ -431,6 +441,7 @@ export default {
         pasteFilter: 'p; div; a[!href]; strong; i',
         supportsOembed: this.supportsOembed,
         bodyClass: this.dense ? `${this.bodyClass || ''} dense-margin` : this.bodyClass,
+        readOnly: this.disabled
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
