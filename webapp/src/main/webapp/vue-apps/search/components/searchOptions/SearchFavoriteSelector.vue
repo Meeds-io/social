@@ -22,9 +22,10 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
   <v-chip
     :outlined="!isFavoritesFilter"
     :color="isFavoritesFilter ? 'primary' : ''"
-    :aria-pressed="isFavoritesFilter"
+    :aria-pressed="String(isFavoritesFilter)"
     :aria-label="$t('search.filter.favorite')"
     class="me-1 text-body border-color flex-shrink-0"
+    role="button"
     tabindex="0"
     @keydown.enter="emitFavoritesChange"
     @click="emitFavoritesChange">
