@@ -332,11 +332,15 @@ export default {
       this.displayBackButton = !this.displayBackButton;
     },
     setupUserName(){
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.has('username')) {
-        this.username = urlParams.get('username');
-      } else if (urlParams.has('email')) {
-        this.username = urlParams.get('email');
+      if (sessionStorage.getItem('email') != null) {
+        this.username = sessionStorage.getItem('email');
+      } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('username')) {
+          this.username = urlParams.get('username');
+        } else if (urlParams.has('email')) {
+          this.username = urlParams.get('email');
+        }
       }
     },
     toggleShow() {
@@ -345,6 +349,7 @@ export default {
     validateForm() {
       this.loading = this.$refs.form.reportValidity();
       window.setTimeout(() => this.loading = false, 10000);
+      sessionStorage.removeItem('email');
       return true;
     },
     displayAlert(message, type) {
