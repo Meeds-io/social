@@ -6,6 +6,7 @@
     v-identity-popover="space">
     <a
       v-if="notAccessibleSpace"
+      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar not-clickable-link">
       <v-avatar
         v-if="avatar || !isMobile"
@@ -38,6 +39,7 @@
       :href="url"
       :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
+      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
@@ -59,6 +61,7 @@
       :id="id"
       :href="url"
       :target="linkTarget"
+      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <div
         v-if="displayName || $slots.subTitle"
@@ -84,6 +87,7 @@
       :href="url"
       :target="linkTarget"
       :aria-label="$t('space.avatar.href.title',{0:displayName})"
+      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-shrink-0 d-flex spaceAvatar">
       <v-avatar
         :size="size"
@@ -184,6 +188,10 @@ export default {
       type: String,
       default: () => 'text-truncate',
     },
+    focusable: {
+      type: Boolean,
+      default: () => true,
+    },
   },
   data() {
     return {
@@ -238,6 +246,9 @@ export default {
     },
     subtitleNewLineClass() {
       return !this.subtitleNewLine && `d-flex ${this.pullLeft}` || this.pullLeft;
+    },
+    isNotFocusable() {
+      return this.focusable === false || this.focusable === 'false';
     },
   },
   created() {
