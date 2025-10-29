@@ -166,7 +166,8 @@ public class LoginRest {
       try {
         String email = finishUserCreation(username, request, token, request.getLocale());
         cleanCapcha(request.getSession(),"email-validation");
-        return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH + "?email="+email).build();
+        return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).body(new JSONObject()
+                                                                                                    .put("username", email).toString());
       } catch (Exception e) {
         LOG.warn("Error while registering external user", e);
         return ResponseEntity.internalServerError().body(new JSONObject()
@@ -374,7 +375,7 @@ public class LoginRest {
       String username = createUser(email, firsname, lastname, password);
       passwordRecoveryService.sendAccountCreatedConfirmationEmail(username, locale, getUrl(request));
       remindPasswordTokenService.deleteToken(token);      cleanCapcha(session, "external-registration");
-      return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, "/portal/login?email="+email).build();
+      return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
     } catch (Exception e) {
       LOG.warn("Error while registering external user", e);
       return ResponseEntity.internalServerError().body(new JSONObject()
@@ -548,12 +549,7 @@ public class LoginRest {
     String errorMessage = validateUserAndPassword(usernameToken, username, password, password2, locale);
     if (errorMessage == null) {
       if (passwordRecoveryService.changePass(token, "onboard", username, password)) {
-        User user = findUser(username);
-        String loginPath = LOGIN_PATH;
-        if (user != null) {
-          loginPath += "?email=" + user.getEmail();
-        }
-        return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, loginPath).build();
+        return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, LOGIN_PATH).build();
       } else {
         return ResponseEntity.badRequest().body(new JSONObject()
                                                     .put(ERROR_MESSAGE_PARAM, "gatein.forgotPassword.resetPasswordFailure").toString());

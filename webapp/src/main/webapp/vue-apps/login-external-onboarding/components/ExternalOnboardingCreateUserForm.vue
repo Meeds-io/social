@@ -296,6 +296,7 @@ export default {
               });
             } else {
               if (resp.redirected) {
+                sessionStorage.setItem('email',this.email);
                 window.location.href = resp.url;
               } else {
                 this.success = true;

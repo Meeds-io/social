@@ -187,6 +187,7 @@ export default {
           }
         } else {
           if (resp.redirected) {
+            sessionStorage.setItem('email',this.usernameParam);
             window.location.href = resp.url;
           }
         }
