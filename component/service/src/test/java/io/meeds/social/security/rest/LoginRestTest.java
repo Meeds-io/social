@@ -366,7 +366,7 @@ public class LoginRestTest {
                                                  .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
-            .andExpect(header().string("Location","/portal/login?email=jsmith@acme.com"));
+            .andExpect(header().string("Location","/portal/login"));
   }
 
 
@@ -557,7 +557,7 @@ public class LoginRestTest {
                                                  .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
-            .andExpect(header().string("Location","/portal/login?email=jsmith@acme.com"));
+            .andExpect(header().string("Location","/portal/login"));
   }
 
   @Test
@@ -715,7 +715,7 @@ public class LoginRestTest {
                                                  .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
-            .andExpect(header().string("Location","/portal/login?email=jsmith@acme.com"));
+            .andExpect(header().string("Location","/portal/login"));
   }
 
   private RequestPostProcessor testSimpleUser() {
