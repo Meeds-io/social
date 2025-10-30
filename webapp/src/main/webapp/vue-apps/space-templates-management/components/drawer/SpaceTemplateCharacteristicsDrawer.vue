@@ -493,7 +493,7 @@ export default {
           await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'name', this.nameTranslations);
         }
         if (this.descriptionTranslations) {
-          await this.$translationService.saveTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
+          await this.$translationService.saveRichTranslations('spaceTemplate', this.spaceTemplate.id, 'description', this.descriptionTranslations);
         }
         await this.$refs.bannerInput.save(this.spaceTemplate.id);
         this.spaceTemplate.name = this.name;

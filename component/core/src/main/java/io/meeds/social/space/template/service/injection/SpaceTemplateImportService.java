@@ -192,10 +192,10 @@ public class SpaceTemplateImportService implements ContainerStartableService {
   }
 
   protected void saveDescriptions(SpaceTemplateDescriptor d, SpaceTemplate spaceTemplate) {
-    layoutTranslationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
-                                                   spaceTemplate.getId(),
-                                                   SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
-                                                   d.getDescriptions());
+    layoutTranslationService.saveRichTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
+                                                       spaceTemplate.getId(),
+                                                       SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
+                                                       d.getDescriptions());
   }
 
   @SneakyThrows

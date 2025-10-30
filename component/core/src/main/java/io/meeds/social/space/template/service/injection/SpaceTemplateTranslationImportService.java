@@ -82,6 +82,19 @@ public class SpaceTemplateTranslationImportService {
                                                                         getI18NLabel(labels.get("en"), Locale.ENGLISH)));
   }
 
+  public void saveRichTranslationLabels(String objectType,
+                                        long objectId,
+                                        String fieldName,
+                                        Map<String, String> labels) {
+    // Make Heavy processing made at the end or import process
+    postImportProcessors.computeIfAbsent(objectType, k -> new ArrayList<>())
+                        .add(() -> saveRichTranslationLabelsForAllLanguages(objectType,
+                                                                            objectId,
+                                                                            fieldName,
+                                                                            labels,
+                                                                            getI18NLabel(labels.get("en"), Locale.ENGLISH)));
+  }
+
   public void postImport(String objectType) {
     postImportProcessors.computeIfAbsent(objectType, k -> new ArrayList<>()).forEach(executorService::execute);
     postImportProcessors.remove(objectType);
@@ -108,6 +121,28 @@ public class SpaceTemplateTranslationImportService {
                                              objectId,
                                              fieldName,
                                              translations);
+  }
+
+  @SneakyThrows
+  @ContainerTransactional
+  private void saveRichTranslationLabelsForAllLanguages(String objectType,
+                                                        long objectId,
+                                                        String fieldName,
+                                                        Map<String, String> labels,
+                                                        String defaultLabel) {
+    String i18nKey = labels.get("en");
+    Map<Locale, String> translations = new HashMap<>();
+    localeConfigService.getLocalConfigs()
+                       .stream()
+                       .filter(config -> !StringUtils.equals(config.getLocale().toLanguageTag(), "ma"))
+                       .forEach(config -> translations.put(config.getLocale(),
+                                                           getI18NLabel(i18nKey,
+                                                                        config.getLocale(),
+                                                                        defaultLabel)));
+    translationService.saveRichTranslationLabels(objectType,
+                                                 objectId,
+                                                 fieldName,
+                                                 translations);
   }
 
   private String getI18NLabel(String label, Locale locale) {

@@ -200,12 +200,34 @@ public class TranslationServiceImpl implements TranslationService {
   }
 
   @Override
+  public void saveRichTranslationLabels(String objectType,
+                                        String objectId,
+                                        String fieldName,
+                                        Map<Locale, String> labels,
+                                        String username) throws IllegalAccessException, ObjectNotFoundException {
+    checkParameters(objectType, objectId, fieldName);
+    checkEditPermission(objectType, objectId, username, NO_PERMISSION_TO_EDIT_MESSAGE);
+    saveRichTranslationLabelsNoBroadcast(objectType, objectId, fieldName, labels);
+    broadcastEvent(TRANSLATION_SAVED_EVENT_NAME, objectType, objectId, fieldName, null, username);
+  }
+
+  @Override
   public void saveTranslationLabels(String objectType,
                                     String objectId,
                                     String fieldName,
                                     Map<Locale, String> labels) throws ObjectNotFoundException {
     checkParameters(objectType, objectId, fieldName);
     saveTranslationLabelsNoBroadcast(objectType, objectId, fieldName, labels);
+    broadcastEvent(TRANSLATION_SAVED_EVENT_NAME, objectType, objectId, fieldName, null, null);
+  }
+
+  @Override
+  public void saveRichTranslationLabels(String objectType,
+                                        String objectId,
+                                        String fieldName,
+                                        Map<Locale, String> labels) throws ObjectNotFoundException {
+    checkParameters(objectType, objectId, fieldName);
+    saveRichTranslationLabelsNoBroadcast(objectType, objectId, fieldName, labels);
     broadcastEvent(TRANSLATION_SAVED_EVENT_NAME, objectType, objectId, fieldName, null, null);
   }
 
@@ -256,6 +278,22 @@ public class TranslationServiceImpl implements TranslationService {
                                                 String objectId,
                                                 String fieldName,
                                                 Map<Locale, String> labels) throws ObjectNotFoundException {
+    if (MapUtils.isEmpty(labels)) {
+      throw new IllegalArgumentException("labels is empty");
+    }
+    TranslationPlugin translationPlugin = translationPlugins.get(objectType);
+    long audienceId = translationPlugin.getAudienceId(objectId);
+    long spaceId = translationPlugin.getSpaceId(objectId);
+    Set<Locale> labelLocales = labels.keySet();
+
+    translationStorage.saveTranslationLabels(objectType, objectId, fieldName, labels, audienceId, spaceId);
+    processLabelLocalesDeletion(objectType, objectId, fieldName, labelLocales);
+  }
+
+  private void saveRichTranslationLabelsNoBroadcast(String objectType,
+                                                    String objectId,
+                                                    String fieldName,
+                                                    Map<Locale, String> labels) throws ObjectNotFoundException {
     if (MapUtils.isEmpty(labels)) {
       throw new IllegalArgumentException("labels is empty");
     }

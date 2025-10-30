@@ -235,6 +235,29 @@ public interface TranslationService {
   }
 
   /**
+   * Saves sanitized Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   *
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @param username user name updating the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void saveRichTranslationLabels(String objectType,
+                                         long objectId,
+                                         String fieldName,
+                                         Map<Locale, String> labels,
+                                         String username) throws IllegalAccessException, ObjectNotFoundException {
+    saveRichTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, username);
+  }
+
+  /**
    * Saves Translation Labels for a given Object's field. This will replace any
    * existing list of translations
    * 
@@ -256,7 +279,28 @@ public interface TranslationService {
                              String username) throws IllegalAccessException, ObjectNotFoundException;
 
   /**
-   * Saves Translation Labels for a given Object's field. This will replace any
+   * Saves sanitized Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   *
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @param username user name updating the list, used for ACL check
+   * @throws IllegalAccessException When user doesn't have write permission to
+   *           object
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  void saveRichTranslationLabels(String objectType,
+                                 String objectId,
+                                 String fieldName,
+                                 Map<Locale, String> labels,
+                                 String username) throws IllegalAccessException, ObjectNotFoundException;
+
+  /**
+   * Saves sanitized Translation Labels for a given Object's field. This will replace any
    * existing list of translations
    * 
    * @param objectType Object type for which the Translation Metadata will be
@@ -267,11 +311,11 @@ public interface TranslationService {
    *          each {@link Locale}
    * @throws ObjectNotFoundException When object wasn't found
    */
-  default void saveTranslationLabels(String objectType,
-                                     long objectId,
-                                     String fieldName,
-                                     Map<Locale, String> labels) throws ObjectNotFoundException {
-    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels);
+  default void saveRichTranslationLabels(String objectType,
+                                         long objectId,
+                                         String fieldName,
+                                         Map<Locale, String> labels) throws ObjectNotFoundException {
+    saveRichTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels);
   }
 
   /**
@@ -290,6 +334,42 @@ public interface TranslationService {
                              String objectId,
                              String fieldName,
                              Map<Locale, String> labels) throws ObjectNotFoundException;
+
+  /**
+   * Saves Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   *
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  default void saveTranslationLabels(String objectType,
+                                         long objectId,
+                                         String fieldName,
+                                         Map<Locale, String> labels) throws ObjectNotFoundException {
+    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels);
+  }
+
+  /**
+   * Saves sanitized Translation Labels for a given Object's field. This will replace any
+   * existing list of translations
+   *
+   * @param objectType Object type for which the Translation Metadata will be
+   *          attached
+   * @param objectId Object unique identifier
+   * @param fieldName Object field
+   * @param labels {@link Map} of Translations with a corresponding label for
+   *          each {@link Locale}
+   * @throws ObjectNotFoundException When object wasn't found
+   */
+  void saveRichTranslationLabels(String objectType,
+                                 String objectId,
+                                 String fieldName,
+                                 Map<Locale, String> labels) throws ObjectNotFoundException;
 
   /**
    * Saves a single Translation Label with a given {@link Locale} for a given
