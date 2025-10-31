@@ -65,6 +65,21 @@ export function saveTranslations(objectType, objectId, fieldName, labels) {
   });
 }
 
+export function saveRichTranslations(objectType, objectId, fieldName, labels) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/rich/${objectType}/${objectId}/${fieldName}`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(labels),
+  }).then((resp) => {
+    if (!resp?.ok) {
+      throw new Error(`Error when saving the list of translations for field ${objectType}/${objectId}/${fieldName}`);
+    }
+  });
+}
+
 export function deleteTranslations(objectType, objectId) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/social/translations/${objectType}/${objectId}`, {
     method: 'DELETE',

@@ -57,7 +57,8 @@ public class CmsPortletWithMetadata extends CMSPortlet {
               getTranslationService().saveTranslationLabels(OBJECT_TYPE,
                                                             name,
                                                             translationKey,
-                                                            translationField.getLabels());
+                                                            translationField.getLabels(),
+                                                            false);
             } catch (ObjectNotFoundException o) {
               //nothing to do, no translations to copy
             }

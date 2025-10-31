@@ -72,14 +72,16 @@ public class SpaceTemplateTranslationImportService {
   public void saveTranslationLabels(String objectType,
                                     long objectId,
                                     String fieldName,
-                                    Map<String, String> labels) {
+                                    Map<String, String> labels,
+                                    boolean isRichText) {
     // Make Heavy processing made at the end or import process
     postImportProcessors.computeIfAbsent(objectType, k -> new ArrayList<>())
                         .add(() -> saveTranslationLabelsForAllLanguages(objectType,
                                                                         objectId,
                                                                         fieldName,
                                                                         labels,
-                                                                        getI18NLabel(labels.get("en"), Locale.ENGLISH)));
+                                                                        getI18NLabel(labels.get("en"), Locale.ENGLISH),
+                                                                        isRichText));
   }
 
   public void postImport(String objectType) {
@@ -94,7 +96,8 @@ public class SpaceTemplateTranslationImportService {
                                                     long objectId,
                                                     String fieldName,
                                                     Map<String, String> labels,
-                                                    String defaultLabel) {
+                                                    String defaultLabel,
+                                                    boolean isRichText) {
     String i18nKey = labels.get("en");
     Map<Locale, String> translations = new HashMap<>();
     localeConfigService.getLocalConfigs()
@@ -105,9 +108,10 @@ public class SpaceTemplateTranslationImportService {
                                                                         config.getLocale(),
                                                                         defaultLabel)));
     translationService.saveTranslationLabels(objectType,
-                                             objectId,
+                                             objectId == 0 ? null : String.valueOf(objectId),
                                              fieldName,
-                                             translations);
+                                             translations,
+                                             isRichText);
   }
 
   private String getI18NLabel(String label, Locale locale) {
