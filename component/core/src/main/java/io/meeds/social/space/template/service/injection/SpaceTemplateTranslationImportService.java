@@ -108,7 +108,7 @@ public class SpaceTemplateTranslationImportService {
                                                                         config.getLocale(),
                                                                         defaultLabel)));
     translationService.saveTranslationLabels(objectType,
-                                             objectId,
+                                             objectId == 0 ? null : String.valueOf(objectId),
                                              fieldName,
                                              translations,
                                              isRichText);

@@ -98,8 +98,7 @@ public abstract class AbstractCategoryConfigurationTest extends AbstractSpringCo
                                                  CategoryTranslationPlugin.NAME_FIELD,
                                                  Collections.singletonMap(Locale.ENGLISH,
                                                                           "category-" + parentId + "-" + category.getId()),
-                                                 ROOT_USER,
-                                                 false);
+                                                 ROOT_USER);
         createTree(ownerId, category.getId(), depth + 1, depthLimit);
       }
     }

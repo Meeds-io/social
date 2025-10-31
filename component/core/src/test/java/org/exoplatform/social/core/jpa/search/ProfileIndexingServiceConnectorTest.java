@@ -131,8 +131,7 @@ public class ProfileIndexingServiceConnectorTest extends AbstractCoreTest {
     translationService.saveTranslationLabels("propertySettingOption",
                                              dropdownPropertySetting.getPropertyOptions().getFirst().getId(),
                                              "optionValue",
-                                             labels,
-                                             false);
+                                             labels);
 
     document = profileIndexingServiceConnector.update(userIdentity.getId());
     assertEquals("option-option fr-option en", document.getFields().get("propDropdownTest"));

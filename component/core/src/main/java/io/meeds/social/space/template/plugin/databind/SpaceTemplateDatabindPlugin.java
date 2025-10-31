@@ -265,14 +265,13 @@ public class SpaceTemplateDatabindPlugin implements DatabindPlugin {
     translationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                              spaceTemplate.getId(),
                                              SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
-                                             convertToLocaleMap(spaceTemplateDatabind.getNames()),
-                                             false);
+                                             convertToLocaleMap(spaceTemplateDatabind.getNames()));
   }
 
   @SneakyThrows
   private void saveDescriptions(SpaceTemplateDatabind spaceTemplateDatabind, SpaceTemplate spaceTemplate) {
     translationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
-                                             spaceTemplate.getId(),
+                                             spaceTemplate.getId() == 0 ? null : String.valueOf(spaceTemplate.getId()),
                                              SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
                                              convertToLocaleMap(spaceTemplateDatabind.getDescriptions()),
                                              true);

@@ -48,7 +48,7 @@ public class ProfilePropertySettingOptionTranslationTest extends AbstractKernelT
     Map<Locale, String> labels = new HashMap<>();
     labels.put(Locale.US, "option en");
     labels.put(Locale.FRANCE, "option fr");
-    translationService.saveTranslationLabels("propertySettingOption", 1L, "optionValue", labels, false);
+    translationService.saveTranslationLabels("propertySettingOption", 1L, "optionValue", labels);
 
     TranslationField translationField = translationService.getTranslationField("propertySettingOption", 1L, "optionValue");
     assertNotNull(translationField);

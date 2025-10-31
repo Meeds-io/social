@@ -67,7 +67,7 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
     assertThrows(IllegalArgumentException.class,
                  () -> translationService.saveTranslationLabels(null, objectId, fieldName, labels, false));
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(objectType, 0, fieldName, labels, false));
+                 () -> translationService.saveTranslationLabels(objectType, 0, fieldName, labels));
     assertThrows(IllegalStateException.class,
                  () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username, false));
 

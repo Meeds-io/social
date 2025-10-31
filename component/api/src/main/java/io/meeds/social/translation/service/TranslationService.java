@@ -222,7 +222,6 @@ public interface TranslationService {
    * @param labels {@link Map} of Translations with a corresponding label for
    *          each {@link Locale}
    * @param username user name updating the list, used for ACL check
-   * @param isRichText to return the sanitized text or not
    * @throws IllegalAccessException When user doesn't have write permission to
    *           object
    * @throws ObjectNotFoundException When object wasn't found
@@ -231,9 +230,8 @@ public interface TranslationService {
                                      long objectId,
                                      String fieldName,
                                      Map<Locale, String> labels,
-                                     String username,
-                                     boolean isRichText) throws IllegalAccessException, ObjectNotFoundException {
-    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, username, isRichText);
+                                     String username) throws IllegalAccessException, ObjectNotFoundException {
+    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, username, false);
   }
 
   /**
@@ -269,15 +267,13 @@ public interface TranslationService {
    * @param fieldName Object field
    * @param labels {@link Map} of Translations with a corresponding label for
    *          each {@link Locale}
-   * @param isRichText to return the sanitized text or not
    * @throws ObjectNotFoundException When object wasn't found
    */
   default void saveTranslationLabels(String objectType,
                                      long objectId,
                                      String fieldName,
-                                     Map<Locale, String> labels,
-                                     boolean isRichText) throws ObjectNotFoundException {
-    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, isRichText);
+                                     Map<Locale, String> labels) throws ObjectNotFoundException {
+    saveTranslationLabels(objectType, objectId == 0 ? null : String.valueOf(objectId), fieldName, labels, false);
   }
 
   /**
