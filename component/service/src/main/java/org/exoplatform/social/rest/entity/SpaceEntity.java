@@ -493,4 +493,30 @@ public class SpaceEntity extends BaseEntity {
     return this;
   }
 
+  public SpaceEntity setParentSpaceId(Long parentSpaceId) {
+    setProperty("parentSpaceId", parentSpaceId);
+    return this;
+  }
+
+  public Long getParentSpaceId() {
+    Object value = getProperty("parentSpaceId");
+    switch (value) {
+    case null -> {
+      return 0L;
+    }
+    case Number number -> {
+      return number.longValue();
+    }
+    case String s -> {
+      try {
+        return Long.parseLong(s);
+      } catch (NumberFormatException e) {
+        return 0L;
+      }
+    }
+    default -> {
+    }
+    }
+    return 0L;
+  }
 }

@@ -434,31 +434,36 @@ public class SpaceStorage {
   }
 
   @ExoTransactional
-  public Space saveSpace(Space space, boolean isNew) throws SpaceStorageException {
-    SpaceEntity entity;
-    if (isNew) {
-      entity = new SpaceEntity();
-      // Ensure unicity of pretty name
-      EntityConverterUtils.buildFrom(space, entity);
-
-      //
-      entity.setUpdatedDate(new Date());
-      entity = spaceDAO.create(entity);
-      space.setId(String.valueOf(entity.getId()));
-    } else {
-      Long id = Long.parseLong(space.getId());
-      entity = spaceDAO.find(id);
-
-      if (entity != null) {
-        EntityConverterUtils.buildFrom(space, entity);
-        //
-        entity.setUpdatedDate(new Date());
-        entity = spaceDAO.update(entity);
-      } else {
+  public Space saveSpace(Space space, boolean isNew, long parentSpaceId) throws SpaceStorageException {
+    try {
+      SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.find(Long.parseLong(space.getId()));
+      if (!isNew && entity == null) {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
       }
+      EntityConverterUtils.buildFrom(space, entity);
+      if (parentSpaceId > 0) {
+        SpaceEntity parent = spaceDAO.find(parentSpaceId);
+        if (parent == null) {
+          throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE,
+                                          "Parent space not found: " + parentSpaceId);
+        }
+        entity.setParentSpaceEntity(parent);
+      } else {
+        entity.setParentSpaceEntity(null);
+      }
+      entity.setUpdatedDate(new Date());
+      entity = isNew ? spaceDAO.create(entity) : spaceDAO.update(entity);
+      space.setId(String.valueOf(entity.getId()));
+
+      return getSpaceById(entity.getId());
+    } catch (NumberFormatException e) {
+      throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE, "Invalid space ID", e);
     }
-    return getSpaceById(entity.getId());
+  }
+
+  @ExoTransactional
+  public Space saveSpace(Space space, boolean isNew) throws SpaceStorageException {
+    return saveSpace(space, isNew, 0);
   }
 
   @ExoTransactional
