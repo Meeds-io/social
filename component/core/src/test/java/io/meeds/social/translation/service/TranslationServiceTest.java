@@ -65,28 +65,28 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
   public void testSaveTranslationLabels() throws IllegalAccessException, ObjectNotFoundException {
     Map<Locale, String> labels = new HashMap<>();
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(null, objectId, fieldName, labels));
+                 () -> translationService.saveTranslationLabels(null, objectId, fieldName, labels, false));
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(objectType, 0, fieldName, labels));
+                 () -> translationService.saveTranslationLabels(objectType, 0, fieldName, labels, false));
     assertThrows(IllegalStateException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username, false));
 
     setTranslationPlugin(true, false, 2, 1);
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, null, labels));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, null, labels, false));
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, null));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, null, false));
     assertThrows(IllegalAccessException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, null));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, null, false));
 
     assertThrows(IllegalAccessException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username, false));
 
     setTranslationPlugin(true, true, 2, 1);
     assertThrows(IllegalArgumentException.class,
-                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username));
+                 () -> translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username, false));
     labels.put(locale, label);
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, username, false);
   }
 
   public void testSaveTranslationLabel() throws ObjectNotFoundException {
@@ -172,7 +172,7 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
     setTranslationPlugin(true, true, 2, 1);
     Map<Locale, String> labels = new HashMap<>();
     labels.put(locale, label);
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, false);
 
     translationField = translationService.getTranslationField(objectType, objectId, fieldName, username);
     assertNotNull(translationField);
@@ -183,7 +183,7 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
 
     String labelFr = label + "FR";
     labels.put(Locale.FRENCH, labelFr);
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, false);
 
     translationField = translationService.getTranslationField(objectType, objectId, fieldName, username);
     assertNotNull(translationField);
@@ -205,14 +205,14 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
 
     Map<Locale, String> labels = new HashMap<>();
     labels.put(locale, label);
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, false);
 
     String value = translationService.getTranslationLabel(objectType, objectId, fieldName, locale);
     assertEquals(label, value);
 
     String labelFr = label + "FR";
     labels.put(Locale.FRENCH, labelFr);
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, labels, false);
 
     value = translationService.getTranslationLabel(objectType, objectId, fieldName, Locale.FRENCH);
     assertEquals(labelFr, value);
@@ -264,8 +264,8 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
     labels.put(locale, label);
     labels.put(Locale.GERMAN, label+"-de");
 
-    translationService.saveTranslationLabels(objectType, objectId, field1, labels);
-    translationService.saveTranslationLabels(objectType, objectId, field2, labels);
+    translationService.saveTranslationLabels(objectType, objectId, field1, labels, false);
+    translationService.saveTranslationLabels(objectType, objectId, field2, labels, false);
 
     Map<String, TranslationField> translationfields = translationService.getAllTranslationFields(objectType, objectId, username);
     assertNotNull(translationfields);
@@ -283,8 +283,8 @@ public class TranslationServiceTest extends AbstractCoreTest { // NOSONAR
 
     String labelFr = label + "FR";
     labels.put(Locale.FRENCH, labelFr);
-    translationService.saveTranslationLabels(objectType, objectId, field1, labels);
-    translationService.saveTranslationLabels(objectType, objectId, field2, labels);
+    translationService.saveTranslationLabels(objectType, objectId, field1, labels, false);
+    translationService.saveTranslationLabels(objectType, objectId, field2, labels, false);
 
     translationfields = translationService.getAllTranslationFields(objectType, objectId, username);
     assertNotNull(translationfields);

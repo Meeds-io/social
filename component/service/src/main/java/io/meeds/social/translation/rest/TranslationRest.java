@@ -197,7 +197,8 @@ public class TranslationRest implements ResourceContainer {
                                                      .stream()
                                                      .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
                                                                                Entry::getValue)),
-                                               RestUtils.getCurrentUser());
+                                               RestUtils.getCurrentUser(),
+                                               false);
       return Response.noContent().build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
@@ -230,14 +231,15 @@ public class TranslationRest implements ResourceContainer {
                                               @RequestBody
                                               Map<String, String> labels) {
     try {
-      translationService.saveRichTranslationLabels(objectType,
-                                                   objectId,
-                                                   fieldName,
-                                                   labels.entrySet()
-                                                         .stream()
-                                                         .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
-                                                                                   Entry::getValue)),
-                                                   RestUtils.getCurrentUser());
+      translationService.saveTranslationLabels(objectType,
+                                               objectId,
+                                               fieldName,
+                                               labels.entrySet()
+                                                     .stream()
+                                                     .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
+                                                                               Entry::getValue)),
+                                               RestUtils.getCurrentUser(),
+                                               true);
       return Response.noContent().build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();

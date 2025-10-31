@@ -93,7 +93,7 @@ public class CategoryTranslationImportService {
                        .filter(config -> !StringUtils.equals(config.getLocale().toLanguageTag(), "ma"))
                        .forEach(config -> translations.put(config.getLocale(),
                                                            getI18NLabel(i18nKey, config.getLocale(), defaultLabel)));
-    translationService.saveTranslationLabels(objectType, objectId, fieldName, translations);
+    translationService.saveTranslationLabels(objectType, objectId, fieldName, translations, false);
   }
 
   private String getI18NLabel(String label, Locale locale) {

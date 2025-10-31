@@ -389,7 +389,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
         translationService.saveTranslationLabels(PROFILE_PROPERTY_OBJECT_TYPE,
                                                  savedOption.getId(),
                                                  PROFILE_PROPERTY_FIELD_NAME,
-                                                 translations);
+                                                 translations,
+                                                 false);
         if (update && translationField != null && !translationField.getLabels().equals(translations)) {
           listenerService.broadcast("property_options_updated", newOption, translationField.getLabels());
         }

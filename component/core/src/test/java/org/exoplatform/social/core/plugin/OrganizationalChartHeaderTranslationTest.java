@@ -52,7 +52,7 @@ public class OrganizationalChartHeaderTranslationTest extends AbstractKernelTest
     Map<Locale, String> labels = new HashMap<>();
     labels.put(new Locale("en"), "Organizational chart");
     labels.put(new Locale("fr"), "Organigramme");
-    translationService.saveTranslationLabels("organizationalChart", 1L, "chartHeaderTitle", labels);
+    translationService.saveTranslationLabels("organizationalChart", 1L, "chartHeaderTitle", labels, false);
 
     TranslationField translationField = translationService.getTranslationField("organizationalChart", 1L, "chartHeaderTitle");
     assertNotNull(translationField);
