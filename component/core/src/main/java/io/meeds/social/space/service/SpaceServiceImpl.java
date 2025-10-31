@@ -397,6 +397,14 @@ public class SpaceServiceImpl implements SpaceService {
 
   @Override
   public Space createSpace(Space space, String username, List<Identity> identitiesToInvite) throws SpaceException {
+    return createSpace(space, username, identitiesToInvite, 0);
+  }
+
+  @Override
+  public Space createSpace(Space space,
+                           String username,
+                           List<Identity> identitiesToInvite,
+                           long parentSpaceId) throws SpaceException {
     if (!getSpaceTemplateService().canCreateSpace(space.getTemplateId(), username)) {
       throw new SpaceException(Code.SPACE_PERMISSION,
                                String.format("User %s isn't allowed to create space with template %s",
@@ -426,13 +434,12 @@ public class SpaceServiceImpl implements SpaceService {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
     Space createdSpace;
     try {
-      createdSpace = spaceStorage.saveSpace(spaceToCreate, true);
+      createdSpace = spaceStorage.saveSpace(spaceToCreate, true, parentSpaceId);
       space.setId(createdSpace.getId());
       spaceLifeCycle.spaceCreated(spaceToCreate, username);
     } catch (Exception e) {
       throw new SpaceException(Code.ERROR_DATASTORE,
-                               String.format("Failed to save the space %s",
-                                             spaceToCreate.getPrettyName()),
+                               String.format("Failed to save the space %s", spaceToCreate.getPrettyName()),
                                e);
     } finally {
       spaceLifeCycle.resetCurrentEvent(Type.SPACE_CREATED);
