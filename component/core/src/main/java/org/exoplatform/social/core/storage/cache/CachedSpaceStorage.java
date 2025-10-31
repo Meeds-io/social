@@ -215,6 +215,18 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
+  public Space saveSpace(final Space space, final boolean isNew, long parentSpaceId) {
+    try {
+      return super.saveSpace(space, isNew, parentSpaceId);
+    } finally {
+      spaceCache.remove(new SpaceKey(space.getSpaceId()));
+      clearSpaceCache();
+      clearIdentityCache();
+      cleanRef(space);
+    }
+  }
+
+  @Override
   public void renameSpace(Space space) throws SpaceStorageException {
     Space existingSpace = getSpaceById(space.getSpaceId());
     String oldPrettyName = existingSpace.getPrettyName();
