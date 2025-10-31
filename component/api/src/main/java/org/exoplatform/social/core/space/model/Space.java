@@ -68,44 +68,54 @@ public class Space implements CacheEntry {
   /** The id. */
   private long               id;
 
-  /** The display name. */
+  @Getter
+  @Setter
   private String             displayName;
 
-  /** The group id. */
+  @Getter
+  @Setter
   private String             groupId;
 
-  /** If the space has at least one binding. */
+  @Setter
   private boolean            hasBindings;
 
-  /** The description. */
+  @Getter
+  @Setter
   private String             description;
 
-  /** The pending users. */
+  @Getter
+  @Setter
   private String[]           pendingUsers;
 
-  /** The invited users. */
+  @Getter
+  @Setter
   private String[]           invitedUsers;
 
   @Getter
   @Setter
   private long               templateId;
 
-  /** The url. */
+  @Setter
+  @Getter
   private String             url;
 
-  /** The visibility. */
+  @Setter
+  @Getter
   private String             visibility;
 
-  /** The registration. */
+  @Setter
+  @Getter
   private String             registration;
 
-  /** The space avatar attachment. */
+  @Getter
   private AvatarAttachment   avatarAttachment;
 
   /** The space banner attachment. */
+  @Getter
   private BannerAttachment   bannerAttachment;
 
   /** Created time. */
+  @Getter
   private long               createdTime;
 
   @Getter
@@ -121,6 +131,8 @@ public class Space implements CacheEntry {
   private String             publicSiteVisibility;
 
   /** Last Updated time */
+  @Getter
+  @Setter
   private long               lastUpdatedTime;
 
   /**
@@ -128,6 +140,7 @@ public class Space implements CacheEntry {
    *
    * @since 1.2.0-GA
    */
+  @Getter
   private String             prettyName;
 
   /**
@@ -135,8 +148,12 @@ public class Space implements CacheEntry {
    *
    * @since 1.2.0-GA
    */
+  @Setter
+  @Getter
   private String             avatarUrl;
 
+  @Setter
+  @Getter
   private String             bannerUrl;
 
   /**
@@ -144,6 +161,8 @@ public class Space implements CacheEntry {
    * 
    * @since 4.0.0.Alpha1
    */
+  @Setter
+  @Getter
   private String             editor;
 
   /**
@@ -151,6 +170,8 @@ public class Space implements CacheEntry {
    * 
    * @since 1.2.0-GA
    */
+  @Setter
+  @Getter
   private String[]           managers;
 
   /**
@@ -158,6 +179,8 @@ public class Space implements CacheEntry {
    * 
    * @since 1.2.1
    */
+  @Setter
+  @Getter
   private Long               avatarLastUpdated;
 
   /**
@@ -165,6 +188,8 @@ public class Space implements CacheEntry {
    *
    * @since 1.2.1
    */
+  @Setter
+  @Getter
   private Long               bannerLastUpdated;
 
   /**
@@ -172,13 +197,19 @@ public class Space implements CacheEntry {
    * 
    * @since 1.2.0-GA
    */
+  @Setter
+  @Getter
   private String[]           members;
 
+  @Setter
+  @Getter
   private String[]           redactors;
 
   /**
    * The publishers of a space.
    */
+  @Setter
+  @Getter
   private String[]           publishers;
 
   @Getter
@@ -197,13 +228,9 @@ public class Space implements CacheEntry {
   @Setter
   private List<Long>         categoryIds;
 
-  public void setLastUpdatedTime(long lastUpdatedTime) {
-    this.lastUpdatedTime = lastUpdatedTime;
-  }
-
-  public long getLastUpdatedTime() {
-    return lastUpdatedTime;
-  }
+  @Getter
+  @Setter
+  private long               parentSpaceId;
 
   /** Types of updating of space. */
   public enum UpdatedField {
@@ -220,15 +247,9 @@ public class Space implements CacheEntry {
     }
   }
 
+  @Setter
+  @Getter
   private UpdatedField field;
-
-  public UpdatedField getField() {
-    return field;
-  }
-
-  public void setField(UpdatedField field) {
-    this.field = field;
-  }
 
   /**
    * Sets the id.
@@ -257,111 +278,12 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Sets the space display name. The space pretty name also set.
-   *
-   * @param spaceDisplayName the space Display Name
-   */
-  public void setDisplayName(String spaceDisplayName) {
-    displayName = spaceDisplayName;
-  }
-
-  /**
-   * Gets the name.
-   *
-   * @return the name
-   */
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  /**
-   * Sets the group id.
-   *
-   * @param groupId the new group id
-   */
-  public void setGroupId(String groupId) {
-    this.groupId = groupId;
-  }
-
-  /**
-   * Gets the group id.
-   *
-   * @return the group id
-   */
-  public String getGroupId() {
-    return groupId;
-  }
-
-  /**
-   * Sets if the space is bound or not.
-   * 
-   * @param hasBindings
-   */
-  public void setHasBindings(boolean hasBindings) {
-    this.hasBindings = hasBindings;
-  }
-
-  /**
    * Checks if the space has bindings.
    *
    * @return
    */
   public boolean hasBindings() {
     return hasBindings;
-  }
-
-  /**
-   * Sets the description.
-   *
-   * @param description the new description
-   */
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  /**
-   * Gets the description.
-   *
-   * @return the description
-   */
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * Sets the pending users.
-   *
-   * @param pendingUsers the new pending users
-   */
-  public void setPendingUsers(String[] pendingUsers) {
-    this.pendingUsers = pendingUsers;
-  }
-
-  /**
-   * Gets the pending users.
-   *
-   * @return the pending users
-   */
-  public String[] getPendingUsers() {
-    return pendingUsers;
-  }
-
-  /**
-   * Sets the invited users.
-   *
-   * @param invitedUsers the new invited users
-   */
-  public void setInvitedUsers(String[] invitedUsers) {
-    this.invitedUsers = invitedUsers;
-  }
-
-  /**
-   * Gets the invited users.
-   *
-   * @return the invited users
-   */
-  public String[] getInvitedUsers() {
-    return invitedUsers;
   }
 
   /**
@@ -373,62 +295,8 @@ public class Space implements CacheEntry {
     return groupId.substring(groupId.lastIndexOf("/") + 1);
   }
 
-  /**
-   * Gets the url.
-   *
-   * @return the url
-   */
-  public String getUrl() {
-    return url;
-  }
-
-  /**
-   * Sets the url.
-   *
-   * @param url the new url
-   */
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  /**
-   * Gets the visibility.
-   *
-   * @return the visibility
-   */
-  public String getVisibility() {
-    return visibility;
-  }
-
-  /**
-   * Sets the visibility.
-   *
-   * @param visibility the new visibility
-   */
-  public void setVisibility(String visibility) {
-    this.visibility = visibility;
-  }
-
   public String toString() {
     return displayName + " (" + groupId + ")";
-  }
-
-  /**
-   * Gets the registration.
-   *
-   * @return the registration
-   */
-  public String getRegistration() {
-    return registration;
-  }
-
-  /**
-   * Sets the registration.
-   *
-   * @param registration the new registration
-   */
-  public void setRegistration(String registration) {
-    this.registration = registration;
   }
 
   /**
@@ -446,19 +314,6 @@ public class Space implements CacheEntry {
     }
   }
 
-  /**
-   * Gets the space attachment.
-   *
-   * @return the space attachment
-   */
-  public AvatarAttachment getAvatarAttachment() {
-    return avatarAttachment;
-  }
-
-  public BannerAttachment getBannerAttachment() {
-    return bannerAttachment;
-  }
-
   public void setBannerAttachment(BannerAttachment bannerAttachment) {
     this.bannerAttachment = bannerAttachment;
     if (bannerAttachment != null) {
@@ -470,16 +325,6 @@ public class Space implements CacheEntry {
   }
 
   /**
-   * Gets the pretty name of space.
-   *
-   * @return the name pretty of space
-   * @since 1.2.0-GA
-   */
-  public String getPrettyName() {
-    return prettyName;
-  }
-
-  /**
    * Sets the pretty name of space.
    *
    * @param prettyName
@@ -487,151 +332,6 @@ public class Space implements CacheEntry {
    */
   public void setPrettyName(String prettyName) {
     this.prettyName = Utils.cleanString(prettyName);
-  }
-
-  /**
-   * Gets the url of avatar.
-   *
-   * @since 1.2.0-GA
-   */
-  public String getAvatarUrl() {
-    return this.avatarUrl;
-  }
-
-  /**
-   * Sets the url of avatar.
-   *
-   * @param avatarUrl
-   * @since 1.2.0-GA
-   */
-  public void setAvatarUrl(String avatarUrl) {
-    this.avatarUrl = avatarUrl;
-  }
-
-  public String getBannerUrl() {
-    return bannerUrl;
-  }
-
-  public void setBannerUrl(String bannerUrl) {
-    this.bannerUrl = bannerUrl;
-  }
-
-  /**
-   * Gets the editor of a space.
-   * 
-   * @since 4.0.0.Alpha1
-   * @return the editor of space
-   */
-  public String getEditor() {
-    return editor;
-  }
-
-  /**
-   * Sets the editor of a space.
-   * 
-   * @param editor the editor of space
-   * @since 4.0.0.Alpha1
-   */
-  public void setEditor(String editor) {
-    this.editor = editor;
-  }
-
-  /**
-   * Gets the managers of a space.
-   * 
-   * @return
-   * @since 1.2.0-GA
-   */
-  public String[] getManagers() {
-    return managers;
-  }
-
-  /**
-   * Sets the managers of a space.
-   * 
-   * @since 1.2.0-GA
-   */
-  public void setManagers(String[] managers) {
-    this.managers = managers;
-  }
-
-  /**
-   * Gets the members of a space.
-   * 
-   * @return
-   * @since 1.2.0-GA
-   */
-  public String[] getMembers() {
-    return members;
-  }
-
-  /**
-   * Sets the members of a space.
-   * 
-   * @since 1.2.0-GA
-   */
-  public void setMembers(String[] members) {
-    this.members = members;
-  }
-
-  /**
-   * @return the redactors
-   */
-  public String[] getRedactors() {
-    return redactors;
-  }
-
-  /**
-   * @param redactors the redactors to set
-   */
-  public void setRedactors(String[] redactors) {
-    this.redactors = redactors;
-  }
-
-  /**
-   * @return the publishers
-   */
-  public String[] getPublishers() {
-    return publishers;
-  }
-
-  /**
-   * @param publishers the publishers to set
-   */
-  public void setPublishers(String[] publishers) {
-    this.publishers = publishers;
-  }
-
-  /**
-   * Gets the last updated time in milliseconds of avatar in a space
-   * 
-   * @return {@link Void}
-   * @since 1.2.1
-   */
-  public Long getAvatarLastUpdated() {
-    return avatarLastUpdated;
-  }
-
-  /**
-   * Sets the last updated time in milliseconds of avatar in a space
-   * 
-   * @param avatarLastUpdatedTime
-   * @since 1.2.1
-   */
-  public void setAvatarLastUpdated(Long avatarLastUpdatedTime) {
-    this.avatarLastUpdated = avatarLastUpdatedTime;
-  }
-
-  public Long getBannerLastUpdated() {
-    return bannerLastUpdated;
-  }
-
-  public void setBannerLastUpdated(Long bannerLastUpdated) {
-    this.bannerLastUpdated = bannerLastUpdated;
-  }
-
-  public long getCreatedTime() {
-    return createdTime;
   }
 
   public void setCreatedTime(Long createdTime) {
