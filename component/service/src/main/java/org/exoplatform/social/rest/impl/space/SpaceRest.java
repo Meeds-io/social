@@ -366,7 +366,12 @@ public class SpaceRest implements ResourceContainer {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     try {
-      space = spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+      space = model.getParentSpaceId() > 0
+                                           ? spaceService.createSpace(space,
+                                                                      authenticatedUser,
+                                                                      model.getInvitedMembers(),
+                                                                      model.getParentSpaceId())
+                                           : spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
     } catch (SpaceException e) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
                                                 .entity(e.getCode().name())
