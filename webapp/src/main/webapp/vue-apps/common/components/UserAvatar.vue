@@ -13,7 +13,6 @@
       :href="profileUrl"
       :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
-      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
@@ -69,7 +68,6 @@
       :href="profileUrl"
       :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
-      :tabindex="isNotFocusable ? -1 : 0"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
@@ -124,7 +122,6 @@
       :href="profileUrl"
       :aria-label="ariaLabel ? ariaLabel : $t('popover.userAvatar.title',{0:userFullname})"
       :class="componentClass"
-      :tabindex="isNotFocusable ? -1 : 0"
       class="flex-nowrap flex-grow-1 d-flex text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
       <v-avatar
@@ -337,10 +334,6 @@ export default {
       type: String,
       default: () => '',
     },
-    focusable: {
-      type: Boolean,
-      default: () => true,
-    },
   },
   data() {
     return {
@@ -439,9 +432,6 @@ export default {
           || !Object.hasOwn(this.identity, 'deleted')
           || !Object.hasOwn(this.identity, 'primaryProperty')
           || (!Object.hasOwn(this.identity, 'external') && !Object.hasOwn(this.identity, 'isInternal'));
-    },
-    isNotFocusable() {
-      return this.focusable === false || this.focusable === 'false';
     },
   },
   created() {
