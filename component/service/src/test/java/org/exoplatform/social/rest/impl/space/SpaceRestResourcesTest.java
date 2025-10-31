@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.NewCookie;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import org.exoplatform.portal.config.model.PortalConfig;
@@ -63,7 +62,6 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
-import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 
@@ -103,7 +101,6 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    CategoryService categoryService = getContainer().getComponentInstanceOfType(CategoryService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
@@ -119,7 +116,6 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     spaceRestResources = new SpaceRest(spaceService,
                                        spaceDirectoryService,
                                        spaceLayoutService,
-                                       categoryService,
                                        identityManager,
                                        uploadService,
                                        imageThumbnailService,
