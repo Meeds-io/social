@@ -50,7 +50,7 @@
       <div v-else class="me-3"></div>
       <v-list-item-action
         :class="$root.expand && 'mx-0' || 'ms-2'"
-        class="my-auto d-flex flex-row">
+        class="my-auto d-flex flex-row user-avatar-footer">
         <v-badge
           :color="statusColor"
           :class="{'me-2': $root.expand}"
@@ -112,6 +112,10 @@
     </v-list-item>
     <sidebar-user-popup
       ref="menu"
+      v-if="$root.expand"
+      attach-to=".user-avatar-footer"
+      position-top="0"
+      position-right="20"
       @user-status-updated="statusColor = $event" />
   </v-card>
 </template>
@@ -126,6 +130,12 @@ export default {
     productLink: eXo.env.portal.productLink,
     statusColor: '#707070'
   }),
+  created() {
+    document.addEventListener('user-status-updated', this.changeStatusColor);
+  },
+  beforeDestroy() {
+    document.removeEventListener('user-status-updated', this.changeStatusColor);
+  },
   computed: {
     avatarUrl() {
       return this.$root.avatarUrl;
@@ -134,6 +144,9 @@ export default {
   methods: {
     openMenu(event) {
       this.$refs?.menu?.open(event.clientX, event.clientY);
+    },
+    changeStatusColor(statusObject) {
+      this.statusColor = statusObject.detail.color;
     }
   }
 };
