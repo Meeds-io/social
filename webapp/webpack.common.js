@@ -105,6 +105,7 @@ let config = {
     contentLink: './src/main/webapp/vue-apps/content-link/main.js',
     spaceCreation: './src/main/webapp/vue-apps/space-creation/main.js',
     emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
+    userStatusPopup: './src/main/webapp/vue-apps/user-status-popup/main.js',
   },
   module: {
     rules: [
