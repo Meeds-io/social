@@ -791,6 +791,26 @@ public interface SpaceService {
   }
 
   /**
+   * Creates a new space and invites all users from identitiesToInvite to join
+   * this newly created space.
+   *
+   * @param space The space to be created.
+   * @param creator The user who creates the space.
+   * @param identitiesToInvite The list of identities who are invited to join the
+   *          space. Identity could be of type user or space
+   * @param parentSpaceId The target parent space id
+   * @return The space.
+   * @throws SpaceException with possible code
+   *           SpaceException.Code.SPACE_ALREADY_EXIST; UNABLE_TO_ADD_CREATOR
+   */
+  default Space createSpace(Space space,
+                            String creator,
+                            List<Identity> identitiesToInvite,
+                            long parentSpaceId) throws SpaceException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Saves a new space or updates a space.
    *
    * @param space The space to be saved or updated.
