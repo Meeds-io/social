@@ -38,14 +38,19 @@ export default {
   created() {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
+    this.$root.$on('spaces-list-refresh', this.emitRefresh);
   },
   beforeDestroy() {
     document.removeEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
+    this.$root.$off('spaces-list-refresh', this.emitRefresh);
   },
   methods: {
     refreshExtensions() {
       this.spaceActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
     },
+    emitRefresh() {
+      this.$emit('refresh');
+    }
   }
 };
 </script>
