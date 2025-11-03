@@ -197,7 +197,49 @@ public class TranslationRest implements ResourceContainer {
                                                      .stream()
                                                      .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
                                                                                Entry::getValue)),
-                                               RestUtils.getCurrentUser());
+                                               RestUtils.getCurrentUser(),
+                                               false);
+      return Response.noContent().build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+    }
+  }
+
+  @POST
+  @Path("rich/{objectType}/{objectId}/{fieldName}")
+  @RolesAllowed("users")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Saves the list of sanitized translation labels for a given Object's field identified by its type, id and field name", method = "POST", description = "Saves the list of translation labels for a given Object's field identified by its type, id and field name")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+      @ApiResponse(responseCode = "401", description = "Unauthorized operation"),
+      @ApiResponse(responseCode = "500", description = "Internal server error"),
+  })
+  public Response saveRichTranslationLabels(
+                                              @Parameter(description = "Object type, like 'activity', 'task' ...", required = true)
+                                              @PathParam("objectType")
+                                              String objectType,
+                                              @Parameter(description = "Object technical identifier", required = true)
+                                              @PathParam("objectId")
+                                              String objectId,
+                                              @Parameter(description = "Object field name", required = true)
+                                              @PathParam("fieldName")
+                                              String fieldName,
+                                              @Parameter(description = "Object field name", required = true)
+                                              @RequestBody
+                                              Map<String, String> labels) {
+    try {
+      translationService.saveTranslationLabels(objectType,
+                                               objectId,
+                                               fieldName,
+                                               labels.entrySet()
+                                                     .stream()
+                                                     .collect(Collectors.toMap(entry -> Locale.forLanguageTag(entry.getKey()),
+                                                                               Entry::getValue)),
+                                               RestUtils.getCurrentUser(),
+                                               true);
       return Response.noContent().build();
     } catch (IllegalAccessException e) {
       return Response.status(Response.Status.UNAUTHORIZED).entity(e.getMessage()).build();

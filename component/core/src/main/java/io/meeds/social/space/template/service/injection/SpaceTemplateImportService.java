@@ -188,14 +188,16 @@ public class SpaceTemplateImportService implements ContainerStartableService {
     layoutTranslationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                                    spaceTemplate.getId(),
                                                    SpaceTemplateTranslationPlugin.NAME_FIELD_NAME,
-                                                   d.getNames());
+                                                   d.getNames(),
+                                                   false);
   }
 
   protected void saveDescriptions(SpaceTemplateDescriptor d, SpaceTemplate spaceTemplate) {
     layoutTranslationService.saveTranslationLabels(SpaceTemplateTranslationPlugin.OBJECT_TYPE,
                                                    spaceTemplate.getId(),
                                                    SpaceTemplateTranslationPlugin.DESCRIPTION_FIELD_NAME,
-                                                   d.getDescriptions());
+                                                   d.getDescriptions(),
+                                                   true);
   }
 
   @SneakyThrows
