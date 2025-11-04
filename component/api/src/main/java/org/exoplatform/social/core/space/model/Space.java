@@ -90,6 +90,10 @@ public class Space implements CacheEntry {
   @Setter
   private long               templateId;
 
+  @Getter
+  @Setter
+  private boolean            sovereign;
+
   /** The url. */
   private String             url;
 

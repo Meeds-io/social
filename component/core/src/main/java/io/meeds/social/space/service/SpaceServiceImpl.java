@@ -412,6 +412,7 @@ public class SpaceServiceImpl implements SpaceService {
     spaceToCreate.setRegistration(space.getRegistration());
     spaceToCreate.setVisibility(space.getVisibility());
     spaceToCreate.setTemplateId(space.getTemplateId());
+    spaceToCreate.setSovereign(space.isSovereign());
     spaceToCreate.setEditor(username);
     spaceToCreate.setMembers(new String[] { username });
     spaceToCreate.setManagers(new String[] { username });
@@ -1247,6 +1248,9 @@ public class SpaceServiceImpl implements SpaceService {
       }
       if (!oldSpace.getVisibility().equals(newSpace.getVisibility())) {
         spaceLifeCycle.spaceAccessEdited(newSpace, newSpace.getEditor());
+      }
+      if (oldSpace.isSovereign() != newSpace.isSovereign()) {
+        spaceLifeCycle.spaceSovereigntyEdited(newSpace, newSpace.getEditor());
       }
       List<Long> categoryIds = oldSpace.getCategoryIds() == null ? Collections.emptyList() : oldSpace.getCategoryIds();
       List<Long> newCategoryIds = newSpace.getCategoryIds() == null ? Collections.emptyList() : newSpace.getCategoryIds();

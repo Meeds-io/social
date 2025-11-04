@@ -97,6 +97,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
     fields.put("visibility", space.getVisibility());
     fields.put("registration", space.getRegistration());
     fields.put("templateId", String.valueOf(space.getTemplateId()));
+    fields.put("sovereign", String.valueOf(space.isSovereign()));
 
     Date updatedDate = new Date(space.getLastUpdatedTime());
 
@@ -178,6 +179,7 @@ public class SpaceIndexingServiceConnector extends ElasticIndexingServiceConnect
                                                .append("    \"templateId\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"categoryId\" : {\"type\" : \"keyword\"},\n")
                                                .append("    \"redactor\" : {\"type\" : \"keyword\"},\n")
+                                               .append("    \"sovereign\" : {\"type\" : \"boolean\"},\n")
                                                .append("    \"lastUpdatedDate\" : {\"type\" : \"date\", \"format\": \"epoch_millis\"}\n")
                                                .append("  }\n")
                                                .append("}");

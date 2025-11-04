@@ -77,6 +77,11 @@ public class SpaceIndexingListenerImpl extends SpaceListenerPlugin {
   }
 
   @Override
+  public void spaceSovereigntyEdited(SpaceLifeCycleEvent event) {
+    reindex(event, "space sovereignty edited");
+  }
+
+  @Override
   public void spaceAccessEdited(SpaceLifeCycleEvent event) {
     reindex(event, "space access edited");
   }
