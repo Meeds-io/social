@@ -141,6 +141,9 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case REMOVE_PUBLISHER_USER:
       listener.removePublisherUser(event);
       break;
+    case SPACE_SOVEREIGNTY:
+      listener.spaceSovereigntyEdited(event);
+      break;
     default:
       break;
     }
@@ -240,6 +243,10 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void removePublisherUser(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.REMOVE_PUBLISHER_USER));
+  }
+
+  public void spaceSovereigntyEdited(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_SOVEREIGNTY));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {

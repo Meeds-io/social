@@ -136,6 +136,11 @@ public class SpaceEntity implements Serializable {
   @Column(name = "TEMPLATE_ID")
   private Long                                     templateId;
 
+  @Getter
+  @Setter
+  @Column(name = "SOVEREIGN")
+  private boolean                                  sovereign;
+
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "CREATED_DATE", nullable = false)
   private Date                                     createdDate                = new Date();
@@ -175,7 +180,7 @@ public class SpaceEntity implements Serializable {
   @ElementCollection
   @CollectionTable(name = "SOC_SPACE_CATEGORIES", joinColumns = @JoinColumn(name = "SPACE_ID"))
   @OrderBy("createdDate asc")
-  private List<SpaceCategoryEntity>                categories                 = new ArrayList<>(); // NOSONAR
+  private List<SpaceCategoryEntity>                categories                 = new ArrayList<>();           // NOSONAR
 
   public Long getId() {
     return id;

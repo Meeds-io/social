@@ -195,6 +195,15 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
   }
 
   /**
+   * Space sovereignty setting changed
+   * 
+   * @param event the space lifecycle event
+   */
+  default void spaceSovereigntyEdited(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  /**
    * Invokes this method when a user update the space registration
    * @param event
    */
