@@ -417,6 +417,10 @@ export default {
         on: {
           instanceReady: function () {
             self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
+            const editable = self.editor.editable();
+            editable.on('input', function () {
+              self.editor.fire('change');
+            });
             $(self.editor.document.$)
               .find('.atwho-inserted')
               .each(function() {
