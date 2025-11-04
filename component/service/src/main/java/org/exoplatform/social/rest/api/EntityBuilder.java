@@ -2540,6 +2540,7 @@ public class EntityBuilder {
     spaceEntity.setGroupId(space.getGroupId());
     spaceEntity.setTemplateId(space.getTemplateId());
     spaceEntity.setCategoryIds(space.getCategoryIds());
+    spaceEntity.setSovereign(space.isSovereign());
     spaceEntity.setDescription(StringEscapeUtils.unescapeHtml4(space.getDescription()));
     spaceEntity.setUrl(LinkProvider.getSpaceUri(space.getPrettyName()));
     spaceEntity.setAvatarUrl(space.getAvatarUrl());

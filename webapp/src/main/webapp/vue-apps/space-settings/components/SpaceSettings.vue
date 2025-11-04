@@ -29,6 +29,7 @@
       <space-setting-public-site
         id="SpaceSettingsPublicAccess"
         v-if="$root.space?.canManagePublicSite" />
+      <space-setting-sovereign />
       <template>
         <extension-registry-components
           :params="extensionParams"
