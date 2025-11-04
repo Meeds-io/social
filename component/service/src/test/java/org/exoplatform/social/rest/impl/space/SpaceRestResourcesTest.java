@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.core.NewCookie;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import org.exoplatform.portal.config.model.PortalConfig;
@@ -63,7 +62,6 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadService;
 
 import io.meeds.portal.security.service.SecuritySettingService;
-import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.space.service.SpaceDirectoryService;
 import io.meeds.social.space.service.SpaceLayoutService;
 
@@ -103,7 +101,6 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     identityManager = getContainer().getComponentInstanceOfType(IdentityManager.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManager.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    CategoryService categoryService = getContainer().getComponentInstanceOfType(CategoryService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     imageThumbnailService = getContainer().getComponentInstanceOfType(ImageThumbnailService.class);
@@ -119,7 +116,6 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     spaceRestResources = new SpaceRest(spaceService,
                                        spaceDirectoryService,
                                        spaceLayoutService,
-                                       categoryService,
                                        identityManager,
                                        uploadService,
                                        imageThumbnailService,
@@ -710,6 +706,38 @@ public class SpaceRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     space = spaceService.getSpaceById(spaceId);
     assertNull(space);
+  }
+
+  public void testUpdateSpaceSovereignty() throws Exception {
+    // root creates 1 spaces
+    Space space = getSpaceInstance(1, "root");
+    space.setVisibility(Space.HIDDEN);
+    space.setRegistration(Space.CLOSED);
+    space.setSovereign(true);
+    space = spaceService.updateSpace(space);
+    assertTrue(space.isSovereign());
+
+    startSessionAs("root");
+    ContainerResponse response = service("GET", getURLResource("spaces/" + space.getId()), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+
+    SpaceEntity spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity.getSovereign());
+    assertTrue(spaceEntity.getSovereign().booleanValue());
+
+    // root update space's description and name
+    String spaceId = spaceEntity.getId();
+    String input = "{\"sovereign\":false}";
+    response = getResponse("PUT", getURLResource("spaces/" + spaceId), input);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    response = service("GET", getURLResource("spaces/" + spaceId), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    spaceEntity = getBaseEntity(response.getEntity(), SpaceEntity.class);
+    assertNotNull(spaceEntity.getSovereign());
+    assertFalse(spaceEntity.getSovereign().booleanValue());
   }
 
   public void testSaveSpacePublicSite() throws Exception {

@@ -115,6 +115,11 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   }
 
   @Override
+  public void spaceSovereigntyEdited(SpaceLifeCycleEvent event) {
+    events.add(Type.SPACE_SOVEREIGNTY);
+  }
+
+  @Override
   public void categoryAdded(SpaceCategoryLifeCycleEvent event) {
     events.add(Type.CATEGORY_ADDED);
   }

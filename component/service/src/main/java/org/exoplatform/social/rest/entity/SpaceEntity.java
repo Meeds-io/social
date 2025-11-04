@@ -78,6 +78,16 @@ public class SpaceEntity extends BaseEntity {
     return (List<Long>) getProperty("categoryIds");
   }
 
+  public SpaceEntity setSovereign(boolean sovereign) {
+    setProperty("sovereign", sovereign);
+    return this;
+  }
+
+  public Boolean getSovereign() {
+    Object sovereign = getProperty("sovereign");
+    return sovereign == null ? null : ((Boolean) sovereign).booleanValue();
+  }
+
   public SpaceEntity setUrl(String url) {
     setProperty("url", url);
     return this;

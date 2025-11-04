@@ -1154,6 +1154,26 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertEquals(Type.SPACE_REGISTRATION, spaceListenerPlugin.getEvents().get(0));
   }
 
+  public void testUpdateSpaceSovereignty() {
+    Space space = createSpace("spaceUpdateSovereignty", DEMO_NAME);
+    assertFalse(space.isSovereign());
+    assertFalse(spaceService.getSpaceById(space.getSpaceId()).isSovereign());
+
+    SpaceListenerPluginMock spaceListenerPlugin = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(spaceListenerPlugin);
+    try {
+      space.setSovereign(!space.isSovereign());
+      space = spaceService.updateSpace(space);
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(spaceListenerPlugin);
+    }
+
+    assertEquals(1, spaceListenerPlugin.getEvents().size());
+    assertEquals(Type.SPACE_SOVEREIGNTY, spaceListenerPlugin.getEvents().get(0));
+    assertTrue(space.isSovereign());
+    assertTrue(spaceService.getSpaceById(space.getSpaceId()).isSovereign());
+  }
+
   public void testSpaceUserInvitation() {
     Space space = createSpace("spaceUserInvitation", DEMO_NAME);
 

@@ -1226,4 +1226,15 @@
     </createIndex>
   </changeSet>
 
+  <changeSet
+    author="social"
+    id="1.0.0-mip-x-01">
+    <addColumn tableName="SOC_SPACES">
+      <column
+        name="SOVEREIGN"
+        type="BOOLEAN"
+        defaultValueBoolean="false"></column>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>

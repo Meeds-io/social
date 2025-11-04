@@ -81,7 +81,6 @@ import org.exoplatform.web.login.recovery.PasswordRecoveryService;
 
 import io.meeds.portal.security.constant.UserRegistrationType;
 import io.meeds.portal.security.service.SecuritySettingService;
-import io.meeds.social.category.service.CategoryService;
 import io.meeds.social.image.plugin.FileThumbnailPlugin;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
@@ -146,8 +145,6 @@ public class SpaceRest implements ResourceContainer {
 
   private final SpaceService           spaceService;
 
-  private final CategoryService        categoryService;
-
   private final SpaceLayoutService     spaceLayoutService;
 
   private final SecuritySettingService securitySettingService;
@@ -161,7 +158,6 @@ public class SpaceRest implements ResourceContainer {
   public SpaceRest(SpaceService spaceService, // NOSONAR
                    SpaceDirectoryService spaceDirectoryService,
                    SpaceLayoutService spaceLayoutService,
-                   CategoryService categoryService,
                    IdentityManager identityManager,
                    UploadService uploadService,
                    ImageThumbnailService imageThumbnailService,
@@ -169,7 +165,6 @@ public class SpaceRest implements ResourceContainer {
     this.spaceService = spaceService;
     this.spaceDirectoryService = spaceDirectoryService;
     this.spaceLayoutService = spaceLayoutService;
-    this.categoryService = categoryService;
     this.identityManager = identityManager;
     this.uploadService = uploadService;
     this.imageThumbnailService = imageThumbnailService;
@@ -1062,6 +1057,10 @@ public class SpaceRest implements ResourceContainer {
 
     if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getAvatarId())) {
       updateProfileField(space, Profile.AVATAR, model.getAvatarId());
+    }
+    
+    if (model.getSovereign() != null) {
+      space.setSovereign(model.getSovereign().booleanValue());
     }
 
     if (StringUtils.equalsIgnoreCase(Space.HIDDEN, model.getVisibility())) {
