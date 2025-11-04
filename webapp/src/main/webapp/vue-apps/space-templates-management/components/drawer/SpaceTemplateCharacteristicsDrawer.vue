@@ -316,6 +316,9 @@
               </div>
             </div>
             <div class="flex-grow-1 pt-2">
+              <div class="flex-grow-1 align-self-center">
+                {{ $t('spaceTemplate.templateSuggester.label') }}
+              </div>
               <space-templates-management-suggester
                 v-model="subspaceTemplate"
                 :labels="suggesterLabels"
@@ -499,7 +502,6 @@ export default {
     },
     suggesterLabels() {
       return {
-        label: this.$t('spaceTemplate.templateSuggester.label'),
         searchPlaceholder: this.$t('spaceTemplate.templateSuggester.searchPlaceholder'),
         placeholder: this.$t('spaceTemplate.templateSuggester.placeholder'),
         noDataLabel: this.$t('spaceTemplate.templateSuggester.noDataLabel'),
