@@ -18,17 +18,9 @@
  */
 package org.exoplatform.social.core.space.spi;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertThrows;
-
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -82,6 +74,8 @@ import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.space.template.utils.EntityMapper;
 
 import lombok.SneakyThrows;
+
+import static org.junit.Assert.*;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
@@ -2587,6 +2581,40 @@ public class SpaceServiceTest extends AbstractCoreTest {
     // have not the same createdDate
     Thread.sleep(1);
     return space2;
+  }
+
+  @SneakyThrows
+  public void testCreateSubspace() {
+
+    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
+    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
+    List<String> allowedSubspaceTemplates = new ArrayList<>();
+    allowedSubspaceTemplates.add("1:2");
+    spaceTemplate.setAllowedSubspaceTemplates(allowedSubspaceTemplates);
+    spaceTemplate.setSubspacesMaxLimit(2);
+    spaceTemplateService.updateSpaceTemplate(spaceTemplate);
+
+    Space space = new Space();
+    space.setDisplayName("parentSpace");
+    space.setPrettyName("parentSpace");
+    space.setRegistration(Space.OPEN);
+    space.setDescription("description of space parentSpace");
+    space.setVisibility(Space.PRIVATE);
+    space = spaceService.createSpace(space, ROOT_NAME);
+
+    Space space2 = new Space();
+    space2.setDisplayName("spaceChild");
+    space2.setPrettyName("spaceChild");
+    space2.setRegistration(Space.OPEN);
+    space2.setDescription("description of space spaceChild");
+    space2.setTemplateId(2);
+    space2.setVisibility(Space.PRIVATE);
+
+    String parentSpaceId = space.getId();
+    Exception exception = assertThrows(SpaceException.class,
+                                       () -> spaceService.createSpace(space2, ROOT_NAME, null, Long.parseLong(parentSpaceId)));
+
+    assertEquals("Subspace template '2' is not allowed under parent template '2'", exception.getMessage());
   }
 
   public void testSpaceContainsExternalMembers() {
