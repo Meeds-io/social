@@ -448,8 +448,6 @@ public class SpaceStorage {
                                           "Parent space not found: " + parentSpaceId);
         }
         entity.setParentSpaceEntity(parent);
-      } else {
-        entity.setParentSpaceEntity(null);
       }
       entity.setUpdatedDate(new Date());
       entity = isNew ? spaceDAO.create(entity) : spaceDAO.update(entity);
