@@ -41,13 +41,7 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import io.meeds.social.space.model.SpaceCreationInstance;
@@ -411,6 +405,8 @@ public class SpaceServiceImpl implements SpaceService {
                                              username,
                                              space.getTemplateId()));
     }
+
+    checkSubspaceCreationAllowed(space, parentSpaceId);
 
     // Copy only settable properties from provided DTO
     Space spaceToCreate = new Space();
@@ -1408,4 +1404,86 @@ public class SpaceServiceImpl implements SpaceService {
             .orElseThrow();
   }
 
+  private void checkSubspaceCreationAllowed(Space space, long parentSpaceId) throws SpaceException {
+    if (parentSpaceId <= 0) {
+      return;
+    }
+    Space parentSpace = getSpaceById(parentSpaceId);
+    SpaceTemplate parentTemplate = spaceTemplateService.getSpaceTemplate(parentSpace.getTemplateId());
+    if (parentTemplate == null) {
+      throw new SpaceException(Code.UNKNOWN_SPACE_TEMPLATE,
+                               String.format("Unknown parent space template for space %s", parentSpace.getDisplayName()));
+    }
+
+    Integer subspacesMaxLimit = parentTemplate.getSubspacesMaxLimit();
+    List<String> allowedSubspaceTemplates = parentTemplate.getAllowedSubspaceTemplates();
+
+    SpaceFilter spaceFilter = new SpaceFilter();
+    spaceFilter.setParentSpaceId(parentSpaceId);
+    ListAccess<Space> existingSubspacesAccess = getAllSpacesByFilter(spaceFilter);
+    Space[] existingSubspaces;
+    try {
+      existingSubspaces = existingSubspacesAccess.load(0, -1);
+    } catch (Exception e) {
+      throw new SpaceException(Code.ERROR_DATASTORE, "Failed to load subspaces for parent " + parentSpaceId, e);
+    }
+
+    int totalSubspaces = existingSubspaces != null ? existingSubspaces.length : 0;
+
+    if (subspacesMaxLimit != null && totalSubspaces >= subspacesMaxLimit) {
+      throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
+                               String.format("Cannot create more subspaces under '%s' (max %d reached)",
+                                             parentSpace.getDisplayName(),
+                                             subspacesMaxLimit));
+    }
+
+    if (allowedSubspaceTemplates == null || allowedSubspaceTemplates.isEmpty()) {
+      return;
+    }
+
+    long templateId = space.getTemplateId();
+    String matchedRule = null;
+    for (String rule : allowedSubspaceTemplates) {
+      if (rule != null && rule.startsWith(templateId + ":")) {
+        matchedRule = rule;
+        break;
+      }
+    }
+
+    if (matchedRule == null) {
+      throw new SpaceException(Code.SPACE_PERMISSION,
+                               String.format("Subspace template '%s' is not allowed under parent template '%s'",
+                                             templateId,
+                                             parentTemplate.getId()));
+    }
+
+    String[] parts = matchedRule.split(":");
+    if (parts.length == 2) {
+      int templateMaxLimit;
+      try {
+        templateMaxLimit = Integer.parseInt(parts[1]);
+      } catch (NumberFormatException e) {
+        throw new SpaceException(Code.ERROR_DATASTORE,
+                                 String.format("Invalid allowedSubspaceTemplates format: %s", matchedRule),
+                                 e);
+      }
+
+      int countForTemplate = 0;
+      if (existingSubspaces != null) {
+        for (Space existing : existingSubspaces) {
+          if (existing.getTemplateId() > 0 && existing.getTemplateId() == templateId) {
+            countForTemplate++;
+          }
+        }
+      }
+
+      if (countForTemplate >= templateMaxLimit) {
+        throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
+                                 String.format("Cannot create more subspaces of template '%s' (max %d reached under '%s')",
+                                               templateId,
+                                               templateMaxLimit,
+                                               parentSpace.getDisplayName()));
+      }
+    }
+  }
 }

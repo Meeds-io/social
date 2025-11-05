@@ -75,6 +75,8 @@ public class SpaceFilter implements Cloneable {
 
   private List<String>          tagNames;
 
+  private long                  parentSpaceId;
+
   public SpaceFilter(String spaceNameSearchCondition) {
     this.spaceNameSearchCondition = Utils.processUnifiedSearchCondition(spaceNameSearchCondition);
   }
@@ -120,7 +122,8 @@ public class SpaceFilter implements Cloneable {
                            visibility,
                            sorting,
                            favorite,
-                           tagNames == null ? null : new ArrayList<>(tagNames));
+                           tagNames == null ? null : new ArrayList<>(tagNames),
+                           parentSpaceId);
   }
 
 }
