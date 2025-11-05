@@ -588,7 +588,16 @@ export default {
             this.close();
             window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
           })
-          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .catch((err) => {
+            const code = err.message;
+            switch (code) {
+            case 'SUBSPACES_LIMIT_REACHED':
+              this.$root.$emit('alert-message', this.$t('spacesList.error.subspacesLimitReached'), 'error');
+              break;
+            default:
+              this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
+            }
+          })
           .finally(() => this.savingSpace = false);
 
       } else {
