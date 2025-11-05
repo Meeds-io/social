@@ -63,6 +63,8 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
   private static final String                      PARAM_PRIVATE_VISIBILITY    = "privateVisibility";
 
   private static final String                      PARAM_USER_ID               = "userId";
+  
+  private static final String                      PARAM_PARENT_SPACE_ID       = "parentSpaceId";
 
   private static final String                      PARAM_STATUSES              = "statuses";
 
@@ -286,6 +288,9 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     }
     if (parameterNames.contains(PARAM_REGISTRATION)) {
       query.setParameter(PARAM_REGISTRATION, filter.getRegistration());
+    }  
+    if (parameterNames.contains(PARAM_PARENT_SPACE_ID)) {
+      query.setParameter(PARAM_PARENT_SPACE_ID, filter.getParentSpaceId());
     }
   }
 
@@ -392,6 +397,12 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
     if (isLastAccess(spaceFilter) && StringUtils.isNotBlank(spaceFilter.getRemoteId())) {
       suffixes.add("UserId");
       parameterNames.add(PARAM_USER_ID);
+    }
+
+    if (spaceFilter.getParentSpaceId() > 0) {
+      suffixes.add("ParentSpaceId");
+      predicates.add("s.parentSpaceEntity.id = :parentSpaceId");
+      parameterNames.add(PARAM_PARENT_SPACE_ID);
     }
 
     buildPermissionPredicates(spaceFilter, suffixes, predicates, parameterNames);
