@@ -180,9 +180,19 @@ public class PeopleRestService implements ResourceContainer{
       ListAccess<Identity> listAccess = getRelationshipManager().getConnectionsByFilter(currentIdentity, identityFilter);
       result = listAccess.load(0, (int)SUGGEST_LIMIT);
       nameList.addToNameList(request.getLocale(), result);
-    } else if (SPACE_MEMBER.equals(typeOfRelation)) {  // Use in search space member
-      List<Identity> identities = Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, identityFilter, false).load(0, (int)SUGGEST_LIMIT));
-      addSpaceOrUserToList(identities, nameList, currentSpace, typeOfRelation, 0, request.getLocale());
+    } else if (SPACE_MEMBER.equals(typeOfRelation)
+        || (USER_TO_INVITE.equals(typeOfRelation) && currentSpace != null && currentSpace.getParentSpaceId() > 0)) { // Use in
+                                                                                                                     // search
+                                                                                                                     // space
+                                                                                                                     // member
+      List<Identity> identities =
+                                Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
+                                                                                                identityFilter,
+                                                                                                false)
+                                                                  .load(0, (int) SUGGEST_LIMIT));
+      Space targetSpace = USER_TO_INVITE.equals(typeOfRelation) ? getSpaceService().getSpaceById(currentSpace.getParentSpaceId())
+                                                                : currentSpace;
+      addSpaceOrUserToList(identities, nameList, targetSpace, SPACE_MEMBER, 0, request.getLocale());
     } else if (USER_TO_INVITE.equals(typeOfRelation)) {
       // This is for pre-loading data
       if (name != null && name.contains(",")) {
@@ -331,7 +341,7 @@ public class PeopleRestService implements ResourceContainer{
           nameList.addOption(opt);
         }
       }
-      
+
       // add others in the suggestion
       long remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
       if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
@@ -353,7 +363,7 @@ public class PeopleRestService implements ResourceContainer{
           }
         }
       }
-      
+
       // Includes spaces the current user is member.
       List<Space> exclusions = new ArrayList<Space>();
       remain = SUGGEST_LIMIT - (nameList.getOptions() != null ? nameList.getOptions().size() : 0);
@@ -362,7 +372,7 @@ public class PeopleRestService implements ResourceContainer{
         spaceFilter.setSpaceNameSearchCondition(name);
         ListAccess<Space> list = getSpaceService().getMemberSpacesByFilter(currentUser, spaceFilter);
         Space[] spaces = list.load(0, (int) remain);
-        for (Space s : spaces) {  
+        for (Space s : spaces) {
           Option opt = new Option();
           opt.setType("space");
           opt.setValue(SPACE_PREFIX + s.getPrettyName());
@@ -386,7 +396,7 @@ public class PeopleRestService implements ResourceContainer{
         if (remain > 0) {
           userInfos = addUserConnections(currentIdentity, identityFilter, userInfos, currentUser, remain, request.getLocale());
         }
-  
+
         // finally add others users in the suggestions
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
         if (remain > 0 && !Util.isExternal(authenticatedUserIdentity.getId())) {
@@ -424,7 +434,7 @@ public class PeopleRestService implements ResourceContainer{
         }
 
       }
-      
+
       // add space members in the suggestion list when mentioning in a comment in a space Activity Stream or in main Activity Stream
       if (currentSpace != null || getActivityManager().getActivity(activityId).getActivityStream().getType().equals(Type.SPACE)) {
         remain = SUGGEST_LIMIT - (userInfos != null ? userInfos.size() : 0);
