@@ -734,6 +734,7 @@ public class SpaceStorage {
     space.setPublicSitePermissions(entity.getPublicSitePermissions());
     space.setCategoryIds(entity.getCategoryIds());
     space.setSovereign(entity.isSovereign());
+    space.setParentSpaceId(entity.getParentSpaceEntity() != null ? entity.getParentSpaceEntity().getId() : 0);
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());
