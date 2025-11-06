@@ -45,7 +45,7 @@
           color="tertiary">
           fas fa-search
         </v-icon>
-        <span class="headline">{{ $t('Search.noResults.placeholder') }}</span>
+        <span class="text-body mt-3">{{ $t('Search.noResults.placeholder') }}</span>
       </div>
     </v-card>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
