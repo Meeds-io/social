@@ -44,6 +44,8 @@ import org.exoplatform.social.core.profile.ProfileLifeCycleEvent;
 import org.exoplatform.social.core.profile.ProfileListenerPlugin;
 import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
+import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
+
 
 /**
  * A listener that extends {@link ProfileListenerPlugin} It will be triggued
@@ -179,15 +181,36 @@ public class GroupSynchronizationSocialProfileListener extends ProfileListenerPl
     groupName = Utils.cleanString(groupName);
     Group group = getGroup(buildGroupId(parentGroup, groupName));
     if (group != null) {
+        group.setLabel(getGroupLabel(groupLabel, parentGroup, groupName));
       return group;
     }
     GroupHandler groupHandler = organizationService.getGroupHandler();
     Group newGroup = groupHandler.createGroupInstance();
     newGroup.setGroupName(groupName.toLowerCase());
-    newGroup.setLabel(StringUtils.capitalize(groupLabel));
+    newGroup.setLabel(getGroupLabel(groupLabel, parentGroup, groupName));
     newGroup.setDescription(groupName + " group");
     groupHandler.addChild(parentGroup, newGroup, true);
     return getGroup(buildGroupId(parentGroup, groupName));
+  }
+
+  private String getGroupLabel(String groupLabel, Group parentGroup, String groupName) {
+    if (parentGroup != null) {
+      String profileGroup = (String) "/" + PROFILE_GROUP_NAME;
+      String parentId = (String) parentGroup.getParentId();
+      if (profileGroup.equals(parentId)) {
+        String propertyName = (String) parentGroup.getGroupName();
+        ProfilePropertySetting profileSetting = (ProfilePropertySetting) profilePropertyService.getProfileSettingByName(propertyName);
+        if (profileSetting.isDropdownList()) {
+          for (ProfilePropertyOption option : profileSetting.getPropertyOptions()) {
+            if ((Long) option.getId() == Long.parseLong(groupName)) {
+              return option.getValue();
+            }
+          }
+        }
+        return StringUtils.capitalize(groupLabel);
+      }
+    }
+    return StringUtils.capitalize(groupLabel);
   }
 
   private void addUserToGroup(Group group, User user) throws Exception {
