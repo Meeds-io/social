@@ -96,7 +96,7 @@
             <v-list-item-content>
               <space-avatar
                 :space="s"
-                class="not-clickable-link"
+                class="not-clickable-link text-truncate"
                 list-style />
             </v-list-item-content>
           </v-list-item>
