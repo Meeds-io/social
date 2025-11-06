@@ -90,6 +90,8 @@ public class SpaceData implements CacheData<Space> {
 
   private boolean           sovereign;
 
+  private long              parentSpaceId;
+
   public SpaceData(final Space space) {
     id = space.getSpaceId();
     templateId = space.getTemplateId();
@@ -118,6 +120,7 @@ public class SpaceData implements CacheData<Space> {
     publicSitePermissions = space.getPublicSitePermissions();
     categoryIds = space.getCategoryIds();
     sovereign = space.isSovereign();
+    parentSpaceId = space.getParentSpaceId();
     lastUpdatedTime = space.getLastUpdatedTime();
     cacheTime = System.currentTimeMillis();
   }
@@ -153,6 +156,7 @@ public class SpaceData implements CacheData<Space> {
     space.setPublicSitePermissions(publicSitePermissions);
     space.setCategoryIds(categoryIds);
     space.setSovereign(sovereign);
+    space.setParentSpaceId(parentSpaceId);
     return space;
   }
 }
