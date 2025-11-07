@@ -44,6 +44,9 @@
             :key="t.tag"
             :value="t.tag"
             :aria-label="t.ariaLabel"
+            :aria-pressed="isTagSelected(t.tag) ? 'true' : 'false'"
+            role="button"
+            tabindex="0"
             @click="handleTag(t.tag)"
             @keyup.enter="handleTag(t.tag)">
             <span :class="`${isMobile ? 'primary--text' : ''}`"> {{ t.tag }}</span>
@@ -132,6 +135,9 @@ export default {
         document.dispatchEvent(new CustomEvent('search-tag'));
       }
     },
+    isTagSelected(tag) {
+      return this.selectedTags.includes(tag);
+    }
   },
 };
 </script>
