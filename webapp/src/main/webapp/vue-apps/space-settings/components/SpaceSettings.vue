@@ -29,6 +29,7 @@
       <space-setting-public-site
         id="SpaceSettingsPublicAccess"
         v-if="$root.space?.canManagePublicSite" />
+      <space-setting-subspaces id="SpaceSettingsSubspaces" v-if="isParentSpace" />
       <template>
         <extension-registry-components
           :params="extensionParams"
@@ -48,6 +49,9 @@ export default {
         spaceId: this.$root.spaceId,
       };
     },
+    isParentSpace() {
+      return !this.$root.space?.parentSpaceId;
+    }
   },
 };
 </script>
