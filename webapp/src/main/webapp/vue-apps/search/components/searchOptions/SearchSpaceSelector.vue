@@ -134,7 +134,10 @@ export default {
       this.$root.$emit('spaces-changed', selectedSpaceIds);
     },
     menu() {
-      if (this.menu && this.selectedSpaces.length) {
+      if (this.menu) {
+        if (this.selectedSpaces.length) {
+          this.choice = 'space';
+        }
         this.$nextTick(() => {
           const radioGroup = this.$el.querySelector('[role="radiogroup"]');
           if (radioGroup) {
@@ -142,7 +145,6 @@ export default {
             radioGroup.setAttribute('aria-label', this.$t('search.space.filter.menu'));
           }
         });
-        this.choice = 'space';
       }
     }
   },

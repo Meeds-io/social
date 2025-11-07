@@ -27,7 +27,8 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       :attach="!$root.isMobile"
       bottom
       right
-      offset-y>
+      offset-y
+      @input="onMenuToggle">
       <template #activator="{ on, attrs }">
         <v-chip
           outlined
@@ -47,35 +48,46 @@ Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
       <v-list 
         dense 
         class="pa-0"
-        role="group" 
+        role="group"
         :aria-label="$t('search.connector.label.all.menu')">
-        <v-list-item @click="$emit('select-all-connector')">
-          <v-list-item-title class="d-flex align-center">
-            <v-checkbox
-              :input-value="allEnabled"
-              :ripple="false"
-              readonly
-              dense
-              class="ma-0" />
-            <span>{{ $t('search.connector.label.all') }}</span>
-          </v-list-item-title>
+        <v-list-item
+          ref="firstItemList"
+          tag="div"
+          class="d-flex align-center px-3"
+          tabindex="0"
+          @click="$emit('select-all-connector')"
+          @keydown.space.prevent="$emit('select-all-connector')"
+          @keydown.tab.stop="focusNextItem"
+          @keydown.down.prevent="focusNextItem"
+          @keydown.up.prevent="focusPrevItem">
+          <input
+            type="checkbox"
+            class="mt-0 mx-2 primary--text"
+            :checked="allEnabled"
+            @click="handleClick"
+            tabindex="-1"
+            aria-hidden="true">
+          <label class="mb-0 mx-2">{{ $t('search.connector.label.all') }}</label>
         </v-list-item>
-
         <v-list-item
           v-for="connector in sortedConnectors"
           :key="connector.name"
+          tag="div"
+          class="d-flex align-center px-3 clickable"
           :aria-label="getAriaLabel(connector)"
-          class="clickable"
-          dense
-          @click="$emit('select-connector', connector)">
-          <v-list-item-title class="d-flex align-center">
-            <v-checkbox
-              :input-value="!allEnabled && connector.enabled"
-              :ripple="false"
-              dense
-              class="ma-0" />
-            <span>{{ connector.label }}</span>
-          </v-list-item-title>
+          tabindex="0"
+          @click="$emit('select-connector', connector)"
+          @keydown.space.prevent="$emit('select-connector', connector)"
+          @keydown.tab.stop="onTabPress"
+          @keydown.down.prevent="focusNextItem"
+          @keydown.up.prevent="focusPrevItem">
+          <input
+            type="checkbox"
+            class="mt-0 mx-2 primary--text"
+            :checked="!allEnabled && connector.enabled"
+            tabindex="-1"
+            aria-hidden="true">
+          <label class="mb-0 mx-2">{{ connector.label }}</label>
         </v-list-item>
       </v-list>
     </v-menu>
@@ -132,7 +144,73 @@ export default {
       const isSelected = this.enabledConnectors.some(
         enabled => enabled?.name === connector?.name
       );
-      return !this.allEnabled && isSelected && this.$t('search.connector.option.selected.type.ariaLabel', {0: connector?.label}) || this.$t('search.connector.option.type.ariaLabel', {0: connector?.label});
+      return (
+        (!this.allEnabled &&
+          isSelected &&
+          this.$t('search.connector.option.selected.type.ariaLabel', {
+            0: connector?.label,
+          })) ||
+        this.$t('search.connector.option.type.ariaLabel', { 0: connector?.label })
+      );
+    },
+    onMenuToggle(isOpen) {
+      if (isOpen) {
+        setTimeout(() => {
+          this.$nextTick(() => {
+            this.$refs.firstItemList?.$el?.focus();
+            const menuContent = this.$el.querySelector('.connectors-list');
+            if (menuContent?.getAttribute('role') === 'menu') {
+              menuContent.removeAttribute('role');
+            }
+          });
+        }, 100);
+      }
+    },
+    focusNextItem(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      const items = Array.from(this.$el.querySelectorAll('.connectors-list [tabindex="0"]'));
+      const active = document.activeElement;
+      const index = items.indexOf(active);
+      if (index >= 0) {
+        items[index].blur();
+      }
+      let next = '';
+      if (event.key === 'Tab' && !event.shiftKey && index === items.length - 1) {
+        next = items[0];
+      } else if (event.shiftKey && index === 0) {
+        next = items[items.length - 1];
+      } else {
+        next = index < items.length - 1 ? items[index + 1] : items[items.length - 1];
+      }
+      next.focus();
+    },
+    focusPrevItem(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      const items = Array.from(this.$el.querySelectorAll('.connectors-list [tabindex="0"]'));
+      const active = document.activeElement;
+      const index = items.indexOf(active);
+      if (index >= 0) {
+        items[index].blur();
+      }
+      const prev = index > 0 ? items[index - 1] : items[0];
+      prev.focus();
+    },
+    handleClick(event) {
+      if (this.allEnabled) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    },
+    onTabPress(event) {
+      event.stopPropagation();
+      event.preventDefault();
+      if (event.shiftKey) {
+        this.focusPrevItem(event);
+      } else {
+        this.focusNextItem(event);
+      }
     }
   }
 };
