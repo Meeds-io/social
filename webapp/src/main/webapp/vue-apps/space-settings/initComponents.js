@@ -24,6 +24,7 @@ import SpaceSettingAccess from './components/main/SpaceSettingAccess.vue';
 import SpaceSettingPublicSite from './components/main/SpaceSettingPublicSite.vue';
 import SpaceSettingCategories from './components/main/SpaceSettingCategories.vue';
 import SpaceSettingSovereign from './components/main/SpaceSettingSovereign.vue';
+import SpaceSettingSubspaces from './components/main/SpaceSettingSubspaces.vue';
  
 import SpaceSettingOverviewSection from './components/section/SpaceSettingOverviewSection.vue';
 import SpaceSettingRolesSection from './components/section/SpaceSettingRolesSection.vue';
@@ -33,6 +34,7 @@ import SpaceSettingRedactorDrawer from './components/drawer/SpaceSettingRedactor
 import SpaceSettingUsersListDrawer from './components/drawer/SpaceSettingUsersListDrawer.vue';
 import SpaceSettingUsersSelectionDrawer from './components/drawer/SpaceSettingUsersSelectionDrawer.vue';
 import SpaceSettingPublicSiteDrawer from './components/drawer/SpaceSettingPublicSiteDrawer.vue';
+import SpaceSettingSubspacesDrawer from './components/drawer/SpaceSettingSubspacesDrawer.vue';
 
 import SpaceSettingAvatar from './components/form/SpaceSettingAvatar.vue';
 import SpaceSettingBanner from './components/form/SpaceSettingBanner.vue';
@@ -49,6 +51,7 @@ const components = {
   'space-setting-public-site': SpaceSettingPublicSite,
   'space-setting-categories': SpaceSettingCategories,
   'space-setting-sovereign': SpaceSettingSovereign,
+  'space-setting-subspaces': SpaceSettingSubspaces,
 
   'space-setting-overview-section': SpaceSettingOverviewSection,
 
@@ -61,6 +64,7 @@ const components = {
   'space-setting-users-list-drawer': SpaceSettingUsersListDrawer,
   'space-setting-users-selection-drawer': SpaceSettingUsersSelectionDrawer,
   'space-setting-public-site-drawer': SpaceSettingPublicSiteDrawer,
+  'space-setting-subspaces-drawer': SpaceSettingSubspacesDrawer,
 
   'space-setting-avatar': SpaceSettingAvatar,
   'space-setting-banner': SpaceSettingBanner,
