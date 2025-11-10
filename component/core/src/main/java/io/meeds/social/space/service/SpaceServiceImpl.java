@@ -1430,7 +1430,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     int totalSubspaces = existingSubspaces != null ? existingSubspaces.length : 0;
 
-    if (subspacesMaxLimit != null && totalSubspaces >= subspacesMaxLimit) {
+    if (subspacesMaxLimit != null && subspacesMaxLimit != 0 && totalSubspaces >= subspacesMaxLimit) {
       throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
                                String.format("Cannot create more subspaces under '%s' (max %d reached)",
                                              parentSpace.getDisplayName(),
