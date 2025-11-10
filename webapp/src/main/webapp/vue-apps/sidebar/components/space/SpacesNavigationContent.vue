@@ -222,7 +222,7 @@ export default {
                 templateId: this.parseJsonArray(properties.spaceTemplateIds) || this.$root.openedSpaceTemplateId || 0,
               }
               : {
-                categoryId: this.parseJsonArray(properties.spaceCategoryIds)?.[0] ?? null,
+                categoryIds: this.parseJsonArray(properties.spaceCategoryIds) ?? null,
                 templateId: this.$root.openedSpaceTemplateId || 0,
               }),
           });
