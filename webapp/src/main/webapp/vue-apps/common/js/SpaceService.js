@@ -178,6 +178,9 @@ export function getSpacesByFilter(options) {
   if (options.filter) {
     formData.append('filterType', options.filter);
   }
+  if (options.parentSpaceId) {
+    formData.append('parentSpaceId', options.parentSpaceId);
+  }
   if (options.sortBy) {
     formData.append('sort', options.sortBy);
   }

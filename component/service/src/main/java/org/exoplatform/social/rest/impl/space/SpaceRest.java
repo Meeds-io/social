@@ -235,6 +235,9 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Excluded space ids", required = false)
                             @QueryParam("excludedId")
                             List<Long> excludedIds,
+                            @Parameter(description = "Parent space id", required = false)
+                            @QueryParam("parentSpaceId")
+                            String parentSpaceId,
                             @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
                             @QueryParam("token")
                             String token,
@@ -258,6 +261,9 @@ public class SpaceRest implements ResourceContainer {
 
     if (StringUtils.isNotBlank(q)) {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
+    }
+    if (StringUtils.isNotBlank(parentSpaceId)) {
+      spaceFilter.setParentSpaceId(Long.parseLong(parentSpaceId));
     }
     spaceFilter.setTagNames(tagNames);
     spaceFilter.setTemplateIds(templateIds);
