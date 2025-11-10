@@ -992,6 +992,7 @@ public class EntityBuilder {
       spaceEntity.setPendingUsersCount(space.getPendingUsers() == null ? 0 : countUsers(space.getPendingUsers()));
       spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : countUsers(space.getInvitedUsers()));
     }
+    spaceEntity.setParentSpaceId(space.getParentSpaceId());
 
     return spaceEntity;
   }
