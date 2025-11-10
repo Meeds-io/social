@@ -33,17 +33,21 @@
           :term="term" />
       </div>
     </div>
-    <v-flex v-if="noResults && !$root.disablePlaceholder" class="searchNoResultsParent d-flex my-auto border-box-sizing">
+    <v-card
+      flat
+      v-if="noResults && !$root.disablePlaceholder"
+      min-height="calc(var(--100vh, 100vh) - 350px)"
+      class="d-flex justify-center align-center">
       <div class="d-flex flex-column ma-auto text-center text-subtitle">
-        <div class="position-relative">
-          <i class="uiIconSearchLight icon-default-color my-auto position-relative">
-            <i class="uiIconCloseLight icon-default-color"></i>
-          </i>
-        </div>
-        <span class="headline">{{ $t('Search.noResults') }}</span>
-        <span class="caption">{{ $t('Search.noResultsMessage') }}</span>
+        <v-icon
+          class="tertiary-color my-auto"
+          size="60"
+          color="tertiary">
+          fas fa-search
+        </v-icon>
+        <span class="text-body mt-3">{{ $t('Search.noResults.placeholder') }}</span>
       </div>
-    </v-flex>
+    </v-card>
     <v-flex v-if="hasMore" class="searchLoadMoreParent d-flex my-4 border-box-sizing">
       <v-btn
         :loading="loading"
