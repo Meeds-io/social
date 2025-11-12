@@ -5,16 +5,25 @@
     max-height="70"
     flat
     tile>
-    <div class="d-flex justify-end flex-wrap my-auto">
+    <div class="d-flex align-center justify-end flex-wrap my-auto">
       <span
         v-for="(extension, i) in enabledProfileActionExtensions"
         :key="i">
         <v-btn
-          class="btn ma-2 mb-0"
-          @click="extension.click(user)"
-          v-if="!extension.init">
-          <i :class="extension.icon ? extension.icon : 'hidden'" class="uiIcon"></i>
-          <span class="buttonText">
+          v-if="!extension.init"
+          :icon="iconButton"
+          class="btn my-auto ma-1 mb-0 no-border"
+          @click="extension.click(user)">
+          <v-icon
+            v-if="extension.icon"
+            class="ma-auto"
+            color="primary"
+            size="16">
+            {{ extension.icon }}
+          </v-icon>
+          <span
+            v-if="!iconButton"
+            class="ms-1">
             {{ extension.title }}
           </span>
         </v-btn>
@@ -26,16 +35,16 @@
           width="auto">
           <v-card color="white" class="d-flex flex-column pa-0">
             <v-btn
-              :disabled="loading"
-              :loading="loading"
+              :disabled="sendingAction"
+              :loading="sendingAction"
               class="white no-border-radius success--text"
               block
               @click="acceptToConnect">
               {{ $t('profileHeader.button.acceptToConnect') }}
             </v-btn>
             <v-btn
-              :disabled="loading"
-              :loading="loading"
+              :disabled="sendingAction"
+              :loading="sendingAction"
               class="white no-border-radius error--text"
               block
               outlined
@@ -45,16 +54,14 @@
           </v-card>
         </v-dialog>
         <div class="acceptToConnectButtonParent">
-          <v-btn
+          <profile-header-relation-button
             :loading="sendingAction"
             :disabled="sendingAction"
-            class="btn btn-primary mx-auto acceptToConnectButton"
-            @click="acceptToConnect">
-            <i class="uiIconSocConnectUser"></i>
-            <span class="buttonText">
-              {{ $t('profileHeader.button.acceptToConnect') }}
-            </span>
-          </v-btn>
+            :icon-button="iconButton"
+            :extra-button-class="`${!iconButton && 'btn-primary'} btn no-border-radius`"
+            :label="$t('profileHeader.button.acceptToConnect')"
+            icon="fas fa-user-plus"
+            @click="acceptToConnect" />
           <v-btn
             class="btn btn-primary peopleButtonMenu dropdownButton"
             @click="openSecondButton">
@@ -66,53 +73,46 @@
             <v-icon>mdi-close</v-icon>
           </v-btn>
         </div>
-        <v-btn
+        <profile-header-relation-button
           v-show="displaySecondButton"
           :loading="sendingSecondAction"
           :disabled="sendingSecondAction"
-          class="btn mx-auto refuseToConnectButton"
-          @click="refuseToConnect">
-          <i class="uiIconSocCancelConnectUser"></i>
-          <span class="buttonText">
-            {{ $t('profileHeader.button.refuseToConnect') }}
-          </span>
-        </v-btn>
+          :icon-button="iconButton"
+          extra-button-class="btn refuseToConnectButton no-border-radius"
+          :label="$t('profileHeader.button.refuseToConnect')"
+          icon="fas fa-user-minus"
+          @click="refuseToConnect" />
       </div>
-      <v-btn
+      <profile-header-relation-button
         v-else-if="requested"
         :loading="sendingAction"
         :disabled="sendingAction"
-        class="btn btn-primary mx-auto cancelRequestButton"
-        @click="cancelRequest">
-        <i class="uiIconSocCancelConnectUser"></i>
-        <span class="buttonText">
-          {{ $t('profileHeader.button.cancelRequest') }}
-        </span>
-      </v-btn>
-      <v-btn
+        :icon-button="iconButton"
+        :extra-button-class="`${!iconButton && 'btn-primary'} btn cancelRequestButton`"
+        :label="$t('profileHeader.button.cancelRequest')"
+        icon="fas fa-user-minus"
+        @click="cancelRequest" />
+      <profile-header-relation-button
         v-else-if="connected"
         :loading="sendingAction"
         :disabled="sendingAction"
-        color="error"
-        class="mx-auto border-color disconnectButton"
+        :icon-button="iconButton"
+        extra-button-class="error-color border-color disconnectButton no-border-radius"
+        extra-icon-class="error-color"
+        extra-text-class="error-color"
+        :label="$t('profileHeader.button.disconnect')"
+        icon="fas fa-user-minus"
         outlined
-        @click="disconnect">
-        <i class="uiIconSocCancelConnectUser"></i>
-        <span class="buttonText">
-          {{ $t('profileHeader.button.disconnect') }}
-        </span>
-      </v-btn>
-      <v-btn
+        @click="disconnect" />
+      <profile-header-relation-button
         v-else-if="disconnected"
         :loading="sendingAction"
         :disabled="sendingAction"
-        class="btn ma-1 mb-0 btn-primary connectUserButton"
-        @click="connect">
-        <i class="uiIconSocConnectUser"></i>
-        <span class="buttonText">
-          {{ $t('profileHeader.button.connect') }}
-        </span>
-      </v-btn>
+        :icon-button="iconButton"
+        :extra-button-class="`${!iconButton && 'btn-primary'} btn connectUserButton`"
+        :label="$t('profileHeader.button.connect')"
+        icon="fas fa-user-plus"
+        @click="connect" />
       <div class="profileHeaderActionComponents order-first mb-0">
         <div
           v-for="action in enabledProfileHeaderActionComponents"
@@ -162,6 +162,9 @@ export default {
     resolveMounting: null
   }),
   computed: {
+    iconButton() {
+      return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg;
+    },
     isMobile() {
       return this.$vuetify?.breakpoint?.mobile;
     },
@@ -298,7 +301,7 @@ export default {
       }
     },
     actionClass(action) {
-      return this.isMobile && action.mobileClass ? `${action.appClass} ${action.typeClass} ${action.mobileClass}` : `${action.appClass} ${action.typeClass}`;
+      return this.iconButton && action.mobileClass ? `${action.appClass} ${action.typeClass} ${action.mobileClass}` : `${action.appClass} ${action.typeClass}`;
     },
   },
 };
