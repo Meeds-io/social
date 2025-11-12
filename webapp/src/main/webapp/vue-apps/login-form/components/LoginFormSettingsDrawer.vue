@@ -217,6 +217,14 @@ export default {
     translationsSigninEmailButton: {},
     providers: [],
   }),
+  watch: {
+    providersData: {
+      deep: true,
+      handler() {
+        this.initProviders(this.providersData);
+      }
+    }
+  },
   created() {
     this.$root.$on('login-form-settings', this.open);
     this.$root.$on('login-providers-refreshed', (providers) => {
