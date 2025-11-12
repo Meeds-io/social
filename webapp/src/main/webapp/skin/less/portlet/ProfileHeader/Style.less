@@ -36,18 +36,6 @@
     }
   }
 
-  #profileHeaderActions {
-    button {
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
-      min-width: auto !important;
-      i {
-        margin-right: 4px ~'; /** orientation=lt */ ';
-        margin-left: 4px ~'; /** orientation=rt */ ';
-      }
-    }
-  }
-
   .invitationButtons {
 
     .acceptToConnectButtonParent {
@@ -107,49 +95,5 @@
     position: absolute;
     padding: 0;
     margin: 0;
-  }
-}
-
-@media (max-width: @maxTabletWidth) {
-  #ProfileHeader #profileHeaderActions {
-    button {
-      margin: 0 6px !important;
-      padding: 0 !important;
-      min-width: auto !important;
-      background: transparent !important;
-      border: 0 !important;
-
-      .buttonText {
-        display: none;
-      }
-      i {
-        color: @primaryColor !important;
-      }
-    }
-
-    .acceptToConnectButton, .refuseToConnectButton {
-      display: none;
-    }
-
-    .invitationButtons {
-      min-width: 24px;
-      display: inline-block !important;
-      height: 21px;
-      top: 0;
-    }
-
-    .acceptToConnectButtonParent {
-      position: absolute;
-    }
-
-    .peopleButtonMenu {
-      &.dropdownButton {
-        display: none;
-      }
-      &.dialogButton {
-        margin: 0 !important;
-        display: block;
-      }
-    }
   }
 }
