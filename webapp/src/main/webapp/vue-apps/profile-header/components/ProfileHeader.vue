@@ -170,9 +170,6 @@ export default {
     },
     isAdmin() {
       return this.user?.isAdmin;
-    },
-    userFullname() {
-      return this.user?.fullname;
     }
   },
   watch: {
