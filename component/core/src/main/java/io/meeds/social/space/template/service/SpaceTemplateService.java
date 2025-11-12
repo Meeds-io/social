@@ -22,9 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -337,6 +342,7 @@ public class SpaceTemplateService {
     spaceTemplate.setBannerFileId(getSpaceTemplateBannerId(spaceTemplate.getId()));
   }
 
+  @SneakyThrows
   private boolean canViewTemplate(SpaceTemplate spaceTemplate, String username) {
     if (spaceTemplate == null || spaceTemplate.isDeleted()) {
       return false;
@@ -349,14 +355,35 @@ public class SpaceTemplateService {
       // checked in previous step
       return false;
     }
+    List<Long> parentTemplateIds = getSpaceTemplates().stream()
+                                                      .filter(template -> template.getAllowedSubspaceTemplates() != null)
+                                                      .filter(template -> template.getAllowedSubspaceTemplates()
+                                                                                  .stream()
+                                                                                  .map(subspaceId -> subspaceId.split(":")[0])
+                                                                                  .filter(part -> !part.isEmpty())
+                                                                                  .mapToLong(Long::parseLong)
+                                                                                  .anyMatch(id -> id == spaceTemplate.getId()))
+                                                      .map(SpaceTemplate::getId)
+                                                      .toList();
+
+    if (!parentTemplateIds.isEmpty()) {
+      SpaceService service = CommonsUtils.getService(SpaceService.class);
+      SpaceFilter filter = new SpaceFilter();
+      filter.setParentSpaceId(0);
+      filter.setTemplateIds(parentTemplateIds);
+      ListAccess<Space> spaces = service.getAccessibleSpacesByFilter(username, filter);
+      if (spaces.getSize() == 0) {
+        return false;
+      }
+    }
     Identity aclIdentity = userAcl.getUserIdentity(username);
-    return aclIdentity != null
-           && (spaceTemplate.getPermissions()
-                            .stream()
-                            .anyMatch(expression -> UserACL.EVERYONE.equals(expression) || aclIdentity.isMemberOf(getMembershipEntry(expression)))
-               || spaceTemplate.getAdminPermissions()
-                               .stream()
-                               .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
+    return aclIdentity != null && (spaceTemplate.getPermissions()
+                                                .stream()
+                                                .anyMatch(expression -> UserACL.EVERYONE.equals(expression)
+                                                    || aclIdentity.isMemberOf(getMembershipEntry(expression)))
+        || spaceTemplate.getAdminPermissions()
+                        .stream()
+                        .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
   }
 
   private MembershipEntry getMembershipEntry(String expression) {
