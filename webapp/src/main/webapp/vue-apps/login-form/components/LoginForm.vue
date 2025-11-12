@@ -279,6 +279,7 @@ export default {
       this.displayWelcomeMessage = displayWelcomeMessage;
     });
     this.$root.$on('login-providers-refreshed', (providers) => {
+      this.providers = providers;
       this.displayForm = providers.length === 0;
       const t = this;
       setTimeout(() => {
