@@ -25,10 +25,20 @@
     ref="drawer"
     v-model="drawer"
     :loading="loading || saving"
-    allow-expand
     right>
     <template #title>
-      {{ $t('spaceSetting.subspaces') }}
+      <div class="d-flex flex-no-wrap align-center overflow-hidden">
+        {{ $t('spaceSetting.subspaces') }}
+        <v-btn
+          id="subspacesAddButton"
+          :aria-label="$t('spaceSetting.subspaces.add')"
+          class="btn btn-primary text-truncate ms-auto"
+          @click="addSubspace">
+          <span>
+            {{ $t('spaceSetting.subspaces.add') }}
+          </span>
+        </v-btn>
+      </div>
     </template>
     <template v-if="drawer" #content>
       <div v-if="displayedSubspaces">
@@ -76,6 +86,9 @@ export default {
     displayedSubspaces() {
       return !!this.subspaces?.length;
     },
+    templateId() {
+      return this.$root.space?.templateId;
+    },
   },
   methods: {
     open(spaceId) {
@@ -99,6 +112,16 @@ export default {
       } finally {
         this.loading = false;
       }
+    },
+    async addSubspace() {
+      const spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      const selectedTemplate = spaceTemplates.find(t => String(t.id) === String(this.templateId));
+      const allowedSubspaceTemplatesIds = selectedTemplate.allowedSubspaceTemplates
+        ?.map(item => item.split(':')[0]) || [];
+      const allowedSubspaceTemplates = spaceTemplates.filter(t =>
+        allowedSubspaceTemplatesIds.includes(String(t.id))
+      );
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(null, allowedSubspaceTemplates));
     },
   },
 };
