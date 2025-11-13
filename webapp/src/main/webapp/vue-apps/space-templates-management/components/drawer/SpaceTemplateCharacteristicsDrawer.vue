@@ -342,7 +342,7 @@
                 </v-list-item>
                 <v-divider />
               </v-list>
-              <space-templates-management-subspace-template-list
+              <space-templates-management-subspace-template-item
                 v-for="t in selectedSubspaceTemplates"
                 :key="t.id"
                 :space-template="t"
