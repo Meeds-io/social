@@ -4,6 +4,7 @@ import ProfileHeaderActions from './components/ProfileHeaderActions.vue';
 import ProfileHeaderAvatar from './components/ProfileHeaderAvatar.vue';
 import ProfileHeaderBannerButton from './components/ProfileHeaderBannerButton.vue';
 import ProfileHeaderSettingsDrawer from './components/settings/ProfileHeaderSettingsDrawer.vue';
+import ProfileHeaderRelationButton from './components/ProfileHeaderRelationButton.vue';
 
 import * as profileHeaderService from './profileHeaderService.js';
 
@@ -13,7 +14,8 @@ const components = {
   'profile-header-banner-button': ProfileHeaderBannerButton,
   'profile-header-actions': ProfileHeaderActions,
   'profile-header-text': ProfileHeaderText,
-  'profile-header-settings-drawer': ProfileHeaderSettingsDrawer
+  'profile-header-settings-drawer': ProfileHeaderSettingsDrawer,
+  'profile-header-relation-button': ProfileHeaderRelationButton
 };
 
 if (!Vue.prototype.$profileHeaderService) {
