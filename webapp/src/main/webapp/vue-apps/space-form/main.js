@@ -32,13 +32,14 @@ const appId = 'spaceFormDrawer';
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export async function open(templateId, spaceTemplates) {
+export async function open(templateId, spaceTemplates, parentSpaceId) {
   if (!window.spaceFormAdded) {
     await initApp(spaceTemplates);
   }
   document.dispatchEvent(new CustomEvent('addNewSpace', {detail: {
     templateId: templateId,
-    spaceTemplates: spaceTemplates
+    spaceTemplates: spaceTemplates,
+    parentSpaceId: parentSpaceId
   }}));
 }
 
