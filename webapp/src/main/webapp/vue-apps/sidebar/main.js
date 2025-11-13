@@ -251,7 +251,7 @@ export function init(
               document.querySelector('#UserHomePortalLinkName').href = this.defaultUserPath;
             }
           },
-          handleUpdatesFromWebSocket(event) {
+          async handleUpdatesFromWebSocket(event) {
             const data = event?.detail;
             const wsEventName = data?.wsEventName || '';
             let spaceWebNotificationItem = data?.message?.spaceWebNotificationItem || data?.message?.spacewebnotificationitem;
@@ -265,10 +265,15 @@ export function init(
               } else {
                 this.$set(this.$root.unreadPerSpace, spaceId, 1);
               }
-            }  else if (wsEventName === 'notification.read.item') {
+            } else if (wsEventName === 'notification.read.item') {
               if (spaceId) {
                 const value = (this.$root.unreadPerSpace[spaceId] - 1) || 0;
-                this.$set(this.$root.unreadPerSpace, spaceId, value);
+                if (value >= 0) {
+                  this.$set(this.$root.unreadPerSpace, spaceId, value);
+                } else {
+                  const space = await this.$spaceService.getSpaceById(spaceId);
+                  this.$root.$emit('space-settings-updated', space);
+                }
               }
             } else if (wsEventName === 'notification.read.allItems') {
               if (spaceId && this.$root.unreadPerSpace[spaceId] > 0) {
