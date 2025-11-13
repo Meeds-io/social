@@ -180,10 +180,6 @@ export default {
         if (this.role === 'manager') {
           this.isLastAdmin = this.users?.length < 2;
         }
-        if (this.role === 'redactor'
-            && !this.users?.length) {
-          this.$refs.drawer.close();
-        }
       } finally {
         this.loading = false;
       }
