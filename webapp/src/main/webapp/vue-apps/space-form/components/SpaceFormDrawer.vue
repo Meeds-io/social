@@ -506,6 +506,12 @@ export default {
       this.open(null, e?.detail);
     },
     async open(templateId, space, spaceTemplates) {
+      console.warn('this.templateId', this.templateId);
+      console.warn('this.space', this.space);
+      console.warn('this.spaceTemplates', this.spaceTemplates);
+
+
+
       this.space = space && JSON.parse(JSON.stringify(space)) || {
         templateId: templateId,
         subscription: 'open',
@@ -523,6 +529,7 @@ export default {
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
+
       this.setSpaceTemplateProperties();
       this.$refs.spaceFormDrawer.open();
     },
