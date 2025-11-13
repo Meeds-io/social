@@ -16,7 +16,6 @@
         :min-height="minSize"
         :max-width="maxSize"
         :max-height="maxSize"
-        :alt="$t('profileHeader.avatar.alt')"
         id="profileAvatarImg"
         transition="none"
         role="presentation"

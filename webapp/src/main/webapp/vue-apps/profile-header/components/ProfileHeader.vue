@@ -15,7 +15,6 @@
             :max-height="bannerMaxHeight"
             :height="bannerHeight"
             min-height="60"
-            :alt="$t('profileHeader.banner.alt')"
             width="100%"
             class="profileBannerImg application-border-radius-top"
             lazy />
