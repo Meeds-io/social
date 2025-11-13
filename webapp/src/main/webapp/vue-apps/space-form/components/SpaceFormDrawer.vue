@@ -445,7 +445,7 @@ export default {
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
-    async openParentSpaceList(templateId, space, spaceTemplates) {
+    async openParentSpaceList(templateId, space, spaceTemplates, parentSpaceId) {
       this.templateId = templateId;
       if (!this.$root.spaceTemplates) {
         this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
@@ -475,6 +475,10 @@ export default {
       }
       if (this.parentSpacesSize === 1) {
         this.selectParentSpace(this.parentSpaces[0]);
+      } else if (parentSpaceId) {
+        const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
+        this.selectParentSpace(parentSpace);
+        this.$refs.spaceFormDrawer.open();
       } else if (!filteredTemplateIds?.length || !this.parentSpaces?.length) {
         this.spaceParentSelecting = false;
         await this.open(templateId, space, spaceTemplates);
@@ -485,7 +489,7 @@ export default {
     },
     selectParentSpace(space) {
       this.selectedParentSpace = space;
-      this.space.parentSpaceId = space?.id;
+      this.$set(this.space, 'parentSpaceId', space?.id);
       this.spaceParentSelecting = false;
     },
     openByAppId(e) {
@@ -495,22 +499,26 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId);
     },
-    openByRootEvent(templateId, spaceTemplates) {
+    openByRootEvent(templateId, spaceTemplates, parentSpaceId) {
       this.goBackButton = !templateId;
-      this.openParentSpaceList(templateId, null, spaceTemplates);
+      this.openParentSpaceList(templateId, null, spaceTemplates, parentSpaceId);
     },
     editByEvent(e) {
       this.goBackButton = false;
       this.open(null, e?.detail);
     },
     async open(templateId, space, spaceTemplates) {
-      this.space = space && JSON.parse(JSON.stringify(space)) || {
-        templateId: templateId,
-        subscription: 'open',
-        visibility: 'private',
-      };
+      if (space) {
+        this.space = JSON.parse(JSON.stringify(space));
+      } else {
+        Object.assign(this.space, {
+          templateId: templateId,
+          subscription: 'open',
+          visibility: 'private',
+        });
+      }
       this.templateId = this.space.templateId && Number(this.space.templateId);
       if (spaceTemplates) {
         this.templates = spaceTemplates;
