@@ -79,39 +79,44 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
       String value = entry.getValue();
       if (profilePropertySettingNames.contains(name)
           || (name.contains(".") && profilePropertySettingNames.contains(name.substring(0, name.indexOf('.'))))) {
-        ProfilePropertySetting propertySetting = name
-                                                     .contains(".") ? profilePropertyService.getProfileSettingByName(name.substring(0, name.indexOf('.'))) : profilePropertyService.getProfileSettingByName(name);
-        //
-        String propertyName = propertySetting.getPropertyName();
-        List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims");
-        if (systemMultivaluedFields.contains(propertyName)) {
-          List<Map<String, String>> maps;
-          // child list is empty
-          if (!proprtiesMap.containsKey(propertyName)) {
-            maps = new ArrayList<>();
-          } else {
-            maps = (List<Map<String, String>>) proprtiesMap.get(propertyName);
-          }
-          Map<String, String> childProperty = new HashMap<>();
-          childProperty.put("key", name);
-          childProperty.put("value", value);
-          maps.add(childProperty);
-          proprtiesMap.put(propertyName, maps);
-        } else {
-          // check if the property is multivalued and its value matches the patern "["value one", "value two", "value three", etc ...]"
-          if(propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
-            List<Map<String, String>> multivaluedPropsList = new ArrayList<>();
-            String [] valuesArray = value.substring(1, value.length() - 1).split(",");
-            for(String valueString : valuesArray) {
-              Map<String, String> map = new HashMap<>();
-              if(StringUtils.isNotBlank(valueString)) {
-                map.put("value", valueString.trim());
-                multivaluedPropsList.add(map);
-              }
+        // check if the parent property exists
+        ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name.substring(0, name.indexOf('.')));
+        // look for the property that has the full name including the dot "."
+        if (propertySetting == null) {
+          propertySetting = profilePropertyService.getProfileSettingByName(name);
+        }
+        if (propertySetting != null) {
+          String propertyName = propertySetting.getPropertyName();
+          List<String> systemMultivaluedFields = Arrays.asList("user", "phones", "ims");
+          if (systemMultivaluedFields.contains(propertyName)) {
+            List<Map<String, String>> maps;
+            // child list is empty
+            if (!proprtiesMap.containsKey(propertyName)) {
+              maps = new ArrayList<>();
+            } else {
+              maps = (List<Map<String, String>>) proprtiesMap.get(propertyName);
             }
-            proprtiesMap.put(name, multivaluedPropsList);
+            Map<String, String> childProperty = new HashMap<>();
+            childProperty.put("key", name);
+            childProperty.put("value", value);
+            maps.add(childProperty);
+            proprtiesMap.put(propertyName, maps);
           } else {
-            proprtiesMap.put(name, value);
+            // check if the property is multivalued and its value matches the patern "["value one", "value two", "value three", etc ...]"
+            if (propertySetting.isMultiValued() && value.matches("^\\[(.*)\\]$")) {
+              List<Map<String, String>> multivaluedPropsList = new ArrayList<>();
+              String[] valuesArray = value.substring(1, value.length() - 1).split(",");
+              for (String valueString : valuesArray) {
+                Map<String, String> map = new HashMap<>();
+                if (StringUtils.isNotBlank(valueString)) {
+                  map.put("value", valueString.trim());
+                  multivaluedPropsList.add(map);
+                }
+              }
+              proprtiesMap.put(name, multivaluedPropsList);
+            } else {
+              proprtiesMap.put(name, value);
+            }
           }
         }
       }
