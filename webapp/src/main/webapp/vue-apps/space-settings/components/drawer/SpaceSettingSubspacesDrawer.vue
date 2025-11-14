@@ -42,27 +42,11 @@
     </template>
     <template v-if="drawer" #content>
       <div v-if="displayedSubspaces">
-        <v-list-item
+        <space-setting-subspaces-item
           v-for="s in subspaces"
           :key="s.id"
-          dense>
-          <v-list-item-content>
-            <space-avatar
-              :space="s"
-              class="text-truncate"
-              list-style />
-          </v-list-item-content>
-          <v-list-item-action class="my-auto me-0 ms-n2">
-            <v-btn
-              small
-              icon
-              @click="$emit('remove')">
-              <v-icon size="18" color="error">
-                fa-trash
-              </v-icon>
-            </v-btn>
-          </v-list-item-action>
-        </v-list-item>
+          :space="s"
+          @loading="loading = $event" />
       </div>
       <div v-else class="d-flex flex-column flex-grow-1 full-height">
         <div class="d-flex flex-column align-center justify-center my-auto">
@@ -81,6 +65,7 @@ export default {
     saving: false,
     spaceId: null,
     subspaces: [],
+    dialog: false,
   }),
   computed: {
     displayedSubspaces() {
@@ -89,6 +74,12 @@ export default {
     templateId() {
       return this.$root.space?.templateId;
     },
+  },
+  created() {
+    this.$root.$on('subspaces-list-refresh', this.retrieveSubspaces);
+  },
+  beforeDestroy() {
+    this.$root.$off('subspaces-list-refresh', this.retrieveSubspaces);
   },
   methods: {
     open(spaceId) {
