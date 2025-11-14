@@ -121,7 +121,7 @@ export default {
       const allowedSubspaceTemplates = spaceTemplates.filter(t =>
         allowedSubspaceTemplatesIds.includes(String(t.id))
       );
-      window.require(['SHARED/spaceForm'], drawer => drawer.open(null, allowedSubspaceTemplates));
+      window.require(['SHARED/spaceForm'], drawer => drawer.open(null, allowedSubspaceTemplates, eXo.env.portal.spaceId));
     },
   },
 };
