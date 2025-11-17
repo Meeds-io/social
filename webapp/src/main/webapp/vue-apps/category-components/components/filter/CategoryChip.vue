@@ -44,7 +44,9 @@
         :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
         :color="selected && 'primary'"
         :small="small"
-        class="text-truncate border-box-sizing">
+        tabindex="0"
+        class="text-truncate border-box-sizing"
+        @focus="menu = true">
         <v-card
           :title="category.name"
           :class="[
@@ -72,8 +74,10 @@
       <v-list-item
         v-for="subItem in category.categories"
         :key="subItem.id"
+        :ref="i === 0 ? 'firstItem' : null"
         :color="selectedId === subItem.id && 'var(--allPagesTertiaryColor) !important'"
         class="text-truncate"
+        tabindex="0"
         dense
         @click.prevent.stop="openCategory(subItem)">
         <v-card
@@ -94,8 +98,10 @@
     :class="[chipClass, small && 'text-subtitle-font-size' || '', !visible && 'invisible' || '']"
     :color="selected && 'primary'"
     :small="small"
+    tabindex="0"
     class="text-truncate border-box-sizing"
-    @click.prevent.stop="openCategory(category)">
+    @click.prevent.stop="openCategory(category)"
+    @keydown.enter.stop.prevent="openCategory(category)">
     <v-card
       :title="category.name"
       :class="[
