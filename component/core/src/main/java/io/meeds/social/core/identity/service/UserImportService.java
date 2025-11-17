@@ -601,8 +601,7 @@ public class UserImportService {
                                     boolean save,
                                     String modifierUsername) throws IllegalAccessException, IOException {
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
-    org.exoplatform.services.security.Identity identity = userAcl.getUserIdentity(modifierUsername);
-    if (propertySetting != null && !propertySetting.isEditable() && !identity.isMemberOf(userAcl.getAdminGroups())) {
+    if (propertySetting != null && !propertySetting.isEditable() && !userAcl.getUserIdentity(modifierUsername).isMemberOf(userAcl.getAdminGroups())) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
