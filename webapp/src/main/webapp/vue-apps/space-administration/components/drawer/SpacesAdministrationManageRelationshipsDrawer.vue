@@ -64,8 +64,8 @@
               small
               icon
               @click="unlinkParentSpace()">
-              <v-icon size="18" color="error">
-                fas fa-link-slash
+              <v-icon size="18">
+                fas fa-unlink
               </v-icon>
             </v-btn>
           </v-list-item-action>
@@ -90,8 +90,8 @@
                 small
                 icon
                 @click="linkSubspace(subspace, 0)">
-                <v-icon size="18" color="error">
-                  fas fa-link-slash
+                <v-icon size="18">
+                  fas fa-unlink
                 </v-icon>
               </v-btn>
             </v-list-item-action>
