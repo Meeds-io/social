@@ -574,7 +574,7 @@ export default {
     this.$root.$off('space-templates-characteristics-open', this.open);
   },
   methods: {
-    open(spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
+    async open(spaceTemplate, name, nameTranslations, description, descriptionTranslations, modified, bannerUploadId, bannerData) {
       this.isNew = !spaceTemplate?.id;
       this.basicInformationModified = modified;
       this.spaceTemplate = JSON.parse(JSON.stringify(spaceTemplate));
@@ -591,15 +591,23 @@ export default {
       this.spaceFieldProperties = spaceTemplate.spaceFields.includes('properties') || false;
       this.spaceFieldAccessControl = spaceTemplate.spaceFields.includes('access') || false;
       this.canHaveSubspaces = Array.isArray(spaceTemplate?.allowedSubspaceTemplates) &&
-                              spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
-                              spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
-      this.selectedSubspaceTemplates = this.canHaveSubspaces && (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
-        const [id, max] = item.split(':');
-        return {
-          id,
-          subspacesMaxLimit: Number(max) || 0
-        };
-      });
+          spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
+          spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
+
+      if (spaceTemplate?.allowedSubspaceTemplates.length > 0) {
+        const allTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        this.selectedSubspaceTemplates = this.canHaveSubspaces
+          ? (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
+            const [id, max] = item.split(':');
+            const template = allTemplates.find(t => t.id === Number(id));
+            return {
+              ...template,
+              subspacesMaxLimit: Number(max) || 0,
+            };
+          })
+          : [];
+        this.subspaceTemplate = [...this.selectedSubspaceTemplates];
+      }
       this.subspacesMaxLimit = spaceTemplate?.subspacesMaxLimit;
       this.$refs.drawer.open();
     },
@@ -666,6 +674,9 @@ export default {
     },
     removeSelectedSpaceTemplate(templateId) {
       this.selectedSubspaceTemplates = this.selectedSubspaceTemplates.filter(
+        t => Number(t.id) !== templateId
+      );
+      this.subspaceTemplate = this.subspaceTemplate.filter(
         t => Number(t.id) !== templateId
       );
     },
