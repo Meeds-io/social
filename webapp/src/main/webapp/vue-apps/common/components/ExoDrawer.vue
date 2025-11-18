@@ -160,6 +160,7 @@
             </v-card>
             <div class="d-flex flex-column fill-height flex-grow-1 flex-shrink-1 overflow-hidden">
               <div
+                v-show="$slots.content"
                 :class="{
                   'overflow-x-auto': !noXScroll,
                   'overflow-x-hidden': noXScroll,
