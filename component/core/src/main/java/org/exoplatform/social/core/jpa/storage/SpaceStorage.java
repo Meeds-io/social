@@ -448,6 +448,8 @@ public class SpaceStorage {
                                           "Parent space not found: " + parentSpaceId);
         }
         entity.setParentSpaceEntity(parent);
+      } else {
+        entity.setParentSpaceEntity(null);
       }
       entity.setUpdatedDate(new Date());
       entity = isNew ? spaceDAO.create(entity) : spaceDAO.update(entity);
@@ -461,7 +463,7 @@ public class SpaceStorage {
 
   @ExoTransactional
   public Space saveSpace(Space space, boolean isNew) throws SpaceStorageException {
-    return saveSpace(space, isNew, 0);
+    return saveSpace(space, isNew, space.getParentSpaceId());
   }
 
   @ExoTransactional
