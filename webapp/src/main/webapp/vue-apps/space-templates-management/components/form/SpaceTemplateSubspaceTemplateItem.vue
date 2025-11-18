@@ -99,18 +99,6 @@ export default {
     }
   },
   watch: {
-    spaceTemplate: {
-      async handler(newVal) {
-        if (!newVal) {
-          return;
-        }
-        if (!this.spaceTemplateName) {
-          const subspacesMaxLimit = newVal?.subspacesMaxLimit;
-          this.spaceTemplate = await this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplateId);
-          this.subspacesMaxLimit = subspacesMaxLimit;
-        }
-      },
-    },
     subspacesMaxLimit() {
       this.$set(this.spaceTemplate, 'subspacesMaxLimit', this.subspacesMaxLimit);
       this.invalidSubspacesMaxLimit = this.globalLimit > 0 && (this.subspacesMaxLimit > this.globalLimit || this.subspacesMaxLimit === 0);
@@ -124,11 +112,9 @@ export default {
       this.invalidSubspacesMaxLimit = this.globalLimit > 0 && (this.subspacesMaxLimit > this.globalLimit || this.subspacesMaxLimit === 0);
     },
   },
-  async created() {
-    if (!this.spaceTemplateName) {
-      const subspacesMaxLimit = this.spaceTemplate?.subspacesMaxLimit;
-      this.spaceTemplate = await this.$spaceTemplateService.getSpaceTemplate(this.spaceTemplateId);
-      this.subspacesMaxLimit = subspacesMaxLimit;
+  created() {
+    if (this.spaceTemplate?.subspacesMaxLimit) {
+      this.subspacesMaxLimit = this.spaceTemplate?.subspacesMaxLimit;
     } else {
       this.subspacesMaxLimit = this.globalLimit;
       this.$set(this.spaceTemplate, 'subspacesMaxLimit', this.globalLimit);
