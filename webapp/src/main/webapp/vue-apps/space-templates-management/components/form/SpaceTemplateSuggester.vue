@@ -118,12 +118,34 @@ export default {
   watch: {
     value() {
       this.$emit('input', this.value);
+      this.init();
     },
   },
   created() {
+    if (this.multiple) {
+      this.templates = this.value?.length && this.value || [];
+    } else {
+      this.templates = this.value && [this.value] || [];
+    }
     this.retrieveTemplates();
   },
+  mounted() {
+    $(`#${this.id} input`).on('blur', () => {
+      this.$refs.selectAutoComplete.isFocused = false;
+    });
+  },
   methods: {
+    init() {
+      if (this.value && this.value.length) {
+        this.value.forEach(item => {
+          if (item.id) {
+            this.templates.push(item);
+          }
+        });
+      } else if (this.value && this.value.id){
+        this.templates = [this.value];
+      }
+    },
     remove(item) {
       if (Array.isArray(this.value)) {
         const index = this.value.findIndex(val => val.id === item.id);
