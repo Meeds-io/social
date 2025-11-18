@@ -1062,6 +1062,10 @@ public class SpaceRest implements ResourceContainer {
       space.setTemplateId(model.getTemplateId());
     }
 
+    if (model.getParentSpaceId() != null) {
+      space.setParentSpaceId(model.getParentSpaceId());
+    }
+
     if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getBannerId())) {
       updateProfileField(space, Profile.BANNER, model.getBannerId());
     }
