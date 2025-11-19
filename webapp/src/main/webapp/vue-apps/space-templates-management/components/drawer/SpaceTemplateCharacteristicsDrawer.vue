@@ -594,7 +594,7 @@ export default {
           spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
           spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
 
-      if (spaceTemplate?.allowedSubspaceTemplates.length > 0) {
+      if (Array.isArray(spaceTemplate?.allowedSubspaceTemplates) && spaceTemplate?.allowedSubspaceTemplates.length > 0) {
         const allTemplates = await this.$spaceTemplateService.getSpaceTemplates();
         this.selectedSubspaceTemplates = this.canHaveSubspaces
           ? (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
