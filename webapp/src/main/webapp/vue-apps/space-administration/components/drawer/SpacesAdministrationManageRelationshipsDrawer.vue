@@ -43,6 +43,7 @@
             :labels="spaceSuggesterLabels"
             :include-users="false"
             :ignore-items="ignoreItems"
+            :search-options="{filterType: 'all'}"
             :width="220"
             name="activitySpaceAutocomplete"
             class="space-suggester activitySpaceAutocomplete"
@@ -156,10 +157,13 @@ export default {
       this.loading = true;
       try {
         const data = await this.$spaceService.getSpacesByFilter({
-          sortBy: 'lastVisited',
-          offset: this.offset,
-          limit: 20,
+          filter: 'all',
+          expand: 'managers,groupBinding',
           parentSpaceId: this.spaceId,
+          offset: 0,
+          limit: 25,
+          sortBy: 'title',
+          sortDirection: 'desc',
         });
         this.subspaces = data?.spaces || [];
       } finally {
