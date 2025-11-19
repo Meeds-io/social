@@ -593,20 +593,20 @@ export default {
       this.canHaveSubspaces = Array.isArray(spaceTemplate?.allowedSubspaceTemplates) &&
           spaceTemplate?.allowedSubspaceTemplates.length > 0 &&
           spaceTemplate?.allowedSubspaceTemplates.some(item => item && item.trim().length > 0);
-      this.selectedSubspaceTemplates = this.canHaveSubspaces && (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
-        const [id, max] = item.split(':');
-        return {
-          id,
-          subspacesMaxLimit: Number(max) || 0
-        };
-      });
-      if (this.selectedSubspaceTemplates.length > 0) {
-        const allTemplates = await this.$spaceTemplateService.getSpaceTemplates();
 
-        const selected = this.selectedSubspaceTemplates
-          .map(s => allTemplates.find(t => t.id === Number(s.id)))
-          .filter(Boolean);
-        this.subspaceTemplate = [...selected];
+      if (spaceTemplate?.allowedSubspaceTemplates.length > 0) {
+        const allTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        this.selectedSubspaceTemplates = this.canHaveSubspaces
+          ? (spaceTemplate?.allowedSubspaceTemplates || []).map(item => {
+            const [id, max] = item.split(':');
+            const template = allTemplates.find(t => t.id === Number(id));
+            return {
+              ...template,
+              subspacesMaxLimit: Number(max) || 0,
+            };
+          })
+          : [];
+        this.subspaceTemplate = [...this.selectedSubspaceTemplates];
       }
       this.subspacesMaxLimit = spaceTemplate?.subspacesMaxLimit;
       this.$refs.drawer.open();
