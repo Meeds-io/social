@@ -2614,7 +2614,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Exception exception = assertThrows(SpaceException.class,
                                        () -> spaceService.createSpace(space2, ROOT_NAME, null, Long.parseLong(parentSpaceId)));
 
-    assertEquals("Subspace template '2' is not allowed under parent template '2'", exception.getMessage());
+    assertEquals("User root isn't allowed to create subspace under parent space with id " + parentSpaceId,
+                 exception.getMessage());
   }
 
   public void testSpaceContainsExternalMembers() {
