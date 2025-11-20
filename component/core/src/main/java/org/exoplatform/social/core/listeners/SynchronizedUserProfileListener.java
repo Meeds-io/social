@@ -80,7 +80,7 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
       if (profilePropertySettingNames.contains(name)
           || (name.contains(".") && profilePropertySettingNames.contains(name.substring(0, name.indexOf('.'))))) {
         // check if the parent property exists
-        ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name.substring(0, name.indexOf('.')));
+        ProfilePropertySetting propertySetting = name.contains(".") ? profilePropertyService.getProfileSettingByName(name.substring(0, name.indexOf('.'))) : null;
         // look for the property that has the full name including the dot "."
         if (propertySetting == null) {
           propertySetting = profilePropertyService.getProfileSettingByName(name);
