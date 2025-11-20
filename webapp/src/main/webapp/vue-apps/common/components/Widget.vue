@@ -19,8 +19,12 @@
     :class="extraClass"
     :height="height"
     :min-width="minWidth"
-    class="d-flex flex-column"
-    flat>
+    :tabindex="tabindex"
+    :ripple="false"
+    class="d-flex flex-column not-clickable"
+    flat
+    @focusin="$emit('focusin', $event)"
+    @focusout="$emit('focusout', $event)">
     <div
       :class="!noMargin && 'pa-5'"
       class="d-flex flex-column flex-grow-1">
@@ -96,6 +100,10 @@ export default {
     loading: {
       type: Boolean,
       default: () => false,
+    },
+    tabindex: {
+      type: String,
+      default: () => '',
     },
     height: {
       type: String,
