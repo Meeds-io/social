@@ -411,8 +411,10 @@ public class UserImportServiceTest {
     s.setPropertyName(COMPANY_PROP);
     s.setEditable(false);
     when(profilePropertyService.getProfileSettingByName(COMPANY_PROP)).thenReturn(s);
-    when(userAcl.getSuperUser()).thenReturn("root");
-
+    org.exoplatform.services.security.Identity identity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getUserIdentity(TEST_USER_2)).thenReturn(identity);
+    when(identity.isMemberOf(userAcl.getAdminGroups())).thenReturn(false); 
+    
     service.updateProfileField(profile,
                                COMPANY_PROP,
                                COMPANY_VALUE,
