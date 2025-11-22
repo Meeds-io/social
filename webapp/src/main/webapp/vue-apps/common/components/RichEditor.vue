@@ -450,8 +450,8 @@ export default {
       let firstScrollableParent;
       $(this.$refs.editor).ckeditor({...options,
         on: {
-          instanceReady: function () {
-            self.editor = CKEDITOR.instances[self.ckEditorInstanceId];
+          instanceReady: function (evt) {
+            self.editor = evt.editor;
             const editable = self.editor.editable();
             editable.on('input', function () {
               self.editor.fire('change');
@@ -465,7 +465,7 @@ export default {
               });
 
             self.setEditorReady();
-            if (this.autofocus) {
+            if (self.autofocus) {
               window.setTimeout(() => self.setFocus(), 50);
             }
             firstScrollableParent = self.getScrollParent(document.querySelector('.richEditor'));
@@ -478,6 +478,7 @@ export default {
                   try {
                     self.editor.container.addClass(a);
                   } catch (e) {
+                    // eslint-disable-next-line no-console
                     console.warn('Error adding class ', a, ' in editor container', e);
                   }
                 });
@@ -538,10 +539,17 @@ export default {
         this.$set(this.editor, 'status', 'ready');
       }, 200);
     },
-    setFocus(force) {
+    setFocus(force, end) {
       if (this.editorReady && (force || this.autofocus)) {
         window.setTimeout(() => {
-          this.$nextTick().then(() => this.editor?.focus?.());
+          this.$nextTick().then(() => {
+            this.editor?.focus?.();
+            if (end && this.editor?.editable?.()) {
+              const range = this.editor.createRange();
+              range.moveToElementEditEnd(this.editor.editable());
+              this.editor.getSelection().selectRanges([range]);
+            }
+          });
         }, 200);
       }
     },
