@@ -541,7 +541,7 @@ export default {
     setFocus(force) {
       if (this.editorReady && (force || this.autofocus)) {
         window.setTimeout(() => {
-          this.$nextTick().then(() => this.editor.focus());
+          this.$nextTick().then(() => this.editor?.focus?.());
         }, 200);
       }
     },
