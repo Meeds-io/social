@@ -1414,7 +1414,7 @@ public class SpaceServiceImpl implements SpaceService {
       return;
     }
     Space parentSpace = getSpaceById(parentSpaceId);
-    if (isMember(parentSpace, username)) {
+    if (!isMember(parentSpace, username)) {
       throw new SpaceException(Code.SPACE_PERMISSION,
                                String.format("User %s isn't allowed to create subspace under parent space with id %s",
                                              username,

@@ -2607,14 +2607,15 @@ public class SpaceServiceTest extends AbstractCoreTest {
     space2.setPrettyName("spaceChild");
     space2.setRegistration(Space.OPEN);
     space2.setDescription("description of space spaceChild");
-    space2.setTemplateId(2);
+    space2.setTemplateId(2l);
     space2.setVisibility(Space.PRIVATE);
 
-    String parentSpaceId = space.getId();
+    long parentSpaceId = space.getSpaceId();
     Exception exception = assertThrows(SpaceException.class,
-                                       () -> spaceService.createSpace(space2, ROOT_NAME, null, Long.parseLong(parentSpaceId)));
+                                       () -> spaceService.createSpace(space2, ROOT_NAME, null, parentSpaceId));
 
-    assertEquals("User root isn't allowed to create subspace under parent space with id " + parentSpaceId,
+    assertEquals("Subspace template '%s' is not allowed under parent template '%s'".formatted(space2.getTemplateId(),
+                                                                                              2l),
                  exception.getMessage());
   }
 
