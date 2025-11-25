@@ -130,11 +130,11 @@
                 </v-btn>
                 <v-btn
                   :title="$t('label.close')"
-                  icon>
+                  icon
+                  @click="close()">
                   <v-icon
                     class="icon-default-color"
-                    size="20"
-                    @click="close()">
+                    size="20">
                     fa-times
                   </v-icon>
                 </v-btn>
