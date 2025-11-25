@@ -543,7 +543,7 @@ public class ProfileSearchConnectorTest {
                 "      }\n" +
                 ",  {\n" +
                 "    \"query_string\": {\n" +
-                "      \"query\": \" testProperty:*value* AND  testProperty:*of* AND  testProperty:*test* AND  testProperty:*Property*\"\n" +
+                "      \"query\": \" testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*\"\n" +
                 "    }\n" +
                 " }\n" +
                 "    ]\n" +
@@ -661,7 +661,7 @@ public class ProfileSearchConnectorTest {
                 "      }\n" +
                 ",  {\n" +
                 "    \"query_string\": {\n" +
-                "      \"query\": \" testProperty:*value* AND  testProperty:*of* AND  testProperty:*test* AND  testProperty:*Property*\"\n" +
+                "      \"query\": \" testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*\"\n" +
                 "    }\n" +
                 " }\n" +
                 "    ]\n" +
