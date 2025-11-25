@@ -30,14 +30,14 @@
     <template #title>
       {{ $t(title) }}
     </template>
-    <template v-if="translations" #content>
+    <template v-if="drawer && translations" #content>
       <v-form ref="form">
         <v-row
           v-for="(language, index) in existingLanguages"
           :key="language"
           class="mx-0 mb-0 mt-4 max-width-fit"
           no-gutters>
-          <v-col cols="8" class="px-2">
+          <v-col :cols="componentName ? 12 : 8" class="px-2">
             <v-card
               v-if="richEditor"
               class="text-truncate border-color rounder full-height pe-2 d-flex align-center"
@@ -55,6 +55,19 @@
                 class="d-flex text-truncate full-width mt-2"
                 flat />
             </v-card>
+            <component
+              v-else-if="componentName"
+              :is="componentName"
+              :name="`${language}-translation-value`"
+              :value="translations[language]"
+              :autofocus="language === defaultLanguage && 'autofocus'"
+              :disabled="loading"
+              :rules="rules || []"
+              class="border-box-sizing pt-0"
+              type="text"
+              outlined
+              dense
+              @input="updateValue(language, $event)" />
             <v-text-field
               v-else
               :name="`${language}-translation-value`"
@@ -68,7 +81,7 @@
               dense
               @input="updateValue(language, $event)" />
           </v-col>
-          <v-col cols="4">
+          <v-col :cols="componentName ? 12 : 4" :class="componentName && 'order-first pb-1 px-2'">
             <div class="d-flex max-width-fit">
               <div class="flex-grow-1 text-truncate">
                 <select
@@ -202,6 +215,10 @@ export default {
     contentLinkEnabled: {
       type: Boolean,
       default: false
+    },
+    componentName: {
+      type: String,
+      default: null
     },
   },
   data: () => ({

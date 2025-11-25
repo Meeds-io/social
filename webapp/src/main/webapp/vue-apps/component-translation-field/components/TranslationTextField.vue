@@ -116,6 +116,7 @@
       :rich-editor-oembed="richEditorOembed"
       :content-link-enabled="contentLinkEnabled"
       :no-expand-icon="noExpandIcon"
+      :component-name="componentName"
       :rules="rules || []"
       @input="emitUpdateValues" />
   </div>
@@ -207,6 +208,10 @@ export default {
       type: Boolean,
       default: false
     },
+    componentName: {
+      type: String,
+      default: null
+    },
   },
   data: () => ({
     initialized: false,
@@ -249,6 +254,7 @@ export default {
   watch: {
     value: {
       immediate: true,
+      deep: true,
       handler: function() {
         this.setValuesPerLanguage(this.value && JSON.parse(JSON.stringify(this.value)) || {});
         const defaultLanguageValue = this.defaultLocale && this.valuesPerLanguage[this.defaultLocale.replace('_', '-')] || '';
