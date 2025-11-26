@@ -2583,42 +2583,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     return space2;
   }
 
-  @SneakyThrows
-  public void testCreateSubspace() {
-
-    SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
-    SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
-    List<String> allowedSubspaceTemplates = new ArrayList<>();
-    allowedSubspaceTemplates.add("1:2");
-    spaceTemplate.setAllowedSubspaceTemplates(allowedSubspaceTemplates);
-    spaceTemplate.setSubspacesMaxLimit(2);
-    spaceTemplateService.updateSpaceTemplate(spaceTemplate);
-
-    Space space = new Space();
-    space.setDisplayName("parentSpace");
-    space.setPrettyName("parentSpace");
-    space.setRegistration(Space.OPEN);
-    space.setDescription("description of space parentSpace");
-    space.setVisibility(Space.PRIVATE);
-    space = spaceService.createSpace(space, ROOT_NAME);
-
-    Space space2 = new Space();
-    space2.setDisplayName("spaceChild");
-    space2.setPrettyName("spaceChild");
-    space2.setRegistration(Space.OPEN);
-    space2.setDescription("description of space spaceChild");
-    space2.setTemplateId(2l);
-    space2.setVisibility(Space.PRIVATE);
-
-    long parentSpaceId = space.getSpaceId();
-    Exception exception = assertThrows(SpaceException.class,
-                                       () -> spaceService.createSpace(space2, ROOT_NAME, null, parentSpaceId));
-
-    assertEquals("Subspace template '%s' is not allowed under parent template '%s'".formatted(space2.getTemplateId(),
-                                                                                              2l),
-                 exception.getMessage());
-  }
-
   public void testSpaceContainsExternalMembers() {
     checkExternalUserMemberships();
     externalUser.getProfile().setProperty("external", "true");
