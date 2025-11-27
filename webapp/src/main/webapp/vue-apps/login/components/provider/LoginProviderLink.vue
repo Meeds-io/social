@@ -84,10 +84,21 @@ export default {
     id() {
       return `login-${this.providerKeyLowerCase}`;
     },
+    initialUri() {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('initialURI')) {
+        return urlParams.get('initialURI');
+      }
+      return null;
+    },
     link() {
-      const link = this.provider?.url;
+      let link = this.provider?.url;
       if (link && link.startsWith('/')) {
-        return this.rememberme && `${link}&_rememberme=true` || link;
+        link = this.rememberme && `${link}&_rememberme=true` || link;
+      }
+      if (this.initialUri) {
+        const separator = link.includes('?') ? '&' : '?';
+        link = `${link}${separator}_initialURI=${this.initialUri}`;
       }
       return link;
     },
