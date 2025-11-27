@@ -75,13 +75,10 @@ public class OauthLoginParamsExtension implements UIParamsExtension {
       oAuthProvidersParams.put(OAUTH_PROVIDER_TYPES_PARAM, new JSONArray(oAuthProviderTypes));
 
       String contextPath = controllerContext.getRequest().getContextPath();
-      String initialUri = controllerContext.getRequest().getParameter("initialURI");
-      if (StringUtils.isBlank(initialUri)) {
-        initialUri = contextPath;
-      }
+
       for (OAuthProviderType<?> oAuthProvType : oAuthProviderTypeRegistry.getEnabledOAuthProviders()) {
         String oAuthProvTypeKey = oAuthProvType.getKey();
-        String oAuthInitURL = oAuthProvType.getInitOAuthURL(contextPath, initialUri);
+        String oAuthInitURL = oAuthProvType.getInitOAuthURL(contextPath, null);
         oAuthProvidersParams.put(OAUTH_PROVIDER_URL_PARAM_PREFIX + oAuthProvTypeKey, oAuthInitURL);
       }
       return oAuthProvidersParams;
