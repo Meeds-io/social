@@ -199,9 +199,8 @@ public class SpaceEntity implements Serializable {
 
   @Setter
   @Getter
-  @ManyToOne
-  @JoinColumn(name = "PARENT_SPACE_ID")
-  private SpaceEntity                              parentSpaceEntity;
+  @Column(name = "PARENT_SPACE_ID")
+  private Long                              parentSpaceId;
 
   public List<Long> getCategoryIds() {
     return getCategories().stream().map(SpaceCategoryEntity::getCategoryId).toList();

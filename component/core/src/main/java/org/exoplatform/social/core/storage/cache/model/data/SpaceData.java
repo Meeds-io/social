@@ -90,7 +90,7 @@ public class SpaceData implements CacheData<Space> {
 
   private boolean           sovereign;
 
-  private long              parentSpaceId;
+  private Long              parentSpaceId;
 
   public SpaceData(final Space space) {
     id = space.getSpaceId();
