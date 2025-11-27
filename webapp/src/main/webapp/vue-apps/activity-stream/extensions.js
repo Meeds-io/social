@@ -236,7 +236,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'action', {
   id: 'delete',
-  rank: 30,
+  rank: 100,
   labelKey: 'UIActivity.label.Delete',
   icon: 'fa-trash-alt',
   confirmDialog: true,
@@ -352,7 +352,7 @@ extensionRegistry.registerExtension('activity', 'action', {
 
 extensionRegistry.registerExtension('activity', 'comment-action', {
   id: 'delete',
-  rank: 20,
+  rank: 100,
   labelKey: 'UIActivity.label.Delete',
   icon: 'fa-trash-alt',
   confirmDialog: true,
