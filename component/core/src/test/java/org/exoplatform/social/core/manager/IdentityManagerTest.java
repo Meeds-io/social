@@ -19,12 +19,7 @@
 package org.exoplatform.social.core.manager;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
@@ -535,5 +530,21 @@ public class IdentityManagerTest extends AbstractCoreTest {
     assertNotNull("gotRootIdentity.getId() must not be null", gotRootIdentity.getId());
     assertEquals("gotRootIdentity.getProfile().getProperty(Profile.FIRST_NAME) must be updated: "
         + newFirstName, newFirstName, gotRootIdentity.getProfile().getProperty(Profile.FIRST_NAME));
+  }
+
+  public void testGetIdentitiesByGroupsIdsAccessList() throws Exception {
+    ProfileFilter pf = new ProfileFilter();
+    List<String> groupIds = new ArrayList<>();
+    groupIds.add("/platform/administrators");
+    pf.setGroupIds(groupIds);
+    List<Identity> identities = identityManager.getIdentitiesByProfileFilter("organization", pf);
+    assertTrue("Number of identities must be " + identities.size(), identities.size() > 0);
+    ProfileFilter pf1 = new ProfileFilter();
+    Map<String, String> profileSettings = new HashMap<>();
+    profileSettings.put("fullName","john");
+    pf1.setProfileSettings(profileSettings);
+    pf1.setGroupIds(groupIds);
+    List<Identity> identities1 = identityManager.getIdentitiesByProfileFilter("organization", pf1);
+    assertTrue("Number of identities must be " + identities1.size(), identities.size() > 0);
   }
 }
