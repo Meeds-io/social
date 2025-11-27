@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import org.exoplatform.social.core.space.spi.SpaceServiceMockTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
@@ -82,6 +83,7 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     CoeditingServiceTest.class,
     SpaceDirectoryServiceTest.class,
     SpaceDirectoryStorageTest.class,
+    SpaceServiceMockTest.class,
     DatabindServiceTest.class,
     SiteAttachmentPluginTest.class,
     UserExportServiceTest.class,

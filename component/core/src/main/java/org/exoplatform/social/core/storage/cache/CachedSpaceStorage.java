@@ -215,7 +215,7 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public Space saveSpace(final Space space, final boolean isNew, long parentSpaceId) {
+  public Space saveSpace(final Space space, final boolean isNew, Long parentSpaceId) {
     try {
       return super.saveSpace(space, isNew, parentSpaceId);
     } finally {
