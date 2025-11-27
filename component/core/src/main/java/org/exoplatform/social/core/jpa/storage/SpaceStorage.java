@@ -434,22 +434,22 @@ public class SpaceStorage {
   }
 
   @ExoTransactional
-  public Space saveSpace(Space space, boolean isNew, long parentSpaceId) throws SpaceStorageException {
+  public Space saveSpace(Space space, boolean isNew, Long parentSpaceId) throws SpaceStorageException {
     try {
       SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.find(Long.parseLong(space.getId()));
       if (!isNew && entity == null) {
         throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE);
       }
       EntityConverterUtils.buildFrom(space, entity);
-      if (parentSpaceId > 0) {
+      if (parentSpaceId != null && parentSpaceId > 0) {
         SpaceEntity parent = spaceDAO.find(parentSpaceId);
         if (parent == null) {
           throw new SpaceStorageException(SpaceStorageException.Type.FAILED_TO_SAVE_SPACE,
                                           "Parent space not found: " + parentSpaceId);
         }
-        entity.setParentSpaceEntity(parent);
+        entity.setParentSpaceId(parent.getId());
       } else {
-        entity.setParentSpaceEntity(null);
+        entity.setParentSpaceId(null);
       }
       entity.setUpdatedDate(new Date());
       entity = isNew ? spaceDAO.create(entity) : spaceDAO.update(entity);
@@ -736,7 +736,7 @@ public class SpaceStorage {
     space.setPublicSitePermissions(entity.getPublicSitePermissions());
     space.setCategoryIds(entity.getCategoryIds());
     space.setSovereign(entity.isSovereign());
-    space.setParentSpaceId(entity.getParentSpaceEntity() != null ? entity.getParentSpaceEntity().getId() : 0);
+    space.setParentSpaceId(entity.getParentSpaceId());
 
     Date lastUpdated = ObjectUtils.getFirstNonNull(entity::getAvatarLastUpdated, () -> new Date(System.currentTimeMillis()));
     space.setAvatarLastUpdated(lastUpdated.getTime());

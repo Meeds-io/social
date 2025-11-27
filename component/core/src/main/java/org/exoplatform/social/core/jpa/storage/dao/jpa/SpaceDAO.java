@@ -401,7 +401,7 @@ public class SpaceDAO extends GenericDAOJPAImpl<SpaceEntity, Long> {
 
     if (spaceFilter.getParentSpaceId() > 0) {
       suffixes.add("ParentSpaceId");
-      predicates.add("s.parentSpaceEntity.id = :parentSpaceId");
+      predicates.add("s.parentSpaceId = :parentSpaceId");
       parameterNames.add(PARAM_PARENT_SPACE_ID);
     }
 

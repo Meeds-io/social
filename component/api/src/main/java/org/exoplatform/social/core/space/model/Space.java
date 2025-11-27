@@ -235,7 +235,7 @@ public class Space implements CacheEntry {
 
   @Getter
   @Setter
-  private long               parentSpaceId;
+  private Long               parentSpaceId;
 
   /** Types of updating of space. */
   public enum UpdatedField {
