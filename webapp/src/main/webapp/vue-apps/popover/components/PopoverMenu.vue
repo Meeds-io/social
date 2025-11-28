@@ -29,7 +29,7 @@
     transition="slide-x-transition"
     rounded="rounded"
     role="tooltip"
-    content-class="profile-popover-menu z-index-modal pa-1 transparent"
+    content-class="profile-popover-menu z-index-modal pa-1 transparent contain-revert overflow-revert"
     absolute
     elevation="0"
     max-width="350"
