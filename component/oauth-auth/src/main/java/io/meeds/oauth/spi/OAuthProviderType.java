@@ -90,11 +90,16 @@ public class OAuthProviderType<T extends AccessTokenContext> {
   }
 
   public String getInitOAuthURL(String contextPath, String requestURI) {
-    requestURI = OAuthUtils.encodeParam(requestURI);
+    if (requestURI != null) {
+      requestURI = OAuthUtils.encodeParam(requestURI);
+    }
 
-    return contextPath + initOAuthURL
-        + "?" + OAuthConstants.PARAM_OAUTH_INTERACTION + "=" + OAuthConstants.PARAM_OAUTH_INTERACTION_VALUE_START
-        + "&" + OAuthConstants.PARAM_INITIAL_URI + "=" + requestURI;
+    String result = contextPath + initOAuthURL
+        + "?" + OAuthConstants.PARAM_OAUTH_INTERACTION + "=" + OAuthConstants.PARAM_OAUTH_INTERACTION_VALUE_START;
+    if (requestURI != null) {
+      result += "&" + OAuthConstants.PARAM_INITIAL_URI + "=" + requestURI;
+    }
+    return result;
   }
 
   public String getFriendlyName() {
