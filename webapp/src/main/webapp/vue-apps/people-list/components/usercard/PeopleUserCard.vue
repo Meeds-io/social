@@ -129,8 +129,15 @@
           <span
             v-for="extension in filteredProfileActionExtensions"
             :key="extension.id">
+            <component
+              v-if="extension.vueComponent"
+              :is="extension.vueComponent"
+              :user="user"
+              :space-id="spaceId"
+              :preferences="preferences"
+              compact-display />
             <v-btn
-              v-if="!extension.init"
+              v-else-if="!extension.init"
               :aria-label="extension.title || $t(extension.titleKey)"
               icon
               @touchstart.stop="0"

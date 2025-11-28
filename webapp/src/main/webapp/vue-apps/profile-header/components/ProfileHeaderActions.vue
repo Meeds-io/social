@@ -8,9 +8,14 @@
     <div class="d-flex align-center justify-end flex-wrap my-auto">
       <span
         v-for="(extension, i) in enabledProfileActionExtensions"
-        :key="i">
+        :key="i"
+        :rank="extension.rank">
+        <component
+          v-if="extension.vueComponent"
+          :is="extension.vueComponent"
+          :user="user" />
         <v-btn
-          v-if="!extension.init"
+          v-else-if="!extension.init"
           :icon="iconButton"
           :class="{'no-border': iconButton}"
           class="btn my-auto ma-1 mb-0"
@@ -191,7 +196,9 @@ export default {
       if (!this.profileActionExtensions || !this.user) {
         return [];
       }
-      return this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
+      const enabledProfileActionExtensions = this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
+      enabledProfileActionExtensions.sort((a, b) => a.rank - b.rank);
+      return enabledProfileActionExtensions;
     },
   },
   created() {

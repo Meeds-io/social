@@ -99,8 +99,11 @@ export default {
       return {
         identityType: 'USER_TIPTIP',
         identityId: this.identity?.username,
+        username: this.identity?.username,
+        fullname: this.identity?.fullname,
         identityEnabled: this.identity?.enabled,
         identityDeleted: this.identity?.deleted,
+        compactDisplay: true,
       };
     },
     enabledExtensionComponents() {
