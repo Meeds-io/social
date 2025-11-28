@@ -53,6 +53,7 @@ import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslatio
 import io.meeds.social.space.template.service.SpaceTemplateServiceTest;
 import io.meeds.social.space.template.storage.SpaceTemplateStorageTest;
 import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
+import io.meeds.social.user.plugin.UserAclPluginTest;
 
 @RunWith(Suite.class)
 @SuiteClasses({
@@ -86,6 +87,7 @@ import io.meeds.social.upgrade.SpaceNavigationIconUpgradePluginTest;
     SiteAttachmentPluginTest.class,
     UserExportServiceTest.class,
     UserImportServiceTest.class,
+    UserAclPluginTest.class,
 })
 public class NoContainerTestSuite {
 

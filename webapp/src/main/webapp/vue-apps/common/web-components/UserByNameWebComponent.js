@@ -5,8 +5,11 @@ class UserByName extends HTMLElement {
   }
 
   connectedCallback() {
-    const username = this.textContent?.replace?.(/^@/, '')?.trim?.();
+    let username = this.textContent?.replace?.(/^@/, '')?.trim?.();
     if (username?.length) {
+      if (username.includes(':')) {
+        username = username.split(':').pop();
+      }
       fetch(`/portal/rest/v1/social/identities/organization/${username}`, {
         method: 'GET',
         credentials: 'include',
