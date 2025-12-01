@@ -22,9 +22,11 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import io.meeds.social.space.template.service.SpaceTemplateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -611,6 +613,11 @@ public class SpaceUtils {
 
   private static String computeSpacePermissionFromTemplate(String p, String groupId) {
     return SPACE_ADMIN_REFERENCE_NAME.equals(p) ? MANAGER + ":" + groupId : p;
+  }
+
+  public static List<Long> getTemplateIdsAllowingSubspaces() {
+    SpaceTemplateService spaceTemplateService = CommonsUtils.getService(SpaceTemplateService.class);
+    return spaceTemplateService.getTemplateIdsAllowingSubspaces();
   }
 
   private static void clearIdentityCaching(String providerId, String remoteId) {
