@@ -207,7 +207,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       Date d = new Date();
       d.setTime(d.getTime() + oidcCookieLifetime * 1000);
       String cookieLifeTime = expireFormat.format(d);
-      response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+tokenResponse.getAccessToken()+" ; Path=/portal/login; Expires=" + cookieLifeTime + "; Secure; HttpOnly; SameSite=strict");
+      response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+tokenResponse.getAccessToken()+" ; Path=/; Expires=" + cookieLifeTime + "; HttpOnly;SameSite=Lax");
       return new InteractionState<>(InteractionState.State.FINISH, accessTokenContext);
     }
 
@@ -244,6 +244,10 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
     String stateFromSession = (String) session.getAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
     String stateFromRequest = request.getParameter(OAuthConstants.STATE_PARAMETER);
     if (stateFromSession == null || stateFromRequest == null || !stateFromSession.equals(stateFromRequest)) {
+
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_AUTH_STATE);
+      session.removeAttribute(OAuthConstants.ATTRIBUTE_VERIFICATION_STATE);
+
       throw new OAuthException(OAuthExceptionCode.INVALID_STATE,
                                "Validation of state parameter failed. stateFromSession=" + stateFromSession
                                    + ", stateFromRequest=" + stateFromRequest);
