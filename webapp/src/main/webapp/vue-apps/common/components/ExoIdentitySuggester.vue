@@ -262,6 +262,10 @@ export default {
       type: Boolean,
       default: false
     },
+    onlyParentSpaces: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -407,6 +411,7 @@ export default {
               this.onlyRedactor,
               this.noRedactorSpace,
               this.onlyManager,
+              this.onlyParentSpaces,
               () => this.loadingSuggestions++,
               () => {
                 this.loadingSuggestions--;
