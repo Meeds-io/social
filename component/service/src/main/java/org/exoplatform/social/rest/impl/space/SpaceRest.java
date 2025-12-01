@@ -238,6 +238,10 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Parent space id", required = false)
                             @QueryParam("parentSpaceId")
                             String parentSpaceId,
+                            @Parameter(description = "Filter the space list to parent spaces only", required = false)
+                            @DefaultValue("false")
+                            @QueryParam("onlyParentSpaces")
+                            boolean onlyParentSpaces,
                             @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
                             @QueryParam("token")
                             String token,
@@ -266,7 +270,7 @@ public class SpaceRest implements ResourceContainer {
       spaceFilter.setParentSpaceId(Long.parseLong(parentSpaceId));
     }
     spaceFilter.setTagNames(tagNames);
-    spaceFilter.setTemplateIds(templateIds);
+    spaceFilter.setTemplateIds(onlyParentSpaces ? SpaceUtils.getTemplateIdsAllowingSubspaces() : templateIds);
     spaceFilter.setExcludedIds(excludedIds);
     if (CollectionUtils.isNotEmpty(categoryIds)) {
       spaceFilter.setCategoryIds(categoryIds);
