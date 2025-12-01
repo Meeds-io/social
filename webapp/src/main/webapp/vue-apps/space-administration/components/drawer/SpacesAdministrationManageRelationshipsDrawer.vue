@@ -49,6 +49,7 @@
             class="space-suggester activitySpaceAutocomplete"
             include-spaces
             only-parent-spaces
+            ignore-cache
             @input="selectParentSpace" />
         </div>
         <v-list-item
