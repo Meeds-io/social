@@ -143,6 +143,14 @@ public class SpaceTemplateService {
     }
     return spaceTemplateIds;
   }
+  
+  public List<Long> getTemplateIdsAllowingSubspaces() {
+    return getSpaceTemplates().stream()
+                              .filter(spaceTemplate -> !spaceTemplate.isDeleted() && spaceTemplate.isEnabled()
+                                  && org.apache.commons.collections.CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates()))
+                              .map(SpaceTemplate::getId)
+                              .toList();
+  }
 
   public long countManagingSpaceTemplates(String username) {
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
