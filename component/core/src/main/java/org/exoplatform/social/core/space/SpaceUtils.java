@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -618,12 +617,7 @@ public class SpaceUtils {
 
   public static List<Long> getTemplateIdsAllowingSubspaces() {
     SpaceTemplateService spaceTemplateService = CommonsUtils.getService(SpaceTemplateService.class);
-    return spaceTemplateService.getSpaceTemplates()
-                               .stream()
-                               .filter(spaceTemplate -> !spaceTemplate.isDeleted() && spaceTemplate.isEnabled()
-                                   && CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates()))
-                               .map(SpaceTemplate::getId)
-                               .toList();
+    return spaceTemplateService.getTemplateIdsAllowingSubspaces();
   }
 
   private static void clearIdentityCaching(String providerId, String remoteId) {
