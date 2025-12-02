@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.api.persistence.ExoTransactional;
@@ -133,7 +134,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
 
   @Override
   public ListAccess<Map.Entry<IdentityEntity, ConnectionEntity>> findAllIdentitiesWithConnections(long identityId, String sortField, String sortDirection) {
-    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null);
+    Query listQuery = getIdentitiesQuerySortedByField(OrganizationIdentityProvider.NAME, sortField, sortDirection, true, null, null, null, null);
 
     TypedQuery<ConnectionEntity> connectionsQuery = getEntityManager().createNamedQuery("SocConnection.findConnectionsByIdentityIds", ConnectionEntity.class);
 
@@ -167,21 +168,21 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
   }
 
   @Override
-  public List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus);
+  public List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds, long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds);
     return getResultsFromQuery(query, 0, offset, limit, String.class);
   }
 
   @Override
-  public List<Long> getIdentityIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, long offset, long limit) {
-    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus);
+  public List<Long> getIdentityIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected,String enrollmentStatus, List<String> remoteIds,long offset, long limit) {
+    Query query = getIdentitiesQuerySortedByField(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds);
     return getResultsFromQuery(query, 1, offset, limit, Long.class);
   }
 
   @Override
-  public int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus) {
+  public int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds) {
     boolean noEnrollmentPossible = enrollmentStatus != null && !enrollmentStatus.isEmpty() && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE);
-    Query query = getIdentitiesQueryCount(providerId, userType, isConnected, isEnabled, enrollmentStatus);
+    Query query = getIdentitiesQueryCount(providerId, userType, isConnected, isEnabled, enrollmentStatus, remoteIds);
     int totalCount = ((Number) query.getSingleResult()).intValue();
     if(noEnrollmentPossible) {
       Query externalQuery = getExternalIdentitiesQueryCount(providerId, isEnabled);
@@ -378,7 +379,7 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     }
   }
 
-  private Query getIdentitiesQueryCount(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus) {
+  private Query getIdentitiesQueryCount(String providerId, String userType, Boolean isConnected, boolean isEnabled, String enrollmentStatus, List<String> remoteIds) {
 
     boolean isUserTypeFilter = userType != null && ( userType.equals(INTERNAL) || userType.equals(EXTERNAL));
     boolean isEnrollmentStatusFilter = enrollmentStatus != null && !enrollmentStatus.isEmpty();
@@ -468,8 +469,15 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
     queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
     queryStringBuilder.append(" AND identity_1.enabled = ").append(isEnabled).append(" \n");
+    if (CollectionUtils.isNotEmpty(remoteIds)) {
+      queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
+    }
 
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
+    Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
+    if (CollectionUtils.isNotEmpty(remoteIds)){
+      query.setParameter("remoteIds", remoteIds);
+    }
+    return query;
   }
 
   private Query getExternalIdentitiesQueryCount(String providerId, boolean isEnabled) {
@@ -498,7 +506,8 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
                                                 boolean isEnabled,
                                                 String userType,
                                                 Boolean isConnected,
-                                                String enrollmentStatus) {
+                                                String enrollmentStatus,
+                                                List<String> remoteIds) {
     StringBuilder queryStringBuilder = null;
     boolean isUserTypeFilter = userType != null && ( userType.equals(INTERNAL) || userType.equals(EXTERNAL));
     boolean isEnrollmentStatusFilter = enrollmentStatus != null && !enrollmentStatus.isEmpty();
@@ -600,7 +609,9 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
     queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
     queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
     queryStringBuilder.append(" AND identity_1.enabled = ").append(isEnabled).append(" \n");
-
+    if (CollectionUtils.isNotEmpty(remoteIds)) {
+      queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
+    }
     if(isEnrollmentStatusFilter && enrollmentStatus.equals(NO_ENROLLMENT_POSSIBLE)) {
       queryStringBuilder.append(" \n");
       queryStringBuilder.append("UNION").append(" \n");
@@ -626,15 +637,20 @@ public class IdentityDAOImpl extends GenericDAOJPAImpl<IdentityEntity, Long> imp
       queryStringBuilder.append(" WHERE identity_1.provider_id = '").append(providerId).append("' \n");
       queryStringBuilder.append(" AND identity_1.deleted = FALSE \n");
       queryStringBuilder.append(" AND identity_1.enabled = ").append(isEnabled).append(" \n");
-
+      if (CollectionUtils.isNotEmpty(remoteIds)) {
+        queryStringBuilder.append(" AND identity_1.remote_id IN (:remoteIds) \n");
+      }
     }
 
     if (StringUtils.isNotBlank(sortField) && StringUtils.isNotBlank(sortDirection)) {
       queryStringBuilder.append(" ORDER BY prop_order_field " + sortDirection);
     }
 
-
-    return getEntityManager().createNativeQuery(queryStringBuilder.toString());
+    Query query = getEntityManager().createNativeQuery(queryStringBuilder.toString());
+    if (CollectionUtils.isNotEmpty(remoteIds)){
+      query.setParameter("remoteIds", remoteIds);
+    }
+    return query;
   }
 
   @SuppressWarnings("unchecked")
