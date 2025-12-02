@@ -215,9 +215,9 @@ public class CachedSpaceStorage extends SpaceStorage {
   }
 
   @Override
-  public Space saveSpace(final Space space, final boolean isNew, Long parentSpaceId) {
+  public Space saveSpace(final Space space, Long parentSpaceId, final boolean isNew) {
     try {
-      return super.saveSpace(space, isNew, parentSpaceId);
+      return super.saveSpace(space, parentSpaceId, isNew);
     } finally {
       spaceCache.remove(new SpaceKey(space.getSpaceId()));
       clearSpaceCache();
