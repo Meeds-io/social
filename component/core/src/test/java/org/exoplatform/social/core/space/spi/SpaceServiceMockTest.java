@@ -194,11 +194,11 @@ public class SpaceServiceMockTest {
       when(spaceTemplate.getSpaceDefaultVisibility()).thenReturn(SpaceVisibility.PUBLIC);
       mockedUtils.when(() -> SpaceUtils.createGroup(anyString(), anyString(), anyString())).thenReturn("/spaces/subspace");
       when(spaceTemplateService.getSpaceTemplate(subSpace.getTemplateId())).thenReturn(spaceTemplate);
-      when(spaceStorage.saveSpace(any(Space.class), anyBoolean(), anyLong())).thenReturn(subSpace);
+      when(spaceStorage.saveSpace(any(Space.class), anyLong(), anyBoolean())).thenReturn(subSpace);
       spaceService.createSpace(subSpace, userName, null, parentSpace.getSpaceId());
 
       verify(spaceTemplateService, times(1)).getSpaceTemplate(subSpace.getTemplateId());
-      verify(spaceStorage, times(1)).saveSpace(any(Space.class), anyBoolean(), anyLong());
+      verify(spaceStorage, times(1)).saveSpace(any(Space.class), anyLong(), anyBoolean());
     }
   }
 
