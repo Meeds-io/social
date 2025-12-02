@@ -434,7 +434,7 @@ public class SpaceStorage {
   }
 
   @ExoTransactional
-  public Space saveSpace(Space space, boolean isNew, Long parentSpaceId) throws SpaceStorageException {
+  public Space saveSpace(Space space, Long parentSpaceId, boolean isNew) throws SpaceStorageException {
     try {
       SpaceEntity entity = isNew ? new SpaceEntity() : spaceDAO.find(Long.parseLong(space.getId()));
       if (!isNew && entity == null) {
@@ -463,7 +463,7 @@ public class SpaceStorage {
 
   @ExoTransactional
   public Space saveSpace(Space space, boolean isNew) throws SpaceStorageException {
-    return saveSpace(space, isNew, space.getParentSpaceId());
+    return saveSpace(space, space.getParentSpaceId(), isNew);
   }
 
   @ExoTransactional
