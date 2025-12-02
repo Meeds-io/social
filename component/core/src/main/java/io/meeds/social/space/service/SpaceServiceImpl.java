@@ -431,7 +431,7 @@ public class SpaceServiceImpl implements SpaceService {
     spaceLifeCycle.setCurrentEvent(Type.SPACE_CREATED);
     Space createdSpace;
     try {
-      createdSpace = spaceStorage.saveSpace(spaceToCreate, true, parentSpaceId);
+      createdSpace = spaceStorage.saveSpace(spaceToCreate, parentSpaceId, true);
       space.setId(createdSpace.getId());
       spaceLifeCycle.spaceCreated(spaceToCreate, username);
     } catch (Exception e) {
