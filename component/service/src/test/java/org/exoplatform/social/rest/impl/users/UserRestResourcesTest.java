@@ -22,35 +22,7 @@ import io.meeds.social.core.identity.model.UserImportResult;
 import io.meeds.social.core.identity.service.UserExportService;
 import io.meeds.social.core.identity.service.UserImportService;
 import io.meeds.web.security.service.OtpService;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-
-import javax.imageio.ImageIO;
-import javax.ws.rs.core.MultivaluedMap;
-
 import org.apache.commons.lang3.StringUtils;
-import org.exoplatform.ws.frameworks.cometd.ContinuationService;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
