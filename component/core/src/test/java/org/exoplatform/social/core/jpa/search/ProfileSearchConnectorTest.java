@@ -125,88 +125,92 @@ public class ProfileSearchConnectorTest {
         filter.setProfileSettings(profileSettings);
         filter.setExcludedIdentityList(excludedIdentityList);
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"firstName.raw\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                buildAdvancedFilterQuery(filter) +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": false\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"external\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": [{\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }],\n" +
-                "                      \"must\": {\n" +
-                "                       \"term\": {\n" +
-                "                         \"external\": false\n" +
-                "                         }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      ,\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*te-s* OR email:*te-s* OR userName:*te-s*) AND ( name.whitespace:*t* OR email:*t* OR userName:*t*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"firstName.raw": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": false
+                              }
+                            },
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "external"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": [{
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }],
+                                "must": {
+                                 "term": {
+                                   "external": false
+                                   }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*te-s* OR email:*te-s* OR userName:*te-s*) AND ( name.whitespace:*t* OR email:*t* OR userName:*t*)"
+                    }
+                }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         long offset = 0;
         long limit = 10;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
@@ -242,88 +246,173 @@ public class ProfileSearchConnectorTest {
         filter.setExcludedIdentityList(excludedIdentityList);
         filter.setRemoteIds(Collections.singletonList("test"));
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"lastUpdatedDate\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                buildAdvancedFilterQuery(filter) +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      \"must\" : {\n" +
-                "        \"terms\" :{\n" +
-                "          \"userName\" : [\"test\"]\n" +
-                "        } \n" +
-                "      },\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*\\\"te-s*) AND ( name.whitespace:*t\\\"*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
         COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
         long offset = 0;
         long limit = 10;
         List<String>  result = profileSearchConnector.search(null, filter, null, offset, limit);
+        Assert.assertEquals(1, result.size());
+
+        //when
+        filter.setEnrollmentStatus("enrolled");
+        query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+          """;
+        when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
+        result = profileSearchConnector.search(null, filter, null, offset, limit);
         Assert.assertEquals(1, result.size());
     }
 
@@ -356,87 +445,94 @@ public class ProfileSearchConnectorTest {
         filter.setExcludedIdentityList(excludedIdentityList);
         filter.setRemoteIds(Collections.singletonList("test"));
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"lastUpdatedDate\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      \"must\" : {\n" +
-                "        \"terms\" :{\n" +
-                "          \"userName\" : [\"test\"]\n" +
-                "        } \n" +
-                "      },\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*\\\"te-s*) AND ( name.whitespace:*t\\\"*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                ",  {\n" +
-                "    \"match_phrase\": {\n" +
-                "      \"testProperty\": \"valueProperty\"\n" +
-                "    }\n" +
-                " }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+          ,  {
+              "match_phrase": {
+                "testProperty": "valueProperty"
+              }
+           }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
         COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
         long offset = 0;
@@ -473,87 +569,94 @@ public class ProfileSearchConnectorTest {
         filter.setExcludedIdentityList(excludedIdentityList);
         filter.setRemoteIds(Collections.singletonList("test"));
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"lastUpdatedDate\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      \"must\" : {\n" +
-                "        \"terms\" :{\n" +
-                "          \"userName\" : [\"test\"]\n" +
-                "        } \n" +
-                "      },\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*\\\"te-s*) AND ( name.whitespace:*t\\\"*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                ",  {\n" +
-                "    \"query_string\": {\n" +
-                "      \"query\": \" testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*\"\n" +
-                "    }\n" +
-                " }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+          ,  {
+              "query_string": {
+                "query": " testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*"
+              }
+           }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
         COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
         long offset = 0;
@@ -591,87 +694,94 @@ public class ProfileSearchConnectorTest {
         filter.setExcludedIdentityList(excludedIdentityList);
         filter.setRemoteIds(Collections.singletonList("test"));
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"lastUpdatedDate\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      \"must\" : {\n" +
-                "        \"terms\" :{\n" +
-                "          \"userName\" : [\"test\"]\n" +
-                "        } \n" +
-                "      },\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*\\\"te-s*) AND ( name.whitespace:*t\\\"*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                ",  {\n" +
-                "    \"query_string\": {\n" +
-                "      \"query\": \" testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*\"\n" +
-                "    }\n" +
-                " }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+          ,  {
+              "query_string": {
+                "query": " testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*"
+              }
+           }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
         COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);
         long offset = 0;
@@ -705,83 +815,89 @@ public class ProfileSearchConnectorTest {
         filter.setExcludedIdentityList(excludedIdentityList);
         filter.setRemoteIds(Collections.singletonList("test"));
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 1,\n" +
-                "   \"sort\": {\"lastUpdatedDate\": {\"order\": \"DESC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                buildAdvancedFilterQuery(filter) +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "    \"should\": [\n" +
-                "                  {\n" +
-                "                    \"bool\": {\n" +
-                "                      \"must_not\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"enrollmentDate\"\n" +
-                "                          }\n" +
-                "                        },\n" +
-                "                      \"must\": {\n" +
-                "                        \"exists\": {\n" +
-                "                          \"field\": \"lastLoginTime\"\n" +
-                "                        }\n" +
-                "                      }\n" +
-                "                    }\n" +
-                "                  },\n" +
-                "                  {\n" +
-                "                    \"term\": {\n" +
-                "                      \"external\": true\n" +
-                "                    }\n" +
-                "                  }\n" +
-                "                  ]\n" +
-                "                  ,\"minimum_should_match\" : 1\n" +
-                "      \"must\" : {\n" +
-                "        \"terms\" :{\n" +
-                "          \"userName\" : [\"test\"]\n" +
-                "        } \n" +
-                "      },\n" +
-                "      \"must_not\": [\n" +
-                "        {\n" +
-                "          \"ids\" : {\n" +
-                "             \"values\" : [\"null\",\"null\"]\n" +
-                "          }\n" +
-                "        }\n" +
-                "      ]\n" +
-                "      ,\n" +
-                "    \"filter\": [\n" +
-                "      {          \"query_string\": {\n" +
-                "            \"query\": \"( name.whitespace:*\\\"te-s*) AND ( name.whitespace:*t\\\"*)\"\n" +
-                "          }\n" +
-                "      }\n" +
-                "    ]\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 1,
+             "sort": {"lastUpdatedDate": {"order": "DESC"}}
+                 ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+              "should": [
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,
+          "minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+              "should": [
+                            {
+                              "bool": {
+                                "must_not": {
+                                  "exists": {
+                                    "field": "enrollmentDate"
+                                    }
+                                  },
+                                "must": {
+                                  "exists": {
+                                    "field": "lastLoginTime"
+                                  }
+                                }
+                              }
+                            },
+                            {
+                              "term": {
+                                "external": true
+                              }
+                            }
+                            ]
+                            ,"minimum_should_match" : 1
+                ,
+                "must" : {
+                  "terms" :{
+                    "userName" : ["test"]
+                  }\s
+                }
+                ,
+                "must_not": [
+                  {
+                    "ids" : {
+                       "values" : ["null","null"]
+                    }
+                  }
+                ]
+                ,
+              "filter": [
+                {          "query_string": {
+                      "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
+                    }
+                }
+              ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+                """;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
 
 
@@ -803,76 +919,81 @@ public class ProfileSearchConnectorTest {
       filter.setSpaceIdentityIds(Arrays.asList("5"));
       filter.setEnrollmentStatus("noEnrollmentPossible");
       String index = "profile_alias";
-      String expectedQuery = "{\n" +
-              "   \"from\" : 0, \"size\" : 10,\n" +
-              "   \"sort\": {\"lastName.raw\": {\"order\": \"ASC\"}}\n" +
-              "       ,\n" +
-              "\"query\" : {\n" +
-              "      \"constant_score\" : {\n" +
-              "        \"filter\" : {\n" +
-              "          \"bool\" :{\n" +
-              "    \"must\": [\n" +
-              "      {\n" +
-              "        \"terms\": {\n" +
-              "          \"permissions\": [\n" +
-              "5\n" +
-              "          ]\n" +
-              "        }\n" +
-              "      }\n" +
-              "    ],\n" +
-              "    \"should\": [\n" +
-              "                  {\n" +
-              "                    \"term\": {\n" +
-              "                      \"external\": false\n" +
-              "                    }\n" +
-              "                  },\n" +
-              "                  {\n" +
-              "                    \"bool\": {\n" +
-              "                      \"must_not\": {\n" +
-              "                        \"exists\": {\n" +
-              "                          \"field\": \"external\"\n" +
-              "                        }\n" +
-              "                      }\n" +
-              "                    }\n" +
-              "                  }\n" +
-              "                  ]\n" +
-              "                  ,\"minimum_should_match\" : 1\n" +
-              "    \"should\": [\n" +
-              "                  {\n" +
-              "                    \"bool\": {\n" +
-              "                      \"must_not\": {\n" +
-              "                        \"exists\": {\n" +
-              "                          \"field\": \"enrollmentDate\"\n" +
-              "                          }\n" +
-              "                        },\n" +
-              "                      \"must\": {\n" +
-              "                        \"exists\": {\n" +
-              "                          \"field\": \"lastLoginTime\"\n" +
-              "                        }\n" +
-              "                      }\n" +
-              "                    }\n" +
-              "                  },\n" +
-              "                  {\n" +
-              "                    \"term\": {\n" +
-              "                      \"external\": true\n" +
-              "                    }\n" +
-              "                  }\n" +
-              "                  ]\n" +
-              "                  ,\"minimum_should_match\" : 1\n" +
-              "      ,\n" +
-              "    \"filter\": [\n" +
-              "      {          \"query_string\": {\n" +
-              "            \"query\": \"name.whitespace:*\\\"aaa\\\"*\"\n" +
-              "          }\n" +
-              "      }\n" +
-              "    ]\n" +
-              "     } \n" +
-              "   } \n" +
-              "  }\n" +
-              " }\n" +
-              ",\"_source\": false\n" +
-              ",\"fields\": [\"_id\"]\n" +
-              "}\n";
+      String expectedQuery = """
+        {
+           "from" : 0, "size" : 10,
+           "sort": {"lastName.raw": {"order": "ASC"}}
+               ,
+        "query" : {
+              "constant_score" : {
+                "filter" : {
+                  "bool" :{
+            "must": [
+              {
+                "terms": {
+                  "permissions": [
+        5
+                  ]
+                }
+              }
+            ]
+              ,
+            "should": [
+                          {
+                            "term": {
+                              "external": false
+                            }
+                          },
+                          {
+                            "bool": {
+                              "must_not": {
+                                "exists": {
+                                  "field": "external"
+                                }
+                              }
+                            }
+                          }
+                          ]
+                          ,
+        "minimum_should_match" : 1
+              ,
+            "should": [
+                          {
+                            "bool": {
+                              "must_not": {
+                                "exists": {
+                                  "field": "enrollmentDate"
+                                  }
+                                },
+                              "must": {
+                                "exists": {
+                                  "field": "lastLoginTime"
+                                }
+                              }
+                            }
+                          },
+                          {
+                            "term": {
+                              "external": true
+                            }
+                          }
+                          ]
+                          ,"minimum_should_match" : 1
+              ,
+            "filter": [
+              {          "query_string": {
+                    "query": "name.whitespace:*\\"aaa\\"*"
+                  }
+              }
+            ]
+             }\s
+           }\s
+          }
+         }
+        ,"_source": false
+        ,"fields": ["_id"]
+        }
+              """;
       when(elasticSearchClient.sendRequest(expectedQuery,
                                            index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"aaa\"]},\"sort\":[\"aaa\"]}]}}");
       COMMONS_UTILS.when(() -> CommonsUtils.getService(Mockito.any())).thenReturn(identityManager);

@@ -183,6 +183,9 @@ public class ProfileSearchConnector {
       appendCommar = true;
     }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
       if (filter.getUserType().equals("internal")) {
         esSubQuery.append("    \"should\": [\n");
         esSubQuery.append("                  {\n");
@@ -213,10 +216,16 @@ public class ProfileSearchConnector {
         subQueryEmpty = false;
         appendCommar = true;
       }
-      esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
+      if(appendCommar) {
+        esSubQuery.append("                  ,\n");
+      }
+      esSubQuery.append("\"minimum_should_match\" : 1\n");
 
     }
     if (filter.isConnected() != null) {
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
       esSubQuery.append("    \"should\": [\n");
       esSubQuery.append("                  {\n");
       esSubQuery.append("                    \"bool\": {\n");
@@ -237,6 +246,9 @@ public class ProfileSearchConnector {
       appendCommar = true;
     }
     if(filter.getEnrollmentStatus() != null && !filter.getEnrollmentStatus().isEmpty()) {
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
       switch (filter.getEnrollmentStatus()) {
         case "enrolled": {
           esSubQuery.append("    \"should\": [\n");
@@ -325,13 +337,16 @@ public class ProfileSearchConnector {
         }
         remoteIds.append("\"").append(remoteId).append("\"");
       }
+      if(appendCommar) {
+        esSubQuery.append("      ,\n");
+      }
       esSubQuery.append("      \"must\" : {\n");
       esSubQuery.append("        \"terms\" :{\n");
       esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
       esSubQuery.append("        } \n");
-      esSubQuery.append("      },\n");
+      esSubQuery.append("      }\n");
       subQueryEmpty = false;
-      appendCommar = false;
+      appendCommar = true;
     }
     if (identity != null && type != null) {
       if(appendCommar) {
@@ -586,7 +601,7 @@ public class ProfileSearchConnector {
     query.append("          ]\n");
     query.append("        }\n");
     query.append("      }\n");
-    query.append("    ],\n");
+    query.append("    ]\n");
     return query.toString();
   }
 }

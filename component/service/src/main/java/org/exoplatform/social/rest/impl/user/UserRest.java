@@ -67,6 +67,7 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.services.organization.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.picocontainer.Startable;
@@ -85,13 +86,7 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.rest.UserFieldValidator;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.Query;
-import org.exoplatform.services.organization.User;
-import org.exoplatform.services.organization.UserHandler;
-import org.exoplatform.services.organization.UserStatus;
 import org.exoplatform.services.organization.idm.UserImpl;
-import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.http.PATCH;
 import org.exoplatform.services.rest.resource.ResourceContainer;
@@ -234,8 +229,6 @@ public class UserRest implements ResourceContainer, Startable {
 
   private SpaceService                    spaceService;
 
-  private UserSearchService               userSearchService;
-
   private ImageThumbnailService           imageThumbnailService;
 
   private ProfilePropertyService          profilePropertyService;
@@ -265,7 +258,6 @@ public class UserRest implements ResourceContainer, Startable {
                   UserStateService userStateService,
                   SpaceService spaceService,
                   UploadService uploadService,
-                  UserSearchService userSearchService,
                   UserExportService userExportService,
                   UserImportService userImportService,
                   ImageThumbnailService imageThumbnailService,
@@ -281,7 +273,6 @@ public class UserRest implements ResourceContainer, Startable {
     this.userStateService = userStateService;
     this.spaceService = spaceService;
     this.uploadService = uploadService;
-    this.userSearchService = userSearchService;
     this.userExportService = userExportService;
     this.userImportService = userImportService;
     this.imageThumbnailService = imageThumbnailService;
@@ -397,6 +388,14 @@ public class UserRest implements ResourceContainer, Startable {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
+    if (isDisabled && StringUtils.isNotBlank(q)) {
+        Map<String, String> error = Map.of("error", "Unsupported operation: Can't search for disabled users!");
+        return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(error)
+                        .type(MediaType.APPLICATION_JSON)
+                        .build();
+    }
+
     if (StringUtils.isNotBlank(exportId) && download) {
       try {
         InputStream inputStream = userExportService.downloadUsersExport(exportId, username);
@@ -487,68 +486,20 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
       filter.setEnrollmentStatus(enrollmentStatus);
       if (!RestUtils.isMemberOfAdminGroup()
-          && RestUtils.isMemberOfDelegatedGroup()
-          && userType != null
-          && !userType.equals(INTERNAL)) {
-        Query query = new Query();
-        if (q != null && !q.isEmpty()) {
-          query.setUserName(q);
-        }
-        List<String> groupIds = ConversationState.getCurrent()
-                                                 .getIdentity()
-                                                 .getMemberships()
-                                                 .stream()
-                                                 .filter(m -> StringUtils.equals("manager", m.getMembershipType()) || StringUtils.equals("*", m.getMembershipType()))
-                                                 .map(MembershipEntry::getGroup)
-                                                 .toList();
-
-        ListAccess<User> usersListAccess = null;
-        if (CollectionUtils.isNotEmpty(groupIds)) {
-          usersListAccess = organizationService.getUserHandler()
-                                               .findUsersByQuery(query,
-                                                                 groupIds,
-                                                                 isDisabled ? UserStatus.DISABLED : UserStatus.ENABLED);
-        }
-
-        totalSize = usersListAccess == null ? 0 : usersListAccess.getSize();
-        int limitToFetch = limit;
-        if (totalSize < (offset + limitToFetch)) {
-          limitToFetch = totalSize - offset;
-        }
-
-        User[] users;
-        if (limitToFetch <= 0 || usersListAccess == null) {
-          users = new User[0];
-        } else {
-          users = usersListAccess.load(offset, limitToFetch);
-        }
-
-        identities = Arrays.stream(users)
-                           .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
-                           .toArray(Identity[]::new);
-      } else if (isDisabled && q != null && !q.isEmpty()) {
-        ListAccess<User> usersListAccess = userSearchService.searchUsers(q, UserStatus.DISABLED);
-        totalSize = usersListAccess.getSize();
-        int limitToFetch = limit;
-        if (totalSize < (offset + limitToFetch)) {
-          limitToFetch = totalSize - offset;
-        }
-
-        User[] users;
-        if (limitToFetch <= 0) {
-          users = new User[0];
-        } else {
-          users = usersListAccess.load(offset, limitToFetch);
-        }
-        identities = Arrays.stream(users)
-                           .map(user -> identityManager.getOrCreateUserIdentity(user.getUserName()))
-                           .toArray(Identity[]::new);
-      } else {
-        ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
-        identities = list.load(offset, limit);
-        if (returnSize) {
+            && RestUtils.isMemberOfDelegatedGroup()) {
+          List<String> groupIds = ConversationState.getCurrent()
+                  .getIdentity()
+                  .getMemberships()
+                  .stream()
+                  .filter(m -> StringUtils.equals("manager", m.getMembershipType()) || StringUtils.equals("*", m.getMembershipType()))
+                  .map(MembershipEntry::getGroup)
+                  .toList();
+          filter.setGroupIds(groupIds);
+      }
+      ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
+      identities = list.load(offset, limit);
+      if (returnSize) {
           totalSize = list.getSize();
-        }
       }
     }
     List<DataEntity> profileInfos = new ArrayList<>();

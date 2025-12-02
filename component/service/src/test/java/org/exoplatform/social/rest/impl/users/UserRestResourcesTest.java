@@ -18,10 +18,10 @@
  */
 package org.exoplatform.social.rest.impl.users;
 
-import static org.junit.Assert.assertNotEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
+import io.meeds.social.core.identity.model.UserImportResult;
+import io.meeds.social.core.identity.service.UserExportService;
+import io.meeds.social.core.identity.service.UserImportService;
+import io.meeds.web.security.service.OtpService;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
@@ -52,7 +52,6 @@ import org.exoplatform.ws.frameworks.cometd.ContinuationService;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.mortbay.cometd.continuation.EXoContinuationBayeux;
-
 import org.exoplatform.commons.api.settings.SettingService;
 import org.exoplatform.commons.utils.IOUtil;
 import org.exoplatform.commons.utils.ListAccess;
@@ -60,10 +59,10 @@ import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.cache.CacheService;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.UserStatus;
-import org.exoplatform.services.organization.search.UserSearchService;
 import org.exoplatform.services.resources.LocaleConfigService;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.services.rest.impl.MultivaluedMapImpl;
+import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.services.thumbnail.ImageThumbnailService;
 import org.exoplatform.services.user.UserStateService;
 import org.exoplatform.social.core.identity.model.Identity;
@@ -91,11 +90,24 @@ import org.exoplatform.social.service.test.AbstractResourceTest;
 import org.exoplatform.upload.UploadResource;
 import org.exoplatform.upload.UploadService;
 import org.exoplatform.web.login.recovery.PasswordRecoveryService;
+import org.exoplatform.ws.frameworks.cometd.ContinuationService;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import io.meeds.social.core.identity.model.UserImportResult;
-import io.meeds.social.core.identity.service.UserExportService;
-import io.meeds.social.core.identity.service.UserImportService;
-import io.meeds.web.security.service.OtpService;
+import javax.imageio.ImageIO;
+import javax.ws.rs.core.MultivaluedMap;
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class UserRestResourcesTest extends AbstractResourceTest {
 
@@ -120,8 +132,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
   private UserStateService             userStateService;
 
   private MockUploadService            uploadService;
-
-  private UserSearchService            userSearchService;
 
   private UserExportService            userExportService;
 
@@ -165,7 +175,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                             settingsService);
     uploadService = (MockUploadService) getContainer().getComponentInstanceOfType(UploadService.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
-    userSearchService = getContainer().getComponentInstanceOfType(UserSearchService.class);
     userExportService = mock(UserExportService.class);
     userImportService = new UserImportService();
     userImportService.setIdentityManager(identityManager);
@@ -196,7 +205,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                                 userStateService,
                                                 spaceService,
                                                 uploadService,
-                                                userSearchService,
                                                 userExportService,
                                                 userImportService,
                                                 imageThumbnailService,
@@ -231,27 +239,27 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     // when
     ContainerResponse response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
     // then
-    assertEquals(200, response.getStatus());
-    CollectionEntity collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getEntities().size());
+    assertEquals(400, response.getStatus());
+    Map<String, String> error = (Map<String, String>) response.getEntity();
+    assertEquals("Unsupported operation: Can't search for disabled users!", error.get("error"));
 
     // when
     organizationService.getUserHandler().setEnabled("mary", false, false);
     response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
 
     // then
-    assertEquals(200, response.getStatus());
-    collections = (CollectionEntity) response.getEntity();
-    assertEquals(1, collections.getEntities().size());
+    assertEquals(400, response.getStatus());
+    error = (Map<String, String>) response.getEntity();
+    assertEquals("Unsupported operation: Can't search for disabled users!", error.get("error"));
 
     // then
     organizationService.getUserHandler().setEnabled("mary", true, false);
     response = service("GET", getURLResource("users?q=mar&isDisabled=true&limit=5&offset=0"), "", null, null);
 
     // then
-    assertEquals(200, response.getStatus());
-    collections = (CollectionEntity) response.getEntity();
-    assertEquals(0, collections.getEntities().size());
+    assertEquals(400, response.getStatus());
+    error = (Map<String, String>) response.getEntity();
+    assertEquals("Unsupported operation: Can't search for disabled users!", error.get("error"));
 
     // test when isDisabled false
     removeResource(UserRest.class);
@@ -279,7 +287,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
                                               userStateService,
                                               spaceService,
                                               uploadService,
-                                              userSearchService,
                                               userExportService,
                                               userImportService,
                                               imageThumbnailService,
@@ -295,7 +302,7 @@ public class UserRestResourcesTest extends AbstractResourceTest {
 
     // then
     assertEquals(200, response.getStatus());
-    collections = (CollectionEntity) response.getEntity();
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
     assertEquals(1, collections.getEntities().size());
 
     // when
@@ -1524,5 +1531,17 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(1, ((List<DataEntity>) dataEntity.get("managers")).size());
     assertEquals(0, (int) dataEntity.get("managedUsersCount"));
     endSession();
+  }
+
+  public void testGetUsersByDelegatedAdmin() throws Exception {
+
+    startSessionAs("john", new HashSet<MembershipEntry>(Arrays.asList(new MembershipEntry("/platform/delegated", "member"), new MembershipEntry("/platform/users", "manager"), new MembershipEntry("/platform/users", "member"))));
+    getSpaceInstance(700, "john");
+
+    ContainerResponse response = service("GET", getURLResource("users?limit=5&offset=0"), "", null, null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    CollectionEntity collections = (CollectionEntity) response.getEntity();
+    assertEquals(4, collections.getEntities().size());
   }
 }
