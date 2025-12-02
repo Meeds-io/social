@@ -35,6 +35,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.search.domain.Document;
 import org.exoplatform.commons.search.index.impl.ElasticIndexingServiceConnector;
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
@@ -49,6 +50,7 @@ import org.exoplatform.social.core.profileproperty.ProfilePropertyService;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertyOption;
 import org.exoplatform.social.core.profileproperty.model.ProfilePropertySetting;
 import org.exoplatform.social.core.relationship.model.Relationship;
+import org.exoplatform.social.core.space.SpaceUtils;
 
 public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConnector {
 
@@ -366,24 +368,7 @@ public class ProfileIndexingServiceConnector extends ElasticIndexingServiceConne
   }
 
   private Set<String> getGroupIdentityIds(Identity ownerIdentity) {
-    Set<String> groups = userACL.getUserIdentity(ownerIdentity.getRemoteId()).getGroups();
-    Set<String> groupIdentityIds = new HashSet<>();
-
-    for (String groupId : groups) {
-      if (groupId.startsWith("/spaces/")) {
-        String spacePrettyName = groupId.substring("/spaces/".length());
-        Identity identity = identityManager.getOrCreateSpaceIdentity(spacePrettyName);
-        if (identity != null) {
-          groupIdentityIds.add(identity.getId());
-        }
-      } else {
-        Identity identity = identityManager.getOrCreateGroupIdentity(groupId);
-        if (identity != null) {
-          groupIdentityIds.add(identity.getId());
-        }
-      }
-    }
-
-    return groupIdentityIds;
+    SpaceUtils spaceUtils = ExoContainerContext.getService(SpaceUtils.class);
+    return spaceUtils.getUserPermissionsIdentityIds(ownerIdentity);
   }
 }
