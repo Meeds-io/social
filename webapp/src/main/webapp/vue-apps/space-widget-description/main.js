@@ -34,16 +34,18 @@ if (extensionRegistry) {
 const appId = 'SpaceDescriptionApplication';
 const url = `/social/i18n/locale.portlet.social.SpaceInfosPortlet?lang=${lang}`;
 
-export async function init(spaceId, isManager, publicSiteName, spaceDescription) {
+export async function init(spaceId, isManager, publicSiteName, spaceDescription, spaceDisplayName) {
   if (!isManager && (!spaceDescription.length || !Vue.prototype.$utils.htmlToText(spaceDescription).length)) {
     Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
     return;
   }
+  Vue.prototype?.$utils?.includeExtensions('SpaceDescriptionExtension');
   const i18n = await exoi18n.loadLanguageAsync(lang, url);
   Vue.createApp({
     data: {
       spaceId,
       spaceDescription,
+      spaceDisplayName,
       publicSiteName,
       isManager,
     },

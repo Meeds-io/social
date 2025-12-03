@@ -22,29 +22,45 @@
   <v-app>
     <v-hover v-model="hover">
       <widget-wrapper
-        :title="!emptyDescription && $t('social.space.description.title')"
+        :title="emptyDescription ? ' ' : $t('social.space.description.title')"
         extra-class="application-body">
-        <template v-if="$root.isManager && !emptyDescription" #action>
-          <v-btn
-            v-show="hover"
-            :title="$t('social.space.description.editTooltip')"
-            :href="administrationUrl"
-            height="27"
-            width="27"
-            min-width="auto"
-            class="pa-0"
-            icon
-            text
-            small>
-            <v-icon
-              size="18"
-              color="primary">
-              fa-external-link-alt
-            </v-icon>
-          </v-btn>
+        <template #action>
+          <v-card
+            min-height="32"
+            class="d-flex align-center"
+            color="transparent"
+            flat>
+            <v-btn
+              v-if="$root.isManager && !emptyDescription"
+              v-show="hover"
+              :title="$t('social.space.description.editTooltip')"
+              :href="administrationUrl"
+              height="27"
+              width="27"
+              min-width="auto"
+              class="pa-0"
+              icon
+              text
+              small>
+              <v-icon
+                size="18"
+                color="primary">
+                fa-external-link-alt
+              </v-icon>
+            </v-btn>
+            <extension-registry-components
+              :params="{
+                spaceId: $root.spaceId,
+                displayName: $root.spaceDisplayName,
+              }"
+              name="SpaceDescription"
+              type="space-description-menu"
+              parent-element="div"
+              element="div" />
+          </v-card>
         </template>
         <template #default>
-          <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center my-12">
+          <div v-if="emptyDescription" class="d-flex flex-column align-center justify-center mb-12">
             <v-icon size="54" color="tertiary">fa-align-left</v-icon>
             <div class="my-2">{{ $t('social.space.description.noDescription') }}</div>
             <v-btn

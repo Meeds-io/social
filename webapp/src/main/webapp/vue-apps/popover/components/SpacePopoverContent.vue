@@ -50,6 +50,14 @@
       </v-list-item-content>
     </v-list-item>
     <div class="d-flex justify-end">
+      <extension-registry-components
+        :params="params"
+        class="d-flex"
+        name="SpacePopover"
+        type="space-popover-action"
+        parent-element="div"
+        element="div"
+        element-class="mx-auto ma-lg-0" />
       <space-mute-notification-button
         :space-id="spaceId"
         :muted="isSpaceMuted"
@@ -59,14 +67,6 @@
         :key="space.id"
         :is-favorite="space.isFavorite"
         :space-id="space.id" />
-      <extension-registry-components
-        :params="params"
-        class="d-flex"
-        name="SpacePopover"
-        type="space-popover-action"
-        parent-element="div"
-        element="div"
-        element-class="mx-auto ma-lg-0" />
       <div
         v-for="extension in enabledExtensionComponents"
         :key="extension.key"
@@ -98,6 +98,9 @@ export default {
     spacePrettyName() {
       return this.space?.prettyName;
     },
+    spaceDisplayName() {
+      return this.space?.displayName;
+    },
     spaceMembersCount() {
       return this.space?.membersCount || this.retrievedSpace?.membersCount;
     },
@@ -118,6 +121,7 @@ export default {
         identityType: 'space',
         identityId: this.spaceId,
         spacePrettyName: this.spacePrettyName,
+        displayName: this.spaceDisplayName,
         canRedactOnSpace: this.canRedactOnSpace,
       };
     },

@@ -4,7 +4,7 @@ import UserPopoverContent from './components/UserPopoverContent.vue';
 import SpacePopoverContent from './components/SpacePopoverContent.vue';
 import SpaceMuteNotificationButton from './components/SpaceMuteNotificationButton.vue';
 import UsersListDrawer from './components/UsersListDrawer.vue';
-import SpaceFavoriteAction from '../spaces-list/components/common/SpaceFavoriteAction.vue';
+import SpaceFavoriteAction from '../spaces-list-components/components/common/SpaceFavoriteAction.vue';
 
 const components = {
   'popover': Popover,
