@@ -15,6 +15,7 @@
   String activityId = rcontext.getRequest().getParameter("id");
   String username = request.getRemoteUser();
   String description = space == null || space.getDescription() == null ? "" : space.getDescription();
+  String displayName = space == null ? "" : space.getDisplayName();
   String id = space == null ? "0" : space.getId();
   boolean canEdit = spaceService.canManageSpace(space, username);
   String publicSiteName = "";
@@ -28,8 +29,9 @@
     class="v-application v-application--is-ltr theme--light"
     id="SpaceDescriptionApplication">
     <textarea id="spaceDescriptionContent" class="d-none"><%=URLEncoder.encode(description.replace(" ", "._.")).replace("._.", " ")%></textarea>
+    <textarea id="spaceDisplayNameContent" class="d-none"><%=URLEncoder.encode(displayName.replace(" ", "._.")).replace("._.", " ")%></textarea>
     <script type="text/javascript">
-      require(['PORTLET/social/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, '<%=publicSiteName%>', decodeURIComponent(document.getElementById('spaceDescriptionContent').value)));
+      require(['PORTLET/social/SpaceWidgetDescription'], app => app.init(<%=id%>, <%=canEdit%>, '<%=publicSiteName%>', decodeURIComponent(document.getElementById('spaceDescriptionContent').value), decodeURIComponent(document.getElementById('spaceDisplayNameContent').value)));
     </script>
   </div>
 </div>

@@ -589,6 +589,7 @@
   <portlet>
     <name>SpaceWidgetDescription</name>
     <module>
+      <load-group>SpaceDescriptionGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/spaceWidgetDescription.bundle.js</path>
@@ -2401,6 +2402,7 @@
 
   <module>
     <name>spacesListComponents</name>
+    <load-group>SpaceListGRP</load-group>
     <script>
       <minify>false</minify>
       <path>/js/spacesListComponents.bundle.js</path>

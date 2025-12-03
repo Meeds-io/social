@@ -2,11 +2,10 @@ import TopBarLogo from './components/TopBarLogo.vue';
 import CompanyName from './components/CompanyName.vue';
 import SiteName from './components/SiteName.vue';
 
-import SpaceFavoriteAction from '../spaces-list/components/common/SpaceFavoriteAction.vue';
+import SpaceFavoriteAction from '../spaces-list-components/components/common/SpaceFavoriteAction.vue';
 import SpaceLogoBanner from './components/space/SpaceLogoBanner.vue';
 import SpacePopoverActionComponents from './components/space/SpacePopoverActionComponents.vue';
 import SpaceHostsDrawer from './components/space/SpaceHostsDrawer.vue';
-
 
 const components = {
   'top-bar-logo': TopBarLogo,

@@ -80,6 +80,15 @@
           label="spacesList.button.copyLink"
           icon="fa-link"
           @click="copyLink" />
+        <extension-registry-components
+          :params="{
+            space,
+            isMobile: $root.isMobile,
+          }"
+          name="SpaceListDotsMenu"
+          type="space-list-menu"
+          parent-element="div"
+          element="div" />
         <space-card-menu-item
           v-if="space.isMember && !space.isUserBound"
           label="spacesList.button.leave"
