@@ -36,7 +36,7 @@ let config = {
     topBarNotification: './src/main/webapp/vue-apps/notification-top-bar/main.js',
     gettingStarted: './src/main/webapp/vue-apps/getting-started/main.js',
     externalSpacesList: './src/main/webapp/vue-apps/external-spaces-list/main.js',
-    spacesListComponents: './src/main/webapp/vue-apps/spaces-list/initComponents.js',
+    spacesListComponents: './src/main/webapp/vue-apps/spaces-list-components/main.js',
     spacesList: './src/main/webapp/vue-apps/spaces-list/main.js',
     spacesOverview: './src/main/webapp/vue-apps/spaces-overview/main.js',
     spaceTemplateManagement: './src/main/webapp/vue-apps/space-templates-management/main.js',
