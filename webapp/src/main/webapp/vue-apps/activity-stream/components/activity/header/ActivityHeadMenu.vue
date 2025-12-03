@@ -46,7 +46,20 @@
                   min-height="24"
                   min-width="20"
                   flat>
-                  <v-icon size="16" class="icon-default-color">{{ $t(action.icon) }}</v-icon>
+                  <v-img
+                    v-if="action.icon?.includes?.('base64') || action.icon?.includes?.('/')"
+                    :src="action.icon"
+                    max-height="16"
+                    height="16"
+                    max-width="16"
+                    contain
+                    eager />
+                  <v-icon
+                    v-else
+                    size="16"
+                    class="icon-default-color">
+                    {{ $t(action.icon) }}
+                  </v-icon>
                 </v-card>
               </v-list-item-icon>
               <v-list-item-content class="ms-2">
@@ -76,7 +89,20 @@
                   min-height="24"
                   min-width="20"
                   flat>
-                  <v-icon size="16" class="icon-default-color">{{ $t(act.icon) }}</v-icon>
+                  <v-img
+                    v-if="act.icon?.includes?.('base64') || act.icon?.includes?.('/')"
+                    :src="act.icon"
+                    max-height="16"
+                    height="16"
+                    max-width="16"
+                    contain
+                    eager />
+                  <v-icon
+                    v-else
+                    size="16"
+                    class="icon-default-color">
+                    {{ $t(act.icon) }}
+                  </v-icon>
                 </v-card>
               </v-list-item-icon>
               <v-list-item-content class="mx-2">
