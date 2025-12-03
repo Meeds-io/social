@@ -1414,7 +1414,7 @@ public class SpaceServiceImpl implements SpaceService {
       return;
     }
     Space parentSpace = getSpaceById(parentSpaceId);
-    if (!isMember(parentSpace, username)) {
+    if (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username)) {
       throw new SpaceException(Code.SPACE_PERMISSION,
                                String.format("User %s isn't allowed to create subspace under parent space with id %s",
                                              username,
@@ -1476,7 +1476,7 @@ public class SpaceServiceImpl implements SpaceService {
 
     int countForTemplate = existingSubspacesAccessByTemplateId.getSize();
 
-    if (countForTemplate >= templateMaxLimit) {
+    if (templateMaxLimit != 0 && templateMaxLimit <= countForTemplate) {
       throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
                                String.format("Cannot create more subspaces of template '%s' (max %d reached under '%s')",
                                              templateId,
