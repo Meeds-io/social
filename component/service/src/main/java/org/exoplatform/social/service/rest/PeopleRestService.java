@@ -181,10 +181,10 @@ public class PeopleRestService implements ResourceContainer{
       result = listAccess.load(0, (int)SUGGEST_LIMIT);
       nameList.addToNameList(request.getLocale(), result);
     } else if (SPACE_MEMBER.equals(typeOfRelation)
-        || (USER_TO_INVITE.equals(typeOfRelation) && currentSpace != null && currentSpace.getParentSpaceId() > 0)) { // Use in
-                                                                                                                     // search
-                                                                                                                     // space
-                                                                                                                     // member
+        || (USER_TO_INVITE.equals(typeOfRelation) && isSubSpace(currentSpace))) { // Use in
+                                                                                  // search
+                                                                                  // space
+                                                                                  // member
       List<Identity> identities =
                                 Arrays.asList(getIdentityManager().getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME,
                                                                                                 identityFilter,
@@ -1240,5 +1240,9 @@ public class PeopleRestService implements ResourceContainer{
         return null;  
       }
     }
+  }
+
+  private boolean isSubSpace(Space space) {
+    return space != null && space.getParentSpaceId() != null;
   }
 }
