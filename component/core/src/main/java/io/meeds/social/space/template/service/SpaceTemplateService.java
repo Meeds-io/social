@@ -19,6 +19,7 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -151,6 +152,36 @@ public class SpaceTemplateService {
                               .map(SpaceTemplate::getId)
                               .toList();
   }
+
+  public List<SpaceTemplate> getAllowedSubspaceTemplates(long templateId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                                           IllegalAccessException {
+
+    SpaceTemplate parentTemplate = spaceTemplateStorage.getSpaceTemplate(templateId);
+
+    if (parentTemplate == null || parentTemplate.isDeleted()) {
+      throw new ObjectNotFoundException("Template not found: " + templateId);
+    }
+
+    List<String> allowedTemplates = parentTemplate.getAllowedSubspaceTemplates();
+    if (CollectionUtils.isEmpty(allowedTemplates)) {
+      return Collections.emptyList();
+    }
+
+    List<Long> templateIds = allowedTemplates.stream()
+                                             .map(item -> item.split(":")[0])
+                                             .map(Long::parseLong)
+                                             .toList();
+    List<SpaceTemplate> allowedSubspaceTemplates = templateIds.stream().map(id -> getSpaceTemplate(id, locale, true))
+            .filter(Objects::nonNull)
+            .filter(spaceTemplate -> canViewTemplate(spaceTemplate, username)).toList();
+
+    if (CollectionUtils.isEmpty(allowedSubspaceTemplates) && CollectionUtils.isNotEmpty(templateIds)) {
+      throw new IllegalAccessException("User '" + username + "' has no access to allowed subspace templates of template "
+          + templateId);
+    }
+    return allowedSubspaceTemplates;
+  }
+
 
   public long countManagingSpaceTemplates(String username) {
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());

@@ -52,7 +52,7 @@
             class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
             height="136"
             flat
-            @click="openParentSpaceList(item.id)">
+            @click="openParentSpaceListFromClick(item.id, parentSpaceId)">
             <v-hover v-slot="{hover}">
               <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
                 <div
@@ -277,7 +277,8 @@ export default {
     spaceParentSelecting: false,
     parentSpaces: [],
     parentSpacesSize: 0,
-    selectedParentSpace: null
+    selectedParentSpace: null,
+    parentSpaceId: null,
   }),
   computed: {
     drawerTitle() {
@@ -446,6 +447,7 @@ export default {
   },
   methods: {
     async openParentSpaceList(templateId, space, spaceTemplates, parentSpaceId) {
+      this.parentSpaceId = parentSpaceId;
       this.templateId = templateId;
       if (!this.$root.spaceTemplates) {
         this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
@@ -457,14 +459,14 @@ export default {
       }
       this.setSpaceTemplateProperties();
       const filteredTemplateIds = this.templates
-        .filter(template =>
+        .filter(template => (this.parentSpaceId && (template.id === this.templateId)) ||
           Array.isArray(template.allowedSubspaceTemplates) &&
               template.allowedSubspaceTemplates.some(subspaceId =>
                 Number(subspaceId.split(':')[0]) === this.templateId
               )
         )
         .map(template => template.id);
-      if (filteredTemplateIds?.length > 0) {
+      if (filteredTemplateIds?.length > 0 && !this.parentSpaceId) {
         const data = await this.$spaceService.getSpacesByFilter({
           offset: 0,
           limit: 20,
@@ -476,7 +478,7 @@ export default {
       }
       if (this.parentSpacesSize === 1) {
         this.selectParentSpace(this.parentSpaces[0]);
-      } else if (parentSpaceId) {
+      } else if (this.parentSpaceId) {
         const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
         this.selectParentSpace(parentSpace);
         this.$refs.spaceFormDrawer.open();
@@ -487,6 +489,9 @@ export default {
         this.spaceParentSelecting = true;
         this.$refs.spaceFormDrawer.open();
       }
+    },
+    openParentSpaceListFromClick(templateId, parentSpaceId) {
+      this.openParentSpaceList(templateId, null, null, parentSpaceId);
     },
     selectParentSpace(space) {
       this.selectedParentSpace = space;
