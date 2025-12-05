@@ -108,13 +108,7 @@ export default {
       }
     },
     async addSubspace() {
-      const spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-      const selectedTemplate = spaceTemplates.find(t => String(t.id) === String(this.templateId));
-      const allowedSubspaceTemplatesIds = selectedTemplate.allowedSubspaceTemplates
-        ?.map(item => item.split(':')[0]) || [];
-      const allowedSubspaceTemplates = spaceTemplates.filter(t =>
-        allowedSubspaceTemplatesIds.includes(String(t.id))
-      );
+      const allowedSubspaceTemplates = await this.$spaceTemplateService.getAllowedSubspaceTemplates(this.templateId);
       window.require(['SHARED/spaceForm'], drawer => drawer.open(null, allowedSubspaceTemplates, eXo.env.portal.spaceId));
     },
   },
