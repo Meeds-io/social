@@ -355,7 +355,7 @@ export default {
       return this.hasCenterButtonToggle || this.$slots.center;
     },
     showCenterContent() {
-      return !this.hideCenter && !this.expandFilter && (!this.isCompact || this.hasCenterContent);
+      return !this.hideCenter && !this.expandFilter && !this.isCompact && this.hasCenterContent;
     },
     hasTextFilter() {
       return this.rightTextFilter
@@ -491,6 +491,7 @@ export default {
     } else {
       document.addEventListener('keydown', this.closeFilter);
     }
+    console.log('dddddddddddddddddddddddddddddddddddddddddd');
   },
   beforeDestroy() {
     this.$root.$off('reset-filter', this.reset);
