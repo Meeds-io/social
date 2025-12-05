@@ -30,6 +30,19 @@ export function getSpaceTemplates(includeDisabled) {
   });
 }
 
+export function getAllowedSubspaceTemplates(id) {
+  return fetch(`/social/rest/space/templates/${id}/subspace-templates`, {
+    method: 'GET',
+    credentials: 'include',
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error when retrieving space template');
+    } else {
+      return resp.json();
+    }
+  });
+}
+
 export function getSpaceTemplate(id) {
   return fetch(`/social/rest/space/templates/${id}`, {
     method: 'GET',

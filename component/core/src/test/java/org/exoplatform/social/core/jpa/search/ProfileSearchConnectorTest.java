@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -59,6 +60,11 @@ public class ProfileSearchConnectorTest {
     private ProfilePropertyService profilePropertyService;
 
     private static final MockedStatic<CommonsUtils> COMMONS_UTILS = mockStatic(CommonsUtils.class);
+
+    @AfterClass
+    public static void tearDown() {
+      COMMONS_UTILS.close();
+    }
 
     @Test
     public void testSearch() {
