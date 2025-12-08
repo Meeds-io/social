@@ -732,7 +732,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public int getIdentitiesByProfileFilterCount(String providerId, ProfileFilter profileFilter) throws IdentityStorageException {
-    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrollmentStatus());
+    return getIdentityDAO().getAllIdsCountByProvider(providerId, profileFilter.getUserType(), profileFilter.isConnected(), profileFilter.isEnabled(), profileFilter.getEnrollmentStatus(), profileFilter.getRemoteIds());
   }
 
   public List<Identity> getIdentitiesForUnifiedSearch(final String providerId,
@@ -936,9 +936,10 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                       String userType,
                                       Boolean isConnected,
                                       String enrollmentStatus,
+                                      List<String> remoteIds,
                                       long offset,
                                       long limit) {
-    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
+    List<String> usernames = getIdentityDAO().getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, offset, limit);
     List<Identity> identities = new ArrayList<>();
     if (usernames != null && !usernames.isEmpty()) {
       for (String username : usernames) {
@@ -959,6 +960,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                      String userType,
                                      Boolean isConnected,
                                      String enrollmentStatus,
+                                     List<String> remoteIds,
                                      long offset,
                                      long limit) {
     return getIdentityDAO().getIdentityIdsByProviderSorted(providerId,
@@ -968,6 +970,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
                                                            userType,
                                                            isConnected,
                                                            enrollmentStatus,
+                                                           remoteIds,
                                                            offset,
                                                            limit)
                            .stream()
@@ -977,7 +980,7 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
   @Override
   public List<Identity> getIdentities(final String providerId, long offset, long limit) throws IdentityStorageException {
-    return this.getIdentities(providerId, null, null, true, null, null, null, offset, limit);
+    return this.getIdentities(providerId, null, null, true, null, null, null, null,offset, limit);
   }
 
   @Override
