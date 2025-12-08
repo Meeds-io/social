@@ -68,27 +68,31 @@ public class ProfileSearchConnectorTest {
         ProfileFilter filter = new ProfileFilter();
         Identity identity1 = new Identity("test","usernameee");
         String index = "profile_alias";
-        String query = "{\n" +
-                "   \"from\" : 0, \"size\" : 10,\n" +
-                "   \"sort\": {\"lastName.raw\": {\"order\": \"ASC\"}}\n" +
-                "       ,\n" +
-                "\"query\" : {\n" +
-                "      \"constant_score\" : {\n" +
-                "        \"filter\" : {\n" +
-                "          \"bool\" :{\n" +
-                "      \"must\" : {\n" +
-                "        \"query_string\" : {\n" +
-                "          \"query\" : \"null\",\n" +
-                "          \"fields\" : [\"connections\"]\n" +
-                "        }\n" +
-                "      }\n" +
-                "     } \n" +
-                "   } \n" +
-                "  }\n" +
-                " }\n" +
-                ",\"_source\": false\n" +
-                ",\"fields\": [\"_id\"]\n" +
-                "}\n";
+        String query = """
+          {
+             "from" : 0, "size" : 10,
+             "sort": {"lastName.raw": {"order": "ASC"}}
+          ,
+          "query" : {
+                "constant_score" : {
+                  "filter" : {
+                    "bool" :{
+                "must": [
+                {
+                  "query_string" : {
+                    "query" : "null",
+                    "fields" : ["connections"]
+                  }
+                }
+                ]
+               }\s
+             }\s
+            }
+           }
+          ,"_source": false
+          ,"fields": ["_id"]
+          }
+          """;
         long offset = 0;
         long limit = 10;
         when(elasticSearchClient.sendRequest(query, index)).thenReturn("{\"took\":39,\"timed_out\":false,\"_shards\":{\"total\":5,\"successful\":5,\"skipped\":0,\"failed\":0},\"hits\":{\"total\":{\"value\":1,\"relation\":\"eq\"},\"max_score\":null,\"hits\":[{\"_index\":\"profile_v2\",\"_type\":\"_doc\",\"_id\":\"6\",\"_score\":null,\"fields\":{\"userName\":[\"test\"]},\"sort\":[\"test\"]}]}}");
@@ -129,12 +133,15 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"firstName.raw": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": false
@@ -148,12 +155,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -162,11 +170,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": [{
@@ -185,24 +195,25 @@ public class ProfileSearchConnectorTest {
                                    }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                }      ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*te-s* OR email:*te-s* OR userName:*te-s*) AND ( name.whitespace:*t* OR email:*t* OR userName:*t*)"
                     }
                 }
-              ]
+                ]
                }\s
              }\s
             }
@@ -250,22 +261,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -274,11 +289,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": {
@@ -297,30 +314,31 @@ public class ProfileSearchConnectorTest {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-              ]
+                ]
                }\s
              }\s
             }
@@ -342,22 +360,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -366,11 +388,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -379,30 +403,31 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-              ]
+                ]
                }\s
              }\s
             }
@@ -449,22 +474,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -473,11 +502,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": {
@@ -496,35 +527,37 @@ public class ProfileSearchConnectorTest {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-          ,  {
+          ,
+            {
               "match_phrase": {
                 "testProperty": "valueProperty"
               }
            }
-              ]
+                ]
                }\s
              }\s
             }
@@ -573,22 +606,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -597,11 +634,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": {
@@ -620,35 +659,37 @@ public class ProfileSearchConnectorTest {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-          ,  {
+          ,
+            {
               "query_string": {
                 "query": " testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*"
               }
            }
-              ]
+                ]
                }\s
              }\s
             }
@@ -698,22 +739,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 10,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -722,11 +767,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": {
@@ -745,35 +792,37 @@ public class ProfileSearchConnectorTest {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-          ,  {
+          ,
+            {
               "query_string": {
                 "query": " testProperty.whitespace:*value* AND  testProperty.whitespace:*of* AND  testProperty.whitespace:*test* AND  testProperty.whitespace:*Property*"
               }
            }
-              ]
+                ]
                }\s
              }\s
             }
@@ -819,22 +868,26 @@ public class ProfileSearchConnectorTest {
           {
              "from" : 0, "size" : 1,
              "sort": {"lastUpdatedDate": {"order": "DESC"}}
-                 ,
+          ,
           "query" : {
                 "constant_score" : {
                   "filter" : {
                     "bool" :{
-              "should": [
+                "must": [
+                {
+                  "bool": {
+                    "should": [
                             {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,
-          "minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must": {
@@ -843,11 +896,13 @@ public class ProfileSearchConnectorTest {
                                   }
                                 }
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-              "should": [
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
+                  "bool": {
+                    "should": [
                             {
                               "bool": {
                                 "must_not": {
@@ -866,30 +921,31 @@ public class ProfileSearchConnectorTest {
                               "term": {
                                 "external": true
                               }
-                            }
-                            ]
-                            ,"minimum_should_match" : 1
-                ,
-                "must" : {
+                            }          ],
+                    "minimum_should_match" : 1
+                  }
+                },
+                {
                   "terms" :{
                     "userName" : ["test"]
                   }\s
                 }
+                ]
                 ,
                 "must_not": [
-                  {
+                {
                     "ids" : {
                        "values" : ["null","null"]
                     }
                   }
                 ]
                 ,
-              "filter": [
+                "filter": [
                 {          "query_string": {
                       "query": "( name.whitespace:*\\"te-s*) AND ( name.whitespace:*t\\"*)"
                     }
                 }
-              ]
+                ]
                }\s
              }\s
             }
@@ -923,22 +979,22 @@ public class ProfileSearchConnectorTest {
         {
            "from" : 0, "size" : 10,
            "sort": {"lastName.raw": {"order": "ASC"}}
-               ,
+        ,
         "query" : {
               "constant_score" : {
                 "filter" : {
                   "bool" :{
-            "must": [
+              "must": [
               {
                 "terms": {
                   "permissions": [
         5
                   ]
                 }
-              }
-            ]
-              ,
-            "should": [
+              },
+              {
+                "bool": {
+                  "should": [
                           {
                             "term": {
                               "external": false
@@ -952,12 +1008,13 @@ public class ProfileSearchConnectorTest {
                                 }
                               }
                             }
-                          }
-                          ]
-                          ,
-        "minimum_should_match" : 1
-              ,
-            "should": [
+                          }          ],
+                  "minimum_should_match" : 1
+                }
+              },
+              {
+                "bool": {
+                  "should": [
                           {
                             "bool": {
                               "must_not": {
@@ -976,16 +1033,17 @@ public class ProfileSearchConnectorTest {
                             "term": {
                               "external": true
                             }
-                          }
-                          ]
-                          ,"minimum_should_match" : 1
+                          }          ],
+                  "minimum_should_match" : 1
+                }
+              }      ]
               ,
-            "filter": [
+              "filter": [
               {          "query_string": {
                     "query": "name.whitespace:*\\"aaa\\"*"
                   }
               }
-            ]
+              ]
              }\s
            }\s
           }
