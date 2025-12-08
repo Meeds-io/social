@@ -18,9 +18,17 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -74,8 +82,6 @@ import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.space.template.utils.EntityMapper;
 
 import lombok.SneakyThrows;
-
-import static org.junit.Assert.*;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
