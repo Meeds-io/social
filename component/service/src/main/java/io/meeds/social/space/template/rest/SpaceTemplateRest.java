@@ -81,7 +81,7 @@ public class SpaceTemplateRest {
           @ApiResponse(responseCode = "403", description = "Forbidden"),
           @ApiResponse(responseCode = "404", description = "Not found") })
   public List<SpaceTemplate> getAllowedSubspaceTemplates(HttpServletRequest request,
-                                               @Parameter(description = "Whether include disabled templates or not", required = true)
+                                               @Parameter(description = "The parent template ID", required = true)
                                                @PathVariable("templateId")
                                                long templateId) {
     try {

@@ -478,6 +478,7 @@ export default {
       }
       if (this.parentSpacesSize === 1) {
         this.selectParentSpace(this.parentSpaces[0]);
+        this.$refs.spaceFormDrawer.open();
       } else if (this.parentSpaceId) {
         const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
         this.selectParentSpace(parentSpace);
@@ -607,6 +608,9 @@ export default {
             switch (code) {
             case 'SUBSPACES_LIMIT_REACHED':
               this.$root.$emit('alert-message', this.$t('spacesList.error.subspacesLimitReached'), 'error');
+              break;
+            case 'SUBSPACES_PERMISSIONS':
+              this.$root.$emit('alert-message', this.$t('spacesList.error.notAllowedToCreateSubspace'), 'error');
               break;
             default:
               this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
