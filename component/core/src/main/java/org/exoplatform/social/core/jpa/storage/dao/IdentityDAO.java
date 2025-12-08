@@ -70,8 +70,16 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param offset
    * @param limit
    * @return
+   * @deprecated The old getAllIdsByProviderSorted method without remoteIds no longer exists, use getAllIdsByProviderSorted with the remoteIds parameter instead.
    */
-  List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+  @Deprecated(forRemoval = true, since = "7.2.0")
+  default List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit) {
+    return getAllIdsByProviderSorted(providerId, sortField, sortDirection, enabled, userType, isConnected, enrollmentStatus, null, offset, limit);
+  }
+
+  default List<String> getAllIdsByProviderSorted(String providerId, String sortField, String sortDirection, boolean enabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit) {
+    return Collections.emptyList();
+  }
 
   /**
    * Get identity ids by providerId sorted by sortField
@@ -86,7 +94,9 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param offset
    * @param limit
    * @return
+   *@deprecated The old getIdentityIdsByProviderSorted method without remoteIds no longer exists, use getIdentityIdsByProviderSorted with the remoteIds parameter instead.
    */
+  @Deprecated(forRemoval = true, since = "7.2.0")
   default List<Long> getIdentityIdsByProviderSorted(String providerId,
                                                     String sortField,
                                                     String sortDirection,
@@ -96,12 +106,25 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
                                                     String enrollmentStatus,
                                                     long offset,
                                                     long limit) {
-    List<String> remoteIds = getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
+    return getIdentityIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, null, offset, limit);
+  }
+
+  default List<Long> getIdentityIdsByProviderSorted(String providerId,
+                                                    String sortField,
+                                                    String sortDirection,
+                                                    boolean isEnabled,
+                                                    String userType,
+                                                    Boolean isConnected,
+                                                    String enrollmentStatus,
+                                                    List<String> remoteIds,
+                                                    long offset,
+                                                    long limit) {
+    remoteIds = getAllIdsByProviderSorted(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, remoteIds, offset, limit);
     return remoteIds == null ? Collections.emptyList() :
-                             remoteIds.stream()
-                                      .map(remoteId -> findIdByProviderAndRemoteId(providerId, remoteId))
-                                      .filter(Objects::nonNull)
-                                      .toList();
+            remoteIds.stream()
+                    .map(remoteId -> findIdByProviderAndRemoteId(providerId, remoteId))
+                    .filter(Objects::nonNull)
+                    .toList();
   }
 
   /**
@@ -112,8 +135,16 @@ public interface IdentityDAO extends GenericDAO<IdentityEntity, Long> {
    * @param isConnected
    * @param enabled
    * @return
+   *@deprecated The old getAllIdsCountByProvider method without remoteIds no longer exists, use getAllIdsCountByProvider with the remoteIds parameter instead.
    */
-  int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus);
+  @Deprecated(forRemoval = true, since = "7.2.0")
+  default int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus) {
+    return getAllIdsCountByProvider(providerId, userType, isConnected, enabled, enrollmentStatus, null);
+  }
+
+  default int getAllIdsCountByProvider(String providerId, String userType, Boolean isConnected, boolean enabled, String enrollmentStatus, List<String> remoteIds) {
+    return 0;
+  }
 
   default Long findIdByProviderAndRemoteId(String providerId, String remoteId) {
     IdentityEntity identity = findByProviderAndRemoteId(providerId, remoteId);

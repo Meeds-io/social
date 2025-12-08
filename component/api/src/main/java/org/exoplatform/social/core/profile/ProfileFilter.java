@@ -79,6 +79,8 @@ public class ProfileFilter implements Cloneable {
 
   private List<String> remoteIds = null;
 
+  private List<String> groupIds = null;
+
   private Sorting sorting;
 
   private Map<String, String> profileSettings;
@@ -311,6 +313,14 @@ public class ProfileFilter implements Cloneable {
 
   public List<String> getRemoteIds() {
     return remoteIds;
+  }
+
+  public void setGroupIds(List<String> groupIds) {
+    this.groupIds = groupIds;
+  }
+
+  public List<String> getGroupIds() {
+    return groupIds;
   }
 
   /**
