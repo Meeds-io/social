@@ -356,6 +356,19 @@ public class SpaceTemplateService {
     spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     listenerService.broadcast(SPACE_TEMPLATE_DELETED_EVENT, spaceTemplate, spaceTemplate);
   }
+  
+  public List<Long> getParentSpaceTemplateIds(long subTemplateId) {
+    return getSpaceTemplates().stream()
+                              .filter(template -> template.getAllowedSubspaceTemplates() != null)
+                              .filter(template -> template.getAllowedSubspaceTemplates()
+                                                          .stream()
+                                                          .map(subspaceId -> subspaceId.split(":")[0])
+                                                          .filter(part -> !part.isEmpty())
+                                                          .mapToLong(Long::parseLong)
+                                                          .anyMatch(id -> id == subTemplateId))
+                              .map(SpaceTemplate::getId)
+                              .toList();
+  }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
                                                   SiteKey sourceSiteKey) throws ObjectNotFoundException {
@@ -393,27 +406,6 @@ public class SpaceTemplateService {
       // Only when not manager,
       // checked in previous step
       return false;
-    }
-    List<Long> parentTemplateIds = getSpaceTemplates().stream()
-                                                      .filter(template -> template.getAllowedSubspaceTemplates() != null)
-                                                      .filter(template -> template.getAllowedSubspaceTemplates()
-                                                                                  .stream()
-                                                                                  .map(subspaceId -> subspaceId.split(":")[0])
-                                                                                  .filter(part -> !part.isEmpty())
-                                                                                  .mapToLong(Long::parseLong)
-                                                                                  .anyMatch(id -> id == spaceTemplate.getId()))
-                                                      .map(SpaceTemplate::getId)
-                                                      .toList();
-
-    if (!parentTemplateIds.isEmpty()) {
-      SpaceService service = CommonsUtils.getService(SpaceService.class);
-      SpaceFilter filter = new SpaceFilter();
-      filter.setParentSpaceId(0);
-      filter.setTemplateIds(parentTemplateIds);
-      ListAccess<Space> spaces = service.getAccessibleSpacesByFilter(username, filter);
-      if (spaces.getSize() == 0) {
-        return false;
-      }
     }
     Identity aclIdentity = userAcl.getUserIdentity(username);
     return aclIdentity != null && (spaceTemplate.getPermissions()
