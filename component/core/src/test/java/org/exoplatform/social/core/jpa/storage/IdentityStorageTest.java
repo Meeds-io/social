@@ -19,6 +19,7 @@
 package org.exoplatform.social.core.jpa.storage;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertThrows;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -425,12 +426,15 @@ public class IdentityStorageTest extends AbstractCoreTest {
       identityStorage.saveProfile(profile);
       identity.setProfile(profile);
     }
-
+    List<String> remoteIds = new ArrayList<>();
     for (int i = 7; i < total; i++) {
       String remoteId = remoteIdPrefix + i;
       Identity identity = new Identity(OrganizationIdentityProvider.NAME, remoteId + i);
       identityStorage.saveIdentity(identity);
       tearDownIdentityList.add(identity);
+      if (i == total - 1) {
+        remoteIds.add(identity.getRemoteId());
+      }
 
       Profile profile = new Profile(identity);
       profile.setProperty(Profile.FIRST_NAME, "FirstName" + i);
@@ -441,7 +445,6 @@ public class IdentityStorageTest extends AbstractCoreTest {
       identityStorage.saveProfile(profile);
       identity.setProfile(profile);
     }
-
     long offset = 0;
     long limit = Integer.MAX_VALUE;
     String providerId = OrganizationIdentityProvider.NAME;
@@ -452,6 +455,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
     String fieldName = Profile.FULL_NAME;
     List<Identity> result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null,null, offset, limit);
     assertTrue("Returned result count is not consistent", result.size() >= total);
+    assertSorted(remoteIdPrefix, fieldName, result);
+
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null,null, remoteIds, offset, limit);
+    assertEquals(result.size(), 1);
     assertSorted(remoteIdPrefix, fieldName, result);
 
     fieldName = Profile.LAST_NAME;
@@ -514,6 +521,10 @@ public class IdentityStorageTest extends AbstractCoreTest {
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
 
+    result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "noEnrollmentPossible", remoteIds, offset, limit);
+    assertEquals( result.size(), 1);
+    assertSorted(remoteIdPrefix, fieldName, result);
+
     result = identityStorage.getIdentities(providerId, sortField, sortDirection, true, null, null, "enrolled", offset, limit);
     assertTrue("Returned result count is not consistent", result.size() == 3);
     assertSorted(remoteIdPrefix, fieldName, result);
@@ -564,6 +575,12 @@ public class IdentityStorageTest extends AbstractCoreTest {
     Identity identity = identityStorage.findIdentity(OrganizationIdentityProvider.NAME, "username1");
     identityStorage.processEnabledIdentity(identity, false);
     assertEquals(4, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+
+    pf.setRemoteIds(List.of("username1"));
+    identityStorage.processEnabledIdentity(identity, true);
+    assertEquals(1, identityStorage.getIdentitiesByProfileFilterCount("organization", pf));
+    identityStorage.processEnabledIdentity(identity, false);
+    pf.setRemoteIds(new ArrayList<>());
     
     //enable username1
     identityStorage.processEnabledIdentity(identity, true);
@@ -677,9 +694,42 @@ public class IdentityStorageTest extends AbstractCoreTest {
       identities = identityStorage.getIdentitiesByProfileFilter("organization", pf, 30, 40, false);
     } catch (Exception ext) {
       assert false : "Can not get Identity by profile filter. " + ext ;
-    } 
+    }
+    List<String> groupIds = new ArrayList<>();
+    groupIds.add("/organization/employees");
+    pf.setGroupIds(groupIds);
+    identities = identityStorage.getIdentitiesByProfileFilter("organization", pf, 0, 20, false);
+    assertEquals("Number of identities must be " + identities.size(), 5, identities.size());
   }
-  
+
+  /**
+   * Tests {@link IdenityStorage#getIdentitiesByProfileFilter(String, ProfileFilter, int, int, boolean)}
+   *
+   */
+  public void testGetIdentitiesByGroupsIdsAccessList() throws Exception {
+    ProfileFilter pf = new ProfileFilter();
+    Identity identity = new Identity(OrganizationIdentityProvider.NAME, "test");
+    identityStorage.saveIdentity(identity);
+    tearDownIdentityList.add(identity);
+    Profile profile = new Profile(identity);
+    profile.setProperty(Profile.FIRST_NAME, "test");
+    profile.setProperty(Profile.LAST_NAME, "test");
+    profile.setProperty(Profile.FULL_NAME, "test test");
+    profile.setProperty(Profile.ENROLLMENT_DATE, new Date().getTime());
+    identityStorage.saveProfile(profile);
+    identity.setProfile(profile);
+    List<String> groupIds = new ArrayList<>();
+    groupIds.add("/organization/test");
+    pf.setGroupIds(groupIds);
+
+    List<Identity> identities = identityStorage.getIdentitiesByProfileFilter("organization", pf, 0, 20, false);
+    assertEquals("Number of identities must be " + identities.size(), 1, identities.size());
+
+    pf.setName("test");
+
+    identities = identityStorage.getIdentitiesByProfileFilter("organization", pf, 0, 20, false);
+    assertEquals("Number of identities must be " + identities.size(), 1, identities.size());
+  }
   /**
    * Tests {@link IdenityStorage#findIdentityByProfileFilterCount(String, ProfileFilter)}
    * 
@@ -758,6 +808,11 @@ public class IdentityStorageTest extends AbstractCoreTest {
     ProfileFilter profileFilter = new ProfileFilter();
     ProfileFilter firstProfileFilter = new ProfileFilter();
 
+    assertThrows(IllegalStateException.class,
+      () -> identityStorage.getSpaceMemberIdentitiesByProfileFilter(new Space(), profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9));
+
+    assertThrows(IllegalArgumentException.class,
+      () -> identityStorage.countSpaceMemberIdentitiesByProfileFilter(null, firstProfileFilter, SpaceMemberFilterListAccess.Type.MEMBER));
     // Test on first character field choice
     profileFilter.setSorting(new Sorting(SortBy.FULLNAME, Sorting.OrderBy.ASC));
     List<Identity> identities = identityStorage.getSpaceMemberIdentitiesByProfileFilter(space, profileFilter, SpaceMemberFilterListAccess.Type.MEMBER, 0, 9);

@@ -367,8 +367,15 @@ public interface IdentityStorage {
    * @param offset
    * @param limit
    * @return
+   * @deprecated The old getIdentities method without remoteIds no longer exists, use getIdentities with the remoteIds parameter instead.
    */
-  public List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit);
+  @Deprecated(forRemoval = true, since = "7.2.0")
+  default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit) {
+    return getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, null, offset, limit);
+  }
+  default List<Identity> getIdentities(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit){
+    return Collections.emptyList();
+  }
 
   /**
    * Get list of identities by providerId
@@ -383,10 +390,15 @@ public interface IdentityStorage {
    * @param offset
    * @param limit
    * @return {@link List} of identity ids
+   * @deprecated The old getIdentityIds method without remoteIds no longer exists, use getIdentityIds with the remoteIds parameter instead.
    */
+  @Deprecated(forRemoval = true, since = "7.2.0")
   default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, long offset, long limit) { // NOSONAR parameters count
-    List<Identity> identities = getIdentities(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, offset, limit);
-    return identities == null ? Collections.emptyList() : identities.stream().map(String::valueOf).toList();
+    return getIdentityIds(providerId, sortField, sortDirection, isEnabled, userType, isConnected, enrollmentStatus, null, offset, limit);
+  }
+
+  default List<String> getIdentityIds(String providerId, String sortField, String sortDirection, boolean isEnabled, String userType, Boolean isConnected, String enrollmentStatus, List<String> remoteIds, long offset, long limit) { // NOSONAR parameters count
+    return Collections.emptyList();
   }
 
   /**
