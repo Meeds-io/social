@@ -306,23 +306,10 @@ public class SpaceTemplateServiceTest {
     when(userAcl.isAnonymousUser(anyString())).thenReturn(false);
     org.exoplatform.services.security.Identity identity = mock(org.exoplatform.services.security.Identity.class);
     when(userAcl.getUserIdentity(anyString())).thenReturn(identity);
-    when(spaceTemplateStorage.getSpaceTemplates(any(Pageable.class))).thenReturn(List.of(spaceTemplate));
     SpaceTemplate subspaceTemplate = mock(SpaceTemplate.class);
     when(subspaceTemplate.isEnabled()).thenReturn(true);
-    when(subspaceTemplate.getId()).thenReturn(10L);
     when(spaceTemplateStorage.getSpaceTemplate(10L)).thenReturn(subspaceTemplate);
     try(MockedStatic<CommonsUtils> mockedUtils = mockStatic(CommonsUtils.class)) {
-      SpaceService spaceService = mock(SpaceService.class);
-      mockedUtils.when(() -> CommonsUtils.getService(SpaceService.class)).thenReturn(spaceService);
-      ListAccess<Space> spaceList = mock(ListAccess.class);
-      when(spaceService.getAccessibleSpacesByFilter(anyString(), any(SpaceFilter.class)))
-              .thenReturn(spaceList);
-      when(spaceList.getSize()).thenReturn(0);
-      assertThrows(IllegalAccessException.class,
-              () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
-      // subspace accessible for user
-      // user is member in the parent space
-      when(spaceList.getSize()).thenReturn(1);
       when(subspaceTemplate.getPermissions()).thenReturn(List.of("*:/platform/users"));
       when(identity.isMemberOf(any(MembershipEntry.class))).thenReturn(true);
       List<SpaceTemplate> result = spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null);

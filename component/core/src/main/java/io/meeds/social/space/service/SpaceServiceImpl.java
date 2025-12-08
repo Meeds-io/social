@@ -41,7 +41,13 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import io.meeds.social.space.model.SpaceCreationInstance;
@@ -405,7 +411,7 @@ public class SpaceServiceImpl implements SpaceService {
                                              username,
                                              space.getTemplateId()));
     }
-
+    parentSpaceId = resolveParentSpaceId(space.getTemplateId(), parentSpaceId, username);
     checkSubspaceCreationAllowed(space, parentSpaceId, username);
 
     // Copy only settable properties from provided DTO
@@ -1415,7 +1421,7 @@ public class SpaceServiceImpl implements SpaceService {
     }
     Space parentSpace = getSpaceById(parentSpaceId);
     if (!isMember(parentSpace, username) && !isSuperManager(parentSpace, username)) {
-      throw new SpaceException(Code.SPACE_PERMISSION,
+      throw new SpaceException(Code.SUBSPACES_PERMISSIONS,
                                String.format("User %s isn't allowed to create subspace under parent space with id %s",
                                              username,
                                              parentSpaceId));
@@ -1431,13 +1437,7 @@ public class SpaceServiceImpl implements SpaceService {
     SpaceFilter spaceFilter = new SpaceFilter();
     spaceFilter.setParentSpaceId(parentSpaceId);
     ListAccess<Space> existingSubspacesAccess = getAllSpacesByFilter(spaceFilter);
-    int subspacesCount;
-    try {
-      subspacesCount = existingSubspacesAccess.getSize();
-    } catch (Exception e) {
-      throw new SpaceException(Code.ERROR_DATASTORE, "Failed to load subspaces count for parent %s".formatted(parentSpaceId), e);
-    }
-
+    int subspacesCount = getListAccessSpaceSize(existingSubspacesAccess, "Failed to load subspaces count for parent %s".formatted(parentSpaceId));
     if (subspacesMaxLimit != null && subspacesMaxLimit != 0 && subspacesCount >= subspacesMaxLimit) {
       throw new SpaceException(Code.SUBSPACES_LIMIT_REACHED,
                                String.format("Cannot create more subspaces under '%s' (max %d reached)",
@@ -1482,6 +1482,42 @@ public class SpaceServiceImpl implements SpaceService {
                                              templateId,
                                              templateMaxLimit,
                                              parentSpace.getDisplayName()));
+    }
+  }
+
+  @SneakyThrows
+  private long resolveParentSpaceId(long templateId, long parentSpaceId, String username) {
+    if (parentSpaceId > 0) {
+      return parentSpaceId;
+    }
+    List<Long> parentSpaceTemplateIds = getSpaceTemplateService().getParentSpaceTemplateIds(templateId);
+    if (parentSpaceTemplateIds.isEmpty()) {
+      return parentSpaceId;
+    }
+    SpaceFilter spaceFilter = new SpaceFilter();
+    spaceFilter.setTemplateIds(parentSpaceTemplateIds);
+    ListAccess<Space> existingParentSpacesAccess = getAccessibleSpacesByFilter(username, spaceFilter);
+    int parentSpacesCount = getListAccessSpaceSize(existingParentSpacesAccess,
+                                                   "Failed to load spaces count for template %s".formatted(templateId));
+    if (parentSpacesCount == 0) {
+      throw new SpaceException(Code.SUBSPACES_PERMISSIONS,
+                               String.format("User %s isn't allowed to create subspace, you need to be member of a parent space first",
+                                             username));
+    }
+    if (parentSpacesCount == 1) {
+      parentSpaceId = existingParentSpacesAccess.load(0, 1)[0].getSpaceId();
+    }
+    if (parentSpacesCount > 1) {
+      throw new IllegalArgumentException("Template %s is a subspace template and a parent space must be selected".formatted(templateId));
+    }
+    return parentSpaceId;
+  }
+
+  private int getListAccessSpaceSize(ListAccess<Space> access, String errorMessage) throws SpaceException {
+    try {
+      return access.getSize();
+    } catch (Exception e) {
+      throw new SpaceException(Code.ERROR_DATASTORE, errorMessage, e);
     }
   }
 }
