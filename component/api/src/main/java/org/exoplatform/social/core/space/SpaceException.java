@@ -115,7 +115,10 @@ public class SpaceException extends Exception {
     UNABLE_TO_DELETE_SPACE,
 
     /** The maximum number of subspaces has been reached. */
-    SUBSPACES_LIMIT_REACHED
+    SUBSPACES_LIMIT_REACHED,
+
+    /** user not allowed to create subspaces. */
+    SUBSPACES_PERMISSIONS
   }
 
   /** The code. */
