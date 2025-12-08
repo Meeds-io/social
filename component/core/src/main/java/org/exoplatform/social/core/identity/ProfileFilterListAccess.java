@@ -203,7 +203,8 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
         if (CollectionUtils.isEmpty(spaceIdentityIds)) {
           profileFilter.setSpaceIdentityIds(new ArrayList<>(groupIdentityIds));
         } else {
-          spaceIdentityIds.retainAll(groupIdentityIds);
+          List<String> spaceListIdentityIds = new ArrayList<>(spaceIdentityIds);
+          spaceListIdentityIds.retainAll(groupIdentityIds);
           profileFilter.setSpaceIdentityIds(spaceIdentityIds);
         }
       }
