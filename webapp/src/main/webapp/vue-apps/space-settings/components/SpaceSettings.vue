@@ -31,6 +31,7 @@
         v-if="$root.space?.canManagePublicSite" />
       <template>
         <extension-registry-components
+          v-if="isActiveSection"
           :params="extensionParams"
           name="SpaceSettings"
           type="space-settings-components"
@@ -47,6 +48,9 @@ export default {
       return {
         spaceId: this.$root.spaceId,
       };
+    },
+    isActiveSection() {
+      return !this.$root.activeSection;
     },
   },
 };
