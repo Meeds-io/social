@@ -143,190 +143,198 @@ public class ProfileSearchConnector {
     String expEsForAdvancedFilter = MapUtils.isNotEmpty(profileSettings) ? buildAdvancedFilterExpression(filter) : "";
     StringBuilder esQuery = new StringBuilder();
     esQuery.append("{\n");
-    esQuery.append("   \"from\" : " + offset + ", \"size\" : " + limit + ",\n");
+    esQuery.append("   \"from\" : ").append(offset).append(", \"size\" : ").append(limit).append(",\n");
     Sorting sorting = filter.getSorting();
-    if(sorting != null && sorting.sortBy != null) {
-      esQuery.append("   \"sort\": {");
+    esQuery.append("   \"sort\": {");
+    String sortField;
+    String sortOrder = sorting != null && sorting.orderBy != null ? sorting.orderBy.name() : "asc";
+
+    if (sorting != null && sorting.sortBy != null) {
       switch (sorting.sortBy) {
-      case DATE:
-        esQuery.append("\"lastUpdatedDate\"");
-        break;
-      case FIRSTNAME:
-        esQuery.append("\"firstName.raw\"");
-        break;
-      case LASTNAME:
-        esQuery.append("\"lastName.raw\"");
-        break;
-      default:
-        // Title, Fullname, any other condition, we will use the fullname
-        esQuery.append("\"name.raw\"");
-        break;
+        case DATE:
+          sortField = "\"lastUpdatedDate\"";
+          break;
+        case FIRSTNAME:
+          sortField = "\"firstName.raw\"";
+          break;
+        case LASTNAME:
+          sortField = "\"lastName.raw\"";
+          break;
+        default:
+          sortField = "\"name.raw\"";
+          break;
       }
-      esQuery.append(": {\"order\": \"")
-             .append(sorting.orderBy == null ? "asc" : sorting.orderBy.name())
-             .append("\"}}\n");
     } else {
-      esQuery.append("   \"sort\": {\"name.raw\": {\"order\": \"asc\"}}\n");
+      sortField = "\"name.raw\"";
     }
+    esQuery.append(sortField)
+      .append(": {\"order\": \"")
+      .append(sortOrder)
+      .append("\"}}\n");
     StringBuilder esSubQuery = new StringBuilder();
-    esSubQuery.append("       ,\n");
     esSubQuery.append("\"query\" : {\n");
     esSubQuery.append("      \"constant_score\" : {\n");
     esSubQuery.append("        \"filter\" : {\n");
     esSubQuery.append("          \"bool\" :{\n");
     boolean subQueryEmpty = true;
     boolean appendCommar = false;
+    List<String> mustClauses = new ArrayList<>();
+    List<String> mustNotClauses = new ArrayList<>();
+    List<String> filterClauses = new ArrayList<>();
+
     if (CollectionUtils.isNotEmpty(filter.getSpaceIdentityIds())) {
       String permissionsQuery = buildSpacePermissionsExpression(filter);
-      esSubQuery.append(permissionsQuery);
+      mustClauses.add(permissionsQuery);
       subQueryEmpty = false;
-      appendCommar = true;
     }
     if (filter.getUserType() != null && !filter.getUserType().isEmpty()) {
-      if(appendCommar) {
-        esSubQuery.append("      ,\n");
-      }
-      if (filter.getUserType().equals("internal")) {
-        esSubQuery.append("    \"should\": [\n");
-        esSubQuery.append("                  {\n");
-        esSubQuery.append("                    \"term\": {\n");
-        esSubQuery.append("                      \"external\": false\n");
-        esSubQuery.append("                    }\n");
-        esSubQuery.append("                  },\n");
-        esSubQuery.append("                  {\n");
-        esSubQuery.append("                    \"bool\": {\n");
-        esSubQuery.append("                      \"must_not\": {\n");
-        esSubQuery.append("                        \"exists\": {\n");
-        esSubQuery.append("                          \"field\": \"external\"\n");
-        esSubQuery.append("                        }\n");
-        esSubQuery.append("                      }\n");
-        esSubQuery.append("                    }\n");
-        esSubQuery.append("                  }\n");
-        esSubQuery.append("                  ]\n");
-        subQueryEmpty = false;
-        appendCommar = true;
-      } else if (filter.getUserType().equals("external")) {
-        esSubQuery.append("    \"should\": [\n");
-        esSubQuery.append("                  {\n");
-        esSubQuery.append("                    \"term\": {\n");
-        esSubQuery.append("                      \"external\": true\n");
-        esSubQuery.append("                    }\n");
-        esSubQuery.append("                  }\n");
-        esSubQuery.append("                  ]\n");
-        subQueryEmpty = false;
-        appendCommar = true;
-      }
-      if(appendCommar) {
-        esSubQuery.append("                  ,\n");
-      }
-      esSubQuery.append("\"minimum_should_match\" : 1\n");
+      List<String> userTypeShoulds = new ArrayList<>();
 
+      if (filter.getUserType().equals("internal")) {
+        userTypeShoulds.add("                  {\n"
+          + "                    \"term\": {\n"
+          + "                      \"external\": false\n"
+          + "                    }\n"
+          + "                  }");
+        userTypeShoulds.add("                  {\n"
+          + "                    \"bool\": {\n"
+          + "                      \"must_not\": {\n"
+          + "                        \"exists\": {\n"
+          + "                          \"field\": \"external\"\n"
+          + "                        }\n"
+          + "                      }\n"
+          + "                    }\n"
+          + "                  }");
+      } else if (filter.getUserType().equals("external")) {
+        userTypeShoulds.add("                  {\n"
+          + "                    \"term\": {\n"
+          + "                      \"external\": true\n"
+          + "                    }\n"
+          + "                  }");
+      }
+
+      if (CollectionUtils.isNotEmpty(userTypeShoulds)) {
+        StringBuilder userTypeBlockBuilder = new StringBuilder();
+        userTypeBlockBuilder.append("      {\n")
+          .append("        \"bool\": {\n")
+          .append("          \"should\": [\n")
+          .append(String.join(",\n", userTypeShoulds))
+          .append("          ],\n")
+          .append("          \"minimum_should_match\" : 1\n")
+          .append("        }\n")
+          .append("      }");
+        mustClauses.add(userTypeBlockBuilder.toString());
+        subQueryEmpty = false;
+      }
     }
     if (filter.isConnected() != null) {
-      if(appendCommar) {
-        esSubQuery.append("      ,\n");
-      }
-      esSubQuery.append("    \"should\": [\n");
-      esSubQuery.append("                  {\n");
-      esSubQuery.append("                    \"bool\": {\n");
+      StringBuilder existsClauseBuilder = new StringBuilder();
+      existsClauseBuilder.append("                  {\n")
+        .append("                    \"bool\": {\n");
+
       if (filter.isConnected()) {
-        esSubQuery.append("                      \"must\": {\n");
+        existsClauseBuilder.append("                      \"must\": {\n");
       } else {
-        esSubQuery.append("                      \"must_not\": {\n");
+        existsClauseBuilder.append("                      \"must_not\": {\n");
       }
-      esSubQuery.append("                        \"exists\": {\n");
-      esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
-      esSubQuery.append("                        }\n");
-      esSubQuery.append("                      }\n");
-      esSubQuery.append("                    }\n");
-      esSubQuery.append("                  }\n");
-      esSubQuery.append("                  ]\n");
-      esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
+      existsClauseBuilder.append("                        \"exists\": {\n")
+        .append("                          \"field\": \"lastLoginTime\"\n")
+        .append("                        }\n")
+        .append("                      }\n")
+        .append("                    }\n")
+        .append("                  }");
+
+      StringBuilder connectedBlockBuilder = new StringBuilder();
+      connectedBlockBuilder.append("      {\n")
+        .append("        \"bool\": {\n")
+        .append("          \"should\": [\n")
+        .append(existsClauseBuilder.toString())
+        .append("          ],\n")
+        .append("          \"minimum_should_match\" : 1\n")
+        .append("        }\n")
+        .append("      }");
+      mustClauses.add(connectedBlockBuilder.toString());
       subQueryEmpty = false;
-      appendCommar = true;
     }
     if(filter.getEnrollmentStatus() != null && !filter.getEnrollmentStatus().isEmpty()) {
-      if(appendCommar) {
-        esSubQuery.append("      ,\n");
-      }
+      List<String> enrollmentShoulds = new ArrayList<>();
+
       switch (filter.getEnrollmentStatus()) {
         case "enrolled": {
-          esSubQuery.append("    \"should\": [\n");
-          esSubQuery.append("                  {\n");
-          esSubQuery.append("                    \"bool\": {\n");
-          esSubQuery.append("                      \"must\": {\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
-          esSubQuery.append("                        }\n");
-          esSubQuery.append("                      }\n");
-          esSubQuery.append("                    }\n");
-          esSubQuery.append("                  }\n");
-          esSubQuery.append("                  ]\n");
-          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
-          subQueryEmpty = false;
-          appendCommar = true;
+          enrollmentShoulds.add("                  {\n"
+            + "                    \"bool\": {\n"
+            + "                      \"must\": {\n"
+            + "                        \"exists\": {\n"
+            + "                          \"field\": \"enrollmentDate\"\n"
+            + "                        }\n"
+            + "                      }\n"
+            + "                    }\n"
+            + "                  }");
           break;
         }
 
         case "notEnrolled": {
-          esSubQuery.append("    \"should\": [\n");
-          esSubQuery.append("                  {\n");
-          esSubQuery.append("                    \"bool\": {\n");
-          esSubQuery.append("                      \"must_not\": [{\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
-          esSubQuery.append("                          }\n");
-          esSubQuery.append("                        },\n");
-          esSubQuery.append("                      {\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
-          esSubQuery.append("                        }\n");
-          esSubQuery.append("                      }],\n");
-          esSubQuery.append("                      \"must\": {\n");
-          esSubQuery.append("                       \"term\": {\n");
-          esSubQuery.append("                         \"external\": false\n");
-          esSubQuery.append("                         }\n");
-          esSubQuery.append("                      }\n");
-          esSubQuery.append("                    }\n");
-          esSubQuery.append("                  }\n");
-          esSubQuery.append("                  ]\n");
-          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
-          subQueryEmpty = false;
-          appendCommar = true;
+          enrollmentShoulds.add("                  {\n"
+            + "                    \"bool\": {\n"
+            + "                      \"must_not\": [{\n"
+            + "                        \"exists\": {\n"
+            + "                          \"field\": \"enrollmentDate\"\n"
+            + "                          }\n"
+            + "                        },\n"
+            + "                      {\n"
+            + "                        \"exists\": {\n"
+            + "                          \"field\": \"lastLoginTime\"\n"
+            + "                        }\n"
+            + "                      }],\n"
+            + "                      \"must\": {\n"
+            + "                       \"term\": {\n"
+            + "                         \"external\": false\n"
+            + "                         }\n"
+            + "                      }\n"
+            + "                    }\n"
+            + "                  }");
           break;
         }
 
         case "noEnrollmentPossible": {
-
-          esSubQuery.append("    \"should\": [\n");
-          esSubQuery.append("                  {\n");
-          esSubQuery.append("                    \"bool\": {\n");
-          esSubQuery.append("                      \"must_not\": {\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"enrollmentDate\"\n");
-          esSubQuery.append("                          }\n");
-          esSubQuery.append("                        },\n");
-          esSubQuery.append("                      \"must\": {\n");
-          esSubQuery.append("                        \"exists\": {\n");
-          esSubQuery.append("                          \"field\": \"lastLoginTime\"\n");
-          esSubQuery.append("                        }\n");
-          esSubQuery.append("                      }\n");
-          esSubQuery.append("                    }\n");
-          esSubQuery.append("                  },\n");
-          esSubQuery.append("                  {\n");
-          esSubQuery.append("                    \"term\": {\n");
-          esSubQuery.append("                      \"external\": true\n");
-          esSubQuery.append("                    }\n");
-          esSubQuery.append("                  }\n");
-          esSubQuery.append("                  ]\n");
-          esSubQuery.append("                  ,\"minimum_should_match\" : 1\n");
-          subQueryEmpty = false;
-          appendCommar = true;
+          enrollmentShoulds.add("                  {\n"
+            + "                    \"bool\": {\n"
+            + "                      \"must_not\": {\n"
+            + "                        \"exists\": {\n"
+            + "                          \"field\": \"enrollmentDate\"\n"
+            + "                          }\n"
+            + "                        },\n"
+            + "                      \"must\": {\n"
+            + "                        \"exists\": {\n"
+            + "                          \"field\": \"lastLoginTime\"\n"
+            + "                        }\n"
+            + "                      }\n"
+            + "                    }\n"
+            + "                  }");
+          enrollmentShoulds.add("                  {\n"
+            + "                    \"term\": {\n"
+            + "                      \"external\": true\n"
+            + "                    }\n"
+            + "                  }");
           break;
         }
 
         default:
           break;
+      }
+
+      if (CollectionUtils.isNotEmpty(enrollmentShoulds)) {
+        StringBuilder enrollmentBlockBuilder = new StringBuilder();
+        enrollmentBlockBuilder.append("      {\n")
+          .append("        \"bool\": {\n")
+          .append("          \"should\": [\n")
+          .append(String.join(",\n", enrollmentShoulds))
+          .append("          ],\n")
+          .append("          \"minimum_should_match\" : 1\n")
+          .append("        }\n")
+          .append("      }");
+        mustClauses.add(enrollmentBlockBuilder.toString());
+        subQueryEmpty = false;
       }
     }
     if (filter.getRemoteIds() != null && !filter.getRemoteIds().isEmpty()) {
@@ -337,75 +345,97 @@ public class ProfileSearchConnector {
         }
         remoteIds.append("\"").append(remoteId).append("\"");
       }
-      if(appendCommar) {
-        esSubQuery.append("      ,\n");
-      }
-      esSubQuery.append("      \"must\" : {\n");
-      esSubQuery.append("        \"terms\" :{\n");
-      esSubQuery.append("          \"userName\" : [" + remoteIds.toString() + "]\n");
-      esSubQuery.append("        } \n");
-      esSubQuery.append("      }\n");
+      StringBuilder remoteIdClauseBuilder = new StringBuilder();
+      remoteIdClauseBuilder.append("      {\n")
+        .append("        \"terms\" :{\n")
+        .append("          \"userName\" : [").append(remoteIds.toString()).append("]\n")
+        .append("        } \n")
+        .append("      }\n");
+
+      mustClauses.add(remoteIdClauseBuilder.toString());
       subQueryEmpty = false;
-      appendCommar = true;
     }
     if (identity != null && type != null) {
+      StringBuilder identityClauseBuilder = new StringBuilder();
+      identityClauseBuilder.append("      {\n")
+        .append("        \"query_string\" : {\n")
+        .append("          \"query\" : \"").append(identity.getId()).append("\",\n")
+        .append("          \"fields\" : [\"").append(buildTypeEx(type)).append("\"]\n")
+        .append("        }\n")
+        .append("      }\n");
+
+      mustClauses.add(identityClauseBuilder.toString());
+      subQueryEmpty = false;
+    } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
+      StringBuilder excludedClauseBuilder = new StringBuilder();
+      excludedClauseBuilder.append("      {\n")
+        .append("          \"ids\" : {\n")
+        .append("             \"values\" : [").append(buildExcludedIdentities(filter)).append("]\n")
+        .append("          }\n")
+        .append("        }\n");
+
+      mustNotClauses.add(excludedClauseBuilder.toString());
+      subQueryEmpty = false;
+    }
+    if (!expEs.isEmpty() || !expEsForAdvancedFilter.isEmpty()) {
+      if(!expEs.isEmpty()) {
+        StringBuilder qsClause = new StringBuilder();
+        qsClause.append("      {");
+        qsClause.append("          \"query_string\": {\n");
+        if (filter.getName().startsWith("\"") && filter.getName().endsWith("\"")) {
+          qsClause.append("            \"query\": \"").append(expEs).append("\",\n")
+            .append("            \"default_operator\": \"").append("AND").append("\"\n");
+        } else {
+          qsClause.append("            \"query\": \"").append(expEs).append("\"\n");
+        }
+        qsClause.append("          }\n");
+        qsClause.append("      }\n");
+        filterClauses.add(qsClause.toString());
+      }
+
+      if(!expEsForAdvancedFilter.isEmpty()) {
+        filterClauses.add(expEsForAdvancedFilter);
+      }
+    }
+
+    if (CollectionUtils.isNotEmpty(mustClauses)) {
       if(appendCommar) {
         esSubQuery.append("      ,\n");
       }
-      esSubQuery.append("      \"must\" : {\n");
-      esSubQuery.append("        \"query_string\" : {\n");
-      esSubQuery.append("          \"query\" : \""+ identity.getId() +"\",\n");
-      esSubQuery.append("          \"fields\" : [\"" + buildTypeEx(type) + "\"]\n");
-      esSubQuery.append("        }\n");
-      esSubQuery.append("      }\n");
-      subQueryEmpty = false;
+      esSubQuery.append("      \"must\": [\n");
+      esSubQuery.append(String.join(",\n", mustClauses));
+      esSubQuery.append("      ]\n");
       appendCommar = true;
-    } else if (filter.getExcludedIdentityList() != null && filter.getExcludedIdentityList().size() > 0) {
+    }
+
+    if (CollectionUtils.isNotEmpty(mustNotClauses)) {
       if(appendCommar) {
         esSubQuery.append("      ,\n");
       }
       esSubQuery.append("      \"must_not\": [\n");
-      esSubQuery.append("        {\n");
-      esSubQuery.append("          \"ids\" : {\n");
-      esSubQuery.append("             \"values\" : [" + buildExcludedIdentities(filter) + "]\n");
-      esSubQuery.append("          }\n");
-      esSubQuery.append("        }\n");
+      esSubQuery.append(String.join(",\n", mustNotClauses));
       esSubQuery.append("      ]\n");
-      subQueryEmpty = false;
       appendCommar = true;
     }
-    //if the search fields are existing.
-    if (!expEs.isEmpty() || !expEsForAdvancedFilter.isEmpty()) {
+
+    if (CollectionUtils.isNotEmpty(filterClauses)) {
       if(appendCommar) {
         esSubQuery.append("      ,\n");
       }
-      esSubQuery.append("    \"filter\": [\n");
-      if(!expEs.isEmpty()) {
-        esSubQuery.append("      {");
-        esSubQuery.append("          \"query_string\": {\n");
-        if (filter.getName().startsWith("\"") && filter.getName().endsWith("\"")) {
-          esSubQuery.append("            \"query\": \"" + expEs + "\",\n");
-          esSubQuery.append("            \"default_operator\": \"" + "AND" + "\"\n");
-        } else {
-          esSubQuery.append("            \"query\": \"" + expEs + "\"\n");
-        }
-        esSubQuery.append("          }\n");
-        esSubQuery.append("      }\n");
-      }
-      if(!expEsForAdvancedFilter.isEmpty()) {
-        if(!expEs.isEmpty()) {
-          esSubQuery.append(",");
-        }
-        esSubQuery.append(expEsForAdvancedFilter);
-      }
-      esSubQuery.append("    ]\n");
+      esSubQuery.append("      \"filter\": [\n");
+      esSubQuery.append(String.join(",\n", filterClauses));
+      esSubQuery.append("      ]\n");
+      appendCommar = true;
+    }
+    if (appendCommar) {
       subQueryEmpty = false;
-    } //end if
+    }
     esSubQuery.append("     } \n");
     esSubQuery.append("   } \n");
     esSubQuery.append("  }\n");
     esSubQuery.append(" }\n");
     if(!subQueryEmpty) {
+      esQuery.append(",\n");
       esQuery.append(esSubQuery);
     }
 
@@ -592,7 +622,6 @@ public class ProfileSearchConnector {
   private String buildSpacePermissionsExpression(ProfileFilter filter) {
     List<String> permissions = filter.getSpaceIdentityIds();
     StringBuilder query = new StringBuilder();
-    query.append("    \"must\": [\n");
     query.append("      {\n");
     query.append("        \"terms\": {\n");
     query.append("          \"permissions\": [\n");
@@ -600,8 +629,7 @@ public class ProfileSearchConnector {
     query.append("\n");
     query.append("          ]\n");
     query.append("        }\n");
-    query.append("      }\n");
-    query.append("    ]\n");
+    query.append("      }");
     return query.toString();
   }
 }
