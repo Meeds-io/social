@@ -59,13 +59,17 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceImpl implements AttachmentService {
 
-  private static final Log                    LOG                 = ExoLogger.getLogger(AttachmentServiceImpl.class);
+  private static final Log                    LOG                    = ExoLogger.getLogger(AttachmentServiceImpl.class);
 
-  private static final String                 ATTACHMENT_ALT_TEXT = "alt";
+  private static final String                 ATTACHMENT_ALT_TEXT    = "alt";
 
-  private static final String                 ATTACHMENT_FORMAT   = "format";
+  private static final String                 ATTACHMENT_FORMAT      = "format";
 
-  private final Map<String, AttachmentPlugin> attachmentPlugins = new HashMap<>();
+  private static final String                 ATTACHMENT_LINK_URL    = "linkUrl";
+
+  private static final String                 ATTACHMENT_LINK_TARGET = "linkTarget";
+
+  private final Map<String, AttachmentPlugin> attachmentPlugins      = new HashMap<>();
 
   private FileAttachmentStorage               attachmentStorage;
 
@@ -169,12 +173,19 @@ public class AttachmentServiceImpl implements AttachmentService {
                                                   ObjectAlreadyExistsException,
                                                   ObjectNotFoundException {
     UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
-    String altText = uploadedAttachmentDetail.getAltText();
-    String format = uploadedAttachmentDetail.getFormat();
     Map<String, String> properties = new HashMap<>();
-    properties.put(ATTACHMENT_ALT_TEXT, altText);
-    properties.put(ATTACHMENT_FORMAT, format);
-
+    if (StringUtils.isNotBlank(uploadedAttachmentDetail.getAltText())) {
+      properties.put(ATTACHMENT_ALT_TEXT, uploadedAttachmentDetail.getAltText());
+    }
+    if (StringUtils.isNotBlank(uploadedAttachmentDetail.getFormat())) {
+      properties.put(ATTACHMENT_FORMAT, uploadedAttachmentDetail.getFormat());
+    }
+    if (StringUtils.isNotBlank(uploadedAttachmentDetail.getLinkUrl())) {
+      properties.put(ATTACHMENT_LINK_URL, uploadedAttachmentDetail.getLinkUrl());
+    }
+    if (StringUtils.isNotBlank(uploadedAttachmentDetail.getLinkTarget())) {
+      properties.put(ATTACHMENT_LINK_TARGET, uploadedAttachmentDetail.getLinkTarget());
+    }
     Long attachmentId =
                       !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ?
                                                                                Long.parseLong(uploadedAttachmentDetail.getId()) :
@@ -219,8 +230,18 @@ public class AttachmentServiceImpl implements AttachmentService {
     if (uploadResource != null) {
       String fileId = null;
       Map<String, String> properties = new HashMap<>();
-      properties.put(ATTACHMENT_ALT_TEXT, attachmentObject.getAltText());
-      properties.put(ATTACHMENT_FORMAT, attachmentObject.getFormat());
+      if (StringUtils.isNotBlank(attachmentObject.getAltText())) {
+        properties.put(ATTACHMENT_ALT_TEXT, attachmentObject.getAltText());
+      }
+      if (StringUtils.isNotBlank(attachmentObject.getFormat())) {
+        properties.put(ATTACHMENT_FORMAT, attachmentObject.getFormat());
+      }
+      if (StringUtils.isNotBlank(attachmentObject.getLinkUrl())) {
+        properties.put(ATTACHMENT_LINK_URL, attachmentObject.getLinkUrl());
+      }
+      if (StringUtils.isNotBlank(attachmentObject.getLinkTarget())) {
+        properties.put(ATTACHMENT_LINK_TARGET, attachmentObject.getLinkTarget());
+      }
       String fileDiskLocation = uploadResource.getStoreLocation();
       try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
         long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId()).getId());
@@ -398,11 +419,19 @@ public class AttachmentServiceImpl implements AttachmentService {
     List<ObjectAttachmentDetail> attachments = objectAttachmentList.getAttachments();
     if (CollectionUtils.isNotEmpty(attachments)) {
       attachments.forEach(attachment -> {
-        String altText = attachment.getAltText();
-        String format = attachment.getFormat();
         Map<String, String> properties = new HashMap<>();
-        properties.put(ATTACHMENT_ALT_TEXT, altText);
-        properties.put(ATTACHMENT_FORMAT, format);
+        if (StringUtils.isNotBlank(attachment.getAltText())) {
+          properties.put(ATTACHMENT_ALT_TEXT, attachment.getAltText());
+        }
+        if (StringUtils.isNotBlank(attachment.getFormat())) {
+          properties.put(ATTACHMENT_FORMAT, attachment.getFormat());
+        }
+        if (StringUtils.isNotBlank(attachment.getLinkUrl())) {
+          properties.put(ATTACHMENT_LINK_URL, attachment.getLinkUrl());
+        }
+        if (StringUtils.isNotBlank(attachment.getLinkTarget())) {
+          properties.put(ATTACHMENT_LINK_TARGET, attachment.getLinkTarget());
+        }
         String attachmentIdToLink = attachment.getId();
         try {
           //need to copy the existing attachment before linking it to the new object
@@ -568,6 +597,8 @@ public class AttachmentServiceImpl implements AttachmentService {
       }
       uploadedAttachmentDetail.setId(uploadedFile.getId());
       uploadedAttachmentDetail.setAltText(uploadedFile.getAltText());
+      uploadedAttachmentDetail.setLinkUrl(uploadedFile.getLinkUrl());
+      uploadedAttachmentDetail.setLinkTarget(uploadedFile.getLinkTarget());
       uploadedAttachmentDetail.setFormat(uploadedFile.getFormat());
       uploadedAttachmentDetail.setUploadedResource(uploadedResource);
       return uploadedAttachmentDetail;
@@ -737,6 +768,12 @@ public class AttachmentServiceImpl implements AttachmentService {
       if (properties != null && properties.containsKey(ATTACHMENT_ALT_TEXT)) {
         attachment.setAltText(properties.get(ATTACHMENT_ALT_TEXT));
         attachment.setFormat(properties.get(ATTACHMENT_FORMAT));
+      }
+      if (properties != null && properties.containsKey(ATTACHMENT_LINK_URL)) {
+        attachment.setLinkUrl(properties.get(ATTACHMENT_LINK_URL));
+      }
+      if (properties != null && properties.containsKey(ATTACHMENT_LINK_TARGET)) {
+        attachment.setLinkTarget(properties.get(ATTACHMENT_LINK_TARGET));
       }
     }
   }
