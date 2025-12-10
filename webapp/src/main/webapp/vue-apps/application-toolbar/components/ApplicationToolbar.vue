@@ -498,7 +498,6 @@ export default {
     } else {
       document.addEventListener('keydown', this.closeFilter);
     }
-    console.log('dddddddddddddddddddddddddddddddddddddddddd');
   },
   beforeDestroy() {
     this.$root.$off('reset-filter', this.reset);
