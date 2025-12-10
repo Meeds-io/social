@@ -19,12 +19,19 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
+import lombok.SneakyThrows;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -138,6 +145,45 @@ public class SpaceTemplateService {
     }
     return spaceTemplateIds;
   }
+  
+  public List<Long> getTemplateIdsAllowingSubspaces() {
+    return getSpaceTemplates().stream()
+                              .filter(spaceTemplate -> !spaceTemplate.isDeleted() && spaceTemplate.isEnabled()
+                                  && org.apache.commons.collections.CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates()))
+                              .map(SpaceTemplate::getId)
+                              .toList();
+  }
+
+  public List<SpaceTemplate> getAllowedSubspaceTemplates(long templateId, String username, Locale locale) throws ObjectNotFoundException,
+                                                                                           IllegalAccessException {
+
+    SpaceTemplate parentTemplate = spaceTemplateStorage.getSpaceTemplate(templateId);
+
+    if (parentTemplate == null || parentTemplate.isDeleted()) {
+      throw new ObjectNotFoundException("Template not found: " + templateId);
+    }
+
+    List<String> allowedTemplates = parentTemplate.getAllowedSubspaceTemplates();
+    if (CollectionUtils.isEmpty(allowedTemplates)) {
+      return Collections.emptyList();
+    }
+
+    List<Long> templateIds = allowedTemplates.stream()
+                                             .map(item -> item.split(":")[0])
+                                             .filter(part -> !part.isEmpty() && NumberUtils.isCreatable(part))
+                                             .map(Long::parseLong)
+                                             .toList();
+    List<SpaceTemplate> allowedSubspaceTemplates = templateIds.stream().map(id -> getSpaceTemplate(id, locale, true))
+            .filter(Objects::nonNull)
+            .filter(spaceTemplate -> canViewTemplate(spaceTemplate, username)).toList();
+
+    if (CollectionUtils.isEmpty(allowedSubspaceTemplates) && CollectionUtils.isNotEmpty(templateIds)) {
+      throw new IllegalAccessException("User '" + username + "' has no access to allowed subspace templates of template "
+          + templateId);
+    }
+    return allowedSubspaceTemplates;
+  }
+
 
   public long countManagingSpaceTemplates(String username) {
     List<SpaceTemplate> spaceTemplates = spaceTemplateStorage.getSpaceTemplates(Pageable.unpaged());
@@ -312,6 +358,19 @@ public class SpaceTemplateService {
     spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     listenerService.broadcast(SPACE_TEMPLATE_DELETED_EVENT, spaceTemplate, spaceTemplate);
   }
+  
+  public List<Long> getParentSpaceTemplateIds(long subTemplateId) {
+    return getSpaceTemplates().stream()
+                              .filter(template -> template.getAllowedSubspaceTemplates() != null)
+                              .filter(template -> template.getAllowedSubspaceTemplates()
+                                                          .stream()
+                                                          .map(subspaceId -> subspaceId.split(":")[0])
+                                                          .filter(part -> !part.isEmpty() && NumberUtils.isCreatable(part))
+                                                          .mapToLong(Long::parseLong)
+                                                          .anyMatch(id -> id == subTemplateId))
+                              .map(SpaceTemplate::getId)
+                              .toList();
+  }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
                                                   SiteKey sourceSiteKey) throws ObjectNotFoundException {
@@ -350,13 +409,13 @@ public class SpaceTemplateService {
       return false;
     }
     Identity aclIdentity = userAcl.getUserIdentity(username);
-    return aclIdentity != null
-           && (spaceTemplate.getPermissions()
-                            .stream()
-                            .anyMatch(expression -> UserACL.EVERYONE.equals(expression) || aclIdentity.isMemberOf(getMembershipEntry(expression)))
-               || spaceTemplate.getAdminPermissions()
-                               .stream()
-                               .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
+    return aclIdentity != null && (spaceTemplate.getPermissions()
+                                                .stream()
+                                                .anyMatch(expression -> UserACL.EVERYONE.equals(expression)
+                                                    || aclIdentity.isMemberOf(getMembershipEntry(expression)))
+        || spaceTemplate.getAdminPermissions()
+                        .stream()
+                        .anyMatch(expression -> aclIdentity.isMemberOf(getMembershipEntry(expression))));
   }
 
   private MembershipEntry getMembershipEntry(String expression) {

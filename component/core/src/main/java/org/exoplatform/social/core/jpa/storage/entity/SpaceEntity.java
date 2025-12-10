@@ -26,8 +26,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.exoplatform.commons.utils.StringListConverter;
 
+import org.exoplatform.commons.utils.StringListConverter;
 import io.meeds.social.space.constant.PublicSiteVisibility;
 import io.meeds.social.space.constant.SpaceRegistration;
 import io.meeds.social.space.constant.SpaceVisibility;
@@ -87,47 +87,73 @@ public class SpaceEntity implements Serializable {
 
   private static final long                        serialVersionUID           = 3223615477747436986L;
 
+  @Setter
+  @Getter
   @Id
   @SequenceGenerator(name = "SEQ_SOC_SPACES_ID", sequenceName = "SEQ_SOC_SPACES_ID", allocationSize = 1)
   @GeneratedValue(strategy = GenerationType.AUTO, generator = "SEQ_SOC_SPACES_ID")
   @Column(name = "SPACE_ID")
   private Long                                     id;
 
+  @Setter
+  @Getter
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<SpaceMemberEntity>                   members                    = new HashSet<>();
 
+  @Setter
+  @Getter
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<GroupSpaceBindingEntity>             spaceBindingEntities       = new HashSet<>();
 
+  @Setter
+  @Getter
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "space", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities = new HashSet<>();
 
+  @Setter
+  @Getter
   @Column(name = "PRETTY_NAME")
   private String                                   prettyName;
 
+  @Setter
+  @Getter
   @Column(name = "DISPLAY_NAME")
   private String                                   displayName;
 
+  @Setter
+  @Getter
   @Column(name = "REGISTRATION")
   private SpaceRegistration                        registration;
 
+  @Setter
+  @Getter
   @Column(name = "DESCRIPTION")
   private String                                   description;
 
+  @Setter
+  @Getter
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "AVATAR_LAST_UPDATED")
   private Date                                     avatarLastUpdated;
 
+  @Setter
+  @Getter
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "BANNER_LAST_UPDATED")
   private Date                                     bannerLastUpdated;
 
+  @Setter
+  @Getter
   @Column(name = "VISIBILITY")
   public SpaceVisibility                           visibility;
 
+  @Setter
+  @Getter
   @Column(name = "GROUP_ID")
   public String                                    groupId;
 
+  @Setter
+  @Getter
   @Column(name = "URL")
   public String                                    url;
 
@@ -141,10 +167,14 @@ public class SpaceEntity implements Serializable {
   @Column(name = "SOVEREIGN")
   private boolean                                  sovereign;
 
+  @Setter
+  @Getter
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "CREATED_DATE", nullable = false)
   private Date                                     createdDate                = new Date();
 
+  @Setter
+  @Getter
   @Temporal(TemporalType.TIMESTAMP)
   @Column(name = "UPDATED_DATE", nullable = false)
   private Date                                     updatedDate                = new Date();
@@ -177,138 +207,17 @@ public class SpaceEntity implements Serializable {
   @Column(name = "PUBLIC_SITE_PERMISSIONS")
   private List<String>                             publicSitePermissions;
 
+  @Setter
+  @Getter
   @ElementCollection
   @CollectionTable(name = "SOC_SPACE_CATEGORIES", joinColumns = @JoinColumn(name = "SPACE_ID"))
   @OrderBy("createdDate asc")
   private List<SpaceCategoryEntity>                categories                 = new ArrayList<>();           // NOSONAR
 
-  public Long getId() {
-    return id;
-  }
-
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public String getPrettyName() {
-    return prettyName;
-  }
-
-  public void setPrettyName(String prettyName) {
-    this.prettyName = prettyName;
-  }
-
-  public String getDisplayName() {
-    return displayName;
-  }
-
-  public void setDisplayName(String displayName) {
-    this.displayName = displayName;
-  }
-
-  public SpaceRegistration getRegistration() {
-    return registration;
-  }
-
-  public void setRegistration(SpaceRegistration registration) {
-    this.registration = registration;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
-  }
-
-  public Date getAvatarLastUpdated() {
-    return avatarLastUpdated;
-  }
-
-  public void setAvatarLastUpdated(Date avatarLastUpdated) {
-    this.avatarLastUpdated = avatarLastUpdated;
-  }
-
-  public Date getBannerLastUpdated() {
-    return bannerLastUpdated;
-  }
-
-  public void setBannerLastUpdated(Date bannerLastUpdated) {
-    this.bannerLastUpdated = bannerLastUpdated;
-  }
-
-  public SpaceVisibility getVisibility() {
-    return visibility;
-  }
-
-  public void setVisibility(SpaceVisibility visibility) {
-    this.visibility = visibility;
-  }
-
-  public String getGroupId() {
-    return groupId;
-  }
-
-  public void setGroupId(String groupId) {
-    this.groupId = groupId;
-  }
-
-  public String getUrl() {
-    return url;
-  }
-
-  public void setUrl(String url) {
-    this.url = url;
-  }
-
-  public Date getCreatedDate() {
-    return createdDate;
-  }
-
-  public void setCreatedDate(Date createdDate) {
-    this.createdDate = createdDate;
-  }
-
-  public Date getUpdatedDate() {
-    return updatedDate;
-  }
-
-  public void setUpdatedDate(Date updatedDate) {
-    this.updatedDate = updatedDate;
-  }
-
-  public Set<SpaceMemberEntity> getMembers() {
-    return members;
-  }
-
-  public void setMembers(Set<SpaceMemberEntity> members) {
-    this.members = members;
-  }
-
-  public Set<GroupSpaceBindingEntity> getSpaceBindingEntities() {
-    return spaceBindingEntities;
-  }
-
-  public void setSpaceBindingEntities(Set<GroupSpaceBindingEntity> spaceBindingEntities) {
-    this.spaceBindingEntities = spaceBindingEntities;
-  }
-
-  public Set<GroupSpaceBindingReportActionEntity> getSpaceBindingReportEntities() {
-    return spaceBindingReportEntities;
-  }
-
-  public void setSpaceBindingReportEntities(Set<GroupSpaceBindingReportActionEntity> spaceBindingReportEntities) {
-    this.spaceBindingReportEntities = spaceBindingReportEntities;
-  }
-
-  public List<SpaceCategoryEntity> getCategories() {
-    return categories;
-  }
-
-  public void setCategories(List<SpaceCategoryEntity> categories) {
-    this.categories = categories;
-  }
+  @Setter
+  @Getter
+  @Column(name = "PARENT_SPACE_ID")
+  private Long                              parentSpaceId;
 
   public List<Long> getCategoryIds() {
     return getCategories().stream().map(SpaceCategoryEntity::getCategoryId).toList();
@@ -336,7 +245,7 @@ public class SpaceEntity implements Serializable {
   public void addCategory(long categoryId) {
     SpaceCategoryEntity category = new SpaceCategoryEntity(categoryId);
     if (!this.categories.contains(category)) {
-      this.categories.add(0, category);
+      this.categories.addFirst(category);
     }
   }
 

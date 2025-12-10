@@ -36,7 +36,7 @@
     <template v-if="drawer && space" #content>
       <div class="d-none d-lg-block">
         <space-form-preview
-          v-if="drawer && spaceTemplate"
+          v-if="drawer && spaceTemplate && !spaceParentSelecting"
           :space="space"
           :preview-avatar="previewAvatar"
           class="pa-4 position-absolute"
@@ -52,7 +52,7 @@
             class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
             height="136"
             flat
-            @click="open(item.id)">
+            @click="openParentSpaceListFromClick(item.id, parentSpaceId)">
             <v-hover v-slot="{hover}">
               <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
                 <div
@@ -82,6 +82,24 @@
               </div>
             </v-hover>
           </v-card>
+        </div>
+        <div v-else-if="spaceParentSelecting" class="pa-5">
+          <div class="mb-5">
+            Please, select the parent space
+          </div>
+          <v-list-item
+            v-for="s in parentSpaces"
+            :key="s.id"
+            class="px-0"
+            dense
+            @click="selectParentSpace(s)">
+            <v-list-item-content>
+              <space-avatar
+                :space="s"
+                class="not-clickable-link text-truncate"
+                list-style />
+            </v-list-item-content>
+          </v-list-item>
         </div>
         <v-stepper
           v-else-if="spaceTemplate || isEdit"
@@ -199,7 +217,7 @@
         </v-stepper>
       </v-expand-transition>
     </template>
-    <template v-if="drawer && (spaceTemplate || isEdit)" slot="footer">
+    <template v-if="drawer && !spaceParentSelecting && (spaceTemplate || isEdit)" #footer>
       <div class="d-flex">
         <v-btn
           v-if="stepper > 1 && !isEdit"
@@ -256,6 +274,11 @@ export default {
     maxDescriptionLength: 2000,
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
     previewAvatar: null,
+    spaceParentSelecting: false,
+    parentSpaces: [],
+    parentSpacesSize: 0,
+    selectedParentSpace: null,
+    parentSpaceId: null,
   }),
   computed: {
     drawerTitle() {
@@ -370,6 +393,7 @@ export default {
       if (!this.isEdit) {
         this.setSpaceTemplateProperties();
       }
+      this.parentSpaces = [];
     },
     externalAlert() {
       if (this.externalAlert) {
@@ -422,6 +446,59 @@ export default {
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
+    async openParentSpaceList(templateId, space, spaceTemplates, parentSpaceId) {
+      this.parentSpaceId = parentSpaceId;
+      this.templateId = templateId;
+      if (!this.$root.spaceTemplates) {
+        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      }
+      this.templates = this.$root.spaceTemplates;
+
+      if (this.templates?.length === 1) {
+        this.templateId = this.templates[0].id;
+      }
+      this.setSpaceTemplateProperties();
+      const filteredTemplateIds = this.templates
+        .filter(template => (this.parentSpaceId && (template.id === this.templateId)) ||
+          Array.isArray(template.allowedSubspaceTemplates) &&
+              template.allowedSubspaceTemplates.some(subspaceId =>
+                Number(subspaceId.split(':')[0]) === this.templateId
+              )
+        )
+        .map(template => template.id);
+      if (filteredTemplateIds?.length > 0 && !this.parentSpaceId) {
+        const data = await this.$spaceService.getSpacesByFilter({
+          offset: 0,
+          limit: 20,
+          templateId: filteredTemplateIds,
+          filter: 'accessible'
+        });
+        this.parentSpaces = data.spaces || [];
+        this.parentSpacesSize = data.size || [];
+      }
+      if (this.parentSpacesSize === 1) {
+        this.selectParentSpace(this.parentSpaces[0]);
+        this.$refs.spaceFormDrawer.open();
+      } else if (this.parentSpaceId) {
+        const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
+        this.selectParentSpace(parentSpace);
+        this.$refs.spaceFormDrawer.open();
+      } else if (!filteredTemplateIds?.length || !this.parentSpaces?.length) {
+        this.spaceParentSelecting = false;
+        await this.open(templateId, space, spaceTemplates);
+      } else {
+        this.spaceParentSelecting = true;
+        this.$refs.spaceFormDrawer.open();
+      }
+    },
+    openParentSpaceListFromClick(templateId, parentSpaceId) {
+      this.openParentSpaceList(templateId, null, null, parentSpaceId);
+    },
+    selectParentSpace(space) {
+      this.selectedParentSpace = space;
+      this.$set(this.space, 'parentSpaceId', space?.id);
+      this.spaceParentSelecting = false;
+    },
     openByAppId(e) {
       if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
         return;
@@ -429,22 +506,26 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId);
     },
-    openByRootEvent(templateId, spaceTemplates) {
+    openByRootEvent(templateId, spaceTemplates, parentSpaceId) {
       this.goBackButton = !templateId;
-      this.open(templateId, null, spaceTemplates);
+      this.openParentSpaceList(templateId, null, spaceTemplates, parentSpaceId);
     },
     editByEvent(e) {
       this.goBackButton = false;
       this.open(null, e?.detail);
     },
     async open(templateId, space, spaceTemplates) {
-      this.space = space && JSON.parse(JSON.stringify(space)) || {
-        templateId: templateId,
-        subscription: 'open',
-        visibility: 'private',
-      };
+      if (space) {
+        this.space = JSON.parse(JSON.stringify(space));
+      } else {
+        Object.assign(this.space, {
+          templateId: templateId,
+          subscription: 'open',
+          visibility: 'private',
+        });
+      }
       this.templateId = this.space.templateId && Number(this.space.templateId);
       if (spaceTemplates) {
         this.templates = spaceTemplates;
@@ -522,7 +603,19 @@ export default {
             this.close();
             window.location.href = `${eXo.env.portal.context}/s/${space.id}`;
           })
-          .catch(() => this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error'))
+          .catch((err) => {
+            const code = err.message;
+            switch (code) {
+            case 'SUBSPACES_LIMIT_REACHED':
+              this.$root.$emit('alert-message', this.$t('spacesList.error.subspacesLimitReached'), 'error');
+              break;
+            case 'SUBSPACES_PERMISSIONS':
+              this.$root.$emit('alert-message', this.$t('spacesList.error.notAllowedToCreateSubspace'), 'error');
+              break;
+            default:
+              this.$root.$emit(this.$t('spacesList.error.unknownErrorWhenSavingSpace'), 'error');
+            }
+          })
           .finally(() => this.savingSpace = false);
 
       } else {

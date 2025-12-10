@@ -112,7 +112,13 @@ public class SpaceException extends Exception {
     UNABLE_REQUEST_TO_JOIN_HIDDEN,
 
     /** The UNABL e_ t o_ delet e_ space. */
-    UNABLE_TO_DELETE_SPACE
+    UNABLE_TO_DELETE_SPACE,
+
+    /** The maximum number of subspaces has been reached. */
+    SUBSPACES_LIMIT_REACHED,
+
+    /** User not allowed to create subspaces. */
+    SUBSPACES_PERMISSIONS
   }
 
   /** The code. */

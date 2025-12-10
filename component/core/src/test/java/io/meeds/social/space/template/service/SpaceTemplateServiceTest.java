@@ -29,14 +29,23 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.social.core.space.SpaceFilter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.domain.Pageable;
 
@@ -271,6 +280,43 @@ public class SpaceTemplateServiceTest {
     assertTrue(savedSpaceTemplate.isDeleted());
   }
 
+  @Test
+  public void testGetAllowedSubspaceTemplates() throws Exception {
+    // parent template not found
+    when(spaceTemplateStorage.getSpaceTemplate(1L)).thenReturn(null);
+    
+    assertThrows(ObjectNotFoundException.class,
+            () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
+    // parent template deleted
+    SpaceTemplate spaceTemplate = Mockito.mock(SpaceTemplate.class);
+    when(spaceTemplate.isDeleted()).thenReturn(true);
+    when(spaceTemplateStorage.getSpaceTemplate(anyLong())).thenReturn(null).thenReturn(spaceTemplate);
+
+    assertThrows(ObjectNotFoundException.class,
+            () -> spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null));
+
+    // parent template has no allowed subspace template
+    when(spaceTemplate.isDeleted()).thenReturn(false);
+    when(spaceTemplate.getAllowedSubspaceTemplates()).thenReturn(Collections.emptyList());
+
+    List<SpaceTemplate> empty = spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null);
+    assertTrue(empty.isEmpty());
+    // subspace template not accessible for user
+    when(spaceTemplate.getAllowedSubspaceTemplates()).thenReturn(List.of("10:5"));
+    when(userAcl.isAnonymousUser(anyString())).thenReturn(false);
+    org.exoplatform.services.security.Identity identity = mock(org.exoplatform.services.security.Identity.class);
+    when(userAcl.getUserIdentity(anyString())).thenReturn(identity);
+    SpaceTemplate subspaceTemplate = mock(SpaceTemplate.class);
+    when(subspaceTemplate.isEnabled()).thenReturn(true);
+    when(spaceTemplateStorage.getSpaceTemplate(10L)).thenReturn(subspaceTemplate);
+    try(MockedStatic<CommonsUtils> mockedUtils = mockStatic(CommonsUtils.class)) {
+      when(subspaceTemplate.getPermissions()).thenReturn(List.of("*:/platform/users"));
+      when(identity.isMemberOf(any(MembershipEntry.class))).thenReturn(true);
+      List<SpaceTemplate> result = spaceTemplateService.getAllowedSubspaceTemplates(1L, "user", null);
+      assertTrue(CollectionUtils.isNotEmpty(result));
+    }
+  }
+
   private void setCanViewTemplate(boolean hasAccess) {
     when(userAcl.getUserIdentity(TEST_USER)).thenReturn(userIdentity);
     when(userIdentity.isMemberOf(new MembershipEntry(CREATE_AND_ACCESS_PERMISSIONS))).thenReturn(hasAccess);
@@ -301,7 +347,9 @@ public class SpaceTemplateServiceTest {
                              Arrays.asList(SPACE_CATEGORY_ID),
                              SpaceVisibility.PRIVATE,
                              SpaceRegistration.VALIDATION,
-                             true);
+                             true,
+                             null,
+                             0);
   }
 
 }

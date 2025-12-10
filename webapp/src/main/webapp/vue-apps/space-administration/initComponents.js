@@ -35,6 +35,7 @@ import SpacesAdministrationPermissionsMenuItem from './components/menu-action/Sp
 import SpacesAdministrationApplyTemplateMenuItem from './components/menu-action/SpacesAdministrationApplyTemplateMenuItem.vue';
 import SpacesAdministrationEditCategoriesMenuItem from './components/menu-action/SpacesAdministrationEditCategoriesMenuItem.vue';
 import SpacesAdministrationSaveAsTemplateMenuItem from './components/menu-action/SpacesAdministrationSaveAsTemplateMenuItem.vue';
+import SpacesAdministrationRelationshipMenuItem from './components/menu-action/SpacesAdministrationRelationshipMenuItem.vue';
 
 import SpacesAdministrationProcessingAlert from './components/bulk-action/SpacesAdministrationProcessingAlert.vue';
 import SpacesAdministrationBulkEditCategories from './components/bulk-action/SpacesAdministrationBulkEditCategories.vue';
@@ -49,6 +50,7 @@ import SpacesAdministrationBindingReportList from './components/binding-report/S
 import SpacesAdministrationManagersDrawer from './components/drawer/SpacesAdministrationManagersDrawer.vue';
 import SpacesAdministrationSyncMembersDrawer from './components/drawer/SpacesAdministrationSyncMembersDrawer.vue';
 import SpacesAdministrationEditCategoryDrawer from './components/drawer/SpacesAdministrationEditCategoryDrawer.vue';
+import SpacesAdministrationManageRelationshipsDrawer from './components/drawer/SpacesAdministrationManageRelationshipsDrawer.vue';
 import SpacesAdministrationSyncReportsDrawer from './components/drawer/SpacesAdministrationSyncReportsDrawer.vue';
 import SpacesAdministrationPermissionsDrawer from './components/drawer/SpacesAdministrationPermissionsDrawer.vue';
 import SpacesAdministrationApplyTemplateDrawer from './components/drawer/SpacesAdministrationApplyTemplateDrawer.vue';
@@ -76,6 +78,7 @@ const components = {
   'spaces-administration-apply-template-menu-item': SpacesAdministrationApplyTemplateMenuItem,
   'spaces-administration-edit-categories-menu-item': SpacesAdministrationEditCategoriesMenuItem,
   'spaces-administration-save-as-template-menu-item': SpacesAdministrationSaveAsTemplateMenuItem,
+  'spaces-administration-relationship-menu-item': SpacesAdministrationRelationshipMenuItem,
 
   'spaces-administration-processing-alert': SpacesAdministrationProcessingAlert,
   'spaces-administration-bulk-edit-categories': SpacesAdministrationBulkEditCategories,
@@ -87,6 +90,7 @@ const components = {
   'spaces-administration-managers-drawer': SpacesAdministrationManagersDrawer,
   'spaces-administration-sync-members-drawer': SpacesAdministrationSyncMembersDrawer,
   'spaces-administration-edit-categories-drawer': SpacesAdministrationEditCategoryDrawer,
+  'spaces-administration-manage-relationships-drawer': SpacesAdministrationManageRelationshipsDrawer,
   'spaces-administration-sync-reports-drawer': SpacesAdministrationSyncReportsDrawer,
   'spaces-administration-permissions-drawer': SpacesAdministrationPermissionsDrawer,
   'spaces-administration-apply-template-drawer': SpacesAdministrationApplyTemplateDrawer,

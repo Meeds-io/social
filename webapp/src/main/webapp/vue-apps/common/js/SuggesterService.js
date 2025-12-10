@@ -1,9 +1,9 @@
 import {getIdentityByProviderIdAndRemoteId, getIdentityById} from './IdentityService.js';
 
-export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, searchStartedCallback, searchEndCallback) {
+export function searchSpacesOrUsers(filter, result, typeOfRelations, searchOptions, includeUsers, includeSpaces, onlyRedactor, excludeRedactionalSpace, onlyManager, onlyParentSpaces, searchStartedCallback, searchEndCallback) {
   if (includeSpaces) {
     searchStartedCallback('space');
-    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager , searchOptions?.filterType )
+    searchSpaces(filter, result, onlyRedactor, excludeRedactionalSpace, onlyManager, onlyParentSpaces, searchOptions?.filterType )
       .finally(() => searchEndCallback && searchEndCallback('space'));
   }
   if (includeUsers) {
@@ -28,11 +28,12 @@ export function search(filter) {
 * excludeRedactionalSpace : space spaces that have no member promoted as redactor
 * onlyManager : search spaces where the user is a manager
 */
-function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager,filterType) {
+function searchSpaces(filter, items, onlyRedactor, excludeRedactionalSpace, onlyManager, onlyParentSpaces, filterType) {
   const formData = new FormData();
   formData.append('filterType', filterType || 'member');
   formData.append('limit', '20');
   formData.append('q', filter);
+  formData.append('onlyParentSpaces', onlyParentSpaces || false);
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`/portal/rest/v1/social/spaces?${params}`, {credentials: 'include'})

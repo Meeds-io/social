@@ -235,6 +235,13 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Excluded space ids", required = false)
                             @QueryParam("excludedId")
                             List<Long> excludedIds,
+                            @Parameter(description = "Parent space id", required = false)
+                            @QueryParam("parentSpaceId")
+                            String parentSpaceId,
+                            @Parameter(description = "Filter the space list to parent spaces only", required = false)
+                            @DefaultValue("false")
+                            @QueryParam("onlyParentSpaces")
+                            boolean onlyParentSpaces,
                             @Parameter(description = "Used to identify targeted Spaces Directory instance to make further ACL checks when anonymously accessed", required = false)
                             @QueryParam("token")
                             String token,
@@ -259,8 +266,11 @@ public class SpaceRest implements ResourceContainer {
     if (StringUtils.isNotBlank(q)) {
       spaceFilter.setSpaceNameSearchCondition(StringUtils.trim(q));
     }
+    if (StringUtils.isNotBlank(parentSpaceId)) {
+      spaceFilter.setParentSpaceId(Long.parseLong(parentSpaceId));
+    }
     spaceFilter.setTagNames(tagNames);
-    spaceFilter.setTemplateIds(templateIds);
+    spaceFilter.setTemplateIds(onlyParentSpaces ? SpaceUtils.getTemplateIdsAllowingSubspaces() : templateIds);
     spaceFilter.setExcludedIds(excludedIds);
     if (CollectionUtils.isNotEmpty(categoryIds)) {
       spaceFilter.setCategoryIds(categoryIds);
@@ -366,7 +376,12 @@ public class SpaceRest implements ResourceContainer {
     fillSpaceFromModel(space, model);
     space.setEditor(authenticatedUser);
     try {
-      space = spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
+      space = model.getParentSpaceId() > 0
+                                           ? spaceService.createSpace(space,
+                                                                      authenticatedUser,
+                                                                      model.getInvitedMembers(),
+                                                                      model.getParentSpaceId())
+                                           : spaceService.createSpace(space, authenticatedUser, model.getInvitedMembers());
     } catch (SpaceException e) {
       throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
                                                 .entity(e.getCode().name())
@@ -1049,6 +1064,10 @@ public class SpaceRest implements ResourceContainer {
 
     if (space.getSpaceId() == 0 && model.getTemplateId() > 0) {
       space.setTemplateId(model.getTemplateId());
+    }
+
+    if (model.getParentSpaceId() != null) {
+      space.setParentSpaceId(model.getParentSpaceId());
     }
 
     if (StringUtils.isNotBlank(model.getId()) && StringUtils.isNotBlank(model.getBannerId())) {

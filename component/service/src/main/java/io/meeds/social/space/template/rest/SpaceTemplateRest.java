@@ -73,6 +73,26 @@ public class SpaceTemplateRest {
     return spaceTemplateService.getSpaceTemplates(spaceTemplateFilter, Pageable.unpaged(), true);
   }
 
+  @GetMapping("/{templateId}/subspace-templates")
+  @Secured("users")
+  @Operation(summary = "Retrieve allowed subspace templates", description = "Returns the list of subspace templates allowed for the given template.")
+  @ApiResponses(value = {
+          @ApiResponse(responseCode = "200", description = "Request fulfilled"),
+          @ApiResponse(responseCode = "403", description = "Forbidden"),
+          @ApiResponse(responseCode = "404", description = "Not found") })
+  public List<SpaceTemplate> getAllowedSubspaceTemplates(HttpServletRequest request,
+                                               @Parameter(description = "The parent template ID", required = true)
+                                               @PathVariable("templateId")
+                                               long templateId) {
+    try {
+      return spaceTemplateService.getAllowedSubspaceTemplates(templateId, request.getRemoteUser(), request.getLocale());
+    } catch (ObjectNotFoundException e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+    } catch (IllegalAccessException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+    }
+  }
+
   @GetMapping("{id}")
   @Secured("users")
   @Operation(summary = "Retrieve a Space template designated by its id", method = "GET",

@@ -30,6 +30,7 @@
         id="SpaceSettingsPublicAccess"
         v-if="$root.space?.canManagePublicSite" />
       <space-setting-sovereign />
+      <space-setting-subspaces id="SpaceSettingsSubspaces" v-if="isParentSpace" />
       <template>
         <extension-registry-components
           v-if="isActiveSection"
@@ -53,6 +54,9 @@ export default {
     isActiveSection() {
       return !this.$root.activeSection;
     },
+    isParentSpace() {
+      return !this.$root.space?.parentSpaceId;
+    }
   },
 };
 </script>
