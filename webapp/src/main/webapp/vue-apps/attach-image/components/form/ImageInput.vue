@@ -129,7 +129,9 @@ export default {
         .filter((file) => file.progress >= 100)
         .map((file) => ({
           uploadId: file.uploadId,
-          altText: file?.altText || ''
+          altText: file?.altText || '',
+          linkUrl: file?.linkUrl || '',
+          linkTarget: file?.linkTarget || ''
         }));
       const attachedFiles = this.attachments
         .filter(file => file.id)
