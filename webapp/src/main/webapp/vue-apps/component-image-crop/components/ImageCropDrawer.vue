@@ -206,6 +206,34 @@
             </v-card>
           </v-card>
         </div>
+        <div v-if="link" class="d-flex flex-column mt-4">
+          <div class="pt-1 pe-2 d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
+            {{ $t('imageCropDrawer.link.title') }}
+          </div>
+          <v-text-field
+            id="linkUrl"
+            name="linkUrl"
+            v-model="linkUrl"
+            :placeholder="$t('imageCropDrawer.link.placeholder')"
+            :rules="rules.url"
+            class="border-box-sizing width-auto pt-0"
+            type="text"
+            outlined
+            dense
+            mandatory
+            @input="$emit('link-url', linkUrl)" />
+          <div class="d-flex mb-2">
+            <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+              {{ $t('imageCropDrawer.link.target') }}
+            </div>
+            <v-switch
+              v-model="linkTarget"
+              class="my-0 me-n3 pa-0"
+              dense
+              hide-details
+              @change="$emit('link-target', linkTarget)" />
+          </div>
+        </div>
         <div v-if="alt" class="d-flex flex-column mt-4">
           <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
@@ -232,7 +260,7 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="!imageData"
+          :disabled="!imageData || !isValidLink"
           :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
@@ -298,6 +326,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    link: {
+      type: Boolean,
+      default: false,
+    },
     defaultFormat: {
       type: String,
       default: () => 'landscape',
@@ -333,6 +365,8 @@ export default {
     checkFormat: false,
     specificFormatSelected: false,
     imageAspectRatio: 0,
+    linkUrl: null,
+    linkTarget: true
   }),
   computed: {
     aspectRatio() {
@@ -393,6 +427,25 @@ export default {
       }
       || this.cropOptions;
     },
+    isValidLink() {
+      try {
+        return !!this.$utils.toLinkUrl(this.linkUrl, {
+          urls: true,
+          email: true,
+          phone: true,
+        })?.length;
+      } catch (e) {
+        return false;
+      }
+    },
+    rules() {
+      return {
+        url: [
+          v => !!v?.length || ' ',
+          () => this.isValidLink || this.$t('imageCropDrawer.invalidLink'),
+        ],
+      };
+    },
   },
   watch: {
     imageData() {
@@ -441,6 +494,8 @@ export default {
       this.imageData = imageItem?.src || this.src || null;
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
+      this.linkUrl = imageItem?.linkUrl || null;
+      this.linkTarget = imageItem?.linkTarget || true;
       this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
       this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {

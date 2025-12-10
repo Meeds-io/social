@@ -59,13 +59,17 @@ import org.exoplatform.upload.UploadService;
 
 public class AttachmentServiceImpl implements AttachmentService {
 
-  private static final Log                    LOG                 = ExoLogger.getLogger(AttachmentServiceImpl.class);
+  private static final Log                    LOG                    = ExoLogger.getLogger(AttachmentServiceImpl.class);
 
-  private static final String                 ATTACHMENT_ALT_TEXT = "alt";
+  private static final String                 ATTACHMENT_ALT_TEXT    = "alt";
 
-  private static final String                 ATTACHMENT_FORMAT   = "format";
+  private static final String                 ATTACHMENT_FORMAT      = "format";
 
-  private final Map<String, AttachmentPlugin> attachmentPlugins = new HashMap<>();
+  private static final String                 ATTACHMENT_LINK_URL    = "linkUrl";
+
+  private static final String                 ATTACHMENT_LINK_TARGET = "linkTarget";
+
+  private final Map<String, AttachmentPlugin> attachmentPlugins      = new HashMap<>();
 
   private FileAttachmentStorage               attachmentStorage;
 
@@ -171,9 +175,13 @@ public class AttachmentServiceImpl implements AttachmentService {
     UploadResource uploadResource = uploadedAttachmentDetail.getUploadedResource();
     String altText = uploadedAttachmentDetail.getAltText();
     String format = uploadedAttachmentDetail.getFormat();
+    String linkUrl = uploadedAttachmentDetail.getLinkUrl();
+    String linkTarget = uploadedAttachmentDetail.getLinkTarget();
     Map<String, String> properties = new HashMap<>();
     properties.put(ATTACHMENT_ALT_TEXT, altText);
     properties.put(ATTACHMENT_FORMAT, format);
+    properties.put(ATTACHMENT_LINK_URL, linkUrl);
+    properties.put(ATTACHMENT_LINK_TARGET, linkTarget);
 
     Long attachmentId =
                       !(StringUtils.isBlank(uploadedAttachmentDetail.getId())) ?
@@ -221,6 +229,8 @@ public class AttachmentServiceImpl implements AttachmentService {
       Map<String, String> properties = new HashMap<>();
       properties.put(ATTACHMENT_ALT_TEXT, attachmentObject.getAltText());
       properties.put(ATTACHMENT_FORMAT, attachmentObject.getFormat());
+      properties.put(ATTACHMENT_LINK_URL, attachmentObject.getLinkUrl());
+      properties.put(ATTACHMENT_LINK_TARGET, attachmentObject.getLinkTarget());
       String fileDiskLocation = uploadResource.getStoreLocation();
       try (InputStream inputStream = new FileInputStream(fileDiskLocation)) {
         long userIdentityId = Long.parseLong(identityManager.getOrCreateUserIdentity(userAclIdentity.getUserId()).getId());
@@ -400,9 +410,13 @@ public class AttachmentServiceImpl implements AttachmentService {
       attachments.forEach(attachment -> {
         String altText = attachment.getAltText();
         String format = attachment.getFormat();
+        String linkUrl = attachment.getLinkUrl();
+        String linkTarget = attachment.getLinkTarget();
         Map<String, String> properties = new HashMap<>();
         properties.put(ATTACHMENT_ALT_TEXT, altText);
         properties.put(ATTACHMENT_FORMAT, format);
+        properties.put(ATTACHMENT_LINK_URL, linkUrl);
+        properties.put(ATTACHMENT_LINK_TARGET, linkTarget);
         String attachmentIdToLink = attachment.getId();
         try {
           //need to copy the existing attachment before linking it to the new object
@@ -568,6 +582,8 @@ public class AttachmentServiceImpl implements AttachmentService {
       }
       uploadedAttachmentDetail.setId(uploadedFile.getId());
       uploadedAttachmentDetail.setAltText(uploadedFile.getAltText());
+      uploadedAttachmentDetail.setLinkUrl(uploadedFile.getLinkUrl());
+      uploadedAttachmentDetail.setLinkTarget(uploadedFile.getLinkTarget());
       uploadedAttachmentDetail.setFormat(uploadedFile.getFormat());
       uploadedAttachmentDetail.setUploadedResource(uploadedResource);
       return uploadedAttachmentDetail;
@@ -737,6 +753,12 @@ public class AttachmentServiceImpl implements AttachmentService {
       if (properties != null && properties.containsKey(ATTACHMENT_ALT_TEXT)) {
         attachment.setAltText(properties.get(ATTACHMENT_ALT_TEXT));
         attachment.setFormat(properties.get(ATTACHMENT_FORMAT));
+      }
+      if (properties != null && properties.containsKey(ATTACHMENT_LINK_URL)) {
+        attachment.setLinkUrl(properties.get(ATTACHMENT_LINK_URL));
+      }
+      if (properties != null && properties.containsKey(ATTACHMENT_LINK_TARGET)) {
+        attachment.setLinkTarget(properties.get(ATTACHMENT_LINK_TARGET));
       }
     }
   }
