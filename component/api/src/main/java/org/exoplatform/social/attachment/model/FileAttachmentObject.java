@@ -35,9 +35,13 @@ public class FileAttachmentObject implements Cloneable {
 
   private String format;
 
+  private String linkUrl;
+
+  private String linkTarget;
+
   @Override
   public FileAttachmentObject clone() { // NOSONAR
-    return new FileAttachmentObject(id, uploadId, altText, format);
+    return new FileAttachmentObject(id, uploadId, altText, format, linkUrl, linkTarget);
   }
 
 }
