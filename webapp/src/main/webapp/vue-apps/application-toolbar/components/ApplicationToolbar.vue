@@ -113,7 +113,7 @@
           </v-btn>
           <div
             v-if="$slots.right"
-            :class="isCompact && 'flex-grow-1'"
+            :class="isCompact && !hideConeButton && 'flex-grow-1'"
             class="d-flex width-auto">
             <slot name="right"></slot>
           </div>
@@ -491,7 +491,6 @@ export default {
     } else {
       document.addEventListener('keydown', this.closeFilter);
     }
-    console.log('dddddddddddddddddddddddddddddddddddddddddd');
   },
   beforeDestroy() {
     this.$root.$off('reset-filter', this.reset);
