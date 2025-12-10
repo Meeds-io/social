@@ -17,6 +17,7 @@
           :class="thumbnailMobileNoBorder || 'border-color'"
           :style="`background-color: ${thumbnailBG};`"
           class="overflow-hidden"
+          height="unset"
           eager
           tile>
           <v-img
@@ -25,7 +26,7 @@
             :alt="featuredThumbnailAltText"
             :class="thumbnailClass"
             :style="imageMobileStyle"
-            :aspect-ratio="8"
+            :aspect-ratio="4"
             class="my-auto"
             loading="lazy"
             width="auto"
@@ -59,16 +60,15 @@
           :activity="activity"
           :is-mobile="isMobile"
           :activity-type-extension="activityTypeExtension"
-          class="mx-2 mb-2"/>
+          class="mx-2 mb-2" />
       </div>
     </template>
     <template v-else>
       <v-avatar
         v-if="supportsThumbnail"
-        v-bind="!isMobile &&{
-          height: thumbnailHeight,
-        } || {
-          maxHeight:thumbnailMobileMaxHeight
+        v-bind="{
+          height: !isMobile ? thumbnailHeight : 'unset',
+          maxHeight: isMobile ? thumbnailMobileMaxHeight : 'unset',
         }"
         :min-height="!isMobile && thumbnailHeight || thumbnailMobileMinHeight"
         :min-width="!isMobile && thumbnailWidth || (useEmbeddedLinkView && '100%' || thumbnailWidth)"
@@ -88,7 +88,7 @@
           :src="thumbnail"
           :alt="featuredThumbnailAltText"
           :class="thumbnailClass"
-          :aspect-ratio="!isMobile && 16/9 || 8"
+          :aspect-ratio="!isMobile && 16/9 || 4"
           class="my-auto"
           loading="lazy"
           width="auto"
@@ -277,10 +277,10 @@ export default {
       return this.defaultIcon && this.defaultIcon.noBorder;
     },
     thumbnailMobileMaxHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.maxHeight || '75px';
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.maxHeight || '140px';
     },
     thumbnailMobileMinHeight() {
-      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.minHeight || '40px';
+      return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.minHeight || '50px';
     },
     thumbnailMobileWidth() {
       return this.thumbnailProperties && this.thumbnailProperties.mobile && this.thumbnailProperties.mobile.width || '100%';
