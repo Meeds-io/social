@@ -33,7 +33,7 @@
     }"
     :right-select-box="{
       hide: compactDisplay || hideFilter,
-      selected:'all',
+      selected: filter,
       items: peopleFilters,
     }"
     :compact="compactDisplay"
