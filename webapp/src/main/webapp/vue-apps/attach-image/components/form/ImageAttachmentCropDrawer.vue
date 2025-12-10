@@ -28,10 +28,13 @@
     :use-format="useFormat"
     :custom-format="!useFormat"
     alt
+    link
     @input="uploadId = $event"
     @data="imageData = $event"
     @alt-text="altText = $event"
-    @format="format = $event" />
+    @format="format = $event"
+    @link-url="linkUrl = $event"
+    @link-target="linkTarget = $event" />
 </template>
 <script>
 export default {
@@ -66,7 +69,9 @@ export default {
     maxFileSize: 20971520,
     altText: null,
     format: null,
-    imageData: null
+    imageData: null,
+    linkUrl: null,
+    linkTarget: null
   }),
   computed: {
     imageCropperSrc() {
@@ -113,6 +118,8 @@ export default {
           progress: 100,
           oldUploadId: this.imageItem?.uploadId || '',
           altText: this.altText || '',
+          linkUrl: this.linkUrl || '',
+          linkTarget: this.linkTarget || '',
           format: this.format || '',
           mimetype: this.imageMimeType
         });
@@ -125,6 +132,8 @@ export default {
           oldUploadId: this.imageItem?.uploadId || '',
           altText: this.altText || '',
           format: this.format || '',
+          linkUrl: this.linkUrl || '',
+          linkTarget: this.linkTarget || '',
           mimetype: this.imageMimeType
         }}));
       }

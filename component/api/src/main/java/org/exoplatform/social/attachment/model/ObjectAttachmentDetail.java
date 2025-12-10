@@ -46,6 +46,10 @@ public class ObjectAttachmentDetail implements Cloneable {
 
   private String format;
 
+  private String linkUrl;
+
+  private String linkTarget;
+
   public ObjectAttachmentDetail(String id, String name, String mimetype, long size, long updated, String updater) {
     this.id = id;
     this.name = name;
@@ -57,7 +61,7 @@ public class ObjectAttachmentDetail implements Cloneable {
 
   @Override
   public ObjectAttachmentDetail clone() { // NOSONAR
-    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater, altText, format);
+    return new ObjectAttachmentDetail(id, name, mimetype, size, updated, updater, altText, format, linkUrl, linkTarget);
   }
 
   @Override
