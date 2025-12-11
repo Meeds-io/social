@@ -96,7 +96,7 @@ export default {
       if (link && link.startsWith('/')) {
         link = this.rememberme && `${link}&_rememberme=true` || link;
       }
-      if (this.initialUri) {
+      if (link && this.initialUri) {
         const separator = link.includes('?') ? '&' : '?';
         link = `${link}${separator}_initialURI=${this.initialUri}`;
       }
