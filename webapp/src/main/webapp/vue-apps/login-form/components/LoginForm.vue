@@ -263,6 +263,7 @@ export default {
     this.displayWelcomeMessage = this.values?.displayWelcomeMessage;
     this.displayProvidersIcons = this.values?.displayProvidersIcons;
     this.listExternalProviders = this.values?.listExternalProviders;
+    this.values.initialUri = this.initialUri;
     this.signinEmailButton = decodeURIComponent(this.values?.signinEmailButton || this.$t('portal.login.SigninUsingEmail'));
     this.$root.$on('login-form-settings-updated', (welcomeBackTranslations,
       newHereTranslations,
