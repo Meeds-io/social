@@ -257,7 +257,7 @@ export default {
       if (item.value && (!item.multiValued && item.children.length)) {
         item.children = [];
       }
-      if (!this.propertiesToSave.some(e => e.id === item.id)) {
+      if (!this.propertiesToSave.some(e => e.id === item.id) && item.editable) {
         this.propertiesToSave.push(item);
       }    
     },
