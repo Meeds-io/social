@@ -119,7 +119,7 @@ export default {
           oldUploadId: this.imageItem?.uploadId || '',
           altText: this.altText || '',
           linkUrl: this.linkUrl || '',
-          linkTarget: this.linkTarget ?? '',
+          linkTarget: this.linkTarget || '',
           format: this.format || '',
           mimetype: this.imageMimeType
         });
@@ -133,7 +133,7 @@ export default {
           altText: this.altText || '',
           format: this.format || '',
           linkUrl: this.linkUrl || '',
-          linkTarget: this.linkTarget ?? '',
+          linkTarget: this.linkTarget || '',
           mimetype: this.imageMimeType
         }}));
       }
