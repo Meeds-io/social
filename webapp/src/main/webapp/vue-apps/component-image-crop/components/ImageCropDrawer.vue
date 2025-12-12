@@ -228,6 +228,8 @@
             </div>
             <v-switch
               v-model="linkTarget"
+              :true-value="''"
+              :false-value="'_blank'"
               class="my-0 me-n3 pa-0"
               dense
               hide-details
@@ -366,7 +368,7 @@ export default {
     specificFormatSelected: false,
     imageAspectRatio: 0,
     linkUrl: null,
-    linkTarget: true
+    linkTarget: ''
   }),
   computed: {
     aspectRatio() {
@@ -495,7 +497,7 @@ export default {
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
       this.linkUrl = imageItem?.linkUrl || null;
-      this.linkTarget = imageItem?.linkTarget || true;
+      this.linkTarget = imageItem?.linkTarget || '';
       this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
       this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {
