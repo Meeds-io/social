@@ -9,7 +9,7 @@
         color="while"
         width="23px"
         height="23px"
-        class="absolute-vertical-center"
+        class="absolute-vertical-center z-index-one"
         fab
         dark
         absolute
@@ -37,7 +37,7 @@
         color="while"
         width="23px"
         height="23px"
-        class="absolute-vertical-center"
+        class="absolute-vertical-center z-index-one"
         fab
         dark
         absolute
