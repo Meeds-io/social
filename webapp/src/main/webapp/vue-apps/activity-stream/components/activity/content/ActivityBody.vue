@@ -49,7 +49,8 @@ export default {
   data: () => ({
     body: null,
     fullContent: false,
-    displayReadMoreButton: false
+    displayReadMoreButton: false,
+    resizeObserver: null
   }),
   computed: {
     bodyElement() {
@@ -94,20 +95,38 @@ export default {
   mounted() {
     this.$tagService.initTags(this.$t('Tag.tooltip.startSearch'));
     this.displayReadMore();
+    this.initResizeObserver();
   },
   beforeDestroy() {
     window.removeEventListener('resize', this.displayReadMore);
+    this.resizeObserver?.disconnect();
   },
   methods: {
     retrieveActivityProperties() {
       this.body = this.getBody && this.getBody(this.activity, this.isActivityDetail);
     },
     displayReadMore() {
-      const elem = this.$el?.querySelector?.('.rich-editor-content');
+      const elem = this.getEditorContentElement();
       this.displayReadMoreButton = elem && elem?.scrollHeight > elem?.clientHeight;
     },
     displayFullContent() {
       this.fullContent = !this.fullContent;
+    },
+    getEditorContentElement() {
+      return this.$el.querySelector('.rich-editor-content');
+    },
+    initResizeObserver() {
+      if (this.resizeObserver) {
+        return;
+      }
+      const elem = this.getEditorContentElement();
+      if (!elem) {
+        return;
+      }
+      this.resizeObserver = new ResizeObserver(() => {
+        this.displayReadMore();
+      });
+      this.resizeObserver.observe(elem);
     },
   },
 };
