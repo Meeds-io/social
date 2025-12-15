@@ -109,8 +109,11 @@ export default {
         this.reset();
       }
     },
-    reset() {
+    async reset() {
       this.attachments = [];
+      await this.$nextTick();
+      this.attachmentUpdated = false;
+      this.$refs?.uploadInput?.reset?.();
     },
     triggerAttachmentsSave(event) {
       const objectType = event?.detail?.objectType;
@@ -163,9 +166,7 @@ export default {
       }).finally(() => {
         this.images = [];
         this.attachmentUpdated = true;
-        if (this.$refs.uploadInput) {
-          this.$refs.uploadInput.reset();
-        }
+        this.$refs?.uploadInput?.reset?.();
       });
     },
     deleteImage(image) {
