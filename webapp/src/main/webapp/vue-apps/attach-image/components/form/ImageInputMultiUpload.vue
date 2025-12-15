@@ -18,6 +18,7 @@
 -->
 <template>
   <v-file-input
+    v-if="display"
     id="attachedImagesField"
     ref="attachedImages"
     accept="image/*"
@@ -39,7 +40,8 @@ export default {
     },
   },
   data: () => ({
-    filesArray: []
+    filesArray: [],
+    display: true,
   }),
   watch: {
     filesArray() {
@@ -59,8 +61,14 @@ export default {
     document.removeEventListener('attachments-drop-files', this.handleDropFiles);
   },
   methods: {
-    reset() {
+    async reset() {
       this.filesArray = [];
+      await this.refresh();
+    },
+    async refresh() {
+      this.display = false;
+      await this.$nextTick();
+      this.display = true;
     },
     deleteFile(uploadId) {
       const fileIndex = this.filesArray.findIndex(f => f.uploadId === uploadId);
@@ -113,6 +121,7 @@ export default {
           }
         });
         this.$emit('update-images', this.filesArray);
+        this.refresh();
       }
     },
     uploadFileToServer(file, fileDetails) {
