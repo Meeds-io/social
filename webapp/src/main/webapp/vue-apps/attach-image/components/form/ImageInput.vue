@@ -159,6 +159,7 @@ export default {
           objectType: this.objectType,
           objectId: this.attachmentObjectId,
         }}));
+        return report;
       }).finally(() => {
         this.images = [];
         this.attachmentUpdated = true;
