@@ -529,6 +529,12 @@ export default {
         // When CKEditor not initialized or is detroying
       }
     },
+    reset() {
+      this.initCKEditorData('');
+      if (this.$refs.attachmentsInput) {
+        this.$refs.attachmentsInput.reset();
+      }
+    },
     unload: function() {
       if (this.editor) {
         this.$set(this.editor, 'status', 'not-ready');
