@@ -46,18 +46,11 @@
         v-else
         :class="!canCreateSpace && 'ms-n3'"
         class="d-flex align-center">
-        <v-btn
+        <space-creation-button
           v-if="canCreateSpace"
-          id="addNewSpaceButton"
-          :small="$root.isMobile"
-          color="primary"
-          elevation="0"
-          @click="$root.$emit('addNewSpace')">
-          <v-icon size="18" dark>fa-plus</v-icon>
-          <span class="ms-2 hidden-xs-only">
-            {{ $t('spacesList.button.add') }}
-          </span>
-        </v-btn>
+          :color="'primary'"
+          :elevation="0"
+          display-label />
         <space-pending-button
           v-if="$root.requestsCount"
           :count="$root.requestsCount"
