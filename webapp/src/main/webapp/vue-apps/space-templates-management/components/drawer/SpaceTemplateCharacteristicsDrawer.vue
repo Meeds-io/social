@@ -633,7 +633,7 @@ export default {
           });
           this.spaceTemplate.subspacesMaxLimit = this.subspacesMaxLimit;
         } else {
-          this.spaceTemplate.allowedSubspaceTemplates = [];
+          this.spaceTemplate.allowedSubspaceTemplates = null;
           this.spaceTemplate.subspacesMaxLimit = null;
         }
         if (this.isNew) {
