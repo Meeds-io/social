@@ -113,7 +113,7 @@
           </v-btn>
           <div
             v-if="$slots.right"
-            :class="isCompact && 'flex-grow-1'"
+            :class="isCompact && !hideConeButton && 'flex-grow-1'"
             class="d-flex width-auto">
             <slot name="right"></slot>
           </div>
@@ -355,7 +355,7 @@ export default {
       return this.hasCenterButtonToggle || this.$slots.center;
     },
     showCenterContent() {
-      return !this.hideCenter && !this.expandFilter && (!this.isCompact || this.hasCenterContent);
+      return !this.hideCenter && !this.expandFilter && !this.isCompact && this.hasCenterContent;
     },
     hasTextFilter() {
       return this.rightTextFilter
