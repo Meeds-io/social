@@ -1490,7 +1490,7 @@ public class SpaceServiceImpl implements SpaceService {
     if (parentSpaceId > 0) {
       return parentSpaceId;
     }
-    List<Long> parentSpaceTemplateIds = getSpaceTemplateService().getParentSpaceTemplateIds(templateId);
+    List<Long> parentSpaceTemplateIds = getSpaceTemplateService().getParentSpaceTemplateIds(List.of(templateId), username);
     if (parentSpaceTemplateIds.isEmpty()) {
       return parentSpaceId;
     }
