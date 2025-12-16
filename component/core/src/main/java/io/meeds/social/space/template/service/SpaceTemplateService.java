@@ -19,19 +19,18 @@
 package io.meeds.social.space.template.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import lombok.SneakyThrows;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -358,18 +357,38 @@ public class SpaceTemplateService {
     spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     listenerService.broadcast(SPACE_TEMPLATE_DELETED_EVENT, spaceTemplate, spaceTemplate);
   }
-  
-  public List<Long> getParentSpaceTemplateIds(long subTemplateId) {
+
+  public List<Long> getParentSpaceTemplateIds(List<Long> subspaceTemplateIds, String userName) {
+    if (CollectionUtils.isEmpty(subspaceTemplateIds)) {
+      return List.of();
+    }
+    Set<Long> subspaceTemplateIdSet = new HashSet<>(subspaceTemplateIds);
     return getSpaceTemplates().stream()
                               .filter(template -> template.getAllowedSubspaceTemplates() != null)
                               .filter(template -> template.getAllowedSubspaceTemplates()
                                                           .stream()
-                                                          .map(subspaceId -> subspaceId.split(":")[0])
-                                                          .filter(part -> !part.isEmpty() && NumberUtils.isCreatable(part))
-                                                          .mapToLong(Long::parseLong)
-                                                          .anyMatch(id -> id == subTemplateId))
+                                                          .map(this::extractTemplateId)
+                                                          .filter(Objects::nonNull)
+                                                          .anyMatch(id -> subspaceTemplateIdSet.contains(id) && canViewTemplate(id, userName)))
                               .map(SpaceTemplate::getId)
                               .toList();
+  }
+
+  public List<Long> getSubspaceTemplateIds(String userName) {
+    List<SpaceTemplate> allTemplates = getSpaceTemplates();
+    Set<Long> subspaceTemplateIds = allTemplates.stream()
+                                                .map(SpaceTemplate::getAllowedSubspaceTemplates)
+                                                .filter(Objects::nonNull)
+                                                .flatMap(Collection::stream)
+                                                .map(this::extractTemplateId)
+                                                .filter(Objects::nonNull)
+                                                .collect(Collectors.toSet());
+
+    return allTemplates.stream()
+                       .filter(t -> subspaceTemplateIds.contains(t.getId()))
+                       .filter(t -> canViewTemplate(t, userName))
+                       .map(SpaceTemplate::getId)
+                       .toList();
   }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
@@ -420,6 +439,11 @@ public class SpaceTemplateService {
 
   private MembershipEntry getMembershipEntry(String expression) {
     return expression.contains(":") ? MembershipEntry.parse(expression) : new MembershipEntry(expression);
+  }
+
+  private Long extractTemplateId(String rawId) {
+    String idPart = rawId.split(":")[0];
+    return NumberUtils.isCreatable(idPart) ? Long.parseLong(idPart) : null;
   }
 
 }
