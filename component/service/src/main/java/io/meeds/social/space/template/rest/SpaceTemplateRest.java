@@ -93,6 +93,17 @@ public class SpaceTemplateRest {
     }
   }
 
+  @GetMapping("/subspaceTemplateIds")
+  @Secured("users")
+  @Operation(
+          summary = "Retrieve subspace template IDs",
+          description = "Returns the list of subspace template IDs accessible to the current user."
+  )
+  @ApiResponse(responseCode = "200", description = "Request fulfilled")
+  public List<Long> getSubspaceTemplateIds(HttpServletRequest request) {
+    return spaceTemplateService.getSubspaceTemplateIds(request.getRemoteUser());
+  }
+
   @GetMapping("{id}")
   @Secured("users")
   @Operation(summary = "Retrieve a Space template designated by its id", method = "GET",
