@@ -38,6 +38,7 @@ import SpaceCardButton from './components/common/SpaceCardButton.vue';
 import SpaceCardUnreadBadge from './components/common/SpaceCardUnreadBadge.vue';
 import SpaceFavoriteAction from './components/common/SpaceFavoriteAction.vue';
 import SpacesFilterSettings from './components/list/SpacesFilterSettings.vue';
+import SpaceCreationButton from './components/common/SpaceCreationButton.vue';
 
 const components = {
   'spaces-list': SpacesList,
@@ -56,7 +57,8 @@ const components = {
   'space-favorite-action': SpaceFavoriteAction,
   'space-pending-button': SpacePendingButton,
   'spaces-public-access-warning': SpacesPublicAccessWarning,
-  'spaces-filter-settings': SpacesFilterSettings
+  'spaces-filter-settings': SpacesFilterSettings,
+  'space-creation-button': SpaceCreationButton
 };
 
 for (const key in components) {

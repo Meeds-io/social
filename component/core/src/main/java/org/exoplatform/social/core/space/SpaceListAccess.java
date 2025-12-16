@@ -24,8 +24,11 @@ import static org.exoplatform.social.core.space.SpaceListAccessType.ALL;
 import static org.exoplatform.social.core.space.SpaceListAccessType.*;
 import static org.exoplatform.social.core.space.SpaceListAccessType.VISIBLE;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +42,7 @@ import io.meeds.social.search.model.SpaceSearchFilter;
 import io.meeds.social.search.model.SpaceSearchResult;
 import io.meeds.social.space.constant.SpaceMembershipStatus;
 import io.meeds.social.space.template.service.SpaceTemplateService;
+import org.springframework.util.CollectionUtils;
 
 public class SpaceListAccess implements ListAccess<Space> {
 
@@ -323,6 +327,13 @@ public class SpaceListAccess implements ListAccess<Space> {
         && (userId != null || spaceFilter.getRemoteId() != null)) {
       spaceFilter.setManagingTemplateIds(spaceTemplateService.getManagingSpaceTemplates(StringUtils.firstNonBlank(userId,
                                                                                                                   spaceFilter.getRemoteId())));
+    }
+    if (spaceFilter != null && spaceTemplateService != null) {
+      if (spaceFilter.isOnlyParentSpaces()) {
+        spaceFilter.setTemplateIds(spaceTemplateService.getTemplateIdsAllowingSubspaces());
+      } else if (!CollectionUtils.isEmpty(spaceFilter.getSubTemplateIds())) {
+        spaceFilter.setTemplateIds(spaceTemplateService.getParentSpaceTemplateIds(spaceFilter.getSubTemplateIds(), userId));
+      }
     }
     return spaceFilter;
   }
