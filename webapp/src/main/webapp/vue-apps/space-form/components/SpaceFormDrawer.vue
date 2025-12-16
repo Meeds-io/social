@@ -29,7 +29,7 @@
     class="spaceFormDrawer"
     @opened="stepper = 1"
     @closed="stepper = 0"
-    @go-back="templateId = null">
+    @go-back="goBack">
     <template #title>
       {{ drawerTitle }}
     </template>
@@ -52,7 +52,7 @@
             class="space-template-card col-6 mt-0 mb-4 mx-0 ps-4 pa-0"
             height="136"
             flat
-            @click="openParentSpaceListFromClick(item.id, parentSpaceId)">
+            @click="handleAddNewSpace(item.id, templates, parentSpaceId)">
             <v-hover v-slot="{hover}">
               <div class="d-flex flex-column border-color align-center full-height full-width pb-3 px-2">
                 <div
@@ -268,6 +268,7 @@ export default {
     stepper: 0,
     templateId: null,
     templates: [],
+    subspaceTemplateIds: [],
     selectedSpacesWithExternals: [],
     externalAlert: false,
     goBackButton: false,
@@ -446,58 +447,79 @@ export default {
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
-    async openParentSpaceList(templateId, space, spaceTemplates, parentSpaceId) {
-      this.parentSpaceId = parentSpaceId;
+    async handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting) {
       this.templateId = templateId;
-      if (!this.$root.spaceTemplates) {
-        this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+      this.parentSpaceId = parentSpaceId;
+      this.templates = spaceTemplates;
+      if (spaceParentSelecting) {
+        const data = await this.$spaceService.getSpacesByFilter({
+          offset: 0,
+          limit: 20,
+          onlyParentSpaces: true,
+          filter: 'accessible'
+        });
+        this.parentSpaces = data.spaces || [];
+        this.spaceParentSelecting = true;
+        this.$refs.spaceFormDrawer.open();
+        return;
       }
-      this.templates = this.$root.spaceTemplates;
-
+      if (!this.templates ) {
+        if (!this.$root.spaceTemplates) {
+          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+        }
+        this.templates = this.$root.spaceTemplates;
+      }
+      if (!this.$root.subspaceTemplateIds) {
+        this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
+      }
+      this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
       if (this.templates?.length === 1) {
         this.templateId = this.templates[0].id;
       }
       this.setSpaceTemplateProperties();
-      const filteredTemplateIds = this.templates
-        .filter(template => (this.parentSpaceId && (template.id === this.templateId)) ||
-          Array.isArray(template.allowedSubspaceTemplates) &&
-              template.allowedSubspaceTemplates.some(subspaceId =>
-                Number(subspaceId.split(':')[0]) === this.templateId
-              )
-        )
-        .map(template => template.id);
-      if (filteredTemplateIds?.length > 0 && !this.parentSpaceId) {
+      if (!this.templateId && !this.parentSpaceId && !spaceParentSelecting) {
+        this.spaceParentSelecting = false;
+        this.$refs.spaceFormDrawer.open();
+        return;
+      }
+      if (this.parentSpaceId) {
+        const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
+        await this.selectParentSpace(parentSpace);
+        this.$refs.spaceFormDrawer.open();
+        return;
+      }
+      if (this.templateId) {
+        const isSubspaceTemplate = this.subspaceTemplateIds.includes(this.templateId);
+        if (!isSubspaceTemplate || this.selectedParentSpace) {
+          this.spaceParentSelecting = false;
+          this.$refs.spaceFormDrawer.open();
+          return;
+        }
         const data = await this.$spaceService.getSpacesByFilter({
           offset: 0,
           limit: 20,
-          templateId: filteredTemplateIds,
+          subTemplateId: this.templateId,
           filter: 'accessible'
         });
         this.parentSpaces = data.spaces || [];
         this.parentSpacesSize = data.size || [];
-      }
-      if (this.parentSpacesSize === 1) {
-        this.selectParentSpace(this.parentSpaces[0]);
-        this.$refs.spaceFormDrawer.open();
-      } else if (this.parentSpaceId) {
-        const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
-        this.selectParentSpace(parentSpace);
-        this.$refs.spaceFormDrawer.open();
-      } else if (!filteredTemplateIds?.length || !this.parentSpaces?.length) {
-        this.spaceParentSelecting = false;
-        await this.open(templateId, space, spaceTemplates);
-      } else {
-        this.spaceParentSelecting = true;
+        if (this.parentSpacesSize === 1) {
+          await this.selectParentSpace(this.parentSpaces[0]);
+          this.$refs.spaceFormDrawer.open();
+          return;
+        }
+        this.spaceParentSelecting = this.parentSpacesSize > 1;
         this.$refs.spaceFormDrawer.open();
       }
     },
-    openParentSpaceListFromClick(templateId, parentSpaceId) {
-      this.openParentSpaceList(templateId, null, null, parentSpaceId);
-    },
-    selectParentSpace(space) {
+    async selectParentSpace(space) {
       this.selectedParentSpace = space;
       this.$set(this.space, 'parentSpaceId', space?.id);
       this.spaceParentSelecting = false;
+      if (!this.templateId && !this.parentSpaceId) {
+        const allowedSubspaceTemplates = await this.$spaceTemplateService.getAllowedSubspaceTemplates(space?.templateId);
+        await this.handleAddNewSpace(null, allowedSubspaceTemplates, space?.id);
+      }
     },
     openByAppId(e) {
       if (typeof e?.detail === 'number' && this.$root.id && this.$root.id !== e?.detail) {
@@ -506,11 +528,11 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId, e?.detail?.spaceParentSelecting);
     },
-    openByRootEvent(templateId, spaceTemplates, parentSpaceId) {
+    openByRootEvent(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting) {
       this.goBackButton = !templateId;
-      this.openParentSpaceList(templateId, null, spaceTemplates, parentSpaceId);
+      this.handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting);
     },
     editByEvent(e) {
       this.goBackButton = false;
@@ -630,6 +652,12 @@ export default {
     },
     avatarUpdated(avatar) {
       this.previewAvatar = avatar;
+    },
+    goBack() {
+      this.templateId = null;
+      if (!this.parentSpaceId) {
+        this.selectedParentSpace = null;
+      }
     }
   },
 };
