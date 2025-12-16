@@ -29,12 +29,7 @@
     :custom-format="!useFormat"
     alt
     link
-    @input="uploadId = $event"
-    @data="imageData = $event"
-    @alt-text="altText = $event"
-    @format="format = $event"
-    @link-url="linkUrl = $event"
-    @link-target="linkTarget = $event" />
+    @apply="forwardUpdate" />
 </template>
 <script>
 export default {
@@ -65,13 +60,7 @@ export default {
   },
   data: () => ({
     imageItem: null,
-    uploadId: null,
     maxFileSize: 20971520,
-    altText: null,
-    format: null,
-    imageData: null,
-    linkUrl: null,
-    linkTarget: null
   }),
   computed: {
     imageCropperSrc() {
@@ -80,20 +69,7 @@ export default {
         imageSrc = imageSrc.split('?')[0];
       }
       return imageSrc;
-    },
-    imageMimeType() {
-      return this.imageItem?.mimetype || this.imageItem?.data &&  this.$refs.drawer.getBase64Mimetype(this.imageItem.data) || '';
     }
-  },
-  watch: {
-    imageData() {
-      this.updateImageData();
-    },
-    altText() {
-      if (this.imageMimeType === 'image/gif') {
-        this.updateImageData();
-      }
-    },
   },
   created() {
     document.addEventListener('attachments-image-open-crop-drawer', this.openAttachmentCropDrawer);
@@ -109,35 +85,24 @@ export default {
       this.imageItem = imageItem;
       this.$refs.drawer.open(this.imageItem);
     },
-    updateImageData() {
+    forwardUpdate(data) {
+      console.warn('data', data);
       if (this.embedded) {
         this.$emit('update', {
-          src: this.imageData || '',
-          uploadId: this.uploadId,
+          ...data,
           id: this.imageItem?.id || '',
           progress: 100,
-          oldUploadId: this.imageItem?.uploadId || '',
-          altText: this.altText || '',
-          linkUrl: this.linkUrl || '',
-          linkTarget: this.linkTarget || '',
-          format: this.format || '',
-          mimetype: this.imageMimeType
+          oldUploadId: this.imageItem?.uploadId || ''
         });
       } else {
         document.dispatchEvent(new CustomEvent('attachment-update', {detail: {
-          src: this.imageData || '',
-          uploadId: this.uploadId,
+          ...data,
           id: this.imageItem?.id || '',
           progress: 100,
-          oldUploadId: this.imageItem?.uploadId || '',
-          altText: this.altText || '',
-          format: this.format || '',
-          linkUrl: this.linkUrl || '',
-          linkTarget: this.linkTarget || '',
-          mimetype: this.imageMimeType
+          oldUploadId: this.imageItem?.uploadId || ''
         }}));
       }
-    },
+    }
   },
 };
 </script>
