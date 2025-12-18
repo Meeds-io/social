@@ -14,7 +14,21 @@
       type="text"
       autofocus
       class="border-box-sizing"
-      @keypress.enter="searchByEnter" />
+      @keypress.enter="searchByEnter">
+      <template #append>
+        <extension-registry-components
+          :params="{
+            standalone,
+            term,
+            searchInput: $refs.searchInput,
+          }"
+          name="SearchToolbarInputAppend"
+          type="search-toolbar-input"
+          parent-element="div"
+          element="div"
+          class="d-flex mt-n2 pt-2px" />
+      </template>
+    </v-text-field>
   </div>
 </template>
 <script>
