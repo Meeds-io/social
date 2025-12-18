@@ -43,6 +43,7 @@ import SpaceSettingUsersListToolbar from './components/form/SpaceSettingUsersLis
 import SpaceSettingRolesTable from './components/section/roles/SpaceSettingRolesTable.vue';
 import SpaceSettingRolesTableItem from './components/section/roles/SpaceSettingRolesTableItem.vue';
 import SpaceSettingSubspacesItem from './components/form/SpaceSettingSubspacesItem.vue';
+import SpaceSettingDeletion from './components/main/SpaceSettingDeletion.vue';
 
 const components = {
   'space-settings': SpaceSettings,
@@ -71,6 +72,7 @@ const components = {
   'space-setting-banner': SpaceSettingBanner,
   'space-setting-users-list-toolbar': SpaceSettingUsersListToolbar,
   'space-setting-subspaces-item': SpaceSettingSubspacesItem,
+  'space-setting-delete-space': SpaceSettingDeletion,
 };
 
 for (const key in components) {
