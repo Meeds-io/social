@@ -54,6 +54,7 @@
               icon
               :icon-size="20"
               left
+              set-menu-visibility
               require-form-drawer />
             <v-btn
               v-if="selectedFilterIndex !== 2"
