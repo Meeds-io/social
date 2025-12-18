@@ -317,6 +317,7 @@ export default {
     window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester']);
     document.addEventListener('activity-composer-edited', this.handleEditorInputChange);
     this.updateSpaceId();
+    this.$utils.includeExtensions('RichEditorExtension');
   },
   mounted() {
     if (!this.value?.length && this.useDraftManagement) {
