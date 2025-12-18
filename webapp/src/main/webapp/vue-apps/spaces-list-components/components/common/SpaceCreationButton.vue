@@ -49,7 +49,7 @@
       max-width="auto"
       min-width="auto"
       width="auto">
-      <v-list-item @click="addNewSpace">
+      <v-list-item @click.prevent="addNewSpace">
         <v-list-item-content class="ms-0 text-body my-auto">
           <v-list-item-title>
             {{ $t('menu.spaces.createMainSpace') }}
@@ -57,7 +57,7 @@
         </v-list-item-content>
       </v-list-item>
 
-      <v-list-item @click="addNewSubSpace">
+      <v-list-item @click.prevent="addNewSubSpace">
         <v-list-item-content class="ms-0 text-body my-auto">
           <v-list-item-title>
             {{ $t('menu.spaces.createSubSpace') }}
@@ -114,25 +114,29 @@ export default {
     left: {
       type: Boolean,
       default: false
+    },
+    setMenuVisibility: {
+      type: Boolean,
+      default: false
     }
   },
   data: () => ({
-    id: Math.random(), // NOSONAR
     menu: false,
-    hasParentSpace: false,
+    isMemberInParentSpace: false,
     spaceTemplates: [],
-    subspaceTemplateIds: []
+    subspaceTemplateIds: [],
+    displaySpaceCreationMenu: false
   }),
   computed: {
     filteredSpaceTemplates() {
       return this.spaceTemplates.filter(template => !this.subspaceTemplateIds.includes(template.id));
     },
-    displaySpaceCreationMenu() {
-      return !this.$root.openedSpaceTemplateId && this.hasParentSpace;
-    }
   },
   watch: {
     menu() {
+      if (this.setMenuVisibility) {
+        this.processMenuVisibility(this.menu);
+      }
       // Workaround to fix closing menu when clicking outside
       if (this.menu) {
         document.addEventListener('mousedown', this.closeMenu);
@@ -152,7 +156,7 @@ export default {
         filter: 'accessible',
         onlyParentSpaces: true,
       });
-      this.hasParentSpace = result?.size > 0;
+      this.isMemberInParentSpace = result?.size > 0;
       if (!this.$root.spaceTemplates) {
         this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
       }
@@ -161,6 +165,7 @@ export default {
         this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
       }
       this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
+      this.displaySpaceCreationMenu = this.isMemberInParentSpace && this.subspaceTemplateIds.length && !this.$root.openedSpaceTemplateId;
     },
     addNewSpace() {
       const spaceTemplate = this.$root.openedSpaceTemplateId;
@@ -177,17 +182,18 @@ export default {
         this.$root.$emit('addNewSpace', this.$root.openedSpaceTemplateId, null, null, true);
       }
     },
-    closeMenu(event) {
-      if (event !== this.id) {
-        if (event?.target) {
-          window.setTimeout(() => {
-            this.menu = false;
-          }, 200);
-        } else {
-          this.menu = false;
-        }
-      }
+    closeMenu() {
+      this.menu = false;
     },
+    processMenuVisibility(visible) {
+      if (visible) {
+        this.$root.$emit('menu-opened');
+        this.$root.hoverMenu = visible;
+      } else {
+        this.$root.$emit('menu-closed');
+        this.$root.hoverMenu = visible;
+      }
+    }
   }
 };
 </script>
