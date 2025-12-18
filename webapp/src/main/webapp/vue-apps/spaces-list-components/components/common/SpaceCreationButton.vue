@@ -121,6 +121,7 @@ export default {
     }
   },
   data: () => ({
+    id: Math.random(), // NOSONAR
     menu: false,
     isMemberInParentSpace: false,
     spaceTemplates: [],
@@ -182,8 +183,16 @@ export default {
         this.$root.$emit('addNewSpace', this.$root.openedSpaceTemplateId, null, null, true);
       }
     },
-    closeMenu() {
-      this.menu = false;
+    closeMenu(event) {
+      if (event !== this.id) {
+        if (event?.target) {
+          window.setTimeout(() => {
+            this.menu = false;
+          }, 200);
+        } else {
+          this.menu = false;
+        }
+      }
     },
     processMenuVisibility(visible) {
       if (visible) {
