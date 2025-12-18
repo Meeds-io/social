@@ -31,6 +31,7 @@
         v-if="$root.space?.canManagePublicSite" />
       <space-setting-sovereign />
       <space-setting-subspaces id="SpaceSettingsSubspaces" v-if="isParentSpace" />
+      <space-setting-delete-space v-if="$root.space?.canDelete" />
       <template>
         <extension-registry-components
           v-if="isActiveSection"
