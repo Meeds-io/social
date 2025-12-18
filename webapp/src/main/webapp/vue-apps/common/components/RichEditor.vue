@@ -317,9 +317,9 @@ export default {
     window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester']);
     document.addEventListener('activity-composer-edited', this.handleEditorInputChange);
     this.updateSpaceId();
-    this.$utils.includeExtensions('RichEditorExtension');
   },
-  mounted() {
+  async mounted() {
+    await this.$utils.includeExtensions('RichEditorExtension');
     if (!this.value?.length && this.useDraftManagement) {
       const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
       const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
