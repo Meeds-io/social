@@ -63,6 +63,7 @@ export default {
       try {
         await this.$spaceService.removeSpace(this.space?.id);
         this.$root.$emit('alert-message', this.$t('spaceSetting.spaceDeletedSuccessfully'), 'success');
+        window.location.href = eXo?.env?.portal?.context;
       } catch (e) {
         this.$root.$emit('alert-message', this.$t('spaceSetting.spaceDeletionError', {0: this.space?.displayName}), 'error');
       }
