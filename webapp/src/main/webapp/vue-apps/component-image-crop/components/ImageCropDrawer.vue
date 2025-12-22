@@ -220,8 +220,7 @@
             type="text"
             outlined
             dense
-            mandatory
-            @input="$emit('link-url', linkUrl)" />
+            mandatory />
           <div class="d-flex mb-2">
             <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
               {{ $t('imageCropDrawer.link.target') }}
@@ -232,8 +231,7 @@
               :false-value="'_blank'"
               class="my-0 me-n3 pa-0"
               dense
-              hide-details
-              @change="$emit('link-target', linkTarget)" />
+              hide-details />
           </div>
         </div>
         <div v-if="alt" class="d-flex flex-column mt-4">
@@ -246,8 +244,7 @@
               :max-length="altTextMaxLength"
               :placeholder="$t('imageCropDrawer.altText.placeholder')"
               extra-class="width-auto"
-              class="pt-0"
-              @input="$emit('alt-text',alternativeText)" />
+              class="pt-0" />
           </div>
         </div>
       </v-card>
@@ -345,11 +342,10 @@ export default {
       default: () => ({
         aspectRatio: 16 / 9,
       }),
-    },
+    }
   },
   data: () => ({
     drawer: false,
-    title: null,
     format: null,
     zoom: 1,
     stepZoom: 0.1,
@@ -365,7 +361,6 @@ export default {
     alternativeText: null,
     mimetype: null,
     checkFormat: false,
-    specificFormatSelected: false,
     imageAspectRatio: 0,
     linkUrl: null,
     linkTarget: ''
@@ -431,7 +426,7 @@ export default {
     },
     isValidLink() {
       try {
-        return !!this.$utils.toLinkUrl(this.linkUrl, {
+        return !this.link || !!this.$utils.toLinkUrl(this.linkUrl, {
           urls: true,
           email: true,
           phone: true,
@@ -448,6 +443,9 @@ export default {
         ],
       };
     },
+    title() {
+      return this.drawerTitle || 'imageCropDrawer.defaultTitle';
+    }
   },
   watch: {
     imageData() {
@@ -476,9 +474,6 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
-    format() {
-      this.$emit('format', this.format);
-    },
     formatCropOptions() {
       this.resetCropper();
       this.init();
@@ -492,14 +487,12 @@ export default {
   },
   methods: {
     open(imageItem) {
-      this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
       this.imageData = imageItem?.src || this.src || null;
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
       this.linkUrl = imageItem?.linkUrl || null;
       this.linkTarget = imageItem?.linkTarget || '';
       this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
-      this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -639,6 +632,15 @@ export default {
                   const reader = new FileReader();
                   reader.onload = (e) => {
                     self.$emit('data', e.target.result);
+                    this.$emit('apply',  {
+                      src: e.target.result || '',
+                      uploadId: uploadId,
+                      altText: this.alternativeText || '',
+                      linkUrl: this.linkUrl || '',
+                      linkTarget: this.linkTarget || '',
+                      format: this.format || '',
+                      mimetype: this.mimeType || ''
+                    });
                     self.$forceUpdate();
                   };
                   reader.readAsDataURL(blob);
@@ -707,7 +709,6 @@ export default {
       }
     },
     selectFormat(format) {
-      this.specificFormatSelected = true;
       this.format = format;
     },
     getBase64Mimetype(dataUrl) {
