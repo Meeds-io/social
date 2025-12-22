@@ -219,8 +219,7 @@
             class="border-box-sizing width-auto pt-0"
             type="text"
             outlined
-            dense
-            mandatory />
+            dense />
           <div class="d-flex mb-2">
             <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
               {{ $t('imageCropDrawer.link.target') }}
@@ -426,7 +425,7 @@ export default {
     },
     isValidLink() {
       try {
-        return !this.link || !!this.$utils.toLinkUrl(this.linkUrl, {
+        return !this.link || !this.linkUrl || !!this.$utils.toLinkUrl(this.linkUrl, {
           urls: true,
           email: true,
           phone: true,
