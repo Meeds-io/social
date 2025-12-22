@@ -62,8 +62,7 @@
       :src="bannerUrl"
       max-image-width="1280"
       drawer-title="UIPopupBannerUploader.title.ChangeBanner"
-      @data="imageData = $event"
-      @input="updateBanner" />
+      @apply="updateImage" />
   </div>
 </template>
 <script>
@@ -122,6 +121,10 @@ export default {
     updateBanner(uploadId) {
       this.$emit('input', uploadId);
     },
+    updateImage(image) {
+      this.imageData = image.src;
+      this.updateBanner(image.uploadId);
+    }
   },
 };
 </script>

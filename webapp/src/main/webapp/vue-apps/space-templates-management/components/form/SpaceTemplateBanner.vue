@@ -54,13 +54,12 @@
       class="d-flex border-radius">
     <image-crop-drawer
       ref="imageCropDrawer"
-      v-model="uploadId"
       :crop-options="cropOptions"
       :max-file-size="maxUploadSizeInBytes"
       :src="bannerUrl"
       max-image-width="1280"
       drawer-title="spaceTemplate.defaultSpaceConfigurationStepBannerCropperDrawer"
-      @data="imageData = $event" />
+      @apply="updateImage" />
   </div>
 </template>
 <script>
@@ -149,6 +148,10 @@ export default {
         });
       }
     },
+    updateImage(image) {
+      this.imageData = image.src;
+      this.uploadId = image.uploadId;
+    }
   },
 };
 </script>
