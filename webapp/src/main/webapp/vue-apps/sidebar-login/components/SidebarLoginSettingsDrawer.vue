@@ -106,10 +106,8 @@
         :custom-format="true"
         alt
         drawer-title="generalSettings.changeLoginBackground.drawerTitle"
-        @data="loginBackgroundData = $event"
-        @input="loginBackgroundUploadId = $event"
-        @reset="cropperReset"
-        @alt-text="loginBackgroundAltText = $event" />
+        @apply="updateImage"
+        @reset="cropperReset" />
 
       <v-card
         class="ma-4"
@@ -343,6 +341,11 @@ export default {
         });
       });
 
+    },
+    updateImage(image) {
+      this.loginBackgroundUploadId = image.uploadId;
+      this.loginBackgroundData = image.src;
+      this.loginBackgroundAltText = image.altText;
     }
   },
 };

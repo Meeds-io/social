@@ -86,7 +86,6 @@ export default {
       this.$refs.drawer.open(this.imageItem);
     },
     forwardUpdate(data) {
-      console.warn('data', data);
       if (this.embedded) {
         this.$emit('update', {
           ...data,

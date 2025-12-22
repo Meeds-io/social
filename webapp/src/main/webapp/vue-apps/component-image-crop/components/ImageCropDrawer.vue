@@ -259,7 +259,7 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="!imageData || !isValidLink"
+          :disabled="!imageData || (link && !isValidLink)"
           :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
@@ -346,6 +346,7 @@ export default {
   },
   data: () => ({
     drawer: false,
+    format: null,
     zoom: 1,
     stepZoom: 0.1,
     minZoom: 1,
@@ -354,11 +355,15 @@ export default {
     width: 388,
     cropper: null,
     cropperReady: false,
+    imageData: null,
     resetInput: false,
     sendingImage: false,
+    alternativeText: null,
+    mimetype: null,
     checkFormat: false,
     imageAspectRatio: 0,
-    image: null
+    linkUrl: null,
+    linkTarget: ''
   }),
   computed: {
     aspectRatio() {
@@ -408,7 +413,6 @@ export default {
       }];
     },
     selectedFormat() {
-      console.warn('&& !this.format', this.format);
       return this.useFormat && this.imageDisplayFormats.find(f => f.value === this.format);
     },
     formatCropOptions() {
@@ -441,24 +445,6 @@ export default {
     },
     title() {
       return this.drawerTitle || 'imageCropDrawer.defaultTitle';
-    },
-    imageData() {
-      return this.image?.src;
-    },
-    alternativeText() {
-      return this.image?.altText;
-    },
-    linkUrl() {
-      return this.image?.linkUrl;
-    },
-    linkTarget() {
-      return this.image?.linkTarget;
-    },
-    format() {
-      return this.image?.format;
-    },
-    mimetype() {
-      return this.image?.mimetype;
     }
   },
   watch: {
@@ -501,25 +487,12 @@ export default {
   },
   methods: {
     open(imageItem) {
-      const hasImageItem = !!imageItem;
-      this.image = hasImageItem && JSON.parse(JSON.stringify(imageItem)) || {
-        src: null,
-        mimetype: null,
-        altText: null,
-        linkUrl: null,
-        linkTarget: '',
-        format: 'custom',
-      };
-      console.warn('thisimage', this.image);
-      if (hasImageItem && this.image.format == null) {
-        this.image.format = ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
-      }
-      if (hasImageItem && this.image.src == null) {
-        this.image.src = this.src || null;
-      }
-      if (hasImageItem && this.image.mimetype == null) {
-        this.image.mimetype = imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
-      }
+      this.imageData = imageItem?.src || this.src || null;
+      this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
+      this.alternativeText = imageItem?.altText || null;
+      this.linkUrl = imageItem?.linkUrl || null;
+      this.linkTarget = imageItem?.linkTarget || '';
+      this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -622,13 +595,6 @@ export default {
       if (this.isImageGif) {
         this.close();
       } else {
-        this.uploadCroppedImage().then(uploadId => {
-          console.warn('uploadId', uploadId);
-          this.$emit('apply', {
-            ... this.image 
-          });
-          this.close();
-        });
         this.uploadCroppedImage()
           .then(() => this.close());
       }
@@ -666,6 +632,15 @@ export default {
                   const reader = new FileReader();
                   reader.onload = (e) => {
                     self.$emit('data', e.target.result);
+                    this.$emit('apply',  {
+                      src: e.target.result || '',
+                      uploadId: uploadId,
+                      altText: this.alternativeText || '',
+                      linkUrl: this.linkUrl || '',
+                      linkTarget: this.linkTarget || '',
+                      format: this.format || '',
+                      mimetype: this.mimeType || ''
+                    });
                     self.$forceUpdate();
                   };
                   reader.readAsDataURL(blob);
