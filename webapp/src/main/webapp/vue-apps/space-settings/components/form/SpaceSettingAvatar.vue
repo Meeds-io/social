@@ -59,8 +59,7 @@
       :src="imageData || `${avatarUrl}&size=0`"
       max-image-width="1280"
       drawer-title="UIChangeAvatarContainer.label.ChangeAvatar"
-      @data="imageData = $event"
-      @input="$emit('input', $event)" />
+      @apply="updateImage" />
   </div>
 </template>
 <script>
@@ -93,5 +92,11 @@ export default {
       }
     },
   },
+  methods: {
+    updateImage(image) {
+      this.$emit('input', image.uploadId);
+      this.imageData = image.src;   
+    }
+  }
 };
 </script>
