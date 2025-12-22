@@ -32,7 +32,7 @@
         :src="bannerUrl"
         max-image-width="1280"
         drawer-title="UIPopupBannerUploader.title.ChangeBanner"
-        @input="uploadBanner" />
+        @apply="updateImage" />
     </template>
   </v-app>
 </template>
@@ -119,6 +119,9 @@ export default {
       }
       return url ;
     },
+    updateImage(image) {
+      this.uploadBanner(image.uploadId);
+    }
   },
 };
 </script>
