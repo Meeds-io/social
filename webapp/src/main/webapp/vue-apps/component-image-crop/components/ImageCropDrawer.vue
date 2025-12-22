@@ -207,9 +207,11 @@
           </v-card>
         </div>
         <div v-if="link" class="d-flex flex-column mt-4">
-          <div class="pt-1 pe-2 d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
+          <label
+            for="linkUrlInput"
+            class="pt-1 pe-2 d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
             {{ $t('imageCropDrawer.link.title') }}
-          </div>
+          </label>
           <v-text-field
             id="linkUrl"
             name="linkUrl"
