@@ -203,6 +203,7 @@ export function init(
           this.$root.$on('dialog-closed', () => window.setTimeout(() => {
             this.$root.allowClosing = true;
             this.hoverDeferred = false;
+            this.hoverMenu = false;
           }, 200));
           this.$root.$on('menu-opened', () => this.$root.allowClosing = false);
           this.$root.$on('menu-closed', () => this.$root.allowClosing = true);
