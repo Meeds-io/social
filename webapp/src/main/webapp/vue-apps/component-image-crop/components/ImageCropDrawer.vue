@@ -259,7 +259,7 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="!imageData || (link && !isValidLink)"
+          :disabled="!imageData || !isValidLink"
           :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
@@ -426,7 +426,7 @@ export default {
     },
     isValidLink() {
       try {
-        return !!this.$utils.toLinkUrl(this.linkUrl, {
+        return !this.link || !!this.$utils.toLinkUrl(this.linkUrl, {
           urls: true,
           email: true,
           phone: true,
