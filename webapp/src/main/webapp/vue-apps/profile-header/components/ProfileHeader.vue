@@ -84,7 +84,7 @@
       :drawer-title="imageCropperDrawerTitle"
       :max-file-size="maxUploadSizeInBytes"
       :max-image-width="maxImageWidth"
-      @input="uploadImage" />
+      @apply="updateImage" />
     <profile-header-settings-drawer
       v-if="isAdmin"
       :save-settings-url="$root.settings.saveSettingsUrl"
@@ -274,6 +274,9 @@ export default {
     },
     calculateAppWidth() {
       this.appWidth = document.getElementById('ProfileHeader')?.clientWidth;
+    },
+    updateImage(image) {
+      this.uploadImage(image.uploadId);
     }
   },
 };
