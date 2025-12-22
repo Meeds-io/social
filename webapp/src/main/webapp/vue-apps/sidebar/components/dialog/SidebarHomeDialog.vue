@@ -22,19 +22,21 @@
 <template>
   <exo-confirm-dialog
     ref="confirmDialog"
-    :title="$t('menu.confirmation.title.changeHome')"
+    :title="title"
     :message="confirmMessage"
     :ok-label="$t('menu.confirmation.ok')"
-    :cancel-label="$t('menu.confirmation.cancel')"
-    @ok="changeHome"
+    :cancel-label="actionClick && $t('menu.confirmation.cancel')"
+    @ok="onConfirm"
     @opened="$root.$emit('dialog-opened')"
-    @closed="$root.$emit('dialog-closed')" />
+    @closed="onclose" />
 </template>
 <script>
 export default {
   data: () => ({
     selectedSpace: null,
     selectedPage: null,
+    actionName: null,
+    actionClick: null,
   }),
   computed: {
     name() {
@@ -44,18 +46,23 @@ export default {
       return this.selectedPage?.url || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
     },
     confirmMessage() {
-      return this.$t('menu.confirmation.message.changeHome', {
+      return this.$t(`menu.confirmation.message.${this.actionName}`, {
         0: `<b>${this.name}</b>`,
       });
     },
+    title() {
+      return this.$t(`menu.confirmation.title.${this.actionName}`);
+    }
   },
   created() {
     this.$root.$on('change-home-link-space', this.selectSpaceHome);
     this.$root.$on('update-home-link-page', this.selectPageHome);
+    this.$root.$on('leave-space', this.leaveSpace);
   },
   beforeDestroy() {
     this.$root.$off('change-home-link-space', this.selectSpaceHome);
     this.$root.$off('update-home-link-page', this.selectPageHome);
+    this.$root.$on('leave-space', this.leaveSpace);
   },
   methods: {
     changeHome() {
@@ -66,22 +73,55 @@ export default {
         });
     },
     selectSpaceHome(space) {
+      this.actionName = 'changeHome';
+      this.actionClick = () => this.changeHome();
       this.selectedSpace = space;
       this.selectedPage = null;
+      if (this.$root.defaultUserPath === this.url) {
+        return;
+      }
       this.openDialog();
     },
     selectPageHome(page) {
+      this.actionName = 'changeHome';
+      this.actionClick = () => this.changeHome();
       this.selectedPage = page;
       this.selectedSpace = null;
+      if (this.$root.defaultUserPath === this.url) {
+        return;
+      }
       this.openDialog();
     },
     async openDialog() {
       await this.$nextTick();
-      if (this.$root.defaultUserPath === this.url) {
-        return;
-      }
       this.$refs?.confirmDialog?.open?.();
     },
-  },
+    leaveSpace(space) {
+      this.selectedSpace = space;
+      const isOnlyManagerLeftInSpace = this.selectedSpace.isManager && this.selectedSpace.managersCount <= 1;
+      if (isOnlyManagerLeftInSpace) {
+        this.actionName = 'leaveSpace.warning';
+        this.actionClick = null;
+        this.openDialog();
+        return;
+      }
+      this.actionName = 'leaveSpace';
+      this.actionClick = () => this.confirmLeaveSpace();
+      this.openDialog();
+    },
+    confirmLeaveSpace() {
+      this.$spaceService.leave(this.selectedSpace.id);
+    },
+    onConfirm() {
+      if (typeof this.actionClick === 'function') {
+        this.actionClick();
+      }
+    },
+    onclose() {
+      this.actionName = null;
+      this.actionClick = null;
+      this.$root.$emit('dialog-closed');
+    },
+  }
 };
 </script>
