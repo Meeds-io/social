@@ -135,7 +135,7 @@ export default {
       form.append('searchUserName', 'true');
       form.append('userType', this.type || '');
       form.append('status', this.status || 'ENABLED');
-      form.append('q', this.keyword || '');
+      form.append('q', this.status === 'DISABLED' || !this.keyword ? '' : this.keyword);
       if (this.connectionStatus) {
         form.append('isConnected', this.connectionStatus);
       }
