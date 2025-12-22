@@ -34,14 +34,12 @@
     </div>
     <image-crop-drawer
       ref="imageCropDrawer"
-      v-model="loginBackgroundUploadId"
       :crop-options="cropOptions"
       :max-file-size="maxFileSize"
       :src="loginBackgroundPreviewSrc"
       alt
       drawer-title="generalSettings.changeLoginBackground.drawerTitle"
-      @data="loginBackgroundData = $event"
-      @alt-text="loginBackgroundAltText = $event" />
+      @apply="updateImage" />
   </div>
 </template>
 <script>
@@ -147,6 +145,11 @@ export default {
         });
       }
     },
+    updateImage(image) {
+      this.loginBackgroundData = image.src;
+      this.loginBackgroundAltText = image.altText;
+      this.loginBackgroundUploadId = image.uploadId;
+    }
   },
 };
 </script>
