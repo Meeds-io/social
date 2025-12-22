@@ -439,7 +439,6 @@ export default {
     rules() {
       return {
         url: [
-          v => !!v?.length || ' ',
           () => this.isValidLink || this.$t('imageCropDrawer.invalidLink'),
         ],
       };
