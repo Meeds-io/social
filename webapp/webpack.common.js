@@ -104,6 +104,7 @@ let config = {
     loginForm: './src/main/webapp/vue-apps/login-form/main.js',
     contentLink: './src/main/webapp/vue-apps/content-link/main.js',
     spaceCreation: './src/main/webapp/vue-apps/space-creation/main.js',
+    parentSpaceListing: './src/main/webapp/vue-apps/space-parent-listing/main.js',
     emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
     userStatusPopup: './src/main/webapp/vue-apps/user-status-popup/main.js',
     spaceMembersDrawer: './src/main/webapp/vue-apps/space-members-drawer/main.js'
