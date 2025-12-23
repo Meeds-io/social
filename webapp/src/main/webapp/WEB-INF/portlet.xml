@@ -1132,6 +1132,25 @@
   </portlet>
 
   <portlet>
+    <description>Display the parent space if a subspace</description>
+    <portlet-name>ParentSpaceListing</portlet-name>
+    <display-name>Parent Space Listing</display-name>
+    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <init-param>
+      <name>portlet-view-dispatched-file-path</name>
+      <value>/WEB-INF/jsp/portlet/parentSpaceListing.jsp</value>
+    </init-param>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <supported-locale>en</supported-locale>
+    <resource-bundle>locale.portlet.Portlets</resource-bundle>
+    <portlet-info>
+      <title>Parent Space Listing</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
     <portlet-name>PlatformName</portlet-name>
     <display-name>Platform Name</display-name>
     <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
