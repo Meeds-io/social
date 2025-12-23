@@ -208,7 +208,9 @@ export default {
     baseUrl: eXo.env.server.portalBaseURL,
     containInvalidUsers: false,
     spaceId: null,
-    backUpMessage: null
+    backUpMessage: null,
+    step: 0,
+    initializing: false,
   }),
   computed: {
     ckEditorInstanceId() {
@@ -311,30 +313,42 @@ export default {
         this.editor.editable().$.setAttribute('contenteditable', `${!this.disabled}`);
       }
     },
+    step() {
+      if (this.step === 2) {
+        this.init();
+      }
+    },
   },
-  created() {
-    // Load CKEditor only when needed
-    window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester']);
-    document.addEventListener('activity-composer-edited', this.handleEditorInputChange);
-    this.updateSpaceId();
-  },
-  async mounted() {
-    await this.$utils.includeExtensions('RichEditorExtension');
-    if (!this.value?.length && this.useDraftManagement) {
-      const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
-      const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
-      const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
-      this.initCKEditor(true, storageMessageText);
-      this.updateInput(this.inputVal);
-    } else {
-      this.initCKEditor(true, this.value);
+  async created() {
+    try {
+      await this.$utils.includeExtensions('RichEditorExtension');
+      // Load CKEditor only when needed
+      await new Promise(resolve => window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], resolve));
+      document.addEventListener('activity-composer-edited', this.handleEditorInputChange);
+      this.updateSpaceId();
+    } finally {
+      this.step++;
     }
+  },
+  mounted() {
+    this.step++;
   },
   beforeDestroy() {
     document.removeEventListener('activity-composer-edited', this.handleEditorInputChange);
     this.destroyCKEditor();
   },
   methods: {
+    init() {
+      if (!this.value?.length && this.useDraftManagement) {
+        const storageMessage =  localStorage.getItem(`activity-message-${this.contextName}`);
+        const storageMessageObject =  storageMessage && JSON.parse(storageMessage) || {};
+        const storageMessageText = storageMessageObject?.url === eXo.env.server.portalBaseURL && storageMessageObject?.text || '';
+        this.initCKEditor(true, storageMessageText);
+        this.updateInput(this.inputVal);
+      } else {
+        this.initCKEditor(true, this.value);
+      }
+    },
     initCKEditor(reset, textValue) {
       const self = this;
       this.editor = null;
@@ -344,6 +358,10 @@ export default {
     },
     initCKEditorInstance(reset, textValue) {
       this.inputVal = textValue && this.getContentToEdit(textValue) || '';
+      if (this.initializing) {
+        return;
+      }
+      this.initializing = true;
       const editor = CKEDITOR.instances[this.ckEditorInstanceId];
       if (editor) {
         editor.status = 'not-ready';
@@ -405,7 +423,7 @@ export default {
       }
       toolbar[0].unshift('formatOption');
 
-      const ckEditorExtensions = extensionRegistry.loadExtensions('ActivityComposer', 'ckeditor-extensions');
+      const ckEditorExtensions = extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions');
       if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
         ckEditorExtensions.forEach(ckEditorExtension => {
           if (ckEditorExtension.extraPlugin) {
@@ -453,6 +471,7 @@ export default {
         on: {
           instanceReady: function (evt) {
             self.editor = evt.editor;
+            this.initializing = false;
             const editable = self.editor.editable();
             editable.on('input', function () {
               self.editor.fire('change');
