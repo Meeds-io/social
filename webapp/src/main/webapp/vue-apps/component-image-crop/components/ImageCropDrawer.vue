@@ -222,14 +222,15 @@
             type="text"
             outlined
             dense />
-          <div class="d-flex mb-2">
-            <div class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+          <div class="d-flex mb-2 mt-4">
+            <label for="OpenSameTab" class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
               {{ $t('imageCropDrawer.link.target') }}
-            </div>
+            </label>
             <v-switch
               v-model="linkTarget"
               :true-value="''"
               :false-value="'_blank'"
+              :aria-checked="linkTarget === '' ? 'true' : 'false'"
               class="my-0 me-n3 pa-0"
               dense
               hide-details />
