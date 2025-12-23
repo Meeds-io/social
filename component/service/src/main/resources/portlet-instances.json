@@ -1,0 +1,23 @@
+{
+  "descriptors":[
+    {
+      "nameId":"OrganizationalChart",
+      "categoryNameId":"profile",
+      "portletName":"OrganizationalChart",
+      "names":{
+        "en":"layout.portletInstance.OrganizationalChart.name"
+      },
+      "descriptions":{
+        "en":"layout.portletInstance.OrganizationalChart.description"
+      },
+      "illustrationPath":"war:/../images/organizationalchart.webp",
+      "preferences":[
+      ],
+      "permissions":[
+        "*:/platform/administrators",
+        "*:/platform/web-contributors"
+      ],
+      "system":true
+    }
+  ]
+}
