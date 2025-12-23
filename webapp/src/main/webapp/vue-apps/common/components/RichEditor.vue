@@ -356,9 +356,9 @@ export default {
         self.initCKEditorInstance(reset, textValue || self.value);
       });
     },
-    initCKEditorInstance(reset, textValue) {
+    async initCKEditorInstance(reset, textValue) {
       this.inputVal = textValue && this.getContentToEdit(textValue) || '';
-      if (this.initializing) {
+      if (this.initializing || this.step < 2) {
         return;
       }
       this.initializing = true;
@@ -423,16 +423,30 @@ export default {
       }
       toolbar[0].unshift('formatOption');
 
-      const ckEditorExtensions = extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions');
-      if (ckEditorExtensions && ckEditorExtensions.length && this.useExtraPlugins) {
+      let ckEditorExtensions = [
+        ...extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions'),
+        ...extensionRegistry.loadExtensions('RichEditor', `ckeditor-extensions-${this.ckEditorType || 'default'}`),
+      ].filter(ext => ext);
+      if (ckEditorExtensions?.length && this.useExtraPlugins) {
+        ckEditorExtensions = await Promise.all(ckEditorExtensions.map(async ext => {
+          if (ext.getExtension) {
+            return await ext.getExtension({
+              ckEditorType: this.ckEditorType,
+              objectType: this.objectType,
+              objectId: this.objectId,
+            });
+          } else {
+            return ext;
+          }
+        }));
         ckEditorExtensions.forEach(ckEditorExtension => {
-          if (ckEditorExtension.extraPlugin) {
+          if (ckEditorExtension?.extraPlugin) {
             extraPlugins += `,${ckEditorExtension.extraPlugin}`;
           }
-          if (ckEditorExtension.removePlugin) {
+          if (ckEditorExtension?.removePlugin) {
             removePlugins += `,${ckEditorExtension.removePlugin}`;
           }
-          if (ckEditorExtension.extraToolbarItem) {
+          if (ckEditorExtension?.extraToolbarItem) {
             toolbar[0].push(ckEditorExtension.extraToolbarItem);
           }
         });
