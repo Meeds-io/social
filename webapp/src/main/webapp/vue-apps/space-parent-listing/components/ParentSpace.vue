@@ -1,19 +1,17 @@
 <template>
   <v-hover v-model="hover">
-  <widget-wrapper
-    :title="headerTitle"
-    ref="parentSpaceListing"
-    key="parentSpaceListing"
-    extra-class="application-body">
-    <template #default>
-      <div class="mt-n3">
+    <widget-wrapper
+      :title="headerTitle"
+      ref="parentSpaceListing"
+      key="parentSpaceListing"
+      extra-class="application-body">
+      <template #default>
         <space-avatar
           :space="space"
           link-style
           bold-title />
-      </div>
-    </template>
-  </widget-wrapper>
+      </template>
+    </widget-wrapper>
   </v-hover>
 </template>
 <script>
