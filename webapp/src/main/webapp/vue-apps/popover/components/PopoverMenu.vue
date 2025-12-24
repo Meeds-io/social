@@ -37,6 +37,7 @@
     <user-popover-content
       v-if="isUserIdentity"
       :identity="identity"
+      :user-status-color="userStatusColor"
       :class="isBrandingLayout && 'layout-drawer' || ''" />
     <space-popover-content
       v-if="isSpaceIdentity"
@@ -70,9 +71,16 @@ export default {
       identity: null,
       space: null,
       identityType: null,
+      status: 'offline'
     };
   },
   computed: {
+    userName() {
+      return this.identity?.username;
+    },
+    userStatusColor() {
+      return this.$root.statusMap[this.status];
+    },
     isUserIdentity() {
       return this.identityType?.toLowerCase?.() === 'user';
     },
@@ -83,6 +91,7 @@ export default {
   watch: {
     menu() {
       if (this.menu) {
+        this.getUserStatus();
         this.clearCloseTime();
         this.registerActivatorElementEvents();
         document.dispatchEvent(new CustomEvent(`${this.identityType}PopoverOpened`));
@@ -223,6 +232,14 @@ export default {
         this.menuCloseTimer = null;
       }
     },
+    getUserStatus() {
+      if (!this.userName) {
+        return;
+      }
+      return this.$userStateService.getUserStatus(this.userName).then(data => {
+        this.status = data?.status;
+      });
+    }
   }
 };
 </script>

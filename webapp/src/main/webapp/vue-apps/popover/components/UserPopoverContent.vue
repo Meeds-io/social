@@ -32,6 +32,7 @@
         <v-list-item-title>
           <exo-user-avatar
             :identity="identity"
+            :user-status-color="userStatusColor"
             :size="45"
             :popover="false"
             bold-title
@@ -84,6 +85,10 @@ export default {
       type: Object,
       default: null,
     },
+    userStatusColor: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
