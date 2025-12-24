@@ -332,12 +332,24 @@ export default {
               });
             });
           } else {
-            this.savePreferences().then(() => {
-              this.$root.$emit('sidebar-login-settings-updated', this.titleTranslations, this.subtitleTranslations, this.vAlign, this.hAlign, this.backgroundFileId);
-              this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success');
-            }).finally(() => this.close());
+            this.$fileAttachmentService.getAttachments(this.$root.objectType, this.$root.translationIdentifier).then(data => {
+              const imageItem = data?.attachments?.[0];
+              if (imageItem) {
+                const fileId = imageItem.id;
+                this.$fileAttachmentService.deleteAttachment(this.$root.objectType, this.$root.translationIdentifier,fileId).then(() => {
+                  this.savePreferences().then(() => {
+                    this.$root.$emit('sidebar-login-settings-updated', this.titleTranslations, this.subtitleTranslations, this.vAlign, this.hAlign, this.backgroundFileId);
+                    this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success');
+                  }).finally(() => this.close());
+                });
+              } else {
+                this.savePreferences().then(() => {
+                  this.$root.$emit('sidebar-login-settings-updated', this.titleTranslations, this.subtitleTranslations, this.vAlign, this.hAlign, this.backgroundFileId);
+                  this.$root.$emit('alert-message', this.$t('sidebarLogin.drawer.savedSuccessfully'), 'success');
+                }).finally(() => this.close());
+              }
+            });
           }
-
         });
       });
 
