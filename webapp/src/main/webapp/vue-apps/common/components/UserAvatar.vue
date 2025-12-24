@@ -179,16 +179,30 @@
       :class="componentClass"
       class="d-flex flex-nowrap flex-grow-1 text-truncate container--fluid"
       @click="clickable && $emit('avatar-click', $event)">
-      <v-avatar
-        :size="size"
-        :class="[avatarClass, compact && 'border-white content-box-sizing']"
-        class="ma-0">
-        <img
-          :src="userAvatarUrl"
-          class="object-fit-cover ma-auto"
-          loading="lazy"
-          alt="">
-      </v-avatar>
+      <v-badge
+        :color="userStatusColor"
+        :value="!!userStatusColor"
+        class="my-auto mx-0 pa-0"
+        content=""
+        offset-x="11"
+        offset-y="12"
+        width="12"
+        height="12"
+        bordered
+        bottom
+        overlap
+        dot>
+        <v-avatar
+          :size="size"
+          :class="[avatarClass, compact && 'border-white content-box-sizing']"
+          class="ma-0">
+          <img
+            :src="userAvatarUrl"
+            class="object-fit-cover ma-auto"
+            loading="lazy"
+            alt="">
+        </v-avatar>
+      </v-badge>
       <div v-if="userFullname || $slots.subTitle" class="ms-2 overflow-hidden">
         <p
           v-if="userFullname"
@@ -334,6 +348,10 @@ export default {
       type: String,
       default: () => '',
     },
+    userStatusColor: {
+      type: String,
+      default: null
+    }
   },
   data() {
     return {
