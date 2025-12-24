@@ -426,9 +426,9 @@ export default {
       let ckEditorExtensions = [
         ...extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions'),
         ...extensionRegistry.loadExtensions('RichEditor', `ckeditor-extensions-${this.ckEditorType || 'default'}`),
-      ].filter(ext => ext);
+      ].filter(ext => this.useExtraPlugins || ext?.enabled?.(this.useExtraPlugins));
       let configOptions = {};
-      if (ckEditorExtensions?.length && this.useExtraPlugins) {
+      if (ckEditorExtensions?.length) {
         ckEditorExtensions = await Promise.all(ckEditorExtensions.map(async ext => {
           if (ext.getExtension) {
             return await ext.getExtension({
