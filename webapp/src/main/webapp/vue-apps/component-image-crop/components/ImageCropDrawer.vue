@@ -222,7 +222,7 @@
             type="text"
             outlined
             dense />
-          <div class="d-flex mb-2">
+          <div class="d-flex mb-2 mt-4">
             <label for="OpenSameTab" class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
               {{ $t('imageCropDrawer.link.target') }}
             </label>
