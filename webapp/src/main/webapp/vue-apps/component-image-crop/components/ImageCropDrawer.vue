@@ -206,6 +206,36 @@
             </v-card>
           </v-card>
         </div>
+        <div v-if="link" class="d-flex flex-column mt-4">
+          <label
+            for="linkUrlInput"
+            class="pt-1 pe-2 d-flex align-center mb-2 flex-grow-1 flex-shrink-1 text-truncate text-color">
+            {{ $t('imageCropDrawer.link.title') }}
+          </label>
+          <v-text-field
+            id="linkUrl"
+            name="linkUrl"
+            v-model="linkUrl"
+            :placeholder="$t('imageCropDrawer.link.placeholder')"
+            :rules="rules.url"
+            class="border-box-sizing width-auto pt-0"
+            type="text"
+            outlined
+            dense />
+          <div class="d-flex mb-2 mt-4">
+            <label for="OpenSameTab" class="d-flex align-center flex-grow-1 flex-shrink-1 text-truncate text-color">
+              {{ $t('imageCropDrawer.link.target') }}
+            </label>
+            <v-switch
+              v-model="linkTarget"
+              :true-value="''"
+              :false-value="'_blank'"
+              :aria-checked="linkTarget === '' ? 'true' : 'false'"
+              class="my-0 me-n3 pa-0"
+              dense
+              hide-details />
+          </div>
+        </div>
         <div v-if="alt" class="d-flex flex-column mt-4">
           <div class="flex-grow-0 pt-1 pe-2">
             {{ $t('imageCropDrawer.altText.title') }}
@@ -216,8 +246,7 @@
               :max-length="altTextMaxLength"
               :placeholder="$t('imageCropDrawer.altText.placeholder')"
               extra-class="width-auto"
-              class="pt-0"
-              @input="$emit('alt-text',alternativeText)" />
+              class="pt-0" />
           </div>
         </div>
       </v-card>
@@ -232,7 +261,7 @@
           {{ $t('imageCropDrawer.cancel') }}
         </v-btn>
         <v-btn
-          :disabled="!imageData"
+          :disabled="!imageData || !isValidLink"
           :loading="sendingImage"
           id="imageCropDrawerApply"
           class="btn btn-primary"
@@ -298,6 +327,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    link: {
+      type: Boolean,
+      default: false,
+    },
     defaultFormat: {
       type: String,
       default: () => 'landscape',
@@ -311,11 +344,10 @@ export default {
       default: () => ({
         aspectRatio: 16 / 9,
       }),
-    },
+    }
   },
   data: () => ({
     drawer: false,
-    title: null,
     format: null,
     zoom: 1,
     stepZoom: 0.1,
@@ -331,8 +363,9 @@ export default {
     alternativeText: null,
     mimetype: null,
     checkFormat: false,
-    specificFormatSelected: false,
     imageAspectRatio: 0,
+    linkUrl: null,
+    linkTarget: ''
   }),
   computed: {
     aspectRatio() {
@@ -393,6 +426,27 @@ export default {
       }
       || this.cropOptions;
     },
+    isValidLink() {
+      try {
+        return !this.link || !this.linkUrl || !!this.$utils.toLinkUrl(this.linkUrl, {
+          urls: true,
+          email: true,
+          phone: true,
+        })?.length;
+      } catch (e) {
+        return false;
+      }
+    },
+    rules() {
+      return {
+        url: [
+          () => this.isValidLink || this.$t('imageCropDrawer.invalidLink'),
+        ],
+      };
+    },
+    title() {
+      return this.drawerTitle || 'imageCropDrawer.defaultTitle';
+    }
   },
   watch: {
     imageData() {
@@ -421,9 +475,6 @@ export default {
         this.$nextTick().then(() => this.init(true));
       }
     },
-    format() {
-      this.$emit('format', this.format);
-    },
     formatCropOptions() {
       this.resetCropper();
       this.init();
@@ -437,12 +488,12 @@ export default {
   },
   methods: {
     open(imageItem) {
-      this.title = this.drawerTitle || 'imageCropDrawer.defaultTitle';
       this.imageData = imageItem?.src || this.src || null;
       this.mimetype = imageItem?.mimetype || imageItem?.data &&  this.getBase64Mimetype(imageItem?.data) || null;
       this.alternativeText = imageItem?.altText || null;
+      this.linkUrl = imageItem?.linkUrl || null;
+      this.linkTarget = imageItem?.linkTarget || '';
       this.format = imageItem?.format || ((this.useFormat || this.customFormat) && 'custom') || 'landscape';
-      this.specificFormatSelected = !!imageItem?.format;
       this.$nextTick().then(() => {
         this.$refs.drawer.open();
         window.setTimeout(() => {
@@ -582,6 +633,15 @@ export default {
                   const reader = new FileReader();
                   reader.onload = (e) => {
                     self.$emit('data', e.target.result);
+                    this.$emit('apply',  {
+                      src: e.target.result || '',
+                      uploadId: uploadId,
+                      altText: this.alternativeText || '',
+                      linkUrl: this.linkUrl || '',
+                      linkTarget: this.linkTarget || '',
+                      format: this.format || '',
+                      mimetype: this.mimeType || ''
+                    });
                     self.$forceUpdate();
                   };
                   reader.readAsDataURL(blob);
@@ -650,7 +710,6 @@ export default {
       }
     },
     selectFormat(format) {
-      this.specificFormatSelected = true;
       this.format = format;
     },
     getBase64Mimetype(dataUrl) {
