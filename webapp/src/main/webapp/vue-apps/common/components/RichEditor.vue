@@ -427,6 +427,7 @@ export default {
         ...extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions'),
         ...extensionRegistry.loadExtensions('RichEditor', `ckeditor-extensions-${this.ckEditorType || 'default'}`),
       ].filter(ext => ext);
+      let configOptions = {};
       if (ckEditorExtensions?.length && this.useExtraPlugins) {
         ckEditorExtensions = await Promise.all(ckEditorExtensions.map(async ext => {
           if (ext.getExtension) {
@@ -449,6 +450,12 @@ export default {
           if (ckEditorExtension?.extraToolbarItem) {
             toolbar[0].push(ckEditorExtension.extraToolbarItem);
           }
+          if (ckEditorExtension?.configOptions) {
+            configOptions = {
+              ...configOptions,
+              ...ckEditorExtension.configOptions,
+            };
+          }
         });
       }
 
@@ -463,6 +470,9 @@ export default {
         toolbar: this.hideToolbar ? [] : toolbar,
         toolbarLocation: this.toolbarPosition,
         toolbarCanCollapse: this.hideToolbar,
+        ckEditorType: this.ckEditorType,
+        objectType: this.objectType,
+        objectId: this.objectId,
         allowedContent: true,
         enterMode: this.enterMode,
         typeOfRelation: this.suggestorTypeOfRelation,
@@ -474,7 +484,8 @@ export default {
         pasteFilter: 'p; div; a[!href]; strong; i',
         supportsOembed: this.supportsOembed,
         bodyClass: this.dense ? `${this.bodyClass || ''} dense-margin` : this.bodyClass,
-        readOnly: this.disabled
+        readOnly: this.disabled,
+        ...configOptions,
       };
       if (!this.disableAutoGrow) {
         options.autoGrow_onStartup = false;
