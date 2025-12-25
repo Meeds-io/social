@@ -1135,7 +1135,7 @@
     <description>Display the parent space if a subspace</description>
     <portlet-name>ParentSpaceListing</portlet-name>
     <display-name>Parent Space Listing</display-name>
-    <portlet-class>org.exoplatform.commons.api.portlet.GenericDispatchedViewPortlet</portlet-class>
+    <portlet-class>io.meeds.social.portlet.ParentSpaceListingPortlet</portlet-class>
     <init-param>
       <name>portlet-view-dispatched-file-path</name>
       <value>/WEB-INF/jsp/portlet/parentSpaceListing.jsp</value>
@@ -1148,6 +1148,16 @@
     <portlet-info>
       <title>Parent Space Listing</title>
     </portlet-info>
+    <portlet-preferences>
+      <preference>
+        <name>settings</name>
+        <value>
+          {
+          "headerTranslations":{}
+          }
+        </value>
+      </preference>
+    </portlet-preferences>
   </portlet>
 
   <portlet>
