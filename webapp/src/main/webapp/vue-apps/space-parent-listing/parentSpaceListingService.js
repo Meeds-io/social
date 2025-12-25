@@ -1,37 +1,38 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
- * Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
- * 
+ *
+ * Copyright (C) 2025 Meeds Association contact@meeds.io
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 3 of the License, or (at your option) any later version.
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-import ParentSpace from './components/ParentSpace.vue';
-import ParentSpaceSettingsDrawer from './components/ParentSpaceSettingsDrawer.vue';
-import * as parentSpaceListingService from '../space-parent-listing/parentSpaceListingService.js';
+export function saveSettings(saveSettingsURL, settings) {
+  const formData = new FormData();
+  formData.append('settings', JSON.stringify(settings));
+  const urlParams = new URLSearchParams(formData).toString();
 
-const components = {
-  'parent-space': ParentSpace,
-  'parent-space-settings-drawer': ParentSpaceSettingsDrawer
-};
-
-if (!Vue.prototype.$parentSpaceListingService) {
-  window.Object.defineProperty(Vue.prototype, '$parentSpaceListingService', {
-    value: parentSpaceListingService,
+  return fetch(saveSettingsURL, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+    },
+    body: urlParams,
+  }).then(resp => {
+    if (!resp.ok) {
+      throw new Error('Error while saving parent space listing settings');
+    }
   });
-}
-
-for (const key in components) {
-  Vue.component(key, components[key]);
 }
