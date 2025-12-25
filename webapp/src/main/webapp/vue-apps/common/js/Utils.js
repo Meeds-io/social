@@ -33,10 +33,15 @@ export function includeExtensions(suffix) {
   if (modules?.length) {
     return Promise.all(modules.map(module => new Promise(resolve =>
       window.require([module], app => {
-        if (!window.requireJsLoadedExtension[module]) {
-          window.requireJsLoadedExtension[module] = true;
-          Promise.resolve(app?.init?.())
-            .then(resolve);
+        const previousLoadingResult = window.requireJsLoadedExtension[module];
+        if (!previousLoadingResult) {
+          window.requireJsLoadedExtension[module] = Promise.try(() => app?.init?.()) // NOSONAR
+            .then(() => { // NOSONAR
+              window.requireJsLoadedExtension[module] = true;
+              resolve();
+            });
+        } else if (previousLoadingResult?.then) {
+          previousLoadingResult.then(resolve);
         } else {
           resolve();
         }
