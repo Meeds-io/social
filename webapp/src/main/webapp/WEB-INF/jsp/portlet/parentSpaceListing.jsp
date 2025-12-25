@@ -1,28 +1,39 @@
 <%@ page import="org.exoplatform.social.core.space.SpaceUtils" %>
 <%@ page import="org.exoplatform.social.core.space.model.Space" %>
+<%@ page import="org.exoplatform.social.core.space.spi.SpaceService" %>
+<%@ page import="org.exoplatform.commons.utils.CommonsUtils" %>
+<%@page import="org.apache.commons.text.StringEscapeUtils"%>
 <%@taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+<portlet:defineObjects />
+<portlet:actionURL var="saveSettingsUrl" />
 <%
-  Object applicationIdParam =  request.getAttribute("applicationId");
-  String applicationId;
-  if (applicationIdParam instanceof String[]) {
-    applicationId = ((String[]) applicationIdParam)[0];
-  } else {
-    applicationId = (String) applicationIdParam;
+  boolean isManager = false;
+  Object rawSettings = request.getAttribute("settings");
+  String settings = null;
+  if (rawSettings instanceof String[]) {
+    settings = ((String[]) rawSettings)[0];
   }
-  Space space = SpaceUtils.getSpaceByContext();
+
+  String portletId = (String) request.getAttribute("portletStorageId");
+  String domId = "parentSpaceListingApplication" + portletId;
+  String valueDomId = "parentSpaceApplicationSettingsValue" + portletId;
+  Space currentSpace = SpaceUtils.getSpaceByContext();
   Long parentSpaceId = null;
-  if (space != null) {
-    parentSpaceId = space.getParentSpaceId();
+  if (currentSpace != null) {
+    parentSpaceId = currentSpace.getParentSpaceId();
+    SpaceService spaceService = CommonsUtils.getService(SpaceService.class);
+    isManager = spaceService.canManageSpace(currentSpace, request.getRemoteUser());
   }
 %>
 <% if (parentSpaceId != null && parentSpaceId > 0) { %>
 <div class="VuetifyApp">
   <div data-app="true"
        class="v-application v-application--is-ltr theme--light"
-       id="parentSpaceListing">
+       id="<%=domId%>">
+    <textarea id="parentSpaceListingSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
     <script type="text/javascript">
         require(['PORTLET/social/ParentSpaceListing'],
-            app => app.init('<%=parentSpaceId%>', '<%=applicationId%>')
+            app => app.init('<%=domId%>', '<%=parentSpaceId%>', <%=isManager%>, JSON.parse(document.getElementById('parentSpaceListingSettings<%=valueDomId%>').value), '<%=saveSettingsUrl%>')
         );
     </script>
   </div>
