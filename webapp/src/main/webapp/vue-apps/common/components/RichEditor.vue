@@ -417,12 +417,6 @@ export default {
         extraPlugins += ',attachImage';
         toolbar[0].push('attachImage');
       }
-      if (this.contentLinkEnabled) {
-        extraPlugins += ',insertContentLink';
-        toolbar[0].push('InsertContentLink');
-      }
-      toolbar[0].unshift('formatOption');
-
       let ckEditorExtensions = [
         ...extensionRegistry.loadExtensions('RichEditor', 'ckeditor-extensions'),
         ...extensionRegistry.loadExtensions('RichEditor', `ckeditor-extensions-${this.ckEditorType || 'default'}`),
@@ -458,6 +452,11 @@ export default {
           }
         });
       }
+      if (this.contentLinkEnabled) {
+        extraPlugins += ',insertContentLink';
+        toolbar[0].push('InsertContentLink');
+      }
+      toolbar[0].unshift('formatOption');
 
       // this line is mandatory when a custom skin is defined
       CKEDITOR.basePath = '/commons-extension/ckeditor/';
