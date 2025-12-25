@@ -34,23 +34,35 @@ const lang = eXo && eXo.env.portal.language || 'en';
 //should expose the locale ressources as REST API
 const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
-const appId = 'parentSpaceListing';
-
-export function init(parentSpaceId, applicationId) {
+export function init(appId, parentSpaceId, isManager, settings, saveSettingsUrl) {
   exoi18n.loadLanguageAsync(lang, url)
     .then(i18n => {
+      if (!settings.headerTranslations) {
+        settings.headerTranslations = {};
+      }
       Vue.createApp({
         data: {
           parentSpaceId: parentSpaceId,
-          applicationId: applicationId,
+          isManager: isManager,
+          settings: settings,
+          saveSettingsUrl: saveSettingsUrl,
           space: null,
+          defaultLanguage: eXo?.env?.portal?.defaultLanguage,
+          loading: false
         },
         async created() {
+          this.loading = true;
           this.space = await this.$spaceService.getSpaceById(this.parentSpaceId);
+          this.loading = false;
         },
-        template: '<parent-space />',
+        computed: {
+          headerTitle() {
+            return this.headerTitle = this.settings?.headerTranslations?.[lang] || this.settings?.headerTranslations?.[this.defaultLanguage];
+          }
+        },
+        template: `<parent-space id="${appId}" />`,
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
-      }, `#${appId}`, 'Parent space');
+      }, `#${appId}`, 'Parent space listing');
     });
 }
