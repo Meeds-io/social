@@ -2252,6 +2252,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>translationField</module>
+      </depends>
     </module>
   </portlet>
 
