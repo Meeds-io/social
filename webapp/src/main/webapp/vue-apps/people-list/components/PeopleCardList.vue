@@ -258,7 +258,7 @@ export default {
           returnSize: true,
           signal: this.abortController.signal,
         }).then(data => { 
-          this.$root.space.membersCount = data.size;
+          this.$emit('members-count-updated', data.size);
           return {
             size: data.size || 0,
             users: data?.spacesMemberships?.map?.(m => m.user),
