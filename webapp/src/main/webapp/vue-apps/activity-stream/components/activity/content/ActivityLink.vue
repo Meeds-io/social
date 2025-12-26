@@ -121,8 +121,7 @@
           <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
         <div
-          v-if="activityViews"
-          class="d-flex justify-end mt-auto ms-auto width-fit-content me-3">
+          class="d-flex justify-end mt-auto ms-auto width-fit-content">
           <div>
             <extension-registry-components
               name="ActivityLinkBottomRight"
@@ -133,7 +132,10 @@
               element-class="me-3"
               parent-element="span"
               element="span" />
-            <span :title="activityViewsTooltip">
+            <span
+              v-if="activityViews"
+              :title="activityViewsTooltip"
+              class="me-3">
               <v-icon
                 size="20"
                 class="icon-default-color">
