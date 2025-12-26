@@ -21,15 +21,15 @@
               class="absolute-vertical-center"
               compact
               clickable
-              @open-detail="$root.$emit('space-members-drawer-open')" />
+              @open-detail="showListMembers" />
           </div>
         </template>
       </widget-wrapper>
     </v-hover>
-    <space-members-drawer v-if="!isAnonymous" />
   </v-app>
 </template>
 <script>
+
 export default {
   data: () => ({
     keyword: null,
@@ -70,6 +70,14 @@ export default {
     refreshUsers() {
       this.$refs.spaceMembers.searchPeople();
     },
+    showListMembers() {
+      window.require(['SHARED/spaceMembersDrawer'], drawer => {
+        drawer.openSpaceMembers({
+          space: this.$root.space,
+          isManager: this.$root.isManager
+        });
+      });
+    }
   },
 };
 </script>
