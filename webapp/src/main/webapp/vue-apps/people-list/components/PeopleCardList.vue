@@ -257,7 +257,7 @@ export default {
           space: this.spaceId,
           returnSize: true,
           signal: this.abortController.signal,
-        }).then(data => { 
+        }).then(data => {
           this.$root.space.membersCount = data.size;
           return {
             size: data.size || 0,
