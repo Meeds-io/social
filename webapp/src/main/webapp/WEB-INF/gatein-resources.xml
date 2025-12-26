@@ -657,16 +657,7 @@
         <module>extensionRegistry</module>
       </depends>
       <depends>
-        <module>commonVueComponents</module>
-      </depends>
-      <depends>
-        <module>spaceInvitation</module>
-      </depends>
-      <depends>
-        <module>peopleListComponents</module>
-      </depends>
-      <depends>
-        <module>applicationToolbarComponent</module>
+        <module>spaceMembersDrawer</module>
       </depends>
     </module>
   </portlet>
@@ -3366,6 +3357,38 @@
     </depends>
     <depends>
       <module>commonVueComponents</module>
+    </depends>
+  </module>
+  
+  <module>
+    <name>spaceMembersDrawer</name>
+    <script>
+      <minify>false</minify>
+      <path>/js/spaceMembersDrawer.bundle.js</path>
+    </script>
+    <depends>
+      <module>spaceInvitation</module>
+    </depends>
+    <depends>
+      <module>peopleListComponents</module>
+    </depends>
+    <depends>
+      <module>applicationToolbarComponent</module>
+    </depends>
+    <depends>
+      <module>commonVueComponents</module>
+    </depends>
+    <depends>
+      <module>vue</module>
+    </depends>
+    <depends>
+      <module>vuetify</module>
+    </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
     </depends>
   </module>
 
