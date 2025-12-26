@@ -69,7 +69,8 @@
         no-margins
         class="px-1 my-2"
         @has-more="hasMore = $event"
-        @loading="loading = $event" />
+        @loading="loading = $event"
+        @members-count-updated="membersCountUpdated" />
     </template>
     <template v-if="hasMore" #footer>
       <v-btn
