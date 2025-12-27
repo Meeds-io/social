@@ -32,7 +32,6 @@
     </card-carousel>
   </div>
 </template>
-
 <script>
 export default {
   props: {
@@ -61,6 +60,9 @@ export default {
     updatedAttachments: null,
   }),
   computed: {
+    objectKey() {
+      return `${this.objectType}@${this.objectId}`;
+    },
     imageAttachments() {
       return this.updatedAttachments || this.attachments || [];
     },
@@ -73,11 +75,18 @@ export default {
       return sortedAttachments;
     },
   },
+  watch: {
+    objectKey: {
+      immediate: true,
+      handler() {
+        if (!this.attachments) {
+          this.retrieveAttachments();
+        }
+      },
+    },
+  },
   created() {
     document.addEventListener('attachments-updated', this.updateAttachments);
-    if (!this.attachments) {
-      this.retrieveAttachments();
-    }
   },
   beforeDestroy() {
     document.removeEventListener('attachments-updated', this.updateAttachments);
@@ -96,6 +105,9 @@ export default {
             updatedAttachment.thumbnailUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${updatedAttachment.id}`;
             updatedAttachment.downloadUrl = `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/attachments/${this.objectType}/${this.objectId}/${updatedAttachment.id}?size=0x0&download=true`;
           });
+        }).catch(e => {
+          this.updatedAttachments = [];
+          throw e;
         });
     },
     openPreview(attachmentId) {
