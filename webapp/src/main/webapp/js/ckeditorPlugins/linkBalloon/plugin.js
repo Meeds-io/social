@@ -70,7 +70,7 @@
       document.addEventListener('keydown', (evt) => {
         const selection = editor.getSelection();
         evt = evt || window.event;
-        if (evt.key === 'Escape' && isInputTextToolbar && selection && selection.getSelectedText().trim().length >= 0) {
+        if (evt.key === 'Escape' && isInputTextToolbar && selection?.getSelectedText?.()?.trim?.()?.length) {
           hideInputTextPanel(editor);
         }
       });
@@ -78,30 +78,28 @@
   });
 
   function setupMouseObserver(editor) {
-    const selection = editor.getSelection(),
-        link = getSelectedLink(editor);
-    if ( selection && selection.getSelectedText().trim().length > 0) {
+    const selection = editor.getSelection();
+    if (selection?.getSelectedText?.()?.trim?.()?.length) {
       const balloonElement = document.querySelector(".cke_balloontoolbar .cke_balloon_content");
       const isVisible = balloonElement != null && balloonElement.innerHTML.trim() !== '';
       balloonToolbar.destroy();
       initBalloonToolbar(editor);
 
+      const link = getSelectedLink(editor);
       if (!balloonToolbar.getItem('unlink')) {
         if (link) {
           addUnlinkItem(editor);
         }
-      } else {
-        if (!link) {
-          balloonToolbar.deleteItem('unlink');
-        }
+      } else if (!link) {
+        balloonToolbar.deleteItem('unlink');
       }
-        const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
-        if (!isVisible
-            && !(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
-            && !(selectedElement?.parentElement?.classList?.contains?.("metadata-tag") || selectedElement?.classList?.contains?.("metadata-tag"))
-            && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query"))) {
-          balloonToolbar.attach( selection );
-        }
+      const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
+      if (!isVisible
+          && !(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
+          && !(selectedElement?.parentElement?.classList?.contains?.("metadata-tag") || selectedElement?.classList?.contains?.("metadata-tag"))
+          && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query"))) {
+        balloonToolbar.attach( selection );
+      }
     } else {
       balloonToolbar.hide();
     }
