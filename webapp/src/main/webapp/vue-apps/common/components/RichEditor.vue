@@ -379,7 +379,7 @@ export default {
       }
       CKEDITOR.dtd.$removeEmpty['i'] = false;
 
-      let extraPlugins = 'simpleLink,widget,editorplaceholder,emoji,formatOption,linkBalloon,vuetifyStyle';
+      let extraPlugins = 'simpleLink,widget,editorplaceholder,formatOption,linkBalloon,vuetifyStyle';
       let removePlugins = 'image,maximize,resize';
       const toolbar = [
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
@@ -410,7 +410,8 @@ export default {
       } else {
         removePlugins += ',tagSuggester';
       }
-      if (!this.isMobile) {
+      if (!this.isMobile && !this.hideToolbar) {
+        extraPlugins += ',emoji';
         toolbar[0].push('emoji');
       }
       if (this.attachmentEnabled) {
