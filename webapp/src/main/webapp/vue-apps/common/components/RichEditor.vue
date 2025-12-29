@@ -19,7 +19,7 @@
         indeterminate
         class="loadingRing position-absolute" />
       <div
-        v-if="!hideCharsCount"
+        v-if="!hideCharsCount && !isMobile"
         :v-show="editorReady"
         :id="buttonId"
         :class="!validLength && 'tooManyChars' || ''"
@@ -385,6 +385,13 @@ export default {
         ['Bold', 'Italic', 'BulletedList', 'NumberedList', 'Blockquote'],
       ];
 
+      if (this.tagEnabled) {
+        extraPlugins += ',tagSuggester';
+        toolbar[0].push('tagSuggester');
+      } else {
+        removePlugins += ',tagSuggester';
+      }
+
       const windowWidth = $(window).width();
       const windowHeight = $(window).height();
       if (windowWidth <= windowHeight || windowWidth >= this.SMARTPHONE_LANDSCAPE_WIDTH && !this.disableSuggester) {
@@ -404,12 +411,6 @@ export default {
         removePlugins += ',embedsemantic,embedbase,embedsemanticOnlyVideo,embedbaseOnlyVideo';
       }
 
-      if (this.tagEnabled) {
-        extraPlugins += ',tagSuggester';
-        toolbar[0].push('tagSuggester');
-      } else {
-        removePlugins += ',tagSuggester';
-      }
       if (!this.isMobile && !this.hideToolbar) {
         extraPlugins += ',emoji';
         toolbar[0].push('emoji');
