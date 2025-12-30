@@ -23,9 +23,9 @@
         :v-show="editorReady"
         :id="buttonId"
         :class="!validLength && 'tooManyChars' || ''"
-        class="activityCharsCount">
-        {{ charsCount }}{{ maxLength > -1 ? ' / ' + maxLength : '' }}
-        <i class="uiIconMessageLength"></i>
+        class="activityCharsCount line-height-normal d-flex align-center">
+        {{ charsCount }}{{ maxLength > -1 && !hideCharsMaxCount ? ' / ' + maxLength : '' }}
+        <i class="uiIconMessageLength ms-1 pb-2px"></i>
       </div>
     </div>
     <div v-if="containInvalidUsers" class="mt-4 text-subtitle">{{ $t('activity.composer.invalidUsers.message') }}</div>
@@ -164,6 +164,10 @@ export default {
       default: false
     },
     hideCharsCount: {
+      type: Boolean,
+      default: false
+    },
+    hideCharsMaxCount: {
       type: Boolean,
       default: false
     },

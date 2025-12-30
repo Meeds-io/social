@@ -21,6 +21,7 @@
           :object-id="metadataObjectId"
           :object-type="metadataObjectType"
           :suggester-space-id="spaceId"
+          :hide-chars-max-count="parentCommentId"
           context-name="activityComment"
           suggestor-type-of-relation="mention_comment"
           content-link-enabled
