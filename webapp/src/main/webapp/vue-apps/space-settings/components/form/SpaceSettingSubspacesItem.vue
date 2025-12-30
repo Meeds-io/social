@@ -28,12 +28,12 @@
         class="text-truncate"
         list-style />
     </v-list-item-content>
-    <v-list-item-action class="my-auto me-0 ms-n2">
+    <v-list-item-action class="my-auto me-0 ms-2">
       <v-btn
-        small
+        :aria-label="$t('spaceSetting.subspaces.delete.label')"
         icon
         @click="openConfirmDialog">
-        <v-icon size="18" color="error">
+        <v-icon size="16" color="error">
           fa-trash
         </v-icon>
       </v-btn>
