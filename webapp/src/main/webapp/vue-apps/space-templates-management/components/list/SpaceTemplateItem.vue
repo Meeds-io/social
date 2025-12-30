@@ -50,6 +50,9 @@
         class="text-truncate-3 text-break">
       </div>
     </td>
+    <td v-if="!$vuetify.breakpoint.lgAndDown" class="text-center">
+      <span>{{ spaceTemplateType }}</span>
+    </td>
     <td
       v-if="!$vuetify.breakpoint.lgAndDown"
       class="text-center"
@@ -99,6 +102,7 @@
   </tr>
 </template>
 <script>
+
 export default {
   props: {
     spaceTemplate: {
@@ -140,6 +144,9 @@ export default {
     spacesCountLabel() {
       return this.spacesCount > 9 ? '9+' : this.spacesCount;
     },
+    spaceTemplateType() {
+      return this.spaceTemplate?.type;
+    }
   },
   watch: {
     hoverMenu() {
