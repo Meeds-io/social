@@ -171,6 +171,14 @@ export default {
           width: 'auto'
         },
         {
+          text: this.$t('spaceTemplates.type.label'),
+          value: 'type',
+          align: 'center',
+          sortable: true,
+          class: 'space-template-type-header',
+          width: 'auto'
+        },
+        {
           text: this.$t('spaceTemplates.label.permissions'),
           value: 'permissions',
           align: 'center',
@@ -213,6 +221,7 @@ export default {
         ?.map?.(t => {
           t = JSON.parse(JSON.stringify(t));
           t.spacesCount = this.$root.spacesCountByTemplates?.[t.id] || 0;
+          t.type = this.resolveSpaceTemplateType(t);
           return t;
         }) || [];
       spaceTemplates.sort((a, b) => this.$root.collator.compare(a.name.toLowerCase(), b.name.toLowerCase()));
@@ -267,6 +276,15 @@ export default {
         })
         .catch(() => this.$root.$emit('alert-message', this.$t('spaceTemplate.delete.error'), 'error'))
         .finally(() => this.loading = false);
+    },
+    resolveSpaceTemplateType(spaceTemplate) {
+      if (this.$root.subspacesTemplateIds.includes(spaceTemplate?.id)) {
+        return this.$t('spaceTemplate.subspaceTemplate.type.label');
+      }
+      if (spaceTemplate?.allowedSubspaceTemplates?.length) {
+        return this.$t('spaceTemplate.parentSpaceTemplate.type.label');
+      }
+      return '-';
     },
   },
 };
