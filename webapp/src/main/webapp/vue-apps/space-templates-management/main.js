@@ -57,6 +57,7 @@ export function init(isExternalFeatureEnabled) {
           mainExtensionType: 'space-templates-main',
           menuItemExtensions: [],
           mainExtensions: [],
+          subspacesTemplateIds: []
         },
         computed: {
           isMobile() {
@@ -74,7 +75,7 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-templates-enabled', this.refreshSpaceTemplates);
           this.$root.$on('space-templates-disabled', this.refreshSpaceTemplates);
           this.$root.$on('space-templates-saved', this.refreshSpaceTemplates);
-          this.refreshSpaceTemplates();
+          await this.refreshSpaceTemplates();
           document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
           document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
           this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
@@ -93,11 +94,14 @@ export function init(isExternalFeatureEnabled) {
           document.removeEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
         },
         methods: {
-          refreshSpaceTemplates() {
+          async refreshSpaceTemplates() {
             this.loading = true;
-            return this.$spaceTemplateService.getSpaceTemplates(true)
-              .then(spaceTemplates => this.spaceTemplates = spaceTemplates || [])
-              .finally(() => this.loading = false);
+            try {
+              this.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates(true) || [];
+              this.subspacesTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds() || [];
+            } finally {
+              this.loading = false;
+            }
           },
           refreshMenuExtensions() {
             this.menuItemExtensions = extensionRegistry.loadExtensions(this.extensionApp, this.menuItemExtensionType);
