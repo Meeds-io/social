@@ -293,11 +293,13 @@
                     class="d-flex flex-row align-center justify-center"
                     flat>
                     <v-btn
+                      :title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
                       icon>
                       <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
                     </v-btn>
                     <v-card-text class="pa-0">{{ $t('spaceTemplate.subspacesConfigurationStepNoLimit') }}</v-card-text>
                     <v-btn
+                      :title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
                       icon
                       @click="subspacesMaxLimit++">
                       <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
@@ -308,6 +310,8 @@
                     v-model="subspacesMaxLimit"
                     :max="maxSubspacesMaxLimit"
                     :min="minSubspacesMaxLimit"
+                    :plus-title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
+                    :minus-title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
                     :step="1"
                     :label="$t('spaceTemplate.subspacesConfigurationStepMaxLimit')"
                     class="ms-auto"
