@@ -24,6 +24,7 @@
     class="d-flex flex-row align-center justify-center"
     flat>
     <v-btn
+      :title="minusTitle"
       icon
       @click="decrementNumber">
       <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
@@ -42,6 +43,7 @@
     <div v-else>{{ num }}</div>
     <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
+      :title="plusTitle"
       icon
       @click="incrementNumber">
       <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
@@ -91,6 +93,14 @@ export default {
       type: Number,
       default: () => 36,
     },
+    minusTitle: {
+      type: String,
+      default: () => ''
+    },
+    plusTitle: {
+      type: String,
+      default: () => ''
+    }
   },
   data: () => ({
     num: 20,

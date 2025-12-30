@@ -30,6 +30,7 @@
           </v-list-item-content>
           <v-list-item-action>
             <v-btn
+              :aria-label="$t('spaceSetting.space.delete.label')"
               small
               icon
               @click="removeSpaceConfirm">
