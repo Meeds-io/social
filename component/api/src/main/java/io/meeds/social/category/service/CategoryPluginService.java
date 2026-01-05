@@ -51,9 +51,10 @@ public interface CategoryPluginService {
   /**
    * @param objectType {@link CategoryObject} type
    * @param spaceId {@link Space} identifier
+   * @param username User technical name (login identifier)
    * @return {@link List} of {@link Category} Ids associated to an object type
    */
-  List<Long> getCategoryIds(String objectType, long spaceId);
+  List<Long> getCategoryIds(String objectType, long spaceId, String username);
 
   /**
    * In some cases such as Activities, the Metadata Object is different, thus

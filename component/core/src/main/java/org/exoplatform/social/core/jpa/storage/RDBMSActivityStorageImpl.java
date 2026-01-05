@@ -1264,6 +1264,11 @@ public class RDBMSActivityStorageImpl implements ActivityStorage {
     return activityDAO.getActivityCategoryIds(spaceIdentityId);
   }
 
+  @Override
+  public List<Long> getActivityCategoryIds(Set<Long> streamFeedOwnerIds) {
+    return activityDAO.getActivityCategoryIds(streamFeedOwnerIds);
+  }
+
   private boolean hasOtherComment(ActivityEntity activity, String poster) {
     for (ActivityEntity comment : activity.getComments()) {
       if (poster.equals(comment.getPosterId())) {
