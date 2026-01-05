@@ -40,14 +40,14 @@
             <v-btn
               :title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
               icon>
-              <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+              <v-icon size="16" class="icon-default-color">fa-minus</v-icon>
             </v-btn>
             <v-card-text class="pa-0">{{ $t('spaceTemplate.subspacesConfigurationStepNoLimit') }}</v-card-text>
             <v-btn
               :title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
               icon
               @click="subspacesMaxLimit++">
-              <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+              <v-icon size="16" class="icon-default-color">fa-plus</v-icon>
             </v-btn>
           </v-card>
           <number-input
