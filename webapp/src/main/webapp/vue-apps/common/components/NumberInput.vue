@@ -27,7 +27,7 @@
       :title="minusTitle"
       icon
       @click="decrementNumber">
-      <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+      <v-icon :size="iconSize" class="icon-default-color">fa-minus</v-icon>
     </v-btn>
     <input
       v-if="editable"
@@ -46,7 +46,7 @@
       :title="plusTitle"
       icon
       @click="incrementNumber">
-      <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+      <v-icon :size="iconSize" class="icon-default-color">fa-plus</v-icon>
     </v-btn>
   </v-card>
 </template>
@@ -100,6 +100,10 @@ export default {
     plusTitle: {
       type: String,
       default: () => ''
+    },
+    iconSize: {
+      type: Number,
+      default: () => 16
     }
   },
   data: () => ({
