@@ -2188,6 +2188,11 @@ public class CachedActivityStorage implements ActivityStorage {
     return storage.getActivityCategoryIds(spaceIdentityId);
   }
 
+  @Override
+  public List<Long> getActivityCategoryIds(Set<Long> streamFeedOwnerIds) {
+    return storage.getActivityCategoryIds(streamFeedOwnerIds);
+  }
+
   public void clearActivityCachedByAttachmentId(String attachmentId) {
     try {
       exoActivityCache.select(new ActivityAttachmentCacheSelector(attachmentId));

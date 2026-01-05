@@ -319,6 +319,23 @@ public class ActivityManagerImpl implements ActivityManager {
     return activityStorage.getActivityCategoryIds(spaceIdentityId);
   }
 
+  @Override
+  public List<Long> getActivityCategoryIds(long spaceId, String username) {
+    long spaceIdentityId = 0;
+    if (spaceId > 0) {
+      Space space = spaceService.getSpaceById(String.valueOf(spaceId));
+      if (space != null) {
+        Identity spaceIdentity = identityManager.getOrCreateSpaceIdentity(space.getPrettyName());
+        spaceIdentityId = Long.parseLong(spaceIdentity.getId());
+      }
+      return activityStorage.getActivityCategoryIds(spaceIdentityId);
+    } else {
+      Identity viewerIdentity = identityManager.getOrCreateUserIdentity(username);
+      Set<Long> streamFeedOwnerIds = activityStorage.getStreamFeedOwnerIds(viewerIdentity);
+      return activityStorage.getActivityCategoryIds(streamFeedOwnerIds);
+    }
+  }
+
   /**
    * {@inheritDoc}
    */

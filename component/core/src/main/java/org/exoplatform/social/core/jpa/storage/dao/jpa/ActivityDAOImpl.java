@@ -959,16 +959,19 @@ public class ActivityDAOImpl extends GenericDAOJPAImpl<ActivityEntity, Long> imp
   }
 
   @Override
+  public List<Long> getActivityCategoryIds(Set<Long> streamFeedOwnerIds) {
+    return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIds", Long.class)
+                             .setParameter("owners", streamFeedOwnerIds)
+                             .getResultList();
+  }
+
+  @Override
   public List<Long> getActivityCategoryIds(long spaceIdentityId) {
-    if (spaceIdentityId == 0) {
-      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIds", Long.class)
-                               .getResultList();
-    } else {
-      return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIdsBySpaceId", Long.class)
-                               .setParameter("spaceIdentityId", spaceIdentityId)
-                               .setParameter(STREAM_TYPE, StreamType.SPACE)
-                               .getResultList();
-    }
+    return getEntityManager().createNamedQuery("ActivityEntity.getActivityCategoryIdsBySpaceId", Long.class)
+                             .setParameter("spaceIdentityId", spaceIdentityId)
+                             .setParameter(STREAM_TYPE, StreamType.SPACE)
+                             .getResultList();
+
   }
 
   private <T> TypedQuery<T> buildQueryFromFilter(ActivityFilter activityFilter,
