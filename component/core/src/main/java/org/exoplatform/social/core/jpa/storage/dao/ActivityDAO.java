@@ -20,6 +20,7 @@ package org.exoplatform.social.core.jpa.storage.dao;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.exoplatform.commons.api.persistence.GenericDAO;
 import org.exoplatform.social.core.activity.ActivityFilter;
@@ -501,5 +502,12 @@ public interface ActivityDAO extends GenericDAO<ActivityEntity, Long> {
    * @return {@link List} of Category Ids used in Activities
    */
   List<Long> getActivityCategoryIds(long spaceIdentityId);
+
+
+  /**
+   * @param streamFeedOwnerIds Stream feed ownerIds
+   * @return {@link List} of Category Ids used in Activities
+   */
+  List<Long> getActivityCategoryIds(Set<Long> streamFeedOwnerIds);
 
 }

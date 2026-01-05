@@ -68,6 +68,11 @@ public class ActivityCategoryPlugin implements CategoryPlugin {
   }
 
   @Override
+  public List<Long> getCategoryIds(long spaceId, String username) {
+    return activityManager.getActivityCategoryIds(spaceId, username);
+  }
+
+  @Override
   public CategoryObject getObject(CategoryObject categoryObject) {
     ExoSocialActivity activity = activityManager.getActivity(categoryObject.getId());
     return activity == null ? categoryObject : new CategoryObject(activity.getMetadataObject());

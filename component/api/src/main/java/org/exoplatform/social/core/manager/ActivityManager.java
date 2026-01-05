@@ -626,6 +626,16 @@ public interface ActivityManager {
   }
 
   /**
+   * @param spaceId {@link Space} identifier
+   * @param username User technical name (login identifier)
+   * @return {@link List} of category identifiers associated to all activities
+   *         if spaceId = 0 else of designated space activities
+   */
+  default List<Long> getActivityCategoryIds(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * Gets the number of comments and subcomments of an activity.
    *
    * @param activityId {@link ExoSocialActivity} identifier
