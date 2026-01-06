@@ -355,7 +355,6 @@ export default {
     },
     initCKEditor(reset, textValue) {
       const self = this;
-      this.editor = null;
       window.require(['SHARED/commons-editor', 'SHARED/suggester', 'SHARED/tagSuggester'], function() {
         self.initCKEditorInstance(reset, textValue || self.value);
       });
@@ -367,7 +366,7 @@ export default {
       }
       this.initializing = true;
       const editor = CKEDITOR.instances[this.ckEditorInstanceId];
-      if (editor) {
+      if (editor && editor !== this.editor) {
         editor.status = 'not-ready';
       }
       this.editor = editor;
@@ -585,15 +584,15 @@ export default {
         this.$refs.attachmentsInput.reset();
       }
     },
-    unload: function() {
+    unload() {
       if (this.editor) {
         this.$set(this.editor, 'status', 'not-ready');
       }
     },
-    setEditorReady: function() {
-      window.setTimeout(() => {
+    setEditorReady() {
+      if (this.editor) {
         this.$set(this.editor, 'status', 'ready');
-      }, 200);
+      }
     },
     setFocus(force, end) {
       if (this.editorReady && (force || this.autofocus)) {
