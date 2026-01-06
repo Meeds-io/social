@@ -1196,4 +1196,12 @@ public interface ActivityStorage {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * @param streamFeedOwnerIds Stream feed ownerIds
+   * @return {@link List} of Category Ids used in Activities
+   */
+  default List<Long> getActivityCategoryIds(Set<Long> streamFeedOwnerIds) {
+    throw new UnsupportedOperationException();
+  }
+
 }
