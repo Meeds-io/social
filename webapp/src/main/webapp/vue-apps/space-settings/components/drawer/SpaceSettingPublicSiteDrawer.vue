@@ -198,6 +198,7 @@ export default {
       try {
         const space = await this.$spaceService.updateSpace({
           id: this.$root.spaceId,
+          parentSpaceId: this.$root?.space?.parentSpaceId || null,
           publicSiteVisibility: this.publicSiteVisibility,
         });
         this.publicSiteId = space?.publicSiteId;
