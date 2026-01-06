@@ -190,21 +190,22 @@ export default {
       this.retrieveSpaceParent();
       this.$refs.drawer.open();
     },
-    linkSubspace(space, parentSpaceId) {
-      this.$spaceService.updateSpace({
+    async linkSubspace(space, parentSpaceId) {
+      const updatedSpace = await this.$spaceService.updateSpace({
         id: space.id,
         parentSpaceId: parentSpaceId,
-      })
-        .then(() => {
-          space.parentSpaceId = parentSpaceId;
-          this.retrieveSpaceParent();
-          this.retrieveSubspaces();
-          if (this.spaceId === space.id && !parentSpaceId) {
-            this.$root.$emit('alert-message', this.$t('social.spaces.administration.spaceNoMoreSubspace'), 'success');
-          } else if (!parentSpaceId) {
-            this.$root.$emit('alert-message', this.$t('social.spaces.administration.subspaceSuccessfullyRemoved'), 'success');
-          }
-        });
+      });
+      if (this.spaceId === space.id) {
+        this.space = updatedSpace;
+      }
+      await this.retrieveSpaceParent();
+      await this.retrieveSubspaces();
+      if (this.spaceId === space.id && !parentSpaceId) {
+        this.$root.$emit('alert-message', this.$t('social.spaces.administration.spaceNoMoreSubspace'), 'success');
+      } else if (!parentSpaceId) {
+        this.$root.$emit('alert-message', this.$t('social.spaces.administration.subspaceSuccessfullyRemoved'), 'success');
+      }
+      this.$root.$emit('spaces-administration-list-refresh');
     },
     selectParentSpace(space) {
       this.linkSubspace(this.space, space?.spaceId);
