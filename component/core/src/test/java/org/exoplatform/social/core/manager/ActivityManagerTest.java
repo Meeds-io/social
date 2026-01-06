@@ -3197,6 +3197,18 @@ public class ActivityManagerTest extends AbstractCoreTest {
     assertEquals(1, johnActivities.load(0, 10).length);
   }
 
+  @SneakyThrows
+  public void testGetActivityCategoryIds() {
+    String userId = rootIdentity.getId();
+    ExoSocialActivity activity = new ExoSocialActivityImpl();
+    activity.setTitle("activityTitle");
+    activity.setUserId(userId);
+    activity.setCategoryIds(List.of(2L));
+    activityManager.saveActivityNoReturn(rootIdentity, activity);
+
+    assertEquals(List.of(2L), activityManager.getActivityCategoryIds(0L, "root"));
+  }
+
   private void createActivityToOtherIdentity(Identity posterIdentity,
                                              Identity targetIdentity,
                                              int number) {

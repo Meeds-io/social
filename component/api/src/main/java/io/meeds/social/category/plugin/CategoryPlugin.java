@@ -74,6 +74,16 @@ public interface CategoryPlugin {
     return getCategoryIds();
   }
 
+  /**
+   * param spaceId Space Identifier
+   * @param username User technical name (login identifier)
+   * @return {@link List} of {@link Category} Ids associated to
+   *         objects switch designated spaceId
+   */
+  default List<Long> getCategoryIds(long spaceId, String username) {
+    return getCategoryIds();
+  }
+
   default CategoryObject getObject(CategoryObject metadataObject) {
     return metadataObject;
   }

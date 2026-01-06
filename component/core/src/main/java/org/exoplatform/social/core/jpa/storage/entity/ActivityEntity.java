@@ -98,6 +98,7 @@ import lombok.Setter;
         @NamedQuery(name = "ActivityEntity.getActivityCategoryIds", query = """
               SELECT DISTINCT c.categoryId FROM SocActivity a
               INNER JOIN a.categories c
+              WHERE a.ownerId IN (:owners)
             """),
         @NamedQuery(name = "ActivityEntity.getActivityCategoryIdsBySpaceId", query = """
               SELECT DISTINCT c.categoryId FROM SocActivity a
