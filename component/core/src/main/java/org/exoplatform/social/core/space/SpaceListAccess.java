@@ -328,8 +328,8 @@ public class SpaceListAccess implements ListAccess<Space> {
     if (spaceFilter != null && spaceTemplateService != null) {
       if (spaceFilter.isOnlyParentSpaces()) {
         spaceFilter.setTemplateIds(spaceTemplateService.getTemplateIdsAllowingSubspaces());
-      } else if (!CollectionUtils.isEmpty(spaceFilter.getSubTemplateIds())) {
-        spaceFilter.setTemplateIds(spaceTemplateService.getParentSpaceTemplateIds(spaceFilter.getSubTemplateIds(), userId));
+      } else if (!CollectionUtils.isEmpty(spaceFilter.getSubspaceTemplateIds())) {
+        spaceFilter.setTemplateIds(spaceTemplateService.getParentSpaceTemplateIds(spaceFilter.getSubspaceTemplateIds(), userId));
       }
     }
     return spaceFilter;
