@@ -362,33 +362,28 @@ public class SpaceTemplateService {
     if (CollectionUtils.isEmpty(subspaceTemplateIds)) {
       return List.of();
     }
-    Set<Long> subspaceTemplateIdSet = new HashSet<>(subspaceTemplateIds);
     return getSpaceTemplates().stream()
                               .filter(template -> template.getAllowedSubspaceTemplates() != null)
                               .filter(template -> template.getAllowedSubspaceTemplates()
                                                           .stream()
                                                           .map(this::extractTemplateId)
                                                           .filter(Objects::nonNull)
-                                                          .anyMatch(id -> subspaceTemplateIdSet.contains(id) && canViewTemplate(id, userName)))
+                                                          .anyMatch(id -> subspaceTemplateIds.contains(id)
+                                                              && canViewTemplate(id, userName)))
                               .map(SpaceTemplate::getId)
                               .toList();
   }
 
   public List<Long> getSubspaceTemplateIds(String userName) {
-    List<SpaceTemplate> allTemplates = getSpaceTemplates();
-    Set<Long> subspaceTemplateIds = allTemplates.stream()
-                                                .map(SpaceTemplate::getAllowedSubspaceTemplates)
-                                                .filter(Objects::nonNull)
-                                                .flatMap(Collection::stream)
-                                                .map(this::extractTemplateId)
-                                                .filter(Objects::nonNull)
-                                                .collect(Collectors.toSet());
+    return getSpaceTemplates().stream()
+                              .map(SpaceTemplate::getAllowedSubspaceTemplates)
+                              .filter(Objects::nonNull)
+                              .flatMap(Collection::stream)
+                              .map(this::extractTemplateId)
+                              .filter(id -> id != null && canViewTemplate(id, userName))
+                              .distinct()
+                              .toList();
 
-    return allTemplates.stream()
-                       .filter(t -> subspaceTemplateIds.contains(t.getId()))
-                       .filter(t -> canViewTemplate(t, userName))
-                       .map(SpaceTemplate::getId)
-                       .toList();
   }
 
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,

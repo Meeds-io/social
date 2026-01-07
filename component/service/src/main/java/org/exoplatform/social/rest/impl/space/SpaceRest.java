@@ -209,9 +209,9 @@ public class SpaceRest implements ResourceContainer {
                             @Parameter(description = "Space Template identifier, if equals to 0, it will not be used", required = false)
                             @QueryParam("templateId")
                             List<Long> templateIds,
-                            @Parameter(description = "Space sub Template identifier, is equals to 0 or isn't identified as subspace template, it will note be used", required = false)
-                            @QueryParam("subTemplateId")
-                            List<Long> subTemplateIds,
+                            @Parameter(description = "Subspace Template identifier, is equals to 0 or isn't identified as subspace template, it will note be used", required = false)
+                            @QueryParam("subspaceTemplateId")
+                            List<Long> subspaceTemplateIds,
                             @Parameter(description = "Sort", required = false)
                             @QueryParam("sort")
                             String sort,
@@ -276,7 +276,7 @@ public class SpaceRest implements ResourceContainer {
     spaceFilter.setTemplateIds(templateIds);
     spaceFilter.setExcludedIds(excludedIds);
     spaceFilter.setOnlyParentSpaces(onlyParentSpaces);
-    spaceFilter.setSubTemplateIds(subTemplateIds);
+    spaceFilter.setSubspaceTemplateIds(subspaceTemplateIds);
     if (CollectionUtils.isNotEmpty(categoryIds)) {
       spaceFilter.setCategoryIds(categoryIds);
       if (CollectionUtils.isEmpty(spaceFilter.getCategoryIds())) {
