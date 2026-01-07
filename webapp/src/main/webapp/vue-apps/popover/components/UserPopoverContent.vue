@@ -32,6 +32,7 @@
         <v-list-item-title>
           <exo-user-avatar
             :identity="identity"
+            :user-status="userStatus"
             :size="45"
             :popover="false"
             bold-title
@@ -84,6 +85,10 @@ export default {
       type: Object,
       default: null,
     },
+    userStatus: {
+      type: Object,
+      default: null
+    }
   },
   data() {
     return {

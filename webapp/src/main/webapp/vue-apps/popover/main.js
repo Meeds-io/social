@@ -68,6 +68,16 @@ document.querySelector('#vuetify-apps').append(popoverAppElement);
 
 exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
   Vue.createApp({
+    data() {
+      return {
+        statusMap: {
+          available: '#2eb58c',
+          donotdisturb: '#bc4343',
+          offline: '#707070',
+          invisible: '#707070'
+        }
+      };
+    },
     template: `<popover id="${appId}" />`,
     i18n,
     vuetify: Vue.prototype.vuetifyOptions,
