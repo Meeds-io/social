@@ -1,6 +1,6 @@
 <template>
   <div :id="ckEditorId">
-    <v-list-item class="pa-0">
+    <v-list-item class="pa-0" tabindex>
       <v-list-item-avatar :size="avatarSize" class="mt-0 mb-auto me-2">
         <img
           :src="avatarUrl"
