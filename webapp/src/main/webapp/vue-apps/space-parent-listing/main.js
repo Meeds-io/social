@@ -57,7 +57,7 @@ export function init(appId, parentSpaceId, isManager, settings, saveSettingsUrl)
         },
         computed: {
           headerTitle() {
-            return this.headerTitle = this.settings?.headerTranslations?.[lang] || this.settings?.headerTranslations?.[this.defaultLanguage];
+            return this.settings?.headerTranslations?.[lang] || this.settings?.headerTranslations?.[this.defaultLanguage];
           }
         },
         template: `<parent-space id="${appId}" />`,
