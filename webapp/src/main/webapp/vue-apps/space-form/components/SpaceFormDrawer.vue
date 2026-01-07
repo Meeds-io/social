@@ -498,7 +498,7 @@ export default {
         const data = await this.$spaceService.getSpacesByFilter({
           offset: 0,
           limit: 20,
-          subTemplateId: this.templateId,
+          subspaceTemplateId: this.templateId,
           filter: 'accessible'
         });
         this.parentSpaces = data.spaces || [];

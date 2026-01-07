@@ -77,7 +77,7 @@ public class SpaceFilter implements Cloneable {
 
   private long                  parentSpaceId;
 
-  private List<Long>            subTemplateIds;
+  private List<Long>            subspaceTemplateIds;
 
   private boolean               onlyParentSpaces;
 
@@ -128,7 +128,7 @@ public class SpaceFilter implements Cloneable {
                            favorite,
                            tagNames == null ? null : new ArrayList<>(tagNames),
                            parentSpaceId,
-                           subTemplateIds,
+                           subspaceTemplateIds,
                            onlyParentSpaces);
   }
 
