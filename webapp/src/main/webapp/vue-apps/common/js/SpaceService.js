@@ -156,11 +156,11 @@ export function getSpacesByFilter(options) {
     }
   }
 
-  if (options.subTemplateId) {
-    if (typeof options.subTemplateId === 'object' && options.subTemplateId.length) {
-      options.subTemplateId.forEach(id => formData.append('subTemplateId', id));
+  if (options.subspaceTemplateId) {
+    if (typeof options.subspaceTemplateId === 'object' && options.subspaceTemplateId.length) {
+      options.subspaceTemplateId.forEach(id => formData.append('subspaceTemplateId', id));
     } else {
-      formData.append('subTemplateId', options.subTemplateId);
+      formData.append('subspaceTemplateId', options.subspaceTemplateId);
     }
   }
 
