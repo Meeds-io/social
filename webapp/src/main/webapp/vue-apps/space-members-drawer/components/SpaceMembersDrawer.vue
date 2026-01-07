@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -44,7 +44,7 @@
         no-text-truncate
         @filter-text-input-end-typing="keyword = $event"
         @loading="loading = $event">
-        <template v-if="$root.isManager" #left>
+        <template v-if="isManager" #left>
           <div class="d-flex">
             <space-invite-buttons-group class="px-2" />
           </div>
@@ -52,8 +52,8 @@
       </application-toolbar>
       <people-card-list
         ref="spaceMembers"
-        :space-id="$root.spaceId"
-        :is-manager="$root.isManager"
+        :space-id="spaceId"
+        :is-manager="isManager"
         :keyword="keyword"
         :people-count="peopleCount"
         :sm="expanded && 6 || 12"
@@ -89,32 +89,55 @@ export default {
     loading: false,
     expanded: false,
     hasMore: false,
+    space: null,
   }),
   computed: {
-    space() {
-      return this.$root.space;
+    spaceId() {
+      return this.$root.spaceId;
     },
     peopleCount() {
       return this.$root.space?.membersCount || 0;
     },
+    isManager() {
+      return this.$root?.isManager;
+    }
   },
   created() {
     this.$root.$on('space-settings-members-updated', this.refreshMembers);
     this.$root.$on('space-settings-pending-updated', this.refreshPending);
     this.$root.$on('space-members-drawer-open', this.open);
+
+    document.addEventListener('space-members-drawer-open', this.openDrawer);
+    document.addEventListener('space-members-drawer-close', this.close);
   },
   beforeDestroy() {
     this.$root.$off('space-settings-members-updated', this.refreshMembers);
     this.$root.$off('space-settings-pending-updated', this.refreshPending);
     this.$root.$off('space-members-drawer-open', this.open);
+
+    document.removeEventListener('space-members-drawer-open', this.openDrawer);
+    document.removeEventListener('space-members-drawer-close', this.close);
   },
   methods: {
     open() {
-      if (this.$root.isManager && !this.initialized) {
+      if (this.isManager && !this.initialized) {
         document.dispatchEvent(new CustomEvent('space-member-management-actions-load'));
         this.initialized = true;
       }
       this.$refs.drawer.open();
+    },
+    openDrawer(event) {
+      const settings = event.detail;
+      this.initSettings(settings);
+      this.open();
+    },
+    initSettings(settings) {
+      if (!settings) {
+        return;
+      }
+      this.$root.isManager = settings.isManager;
+      this.$root.space = settings.space;
+      this.$root.spaceId = settings.space.id;
     },
     close() {
       this.$refs.drawer.close();
@@ -134,7 +157,7 @@ export default {
     },
     loadNextPage() {
       this.$refs.spaceMembers.loadNextPage();
-    },
+    }
   },
 };
 </script>
