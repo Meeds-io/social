@@ -30,10 +30,10 @@
   <div data-app="true"
        class="v-application v-application--is-ltr theme--light"
        id="<%=domId%>">
-    <textarea id="parentSpaceListingSettings<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
+    <textarea id="<%=valueDomId%>" style="display:none;"><%=settings == null ? "{}" : StringEscapeUtils.escapeJava(settings).replace("\\\"", "\"").replace("\\\\\"", "\\\"").replace("\\n", "") %></textarea>
     <script type="text/javascript">
         require(['PORTLET/social/ParentSpaceListing'],
-            app => app.init('<%=domId%>', '<%=parentSpaceId%>', <%=isManager%>, JSON.parse(document.getElementById('parentSpaceListingSettings<%=valueDomId%>').value), '<%=saveSettingsUrl%>')
+            app => app.init('<%=domId%>', '<%=parentSpaceId%>', <%=isManager%>, JSON.parse(document.getElementById('<%=valueDomId%>').value), '<%=saveSettingsUrl%>')
         );
     </script>
   </div>

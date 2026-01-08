@@ -1,8 +1,8 @@
 /*
  * This file is part of the Meeds project (https://meeds.io/).
- * 
+ *
  * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -11,20 +11,15 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import * as parentSpaceListingService from './js/ParentSpaceListingService';
 
-import ParentSpace from './components/ParentSpace.vue';
-import ParentSpaceSettingsDrawer from './components/ParentSpaceSettingsDrawer.vue';
-
-const components = {
-  'parent-space': ParentSpace,
-  'parent-space-settings-drawer': ParentSpaceSettingsDrawer
-};
-
-for (const key in components) {
-  Vue.component(key, components[key]);
+if (!Vue.prototype.$parentSpaceListingService) {
+  window.Object.defineProperty(Vue.prototype, '$parentSpaceListingService', {
+    value: parentSpaceListingService,
+  });
 }
