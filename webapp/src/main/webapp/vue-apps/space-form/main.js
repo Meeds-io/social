@@ -32,7 +32,7 @@ const appId = 'spaceFormDrawer';
 const lang = eXo?.env.portal.language || 'en';
 const url = `/social/i18n/locale.portlet.social.SpacesListApplication?lang=${lang}`;
 
-export async function open(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting) {
+export async function open(templateId, spaceTemplates, parentSpaceId, isParentSpaceSelection) {
   if (!window.spaceFormAdded) {
     await initApp(spaceTemplates);
   }
@@ -40,7 +40,7 @@ export async function open(templateId, spaceTemplates, parentSpaceId, spaceParen
     templateId: templateId,
     spaceTemplates: spaceTemplates,
     parentSpaceId: parentSpaceId,
-    spaceParentSelecting: spaceParentSelecting
+    isParentSpaceSelection: isParentSpaceSelection
   }}));
 }
 
