@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -22,11 +22,11 @@
 <template>
   <exo-confirm-dialog
     ref="confirmDialog"
-    :title="$t('menu.confirmation.title.changeHome')"
+    :title="title"
     :message="confirmMessage"
     :ok-label="$t('menu.confirmation.ok')"
     :cancel-label="$t('menu.confirmation.cancel')"
-    @ok="changeHome"
+    @ok="confirmLeaveSpace"
     @opened="$root.$emit('dialog-opened')"
     @closed="$root.$emit('dialog-closed')" />
 </template>
@@ -34,54 +34,46 @@
 export default {
   data: () => ({
     selectedSpace: null,
-    selectedPage: null,
   }),
   computed: {
-    name() {
-      return this.selectedSpace?.displayName || this.selectedPage?.name;
-    },
-    url() {
-      return this.selectedPage?.url || `${eXo.env.portal.context}/s/${this.selectedSpace?.id}`;
+    title() {
+      return this.isOnlyManagerLeftInSpace && this.$t('menu.confirmation.title.leaveSpace.warning')
+          || this.$t('menu.confirmation.title.leaveSpace');
     },
     confirmMessage() {
-      return this.$t('menu.confirmation.message.changeHome', {
-        0: `<b>${this.name}</b>`,
+      return this.isOnlyManagerLeftInSpace && this.$t('menu.confirmation.message.leaveSpace.warning') || this.$t('menu.confirmation.message.leaveSpace', {
+        0: `<b>${this.spaceDisplayName}</b>`,
       });
     },
+    spaceDisplayName() {
+      return this.selectedSpace?.displayName;
+    },
+    isOnlyManagerLeftInSpace() {
+      return this.selectedSpace?.isManager && this.selectedSpace?.managersCount <= 1;
+    }
   },
   created() {
-    this.$root.$on('change-home-link-space', this.selectSpaceHome);
-    this.$root.$on('update-home-link-page', this.selectPageHome);
+    this.$root.$on('leave-space', this.leaveSpace);
   },
   beforeDestroy() {
-    this.$root.$off('change-home-link-space', this.selectSpaceHome);
-    this.$root.$off('update-home-link-page', this.selectPageHome);
+    this.$root.$off('leave-space', this.leaveSpace);
   },
   methods: {
-    changeHome() {
-      this.$settingService.setSettingValue('USER', eXo.env.portal.userName, 'PORTAL', 'HOME', 'HOME_PAGE_URI', this.url)
-        .then(() => {
-          eXo.env.portal.homeLink = this.url;
-          document.dispatchEvent(new CustomEvent('homeLinkUpdated', {detail: this.url}));
-        });
-    },
-    selectSpaceHome(space) {
+    leaveSpace(space) {
       this.selectedSpace = space;
-      this.selectedPage = null;
-      this.openDialog();
-    },
-    selectPageHome(page) {
-      this.selectedPage = page;
-      this.selectedSpace = null;
-      this.openDialog();
+      if (this.isOnlyManagerLeftInSpace) {
+        this.openDialog();
+      }
     },
     async openDialog() {
       await this.$nextTick();
-      if (this.$root.defaultUserPath === this.url) {
-        return;
-      }
       this.$refs?.confirmDialog?.open?.();
     },
+    confirmLeaveSpace() {
+      if (!this.isOnlyManagerLeftInSpace) {
+        this.$spaceService.leave(this.selectedSpace.id);
+      }
+    }
   },
 };
 </script>

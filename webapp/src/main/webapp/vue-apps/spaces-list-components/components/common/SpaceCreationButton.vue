@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2024 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
 
