@@ -36,7 +36,7 @@
     <template v-if="drawer && space" #content>
       <div class="d-none d-lg-block">
         <space-form-preview
-          v-if="drawer && spaceTemplate && !spaceParentSelecting"
+          v-if="drawer && spaceTemplate && !isParentSpaceSelection"
           :space="space"
           :preview-avatar="previewAvatar"
           class="pa-4 position-absolute"
@@ -83,7 +83,7 @@
             </v-hover>
           </v-card>
         </div>
-        <div v-else-if="spaceParentSelecting" class="pa-5">
+        <div v-else-if="isParentSpaceSelection" class="pa-5">
           <div class="mb-5">
             Please, select the parent space
           </div>
@@ -217,7 +217,7 @@
         </v-stepper>
       </v-expand-transition>
     </template>
-    <template v-if="drawer && !spaceParentSelecting && (spaceTemplate || isEdit)" #footer>
+    <template v-if="drawer && !isParentSpaceSelection && (spaceTemplate || isEdit)" #footer>
       <div class="d-flex">
         <v-btn
           v-if="stepper > 1 && !isEdit"
@@ -275,7 +275,7 @@ export default {
     maxDescriptionLength: 2000,
     defaultBannerSrc: '/social/images/defaultSpaceBanner.webp',
     previewAvatar: null,
-    spaceParentSelecting: false,
+    isParentSpaceSelection: false,
     parentSpaces: [],
     parentSpacesSize: 0,
     selectedParentSpace: null,
@@ -447,11 +447,11 @@ export default {
     document.removeEventListener('addNewSpaceWithAppId', this.openByAppId);
   },
   methods: {
-    async handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting) {
+    async handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, isParentSpaceSelection) {
       this.templateId = templateId;
       this.parentSpaceId = parentSpaceId;
       this.templates = spaceTemplates;
-      if (spaceParentSelecting) {
+      if (isParentSpaceSelection) {
         const data = await this.$spaceService.getSpacesByFilter({
           offset: 0,
           limit: 20,
@@ -459,11 +459,11 @@ export default {
           filter: 'accessible'
         });
         this.parentSpaces = data.spaces || [];
-        this.spaceParentSelecting = true;
+        this.isParentSpaceSelection = true;
         this.$refs.spaceFormDrawer.open();
         return;
       }
-      if (!this.templates ) {
+      if (!this.templates) {
         if (!this.$root.spaceTemplates) {
           this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
         }
@@ -477,8 +477,8 @@ export default {
         this.templateId = this.templates[0].id;
       }
       this.setSpaceTemplateProperties();
-      if (!this.templateId && !this.parentSpaceId && !spaceParentSelecting) {
-        this.spaceParentSelecting = false;
+      if (!this.templateId && !this.parentSpaceId && !isParentSpaceSelection) {
+        this.isParentSpaceSelection = false;
         this.$refs.spaceFormDrawer.open();
         return;
       }
@@ -491,7 +491,7 @@ export default {
       if (this.templateId) {
         const isSubspaceTemplate = this.subspaceTemplateIds.includes(this.templateId);
         if (!isSubspaceTemplate || this.selectedParentSpace) {
-          this.spaceParentSelecting = false;
+          this.isParentSpaceSelection = false;
           this.$refs.spaceFormDrawer.open();
           return;
         }
@@ -508,14 +508,14 @@ export default {
           this.$refs.spaceFormDrawer.open();
           return;
         }
-        this.spaceParentSelecting = this.parentSpacesSize > 1;
+        this.isParentSpaceSelection = this.parentSpacesSize > 1;
         this.$refs.spaceFormDrawer.open();
       }
     },
     async selectParentSpace(space) {
       this.selectedParentSpace = space;
       this.$set(this.space, 'parentSpaceId', space?.id);
-      this.spaceParentSelecting = false;
+      this.isParentSpaceSelection = false;
       if (!this.templateId && !this.parentSpaceId) {
         const allowedSubspaceTemplates = await this.$spaceTemplateService.getAllowedSubspaceTemplates(space?.templateId);
         await this.handleAddNewSpace(null, allowedSubspaceTemplates, space?.id);
@@ -528,11 +528,11 @@ export default {
       this.open();
     },
     openByEvent(e) {
-      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId, e?.detail?.spaceParentSelecting);
+      this.openByRootEvent(e?.detail?.templateId, e?.detail?.spaceTemplates, e?.detail?.parentSpaceId, e?.detail?.isParentSpaceSelection);
     },
-    openByRootEvent(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting) {
+    openByRootEvent(templateId, spaceTemplates, parentSpaceId, isParentSpaceSelection) {
       this.goBackButton = !templateId;
-      this.handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, spaceParentSelecting);
+      this.handleAddNewSpace(templateId, spaceTemplates, parentSpaceId, isParentSpaceSelection);
     },
     editByEvent(e) {
       this.goBackButton = false;

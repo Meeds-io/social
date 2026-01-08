@@ -75,10 +75,9 @@ export function init(isExternalFeatureEnabled) {
           this.$root.$on('space-templates-enabled', this.refreshSpaceTemplates);
           this.$root.$on('space-templates-disabled', this.refreshSpaceTemplates);
           this.$root.$on('space-templates-saved', this.refreshSpaceTemplates);
-          await this.refreshSpaceTemplates();
           document.addEventListener(`extension-${this.extensionApp}-${this.mainExtensionType}-updated`, this.refreshMainExtensions);
           document.addEventListener(`extension-${this.extensionApp}-${this.menuItemExtensionType}-updated`, this.refreshMenuExtensions);
-          this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
+          await this.init();
           this.refreshMainExtensions();
           this.refreshMenuExtensions();
         },
@@ -166,6 +165,10 @@ export function init(isExternalFeatureEnabled) {
               this.processedSpaceTemplates++;
             }
           },
+          async init() {
+            await this.refreshSpaceTemplates();
+            this.spacesCountByTemplates = await this.$spaceService.getSpacesCountByTemplates();
+          }
         },
         template: `<space-templates-management id="${appId}"/>`,
         vuetify: Vue.prototype.vuetifyOptions,
