@@ -35,6 +35,7 @@
         <sidebar-list-footer class="flex-grow-0 flex-shrink-0 transparent" />
       </v-list>
       <sidebar-home-dialog />
+      <sidebar-leave-space-dialog />
     </v-card>
   </v-hover>
 </template>
