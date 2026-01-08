@@ -21,11 +21,14 @@
 'use strict';
 ( function() {
 
-  let balloonToolbar, 
+  let balloonToolbar,
+    linkBalloonToolbar,
     url,
     selectedText,
     selectionElem,
     isInputTextToolbar = false,
+    lastSelectionRevision = 0,
+    balloonToolbarDisplayedOnMouseDown = false,
     balloonToolbarDisplayed = false;
 
   CKEDITOR.plugins.add( 'linkBalloon', {
@@ -35,11 +38,21 @@
     init: function( editor ) { 
       editor.addCommand( 'addLink', new CKEDITOR.addLinkCommand() );
       editor.addCommand( 'removeLink', new CKEDITOR.removeLinkCommand() );
-      editor.on('instanceReady', function( ) {
-        initBalloonToolbar(editor);
-        destroyInputTextPanel(editor);
+      editor.on('instanceReady', async function( ) {
+        await initBalloonToolbar(editor, true);
+
         // Attach the balloon toolbar on selected text
+        editor.document.on( 'mousedown', () => {
+          balloonToolbarDisplayedOnMouseDown = balloonToolbarDisplayed;
+          hideBalloonToolbar();
+        });
         editor.document.on( 'mouseup', function() {
+          if (!balloonToolbarDisplayedOnMouseDown || balloonToolbarDisplayed || getSelectionRevision(editor) !== lastSelectionRevision) {
+            setupMouseObserver(editor);
+          }
+        });
+        editor.document.on( 'dblclick', function() {
+          balloonToolbarDisplayedOnMouseDown = false;
           setupMouseObserver(editor);
         });
         // Attach the balloon toolbar when the clicked text is a link
@@ -49,7 +62,16 @@
 
         editor.on('contentDom', function () {
           const editable = editor.editable();
+          editable.attachListener(editable, 'mousedown', () => {
+            balloonToolbarDisplayedOnMouseDown = balloonToolbarDisplayed;
+            hideBalloonToolbar();
+          });
           editable.attachListener(editable, 'mouseup', function () {
+            if (!balloonToolbarDisplayedOnMouseDown || balloonToolbarDisplayed || getSelectionRevision(editor) !== lastSelectionRevision) {
+              setupMouseObserver(editor);
+            }
+          });
+          editable.attachListener(editable, 'dblclick', function () {
             setupMouseObserver(editor);
           });
           editable.attachListener(editable, 'click', function () {
@@ -58,8 +80,7 @@
         }); 
         editor.on('key', function (e) {
           if (getSelectedText(editor).length >= 0 && balloonToolbarDisplayed) {
-            balloonToolbar.destroy();
-            balloonToolbarDisplayed = false;
+            hideBalloonToolbar();
           } else if (e.data.keyCode === 27) {
             document.dispatchEvent(new CustomEvent('close-editor-container'));
           }
@@ -77,41 +98,26 @@
     },
   });
 
-  function setupMouseObserver(editor) {
+  async function setupMouseObserver(editor) {
     const selection = editor.getSelection();
-    if (selection?.getSelectedText?.()?.trim?.()?.length) {
-      const balloonElement = document.querySelector(".cke_balloontoolbar .cke_balloon_content");
-      const isVisible = balloonElement != null && balloonElement.innerHTML.trim() !== '';
-      balloonToolbar.destroy();
-      initBalloonToolbar(editor);
-
-      const link = getSelectedLink(editor);
-      if (!balloonToolbar.getItem('unlink')) {
-        if (link) {
-          addUnlinkItem(editor);
-        }
-      } else if (!link) {
-        balloonToolbar.deleteItem('unlink');
-      }
+    if (!balloonToolbarDisplayed && selection?.getSelectedText?.()?.trim?.()?.length) {
+      hideBalloonToolbar();
       const selectedElement = editor.getSelection().getRanges()[0].startContainer.$;
-      if (!isVisible
-          && !(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
+      if (!(selectedElement?.parentElement?.classList?.contains?.("content-link") || selectedElement?.classList?.contains?.("content-link"))
           && !(selectedElement?.parentElement?.classList?.contains?.("metadata-tag") || selectedElement?.classList?.contains?.("metadata-tag"))
           && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query"))) {
-        balloonToolbar.attach( selection );
+        await initBalloonToolbar(editor);
       }
     } else {
-      balloonToolbar.hide();
+      hideBalloonToolbar();
     }
   }
 
-  function setupClickObserver(editor) {
+  async function setupClickObserver(editor) {
     const link = getSelectedLink(editor);
     if (link) {
-      balloonToolbar.destroy();
-      initBalloonToolbar(editor);
-      addUnlinkItem(editor);
-      balloonToolbar.attach( editor.getSelection() );
+      hideBalloonToolbar();
+      await initBalloonToolbar(editor);
     }
   }
 
@@ -124,16 +130,6 @@
         && !(selectedElement?.parentElement?.classList?.contains?.("atwho-query") || selectedElement?.classList?.contains?.("atwho-query")) ;
   }
 
-  function addUnlinkItem(editor) {
-    balloonToolbar.addItem('unlink', 
-      new CKEDITOR.ui.button({
-        command: 'removeLink',
-        toolbar: 'removeLink',
-        label: editor.lang.linkBalloon.unlink
-      })
-    );
-  }
-
   function initInputTextToolbar(editor, data) {
     isInputTextToolbar = true;
     balloonToolbarDisplayed = false;
@@ -141,7 +137,7 @@
           linkHTMLElement = editor.elementPath( editor.getSelection().getRanges()[0].getCommonAncestor()).contains( 'a', 1 );
     selectedText = getSelectedText(editor);
     selectionElem = editor.getSelection();
-    balloonToolbar = new CKEDITOR.ui.balloonPanel( editor, {
+    linkBalloonToolbar = new CKEDITOR.ui.balloonPanel( editor, {
       content: '<input type="text"'+
       'id="inputURL"' + 
       'class="mb-0"' +
@@ -156,7 +152,7 @@
     const urlInputValue = document.getElementById('inputURL');
 
     if (link) {
-      urlInputValue.value = linkHTMLElement.data( 'cke-saved-href' );
+      urlInputValue.value = linkHTMLElement.data('cke-saved-href');
       url = urlInputValue.value;
     }
     
@@ -173,7 +169,7 @@
           editLinkInSelection(editor, linkHTMLElement, linkElem);
         } 
         editor.fire('change');
-        balloonToolbar.destroy();
+        hideBalloonToolbar();
         isInputTextToolbar = true;
         balloonToolbarDisplayed = false;
         
@@ -195,39 +191,81 @@
     };
   }
 
-  function destroyInputTextPanel(editor) {
-    document.addEventListener('ballonPanelHidden', () => {
-      hideInputTextPanel(editor);
-    });
-  }
-
-  function hideInputTextPanel(editor) {
-    balloonToolbar.destroy();
+  async function hideInputTextPanel(editor) {
+    destroyLinkBalloonToolbar();
     isInputTextToolbar = false;
-    initBalloonToolbar(editor);
-    balloonToolbar.attach( editor.getSelection() );
+    await initBalloonToolbar(editor);
   }
 
-  function initBalloonToolbar(editor) {
-    balloonToolbar = new CKEDITOR.ui.balloonToolbar(editor);
-    balloonToolbar.addItems({
-      bold: new CKEDITOR.ui.button({
-        command: 'bold',
-        toolbar: 'basicstyles,1',
-        label: editor.lang.linkBalloon.bold
-      }),
-      italic: new CKEDITOR.ui.button({
-        command: 'italic',
-        toolbar: 'basicstyles,2',
-        label: editor.lang.linkBalloon.italic
-      }),
-      link: new CKEDITOR.ui.button({
-        command: 'addLink',
-        toolbar: 'addLink',
-        label: editor.lang.linkBalloon.link
-      }),
-    });
-    balloonToolbarDisplayed = true;
+  function destroyLinkBalloonToolbar() {
+    linkBalloonToolbar?.destroy?.();
+  }
+
+  function getSelectionRevision(editor) {
+    const selection = editor.getSelection();
+    const range = selection?.getRanges?.()?.[0];
+    return `${range?.startOffset}-${range?.endOffset}`;
+  }
+
+  async function initBalloonToolbar(editor, noShow) {
+    if (!balloonToolbar) {
+      balloonToolbar = new CKEDITOR.ui.balloonToolbar(editor);
+      const items = {
+        bold: new CKEDITOR.ui.button({
+          command: 'bold',
+          toolbar: 'basicstyles,1',
+          label: editor.lang.linkBalloon.bold
+        }),
+        italic: new CKEDITOR.ui.button({
+          command: 'italic',
+          toolbar: 'basicstyles,2',
+          label: editor.lang.linkBalloon.italic
+        }),
+        link: new CKEDITOR.ui.button({
+          command: 'addLink',
+          toolbar: 'link',
+          label: editor.lang.linkBalloon.link
+        }),
+      };
+      await new Promise(resolve => window.require(['SHARED/extensionRegistry'], extensionRegistry => {
+        const extensions = extensionRegistry.loadExtensions('RichEditor', 'BalloonToolbarButtons');
+        if (extensions?.length) {
+          Promise.all(extensions.map(ext => ext.init(editor, items, hideBalloonToolbar)))
+            .then(resolve);
+        }
+      }));
+      balloonToolbar.addItems(items);
+    }
+    if (!noShow) {
+      attachBalloonToolbar(editor);
+      window.setTimeout(() => balloonToolbarDisplayed = true, 100);
+    }
+  }
+
+  function attachBalloonToolbar(editor) {
+    const isLinkSelected = getSelectedLink(editor);
+    const hasUnlinkButton = !!balloonToolbar.getItem('unlink');
+    if (!isLinkSelected && hasUnlinkButton) {
+      balloonToolbar.deleteItem('unlink');
+    } else if (isLinkSelected && !hasUnlinkButton) {
+      balloonToolbar.addItem('unlink',
+        new CKEDITOR.ui.button({
+          command: 'removeLink',
+          toolbar: 'removeLink',
+          label: editor.lang.linkBalloon.unlink,
+          show: false
+        })
+      );
+    }
+    balloonToolbar.attach(editor.getSelection());
+    balloonToolbar.show();
+    lastSelectionRevision = getSelectionRevision(editor);
+  }
+
+  function hideBalloonToolbar() {
+    destroyLinkBalloonToolbar();
+    balloonToolbar?.hide?.();
+    balloonToolbarDisplayed = false;
   }
 
   // Insert new link to selected text
@@ -314,14 +352,14 @@
   // eslint-disable-next-line no-empty-function
   CKEDITOR.addLinkCommand = function() {};
   CKEDITOR.addLinkCommand.prototype = {
-    exec: function( editor ) {
+    exec: editor => {
       if (getSelectedLink(editor) || getSelectedText(editor).length > 0) {
-        balloonToolbar.destroy();
+        hideBalloonToolbar();
         initInputTextToolbar(editor, getSelectedText(editor));
-        balloonToolbar.parts.title.remove();
-        balloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
-        balloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
-        balloonToolbar.attach( editor.getSelection() );
+        linkBalloonToolbar.parts.title.remove();
+        linkBalloonToolbar.parts.panel.addClass( 'cke_balloontoolbar' );
+        linkBalloonToolbar.parts.panel.addClass( 'cke_inputTextBalloon' );
+        linkBalloonToolbar.attach(editor.getSelection());
         document.getElementById('inputURL').focus();
       }
     }
@@ -330,13 +368,14 @@
   // eslint-disable-next-line no-empty-function
   CKEDITOR.removeLinkCommand = function() {};
   CKEDITOR.removeLinkCommand.prototype = {
-    exec: function( editor ) {
+    exec: editor => {
       const style = new CKEDITOR.style({ 
         element: 'a', 
         type: CKEDITOR.STYLE_INLINE, 
         alwaysRemoveElement: 1 
       });
       editor.removeStyle( style );
+      hideBalloonToolbar();
     }
   };
 })();
