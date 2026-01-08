@@ -2,7 +2,7 @@
 
  This file is part of the Meeds project (https://meeds.io/).
 
- Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU Lesser General Public
@@ -20,7 +20,7 @@
 -->
 <template>
   <exo-drawer
-    ref="parentSpaceSettingsDrawer"
+    ref="drawer"
     :loading="loading"
     :right="!$vuetify.rtl">
     <template slot="title">
@@ -105,10 +105,10 @@ export default {
     open() {
       this.settings = JSON.parse(JSON.stringify(this.$root.settings));
       this.originalSettings = JSON.parse(JSON.stringify(this.settings));
-      this.$refs.parentSpaceSettingsDrawer.open();
+      this.$refs.drawer.open();
     },
     close() {
-      this.$refs.parentSpaceSettingsDrawer.close();
+      this.$refs.drawer.close();
     }
   }
 };
