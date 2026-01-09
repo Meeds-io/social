@@ -61,9 +61,7 @@ export default {
   methods: {
     leaveSpace(space) {
       this.selectedSpace = space;
-      if (this.isOnlyManagerLeftInSpace) {
-        this.openDialog();
-      }
+      this.openDialog();
     },
     async openDialog() {
       await this.$nextTick();
