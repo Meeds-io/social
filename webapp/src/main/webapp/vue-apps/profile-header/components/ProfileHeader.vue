@@ -169,6 +169,9 @@ export default {
     },
     isAdmin() {
       return this.user?.isAdmin;
+    },
+    isProfilePage() {
+      return eXo?.env?.portal?.selectedNodeUri === 'profile';
     }
   },
   watch: {
@@ -192,6 +195,13 @@ export default {
     });
   },
   methods: {
+    setPageTitle() {
+      if (this.isProfilePage) {
+        const companyName = eXo.env.portal.companyName;
+        const fullName = this.user?.fullname;
+        window.document.title = this.$t('profileHeader.page.title', {0: fullName, 1: companyName});
+      }
+    },
     editAvatar() {
       this.imageType = 'avatar';
       this.$nextTick()
@@ -243,6 +253,7 @@ export default {
       return this.$userService.getUser(eXo.env.portal.profileOwner, 'relationshipStatus')
         .then(user => {
           this.user = user;
+          this.setPageTitle();
           return this.$nextTick();
         })
         .catch((e) => {
