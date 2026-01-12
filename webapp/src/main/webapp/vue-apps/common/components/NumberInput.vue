@@ -24,9 +24,10 @@
     class="d-flex flex-row align-center justify-center"
     flat>
     <v-btn
+      :title="minusTitle"
       icon
       @click="decrementNumber">
-      <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+      <v-icon :size="iconSize" class="icon-default-color">fa-minus</v-icon>
     </v-btn>
     <input
       v-if="editable"
@@ -42,9 +43,10 @@
     <div v-else>{{ num }}</div>
     <div v-if="unit" class="ps-1">{{ unit }}</div>
     <v-btn
+      :title="plusTitle"
       icon
       @click="incrementNumber">
-      <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+      <v-icon :size="iconSize" class="icon-default-color">fa-plus</v-icon>
     </v-btn>
   </v-card>
 </template>
@@ -91,6 +93,18 @@ export default {
       type: Number,
       default: () => 36,
     },
+    minusTitle: {
+      type: String,
+      default: () => ''
+    },
+    plusTitle: {
+      type: String,
+      default: () => ''
+    },
+    iconSize: {
+      type: Number,
+      default: () => 16
+    }
   },
   data: () => ({
     num: 20,

@@ -27,6 +27,7 @@ import static org.exoplatform.social.core.space.SpaceListAccessType.VISIBLE;
 import java.util.List;
 import java.util.Objects;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import org.exoplatform.commons.utils.ListAccess;
@@ -323,6 +324,13 @@ public class SpaceListAccess implements ListAccess<Space> {
         && (userId != null || spaceFilter.getRemoteId() != null)) {
       spaceFilter.setManagingTemplateIds(spaceTemplateService.getManagingSpaceTemplates(StringUtils.firstNonBlank(userId,
                                                                                                                   spaceFilter.getRemoteId())));
+    }
+    if (spaceFilter != null && spaceTemplateService != null) {
+      if (spaceFilter.isOnlyParentSpaces()) {
+        spaceFilter.setTemplateIds(spaceTemplateService.getTemplateIdsAllowingSubspaces());
+      } else if (!CollectionUtils.isEmpty(spaceFilter.getSubspaceTemplateIds())) {
+        spaceFilter.setTemplateIds(spaceTemplateService.getParentSpaceTemplateIds(spaceFilter.getSubspaceTemplateIds(), userId));
+      }
     }
     return spaceFilter;
   }

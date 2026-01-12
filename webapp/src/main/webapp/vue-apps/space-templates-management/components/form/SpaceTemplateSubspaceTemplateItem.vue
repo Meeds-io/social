@@ -38,20 +38,24 @@
             class="d-flex flex-row align-center justify-center"
             flat>
             <v-btn
+              :title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
               icon>
-              <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+              <v-icon size="16" class="icon-default-color">fa-minus</v-icon>
             </v-btn>
             <v-card-text class="pa-0">{{ $t('spaceTemplate.subspacesConfigurationStepNoLimit') }}</v-card-text>
             <v-btn
+              :title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
               icon
               @click="subspacesMaxLimit++">
-              <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+              <v-icon size="16" class="icon-default-color">fa-plus</v-icon>
             </v-btn>
           </v-card>
           <number-input
             v-else
             v-model="subspacesMaxLimit"
             :label="$t('spaceTemplate.subspacesConfigurationStepMaxLimit')"
+            :plus-title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
+            :minus-title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
             :step="1"
             :min="0"
             :max="100"
@@ -60,7 +64,7 @@
             @valid="invalidSubspacesMaxLimit = !$event" />
         </div>
         <v-btn
-          class="my-auto"
+          class="ms-1 my-auto"
           icon
           @click="$emit('remove-item', spaceTemplate.id)">
           <v-icon size="18" color="error">fa-trash</v-icon>

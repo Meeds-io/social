@@ -42,6 +42,8 @@ import SidebarListContent from './components/list/SidebarListContent.vue';
 import SidebarListSubList from './components/list/SidebarListSubList.vue';
 
 import SidebarHomeDialog from './components/dialog/SidebarHomeDialog.vue';
+import SidebarLeaveSpaceDialog from './components/dialog/SidebarLeaveSpaceDialog.vue';
+import SpaceCreationButton from '../spaces-list-components/components/common/SpaceCreationButton.vue';
 
 const components = {
   'sidebar': Sidebar,
@@ -58,6 +60,7 @@ const components = {
   'spaces-navigation-content': SpacesNavigationContent,
   'spaces-navigation-empty': SpacesNavigationEmpty,
   'space-hamburger-action-menu': SpaceHamburgerActionMenu,
+  'space-creation-button': SpaceCreationButton,
   'sidebar-list': SidebarList,
   'sidebar-list-item': SidebarListItem,
   'sidebar-list-footer': SidebarListFooter,
@@ -65,6 +68,7 @@ const components = {
   'sidebar-list-content': SidebarListContent,
   'sidebar-list-sub-list': SidebarListSubList,
   'sidebar-home-dialog': SidebarHomeDialog,
+  'sidebar-leave-space-dialog': SidebarLeaveSpaceDialog
 };
 
 for (const key in components) {

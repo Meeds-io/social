@@ -273,11 +273,16 @@
         <div v-if="step === 5" class="d-flex flex-column mb-4">
           <div class="d-flex flex-column">
             <div class="d-flex py-2">
-              <div class="flex-grow-1">
+              <label for="subspaceConfigurationSwitch" class="flex-grow-1">
                 {{ $t('spaceTemplate.subspacesConfigurationStepCanHaveSubspaces') }}
-              </div>
+              </label>
               <div class="position-relative mx-8">
-                <v-switch v-model="canHaveSubspaces" class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
+                <v-switch
+                  id="subspaceConfigurationSwitch"
+                  v-model="canHaveSubspaces"
+                  :aria-label="canHaveSubspaces && $t('spaceTemplate.subspacesConfigurationStepCanHaveSubspaces') || $t('spaceTemplate.subspacesConfigurationStepCannotHaveSubspaces')"
+                  :aria-checked="canHaveSubspaces ? 'true' : 'false'"
+                  class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
               </div>
             </div>
           </div>
@@ -293,14 +298,16 @@
                     class="d-flex flex-row align-center justify-center"
                     flat>
                     <v-btn
+                      :title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
                       icon>
-                      <v-icon class="icon-default-color">fa-minus fa-sm</v-icon>
+                      <v-icon size="16" class="icon-default-color">fa-minus</v-icon>
                     </v-btn>
                     <v-card-text class="pa-0">{{ $t('spaceTemplate.subspacesConfigurationStepNoLimit') }}</v-card-text>
                     <v-btn
+                      :title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
                       icon
                       @click="subspacesMaxLimit++">
-                      <v-icon class="icon-default-color">fa-plus fa-sm</v-icon>
+                      <v-icon size="16" class="icon-default-color">fa-plus</v-icon>
                     </v-btn>
                   </v-card>
                   <number-input
@@ -308,6 +315,8 @@
                     v-model="subspacesMaxLimit"
                     :max="maxSubspacesMaxLimit"
                     :min="minSubspacesMaxLimit"
+                    :plus-title="$t('spaceTemplate.subspacesConfigurationMaxLimit')"
+                    :minus-title="$t('spaceTemplate.subspacesConfigurationMinLimit')"
                     :step="1"
                     :label="$t('spaceTemplate.subspacesConfigurationStepMaxLimit')"
                     class="ms-auto"
@@ -633,7 +642,7 @@ export default {
           });
           this.spaceTemplate.subspacesMaxLimit = this.subspacesMaxLimit;
         } else {
-          this.spaceTemplate.allowedSubspaceTemplates = [];
+          this.spaceTemplate.allowedSubspaceTemplates = null;
           this.spaceTemplate.subspacesMaxLimit = null;
         }
         if (this.isNew) {

@@ -156,6 +156,14 @@ export function getSpacesByFilter(options) {
     }
   }
 
+  if (options.subspaceTemplateId) {
+    if (typeof options.subspaceTemplateId === 'object' && options.subspaceTemplateId.length) {
+      options.subspaceTemplateId.forEach(id => formData.append('subspaceTemplateId', id));
+    } else {
+      formData.append('subspaceTemplateId', options.subspaceTemplateId);
+    }
+  }
+
   if (options.categoryIds?.length) {
     options.categoryIds.forEach(c => formData.append('categoryId', c));
   }
@@ -180,6 +188,9 @@ export function getSpacesByFilter(options) {
   }
   if (options.parentSpaceId) {
     formData.append('parentSpaceId', options.parentSpaceId);
+  }
+  if (options.onlyParentSpaces) {
+    formData.append('onlyParentSpaces', options.onlyParentSpaces);
   }
   if (options.sortBy) {
     formData.append('sort', options.sortBy);

@@ -96,3 +96,12 @@ extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
     });
   }),
 });
+extensionRegistry.registerExtension('space-hamburger', 'menu-item', {
+  rank: 3,
+  name: 'leaveSpace',
+  icon: 'fa-sign-out-alt',
+  titleKey: 'menu.spaces.leaveSpace',
+  enabled: space => space.isMember && !space.isUserBound,
+  eventName: 'leave-space',
+  conserveHover: true,
+});
