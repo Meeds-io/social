@@ -18,7 +18,10 @@
         :options="commentEditOptions" />
     </div>
     <template v-else>
-      <v-list-item tabindex :class="highlightClass" class="pa-0 mb-4 width-fit-content">
+      <v-list-item
+        tabindex
+        :class="highlightClass"
+        class="pa-0 mb-4 width-fit-content">
         <exo-user-avatar
           :identity="posterIdentity"
           :size="33"
