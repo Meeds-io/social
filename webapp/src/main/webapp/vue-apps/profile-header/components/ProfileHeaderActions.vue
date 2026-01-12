@@ -13,7 +13,8 @@
         <component
           v-if="extension.vueComponent"
           :is="extension.vueComponent"
-          :user="user" />
+          :user="user"
+          :compact-display="iconButton" />
         <v-btn
           v-else-if="!extension.init"
           :icon="iconButton"
@@ -170,9 +171,6 @@ export default {
   computed: {
     iconButton() {
       return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg;
-    },
-    isMobile() {
-      return this.$vuetify?.breakpoint?.mobile;
     },
     enabledProfileHeaderActionComponents() {
       return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
