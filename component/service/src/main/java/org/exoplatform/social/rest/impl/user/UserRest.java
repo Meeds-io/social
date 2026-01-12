@@ -1137,7 +1137,7 @@ public class UserRest implements ResourceContainer, Startable {
         profile.removeProperty(name);
         identityManager.updateProfile(profile, getCurrentUser(), true);
       } else {
-        updateProfileField(profile, fieldName, value, true);
+        updateProfileField(profile, fieldName, value, true,currentUser);
       }
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attribute {}", currentUser, name);
@@ -1213,7 +1213,7 @@ public class UserRest implements ResourceContainer, Startable {
 
     try {
       Map<String, Object> userProfileProperties = extractPropertiesFromEntities(profileEntity);
-      saveProfile(username, userProfileProperties);
+      saveProfile(username, userProfileProperties, currentUser);
     } catch (IllegalAccessException e) {
       LOG.error("User {} is not allowed to update attributes", currentUser);
       return Response.status(Status.UNAUTHORIZED).build();
@@ -1326,7 +1326,7 @@ public class UserRest implements ResourceContainer, Startable {
       }
       try {
         if (!(profileProperty.isMultiValued() || !profileProperty.getChildren().isEmpty())) {
-          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false);
+          updateProfileField(profile, profileProperty.getPropertyName(), profileProperty.getValue(), false, currentUser);
           updateProfilePropertyVisibility(userIdentity, profileProperty);
         } else {
           List<Map<String, String>> maps = new ArrayList<>();
@@ -1343,7 +1343,7 @@ public class UserRest implements ResourceContainer, Startable {
               maps.add(childrenMap);
             }
           });
-          updateProfileField(profile, profileProperty.getPropertyName(), maps, false);
+          updateProfileField(profile, profileProperty.getPropertyName(), maps, false, currentUser);
           updateProfilePropertyVisibility(userIdentity, profileProperty);
         }
       } catch (IllegalAccessException e) {
@@ -1867,7 +1867,7 @@ public class UserRest implements ResourceContainer, Startable {
     return usersLength > 1 || (usersLength == 1 && !StringUtils.equals(users.load(0, 1)[0].getUserName(), username));
   }
 
-  private void saveProfile(String username, Map<String, Object> profileProperties) throws IllegalAccessException,
+  private void saveProfile(String username, Map<String, Object> profileProperties, String modifierUsername) throws IllegalAccessException,
                                                                                    ObjectNotFoundException {
     Identity userIdentity = getUserIdentity(username);
     if (userIdentity == null) {
@@ -1880,7 +1880,7 @@ public class UserRest implements ResourceContainer, Startable {
         String name = entry.getKey();
         Object value = entry.getValue();
         String fieldName = ProfileEntity.getFieldName(name);
-        updateProfileField(profile, fieldName, value, false);
+        updateProfileField(profile, fieldName, value, false, modifierUsername);
       }
       identityManager.updateProfile(profile, getCurrentUser(), true);
     }
@@ -1956,7 +1956,7 @@ public class UserRest implements ResourceContainer, Startable {
     if (onBoardingEmailSent) {
       Identity userIdentity = identityManager.getOrCreateUserIdentity(user.getUserName());
       Profile profile = userIdentity.getProfile();
-      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true);
+      updateProfileField(profile, Profile.ENROLLMENT_DATE, String.valueOf(Calendar.getInstance().getTimeInMillis()), true,null);
     }
   }
 
@@ -1964,9 +1964,10 @@ public class UserRest implements ResourceContainer, Startable {
   private void updateProfileField(Profile profile,
                                   String name,
                                   Object value,
-                                  boolean save) throws IllegalAccessException {
+                                  boolean save,
+                                  String modifierUsername) throws IllegalAccessException {
     ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(name);
-    if (propertySetting != null && !propertySetting.isEditable()) {
+    if (propertySetting != null && !propertySetting.isEditable() && (modifierUsername==null || !userACL.getUserIdentity(modifierUsername).isMemberOf(userACL.getAdminGroups()))) {
       throw new IllegalAccessException(String.format("Not allowed to update non modifiable field '%s'", name));
     } else if (Profile.EXTERNAL.equals(name)) {
       throw new IllegalAccessException("Not allowed to update EXTERNAL field");
