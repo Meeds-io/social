@@ -1,8 +1,8 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
- * 
+ *
  * Copyright (C) 2020 - 2022 Meeds Association contact@meeds.io
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -11,15 +11,27 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 (function() {
+    function decodeEntitiesInUrls(text, entitiesMap = {
+      '&#39;': "'"
+    }) {
+      return text.replace(/https?:\/\/[^\s<]+/g, (url) => {
+        let decodedUrl = url;
+        Object.entries(entitiesMap).forEach(([entity, value]) => {
+          decodedUrl = decodedUrl.replaceAll(entity, value);
+        });
+        return decodedUrl;
+      });
+    }
   let ExtendedDomPurify = function() {
   };
   ExtendedDomPurify.prototype.purify = function(content) {
+    content = decodeEntitiesInUrls(content);
     content = content.replace(/<div> <\/div>/g, '<div><br><\/div>');
     content = content.trim().replace(/>[ \n]+</g, '> <').replace(/  /g, '&nbsp;&nbsp;');
     const pureHtml = DOMPurify.sanitize(Autolinker.link(content, {
@@ -27,10 +39,12 @@
       replaceFn : function (match) {
         switch(match.getType()) {
           case 'url' :
-            if(match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
+            const url = match.getUrl();
+            const tag = match.buildTag();
+            tag.setAttr('href', encodeURI(url));
+            if (match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
               return true;
             } else {
-              const tag = match.buildTag();
               tag.setAttr('target', '_blank');
               tag.setAttr('rel', 'nofollow noopener noreferrer');
               return tag;
