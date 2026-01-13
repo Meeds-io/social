@@ -48,7 +48,7 @@
           </div>
           <div class="d-flex flex-row mt-4">
             <v-icon class="warning--text">warning</v-icon>
-            <span class="ms-2 grey--text">
+            <span class="ms-2 text-subtitle">
               {{ $t('UIActivity.share.warnMessage') }}
             </span>
           </div>
