@@ -27,7 +27,7 @@
   </parent>
   <groupId>io.meeds.social</groupId>
   <artifactId>social</artifactId>
-  <version>7.1.1-exo</version>
+  <version>7.1.1-exo-patched</version>
   <packaging>pom</packaging>
   <name>Meeds:: PLF:: Social</name>
   <description>Meeds Social - Enterprise Social Networking</description>
