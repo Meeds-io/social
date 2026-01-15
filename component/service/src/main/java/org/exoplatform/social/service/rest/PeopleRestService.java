@@ -512,12 +512,8 @@ public class PeopleRestService implements ResourceContainer{
                                                          String currentUserId,
                                                          boolean filterByName,
                                                          Locale locale) {
-    Identity userIdentity;
-    if (StringUtils.isNumeric(userId)) {
-      userIdentity = getIdentityManager().getIdentity(userId, false);
-    } else {
-      userIdentity = getIdentityManager().getOrCreateUserIdentity(userId);
-    }
+
+    Identity userIdentity = getIdentityManager().getIdentity(userId, false);
     if (userIdentity == null) {
       LOG.debug("Cannot find user identity by id nor remoteId {}", userId);
       return userInfos;
@@ -550,8 +546,8 @@ public class PeopleRestService implements ResourceContainer{
     String[] spaceMembers = getSpaceService().getSpaceByPrettyName(spaceByPrettyName).getMembers();
     for (String spaceMember : spaceMembers) {
       Identity identity = getIdentityManager().getOrCreateIdentity(OrganizationIdentityProvider.NAME, spaceMember, false);
-      if (identity.isEnable() && !identity.isDeleted()) {
-        userInfos = addUsernameToInfosList(spaceMember, identityFilter, userInfos, currentUser, true, locale);
+      if (identity != null && identity.isEnable() && !identity.isDeleted()) {
+        addUserToInfosList(identity, identityFilter, userInfos, currentUser, true, locale);
         if (userInfos.size() >= SUGGEST_LIMIT) {
           break;
         }
