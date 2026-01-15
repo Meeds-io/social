@@ -515,6 +515,10 @@ public class PeopleRestService implements ResourceContainer{
     Identity userIdentity;
     if (StringUtils.isNumeric(userId)) {
       userIdentity = getIdentityManager().getIdentity(userId, false);
+
+      if (userIdentity == null || !OrganizationIdentityProvider.NAME.equals(userIdentity.getProviderId())) {
+        userIdentity = getIdentityManager().getOrCreateUserIdentity(userId);
+      }
     } else {
       userIdentity = getIdentityManager().getOrCreateUserIdentity(userId);
     }
