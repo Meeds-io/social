@@ -133,12 +133,15 @@ public class ImageThumbnailServiceImpl implements ImageThumbnailService {
 
   @Override
   public FileItem getOrCreateThumbnail(String fileType, String id, String userName, int width, int height) throws Exception {
+    ImageThumbnailPlugin imageThumbnailPlugin = imageThumbnailPlugins.get(fileType);
+    if (!imageThumbnailPlugin.hasAccessPermission(id, userName)) {
+      throw new IllegalArgumentException("Error checking access rights for on document'" + id + "' fro user " + userName);
+    }
     String thumnailId = fileType.equals(FileThumbnailPlugin.FILE_TYPE) ? id : fileType + id;
     FileItem thumbnail = getThumbnail(thumnailId, width, height);
     if (thumbnail != null) {
       return thumbnail;
     } else {
-      ImageThumbnailPlugin imageThumbnailPlugin = imageThumbnailPlugins.get(fileType);
       if (imageThumbnailPlugin != null) {
         FileContent fileContent = imageThumbnailPlugin.getImage(id, userName);
         if (fileContent != null) {
