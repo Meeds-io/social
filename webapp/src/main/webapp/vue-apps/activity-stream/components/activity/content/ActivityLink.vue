@@ -121,17 +121,31 @@
           <span class="pl-6">{{ $t('UIActivity.label.seeMore') }}</span>
         </v-btn>
         <div
-          v-if="activityViews"
-          :title="activityViewsTooltip"
-          class="d-flex justify-end mt-auto ms-auto width-fit-content me-3">
-          <v-icon
-            size="20"
-            class="icon-default-color">
-            fas fa-eye
-          </v-icon>
-          <span class="ms-1 text-subtitle text-color">
-            {{ activityViewsCount }}
-          </span>
+          class="d-flex justify-end mt-auto ms-auto width-fit-content">
+          <div>
+            <extension-registry-components
+              name="ActivityLinkBottomRight"
+              type="activity-link-extension"
+              :params="{
+                activity
+              }"
+              element-class="me-3"
+              parent-element="span"
+              element="span" />
+            <span
+              v-if="activityViews"
+              :title="activityViewsTooltip"
+              class="me-3">
+              <v-icon
+                size="20"
+                class="icon-default-color">
+                fas fa-eye
+              </v-icon>
+              <span class="ms-1 text-subtitle text-color">
+                {{ activityViewsCount }}
+              </span>
+            </span>
+          </div>
         </div>
       </div>
     </template>
