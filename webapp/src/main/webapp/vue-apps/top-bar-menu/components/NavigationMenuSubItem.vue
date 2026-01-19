@@ -29,7 +29,7 @@
       :target="navigationNodeTarget"
       :rel="navigationNodeRel"
       :link="!!hasPage"
-      class="pt-0 pb-0 transparent"
+      class="py-0 px-0 transparent"
       @click="checkLink">
       <v-menu
         v-model="showMenu"
@@ -44,35 +44,35 @@
         eager
         offset-x>
         <template #activator="{ attrs, on }">
-          <v-list-item-title
-            v-on="on"
+          <div
             v-bind="attrs"
-            class="pt-5 pb-5 d-flex"
-            :class="hasPage && ' ' || ' not-clickable '"
-            @mouseleave="showMenu = false"
-            @mouseover="showMenu = true">
-            <span class="text-body">{{ navigation.label }}</span>
-            <v-icon
-              v-if="navigation.target === 'NEW_TAB'"
-              size="12"
-              class="mx-1">
-              fa-external-link-alt
-            </v-icon>
-          </v-list-item-title>
-          <v-list-item-icon
-            v-if="hasChildren && childrenHasPage"
-            class="ms-0 me-n2 ma-auto full-height"
-            @mouseover="showMenu = true">
-            <v-btn
-              v-on="on"
-              icon
-              @click.stop.prevent="showMenu = !showMenu">
+            class="d-flex width-full px-4"
+            v-on="on"
+            @mouseleave="showMenu = false">
+            <v-list-item-title
+              class="pt-5 pb-5 d-flex"
+              :class="hasPage && ' ' || ' not-clickable '">
+              <span class="text-body">{{ navigation.label }}</span>
               <v-icon
-                size="18">
-                {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
+                v-if="navigation.target === 'NEW_TAB'"
+                size="12"
+                class="mx-1">
+                fa-external-link-alt
               </v-icon>
-            </v-btn>
-          </v-list-item-icon>
+            </v-list-item-title>
+            <v-list-item-icon
+              v-if="hasChildren && childrenHasPage"
+              class="ms-0 me-n2 ma-auto full-height">
+              <v-btn
+                icon
+                @click.stop.prevent="showMenu = !showMenu">
+                <v-icon
+                  size="18">
+                  {{ $vuetify.rtl && 'fa-angle-left' || 'fa-angle-right' }}
+                </v-icon>
+              </v-btn>
+            </v-list-item-icon>
+          </div>
         </template>
         <navigation-menu-sub-item
           v-for="children in navigation.children"
@@ -202,9 +202,35 @@ export default {
       return childrenHasPage;
     },
     handleCloseSiblingMenus(emitter) {
-      if (!emitter?.navigation?.pageLink && !emitter?.navigationNodeUri?.includes?.(this.navigationNodeUri) && this.showMenu) {
-        this.showMenu = false;
+      if (!this.showMenu || !emitter) {
+        return;
       }
+      if (emitter === this) {
+        return;
+      }
+      const myUri = this.navigationNodeUri;
+      const emitterUri = emitter.navigationNodeUri;
+      if (myUri && emitterUri && emitterUri.startsWith(myUri)) {
+        return;
+      }
+      if (!myUri && this.isDescendant(emitter.navigation, this.navigation)) {
+        return;
+      }
+      this.showMenu = false;
+    },
+    isDescendant(childNav, parentNav) {
+      if (!parentNav?.children) {
+        return false;
+      }
+      for (const child of parentNav.children) {
+        if (child === childNav) {
+          return true;
+        }
+        if (this.isDescendant(childNav, child)) {
+          return true;
+        }
+      }
+      return false;
     },
     updateSize() {
       this.positionX = window.innerWidth - (window.innerWidth - this.$el.getBoundingClientRect().right) ;
