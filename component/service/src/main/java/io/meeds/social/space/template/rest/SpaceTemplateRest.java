@@ -60,7 +60,6 @@ public class SpaceTemplateRest {
   private SpaceTemplateService spaceTemplateService;
 
   @GetMapping
-  @Secured("users")
   @Operation(summary = "Retrieve space templates", method = "GET", description = "This retrieves space templates")
   @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Request fulfilled"), })
   public List<SpaceTemplate> getSpaceTemplates(HttpServletRequest request,
@@ -74,7 +73,6 @@ public class SpaceTemplateRest {
   }
 
   @GetMapping("/{templateId}/subspace-templates")
-  @Secured("users")
   @Operation(summary = "Retrieve allowed subspace templates", description = "Returns the list of subspace templates allowed for the given template.")
   @ApiResponses(value = {
           @ApiResponse(responseCode = "200", description = "Request fulfilled"),
@@ -94,7 +92,6 @@ public class SpaceTemplateRest {
   }
 
   @GetMapping("/subspaceTemplateIds")
-  @Secured("users")
   @Operation(
           summary = "Retrieve subspace template IDs",
           description = "Returns the list of subspace template IDs accessible to the current user."
@@ -105,7 +102,6 @@ public class SpaceTemplateRest {
   }
 
   @GetMapping("{id}")
-  @Secured("users")
   @Operation(summary = "Retrieve a Space template designated by its id", method = "GET",
              description = "This will retrieve a Space template designated by its id")
   @ApiResponses(value = {

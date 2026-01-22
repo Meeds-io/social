@@ -21,12 +21,9 @@ package io.meeds.social.space.template.service;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -172,9 +169,11 @@ public class SpaceTemplateService {
                                              .filter(part -> !part.isEmpty() && NumberUtils.isCreatable(part))
                                              .map(Long::parseLong)
                                              .toList();
-    List<SpaceTemplate> allowedSubspaceTemplates = templateIds.stream().map(id -> getSpaceTemplate(id, locale, true))
-            .filter(Objects::nonNull)
-            .filter(spaceTemplate -> canViewTemplate(spaceTemplate, username)).toList();
+    List<SpaceTemplate> allowedSubspaceTemplates = templateIds.stream()
+                                                              .map(id -> getSpaceTemplate(id, locale, true))
+                                                              .filter(Objects::nonNull)
+                                                              .filter(spaceTemplate -> canViewTemplate(spaceTemplate, username))
+                                                              .toList();
 
     if (CollectionUtils.isEmpty(allowedSubspaceTemplates) && CollectionUtils.isNotEmpty(templateIds)) {
       throw new IllegalAccessException("User '" + username + "' has no access to allowed subspace templates of template "
