@@ -36,7 +36,6 @@ import org.exoplatform.portal.mop.service.LayoutService;
 import org.exoplatform.portal.url.PortalURLContext;
 import org.exoplatform.services.security.Identity;
 import org.exoplatform.services.security.MembershipEntry;
-import org.exoplatform.social.core.manager.IdentityManager;
 import org.exoplatform.social.core.space.SpaceAccessType;
 import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
@@ -60,8 +59,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   public static final String      PAGE_URI            = "space-access";
 
-  private IdentityManager         identityManager;
-
   private SpaceService            spaceService;
 
   private SpaceLayoutService      spaceLayoutService;
@@ -80,7 +77,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
     PortalContainer container = PortalContainer.getInstance();
     this.spaceService = container.getComponentInstanceOfType(SpaceService.class);
-    this.identityManager = container.getComponentInstanceOfType(IdentityManager.class);
     this.urlFactoryService = container.getComponentInstanceOfType(URLFactoryService.class);
     this.userPortalConfigService = container.getComponentInstanceOfType(UserPortalConfigService.class);
     this.layoutService = container.getComponentInstanceOfType(LayoutService.class);
@@ -165,13 +161,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
   private void processSpaceAccess(ControllerContext controllerContext,
                                   String remoteId,
                                   Space space) throws IOException {
-    org.exoplatform.social.core.identity.model.Identity identity = identityManager.getOrCreateUserIdentity(remoteId);
-    if (identity.isExternal()
-        && (space == null || !spaceService.isInvitedUser(space, remoteId))) {
-      controllerContext.getResponse().sendRedirect("/");
-      return;
-    }
-
     SpaceAccessType spaceAccessType = Arrays.stream(SpaceAccessType.values())
                                             .filter(accessType -> accessType.doCheck(remoteId, space))
                                             .findFirst()
