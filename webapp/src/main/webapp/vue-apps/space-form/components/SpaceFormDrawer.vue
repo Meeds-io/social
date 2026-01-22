@@ -463,17 +463,8 @@ export default {
         this.$refs.spaceFormDrawer.open();
         return;
       }
-      if (!this.templates) {
-        if (!this.$root.spaceTemplates) {
-          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-        }
-        this.templates = this.$root.spaceTemplates;
-      }
-      if (!this.$root.subspaceTemplateIds) {
-        this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
-      }
-      this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
-      if (this.templates?.length === 1) {
+      await this.refreshTemplates();
+      if (this.templates?.length === 1 && !templateId) {
         this.templateId = this.templates[0].id;
       }
       this.setSpaceTemplateProperties();
@@ -552,12 +543,9 @@ export default {
       if (spaceTemplates) {
         this.templates = spaceTemplates;
       } else {
-        if (!this.$root.spaceTemplates) {
-          this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
-        }
-        this.templates = this.$root.spaceTemplates;
+        await this.refreshTemplates();
       }
-      if (this.templates?.length === 1) {
+      if (this.templates?.length === 1 && !this.templateId) {
         this.templateId = this.templates[0].id;
       }
       this.setSpaceTemplateProperties();
@@ -652,6 +640,30 @@ export default {
     },
     avatarUpdated(avatar) {
       this.previewAvatar = avatar;
+    },
+    async refreshTemplates() {
+      if (!this.templates) {
+        if (!this.$root.spaceTemplates) {
+          try {
+            this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
+            this.templates = this.$root.spaceTemplates;
+          } catch (e) {
+            this.templates = [];
+          }
+        } else {
+          this.templates = this.$root.spaceTemplates;
+        }
+      }
+      if (!this.subspaceTemplateIds) {
+        if (!this.$root.subspaceTemplateIds) {
+          try {
+            this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
+          } catch (e) {
+            this.templates = [];
+          }
+        }
+        this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
+      }
     },
     goBack() {
       this.templateId = null;
