@@ -169,11 +169,11 @@ export default {
       this.displaySpaceCreationMenu = this.isMemberInParentSpace && this.subspaceTemplateIds.length && !this.$root.openedSpaceTemplateId;
     },
     addNewSpace() {
-      const spaceTemplate = this.$root.openedSpaceTemplateId;
+      const spaceTemplateId = this.$root.openedSpaceTemplateId;
       if (this.requireFormDrawer) {
-        window.require(['SHARED/spaceForm'], drawer => drawer.open(spaceTemplate, !spaceTemplate && this.filteredSpaceTemplates));
+        window.require(['SHARED/spaceForm'], drawer => drawer.open(spaceTemplateId, !spaceTemplate && this.filteredSpaceTemplates));
       } else {
-        this.$root.$emit('addNewSpace', spaceTemplate, !spaceTemplate && this.filteredSpaceTemplates);
+        this.$root.$emit('addNewSpace', spaceTemplateId, !spaceTemplateId && this.filteredSpaceTemplates);
       }
     },
     addNewSubSpace() {
