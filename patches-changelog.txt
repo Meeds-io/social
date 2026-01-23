@@ -1,0 +1,5 @@
+              2026-01-23 eXo Support <support@exoplatform.org> 
+
+   # 7.2.0-exo-M13 Patches changelog: 
+
+
