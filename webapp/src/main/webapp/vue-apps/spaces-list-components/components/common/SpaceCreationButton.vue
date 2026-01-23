@@ -74,11 +74,17 @@
     :color="color"
     :icon="icon"
     :elevation="elevation"
+    :outlined="outlined"
     v-bind="attrs"
     v-on="on"
     @click="addNewSpace">
-    <v-icon :size="iconSize">fa-plus</v-icon>
-    <span v-if="displayLabel" class="ms-2 hidden-xs-only">
+    <v-icon
+      v-if="!outlined"
+      :size="iconSize"
+      class="me-2">
+      fa-plus
+    </v-icon>
+    <span v-if="displayLabel" class="hidden-xs-only">
       {{ $t('spacesList.button.add') }}
     </span>
   </v-btn>
@@ -106,6 +112,10 @@ export default {
     elevation: {
       type: Number,
       default: 0,
+    },
+    outlined: {
+      type: Boolean,
+      default: false,
     },
     requireFormDrawer: {
       type: Boolean,
