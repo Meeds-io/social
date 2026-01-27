@@ -18,13 +18,9 @@
  */
 package io.meeds.social.observe.plugin;
 
-import java.util.List;
-
 import org.exoplatform.commons.exception.ObjectNotFoundException;
-import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.security.Identity;
-import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.manager.ActivityManager;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -33,26 +29,22 @@ import io.meeds.social.observe.model.ObserverObject;
 
 public class ActivityOberverPlugin extends ObserverPlugin {
 
-  public static final String  OBJECT_TYPE                = "activity";
+  public static final String    OBJECT_TYPE                = "activity";
 
-  private static final String ACTIVITY_WITH_ID_NOT_FOUND = "Activity with id  %s doesn't exist";
+  private static final String   ACTIVITY_WITH_ID_NOT_FOUND = "Activity with id  %s doesn't exist";
 
-  private ActivityManager     activityManager;
+  private final ActivityManager activityManager;
 
-  private IdentityManager     identityManager;
+  private final IdentityManager identityManager;
 
-  private IdentityRegistry    identityRegistry;
-
-  private OrganizationService organizationService;
+  private final UserACL         userAcl;
 
   public ActivityOberverPlugin(ActivityManager activityManager,
                                IdentityManager identityManager,
-                               OrganizationService organizationService,
-                               IdentityRegistry identityRegistry) {
+                               UserACL userAcl) {
     this.activityManager = activityManager;
     this.identityManager = identityManager;
-    this.organizationService = organizationService;
-    this.identityRegistry = identityRegistry;
+    this.userAcl = userAcl;
   }
 
   @Override
@@ -71,7 +63,7 @@ public class ActivityOberverPlugin extends ObserverPlugin {
       throw new ObjectNotFoundException(String.format("Identity with id  %s doesn't exist", identityId));
     }
     try {
-      Identity aclIdentity = getIdentity(identity.getRemoteId());
+      Identity aclIdentity = userAcl.getUserIdentity(identity.getRemoteId());
       return activityManager.isActivityViewable(activity, aclIdentity);
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Error retrieving ACL identity of %s", identityId), e);
@@ -110,18 +102,4 @@ public class ActivityOberverPlugin extends ObserverPlugin {
     }
   }
 
-  private Identity getIdentity(String userId) throws Exception {
-    Identity aclIdentity = identityRegistry.getIdentity(userId);
-    if (aclIdentity == null) {
-      List<MembershipEntry> entries = organizationService.getMembershipHandler()
-                                                         .findMembershipsByUser(userId)
-                                                         .stream()
-                                                         .map(membership -> new MembershipEntry(membership.getGroupId(),
-                                                                                                membership.getMembershipType()))
-                                                         .toList();
-      aclIdentity = new Identity(userId, entries);
-      identityRegistry.register(aclIdentity);
-    }
-    return aclIdentity;
-  }
 }
