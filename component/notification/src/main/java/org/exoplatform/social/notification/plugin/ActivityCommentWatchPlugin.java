@@ -18,7 +18,6 @@
  */
 package org.exoplatform.social.notification.plugin;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,10 +27,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.api.notification.NotificationContext;
 import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.container.xml.InitParams;
-import org.exoplatform.services.organization.Membership;
+import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.security.IdentityRegistry;
-import org.exoplatform.services.security.MembershipEntry;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.manager.IdentityManager;
@@ -44,24 +41,21 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
 
   public static final String  ID = "ActivityCommentWatchPlugin";
 
-  private ObserverService     observerService;
+  private final ObserverService     observerService;
 
-  private IdentityManager     identityManager;
+  private final IdentityManager     identityManager;
 
-  private IdentityRegistry    identityRegistry;
-
-  private OrganizationService organizationService;
+  private final UserACL             userAcl;
 
   public ActivityCommentWatchPlugin(ObserverService observerService,
                                     IdentityManager identityManager,
-                                    IdentityRegistry identityRegistry,
+                                    UserACL userAcl,
                                     OrganizationService organizationService,
                                     InitParams initParams) {
     super(initParams);
     this.observerService = observerService;
     this.identityManager = identityManager;
-    this.identityRegistry = identityRegistry;
-    this.organizationService = organizationService;
+    this.userAcl = userAcl;
   }
 
   @Override
@@ -90,7 +84,7 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
                                           .map(this::getUsername)
                                           .filter(u -> !commentReceivers.contains(u))
                                           .filter(username -> {
-                                            org.exoplatform.services.security.Identity aclIdentity = getAclIdentity(username);
+                                            org.exoplatform.services.security.Identity aclIdentity = userAcl.getUserIdentity(username);
                                             return aclIdentity != null
                                                 && Utils.getActivityManager().isActivityViewable(comment, aclIdentity);
                                           })
@@ -130,26 +124,8 @@ public class ActivityCommentWatchPlugin extends ActivityCommentPlugin {
   }
 
   private String getUsername(long identityId) {
-    Identity identity = identityManager.getIdentity(String.valueOf(identityId));
+    Identity identity = identityManager.getIdentity(identityId);
     return identity == null ? null : identity.getRemoteId();
-  }
-
-  private org.exoplatform.services.security.Identity getAclIdentity(String userId) {
-    org.exoplatform.services.security.Identity aclIdentity = identityRegistry.getIdentity(userId);
-    if (aclIdentity == null) {
-      try {
-        Collection<Membership> memberships = organizationService.getMembershipHandler().findMembershipsByUser(userId);
-        List<MembershipEntry> entries = memberships.stream()
-                                                   .map(membership -> new MembershipEntry(membership.getGroupId(),
-                                                                                          membership.getMembershipType()))
-                                                   .toList();
-        aclIdentity = new org.exoplatform.services.security.Identity(userId, entries);
-        identityRegistry.register(aclIdentity);
-      } catch (Exception e) {
-        return null;
-      }
-    }
-    return aclIdentity;
   }
 
 }
