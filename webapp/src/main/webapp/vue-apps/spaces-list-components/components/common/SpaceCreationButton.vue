@@ -32,7 +32,7 @@
       <v-btn
         id="addNewSpaceButtonMenu"
         :title="$t('menu.spaces.addNewSpaceTooltip')"
-        :small="!icon && $root.isMobile"
+        :small="!icon && isMobile"
         :color="color"
         :icon="icon"
         :elevation="elevation"
@@ -70,16 +70,17 @@
     v-else
     id="addNewSpaceButton"
     :title="$t('menu.spaces.addNewSpaceTooltip')"
-    :small="!icon && $root.isMobile"
+    :small="!icon && isMobile"
     :color="color"
     :icon="icon"
     :elevation="elevation"
     :outlined="outlined"
+    :min-width="!icon && 'auto'"
     v-bind="attrs"
     v-on="on"
     @click="addNewSpace">
     <v-icon
-      v-if="!outlined"
+      v-if="displayIcon || isMobile"
       :size="iconSize"
       class="me-2">
       fa-plus
@@ -128,6 +129,10 @@ export default {
     setMenuVisibility: {
       type: Boolean,
       default: false
+    },
+    displayIcon: {
+      type: Boolean,
+      default: true
     }
   },
   data: () => ({
@@ -142,6 +147,9 @@ export default {
     filteredSpaceTemplates() {
       return this.spaceTemplates.filter(template => !this.subspaceTemplateIds.includes(template.id));
     },
+    isMobile() {
+      return this.$vuetify?.breakpoint?.mobile;
+    }
   },
   watch: {
     menu() {
