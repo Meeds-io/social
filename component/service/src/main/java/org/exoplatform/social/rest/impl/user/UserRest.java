@@ -1230,14 +1230,7 @@ public class UserRest implements ResourceContainer, Startable {
     for (String key : profileEntity.getDataEntity().keySet()) {
       if (profileEntity.getDataEntity().get(key) instanceof List<?>) {
         List<Map<String, String>> properties = new ArrayList<>();
-        if (key.equalsIgnoreCase(Profile.CONTACT_IMS)) {
-          List<IMEntity> imsEntities = (List<IMEntity>) profileEntity.getDataEntity().get(key);
-          for (IMEntity im : imsEntities) {
-            Map<String, String> imMap = new HashMap<>();
-            imMap.put(im.getImType(), im.getImId());
-            properties.add(imMap);
-          }
-        } else if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
+        if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
           List<URLEntity> urlEntities = (List<URLEntity>) profileEntity.getDataEntity().get(key);
           for (URLEntity url : urlEntities) {
             Map<String, String> urlMap = new HashMap<>();

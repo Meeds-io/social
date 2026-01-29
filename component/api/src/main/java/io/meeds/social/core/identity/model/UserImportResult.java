@@ -37,8 +37,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserImportResult implements Cloneable {
 
-  public static final String IMS                     = "ims";
-
   public static final String EXPERIENCES             = "experiences";
 
   public static final String ABOUT_ME                = "aboutMe";
@@ -138,8 +136,6 @@ public class UserImportResult implements Cloneable {
       return Profile.BANNER;
     } else if (StringUtils.equals(ABOUT_ME, name)) {
       return Profile.ABOUT_ME;
-    } else if (StringUtils.equals(IMS, name)) {
-      return Profile.CONTACT_IMS;
     } else if (StringUtils.equals(URLS, name)) {
       return Profile.CONTACT_URLS;
     } else if (StringUtils.equals(EXPERIENCES, name)) {

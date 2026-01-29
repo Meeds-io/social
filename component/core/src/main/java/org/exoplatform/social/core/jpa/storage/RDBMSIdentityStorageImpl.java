@@ -285,8 +285,8 @@ public class RDBMSIdentityStorageImpl implements IdentityStorage {
 
           identityEntity.getExperiences().add(profileExperienceEntity);
         }
-      } else if (Profile.CONTACT_IMS.equals(profileProperty.getKey())
-              || Profile.CONTACT_URLS.equals(profileProperty.getKey()) || properties.get(profileProperty.getKey()) instanceof ArrayList<?>) {
+      } else if (Profile.CONTACT_URLS.equals(profileProperty.getKey())
+              || properties.get(profileProperty.getKey()) instanceof ArrayList<?>) {
 
         List<Map<String, String>> list = (List<Map<String, String>>) profileProperty.getValue();
         JSONArray arr = new JSONArray();
