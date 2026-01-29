@@ -165,6 +165,10 @@
         <name>customClaimsMultiValueSeparator</name>
         <value>${exo.oauth.custom.claims.multivalue.separator:;}</value>
       </value-param>
+      <value-param>
+        <name>propagateLogoutToIDP</name>
+        <value>${exo.oauth.openid.propagate.logout:false}</value>
+      </value-param>
     </init-params>
   </component>
 
@@ -206,6 +210,29 @@
     </component-plugin>
   </external-component-plugins>
 
+  <external-component-plugins>
+    <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
+    <component-plugin>
+      <name>OAuthLogoutFilter</name>
+      <set-method>addPlugin</set-method>
+      <type>io.meeds.oauth.webapi.OAuthFilterIntegratorPlugin</type>
+      <init-params>
+        <value-param>
+          <name>filterClass</name>
+          <value>io.meeds.oauth.filter.OAuthLogoutFilter</value>
+        </value-param>
+        <!-- It's always enable here but not used if all OAuthProviders (social networks) are disabled. See OAuthFilterIntegratorImpl -->
+        <value-param>
+          <name>enabled</name>
+          <value>true</value>
+        </value-param>
+        <value-param>
+          <name>filterMapping</name>
+          <value>/logout</value>
+        </value-param>
+      </init-params>
+    </component-plugin>
+  </external-component-plugins>
   <external-component-plugins>
     <target-component>io.meeds.oauth.webapi.OAuthFilterIntegrator</target-component>
     <component-plugin>
