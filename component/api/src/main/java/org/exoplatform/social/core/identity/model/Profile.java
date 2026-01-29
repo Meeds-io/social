@@ -140,9 +140,6 @@ public class Profile {
   @Deprecated
   public static final String  URL                     = "Url";
 
-  /** PHONES key. */
-  public static final String  CONTACT_PHONES          = "phones";
-
   /** IMS key. */
   public static final String  CONTACT_IMS             = "ims";
 
@@ -236,7 +233,7 @@ public class Profile {
   static {
     updateTypes.put(UpdateType.POSITION, new String[] { POSITION });
     updateTypes.put(UpdateType.BASIC_INFOR, new String[] { FIRST_NAME, LAST_NAME, EMAIL });
-    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_PHONES, CONTACT_IMS, CONTACT_URLS });
+    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_IMS, CONTACT_URLS });
     updateTypes.put(UpdateType.EXPERIENCES, new String[] { EXPERIENCES });
     updateTypes.put(UpdateType.AVATAR, new String[] { AVATAR });
     updateTypes.put(UpdateType.BANNER, new String[] { BANNER });
@@ -685,16 +682,6 @@ public class Profile {
    */
   public final String getGender() {
     return (String) getProperty(Profile.GENDER);
-  }
-
-  /**
-   * Gets Phones
-   * 
-   * @return list of user's number phone
-   * @since 4.0.0.Alpha1
-   */
-  public final List<Map<String, String>> getPhones() {
-    return (List<Map<String, String>>) getProperty(Profile.CONTACT_PHONES);
   }
 
   public long getCreatedTime() {
