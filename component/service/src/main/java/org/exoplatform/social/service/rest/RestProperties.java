@@ -83,8 +83,6 @@ public class RestProperties {
 
   public static final String DELETED         = "deleted";
 
-  public static final String PHONES          = "phones";
-
   public static final String EXPERIENCES     = "experiences";
 
   public static final String IMS             = "ims";
