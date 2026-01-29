@@ -1237,14 +1237,6 @@ public class UserRest implements ResourceContainer, Startable {
             imMap.put(im.getImType(), im.getImId());
             properties.add(imMap);
           }
-        } else if (key.equalsIgnoreCase(Profile.CONTACT_PHONES)) {
-          List<PhoneEntity> phoneEntities = (List<PhoneEntity>) profileEntity.getDataEntity().get(key);
-          for (PhoneEntity phoneEntity : phoneEntities) {
-            Map<String, String> phoneMap = new HashMap<>();
-            phoneMap.put(phoneEntity.getPhoneType(), phoneEntity.getPhoneNumber());
-            properties.add(phoneMap);
-          }
-
         } else if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
           List<URLEntity> urlEntities = (List<URLEntity>) profileEntity.getDataEntity().get(key);
           for (URLEntity url : urlEntities) {
