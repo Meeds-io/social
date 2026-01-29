@@ -417,7 +417,8 @@ export default {
       return !this.isDropdownList && [
         {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'},
         {label: this?.$t('profileSettings.label.user.propertyType'), value: 'user'},
-        {label: this?.$t('profileSettings.label.call.propertyType'), value: 'call'}
+        {label: this?.$t('profileSettings.label.call.propertyType'), value: 'call'},
+        {label: this?.$t('profileSettings.label.messaging.propertyType'), value: 'messaging'}
       ] || [
         {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
     },
