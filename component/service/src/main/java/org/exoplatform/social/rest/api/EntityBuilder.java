@@ -371,9 +371,6 @@ public class EntityBuilder {
         LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
       }
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_IMS)) {
-      buildImEntities(profile, userEntity, canViewProperties);
-    }
     if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_URLS)) {
       buildUrlEntities(profile, userEntity);
     }
@@ -734,21 +731,6 @@ public class EntityBuilder {
       }
     }
     return new ArrayList<>(properties.values());
-  }
-
-  public static void buildImEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
-    @SuppressWarnings("unchecked")
-    List<Map<String, String>> ims = (List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS);
-    if (ims != null && !ims.isEmpty()) {
-      List<IMEntity> imEntities = new ArrayList<>();
-      for (Map<String, String> im : ims) {
-        String imType = im.get("key");
-        if (canViewProperties || isProfilePropertyVisible(imType)) {
-          imEntities.add(new IMEntity(imType, im.get("value")));
-        }
-      }
-      userEntity.setIms(imEntities);
-    }
   }
 
   public static void buildUrlEntities(Profile profile, ProfileEntity userEntity) {
