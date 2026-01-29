@@ -183,11 +183,6 @@ public class UserEntity extends BaseEntity {
     setProperty("experiences", experiences);
     return this;
   }
-  
-  public UserEntity setIms(List<DataEntity> ims) {
-    setProperty("ims", ims);
-    return this;
-  }
 
   public UserEntity setUrls(List<DataEntity> urls) {
     setProperty("urls", urls);

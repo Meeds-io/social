@@ -935,11 +935,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     Identity importedUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jack.nipper");
     Profile importedUserProfile = importedUser.getProfile();
 
-    List<Map<String, String>> ims = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_IMS);
-    assertEquals(1, ims.size());
-    assertEquals("ims.facebook", ims.get(0).get("key"));
-    assertEquals("myfacebook", ims.get(0).get("value"));
-
     List<Map<String, String>> urls = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_URLS);
     assertEquals(1, urls.size());
     assertEquals(" https://www.exoplatform.com", urls.get(0).get("value"));
@@ -1168,14 +1163,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     input.append("\",");
 
     input.append("\"");
-    input.append(ProfileEntity.IMS);
-    input.append("\": [{\"imType\":\"");
-    input.append(imType);
-    input.append("\", \"imId\":\"");
-    input.append(imId);
-    input.append("\"}],");
-
-    input.append("\"");
     input.append(ProfileEntity.URLS);
     input.append("\":[{\"url\":\"");
     input.append(url);
@@ -1192,11 +1179,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(firstName, identity.getProfile().getProperty(Profile.FIRST_NAME));
     assertEquals(lastName, identity.getProfile().getProperty(Profile.LAST_NAME));
     assertEquals(fullName, identity.getProfile().getProperty(Profile.FULL_NAME));
-
-    List<Map<String, String>> ims = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_IMS);
-    assertNotNull(ims);
-    assertEquals(1, ims.size());
-    assertEquals(imId, ims.get(0).get(imType));
 
     List<Map<String, String>> urls = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_URLS);
     assertNotNull(urls);
