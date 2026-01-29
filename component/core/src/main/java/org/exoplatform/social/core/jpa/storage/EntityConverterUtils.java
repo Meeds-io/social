@@ -197,7 +197,7 @@ public class EntityConverterUtils {
         } catch (Exception ex) {
           // Ignore this exception
         }
-        if (Profile.CONTACT_IMS.equals(key) || Profile.CONTACT_URLS.equals(key) || isJsonArray) {
+        if (Profile.CONTACT_URLS.equals(key) || isJsonArray) {
           List<Map<String, String>> list = new ArrayList<>();
           if (arr != null) {
             try {
