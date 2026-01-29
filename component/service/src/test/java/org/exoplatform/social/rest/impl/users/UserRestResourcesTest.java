@@ -934,11 +934,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(204, response.getStatus());
     Identity importedUser = identityManager.getOrCreateIdentity(OrganizationIdentityProvider.NAME, "jack.nipper");
     Profile importedUserProfile = importedUser.getProfile();
-    assertEquals(2, importedUserProfile.getPhones().size());
-    assertEquals("phones.work", importedUserProfile.getPhones().get(1).get("key"));
-    assertEquals("777777", importedUserProfile.getPhones().get(1).get("value"));
-    assertEquals("phones.home", importedUserProfile.getPhones().get(0).get("key"));
-    assertEquals("888888", importedUserProfile.getPhones().get(0).get("value"));
 
     List<Map<String, String>> ims = (List<Map<String, String>>) importedUserProfile.getProperty(Profile.CONTACT_IMS);
     assertEquals(1, ims.size());
@@ -1173,14 +1168,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     input.append("\",");
 
     input.append("\"");
-    input.append(ProfileEntity.PHONES);
-    input.append("\": [{\"phoneType\":\"");
-    input.append(phoneType);
-    input.append("\",\"phoneNumber\":\"");
-    input.append(phoneNumber);
-    input.append("\"}],");
-
-    input.append("\"");
     input.append(ProfileEntity.IMS);
     input.append("\": [{\"imType\":\"");
     input.append(imType);
@@ -1205,11 +1192,6 @@ public class UserRestResourcesTest extends AbstractResourceTest {
     assertEquals(firstName, identity.getProfile().getProperty(Profile.FIRST_NAME));
     assertEquals(lastName, identity.getProfile().getProperty(Profile.LAST_NAME));
     assertEquals(fullName, identity.getProfile().getProperty(Profile.FULL_NAME));
-
-    List<Map<String, String>> phones = identity.getProfile().getPhones();
-    assertNotNull(phones);
-    assertEquals(1, phones.size());
-    assertEquals(phoneNumber, phones.get(0).get(phoneType));
 
     List<Map<String, String>> ims = (List<Map<String, String>>) identity.getProfile().getProperty(Profile.CONTACT_IMS);
     assertNotNull(ims);

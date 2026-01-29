@@ -371,9 +371,6 @@ public class EntityBuilder {
         LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
       }
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_PHONES)) {
-      buildPhoneEntities(profile, userEntity, canViewProperties);
-    }
     if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_IMS)) {
       buildImEntities(profile, userEntity, canViewProperties);
     }
@@ -737,20 +734,6 @@ public class EntityBuilder {
       }
     }
     return new ArrayList<>(properties.values());
-  }
-
-  public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
-    List<Map<String, String>> phones = profile.getPhones();
-    if (phones != null && !phones.isEmpty()) {
-      List<PhoneEntity> phoneEntities = new ArrayList<>();
-      for (Map<String, String> phone : phones) {
-        String phoneType = phone.get("key");
-        if (canViewProperties || isProfilePropertyVisible(phoneType)) {
-          phoneEntities.add(new PhoneEntity(phoneType, phone.get("value")));
-        }
-      }
-      userEntity.setPhones(phoneEntities);
-    }
   }
 
   public static void buildImEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
