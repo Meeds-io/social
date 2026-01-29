@@ -179,11 +179,6 @@ public class UserEntity extends BaseEntity {
     return getString("avatar");
   }
 
-  public UserEntity setPhones(List<DataEntity> phones) {
-    setProperty("phones", phones);
-    return this;
-  }
-
   public UserEntity setExperiences(List<DataEntity> experiences) {
     setProperty("experiences", experiences);
     return this;
