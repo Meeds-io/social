@@ -29,8 +29,6 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String EXPERIENCES             = "experiences";
 
-  public static final String PHONES                  = "phones";
-
   public static final String ABOUT_ME                = "aboutMe";
 
   public static final String TIME_ZONE               = "timeZone";
@@ -425,15 +423,6 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
 
-  public void setPhones(List<PhoneEntity> phones) {
-    setProperty(PHONES, phones);
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<PhoneEntity> getPhones() {
-    return (List<PhoneEntity>) getProperty(PHONES);
-  }
-
   public ProfileEntity setExperiences(List<ExperienceEntity> experiences) {
     setProperty(EXPERIENCES, experiences);
     return this;
@@ -605,8 +594,6 @@ public class ProfileEntity extends BaseEntity {
       return Profile.BANNER;
     } else if (StringUtils.equals(ABOUT_ME, name)) {
       return Profile.ABOUT_ME;
-    } else if (StringUtils.equals(PHONES, name)) {
-      return Profile.CONTACT_PHONES;
     } else if (StringUtils.equals(IMS, name)) {
       return Profile.CONTACT_IMS;
     } else if (StringUtils.equals(URLS, name)) {
