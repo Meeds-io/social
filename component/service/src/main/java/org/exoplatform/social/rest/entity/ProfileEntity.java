@@ -25,7 +25,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.identity.model.Profile;
 
 public class ProfileEntity extends BaseEntity {
-  public static final String IMS                     = "ims";
 
   public static final String EXPERIENCES             = "experiences";
 
@@ -433,16 +432,6 @@ public class ProfileEntity extends BaseEntity {
     return (List<ExperienceEntity>) getProperty(EXPERIENCES);
   }
 
-  public ProfileEntity setIms(List<IMEntity> ims) {
-    setProperty(IMS, ims);
-    return this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<IMEntity> getIms() {
-    return (List<IMEntity>) getProperty(IMS);
-  }
-
   public ProfileEntity setUrls(List<URLEntity> urls) {
     setProperty(URLS, urls);
     return this;
@@ -594,8 +583,6 @@ public class ProfileEntity extends BaseEntity {
       return Profile.BANNER;
     } else if (StringUtils.equals(ABOUT_ME, name)) {
       return Profile.ABOUT_ME;
-    } else if (StringUtils.equals(IMS, name)) {
-      return Profile.CONTACT_IMS;
     } else if (StringUtils.equals(URLS, name)) {
       return Profile.CONTACT_URLS;
     } else if (StringUtils.equals(EXPERIENCES, name)) {
