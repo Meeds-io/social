@@ -140,9 +140,6 @@ public class Profile {
   @Deprecated
   public static final String  URL                     = "Url";
 
-  /** IMS key. */
-  public static final String  CONTACT_IMS             = "ims";
-
   /** URLS key. */
   public static final String  CONTACT_URLS            = "urls";
 
@@ -233,7 +230,7 @@ public class Profile {
   static {
     updateTypes.put(UpdateType.POSITION, new String[] { POSITION });
     updateTypes.put(UpdateType.BASIC_INFOR, new String[] { FIRST_NAME, LAST_NAME, EMAIL });
-    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_IMS, CONTACT_URLS });
+    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_URLS });
     updateTypes.put(UpdateType.EXPERIENCES, new String[] { EXPERIENCES });
     updateTypes.put(UpdateType.AVATAR, new String[] { AVATAR });
     updateTypes.put(UpdateType.BANNER, new String[] { BANNER });
