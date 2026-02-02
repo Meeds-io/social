@@ -100,7 +100,8 @@ export default {
     user: null,
     excludedSearchProps: [],
     settings: [],
-    userCardSettings: null
+    userCardSettings: null,
+    nonSearchablePropertyTypes: ['call', 'messaging', 'user', 'email']
   }),
   computed: {
     isMobile() {
@@ -160,8 +161,14 @@ export default {
                                .every(child => child.hidden));
     },
     isSearchable(property) {
-      return property.propertyType !=='user' && !this.excludedSearchProps?.includes(property.propertyName)
-                         && !new RegExp(`^(${this.excludedSearchProps?.join('.|')}.)`)?.exec(property.propertyName) ;
+      if (this.nonSearchablePropertyTypes?.includes(property.propertyType)) {
+        return false;
+      }
+      if (this.excludedSearchProps?.includes(property.propertyName)) {
+        return false;
+      }
+      return !(this.excludedSearchProps?.length &&
+          new RegExp(`^(${this.excludedSearchProps.join('|')})\\.`).test(property.propertyName));
     },
     quickSearch(property, childProperty) {
       if (this.excludedSearchProps.includes(property.propertyName)) {
