@@ -16,7 +16,7 @@
           v-for="property in propertiesToDisplay"
           :key="property.id">
           <profile-contact-user-type-property
-            v-if="property.propertyType=== 'user'"
+            v-if="property.propertyType === 'user'"
             :property="property"
             @property-updated="propertyUpdated" />
           <profile-contact-edit-multi-field
@@ -30,30 +30,13 @@
             :disabled="disabledField(property)"
             :property-label="getResolvedName(property)"
             @property-updated="propertyUpdated" />
-          <div v-else>
-            <v-card-text class="d-flex flex-grow-1 text-no-wrap pb-2">
-              {{ getResolvedName(property) }}
-              <span v-if="property.required">*</span>
-            </v-card-text>
-            <v-card-text class="d-flex py-0">
-              <v-card-text
-                :title="disabledFieldTitle(property)"
-                class="d-flex pa-0">
-                <input
-                  v-model="property.value"
-                  :disabled="saving || disabledField(property)"
-                  :type="property.propertyName==='email' ? 'email' : 'text'"
-                  :required="property.required"
-                  :ref="`${property.propertyName}Input`" 
-                  class="ignore-vuetify-classes"
-                  maxlength="2000"
-                  @change="propertyUpdated(property)"
-                  @input="propertyUpdated(property)">
-              </v-card-text>
-              <profile-hide-property-button
-                :property="property" />
-            </v-card-text>
-          </div>
+          <profile-property-input
+            v-else
+            :property="property"
+            :disabled="saving || disabledField(property)"
+            :disabled-field-title="disabledFieldTitle(property)"
+            :resolved-name="getResolvedName(property)"
+            @updated="onInput(property, $event)" />
         </div>
       </v-form>
     </template>
@@ -79,6 +62,7 @@
 </template>
 
 <script>
+
 export default {
   data: () => ({
     lang: eXo?.env.portal.language,
@@ -98,7 +82,7 @@ export default {
     },
     isEmailPropertyHidden() {
       return this.emailProperty?.visible === false || this.emailProperty?.hiddenable === false;
-    }
+    },
   },
   created() {
     this.$root.$on('open-profile-contact-information-drawer', this.open);
@@ -142,7 +126,7 @@ export default {
       if (proptocheck && proptocheck.children.length > 0) {
         let errorFound = false;
         proptocheck.children.forEach(property => {
-          if (!property.value || property.value.length===0 || !String(property.value).match(/((http(s)?:\/\/.)|www.)[-a-zA-Z0-9@:%._\\+~#=]{2,256}/g)){
+          if (!property.value || property.value.length===0 || !this.$utils.isValidUrl(property.value)) {
             this.$root.$emit('non-valid-url-input', property.value);
             errorFound = true;
           }
@@ -251,6 +235,10 @@ export default {
       this.propertiesToSave = [];
       this.disabled = true;
       this.$refs.profileContactInformationDrawer.open();
+    },
+    onInput(property, propertyValue) {
+      property.value = propertyValue;
+      this.propertyUpdated(property);
     },
     propertyUpdated(item) {
       this.disabled = false;
