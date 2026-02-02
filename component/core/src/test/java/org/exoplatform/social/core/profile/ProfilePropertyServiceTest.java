@@ -126,8 +126,22 @@ public class ProfilePropertyServiceTest extends AbstractCoreTest {
     propertySetting = profilePropertyService.createPropertySetting(propertySetting);
     assertEquals("user", propertySetting.getPropertyType());
     propertySetting.setPropertyType("text");
-    profilePropertyService.updatePropertySetting(propertySetting);
-    assertEquals("user", profilePropertyService.getProfileSettingById(propertySetting.getId()).getPropertyType());
+    ProfilePropertySetting finalPropertySetting = propertySetting;
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(finalPropertySetting));
+
+    ProfilePropertySetting propertySetting1 = createProfileSettingInstance("testProperty1");
+    propertySetting1.setPropertyType("text");
+    propertySetting1 = profilePropertyService.createPropertySetting(propertySetting1);
+    propertySetting1.setPropertyType("user");
+    ProfilePropertySetting finalPropertySetting1 = propertySetting1;
+    assertThrows(IllegalArgumentException.class, () -> profilePropertyService.updatePropertySetting(finalPropertySetting1));
+
+    ProfilePropertySetting propertySetting2 = createProfileSettingInstance("testProperty2");
+    propertySetting2.setPropertyType("text");
+    propertySetting2 = profilePropertyService.createPropertySetting(propertySetting2);
+    propertySetting2.setPropertyType("call");
+    profilePropertyService.updatePropertySetting(propertySetting2);
+    assertEquals("call", profilePropertyService.getProfileSettingById(propertySetting2.getId()).getPropertyType());
   }
 
   public void testGetUnhiddenableProperties() {
