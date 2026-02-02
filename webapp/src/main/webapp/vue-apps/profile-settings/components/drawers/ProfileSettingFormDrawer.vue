@@ -68,7 +68,7 @@
             {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
               bottom
-              :disabled="newSetting && !isDropdownList">
+              :disabled="(newSetting && !isDropdownList) || (!newSetting && !isUserType)">
               <template #activator="{ on, attrs }">
                 <div
                   v-bind="attrs"
@@ -93,7 +93,7 @@
               <span v-if="isDropdownList && newSetting">
                 {{ $t('profileSettings.dropdownList.disabled.propertyType.info') }}
               </span>
-              <span v-else>
+              <span v-else-if="!newSetting && isUserType">
                 {{ $t('profileSettings.propertyType.disabled.label') }}
               </span>
             </v-tooltip>
