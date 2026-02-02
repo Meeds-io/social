@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.upgrade.RemoveProfilePropertyUpgradePlugin;
 import org.exoplatform.social.core.space.spi.SpaceServiceMockTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -90,6 +91,7 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     UserExportServiceTest.class,
     UserImportServiceTest.class,
     UserAclPluginTest.class,
+    RemoveProfilePropertyUpgradePlugin.class
 })
 public class NoContainerTestSuite {
 
