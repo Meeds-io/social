@@ -57,7 +57,7 @@
       <span
         v-else
         class="font-weight-regular"
-        v-autolinker="property.value">
+        v-autolinker:[propertyType]="property.value">
         {{ propertyDisplayValue }}
       </span>
     </div>
@@ -100,6 +100,9 @@ export default {
     },
     propertyDisplayValue() {
       return this.propertyOption?.translatedValue ?? this.propertyOption?.value ?? this.property.value;
+    },
+    propertyType() {
+      return this.property?.propertyType;
     }
   },
   methods: {
