@@ -10,6 +10,7 @@ import ProfileHiddenPropertyInfo from './components/property-type/ProfileHiddenP
 import ProfileContactUserTypeProperty from './components/property-type/ProfileContactUserTypeProperty.vue';
 import ProfileUserTypePropertyValues from './components/property-type/ProfileUserTypePropertyValues.vue';
 import ProfileDropdownProperty from './components/property-type/ProfileDropdownProperty.vue';
+import ProfilePropertyInput from './components/property-type/action/ProfilePropertyInput.vue';
 
 const components = {
   'profile-contact-information': ProfileContactInformation,
@@ -23,7 +24,8 @@ const components = {
   'profile-hidden-property-info': ProfileHiddenPropertyInfo,
   'profile-contact-user-type-property': ProfileContactUserTypeProperty,
   'profile-user-type-property-values': ProfileUserTypePropertyValues,
-  'profile-dropdown-property': ProfileDropdownProperty
+  'profile-dropdown-property': ProfileDropdownProperty,
+  'profile-property-input': ProfilePropertyInput
 };
 
 for (const key in components) {

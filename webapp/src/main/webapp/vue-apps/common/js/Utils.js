@@ -1,3 +1,7 @@
+
+const PHONE_REGEX = /^([+*#]?\d{1,20}#?)$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/;
+
 const TEXTAREA = document.createElement('textarea');
 const HTML_ENTITIES = {
   nbsp: ' ',
@@ -181,4 +185,20 @@ export function isLinuxOs() {
 
 export function isMacOs() {
   return detectOS() === 'Mac';
+}
+
+export function isValidPhone(value) {
+  return !!value && PHONE_REGEX.test(value);
+}
+
+export function isValidEmail(value) {
+  return !!value && EMAIL_REGEX.test(value);
+}
+
+export function isValidUrl(value) {
+  return !!Autolinker.parse(String(value || ''), {
+    urls: true,
+    email: false,
+    phone: false
+  })?.[0]?.getAnchorHref?.();
 }
