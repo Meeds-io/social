@@ -32,6 +32,7 @@ import UserCardSettingsDrawer from './components/drawers/UserCardSettingsDrawer.
 import DropdownListValuesDrawer from './components/drawers/DropdownListValuesDrawer.vue';
 import PropertyOptionActionMenu from './components/menu/PropertyOptionActionMenu.vue';
 import DropdownListOptionItemValue from './components/drawers/DropdownListOptionItemValue.vue';
+import OptionalAttributeSelector from './components/views/OptionalAttributeSelector.vue';
 
 const components = {
   'profile-settings': ProfileSettings,
@@ -47,7 +48,8 @@ const components = {
   'user-card-settings-drawer': UserCardSettingsDrawer,
   'dropdown-list-values-drawer': DropdownListValuesDrawer,
   'property-option-action-menu': PropertyOptionActionMenu,
-  'dropdown-list-option-item-value': DropdownListOptionItemValue
+  'dropdown-list-option-item-value': DropdownListOptionItemValue,
+  'optional-attribute-selector': OptionalAttributeSelector
 };
 
 for (const key in components) {
