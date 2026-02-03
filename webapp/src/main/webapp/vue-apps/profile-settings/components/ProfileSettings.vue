@@ -91,6 +91,7 @@ export default {
       userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
       userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
       userPhonePropertyKey: 'UserDisplayedPhonePropertySetting',
+      userEmailPropertyKey: 'UserDisplayedEmailPropertySetting',
       isSavingCardSettings: false,
       savedCardSettings: null,
       settingOptionObjectType: 'propertySettingOption',
@@ -305,12 +306,14 @@ export default {
         .then(() => this.saveCardSetting(this.userCardSecondFieldSettingKey, settings.secondField))
         .then(() => this.saveCardSetting(this.userCardThirdFieldSettingKey, settings.thirdField))
         .then(() => this.saveCardSetting(this.userPhonePropertyKey, settings.displayedPhone))
+        .then(() => this.saveCardSetting(this.userEmailPropertyKey, settings.displayedEmail))
         .then(() => {
           this.savedCardSettings = {
             firstField: settings.firstField,
             secondField: settings.secondField,
             thirdField: settings.thirdField,
-            displayedPhone: settings.displayedPhone
+            displayedPhone: settings.displayedPhone,
+            displayedEmail: settings.displayedEmail,
           };
           this.$root.$emit(
             'alert-message',

@@ -91,40 +91,24 @@
             outlined
             @blur="$refs.thirdField.blur();" />
         </label>
-        <label
-          v-if="phoneTypeSettings?.length"
-          for="showPhoneOption"
-          class="d-flex mt-7 align-center justify-space-between">
-          <span class="font-weight-bold">
-            {{ $t('profileSettings.userCard.settings.phoneOption.label') }}
-          </span>
-          <v-switch
-            v-model="showPhoneOption"
-            :disabled="isSavingSettings"
-            :ripple="false"
-            name="showPhoneOption"
-            color="primary"
-            class="ma-0 pt-0"
-            hide-details />
-        </label>
-        <label
-          v-if="showPhoneOption"
-          for="phone"
-          class="mt-2">
-          {{ $t('profileSettings.userCard.settings.phone.label') }}
-          <v-select
-            ref="phone"
-            v-model="selectedPhone"
-            :items="phoneTypeSettings"
-            :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
-            item-text="label"
-            item-value="value"
-            name="phone"
-            class="pt-1"
-            dense
-            outlined
-            @blur="$refs.thirdField.blur();" />
-        </label>
+        <optional-attribute-selector
+          v-model="selectedPhone"
+          :enabled.sync="showPhoneOption"
+          :items="phoneTypeSettings"
+          :disabled="isSavingSettings"
+          :toggle-label="$t('profileSettings.userCard.settings.phoneOption.label')"
+          :select-label="$t('profileSettings.userCard.settings.phone.label')"
+          :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
+          name="phone" />
+        <optional-attribute-selector
+          v-model="selectedEmail"
+          :enabled.sync="showEmailOption"
+          :items="emailTypeSettings"
+          :disabled="isSavingSettings"
+          :toggle-label="$t('profileSettings.userCard.settings.emailOption.label')"
+          :select-label="$t('profileSettings.userCard.settings.email.label')"
+          :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
+          name="email" />
       </div>
     </template>
     <template slot="footer">
@@ -159,7 +143,9 @@ export default {
       secondField: 'team',
       thirdField: 'city',
       showPhoneOption: false,
-      selectedPhone: null
+      selectedPhone: null,
+      showEmailOption: false,
+      selectedEmail: null
     };
   },
   props: {
@@ -184,14 +170,22 @@ export default {
     settingsUpdated() {
       return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
                                                                 || this.thirdField !== this.savedSettings?.thirdField
-                                                                || this.selectedPhone !== this.savedSettings?.displayedPhone
-                                                                || this.showPhoneOption !== !!this.selectedPhone;
+                                                                || this.phoneUpdated || this.emailUpdated;
+    },
+    phoneUpdated() {
+      return this.selectedPhone !== this.savedSettings?.displayedPhone || this.showPhoneOption !== !!this.selectedPhone;
+    },
+    emailUpdated() {
+      return this.selectedEmail !== this.savedSettings?.displayedEmail || this.showEmailOption !== !!this.selectedEmail;
     },
     textTypeSettings() {
       return this.settings.filter(setting => setting.type === 'text');
     },
     phoneTypeSettings() {
       return this.settings.filter(setting => setting.type === 'call');
+    },
+    emailTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'email');
     }
   },
   watch: {
@@ -210,8 +204,12 @@ export default {
       this.firstField = this.savedSettings?.firstField || this.firstField;
       this.secondField = this.savedSettings?.secondField || this.secondField;
       this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+
       this.selectedPhone = this.savedSettings?.displayedPhone || this.selectedPhone;
-      this.showPhoneOption = !! this.selectedPhone;
+      this.showPhoneOption = !!this.selectedPhone;
+
+      this.selectedEmail = this.savedSettings?.displayedEmail || this.selectedEmail;
+      this.showEmailOption = !!this.selectedEmail;
     },
     refreshUserExtensions() {
       this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
@@ -229,11 +227,13 @@ export default {
     },
     saveSettings() {
       this.selectedPhone = this.showPhoneOption ? this.selectedPhone : null;
+      this.selectedEmail = this.showEmailOption ? this.selectedEmail : null;
       this.$emit('save-settings', {
         firstField: this.firstField,
         secondField: this.secondField,
         thirdField: this.thirdField,
-        displayedPhone: this.selectedPhone
+        displayedPhone: this.selectedPhone,
+        displayedEmail: this.selectedEmail,
       });
     }
   }
