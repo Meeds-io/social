@@ -1,23 +1,35 @@
+/**
+ * This file is part of the Meeds project (https://meeds.io/).
+ *
+ * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ */
 package io.meeds.oauth.filter;
 
-import co.elastic.clients.elasticsearch.nodes.Http;
-import io.meeds.oauth.spi.AccessTokenContext;
 import io.meeds.oauth.spi.OAuthProviderType;
 import io.meeds.oauth.spi.OAuthProviderTypeRegistry;
-import io.meeds.oauth.spi.SocialNetworkService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.services.organization.UserProfile;
 import org.gatein.sso.agent.filter.api.AbstractSSOInterceptor;
 
 import java.io.IOException;
@@ -37,20 +49,17 @@ public class OAuthLogoutFilter extends AbstractSSOInterceptor {
     HttpServletResponse response = (HttpServletResponse) servletResponse;
     String remoteUser = request.getRemoteUser();
     if (isPortalLogoutInProgress(request) && !StringUtils.isEmpty(remoteUser)) {
-      //if (StringUtils.isBlank(getPortalLogoutURLFromSession(request))) {
-        //request.getSession().setAttribute(OAUTH_LOGOUT_ATTRIBUTE, request.getRequestURI());
-        try {
-          OAuthProviderTypeRegistry oauthRegistry = getService(OAuthProviderTypeRegistry.class);
-          for (OAuthProviderType oAuthProviderType : oauthRegistry.getEnabledOAuthProviders()) {
-            LOG.debug("Logging out from OAuth provider: " + oAuthProviderType.getKey());
-            if (oAuthProviderType.getOauthProviderProcessor().processLogout(request, response, oAuthProviderType)) {
-              return;
-            }
+      try {
+        OAuthProviderTypeRegistry oauthRegistry = getService(OAuthProviderTypeRegistry.class);
+        for (OAuthProviderType oAuthProviderType : oauthRegistry.getEnabledOAuthProviders()) {
+          LOG.debug("Logging out from OAuth provider: " + oAuthProviderType.getKey());
+          if (oAuthProviderType.getOauthProviderProcessor().processLogout(request, response, oAuthProviderType)) {
+            return;
           }
-        } catch (Exception e) {
-          LOG.error("Unable to get OAuthProviderTypeRegistry during logout", e);
         }
-      //}
+      } catch (Exception e) {
+        LOG.error("Unable to get OAuthProviderTypeRegistry during logout", e);
+      }
     }
     filterChain.doFilter(servletRequest, servletResponse);
 
