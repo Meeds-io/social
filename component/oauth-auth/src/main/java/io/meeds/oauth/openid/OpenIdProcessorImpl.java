@@ -38,11 +38,18 @@ import java.util.SimpleTimeZone;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import io.meeds.oauth.spi.AccessTokenContext;
+import io.meeds.oauth.spi.OAuthProviderType;
+import io.meeds.oauth.spi.SocialNetworkService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
+import org.exoplatform.container.ExoContainer;
+import org.exoplatform.services.organization.UserProfileHandler;
+import org.exoplatform.web.login.LoginUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,6 +88,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private String                      accessTokenURL;
 
+  private String                      endSessionURL;
+
   private String                      userInfoURL;
 
   private final String                clientID;
@@ -105,7 +114,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
   private final SecureRandomService   secureRandomService;
 
-
+  private final boolean propagateLogoutToIDP;
 
   private List<String> customClaims;
   private String       customClaimsMultiValuedSeparator;
@@ -151,7 +160,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
                           .collect(Collectors.toList());
     this.customClaimsMultiValuedSeparator = params.getValueParam("customClaimsMultiValueSeparator").getValue();
 
-
+    this.propagateLogoutToIDP = Boolean.parseBoolean(params.getValueParam("propagateLogoutToIDP").getValue());
 
     if (log.isDebugEnabled()) {
       log.debug("configuration: clientId=" + clientID
@@ -163,7 +172,8 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
           ", applicationName=" + applicationName +
           ", chunkLength=" + chunkLength +
           ", customClaims=" + customClaims +
-          ", customClaimsMultivaluedSeparator=" + customClaimsMultiValuedSeparator);
+          ", customClaimsMultivaluedSeparator=" + customClaimsMultiValuedSeparator +
+          ", propagateLogoutToIDP=" + propagateLogoutToIDP);
     }
 
     this.secureRandomService = secureRandomService;
@@ -204,10 +214,7 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
 
       SimpleDateFormat expireFormat = new SimpleDateFormat("EEE, dd-MMM-yyyy HH:mm:ss zzz");
       expireFormat.setTimeZone(new SimpleTimeZone(0, "GMT"));
-      Date d = new Date();
-      d.setTime(d.getTime() + oidcCookieLifetime * 1000);
-      String cookieLifeTime = expireFormat.format(d);
-      response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+tokenResponse.getAccessToken()+" ; Path=/; Expires=" + cookieLifeTime + "; HttpOnly;SameSite=Lax");
+      response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+tokenResponse.getAccessToken()+" ; Path=/; Max-Age=" + oidcCookieLifetime + "; HttpOnly;SameSite=Lax");
       return new InteractionState<>(InteractionState.State.FINISH, accessTokenContext);
     }
 
@@ -389,7 +396,12 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
                                             OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN,
                                             false,
                                             chunkLength);
-
+    String encodedAccessTokenSecret = codec.encodeString(accessToken.accessToken.getRawResponse());
+    OAuthPersistenceUtils.saveLongAttribute(encodedAccessTokenSecret,
+                                            userProfile,
+                                            OAuthConstants.PROFILE_OPEN_ID_ACCESS_TOKEN_SECRET,
+                                            false,
+                                            chunkLength);
   }
 
   @Override
@@ -522,6 +534,9 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
       this.authenticationURL = json.getString("authorization_endpoint");
       this.accessTokenURL = json.getString("token_endpoint");
       this.userInfoURL = json.getString("userinfo_endpoint");
+      if (json.has("end_session_endpoint")) {
+        this.endSessionURL = json.getString("end_session_endpoint");
+      }
       this.issuer = json.getString("issuer");
       this.remoteJwkSigningKeyResolver = new RemoteJwkSigningKeyResolver(this.wellKnownConfigurationUrl);
       this.wellKnownConfigurationLoaded = true;
@@ -555,4 +570,42 @@ public class OpenIdProcessorImpl implements OpenIdProcessor, Startable {
   public String getCustomClaimsMultiValuedSeparator() {
     return customClaimsMultiValuedSeparator;
   }
+
+
+  @Override
+  public boolean processLogout(HttpServletRequest request, HttpServletResponse response, OAuthProviderType oAuthProviderType) throws IOException {
+    if (request.getRemoteUser() != null) {
+
+
+      String remoteUser = request.getRemoteUser();
+      SocialNetworkService socialNetworkService = ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SocialNetworkService.class);
+      AccessTokenContext accessToken = socialNetworkService.getOAuthAccessToken(oAuthProviderType, remoteUser);
+      if (accessToken != null && accessToken instanceof OpenIdAccessTokenContext openIdAccessTokenContext) {
+        for (Cookie cookie : request.getCookies()) {
+          if (cookie.getName().equals("OPENID_ACCESS_TOKEN") && !StringUtils.isEmpty(cookie.getValue())) {
+            log.info("OpenID logout : found OPENID_ACCESS_TOKEN cookie, remove it");
+            response.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+" ; Path=/;  Max-Age=0; HttpOnly;SameSite=Lax");
+            response.sendRedirect(request.getRequestURI());
+            return true;
+          }
+        }
+
+        if (this.endSessionURL==null) {
+          return false;
+        }
+
+        if (!this.propagateLogoutToIDP) {
+          return false;
+        }
+
+        String tokenId = new JSONObject(openIdAccessTokenContext.accessToken.getRawResponse()).get("id_token").toString();
+        String logoutUrl = this.endSessionURL + "?" + "id_token_hint="+tokenId+"&post_logout_redirect_uri="+this.redirectURL.replace("openidAuth","logout");
+        socialNetworkService.removeOAuthAccessToken(oAuthProviderType,remoteUser);
+        response.sendRedirect(logoutUrl);
+        return true;
+      }
+    }
+    return false;
+  }
 }
+
