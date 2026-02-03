@@ -54,7 +54,7 @@
           <v-select
             ref="firstField"
             v-model="firstField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="firstField"
@@ -68,7 +68,7 @@
           <v-select
             ref="secondField"
             v-model="secondField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="secondField"
@@ -82,10 +82,44 @@
           <v-select
             ref="thirdField"
             v-model="thirdField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="thirdField"
+            class="pt-1"
+            dense
+            outlined
+            @blur="$refs.thirdField.blur();" />
+        </label>
+        <label
+          v-if="phoneTypeSettings?.length"
+          for="showPhoneOption"
+          class="d-flex mt-7 align-center justify-space-between">
+          <span class="font-weight-bold">
+            {{ $t('profileSettings.userCard.settings.phoneOption.label') }}
+          </span>
+          <v-switch
+            v-model="showPhoneOption"
+            :disabled="isSavingSettings"
+            :ripple="false"
+            name="showPhoneOption"
+            color="primary"
+            class="ma-0 pt-0"
+            hide-details />
+        </label>
+        <label
+          v-if="showPhoneOption"
+          for="phone"
+          class="mt-2">
+          {{ $t('profileSettings.userCard.settings.phone.label') }}
+          <v-select
+            ref="phone"
+            v-model="selectedPhone"
+            :items="phoneTypeSettings"
+            :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
+            item-text="label"
+            item-value="value"
+            name="phone"
             class="pt-1"
             dense
             outlined
@@ -124,6 +158,8 @@ export default {
       firstField: 'position',
       secondField: 'team',
       thirdField: 'city',
+      showPhoneOption: false,
+      selectedPhone: null
     };
   },
   props: {
@@ -147,7 +183,15 @@ export default {
   computed: {
     settingsUpdated() {
       return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
-                                                                || this.thirdField !== this.savedSettings?.thirdField;
+                                                                || this.thirdField !== this.savedSettings?.thirdField
+                                                                || this.selectedPhone !== this.savedSettings?.displayedPhone
+                                                                || this.showPhoneOption !== !!this.selectedPhone;
+    },
+    textTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'text');
+    },
+    phoneTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'call');
     }
   },
   watch: {
@@ -166,6 +210,8 @@ export default {
       this.firstField = this.savedSettings?.firstField || this.firstField;
       this.secondField = this.savedSettings?.secondField || this.secondField;
       this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+      this.selectedPhone = this.savedSettings?.displayedPhone || this.selectedPhone;
+      this.showPhoneOption = !! this.selectedPhone;
     },
     refreshUserExtensions() {
       this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
@@ -182,7 +228,13 @@ export default {
       this.$refs.userCardSettingsDrawer.close();
     },
     saveSettings() {
-      this.$emit('save-settings', this.firstField, this.secondField, this.thirdField);
+      this.selectedPhone = this.showPhoneOption ? this.selectedPhone : null;
+      this.$emit('save-settings', {
+        firstField: this.firstField,
+        secondField: this.secondField,
+        thirdField: this.thirdField,
+        displayedPhone: this.selectedPhone
+      });
     }
   }
 };
