@@ -124,7 +124,7 @@
 export default {
   data: () => ({
     settingsUrl: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/settings`,
-    logoutUrl: `${eXo.env.portal.context}/${eXo.env.portal.portalName}/settings/?portal:action=Logout&portal:componentId=UIPortal`,
+    logoutUrl: `${eXo.env.portal.context}/logout`,
     profileUri: `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/profile`,
     productName: eXo.env.portal.productName,
     productLink: eXo.env.portal.productLink,

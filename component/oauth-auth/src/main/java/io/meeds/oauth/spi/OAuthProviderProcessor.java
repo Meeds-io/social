@@ -156,4 +156,15 @@ public interface OAuthProviderProcessor<T extends AccessTokenContext> {
    * @param userProfile from which data will be removed
    */
   void removeAccessTokenFromUserProfile(UserProfile userProfile);
+
+  /**
+   * Logout user from this OAuth provider. Default implementation does nothing.
+   * Concrete OAuth processors may override this method to perform specific
+   * logout operations on OAuth provider side (for example revoke tokens, call
+   * logout endpoints, etc.)
+   */
+  default boolean processLogout(HttpServletRequest request, HttpServletResponse response, OAuthProviderType<T> oAuthProviderType) throws IOException {
+    // Default implementation does nothing
+    return false;
+  }
 }
