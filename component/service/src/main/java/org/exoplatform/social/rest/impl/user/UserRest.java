@@ -176,6 +176,8 @@ public class UserRest implements ResourceContainer, Startable {
 
   private static final String             THIRD_USER_FIELD            = "thirdField";
 
+  private static final String             USER_DISPLAYED_PHONE        = "displayedPhone";
+
   private static final String             SECOND_USER_FIELD           = "secondField";
 
   private static final String             FIRST_USER_FIELD            = "firstField";
@@ -1805,6 +1807,9 @@ public class UserRest implements ResourceContainer, Startable {
     SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
                                                                    new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
                                                                    "UserCardThirdFieldSetting");
+    SettingValue<?> userDisplayedPhoneFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                    new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                    "UserDisplayedPhonePropertySetting");
 
     JSONObject userCardSettings = new JSONObject();
     if (userCardFirstFieldSetting != null) {
@@ -1822,10 +1827,14 @@ public class UserRest implements ResourceContainer, Startable {
     } else {
       userCardSettings.put(THIRD_USER_FIELD, "city");
     }
+    if (userDisplayedPhoneFieldSetting != null) {
+      userCardSettings.put(USER_DISPLAYED_PHONE, userDisplayedPhoneFieldSetting.getValue());
+    }
 
     String eTagValue = String.valueOf(Objects.hash(userCardSettings.get(FIRST_USER_FIELD),
                                                    userCardSettings.get(SECOND_USER_FIELD),
-                                                   userCardSettings.get(THIRD_USER_FIELD)));
+                                                   userCardSettings.get(THIRD_USER_FIELD),
+                                                   userCardSettings.get(USER_DISPLAYED_PHONE)));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
