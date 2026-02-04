@@ -107,7 +107,8 @@ let config = {
     parentSpaceListing: './src/main/webapp/vue-apps/space-parent-listing/main.js',
     emojiPicker: './src/main/webapp/vue-apps/emoji-picker/main.js',
     userStatusPopup: './src/main/webapp/vue-apps/user-status-popup/main.js',
-    spaceMembersDrawer: './src/main/webapp/vue-apps/space-members-drawer/main.js'
+    spaceMembersDrawer: './src/main/webapp/vue-apps/space-members-drawer/main.js',
+    profilePropertiesExtensions: './src/main/webapp/vue-apps/profile-settings/extensions/main.js',
   },
   module: {
     rules: [
