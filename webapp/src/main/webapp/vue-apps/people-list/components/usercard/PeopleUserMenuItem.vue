@@ -26,8 +26,9 @@
     :class="`${extension.appClass}`" />
   <v-list-item
     v-else
-    v-bind="extension?.link && {
-      href: extension.link(user, spaceId)
+    v-bind="{
+      ...(extension?.link && { href: extension.link(user, spaceId) }),
+      ...(extension?.isLink && { href: extension.href(user) })
     }"
     v-on="extension?.click && {
       click: () => extension.click(user, spaceId)
