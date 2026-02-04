@@ -211,6 +211,12 @@ public class LinkProvider {
                .append("enabled: '")
                .append(identity.isEnable() && !identity.isDeleted())
                .append("',")
+               .append("displayedEmail: '")
+               .append(identity.getProfile().getProperty(Profile.DISPLAYED_EMAIL))
+               .append("',")
+               .append("displayedPhone: '")
+               .append(identity.getProfile().getProperty(Profile.DISPLAYED_PHONE))
+               .append("',")
                .append("}\"")
                .append(">")
                .append(StringEscapeUtils.escapeHtml4(identity.getProfile().getFullName()));
