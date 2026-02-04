@@ -394,6 +394,12 @@ export default {
     primaryProperty() {
       return this.userIdentity?.primaryProperty;
     },
+    displayedEmail() {
+      return this.userIdentity?.displayedEmail;
+    },
+    displayedPhone() {
+      return this.userIdentity?.displayedPhone;
+    },
     userAvatarUrl() {
       return this.enabled ? (this.userIdentity.avatar || this.avatarUrl || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/${this.username || this.profileId}/avatar`) : (this.avatarUrl  || `${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/users/default-image/avatar`);
     },
@@ -441,6 +447,8 @@ export default {
         primaryProperty: this.primaryProperty,
         avatar: this.userAvatarUrl,
         external: this.isExternal,
+        displayedEmail: this.displayedEmail,
+        displayedPhone: this.displayedPhone,
         allowAnimation: this.compact && this.allowAnimation,
       };
     },

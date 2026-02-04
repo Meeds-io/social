@@ -129,10 +129,16 @@ public class Profile {
   public static final String ENROLLMENT_DATE          = "enrollmentDate";
 
   /** SYNCHRONIZED DATE. */
-  public static final String SYNCHRONIZED_DATE          = "synchronizedDate";
+  public static final String SYNCHRONIZED_DATE        = "synchronizedDate";
 
   /** LAST LOGIN TIME. */
-  public static final String LAST_LOGIN_TIME            = "lastLoginTime";
+  public static final String LAST_LOGIN_TIME          = "lastLoginTime";
+
+  /** DISPLAYED EMAIL PROFILE PROPERTY. */
+  public static final String  DISPLAYED_PHONE         = "displayedPhone";
+
+  /** DISPLAYED PHONE PROFILE PROPERTY. */
+  public static final String  DISPLAYED_EMAIL         = "displayedEmail";
   
   /**
    * An optional url for this profile

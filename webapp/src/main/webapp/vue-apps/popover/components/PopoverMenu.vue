@@ -124,6 +124,8 @@ export default {
           avatar: data?.avatar,
           primaryProperty: data?.primaryProperty,
           external: data?.external,
+          displayedEmail: data?.displayedEmail,
+          displayedPhone: data?.displayedPhone,
         };
         localStorage.setItem('popover-identity-type', 'USER_TIPTIP');
       } else if (this.isSpaceIdentity) {
