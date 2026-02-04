@@ -41,3 +41,27 @@ extensionRegistry.registerExtension('profile-extension', 'action', {
     }}));
   },
 });
+
+extensionRegistry.registerExtension('profile-extension', 'action', {
+  id: 'emailProperty',
+  titleKey: 'peopleList.button.sendEmail',
+  icon: 'fas fa-envelope',
+  class: 'fas fa-envelope',
+  order: 9,
+  iconOnly: true,
+  isLink: true,
+  enabled: (user) => !!user?.displayedEmail,
+  href: (user) => `mailto:${user.displayedEmail}`
+});
+
+extensionRegistry.registerExtension('profile-extension', 'action', {
+  id: 'phoneProperty',
+  titleKey: 'peopleList.button.launchCall',
+  icon: 'fas fa-phone',
+  class: 'fas fa-phone',
+  order: 8,
+  iconOnly: true,
+  isLink: true,
+  enabled: (user) => !!user?.displayedPhone,
+  href: (user) => `tel:${user.displayedEmail}`
+});
