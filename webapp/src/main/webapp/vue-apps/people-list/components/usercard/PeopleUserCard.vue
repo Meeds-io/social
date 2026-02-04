@@ -137,6 +137,14 @@
               :preferences="preferences"
               compact-display />
             <v-btn
+              v-else-if="extension?.isLink"
+              :href="extension.href(user)"
+              :aria-label="$t(extension.titleKey)"
+              :title="extension.title || $t(extension.titleKey)"
+              icon>
+              <v-icon>{{ extension.icon }}</v-icon>
+            </v-btn>
+            <v-btn
               v-else-if="!extension.init"
               :aria-label="extension.title || $t(extension.titleKey)"
               icon
