@@ -173,10 +173,12 @@ export default {
                                                                 || this.phoneUpdated || this.emailUpdated;
     },
     phoneUpdated() {
-      return this.selectedPhone !== this.savedSettings?.displayedPhone || this.showPhoneOption !== !!this.selectedPhone;
+      const savedPhone = this.savedSettings?.displayedPhone ?? null;
+      return (this.selectedPhone !== savedPhone || !!savedPhone !== !!this.showPhoneOption);
     },
     emailUpdated() {
-      return this.selectedEmail !== this.savedSettings?.displayedEmail || this.showEmailOption !== !!this.selectedEmail;
+      const savedEmail = this.savedSettings?.displayedEmail ?? null;
+      return (this.selectedEmail !== savedEmail || !!savedEmail !== !!this.showEmailOption);
     },
     textTypeSettings() {
       return this.settings.filter(setting => setting.type === 'text');

@@ -94,11 +94,15 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String MANAGED_USERS_COUNT     = "managedUsersCount";
 
-  public static final String PRIMARY_PROPERTY   = "primaryProperty";
+  public static final String PRIMARY_PROPERTY        = "primaryProperty";
 
-  public static final String SECONDARY_PROPERTY = "secondaryProperty";
+  public static final String SECONDARY_PROPERTY      = "secondaryProperty";
 
-  public static final String TERTIARY_PROPERTY  = "tertiaryProperty";
+  public static final String TERTIARY_PROPERTY       = "tertiaryProperty";
+
+  public static final String DISPLAYED_PHONE         = "displayedPhone";
+
+  public static final String DISPLAYED_EMAIL         = "displayedEmail";
 
   public ProfileEntity() {
   }
@@ -562,8 +566,26 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
   
-  public String getSynchronizedDate() { 
-    return getString(SYNCHRONIZED_DATE); 
+  public ProfileEntity setPhoneProperty(String phone) {
+    setProperty(DISPLAYED_PHONE, phone);
+    return this;
+  }
+
+  public ProfileEntity setEmailProperty(String email) {
+    setProperty(DISPLAYED_EMAIL, email);
+    return this;
+  }
+
+  public String getPhoneProperty() {
+    return getString(DISPLAYED_PHONE);
+  }
+
+  public String getEmailProperty() {
+    return getString(DISPLAYED_EMAIL);
+  }
+
+  public String getSynchronizedDate() {
+    return getString(SYNCHRONIZED_DATE);
   }
 
   public static String getFieldName(String name) {
