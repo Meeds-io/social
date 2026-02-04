@@ -3403,4 +3403,19 @@
     </depends>
   </module>
 
+  <module>
+    <name>profilePropertiesPopoverExtension</name>
+    <load-group>popoverGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/profilePropertiesExtensions.bundle.js</path>
+    </script>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
 </gatein-resources>

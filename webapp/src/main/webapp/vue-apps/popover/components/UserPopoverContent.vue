@@ -106,6 +106,8 @@ export default {
         identityId: this.identity?.username,
         username: this.identity?.username,
         fullname: this.identity?.fullname,
+        displayedEmail: this.identity?.displayedEmail,
+        displayedPhone: this.identity?.displayedPhone,
         identityEnabled: this.identity?.enabled,
         identityDeleted: this.identity?.deleted,
         compactDisplay: true,
@@ -165,7 +167,7 @@ export default {
           extension.init(container, this.username);
         }
       }
-    },
+    }
   }
 };
 </script>
