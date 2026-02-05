@@ -496,21 +496,20 @@ public class EntityBuilder {
                                                            userCardScope,
                                                            "UserDisplayedEmailPropertySetting");
 
-    userEntity.setPrimaryProperty(resolveUserCardProperty(profile, userEntity, firstFieldSetting, "position"));
-    userEntity.setSecondaryProperty(resolveUserCardProperty(profile, userEntity, secondFieldSetting, "team"));
-    userEntity.setTertiaryProperty(resolveUserCardProperty(profile, userEntity, thirdFieldSetting, "city"));
+    userEntity.setPrimaryProperty(resolveUserCardProperty(profile, firstFieldSetting, "position"));
+    userEntity.setSecondaryProperty(resolveUserCardProperty(profile, secondFieldSetting, "team"));
+    userEntity.setTertiaryProperty(resolveUserCardProperty(profile, thirdFieldSetting, "city"));
 
     if (phoneFieldSetting != null) {
-      userEntity.setPhoneProperty(resolveUserCardProperty(profile, userEntity, phoneFieldSetting, null));
+      userEntity.setPhoneProperty(resolveUserCardProperty(profile, phoneFieldSetting, null));
     }
 
     if (emailFieldSetting != null) {
-      userEntity.setEmailProperty(resolveUserCardProperty(profile, userEntity, emailFieldSetting, null));
+      userEntity.setEmailProperty(resolveUserCardProperty(profile, emailFieldSetting, null));
     }
   }
 
   private static String resolveUserCardProperty(Profile profile,
-                                         ProfileEntity userEntity,
                                          SettingValue<?> setting,
                                          String fallbackProperty) {
 
@@ -519,7 +518,7 @@ public class EntityBuilder {
       ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
 
       if (propertySetting != null && propertySetting.isVisible()
-          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
+          && !getProfilePropertyService().getHiddenProfilePropertyIds(profile.getIdentity().getIdentityId())
                                          .contains(propertySetting.getId())) {
 
         return getProfilePropertyValue(profile, propertyName);
