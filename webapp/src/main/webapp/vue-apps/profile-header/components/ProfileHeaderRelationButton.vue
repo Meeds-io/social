@@ -22,16 +22,16 @@
   <v-btn
     :loading="loading"
     :disabled="disabled"
-    :class="extraButtonClass"
     :outlined="outlined"
     :icon="iconButton"
-    class="ma-1 transparent"
+    :title="iconButton && label"
+    :class="{extraButtonClass, 'ms-2': lgAndUp, 'ms-0': !lgAndUp}"
+    class="no-border transparent"
     @click="$emit('click')">
     <v-icon
       :class="extraIconClass"
-      :color="iconButton && 'primary'"
-      class="ma-auto"
-      size="16">
+      :size="iconSize"
+      class="ma-1">
       {{ icon }}
     </v-icon>
     <span
@@ -62,6 +62,10 @@ export default {
       type: String,
       default: ''
     },
+    iconSize: {
+      type: Number,
+      default: 16
+    },
     outlined: {
       type: Boolean,
       default: false
@@ -81,6 +85,11 @@ export default {
     iconButton: {
       type: Boolean,
       default: false
+    }
+  },
+  computed: {
+    lgAndUp () {
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     }
   }
 };
