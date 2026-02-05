@@ -64,11 +64,13 @@
             <profile-header-text
               :user="user"
               :display-option="displayOption"
-              class="d-flex flex-grow-0 text-truncate" />
+              :class="{'mt-3': lgAndUp, 'my-auto': !lgAndUp}"
+              class="d-flex my-auto flex-grow-0 text-truncate" />
             <profile-header-actions
               v-if="useActions && !owner"
               :user="user"
               :hover="hover"
+              :class="{'mt-2': lgAndUp}"
               class="profileHeader flex-grow-1 flex-shrink-0 d-flex flex-row justify-start justify-sm-end my-auto"
               @refresh="refresh" />
           </v-card>
@@ -121,6 +123,9 @@ export default {
     },
     containerMD() {
       return this.appWidth < this.$vuetify.breakpoint.thresholds.sm;
+    },
+    lgAndUp () {
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
     avatarMaxSize() {
       return this.$root?.settings?.avatarMaxSize;
