@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>io.meeds.social</groupId>
-    <version>7.2.x-exo-SNAPSHOT</version>
+    <version>7.2.0-exo-20260205</version>
     <artifactId>social</artifactId>
   </parent>
   <artifactId>social-webapp</artifactId>
