@@ -46,25 +46,36 @@
       </span>
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
-          v-model="mobileAcceptRefuseConnectionDialog"
+          v-model="dialog"
           content-class="border-box-sizing width-auto"
-          width="auto">
-          <v-card color="white" class="d-flex flex-column pa-0">
+          width="auto"
+          @click:outside="dialog = false">
+          <v-card color="white" class="d-flex flex-column card-border-radius pa-0">
             <v-btn
               :disabled="sendingAction"
               :loading="sendingAction"
-              class="white no-border-radius success--text"
+              class="white no-border-radius"
               block
               @click="acceptToConnect">
+              <v-icon
+                size="14"
+                class="success--text me-2">
+                fas fa-check
+              </v-icon>
               {{ $t('profileHeader.button.acceptToConnect') }}
             </v-btn>
             <v-btn
               :disabled="sendingAction"
               :loading="sendingAction"
-              class="white no-border-radius error--text"
+              class="white no-border-radius"
               block
               outlined
               @click="refuseToConnect">
+              <v-icon
+                size="14"
+                class="error--text me-2">
+                fas fa-times
+              </v-icon>
               {{ $t('profileHeader.button.refuseToConnect') }}
             </v-btn>
           </v-card>
@@ -74,33 +85,13 @@
             :loading="sendingAction"
             :disabled="sendingAction"
             :icon-size="iconSize"
-            extra-icon-class="primary--text"
+            extra-icon-class="orange--text"
             extra-button-class="btn no-border-radius"
             :label="$t('profileHeader.button.acceptToConnect')"
-            icon="fas fa-user-plus"
+            icon="fas fa-question"
             icon-button
-            @click="acceptToConnect" />
-          <v-btn
-            class="btn btn-primary peopleButtonMenu dropdownButton"
-            @click="openSecondButton">
-            <v-icon>mdi-menu-down</v-icon>
-          </v-btn>
-          <v-btn
-            class="btn btn-primary peopleButtonMenu dialogButton"
-            @click="openSecondButton(true)">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+            @click="dialog = true" />
         </div>
-        <profile-header-relation-button
-          v-show="displaySecondButton"
-          :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
-          :icon-size="iconSize"
-          extra-button-class="btn refuseToConnectButton no-border-radius"
-          :label="$t('profileHeader.button.refuseToConnect')"
-          icon="fas fa-user-minus"
-          icon-button
-          @click="refuseToConnect" />
       </div>
       <profile-header-relation-button
         v-else-if="requested"
@@ -175,10 +166,9 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
-    mobileAcceptRefuseConnectionDialog: false,
+    dialog: false,
     sendingAction: false,
     sendingSecondAction: false,
-    displaySecondButton: false,
     waitTimeUntilCloseMenu: 200,
     profileHeaderActionComponents: profileHeaderActionComponents,
     isMounted: null,
@@ -223,10 +213,10 @@ export default {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
     document.addEventListener('mousedown', () => {
-      if (window.displaySecondButton) {
+      if (this.dialog) {
         setTimeout(() => {
-          window.displaySecondButton = false;
-        }, window.waitTimeUntilCloseMenu);
+          this.dialog = false;
+        }, this.waitTimeUntilCloseMenu);
       }
     });
 
@@ -241,13 +231,6 @@ export default {
   methods: {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-    },
-    openSecondButton(openDialog) {
-      if (openDialog) {
-        this.mobileAcceptRefuseConnectionDialog = true;
-      } else {
-        this.displaySecondButton = !this.displaySecondButton;
-      }
     },
     connect() {
       this.sendingAction = true;
