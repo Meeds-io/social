@@ -155,7 +155,11 @@ export default {
                                                                   && !setting?.children?.length
                                                                   && !this.unHiddenableProperties?.includes(setting.propertyName))
         .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName, type: setting.propertyType};
+          return {
+            label: this.getResolvedName(setting),
+            value: setting.propertyName,
+            type: setting.propertyType,
+            active: setting.active};
         });
     }
   },
