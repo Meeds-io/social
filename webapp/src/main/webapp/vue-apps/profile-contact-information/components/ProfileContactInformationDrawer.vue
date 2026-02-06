@@ -101,7 +101,6 @@ export default {
       this.propertyUpdated(property);
     },
     resetCustomValidity() {
-      if (this.$refs.emailInput) { this.$refs.emailInput[0].setCustomValidity('');}
       if (this.$refs.firstNameInput) { this.$refs.firstNameInput[0].setCustomValidity('');}
       if (this.$refs.lastNameInput) { this.$refs.lastNameInput[0].setCustomValidity('');}
       this.$root.$emit('reset-custom-validity');   
@@ -122,7 +121,7 @@ export default {
     save() {
       this.fieldError = false;
       this.resetCustomValidity();
-      let proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
+      const proptocheck = this.propertiesToSave.find(property => property.propertyName === 'urls');
       if (proptocheck && proptocheck.children.length > 0) {
         let errorFound = false;
         proptocheck.children.forEach(property => {
@@ -135,19 +134,6 @@ export default {
           this.$root.$emit('reset-custom-validity');
         }
       }
-
-      proptocheck = this.propertiesToSave.find(property => property.propertyName === 'email');
-      if (proptocheck){
-        if ((proptocheck.value && (proptocheck.value.length > 100 || proptocheck.value.length  < 10)) || !proptocheck.value) {
-          this.$refs.emailInput[0].setCustomValidity(this.$t('profileWorkExperiences.invalidFieldLength', {
-            0: this.$t('profileContactInformation.email'),
-            1: 10,
-            2: 100,
-          }));
-        } else {
-          this.$refs.emailInput[0].setCustomValidity('');
-        }
-      } 
       
 
       if (!this.$refs.profileContactForm.validate() // Vuetify rules
