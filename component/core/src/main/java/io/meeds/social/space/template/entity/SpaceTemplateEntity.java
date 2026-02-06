@@ -104,9 +104,16 @@ public class SpaceTemplateEntity {
 
   @Convert(converter = StringListConverter.class)
   @Column(name = "ALLOWED_SUBSPACE_TEMPLATES")
-  private List<String> allowedSubspaceTemplates;
+  private List<String>      allowedSubspaceTemplates;
 
   @Column(name = "SUBSPACES_MAX_LIMIT")
-  private Integer subspacesMaxLimit;
+  private Integer           subspacesMaxLimit;
+
+  @Column(name = "GROUP_ID")
+  private String            groupId;
+
+  @Convert(converter = StringListConverter.class)
+  @Column(name = "ENCLOSING_MEMBERSHIPS")
+  private List<String>      enclosingMemberships;
 
 }

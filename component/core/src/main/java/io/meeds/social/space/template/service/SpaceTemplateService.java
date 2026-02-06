@@ -28,6 +28,11 @@ import java.util.Objects;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.resources.LocaleConfigService;
+import org.exoplatform.social.common.Utils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +72,8 @@ public class SpaceTemplateService {
 
   public static final String      DEFAULT_SITE_TEMPLATE         = "space";
 
+  public static final String      SPACE_TEMPLATES_GROUP_ID      = "/space_templates";
+
   private static final Log        LOG                           = ExoLogger.getLogger(SpaceTemplateService.class);
 
   private TranslationService      translationService;
@@ -85,6 +92,10 @@ public class SpaceTemplateService {
 
   private ListenerService         listenerService;
 
+  private OrganizationService     organizationService;
+
+  private LocaleConfigService     localeConfigService;
+
   public SpaceTemplateService(TranslationService translationService,
                               AttachmentService attachmentService,
                               UserPortalConfigService userPortalConfigService,
@@ -92,7 +103,9 @@ public class SpaceTemplateService {
                               NavigationService navigationService,
                               ListenerService listenerService,
                               UserACL userAcl,
-                              SpaceTemplateStorage spaceTemplateStorage) {
+                              SpaceTemplateStorage spaceTemplateStorage,
+                              OrganizationService organizationService,
+                              LocaleConfigService localeConfigService) {
     this.userPortalConfigService = userPortalConfigService;
     this.translationService = translationService;
     this.attachmentService = attachmentService;
@@ -101,6 +114,8 @@ public class SpaceTemplateService {
     this.layoutService = layoutService;
     this.navigationService = navigationService;
     this.listenerService = listenerService;
+    this.organizationService = organizationService;
+    this.localeConfigService = localeConfigService;
   }
 
   public List<SpaceTemplate> getSpaceTemplates() {
@@ -289,8 +304,10 @@ public class SpaceTemplateService {
     spaceTemplateToCreate.setSystem(false);
     spaceTemplateToCreate.setDeleted(false);
     spaceTemplateToCreate.setLayout(null);
+    String spaceTemplateGroupId = createSpaceTemplateGroup(spaceTemplateToCreate);
     SpaceTemplate createdSpaceTemplate = spaceTemplateStorage.createSpaceTemplate(spaceTemplateToCreate);
     createdSpaceTemplate = createSpaceTemplateLayout(createdSpaceTemplate, sourceSiteKey);
+    spaceTemplateStorage.updateSpaceTemplateGroupId(createdSpaceTemplate.getId(), spaceTemplateGroupId);
     listenerService.broadcast(SPACE_TEMPLATE_CREATED_EVENT, spaceTemplate, createdSpaceTemplate);
     return createdSpaceTemplate;
   }
@@ -310,6 +327,7 @@ public class SpaceTemplateService {
     if (storedSpaceTemplate == null || storedSpaceTemplate.isDeleted()) {
       throw new ObjectNotFoundException("Space Template doesn't exist");
     }
+    createSpaceTemplateGroupIfNotExist(storedSpaceTemplate.getId());
     spaceTemplate.setSystem(storedSpaceTemplate.isSystem());
     spaceTemplate.setDeleted(storedSpaceTemplate.isDeleted());
     spaceTemplate.setLayout(storedSpaceTemplate.getLayout());
@@ -385,6 +403,35 @@ public class SpaceTemplateService {
 
   }
 
+  public String getOrCreateSpaceTemplateGroupId(long templateId) throws ObjectNotFoundException {
+    SpaceTemplate spaceTemplate = getSpaceTemplate(templateId, getDefaultLocale(), true);
+    if (spaceTemplate == null) {
+      throw new  ObjectNotFoundException(String.format("Unable to create space template group, space template with id %s not exist", templateId));
+    }
+    String groupId = spaceTemplate.getGroupId();
+    if (groupId == null) {
+     groupId = createSpaceTemplateGroup(spaceTemplate);
+    }
+    spaceTemplateStorage.updateSpaceTemplateGroupId(templateId, groupId);
+    return groupId;
+  }
+
+  public SpaceTemplate getSpaceTemplateByGroupId(String groupId) {
+    return spaceTemplateStorage.getSpaceTemplateByGroupId(groupId);
+  }
+
+  private void createSpaceTemplateGroupIfNotExist(long templateId) throws ObjectNotFoundException {
+    SpaceTemplate spaceTemplate = getSpaceTemplate(templateId, getDefaultLocale(), true);
+    if (spaceTemplate == null) {
+      throw new ObjectNotFoundException(String.format("Unable to create space template group, space template with id %s not exist", templateId));
+    }
+    String groupId = spaceTemplate.getGroupId();
+    if (groupId == null) {
+      groupId = createSpaceTemplateGroup(spaceTemplate);
+      spaceTemplateStorage.updateSpaceTemplateGroupId(templateId, groupId);
+    }
+  }
+
   private SpaceTemplate createSpaceTemplateLayout(SpaceTemplate spaceTemplate,
                                                   SiteKey sourceSiteKey) throws ObjectNotFoundException {
     SiteKey targetSiteKey = SiteKey.groupTemplate(String.valueOf(spaceTemplate.getId()));
@@ -438,6 +485,27 @@ public class SpaceTemplateService {
   private Long extractTemplateId(String rawId) {
     String idPart = rawId.split(":")[0];
     return NumberUtils.isCreatable(idPart) ? Long.parseLong(idPart) : null;
+  }
+
+  private String createSpaceTemplateGroup(SpaceTemplate spaceTemplate) throws ObjectNotFoundException {
+    try {
+      GroupHandler groupHandler = organizationService.getGroupHandler();
+      Group parentGroup = groupHandler.findGroupById(SPACE_TEMPLATES_GROUP_ID);
+      String shortName = Utils.cleanString(spaceTemplate.getName());
+      String groupId = parentGroup.getId() + "/" + shortName;
+      Group newGroup = groupHandler.createGroupInstance();
+      newGroup.setGroupName(shortName);
+      newGroup.setLabel(spaceTemplate.getName());
+      newGroup.setDescription(spaceTemplate.getDescription());
+      groupHandler.addChild(parentGroup, newGroup, true);
+      return groupId;
+    } catch (Exception exception) {
+      throw new ObjectNotFoundException(String.format("Error when creating space template group for space template: %s", spaceTemplate.getName()));
+    }
+  }
+
+  private Locale getDefaultLocale() {
+    return localeConfigService.getDefaultLocaleConfig().getLocale();
   }
 
 }

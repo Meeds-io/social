@@ -46,6 +46,7 @@ import SpaceTemplatePermissions from './components/form/SpaceTemplatePermissions
 import SpaceTemplatePermissionsEditorial from './components/form/SpaceTemplatePermissionsEditorial.vue';
 import SpaceTemplateSuggester from './components/form/SpaceTemplateSuggester.vue';
 import SpaceTemplateSubspaceTemplateItem from './components/form/SpaceTemplateSubspaceTemplateItem.vue';
+import SpaceTemplateEnclosingMembership from './components/form/SpaceTemplateEnclosingMembership.vue';
 
 const components = {
   'space-templates-management': SpaceTemplatesManagement,
@@ -72,6 +73,7 @@ const components = {
   'space-templates-management-bulk-delete': SpaceTemplateBulkDelete,
   'space-templates-management-suggester': SpaceTemplateSuggester,
   'space-templates-management-subspace-template-item': SpaceTemplateSubspaceTemplateItem,
+  'space-template-enclosing-membership': SpaceTemplateEnclosingMembership
 };
 
 for (const key in components) {

@@ -19,6 +19,7 @@
 package io.meeds.social.space.template.storage;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -80,10 +81,12 @@ public class SpaceTemplateStorage {
 
   @CacheEvict(cacheNames = { "social.spaceTemplates", "social.enabledSpaceTemplates" }, allEntries = true)
   public SpaceTemplate updateSpaceTemplate(SpaceTemplate spaceTemplate) throws ObjectNotFoundException {
-    if (!spaceTemplateDAO.existsById(spaceTemplate.getId())) {
+    SpaceTemplateEntity existingSpaceTemplateEntity = spaceTemplateDAO.findById(spaceTemplate.getId()).orElse(null);
+    if (existingSpaceTemplateEntity == null) {
       throw new ObjectNotFoundException("Space template doesn't exist");
     }
     SpaceTemplateEntity spaceTemplateEntity = EntityMapper.toEntity(spaceTemplate);
+    spaceTemplateEntity.setGroupId(existingSpaceTemplateEntity.getGroupId());
     spaceTemplateEntity = spaceTemplateDAO.save(spaceTemplateEntity);
     return EntityMapper.fromEntity(spaceTemplateEntity);
   }
@@ -93,4 +96,19 @@ public class SpaceTemplateStorage {
     spaceTemplateDAO.deleteById(id);
   }
 
+  @CacheEvict(cacheNames = { "social.spaceTemplates", "social.enabledSpaceTemplates" }, allEntries = true)
+  public void updateSpaceTemplateGroupId(long templateId, String groupId) throws ObjectNotFoundException {
+    SpaceTemplateEntity spaceTemplateEntity = spaceTemplateDAO.findById(templateId).orElse(null);
+    if (spaceTemplateEntity == null) {
+      throw new ObjectNotFoundException("Space template doesn't exist");
+    }
+    spaceTemplateEntity.setGroupId(groupId);
+    spaceTemplateDAO.save(spaceTemplateEntity);
+  }
+
+  @Cacheable(cacheNames = "social.spaceTemplates")
+  public SpaceTemplate getSpaceTemplateByGroupId(String groupId) {
+    return spaceTemplateDAO.findByGroupId(groupId).map(EntityMapper::fromEntity).orElse(null);
+  }
+  
 }

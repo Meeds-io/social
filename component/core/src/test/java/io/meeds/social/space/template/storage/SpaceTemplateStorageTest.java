@@ -120,6 +120,7 @@ public class SpaceTemplateStorageTest {
     spaceTemplate.setName(null);
     spaceTemplate.setDescription(null);
     spaceTemplate.setBannerFileId(0);
+    spaceTemplate.setEnclosingMemberships(null);
     assertEquals(spaceTemplate, createdSpaceTemplate);
   }
 
@@ -127,7 +128,7 @@ public class SpaceTemplateStorageTest {
   public void testUpdateSpaceTemplate() throws ObjectNotFoundException {
     SpaceTemplate spaceTemplate = newSpaceTemplate();
     assertThrows(ObjectNotFoundException.class, () -> spaceTemplateStorage.updateSpaceTemplate(spaceTemplate));
-    when(spaceTemplateDAO.existsById(spaceTemplate.getId())).thenReturn(true);
+    when(spaceTemplateDAO.findById(spaceTemplate.getId())).thenReturn(Optional.of(newSpaceTemplateEntity()));
     when(spaceTemplateDAO.save(any())).thenReturn(newSpaceTemplateEntity());
     SpaceTemplate updatedSpaceTemplate = spaceTemplateStorage.updateSpaceTemplate(spaceTemplate);
     assertNotNull(updatedSpaceTemplate);
@@ -193,7 +194,9 @@ public class SpaceTemplateStorageTest {
                                    SpaceRegistration.VALIDATION,
                                    true,
                                    null,
-                                   0);
+                                   0,
+                                   "/space_templates/name",
+                                   null);
   }
 
   private SpaceTemplate newSpaceTemplate() {
@@ -217,7 +220,9 @@ public class SpaceTemplateStorageTest {
                              SpaceRegistration.VALIDATION,
                              true,
                              null,
-                             0);
+                             0,
+                      "/space_templates/name",
+                             null);
   }
 
 }
