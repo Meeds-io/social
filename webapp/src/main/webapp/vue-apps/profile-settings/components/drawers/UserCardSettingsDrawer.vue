@@ -96,6 +96,9 @@
           :enabled.sync="showPhoneOption"
           :items="phoneTypeSettings"
           :disabled="isSavingSettings"
+          :is-selected-active="isSavedPhoneAttributeActive"
+          :has-saved-attribute="hasSavedPhone"
+          :tooltip-label="$t('profileSettings.userCard.settings.phoneOption.disabled')"
           :toggle-label="$t('profileSettings.userCard.settings.phoneOption.label')"
           :select-label="$t('profileSettings.userCard.settings.phone.label')"
           :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
@@ -105,6 +108,9 @@
           :enabled.sync="showEmailOption"
           :items="emailTypeSettings"
           :disabled="isSavingSettings"
+          :is-selected-active="isSavedEmailAttributeActive"
+          :has-saved-attribute="hasSavedEmail"
+          :tooltip-label="$t('profileSettings.userCard.settings.emailOption.disabled')"
           :toggle-label="$t('profileSettings.userCard.settings.emailOption.label')"
           :select-label="$t('profileSettings.userCard.settings.email.label')"
           :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
@@ -170,15 +176,28 @@ export default {
     settingsUpdated() {
       return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
                                                                 || this.thirdField !== this.savedSettings?.thirdField
-                                                                || this.phoneUpdated || this.emailUpdated;
+                                                                || (this.phoneUpdated && this.isSavedPhoneAttributeActive)
+                                                                || (this.emailUpdated && this.isSavedEmailAttributeActive);
     },
     phoneUpdated() {
       const savedPhone = this.savedSettings?.displayedPhone ?? null;
       return (this.selectedPhone !== savedPhone || !!savedPhone !== !!this.showPhoneOption);
     },
     emailUpdated() {
-      const savedEmail = this.savedSettings?.displayedEmail ?? null;
+      const savedEmail = this.savedSettings?.displayedEmail ??  null;
       return (this.selectedEmail !== savedEmail || !!savedEmail !== !!this.showEmailOption);
+    },
+    isSavedEmailAttributeActive() {
+      return this.hasSavedEmail && this.isOptionActive(this.savedSettings?.displayedEmail, this.emailTypeSettings);
+    },
+    isSavedPhoneAttributeActive() {
+      return this.hasSavedPhone && this.isOptionActive(this.savedSettings?.displayedPhone, this.phoneTypeSettings);
+    },
+    hasSavedPhone() {
+      return !!this.savedSettings?.displayedPhone;
+    },
+    hasSavedEmail() {
+      return !!this.savedSettings?.displayedEmail;
     },
     textTypeSettings() {
       return this.settings.filter(setting => setting.type === 'text');
@@ -203,15 +222,20 @@ export default {
   },
   methods: {
     bindSavedSettings() {
-      this.firstField = this.savedSettings?.firstField || this.firstField;
-      this.secondField = this.savedSettings?.secondField || this.secondField;
-      this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+      ['firstField', 'secondField', 'thirdField'].forEach(field => {
+        this[field] = this.savedSettings?.[field] ?? this[field];
+      });
 
-      this.selectedPhone = this.savedSettings?.displayedPhone || this.selectedPhone;
-      this.showPhoneOption = !!this.selectedPhone;
+      this.selectedPhone = this.savedSettings?.displayedPhone ?? this.selectedPhone;
+      this.showPhoneOption = !!this.selectedPhone && this.phoneTypeSettings?.length > 0
+          && this.isOptionActive(this.selectedPhone, this.phoneTypeSettings);
 
-      this.selectedEmail = this.savedSettings?.displayedEmail || this.selectedEmail;
-      this.showEmailOption = !!this.selectedEmail;
+      this.selectedEmail = this.savedSettings?.displayedEmail ?? this.selectedEmail;
+      this.showEmailOption = !!this.selectedEmail && this.emailTypeSettings?.length > 0
+          && this.isOptionActive(this.selectedEmail, this.emailTypeSettings);
+    },
+    isOptionActive(selected, options) {
+      return options.some(option => option.value === selected && option.active);
     },
     refreshUserExtensions() {
       this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
@@ -228,8 +252,8 @@ export default {
       this.$refs.userCardSettingsDrawer.close();
     },
     saveSettings() {
-      this.selectedPhone = this.showPhoneOption ? this.selectedPhone : null;
-      this.selectedEmail = this.showEmailOption ? this.selectedEmail : null;
+      this.selectedPhone = this.showPhoneOption || (!!this.selectedPhone && !this.isSavedPhoneAttributeActive) ? this.selectedPhone : null;
+      this.selectedEmail = this.showEmailOption || (!!this.selectedEmail && !this.isSavedEmailAttributeActive) ? this.selectedEmail : null;
       this.$emit('save-settings', {
         firstField: this.firstField,
         secondField: this.secondField,
