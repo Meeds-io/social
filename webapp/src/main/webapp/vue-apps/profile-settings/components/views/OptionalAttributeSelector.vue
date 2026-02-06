@@ -18,23 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 -->
 <template>
-  <div v-if="items?.length">
-    <label
-      class="d-flex mt-7 align-center justify-space-between"
-      :for="`${name}-toggle`">
-      <span class="font-weight-bold">
-        {{ toggleLabel }}
-      </span>
-      <v-switch
-        :input-value="enabled"
-        :disabled="disabled"
-        :ripple="false"
-        :name="`${name}-toggle`"
-        color="primary"
-        class="ma-0 pt-0"
-        hide-details
-        @change="$emit('update:enabled', $event)" />
-    </label>
+  <div>
+    <v-tooltip
+      :disabled="!optionDisabled"
+      bottom>
+      <template #activator="{ on, attrs }">
+        <label
+          v-bind="attrs"
+          :for="`${name}-toggle`"
+          class="d-flex mt-7 align-center justify-space-between"
+          v-on="on">
+          <span class="font-weight-bold">
+            {{ toggleLabel }}
+          </span>
+          <v-switch
+            :input-value="enabled"
+            :disabled="optionDisabled"
+            :name="`${name}-toggle`"
+            :ripple="false"
+            color="primary"
+            class="ma-0 pt-0"
+            hide-details
+            @change="$emit('update:enabled', $event)" />
+        </label>
+      </template>
+      {{ tooltipLabel }}
+    </v-tooltip>
     <label
       v-if="enabled"
       :for="name"
@@ -89,6 +98,19 @@ export default {
     placeholder: {
       type: String,
       default: null
+    },
+    tooltipLabel: {
+      type: String,
+      default: null
+    },
+    isSelectedActive: {
+      type: Boolean,
+      default: true
+    }
+  },
+  computed: {
+    optionDisabled() {
+      return this.disabled || !this.items?.length || !this.isSelectedActive;
     }
   }
 };
