@@ -117,6 +117,22 @@
 								</value>
 								<value>
 									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
+										<field  name="name">
+											<string>space_templates</string>
+										</field>
+										<field  name="parentId">
+											<string/>
+										</field>
+										<field  name="description">
+											<string>the /space_templates group</string>
+										</field>
+										<field  name="label">
+											<string>Space Templates</string>
+										</field>
+									</object>
+								</value>
+								<value>
+									<object type="org.exoplatform.services.organization.OrganizationConfig$Group">
 										<field name="name">
 											<string>delegated</string>
 										</field>

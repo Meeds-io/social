@@ -58,7 +58,9 @@ public class SpaceTemplateStorageMock extends SpaceTemplateStorage {
                                       SpaceRegistration.OPEN,
                                       false,
                                       null,
-                                      0);
+                                      0,
+                                     "/space_templates/name",
+                                     null);
   }
 
   @Override
