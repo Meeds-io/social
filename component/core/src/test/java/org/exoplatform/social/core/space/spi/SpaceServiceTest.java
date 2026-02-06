@@ -1309,7 +1309,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotEquals(space1.getGroupId(), space2.getGroupId());
   }
 
-  public void testCreateSpaceWithTemplateCharacteristics() throws ObjectNotFoundException, SpaceException {
+  public void testCreateSpaceWithTemplateCharacteristics() throws  ObjectNotFoundException, SpaceException {
     SpaceTemplateService spaceTemplateService = getService(SpaceTemplateService.class);
     SpaceTemplate spaceTemplate = spaceTemplateService.getSpaceTemplates().getFirst();
     List<String> originalSpaceFields = spaceTemplate.getSpaceFields();

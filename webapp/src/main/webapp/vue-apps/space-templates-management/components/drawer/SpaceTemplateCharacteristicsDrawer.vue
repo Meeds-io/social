@@ -138,7 +138,7 @@
             v-model="spaceTemplate.adminPermissions"
             help-label="spaceTemplate.permissionsStepSpaceAdminsPermissionLabel"
             help-tooltip="spaceTemplate.permissionsStepSpaceAdminsPermissionTooltip"
-            class="mb-4 font-weight-bold"
+            class="font-weight-bold"
             users
             admins>
             <template #helpContent>
@@ -164,6 +164,7 @@
               </div>
             </template>
           </space-templates-management-permissions>
+          <space-template-enclosing-membership v-model="spaceTemplate.enclosingMemberships" />
         </div>
         <v-card
           v-on="step3Enabled && {
@@ -645,6 +646,8 @@ export default {
           this.spaceTemplate.allowedSubspaceTemplates = null;
           this.spaceTemplate.subspacesMaxLimit = null;
         }
+        this.spaceTemplate.name = this.name;
+        this.spaceTemplate.description = this.description;
         if (this.isNew) {
           this.spaceTemplate = await this.$spaceTemplateService.createSpaceTemplate(this.spaceTemplate);
           await this.$nextTick();

@@ -36,10 +36,12 @@ import java.util.Locale;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
-import org.exoplatform.commons.utils.ListAccess;
-import org.exoplatform.social.core.space.SpaceFilter;
-import org.exoplatform.social.core.space.model.Space;
-import org.exoplatform.social.core.space.spi.SpaceService;
+import org.exoplatform.services.organization.Group;
+import org.exoplatform.services.organization.GroupHandler;
+import org.exoplatform.services.organization.OrganizationService;
+import org.exoplatform.services.organization.impl.GroupImpl;
+import org.exoplatform.services.resources.LocaleConfigService;
+import org.exoplatform.services.resources.impl.LocaleConfigImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -116,11 +118,21 @@ public class SpaceTemplateServiceTest {
 
   @Mock
   private PortalConfig              portalConfig;
+  
+  @Mock
+  private OrganizationService       organizationService;
+
+  @Mock
+  private GroupHandler              groupHandler;
+
+  @Mock
+  private LocaleConfigService       localeConfigService;
+
 
   private SpaceTemplateService      spaceTemplateService;
 
   @Before
-  public void init() {
+  public void init() throws Exception {
     spaceTemplateService = new SpaceTemplateService(translationService,
                                                     attachmentService,
                                                     userPortalConfigService,
@@ -128,7 +140,16 @@ public class SpaceTemplateServiceTest {
                                                     navigationService,
                                                     listenerService,
                                                     userAcl,
-                                                    spaceTemplateStorage);
+                                                    spaceTemplateStorage,
+                                                    organizationService,
+                                                    localeConfigService);
+    when(organizationService.getGroupHandler()).thenReturn(groupHandler);
+    String parentGroupId = "/space_templates";
+    Group parentGroup = mock(Group.class);
+    when(parentGroup.getId()).thenReturn(parentGroupId);
+    when(groupHandler.findGroupById(parentGroupId)).thenReturn(parentGroup);
+    when(groupHandler.createGroupInstance()).thenReturn(new GroupImpl());
+    when(localeConfigService.getDefaultLocaleConfig()).thenReturn(new LocaleConfigImpl());
   }
 
   @Test
@@ -226,12 +247,12 @@ public class SpaceTemplateServiceTest {
     }).when(spaceTemplateStorage).createSpaceTemplate(any());
     when(layoutService.getPortalConfig(SiteKey.groupTemplate(spaceTemplate.getLayout()))).thenReturn(portalConfig);
     when(layoutService.getPortalConfig(SiteKey.groupTemplate("2"))).thenReturn(portalConfig);
-    spaceTemplateService.createSpaceTemplate(spaceTemplate, TEST_USER);
-
     SpaceTemplate spaceTemplateClone = spaceTemplate.clone();
     spaceTemplateClone.setLayout(null);
     spaceTemplateClone.setSystem(false);
     spaceTemplateClone.setDeleted(false);
+    when(spaceTemplateStorage.updateSpaceTemplate(any())).thenReturn(spaceTemplateClone);
+    spaceTemplateService.createSpaceTemplate(spaceTemplate, TEST_USER);
     verify(spaceTemplateStorage).createSpaceTemplate(spaceTemplateClone);
     verify(spaceTemplateStorage).updateSpaceTemplate(argThat(template -> StringUtils.equals(template.getLayout(), "2")));
     verify(userPortalConfigService).createSiteFromTemplate(SiteKey.groupTemplate(spaceTemplate.getLayout()),
@@ -349,7 +370,9 @@ public class SpaceTemplateServiceTest {
                              SpaceRegistration.VALIDATION,
                              true,
                              null,
-                             0);
+                             0,
+                             "/space_templates/name",
+                             null);
   }
 
 }
