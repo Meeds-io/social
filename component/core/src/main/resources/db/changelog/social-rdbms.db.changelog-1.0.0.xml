@@ -1254,4 +1254,16 @@
     </addColumn>
   </changeSet>
 
+  <changeSet author="social" id="1.0.0-mip-240-01">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="GROUP_ID" type="NVARCHAR(200)"/>
+    </addColumn>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-mip-240-02">
+    <addColumn tableName="SOC_SPACE_TEMPLATES">
+      <column name="ENCLOSING_MEMBERSHIPS" type="CLOB"/>
+    </addColumn>
+  </changeSet>
+
 </databaseChangeLog>
