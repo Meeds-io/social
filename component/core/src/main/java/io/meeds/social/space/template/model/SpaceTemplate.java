@@ -74,6 +74,10 @@ public class SpaceTemplate implements Cloneable {
 
   private Integer           subspacesMaxLimit;
 
+  private String            groupId;
+
+  private List<String>      enclosingMemberships;
+
   @Override
   public SpaceTemplate clone() { // NOSONAR
     return new SpaceTemplate(id,
@@ -96,7 +100,9 @@ public class SpaceTemplate implements Cloneable {
                              spaceDefaultRegistration,
                              spaceAllowContentCreation,
                              allowedSubspaceTemplates,
-                             subspacesMaxLimit);
+                             subspacesMaxLimit,
+                             groupId,
+                             enclosingMemberships);
   }
 
   public SpaceVisibility getSpaceDefaultVisibility() {
