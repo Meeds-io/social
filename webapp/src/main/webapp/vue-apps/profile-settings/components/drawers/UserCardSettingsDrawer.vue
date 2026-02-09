@@ -176,16 +176,21 @@ export default {
     settingsUpdated() {
       return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
                                                                 || this.thirdField !== this.savedSettings?.thirdField
-                                                                || (this.phoneUpdated && this.isSavedPhoneAttributeActive)
-                                                                || (this.emailUpdated && this.isSavedEmailAttributeActive);
+                                                                || this.phoneUpdated || this.emailUpdated;
     },
     phoneUpdated() {
       const savedPhone = this.savedSettings?.displayedPhone ?? null;
-      return (this.selectedPhone !== savedPhone || !!savedPhone !== !!this.showPhoneOption);
+      if (!!savedPhone && !this.isOptionActive(savedPhone, this.phoneTypeSettings)) {
+        return false;
+      }
+      return (this.selectedPhone !== savedPhone);
     },
     emailUpdated() {
       const savedEmail = this.savedSettings?.displayedEmail ??  null;
-      return (this.selectedEmail !== savedEmail || !!savedEmail !== !!this.showEmailOption);
+      if (!!savedEmail && !this.isOptionActive(savedEmail, this.emailTypeSettings)) {
+        return false;
+      }
+      return (this.selectedEmail !== savedEmail);
     },
     isSavedEmailAttributeActive() {
       return this.hasSavedEmail && this.isOptionActive(this.savedSettings?.displayedEmail, this.emailTypeSettings);
@@ -212,6 +217,16 @@ export default {
   watch: {
     savedSettings() {
       this.bindSavedSettings();
+    },
+    showPhoneOption() {
+      if (!this.showPhoneOption) {
+        this.selectedPhone = null;
+      }
+    },
+    showEmailOption() {
+      if (!this.showEmailOption) {
+        this.selectedEmail = null;
+      }
     }
   },
   created() {
