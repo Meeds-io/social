@@ -1,6 +1,6 @@
 <template>
   <v-app v-if="loaded" class="activity-stream">
-    <v-main class="application-body">
+    <v-main ref="main" class="application-body">
       <activity-stream-toolbar
         v-if="canPostInitialized"
         :can-post="$root.canPost"
@@ -54,6 +54,7 @@ export default {
     activityActionExtension: 'action',
     commentActionExtension: 'comment-action',
     activityActionTypeExtension: 'expand-action-type',
+    resizeObserver: null
   }),
   computed: {
     commentTypes() {
@@ -106,12 +107,14 @@ export default {
         }
       }, 500);
     }
+    this.initResizeObserver();
   },
   beforeDestroy() {
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityTypeExtension}-updated`, this.refreshActivityTypes);
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionExtension}-updated`, this.refreshActivityActions);
     document.removeEventListener(`extension-${this.extensionApp}-${this.commentActionExtension}-updated`, this.refreshCommentActions);
     document.removeEventListener(`extension-${this.extensionApp}-${this.activityActionTypeExtension}-updated`, this.refreshExpandActionTypes);
+    this.resizeObserver?.disconnect();
   },
   methods: {
     displayActivityDetail(activityId, commentId) {
@@ -176,6 +179,23 @@ export default {
       this.$root.canPost = !!canPost;
       this.canPostInitialized = true;
     },
+    initResizeObserver() {
+      if (this.$refs.main?.$el) {
+        this.resizeObserver = new ResizeObserver(this.refreshSize);
+        this.resizeObserver.observe(this.$refs.main.$el);
+      } else {
+        console.debug('Stream main element not found'); // eslint-disable-line no-console
+        window.setTimeout(this.initResizeObserver, 50);
+      }
+    },
+    refreshSize() {
+      if (this.$refs.main?.$el) {
+        const reduced =  this.$refs.main.$el.clientWidth < this.$vuetify.breakpoint.thresholds.sm;
+        if (this.$root.reducedWidth !== reduced) {
+          this.$root.reducedWidth = reduced;
+        }
+      }
+    }
   },
 };
 </script>
