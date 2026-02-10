@@ -1261,6 +1261,9 @@ public class SpaceServiceImpl implements SpaceService {
       if (oldSpace.isSovereign() != newSpace.isSovereign()) {
         spaceLifeCycle.spaceSovereigntyEdited(newSpace, newSpace.getEditor());
       }
+      if (oldSpace.getTemplateId()!= newSpace.getTemplateId()) {
+        spaceLifeCycle.spaceTemplateApplied(newSpace, newSpace.getEditor());
+      }
       List<Long> categoryIds = oldSpace.getCategoryIds() == null ? Collections.emptyList() : oldSpace.getCategoryIds();
       List<Long> newCategoryIds = newSpace.getCategoryIds() == null ? Collections.emptyList() : newSpace.getCategoryIds();
       if (!CollectionUtils.isEqualCollection(categoryIds, newCategoryIds)) {

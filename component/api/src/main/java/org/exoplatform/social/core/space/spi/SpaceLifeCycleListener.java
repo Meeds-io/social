@@ -238,4 +238,13 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
     // No default implementation
   }
 
+  /**
+   * Triggered when a new space template applied to a space
+   *
+   * @param event the space lifecycle event
+   */
+  default void templateApplied(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
 }
