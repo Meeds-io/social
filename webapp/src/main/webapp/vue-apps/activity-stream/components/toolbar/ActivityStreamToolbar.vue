@@ -90,7 +90,7 @@
               :params="extensionParams"
               name="ActivityToolbarAction"
               type="activity-toolbar-action"
-              class="hidden-xs-only d-flex align-center" />
+              class="hidden-xs-only" />
             <v-tooltip bottom>
               <template #activator="{ on, attrs }">
                 <v-btn
