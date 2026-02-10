@@ -25,7 +25,7 @@
               :size="isMobile && '20' || '16'">
               fa-comment
             </v-icon>
-            <span v-if="!isMobile" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
+            <span v-if="!isMobile && !$root.reducedWidth" class="mx-auto mt-1 mt-lg-0 ms-lg-1 text-body">
               {{ $t('UIActivity.label.Comment') }}
             </span>
           </div>
