@@ -27,8 +27,9 @@
       <div class="position-relative mx-8">
         <v-switch
           id="spaceTemplateGroupsSelectorSwitch"
+          class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center"
           v-model="canEncloseMembership"
-          class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
+          @change="canEncloseMembershipChange" />
       </div>
     </div>
     <template v-if="canEncloseMembership">
@@ -115,6 +116,11 @@ export default {
             originalName: group.profile?.fullname,
           },
         });
+      }
+    },
+    canEncloseMembershipChange() {
+      if(!this.canEncloseMembership) {
+        this.groups = [];
       }
     }
   },

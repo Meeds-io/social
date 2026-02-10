@@ -18,9 +18,9 @@
  */
 package io.meeds.social.space.plugin;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.services.organization.plugin.GroupDecoratorPlugin;
 import io.meeds.social.space.template.service.SpaceTemplateService;
-import lombok.SneakyThrows;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -65,6 +65,7 @@ public class SpaceGroupDecoratorPlugin extends BaseComponentPlugin implements Gr
   }
 
   @Override
+  @ContainerTransactional
   public Group decorate(Group group) {
     if (group == null || !group.getId().startsWith(SPACES_ROOT)) {
       return group;
