@@ -121,6 +121,8 @@ public class UserImportService {
 
   private static final String                   USER_NAME_FIELD                   = "userName";
 
+  private static final String                   CREATION_SOURCE_CSV               = "fileImportation";
+
   private static final List<String>             STANDARD_FIELDS                   = List.of(USER_NAME_FIELD,
                                                                                             PASSWORD_FIELD,
                                                                                             TYPE_FIELD,
@@ -380,6 +382,7 @@ public class UserImportService {
       return userName;
     } else {
       try {
+        user.setCreationSource(CREATION_SOURCE_CSV);
         userHandler.createUser(user, true);
         if (userStatus) {
           boolean enabled = Boolean.parseBoolean(userObject.getString(ENABLED_FIELD));
