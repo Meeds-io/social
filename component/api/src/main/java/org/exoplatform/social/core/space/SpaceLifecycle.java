@@ -144,6 +144,8 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     case SPACE_SOVEREIGNTY:
       listener.spaceSovereigntyEdited(event);
       break;
+      case SPACE_TEMPLATE_APPLIED:
+        listener.templateApplied(event);
     default:
       break;
     }
@@ -247,6 +249,10 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void spaceSovereigntyEdited(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_SOVEREIGNTY));
+  }
+
+  public void spaceTemplateApplied(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_TEMPLATE_APPLIED));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {

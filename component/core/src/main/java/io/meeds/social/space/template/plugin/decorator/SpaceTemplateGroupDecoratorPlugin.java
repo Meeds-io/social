@@ -18,10 +18,10 @@
  */
 package io.meeds.social.space.template.plugin.decorator;
 
+import io.meeds.common.ContainerTransactional;
 import io.meeds.services.organization.plugin.GroupDecoratorPlugin;
 import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
-import org.apache.ecs.html.S;
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -63,6 +63,7 @@ public class SpaceTemplateGroupDecoratorPlugin extends BaseComponentPlugin imple
   }
 
   @Override
+  @ContainerTransactional
   public Group decorate(Group group) {
     if (group == null || !group.getId().startsWith(SPACE_TEMPLATES_ROOT)) {
       return group;
