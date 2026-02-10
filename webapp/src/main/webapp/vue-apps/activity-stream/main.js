@@ -68,6 +68,7 @@ export async function init({
         selectedCategoryIds: null,
         settingsSubcategoryIds,
         settingsExcludeSubcategoryIds,
+        reducedWidth: false
       },
       computed: {
         isMobile() {
