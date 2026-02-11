@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import io.meeds.core.organization.util.UserModificationSource;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -352,50 +353,54 @@ public class UserImportService {
 
     UserHandler userHandler = organizationService.getUserHandler();
     User existingUser = userHandler.findUserByName(userName, UserStatus.ANY);
-
-    if (existingUser != null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping password update for: {}", userName);
-      }
-      // skipping password overwrite from csvLine
-      user.setPassword(null);
-      try {
-        user.setEnabled(true);
-        userHandler.saveUser(user, true);
-        if (userStatus) {
-          boolean enabled = Boolean.parseBoolean(userObject.getString(ENABLED_FIELD));
-          userHandler.setEnabled(userName, enabled, true);
-          user.setEnabled(enabled);
+    UserModificationSource.setSource("fileImportation");
+    try {
+      if (existingUser != null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Skipping password update for: {}", userName);
         }
-      } catch (Exception e) {
-        LOG.warn("Error updating user {}", userName, e);
-        userImportResult.addErrorMessage(userName, "UPDATE_USER_ERROR:" + e.getMessage());
-        return userName;
-      } finally {
-        RequestLifeCycle.restartTransaction();
-      }
-      onboardUser = onboardUser
-                    && existingUser.isEnabled()
-                    && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
-    } else if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
-      userImportResult.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
-      return userName;
-    } else {
-      try {
-        user.setCreationSource(CREATION_SOURCE_CSV);
-        userHandler.createUser(user, true);
-        if (userStatus) {
-          boolean enabled = Boolean.parseBoolean(userObject.getString(ENABLED_FIELD));
-          userHandler.setEnabled(userName, enabled, true);
-          user.setEnabled(enabled);
+        // skipping password overwrite from csvLine
+        user.setPassword(null);
+        try {
+          user.setEnabled(true);
+          userHandler.saveUser(user, true);
+          if (userStatus) {
+            boolean enabled = Boolean.parseBoolean(userObject.getString(ENABLED_FIELD));
+            userHandler.setEnabled(userName, enabled, true);
+            user.setEnabled(enabled);
+          }
+        } catch (Exception e) {
+          LOG.warn("Error updating user {}", userName, e);
+          userImportResult.addErrorMessage(userName, "UPDATE_USER_ERROR:" + e.getMessage());
+          return userName;
+        } finally {
+          RequestLifeCycle.restartTransaction();
         }
-      } catch (Exception e) {
-        LOG.warn("Error importing user {}", userName, e);
-        userImportResult.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
+        onboardUser = onboardUser
+          && existingUser.isEnabled()
+          && (existingUser.getLastLoginTime().getTime() == existingUser.getCreatedDate().getTime());
+      } else if (isEmailAlreadyExists(user.getUserName(), user.getEmail())) {
+        userImportResult.addErrorMessage(userName, "EMAIL:ALREADY_EXISTS");
         return userName;
-      } finally {
-        RequestLifeCycle.restartTransaction();
+      } else {
+        try {
+          user.setCreationSource(CREATION_SOURCE_CSV);
+          userHandler.createUser(user, true);
+          if (userStatus) {
+            boolean enabled = Boolean.parseBoolean(userObject.getString(ENABLED_FIELD));
+            userHandler.setEnabled(userName, enabled, true);
+            user.setEnabled(enabled);
+          }
+        } catch (Exception e) {
+          LOG.warn("Error importing user {}", userName, e);
+          userImportResult.addErrorMessage(userName, "CREATE_USER_ERROR:" + e.getMessage());
+          return userName;
+        } finally {
+          RequestLifeCycle.restartTransaction();
+        }
       }
+    } finally {
+      UserModificationSource.clear();
     }
 
     updateUserProfileProperties(userImportResult, modifierUsername, fieldsToRemove, userObject, userName);
