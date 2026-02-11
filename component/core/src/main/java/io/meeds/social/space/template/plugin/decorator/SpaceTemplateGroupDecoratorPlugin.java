@@ -18,27 +18,29 @@
  */
 package io.meeds.social.space.template.plugin.decorator;
 
-import io.meeds.common.ContainerTransactional;
-import io.meeds.services.organization.plugin.GroupDecoratorPlugin;
-import io.meeds.social.space.template.model.SpaceTemplate;
-import io.meeds.social.space.template.service.SpaceTemplateService;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
+
 import org.exoplatform.container.component.BaseComponentPlugin;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
 import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.NestedMembership;
 import org.exoplatform.services.organization.OrganizationService;
-import org.exoplatform.social.core.space.spi.SpaceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import io.meeds.common.ContainerTransactional;
+import io.meeds.services.organization.plugin.GroupDecoratorPlugin;
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -47,9 +49,6 @@ public class SpaceTemplateGroupDecoratorPlugin extends BaseComponentPlugin imple
   private static final Log     LOG                  = ExoLogger.getLogger(SpaceTemplateGroupDecoratorPlugin.class);
 
   private static final String  SPACE_TEMPLATES_ROOT = "/space_templates/";
-
-  @Autowired
-  private SpaceService         spaceService;
 
   @Autowired
   private SpaceTemplateService spaceTemplateService;
@@ -81,12 +80,12 @@ public class SpaceTemplateGroupDecoratorPlugin extends BaseComponentPlugin imple
                                                                 .distinct()
                                                                 .filter(SpaceTemplateGroupDecoratorPlugin::isValidEnclosingExpression)
                                                                 .map(expression -> NestedMembership.parseEnclosingMembership(expression,
-                                                                                                                                group.getId()))
-                                                                .filter(nestedMembership -> !nestedMembership.getGroupId().equals(group.getId()))
+                                                                                                                             group.getId()))
+                                                                .filter(nestedMembership -> !nestedMembership.getGroupId()
+                                                                                                             .equals(group.getId()))
                                                                 .collect(Collectors.toSet());
 
       group.setEnclosingMemberships(templateEnclosingMembership);
-      group.setNestedMemberships(Collections.emptySet());
       return group;
     } catch (Exception e) {
       LOG.error("Failed to decorate space template group {}. Group will be returned without decoration.", group.getId(), e);
