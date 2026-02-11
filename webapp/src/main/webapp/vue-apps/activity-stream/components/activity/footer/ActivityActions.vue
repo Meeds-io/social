@@ -2,12 +2,12 @@
   <extension-registry-components
     :params="params"
     :class="actionBarBorderClass"
-    class="d-flex flex-no-wrap ms-lg-auto py-2 activity-footer-actions"
+    class="d-flex flex-no-wrap py-2 activity-footer-actions"
     name="ActivityFooter"
     type="activity-footer-action"
     parent-element="div"
     element="div"
-    element-class="mx-auto ma-lg-0 activity-footer-action" />
+    :element-class="elementClass" />
 </template>
 <script>
 export default {
@@ -35,11 +35,14 @@ export default {
       };
     },
     actionBarBorderClass() {
-      return !this.isDesktop && 'border-top-color border-light-color' || '';
+      return (!this.isDesktop || this.$root.reducedWidth) && 'border-top-color border-light-color' || ' ms-auto';
     },
     isDesktop() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
     },
+    elementClass() {
+      return (this.isDesktop && !this.$root.reducedWidth) && 'ma-0 activity-footer-action' || 'mx-auto activity-footer-action';
+    }
   },
 };
 </script>
