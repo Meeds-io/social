@@ -2,7 +2,7 @@
   <v-list-item
     class="activity-head"
     dense>
-    <template v-if="isMobile">
+    <template v-if="isMobile || $root.reducedWidth">
       <activity-mobile-head
         :activity="activity"
         :is-activity-shared="isActivityShared"

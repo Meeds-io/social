@@ -1,8 +1,9 @@
 <template>
   <div
-    :class="isDesktop && 'position-absolute' || ''"
+    :class="(isDesktop && !$root.reducedWidth) && 'position-absolute' || ''"
     class="activityReactionsContainer activityLikersAndKudos text-font-size d-flex flex-nowrap py-2">
     <div
+      v-if="!$root.reducedWidth"
       :style="`min-height:${avatarSize}px`"
       class="reactionsUsersAvatar position-relative d-none d-lg-inline">
       <div class="d-flex flex-nowrap">
@@ -20,7 +21,9 @@
           extra-class="me-1 transition-2s" />
       </div>
     </div>
-    <div class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
+    <div
+      v-if="!$root.reducedWidth"
+      class="activityLikersAndKudosDrawer d-none d-lg-inline ml-n5">
       <div v-if="seeMoreLikerToDisplay" class="seeMoreReactionsContainer">
         <v-tooltip bottom>
           <template #activator="{ on, attrs }">
@@ -45,11 +48,12 @@
       </div>
     </div>
     <activity-reactions-mobile
+      v-if="!isDesktop || $root.reducedWidth"
       :activity="activity"
       :likers-number="likersNumber"
       :comment-number="commentNumber"
       :total-comments-number="totalCommentsNumber"
-      class="d-flex d-lg-none align-center"
+      class="d-flex align-center"
       @openDrawer="openDrawer" />
   </div>
 </template>

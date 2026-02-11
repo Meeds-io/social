@@ -1,5 +1,7 @@
 <template>
-  <div class="d-inline-flex ms-xl-4 ms-lg-3">
+  <div
+    :class="cssClass"
+    class="d-inline-flex">
     <!-- Added for mobile -->
     <v-tooltip bottom>
       <template #activator="{ on, attrs }">
@@ -69,6 +71,10 @@ export default {
     likeButtonTitle() {
       return this.hasLiked && this.$t('UIActivity.msg.UnlikeActivity') || this.$t('UIActivity.msg.LikeActivity');
     },
+    cssClass() {
+      return (this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.xl && !this.$root.reducedWidth) ? 'ms-4'
+        : ((this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg && !this.$root.reducedWidth) ? ' ms-3' :'');
+    }
   },
   created() {
     this.computeLikes();
