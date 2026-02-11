@@ -1254,4 +1254,7 @@
     </addColumn>
   </changeSet>
 
+    <changeSet author="social" id="1.0.0-meed-3976">
+        <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="CLOB"/>
+    </changeSet>
 </databaseChangeLog>

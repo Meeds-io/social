@@ -77,7 +77,8 @@
               tag-enabled
               class="mb-2"
               ck-editor-type="spaceDescription"
-              disable-suggester />
+              disable-suggester
+              @validity-updated="validityUpdated" />
           </div>
           <div class="d-flex flex-column flex-grow-1 flex-shrink-1 col-12 col-sm-6 pa-0 mx-0 mx-sm-2">
             <space-setting-avatar
@@ -124,6 +125,7 @@ export default {
     bannerUploadId: null,
     savingSpace: false,
     maxDescriptionLength: 2000,
+    validDescriptionLength: true,
     cropOptions: {
       aspectRatio: 1,
       viewMode: 1,
@@ -133,7 +135,7 @@ export default {
     saveButtonDisabled() {
       return this.savingSpace
         || !this.displayName
-        || (this.description?.length || 0) > this.maxDescriptionLength;
+        || !this.validDescriptionLength;
     },
     maxUploadSizeInBytes() {
       return Number(this.maxUploadSize) * 1024 *1024;
@@ -147,6 +149,9 @@ export default {
     document.removeEventListener('space-settings-updated', this.reset);
   },
   methods: {
+    validityUpdated(validLength) {
+      this.validDescriptionLength = validLength;
+    },
     reset() {
       this.displayName = this.$root?.space?.displayName;
       this.description = this.$root?.space?.description;
