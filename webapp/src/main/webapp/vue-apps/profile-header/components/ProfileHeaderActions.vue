@@ -5,7 +5,7 @@
     max-height="70"
     flat
     tile>
-    <div class="d-flex align-center justify-end flex-wrap my-auto">
+    <div class="d-flex justify-end flex-wrap">
       <span
         v-for="(extension, i) in enabledProfileActionExtensions"
         :key="i"
@@ -14,48 +14,70 @@
           v-if="extension.vueComponent"
           :is="extension.vueComponent"
           :user="user"
-          :compact-display="iconButton" />
+          compact-display />
+        <v-btn
+          v-else-if="extension?.isLink"
+          :href="extension.href(user)"
+          :aria-label="$t(extension.titleKey)"
+          :title="extension.title || $t(extension.titleKey)"
+          :class="{'ms-2': lgAndUp, 'ms-0': !lgAndUp}"
+          class="my-auto mb-0"
+          icon>
+          <v-icon
+            :size="iconSize"
+            class="primary--text ma-1">
+            {{ extension.icon }}
+          </v-icon>
+        </v-btn>
         <v-btn
           v-else-if="!extension.init"
-          :icon="iconButton"
-          :class="{'no-border': iconButton}"
-          class="btn my-auto ma-1 mb-0"
+          :class="{'ms-2': lgAndUp, 'ms-0': !lgAndUp}"
+          :aria-label="extension.title || $t(extension.titleKey)"
+          :title="extension.title || $t(extension.titleKey)"
+          class="no-border my-auto mb-0"
+          icon
           @click="extension.click(user)">
           <v-icon
             v-if="extension.icon"
-            class="ma-auto"
-            color="primary"
-            size="16">
+            :size="iconSize"
+            class="ma-1"
+            color="primary">
             {{ extension.icon }}
           </v-icon>
-          <span
-            v-if="!iconButton"
-            class="ms-1">
-            {{ extension.title }}
-          </span>
         </v-btn>
       </span>
       <div v-if="invited" class="invitationButtons d-inline">
         <v-dialog
-          v-model="mobileAcceptRefuseConnectionDialog"
+          v-model="dialog"
           content-class="border-box-sizing width-auto"
-          width="auto">
-          <v-card color="white" class="d-flex flex-column pa-0">
+          width="auto"
+          @click:outside="dialog = false">
+          <v-card color="white" class="d-flex flex-column card-border-radius pa-0">
             <v-btn
               :disabled="sendingAction"
               :loading="sendingAction"
-              class="white no-border-radius success--text"
+              class="white no-border-radius"
               block
               @click="acceptToConnect">
+              <v-icon
+                size="14"
+                class="success--text me-2">
+                fas fa-check
+              </v-icon>
               {{ $t('profileHeader.button.acceptToConnect') }}
             </v-btn>
             <v-btn
               :disabled="sendingAction"
               :loading="sendingAction"
-              class="white no-border-radius error--text"
+              class="white no-border-radius"
               block
               outlined
               @click="refuseToConnect">
+              <v-icon
+                size="14"
+                class="error--text me-2">
+                fas fa-times
+              </v-icon>
               {{ $t('profileHeader.button.refuseToConnect') }}
             </v-btn>
           </v-card>
@@ -64,61 +86,48 @@
           <profile-header-relation-button
             :loading="sendingAction"
             :disabled="sendingAction"
-            :icon-button="iconButton"
-            :extra-button-class="`${!iconButton && 'btn-primary'} btn no-border-radius`"
+            :icon-size="iconSize"
+            extra-icon-class="orange--text"
+            extra-button-class="btn no-border-radius"
             :label="$t('profileHeader.button.acceptToConnect')"
-            icon="fas fa-user-plus"
-            @click="acceptToConnect" />
-          <v-btn
-            class="btn btn-primary peopleButtonMenu dropdownButton"
-            @click="openSecondButton">
-            <v-icon>mdi-menu-down</v-icon>
-          </v-btn>
-          <v-btn
-            class="btn btn-primary peopleButtonMenu dialogButton"
-            @click="openSecondButton(true)">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+            icon="fas fa-question"
+            icon-button
+            @click="dialog = true" />
         </div>
-        <profile-header-relation-button
-          v-show="displaySecondButton"
-          :loading="sendingSecondAction"
-          :disabled="sendingSecondAction"
-          :icon-button="iconButton"
-          extra-button-class="btn refuseToConnectButton no-border-radius"
-          :label="$t('profileHeader.button.refuseToConnect')"
-          icon="fas fa-user-minus"
-          @click="refuseToConnect" />
       </div>
       <profile-header-relation-button
         v-else-if="requested"
         :loading="sendingAction"
         :disabled="sendingAction"
-        :icon-button="iconButton"
-        :extra-button-class="`${!iconButton && 'btn-primary'} btn cancelRequestButton`"
+        :icon-size="iconSize"
+        extra-icon-class="error-color"
+        extra-button-class="btn cancelRequestButton"
         :label="$t('profileHeader.button.cancelRequest')"
         icon="fas fa-user-minus"
+        icon-button
         @click="cancelRequest" />
       <profile-header-relation-button
         v-else-if="connected"
         :loading="sendingAction"
         :disabled="sendingAction"
-        :icon-button="iconButton"
-        extra-button-class="error-color border-color disconnectButton no-border-radius"
+        :icon-size="iconSize"
+        extra-button-class="error-color disconnectButton no-border-radius"
         extra-icon-class="error-color"
-        extra-text-class="error-color"
         :label="$t('profileHeader.button.disconnect')"
         icon="fas fa-user-minus"
+        icon-button
         outlined
         @click="disconnect" />
       <profile-header-relation-button
         v-else-if="disconnected"
         :loading="sendingAction"
         :disabled="sendingAction"
-        :icon-button="iconButton"
-        :extra-button-class="`${!iconButton && 'btn-primary'} btn connectUserButton`"
+        :icon-size="iconSize"
+        extra-icon-class="primary--text"
+        extra-button-class="btn connectUserButton"
         :label="$t('profileHeader.button.connect')"
         icon="fas fa-user-plus"
+        icon-button
         @click="connect" />
       <div class="profileHeaderActionComponents order-first mb-0">
         <div
@@ -159,18 +168,20 @@ export default {
   },
   data: () => ({
     profileActionExtensions: [],
-    mobileAcceptRefuseConnectionDialog: false,
+    dialog: false,
     sendingAction: false,
     sendingSecondAction: false,
-    displaySecondButton: false,
     waitTimeUntilCloseMenu: 200,
     profileHeaderActionComponents: profileHeaderActionComponents,
     isMounted: null,
     resolveMounting: null
   }),
   computed: {
-    iconButton() {
-      return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg;
+    lgAndUp () {
+      return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
+    },
+    iconSize() {
+      return this.$vuetify.breakpoint.width < this.$vuetify.breakpoint.thresholds.lg && 16 || 20;
     },
     enabledProfileHeaderActionComponents() {
       return this.profileHeaderActionComponents && this.profileHeaderActionComponents.filter(act => act.enabled) || [];
@@ -194,9 +205,9 @@ export default {
       if (!this.profileActionExtensions || !this.user) {
         return [];
       }
-      const enabledProfileActionExtensions = this.profileActionExtensions.slice().filter(extension => extension.enabled(this.user));
-      enabledProfileActionExtensions.sort((a, b) => a.rank - b.rank);
-      return enabledProfileActionExtensions;
+      return  this.profileActionExtensions.filter(extension => extension.enabled(this.user))
+        .sort((a, b) => (a.order ?? 100) - (b.order ?? 100));
+
     },
   },
   created() {
@@ -204,10 +215,10 @@ export default {
     document.addEventListener('extension-profile-extension-action-updated', this.refreshExtensions);
     this.refreshExtensions();
     document.addEventListener('mousedown', () => {
-      if (window.displaySecondButton) {
+      if (this.dialog) {
         setTimeout(() => {
-          window.displaySecondButton = false;
-        }, window.waitTimeUntilCloseMenu);
+          this.dialog = false;
+        }, this.waitTimeUntilCloseMenu);
       }
     });
 
@@ -222,13 +233,6 @@ export default {
   methods: {
     refreshExtensions() {
       this.profileActionExtensions = extensionRegistry.loadExtensions('profile-extension', 'action') || [];
-    },
-    openSecondButton(openDialog) {
-      if (openDialog) {
-        this.mobileAcceptRefuseConnectionDialog = true;
-      } else {
-        this.displaySecondButton = !this.displaySecondButton;
-      }
     },
     connect() {
       this.sendingAction = true;
@@ -307,7 +311,7 @@ export default {
       }
     },
     actionClass(action) {
-      return this.iconButton && action.mobileClass ? `${action.appClass} ${action.typeClass} ${action.mobileClass}` : `${action.appClass} ${action.typeClass}`;
+      return `${action.appClass} ${action.typeClass} ${action.mobileClass} mx-0`;
     },
   },
 };

@@ -54,7 +54,7 @@
           <v-select
             ref="firstField"
             v-model="firstField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="firstField"
@@ -68,7 +68,7 @@
           <v-select
             ref="secondField"
             v-model="secondField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="secondField"
@@ -82,7 +82,7 @@
           <v-select
             ref="thirdField"
             v-model="thirdField"
-            :items="settings"
+            :items="textTypeSettings"
             item-text="label"
             item-value="value"
             name="thirdField"
@@ -91,6 +91,30 @@
             outlined
             @blur="$refs.thirdField.blur();" />
         </label>
+        <optional-attribute-selector
+          v-model="selectedPhone"
+          :enabled.sync="showPhoneOption"
+          :items="phoneTypeSettings"
+          :disabled="isSavingSettings"
+          :is-selected-active="isSavedPhoneAttributeActive"
+          :has-saved-attribute="hasSavedPhone"
+          :tooltip-label="$t('profileSettings.userCard.settings.phoneOption.disabled')"
+          :toggle-label="$t('profileSettings.userCard.settings.phoneOption.label')"
+          :select-label="$t('profileSettings.userCard.settings.phone.label')"
+          :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
+          name="phone" />
+        <optional-attribute-selector
+          v-model="selectedEmail"
+          :enabled.sync="showEmailOption"
+          :items="emailTypeSettings"
+          :disabled="isSavingSettings"
+          :is-selected-active="isSavedEmailAttributeActive"
+          :has-saved-attribute="hasSavedEmail"
+          :tooltip-label="$t('profileSettings.userCard.settings.emailOption.disabled')"
+          :toggle-label="$t('profileSettings.userCard.settings.emailOption.label')"
+          :select-label="$t('profileSettings.userCard.settings.email.label')"
+          :placeholder="$t('profileSettings.userCard.settings.attribute.select.label')"
+          name="email" />
       </div>
     </template>
     <template slot="footer">
@@ -124,6 +148,10 @@ export default {
       firstField: 'position',
       secondField: 'team',
       thirdField: 'city',
+      showPhoneOption: false,
+      selectedPhone: null,
+      showEmailOption: false,
+      selectedEmail: null
     };
   },
   props: {
@@ -147,12 +175,58 @@ export default {
   computed: {
     settingsUpdated() {
       return this.firstField !== this.savedSettings?.firstField || this.secondField !==  this.savedSettings?.secondField
-                                                                || this.thirdField !== this.savedSettings?.thirdField;
+                                                                || this.thirdField !== this.savedSettings?.thirdField
+                                                                || this.phoneUpdated || this.emailUpdated;
+    },
+    phoneUpdated() {
+      const savedPhone = this.savedSettings?.displayedPhone ?? null;
+      if (!!savedPhone && !this.isOptionActive(savedPhone, this.phoneTypeSettings)) {
+        return false;
+      }
+      return (this.selectedPhone !== savedPhone);
+    },
+    emailUpdated() {
+      const savedEmail = this.savedSettings?.displayedEmail ??  null;
+      if (!!savedEmail && !this.isOptionActive(savedEmail, this.emailTypeSettings)) {
+        return false;
+      }
+      return (this.selectedEmail !== savedEmail);
+    },
+    isSavedEmailAttributeActive() {
+      return this.hasSavedEmail && this.isOptionActive(this.savedSettings?.displayedEmail, this.emailTypeSettings);
+    },
+    isSavedPhoneAttributeActive() {
+      return this.hasSavedPhone && this.isOptionActive(this.savedSettings?.displayedPhone, this.phoneTypeSettings);
+    },
+    hasSavedPhone() {
+      return !!this.savedSettings?.displayedPhone;
+    },
+    hasSavedEmail() {
+      return !!this.savedSettings?.displayedEmail;
+    },
+    textTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'text');
+    },
+    phoneTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'call');
+    },
+    emailTypeSettings() {
+      return this.settings.filter(setting => setting.type === 'email');
     }
   },
   watch: {
     savedSettings() {
       this.bindSavedSettings();
+    },
+    showPhoneOption() {
+      if (!this.showPhoneOption) {
+        this.selectedPhone = null;
+      }
+    },
+    showEmailOption() {
+      if (!this.showEmailOption) {
+        this.selectedEmail = null;
+      }
     }
   },
   created() {
@@ -163,9 +237,20 @@ export default {
   },
   methods: {
     bindSavedSettings() {
-      this.firstField = this.savedSettings?.firstField || this.firstField;
-      this.secondField = this.savedSettings?.secondField || this.secondField;
-      this.thirdField = this.savedSettings?.thirdField || this.thirdField;
+      ['firstField', 'secondField', 'thirdField'].forEach(field => {
+        this[field] = this.savedSettings?.[field] ?? this[field];
+      });
+
+      this.selectedPhone = this.savedSettings?.displayedPhone ?? this.selectedPhone;
+      this.showPhoneOption = !!this.selectedPhone && this.phoneTypeSettings?.length > 0
+          && this.isOptionActive(this.selectedPhone, this.phoneTypeSettings);
+
+      this.selectedEmail = this.savedSettings?.displayedEmail ?? this.selectedEmail;
+      this.showEmailOption = !!this.selectedEmail && this.emailTypeSettings?.length > 0
+          && this.isOptionActive(this.selectedEmail, this.emailTypeSettings);
+    },
+    isOptionActive(selected, options) {
+      return options.some(option => option.value === selected && option.active);
     },
     refreshUserExtensions() {
       this.userExtensions = extensionRegistry.loadExtensions('user-extension', 'navigation') || [];
@@ -182,7 +267,15 @@ export default {
       this.$refs.userCardSettingsDrawer.close();
     },
     saveSettings() {
-      this.$emit('save-settings', this.firstField, this.secondField, this.thirdField);
+      this.selectedPhone = this.showPhoneOption || (!!this.selectedPhone && !this.isSavedPhoneAttributeActive) ? this.selectedPhone : null;
+      this.selectedEmail = this.showEmailOption || (!!this.selectedEmail && !this.isSavedEmailAttributeActive) ? this.selectedEmail : null;
+      this.$emit('save-settings', {
+        firstField: this.firstField,
+        secondField: this.secondField,
+        thirdField: this.thirdField,
+        displayedPhone: this.selectedPhone,
+        displayedEmail: this.selectedEmail,
+      });
     }
   }
 };

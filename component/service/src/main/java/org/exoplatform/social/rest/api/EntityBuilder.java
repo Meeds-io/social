@@ -371,12 +371,6 @@ public class EntityBuilder {
         LOG.warn("Error when searching user {}", userEntity.getUsername(), e);
       }
     }
-    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_PHONES)) {
-      buildPhoneEntities(profile, userEntity, canViewProperties);
-    }
-    if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_IMS)) {
-      buildImEntities(profile, userEntity, canViewProperties);
-    }
     if (canViewProperties || isProfilePropertyVisible(Profile.CONTACT_URLS)) {
       buildUrlEntities(profile, userEntity);
     }
@@ -475,77 +469,71 @@ public class EntityBuilder {
       buildManagedUsersCount(userEntity);
     }
 
-    // Get values of properties configured for the user card
-    SettingValue<?> userCardFirstFieldSetting =
-                                              getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
-                                                                      new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
-                                                                                                                          USER_CARD_SETTINGS),
-                                                                      "UserCardFirstFieldSetting");
-    SettingValue<?> userCardSecondFieldSetting =
-                                               getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
-                                                                       new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
-                                                                                                                           USER_CARD_SETTINGS),
-                                                                       "UserCardSecondFieldSetting");
-    SettingValue<?> userCardThirdFieldSetting =
-                                              getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
-                                                                      new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
-                                                                                                                          USER_CARD_SETTINGS),
-                                                                      "UserCardThirdFieldSetting");
-
-    if (userCardFirstFieldSetting != null) {
-      String propertyName = String.valueOf(userCardFirstFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if (propertySetting != null && propertySetting.isVisible()
-          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
-                                         .contains(propertySetting.getId())) {
-        String primaryPropertyValue = getProfilePropertyValue(profile, propertyName);
-        userEntity.setPrimaryProperty(primaryPropertyValue);
-      } else {
-        userEntity.setPrimaryProperty("");
-      }
-    } else if (StringUtils.isNotBlank(userEntity.getPosition())) {
-      String positionValue = getProfilePropertyValue(profile, "position");
-      userEntity.setPrimaryProperty(positionValue);
-    } else {
-      userEntity.setPrimaryProperty("");
-    }
-    if (userCardSecondFieldSetting != null) {
-      String propertyName = String.valueOf(userCardSecondFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if (propertySetting != null && propertySetting.isVisible()
-          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
-                                         .contains(propertySetting.getId())) {
-        String secondaryPropertyValue = getProfilePropertyValue(profile, propertyName);
-        userEntity.setSecondaryProperty(secondaryPropertyValue);
-      } else {
-        userEntity.setSecondaryProperty("");
-      }
-    } else if (StringUtils.isNotBlank(userEntity.getTeam())) {
-      String teamValue = getProfilePropertyValue(profile, "team");
-      userEntity.setSecondaryProperty(teamValue);
-    } else {
-      userEntity.setSecondaryProperty("");
-    }
-
-    if (userCardThirdFieldSetting != null) {
-      String propertyName = String.valueOf(userCardThirdFieldSetting.getValue());
-      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
-      if (propertySetting != null && propertySetting.isVisible()
-          && !getProfilePropertyService().getHiddenProfilePropertyIds(Long.parseLong(userEntity.getId()))
-                                         .contains(propertySetting.getId())) {
-        String tertiaryPropertyValue = getProfilePropertyValue(profile, propertyName);
-        userEntity.setTertiaryProperty(tertiaryPropertyValue);
-      } else {
-        userEntity.setTertiaryProperty("");
-      }
-    } else if (StringUtils.isNotBlank(userEntity.getCity())) {
-      String cityValue = getProfilePropertyValue(profile, "city");
-      userEntity.setTertiaryProperty(cityValue);
-    } else {
-      userEntity.setTertiaryProperty("");
-    }
+    populateUserCardProperties(profile, userEntity);
 
     return userEntity;
+  }
+
+  private static void populateUserCardProperties(Profile profile, ProfileEntity userEntity) {
+
+    org.exoplatform.commons.api.settings.data.Scope userCardScope =
+                                                                  new org.exoplatform.commons.api.settings.data.Scope(org.exoplatform.commons.api.settings.data.Scope.GLOBAL.getName(),
+                                                                                                                      USER_CARD_SETTINGS);
+
+    SettingValue<?> firstFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                userCardScope,
+                                                                "UserCardFirstFieldSetting");
+    SettingValue<?> secondFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                 userCardScope,
+                                                                 "UserCardSecondFieldSetting");
+    SettingValue<?> thirdFieldSetting = getSettingService().get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                userCardScope,
+                                                                "UserCardThirdFieldSetting");
+    SettingValue<?> phoneFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                           userCardScope,
+                                                           "UserDisplayedPhonePropertySetting");
+    SettingValue<?> emailFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                           userCardScope,
+                                                           "UserDisplayedEmailPropertySetting");
+
+    userEntity.setPrimaryProperty(resolveUserCardProperty(profile, firstFieldSetting, "position"));
+    userEntity.setSecondaryProperty(resolveUserCardProperty(profile, secondFieldSetting, "team"));
+    userEntity.setTertiaryProperty(resolveUserCardProperty(profile, thirdFieldSetting, "city"));
+
+    if (phoneFieldSetting != null) {
+      userEntity.setPhoneProperty(resolveUserCardProperty(profile, phoneFieldSetting, null));
+    }
+
+    if (emailFieldSetting != null) {
+      userEntity.setEmailProperty(resolveUserCardProperty(profile, emailFieldSetting, null));
+    }
+  }
+
+  private static String resolveUserCardProperty(Profile profile,
+                                         SettingValue<?> setting,
+                                         String fallbackProperty) {
+
+    if (setting != null) {
+      String propertyName = String.valueOf(setting.getValue());
+      ProfilePropertySetting propertySetting = getProfilePropertyService().getProfileSettingByName(propertyName);
+
+      if (propertySetting != null && propertySetting.isVisible()
+          && !getProfilePropertyService().getHiddenProfilePropertyIds(profile.getIdentity().getIdentityId())
+                                         .contains(propertySetting.getId())) {
+
+        return getProfilePropertyValue(profile, propertyName);
+      }
+      return "";
+    }
+
+    if (fallbackProperty == null) {
+      return "";
+    }
+
+    return StringUtils.isNotBlank(getProfilePropertyValue(profile, fallbackProperty))
+                                                                                      ? getProfilePropertyValue(profile,
+                                                                                                                fallbackProperty)
+                                                                                      : "";
   }
   
   private static String getProfilePropertyValue(Profile profile, String propertyName) {
@@ -737,35 +725,6 @@ public class EntityBuilder {
       }
     }
     return new ArrayList<>(properties.values());
-  }
-
-  public static void buildPhoneEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
-    List<Map<String, String>> phones = profile.getPhones();
-    if (phones != null && !phones.isEmpty()) {
-      List<PhoneEntity> phoneEntities = new ArrayList<>();
-      for (Map<String, String> phone : phones) {
-        String phoneType = phone.get("key");
-        if (canViewProperties || isProfilePropertyVisible(phoneType)) {
-          phoneEntities.add(new PhoneEntity(phoneType, phone.get("value")));
-        }
-      }
-      userEntity.setPhones(phoneEntities);
-    }
-  }
-
-  public static void buildImEntities(Profile profile, ProfileEntity userEntity, boolean canViewProperties) {
-    @SuppressWarnings("unchecked")
-    List<Map<String, String>> ims = (List<Map<String, String>>) profile.getProperty(Profile.CONTACT_IMS);
-    if (ims != null && !ims.isEmpty()) {
-      List<IMEntity> imEntities = new ArrayList<>();
-      for (Map<String, String> im : ims) {
-        String imType = im.get("key");
-        if (canViewProperties || isProfilePropertyVisible(imType)) {
-          imEntities.add(new IMEntity(imType, im.get("value")));
-        }
-      }
-      userEntity.setIms(imEntities);
-    }
   }
 
   public static void buildUrlEntities(Profile profile, ProfileEntity userEntity) {

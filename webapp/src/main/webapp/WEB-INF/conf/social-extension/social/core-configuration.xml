@@ -584,7 +584,7 @@
         <init-params>
             <value-param>
                 <name>synchronizationDisabledProperties</name>
-                <value>fullName,firstName,lastName,email,phones,phones.work,phones.home,phones.other,ims,ims.facebook,ims.msn,ims.jitsi,ims.skype,ims.other</value>
+                <value>fullName,firstName,lastName,email</value>
             </value-param>
             <value-param>
                 <name>unHiddenableProperties</name>
@@ -592,7 +592,7 @@
             </value-param>
             <value-param>
                 <name>excludedQuickSearchProperties</name>
-                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,phones,ims,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
+                <value>${social.profile.excluded.quickSearch.properties:fullName,firstName,lastName,email,urls,acceptedTermsAndConditions,github,passwordSalt128,user.other-info.external}</value>
             </value-param>
             <value-param>
                 <name>excludedAnalyticsIndexProperties</name>

@@ -129,22 +129,22 @@ public class Profile {
   public static final String ENROLLMENT_DATE          = "enrollmentDate";
 
   /** SYNCHRONIZED DATE. */
-  public static final String SYNCHRONIZED_DATE          = "synchronizedDate";
+  public static final String SYNCHRONIZED_DATE        = "synchronizedDate";
 
   /** LAST LOGIN TIME. */
-  public static final String LAST_LOGIN_TIME            = "lastLoginTime";
+  public static final String LAST_LOGIN_TIME          = "lastLoginTime";
+
+  /** DISPLAYED EMAIL PROFILE PROPERTY. */
+  public static final String  DISPLAYED_PHONE         = "displayedPhone";
+
+  /** DISPLAYED PHONE PROFILE PROPERTY. */
+  public static final String  DISPLAYED_EMAIL         = "displayedEmail";
   
   /**
    * An optional url for this profile
    */
   @Deprecated
   public static final String  URL                     = "Url";
-
-  /** PHONES key. */
-  public static final String  CONTACT_PHONES          = "phones";
-
-  /** IMS key. */
-  public static final String  CONTACT_IMS             = "ims";
 
   /** URLS key. */
   public static final String  CONTACT_URLS            = "urls";
@@ -236,7 +236,7 @@ public class Profile {
   static {
     updateTypes.put(UpdateType.POSITION, new String[] { POSITION });
     updateTypes.put(UpdateType.BASIC_INFOR, new String[] { FIRST_NAME, LAST_NAME, EMAIL });
-    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_PHONES, CONTACT_IMS, CONTACT_URLS });
+    updateTypes.put(UpdateType.CONTACT, new String[] { GENDER, CONTACT_URLS });
     updateTypes.put(UpdateType.EXPERIENCES, new String[] { EXPERIENCES });
     updateTypes.put(UpdateType.AVATAR, new String[] { AVATAR });
     updateTypes.put(UpdateType.BANNER, new String[] { BANNER });
@@ -685,16 +685,6 @@ public class Profile {
    */
   public final String getGender() {
     return (String) getProperty(Profile.GENDER);
-  }
-
-  /**
-   * Gets Phones
-   * 
-   * @return list of user's number phone
-   * @since 4.0.0.Alpha1
-   */
-  public final List<Map<String, String>> getPhones() {
-    return (List<Map<String, String>>) getProperty(Profile.CONTACT_PHONES);
   }
 
   public long getCreatedTime() {

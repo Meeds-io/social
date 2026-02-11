@@ -2870,24 +2870,7 @@
       <adapter>
         (function() {
           <include>/js/lib/autolinker.min.js</include>
-          Vue.directive('autolinker',(el, binding) => el.innerHTML = Autolinker.link(binding.value, {
-            sanitizeHtml: true,
-            replaceFn : function (match) {
-              switch(match.getType()) {
-                case 'url' :
-                  if(match.getUrl().indexOf('/') === 0 || match.getUrl().indexOf(window.location.origin) === 0) {
-                    return true;
-                  } else {
-                    const tag = match.buildTag();
-                    tag.setAttr('target', '_blank');
-                    tag.setAttr('rel', 'nofollow noopener noreferrer');
-                    return tag;
-                  }
-                default :
-                  return true;
-              }
-            }
-          }));
+          <include>/js/autolinker.directive.js</include>
           return Autolinker;
         })();
       </adapter>
@@ -3412,6 +3395,21 @@
     <depends>
       <module>vuetify</module>
     </depends>
+    <depends>
+      <module>eXoVueI18n</module>
+    </depends>
+    <depends>
+      <module>extensionRegistry</module>
+    </depends>
+  </module>
+
+  <module>
+    <name>profilePropertiesPopoverExtension</name>
+    <load-group>popoverGRP</load-group>
+    <script>
+      <minify>false</minify>
+      <path>/js/profilePropertiesExtensions.bundle.js</path>
+    </script>
     <depends>
       <module>eXoVueI18n</module>
     </depends>

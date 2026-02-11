@@ -95,6 +95,8 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
   private List<String>                               excludedAnalyticsIndexProps            = new ArrayList<>();
 
   private static final String                        USER_CARD_SETTINGS                     = "UserCardSettings";
+  
+  private static final String                        USER_TYPE                              = "user";
 
   public ProfilePropertyServiceImpl(InitParams params,
                                     ProfileSettingStorage profileSettingStorage,
@@ -217,14 +219,13 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     }
     ProfilePropertySetting createdProfilePropertySetting =
                                                          profileSettingStorage.getProfileSettingById(profilePropertySetting.getId());
+    
     if (createdProfilePropertySetting != null && isDefaultProperties(profilePropertySetting)) {
       profilePropertySetting.setMultiValued(createdProfilePropertySetting.isMultiValued());
     }
-    // Prevent any attempt to update the property type of created property
-    // setting
-    if (createdProfilePropertySetting != null) {
-      profilePropertySetting.setPropertyType(createdProfilePropertySetting.getPropertyType());
-    }
+
+    validatePropertySettingType(createdProfilePropertySetting, profilePropertySetting);
+
     profilePropertySetting.setUpdated(System.currentTimeMillis());
     ProfilePropertySetting updatedPropertySetting =
                                                   profileSettingStorage.saveProfilePropertySetting(profilePropertySetting, false);
@@ -358,6 +359,18 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
 
     if (profilePropertySetting.isDropdownList() && !"text".equals(profilePropertySetting.getPropertyType())) {
       throw new IllegalArgumentException("Only text properties can be dropdown lists.");
+    }
+  }
+
+  private void validatePropertySettingType(ProfilePropertySetting existingProperty, ProfilePropertySetting updatedProperty) {
+    if (existingProperty == null) {
+      return;
+    }
+    String existingType = existingProperty.getPropertyType();
+    String updatedType = updatedProperty.getPropertyType();
+
+    if (!existingType.equals(updatedType) && USER_TYPE.equals(existingType) || USER_TYPE.equals(updatedType)) {
+      throw new IllegalArgumentException("Changing profile property type to or from USER type is not allowed.");
     }
   }
 

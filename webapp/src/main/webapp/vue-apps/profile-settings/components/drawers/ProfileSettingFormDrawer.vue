@@ -68,7 +68,7 @@
             {{ $t('profileSettings.label.propertyType') }}
             <v-tooltip
               bottom
-              :disabled="newSetting && !isDropdownList">
+              :disabled="(newSetting && !isDropdownList) || (!newSetting && !isUserType)">
               <template #activator="{ on, attrs }">
                 <div
                   v-bind="attrs"
@@ -77,9 +77,10 @@
                     ref="propertyType"
                     v-model="setting.propertyType"
                     :items="propertyTypes"
-                    :disabled="!newSetting || isDropdownList"
+                    :disabled="!newSetting && (isDropdownList || isUserType)"
                     :placeholder="!setting?.propertyType && $t('profileSettings.placeholder.propertyType')"
                     :rules="[v => !!v || $t('profileSettings.message.field.required')]"
+                    item-disabled="disabled"
                     name="propertyType"
                     class="pt-3"
                     item-text="label"
@@ -92,7 +93,7 @@
               <span v-if="isDropdownList && newSetting">
                 {{ $t('profileSettings.dropdownList.disabled.propertyType.info') }}
               </span>
-              <span v-else>
+              <span v-else-if="!newSetting && isUserType">
                 {{ $t('profileSettings.propertyType.disabled.label') }}
               </span>
             </v-tooltip>
@@ -416,7 +417,14 @@ export default {
     propertyTypes () {
       return !this.isDropdownList && [
         {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'},
-        {label: this?.$t('profileSettings.label.user.propertyType'), value: 'user'}
+        {
+          label: this?.$t('profileSettings.label.user.propertyType'),
+          value: 'user',
+          disabled: !this.newSetting && !this.isUserType
+        },
+        {label: this?.$t('profileSettings.label.call.propertyType'), value: 'call'},
+        {label: this?.$t('profileSettings.label.messaging.propertyType'), value: 'messaging'},
+        {label: this?.$t('profileSettings.label.email.propertyType'), value: 'email'}
       ] || [
         {label: this?.$t('profileSettings.label.text.propertyType'), value: 'text'}];
     },
@@ -603,7 +611,7 @@ export default {
     },
     areSettingsEqual(initialSetting, setting) {
       const fields = ['id', 'active', 'groupSynchronized', 'multiValued', 'propertyOptions',
-        'dropdownList', 'visible', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
+        'dropdownList', 'visible', 'propertyType', 'required', 'editable', 'hiddenable', 'indexInAnalytics'
       ];
       for (const field of fields) {
         if (field === 'propertyOptions') {

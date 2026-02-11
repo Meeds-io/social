@@ -176,6 +176,10 @@ public class UserRest implements ResourceContainer, Startable {
 
   private static final String             THIRD_USER_FIELD            = "thirdField";
 
+  private static final String             USER_DISPLAYED_PHONE        = "displayedPhone";
+
+  private static final String             USER_DISPLAYED_EMAIL        = "displayedEmail";
+
   private static final String             SECOND_USER_FIELD           = "secondField";
 
   private static final String             FIRST_USER_FIELD            = "firstField";
@@ -1230,22 +1234,7 @@ public class UserRest implements ResourceContainer, Startable {
     for (String key : profileEntity.getDataEntity().keySet()) {
       if (profileEntity.getDataEntity().get(key) instanceof List<?>) {
         List<Map<String, String>> properties = new ArrayList<>();
-        if (key.equalsIgnoreCase(Profile.CONTACT_IMS)) {
-          List<IMEntity> imsEntities = (List<IMEntity>) profileEntity.getDataEntity().get(key);
-          for (IMEntity im : imsEntities) {
-            Map<String, String> imMap = new HashMap<>();
-            imMap.put(im.getImType(), im.getImId());
-            properties.add(imMap);
-          }
-        } else if (key.equalsIgnoreCase(Profile.CONTACT_PHONES)) {
-          List<PhoneEntity> phoneEntities = (List<PhoneEntity>) profileEntity.getDataEntity().get(key);
-          for (PhoneEntity phoneEntity : phoneEntities) {
-            Map<String, String> phoneMap = new HashMap<>();
-            phoneMap.put(phoneEntity.getPhoneType(), phoneEntity.getPhoneNumber());
-            properties.add(phoneMap);
-          }
-
-        } else if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
+        if (key.equalsIgnoreCase(Profile.CONTACT_URLS)) {
           List<URLEntity> urlEntities = (List<URLEntity>) profileEntity.getDataEntity().get(key);
           for (URLEntity url : urlEntities) {
             Map<String, String> urlMap = new HashMap<>();
@@ -1820,8 +1809,13 @@ public class UserRest implements ResourceContainer, Startable {
     SettingValue<?> userCardThirdFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
                                                                    new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
                                                                    "UserCardThirdFieldSetting");
-
-    JSONObject userCardSettings = new JSONObject();
+    SettingValue<?> userDisplayedPhoneFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                    new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                    "UserDisplayedPhonePropertySetting");
+    SettingValue<?> userDisplayedEmailFieldSetting = settingService.get(org.exoplatform.commons.api.settings.data.Context.GLOBAL,
+                                                                     new Scope(Scope.GLOBAL.getName(), USER_CARD_SETTINGS),
+                                                                     "UserDisplayedEmailPropertySetting");
+    Map<String, Object> userCardSettings = new HashMap<>();
     if (userCardFirstFieldSetting != null) {
       userCardSettings.put(FIRST_USER_FIELD, userCardFirstFieldSetting.getValue());
     } else {
@@ -1837,14 +1831,22 @@ public class UserRest implements ResourceContainer, Startable {
     } else {
       userCardSettings.put(THIRD_USER_FIELD, "city");
     }
+    if (userDisplayedPhoneFieldSetting != null) {
+      userCardSettings.put(USER_DISPLAYED_PHONE, userDisplayedPhoneFieldSetting.getValue());
+    }
+    if (userDisplayedEmailFieldSetting != null) {
+      userCardSettings.put(USER_DISPLAYED_EMAIL, userDisplayedEmailFieldSetting.getValue());
+    }
 
     String eTagValue = String.valueOf(Objects.hash(userCardSettings.get(FIRST_USER_FIELD),
                                                    userCardSettings.get(SECOND_USER_FIELD),
-                                                   userCardSettings.get(THIRD_USER_FIELD)));
+                                                   userCardSettings.get(THIRD_USER_FIELD),
+                                                   userCardSettings.get(USER_DISPLAYED_PHONE),
+                                                   userCardSettings.get(USER_DISPLAYED_EMAIL)));
     EntityTag eTag = new EntityTag(eTagValue, true);
     Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);
     if (builder == null) {
-      builder = Response.ok(userCardSettings.toString(), MediaType.APPLICATION_JSON);
+      builder = Response.ok(new JSONObject(userCardSettings).toString(), MediaType.APPLICATION_JSON);
       builder.tag(eTag);
       builder.cacheControl(CACHE_CONTROL);
     }

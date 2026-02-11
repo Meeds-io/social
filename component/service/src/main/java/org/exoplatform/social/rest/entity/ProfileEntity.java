@@ -25,11 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.exoplatform.social.core.identity.model.Profile;
 
 public class ProfileEntity extends BaseEntity {
-  public static final String IMS                     = "ims";
 
   public static final String EXPERIENCES             = "experiences";
-
-  public static final String PHONES                  = "phones";
 
   public static final String ABOUT_ME                = "aboutMe";
 
@@ -97,11 +94,15 @@ public class ProfileEntity extends BaseEntity {
 
   public static final String MANAGED_USERS_COUNT     = "managedUsersCount";
 
-  public static final String PRIMARY_PROPERTY   = "primaryProperty";
+  public static final String PRIMARY_PROPERTY        = "primaryProperty";
 
-  public static final String SECONDARY_PROPERTY = "secondaryProperty";
+  public static final String SECONDARY_PROPERTY      = "secondaryProperty";
 
-  public static final String TERTIARY_PROPERTY  = "tertiaryProperty";
+  public static final String TERTIARY_PROPERTY       = "tertiaryProperty";
+
+  public static final String DISPLAYED_PHONE         = "displayedPhone";
+
+  public static final String DISPLAYED_EMAIL         = "displayedEmail";
 
   public ProfileEntity() {
   }
@@ -425,15 +426,6 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
 
-  public void setPhones(List<PhoneEntity> phones) {
-    setProperty(PHONES, phones);
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<PhoneEntity> getPhones() {
-    return (List<PhoneEntity>) getProperty(PHONES);
-  }
-
   public ProfileEntity setExperiences(List<ExperienceEntity> experiences) {
     setProperty(EXPERIENCES, experiences);
     return this;
@@ -442,16 +434,6 @@ public class ProfileEntity extends BaseEntity {
   @SuppressWarnings("unchecked")
   public List<ExperienceEntity> getExperiences() {
     return (List<ExperienceEntity>) getProperty(EXPERIENCES);
-  }
-
-  public ProfileEntity setIms(List<IMEntity> ims) {
-    setProperty(IMS, ims);
-    return this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<IMEntity> getIms() {
-    return (List<IMEntity>) getProperty(IMS);
   }
 
   public ProfileEntity setUrls(List<URLEntity> urls) {
@@ -584,8 +566,26 @@ public class ProfileEntity extends BaseEntity {
     return this;
   }
   
-  public String getSynchronizedDate() { 
-    return getString(SYNCHRONIZED_DATE); 
+  public ProfileEntity setPhoneProperty(String phone) {
+    setProperty(DISPLAYED_PHONE, phone);
+    return this;
+  }
+
+  public ProfileEntity setEmailProperty(String email) {
+    setProperty(DISPLAYED_EMAIL, email);
+    return this;
+  }
+
+  public String getPhoneProperty() {
+    return getString(DISPLAYED_PHONE);
+  }
+
+  public String getEmailProperty() {
+    return getString(DISPLAYED_EMAIL);
+  }
+
+  public String getSynchronizedDate() {
+    return getString(SYNCHRONIZED_DATE);
   }
 
   public static String getFieldName(String name) {
@@ -605,10 +605,6 @@ public class ProfileEntity extends BaseEntity {
       return Profile.BANNER;
     } else if (StringUtils.equals(ABOUT_ME, name)) {
       return Profile.ABOUT_ME;
-    } else if (StringUtils.equals(PHONES, name)) {
-      return Profile.CONTACT_PHONES;
-    } else if (StringUtils.equals(IMS, name)) {
-      return Profile.CONTACT_IMS;
     } else if (StringUtils.equals(URLS, name)) {
       return Profile.CONTACT_URLS;
     } else if (StringUtils.equals(EXPERIENCES, name)) {

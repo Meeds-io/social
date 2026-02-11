@@ -90,6 +90,8 @@ export default {
       userCardFirstFieldSettingKey: 'UserCardFirstFieldSetting',
       userCardSecondFieldSettingKey: 'UserCardSecondFieldSetting',
       userCardThirdFieldSettingKey: 'UserCardThirdFieldSetting',
+      userPhonePropertyKey: 'UserDisplayedPhonePropertySetting',
+      userEmailPropertyKey: 'UserDisplayedEmailPropertySetting',
       isSavingCardSettings: false,
       savedCardSettings: null,
       settingOptionObjectType: 'propertySettingOption',
@@ -149,19 +151,33 @@ export default {
       return !this.selectedOption || this.userCardSettingsSelected;
     },
     userCardFilteredFieldSettings() {
-      return this.settings.filter(setting => !setting.multiValued && setting.propertyType === 'text'
+      return this.settings.filter(setting => !setting.multiValued && setting.propertyType !== 'user'
                                                                   && !setting?.children?.length
                                                                   && !this.unHiddenableProperties?.includes(setting.propertyName))
         .map(setting => {
-          return {label: this.getResolvedName(setting), value: setting.propertyName};
+          return {
+            label: this.getResolvedName(setting),
+            value: setting.propertyName,
+            type: setting.propertyType,
+            active: setting.active};
         });
     }
   },
   methods: {
     getCurrentUser() {
-      return this.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve).then(user => {
-        this.user = user?.profile;
-      });
+      return this.$identityService.getIdentityById(eXo?.env?.portal?.userIdentityId, this.fieldsToRetrieve)
+        .then(user => {
+          const profile = user?.profile || {};
+          const dataEntity = profile?.dataEntity || {};
+
+          this.user = {
+            ...profile,
+            enabled: dataEntity.enabled,
+            external: dataEntity.external,
+            deleted: dataEntity.deleted,
+          };
+        });
+
     },
     setMainPageSelected() {
       this.selectedOption = null;
@@ -288,24 +304,39 @@ export default {
     getSavedUserCardSettings() {
       return this.$userService.getUserCardSettings().then(userCardSettings => this.savedCardSettings = userCardSettings);
     },
-    saveUserCardSettings(firstField, secondField, thirdField) {
+    saveUserCardSettings(settings) {
       this.isSavingCardSettings = true;
-      return this.saveCardSetting(this.userCardFirstFieldSettingKey, firstField).then(() => {
-        return this.saveCardSetting(this.userCardSecondFieldSettingKey, secondField).then(() => {
-          return this.saveCardSetting(this.userCardThirdFieldSettingKey, thirdField).then(() => {
-            this.savedCardSettings = {
-              firstField: firstField,
-              secondField: secondField,
-              thirdField: thirdField
-            };
-            this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.success'), 'success');
-            this.getSettings();
-            this.$refs.userCardSettings.close();
-          }).catch(() => {
-            this.$root.$emit('alert-message', this.$t('profileSettings.userCard.settings.saved.error'), 'error');
-          }).finally(() => this.isSavingCardSettings = false);
+      return this.saveCardSetting(this.userCardFirstFieldSettingKey, settings.firstField)
+        .then(() => this.saveCardSetting(this.userCardSecondFieldSettingKey, settings.secondField))
+        .then(() => this.saveCardSetting(this.userCardThirdFieldSettingKey, settings.thirdField))
+        .then(() => this.saveCardSetting(this.userPhonePropertyKey, settings.displayedPhone))
+        .then(() => this.saveCardSetting(this.userEmailPropertyKey, settings.displayedEmail))
+        .then(() => {
+          this.savedCardSettings = {
+            firstField: settings.firstField,
+            secondField: settings.secondField,
+            thirdField: settings.thirdField,
+            displayedPhone: settings.displayedPhone,
+            displayedEmail: settings.displayedEmail,
+          };
+          this.$root.$emit(
+            'alert-message',
+            this.$t('profileSettings.userCard.settings.saved.success'),
+            'success'
+          );
+          this.getSettings();
+          this.$refs.userCardSettings.close();
+        })
+        .catch(() => {
+          this.$root.$emit(
+            'alert-message',
+            this.$t('profileSettings.userCard.settings.saved.error'),
+            'error'
+          );
+        })
+        .finally(() => {
+          this.isSavingCardSettings = false;
         });
-      });
     },
     openDropdownListDrawer(setting) {
       this.$refs.dropdownListDrawer.open(setting);
