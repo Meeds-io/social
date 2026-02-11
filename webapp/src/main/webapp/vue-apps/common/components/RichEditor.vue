@@ -763,7 +763,6 @@ export default {
     updateInput(content) {
       if (this.editorReady) {
         const message = this.getContentToSave(content);
-        this.inputVal = message;
         if (!this.activityId && this.useDraftManagement && this.contextName) {
           localStorage.setItem(`activity-message-${this.contextName}`,  JSON.stringify({'url': this.baseUrl, 'text': this.inputVal}));
         }
