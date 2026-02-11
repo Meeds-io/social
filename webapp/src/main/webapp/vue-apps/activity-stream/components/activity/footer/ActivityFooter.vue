@@ -8,7 +8,7 @@
     <div
       v-if="activityReactionEnabled"
       :class="actionBarBorderClass"
-      class="mb-0 d-flex flex-wrap flex-column flex-lg-row align-lg-center">
+      class="mb-0 d-flex flex-wrap">
       <activity-reactions
         :activity-id="activityId"
         :activity="activity"
@@ -64,7 +64,7 @@ export default {
       return this.activity && this.activity.id;
     },
     actionBarBorderClass() {
-      return this.isDesktop && 'border-top-color border-light-color' || '';
+      return (this.isDesktop && !this.$root.reducedWidth) && 'flex-row align-center border-top-color border-light-color' || 'flex-column';
     },
     isDesktop() {
       return this.$vuetify.breakpoint.width >= this.$vuetify.breakpoint.thresholds.lg;
