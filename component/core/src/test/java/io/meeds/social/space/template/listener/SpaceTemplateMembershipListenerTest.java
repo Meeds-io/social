@@ -34,6 +34,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Mockito.mock;
@@ -44,6 +45,8 @@ import static org.mockito.Mockito.when;
 public class SpaceTemplateMembershipListenerTest {
 
   private static final String SPACE_TEMPLATE_CREATED_EVENT = "space.template.created";
+
+  private static final String SPACE_TEMPLATE_UPDATED_EVENT = "space.template.updated";
 
   @Mock
   private ListenerService listenerService;
@@ -92,4 +95,40 @@ public class SpaceTemplateMembershipListenerTest {
     verify(identityRegistry).unregister(userName);
     verify(conversationRegistry).unregisterByUserId(userName);
   }
+
+  @Test
+  public void shouldClearCacheAndRefreshIdentitiesOnUpdate() throws Exception {
+    // Given
+    String groupId = "/space_templates/test";
+    String enclosingGroupId = "/enclosing/test";
+    String userName = "john";
+
+    SpaceTemplate storedTemplate = mock(SpaceTemplate.class);
+    SpaceTemplate updatedTemplate = mock(SpaceTemplate.class);
+
+    Identity identity = mock(Identity.class);
+    MembershipEntry membershipEntry = mock(MembershipEntry.class);
+
+    when(identity.getUserId()).thenReturn(userName);
+    when(identity.getMemberships()).thenReturn(List.of(membershipEntry));
+    when(identityRegistry.getIdentities()).thenReturn(List.of(identity));
+
+    when(storedTemplate.getGroupId()).thenReturn(groupId);
+    when(updatedTemplate.getGroupId()).thenReturn(groupId);
+
+    when(storedTemplate.getEnclosingMemberships()).thenReturn(List.of(String.format("*:~:%s", enclosingGroupId)));
+
+    when(updatedTemplate.getEnclosingMemberships()).thenReturn(Collections.emptyList());
+
+    when(membershipEntry.getGroup()).thenReturn(groupId);
+
+    Event<SpaceTemplate, SpaceTemplate> event = new Event<>(SPACE_TEMPLATE_UPDATED_EVENT, storedTemplate, updatedTemplate);
+    // When
+    listener.onEvent(event);
+    // Then
+    verify(groupHandler).clearGroupCache(groupId);
+    verify(identityRegistry).unregister(userName);
+    verify(conversationRegistry).unregisterByUserId(userName);
+  }
+
 }
