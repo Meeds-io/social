@@ -146,6 +146,7 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       break;
       case SPACE_TEMPLATE_APPLIED:
         listener.templateApplied(event);
+        break;
     default:
       break;
     }

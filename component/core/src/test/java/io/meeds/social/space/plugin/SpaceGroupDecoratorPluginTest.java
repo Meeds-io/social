@@ -34,8 +34,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Set;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -76,6 +79,17 @@ public class SpaceGroupDecoratorPluginTest {
 
     Group result = spaceGroupDecoratorPlugin.decorate(group);
     verifyNoInteractions(spaceService);
+    Assert.assertEquals(result.getEnclosingMemberships(), group.getEnclosingMemberships());
+  }
+
+  @Test
+  public void shouldReturnGroupAsIs_whenSpaceIsNull() {
+    when(group.getId()).thenReturn("/spaces/not_found_space");
+    when(spaceService.getSpaceByGroupId(anyString())).thenReturn(null);
+
+    Group result = spaceGroupDecoratorPlugin.decorate(group);
+    verify(spaceService).getSpaceByGroupId(group.getId());
+    verifyNoInteractions(spaceTemplateService);
     Assert.assertEquals(result.getEnclosingMemberships(), group.getEnclosingMemberships());
   }
 
