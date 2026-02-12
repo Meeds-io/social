@@ -42,13 +42,16 @@ import org.exoplatform.social.core.space.SpaceUtils;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 import org.exoplatform.web.security.security.CookieTokenService;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -100,14 +103,21 @@ public class SpaceServiceMockTest {
   @Mock
   private CookieTokenService       cookieTokenService;
 
-  @Mock
-  private SpaceLifecycle           spaceLifeCycle;
+  @Spy
+  private SpaceLifecycle           spaceLifeCycle = new SpaceLifecycle();
 
   @Mock
   ExoContainer                     container;
 
   @InjectMocks
   private SpaceServiceImpl         spaceService;
+
+  @Before
+  public void setUp() throws Exception {
+    Field field = SpaceServiceImpl.class.getDeclaredField("spaceLifeCycle");
+    field.setAccessible(true);
+    field.set(spaceService, spaceLifeCycle);
+  }
 
   @Test
   public void testCreateSubspace() throws Exception {
@@ -222,6 +232,22 @@ public class SpaceServiceMockTest {
     assertNotNull(result);
     assertEquals(count, result.getSize());
     verify(spaceStorage, times(1)).getAllSpacesByFilterCount(any(SpaceFilter.class));
+  }
+
+  @Test
+  public void testApplySpaceTemplate() {
+    Space storedSpace = mock(Space.class);
+    when(storedSpace.getTemplateId()).thenReturn(1L);
+    Space spaceToUpdate = mock(Space.class);
+    when(spaceToUpdate.getSpaceId()).thenReturn(1L);
+    when(spaceToUpdate.getTemplateId()).thenReturn(2L);
+    when(spaceToUpdate.getVisibility()).thenReturn(SpaceVisibility.PUBLIC.name());
+    when(spaceToUpdate.getEditor()).thenReturn("root");
+    when(storedSpace.getVisibility()).thenReturn(SpaceVisibility.PUBLIC.name());
+    when(spaceStorage.getSpaceById(anyLong())).thenReturn(storedSpace);
+    when(spaceStorage.saveSpace(any(Space.class), anyBoolean())).thenReturn(spaceToUpdate);
+    spaceService.updateSpace(spaceToUpdate);
+    verify(spaceLifeCycle).spaceTemplateApplied(spaceToUpdate, "root");
   }
 
 }
