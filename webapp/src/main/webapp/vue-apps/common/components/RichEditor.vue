@@ -565,17 +565,15 @@ export default {
         }
       });
     },
-    methods: {
-      cleanPastedText(text) {
-        if (!text) {
-          return text;
-        }
-        let cleaned = text;
-        cleaned = cleaned.replaceAll(/[\u200B-\u200D\uFEFF]/g, '');
-        cleaned = cleaned.replaceAll(/\u00A0/g, ' ');
-        cleaned = cleaned.replaceAll(/\s+/g, ' ');
-        return cleaned;
+    cleanPastedText(text) {
+      if (!text) {
+        return text;
       }
+      let cleaned = text;
+      cleaned = cleaned.replaceAll(/[\u200B-\u200D\uFEFF]/g, '');
+      cleaned = cleaned.replaceAll(/\u00A0/g, ' ');
+      cleaned = cleaned.replaceAll(/\s+/g, ' ');
+      return cleaned;
     },
     destroyCKEditor: function () {
       this.editor?.destroy?.(true);
