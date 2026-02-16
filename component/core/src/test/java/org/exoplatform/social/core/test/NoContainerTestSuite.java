@@ -18,7 +18,11 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
 import io.meeds.social.upgrade.RemoveProfilePropertyUpgradePlugin;
+import io.meeds.social.space.plugin.SpaceGroupDecoratorPluginTest;
+import io.meeds.social.space.template.listener.SpaceTemplateMembershipListenerTest;
+import io.meeds.social.space.template.plugin.decorator.SpaceTemplateGroupDecoratorPluginTest;
 import org.exoplatform.social.core.space.spi.SpaceServiceMockTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -78,6 +82,10 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     SpaceSearchConnectorTest.class,
     SpaceTemplateBannerAttachmentPluginTest.class,
     SpaceTemplateTranslationPluginTest.class,
+    SpaceTemplateGroupDecoratorPluginTest.class,
+    SpaceGroupDecoratorPluginTest.class,
+    SpaceTemplateMembershipListenerTest.class,
+    SpaceGroupCacheListenerTest.class,
     SpaceTemplateDatabindPluginTest.class,
     SpaceTemplateStorageTest.class,
     SpaceTemplateServiceTest.class,

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import org.exoplatform.portal.config.UserACL;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -78,11 +79,14 @@ public class ActivityOberverPluginTest {
   @Mock
   private org.exoplatform.services.security.Identity aclIdentity;
 
+  @Mock
+  private UserACL                                    userACL;
+
   ActivityOberverPlugin                              activityOberverPlugin;
 
   @Before
   public void setUp() {
-    activityOberverPlugin = new ActivityOberverPlugin(activityManager, identityManager, organizationService, identityRegistry);
+    activityOberverPlugin = new ActivityOberverPlugin(activityManager, identityManager, userACL);
     when(identity.getRemoteId()).thenReturn(USER_NAME);
     when(activity.getSpaceId()).thenReturn(SPACE_ID);
     when(activity.getActivityStream()).thenReturn(activityStream);
@@ -100,8 +104,8 @@ public class ActivityOberverPluginTest {
     when(activityManager.getActivity(OBJECT_ID)).thenReturn(activity);
     assertThrows(ObjectNotFoundException.class, () -> activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
     when(identityManager.getIdentity(IDENTITY_ID)).thenReturn(identity);
+    when(userACL.getUserIdentity(USER_NAME)).thenThrow(IllegalStateException.class).thenReturn(aclIdentity);
     assertThrows(IllegalStateException.class, () -> activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
-    when(identityRegistry.getIdentity(USER_NAME)).thenReturn(aclIdentity);
     assertFalse(activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));
     when(activityManager.isActivityViewable(activity, aclIdentity)).thenReturn(true);
     assertTrue(activityOberverPlugin.canObserve(IDENTITY_ID, OBJECT_ID));

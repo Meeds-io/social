@@ -36,4 +36,5 @@ public interface SpaceTemplateDAO extends JpaRepository<SpaceTemplateEntity, Lon
 
   Optional<SpaceTemplateEntity> findByLayout(String layout);
 
+  Optional<SpaceTemplateEntity> findByGroupId(String groupId);
 }
