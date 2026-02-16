@@ -38,16 +38,6 @@
         </v-tab-item>
       </v-tabs-items>
     </template>
-    <template v-if="hasMoreLikers" slot="footer">
-      <v-btn
-        :loading="loading"
-        :disabled="loading"
-        block
-        class="btn pa-0"
-        @click="loadMore">
-        {{ $t('Search.button.loadMore') }}
-      </v-btn>
-    </template>
   </exo-drawer>
 </template>
 
