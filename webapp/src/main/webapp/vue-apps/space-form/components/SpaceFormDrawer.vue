@@ -654,8 +654,8 @@ export default {
           this.templates = this.$root.spaceTemplates;
         }
       }
-      if (!this.subspaceTemplateIds) {
-        if (!this.$root.subspaceTemplateIds) {
+      if (!this.subspaceTemplateIds?.length) {
+        if (!this.$root?.subspaceTemplateIds) {
           try {
             this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
           } catch (e) {
