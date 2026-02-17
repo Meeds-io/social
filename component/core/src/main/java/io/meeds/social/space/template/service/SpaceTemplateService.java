@@ -57,6 +57,8 @@ import io.meeds.social.space.template.plugin.translation.SpaceTemplateTranslatio
 import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.translation.service.TranslationService;
 
+import lombok.SneakyThrows;
+
 @Service
 public class SpaceTemplateService {
 
@@ -487,21 +489,18 @@ public class SpaceTemplateService {
     return NumberUtils.isCreatable(idPart) ? Long.parseLong(idPart) : null;
   }
 
-  private String createSpaceTemplateGroup(SpaceTemplate spaceTemplate) throws ObjectNotFoundException {
-    try {
-      GroupHandler groupHandler = organizationService.getGroupHandler();
-      Group parentGroup = groupHandler.findGroupById(SPACE_TEMPLATES_GROUP_ID);
-      String shortName = Utils.cleanString(spaceTemplate.getName());
-      String groupId = parentGroup.getId() + "/" + shortName;
-      Group newGroup = groupHandler.createGroupInstance();
-      newGroup.setGroupName(shortName);
-      newGroup.setLabel(spaceTemplate.getName());
-      newGroup.setDescription(spaceTemplate.getDescription());
-      groupHandler.addChild(parentGroup, newGroup, true);
-      return groupId;
-    } catch (Exception exception) {
-      throw new ObjectNotFoundException(String.format("Error when creating space template group for space template: %s", spaceTemplate.getName()));
-    }
+  @SneakyThrows
+  private String createSpaceTemplateGroup(SpaceTemplate spaceTemplate) {
+    GroupHandler groupHandler = organizationService.getGroupHandler();
+    Group parentGroup = groupHandler.findGroupById(SPACE_TEMPLATES_GROUP_ID);
+    String shortName = Utils.cleanString(spaceTemplate.getName());
+    String groupId = parentGroup.getId() + "/" + shortName;
+    Group newGroup = groupHandler.createGroupInstance();
+    newGroup.setGroupName(shortName);
+    newGroup.setLabel(spaceTemplate.getName());
+    newGroup.setDescription(spaceTemplate.getDescription());
+    groupHandler.addChild(parentGroup, newGroup, true);
+    return groupId;
   }
 
   private Locale getDefaultLocale() {
