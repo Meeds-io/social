@@ -40,14 +40,9 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
 import io.meeds.social.space.model.SpaceCreationInstance;
@@ -92,6 +87,8 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
+import org.exoplatform.web.security.codec.AbstractCodec;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
@@ -100,36 +97,46 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import lombok.SneakyThrows;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log         LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class);
+  private static final Log            LOG                     = ExoLogger.getLogger(SpaceServiceImpl.class);
 
-  private static final int         MAX_SPACE_NAME_LENGTH = 200;
+  private static final int            MAX_SPACE_NAME_LENGTH   = 200;
 
-  private SpaceStorage             spaceStorage;
+  private static final SecureRandom   SECURE_RANDOM           = new SecureRandom();
 
-  private SpaceSearchConnector     spaceSearchConnector;
+  private static final int            NONCE_LENGTH            = 12;
 
-  private GroupSpaceBindingStorage groupSpaceBindingStorage;
+  private static final Base64.Encoder URL_ENCODER             = Base64.getUrlEncoder().withoutPadding();
 
-  private IdentityManager          identityManager;
+  private SpaceStorage                spaceStorage;
 
-  private UserACL                  userAcl;
+  private SpaceSearchConnector        spaceSearchConnector;
 
-  private ResourceBundleService    resourceBundleService;
+  private GroupSpaceBindingStorage    groupSpaceBindingStorage;
 
-  private LocaleConfigService      localeConfigService;
+  private IdentityManager             identityManager;
 
-  private OrganizationService      organizationService;
+  private UserACL                     userAcl;
 
-  private SpaceTemplateService     spaceTemplateService;
+  private ResourceBundleService       resourceBundleService;
 
-  private FileService              fileService;
+  private LocaleConfigService         localeConfigService;
 
-  private CookieTokenService       cookieTokenService;
+  private OrganizationService         organizationService;
 
-  private SpaceLifecycle           spaceLifeCycle        = new SpaceLifecycle();
+  private SpaceTemplateService        spaceTemplateService;
+
+  private FileService                 fileService;
+
+  private CookieTokenService          cookieTokenService;
+
+  private SpaceLifecycle              spaceLifeCycle         = new SpaceLifecycle();
+
+  private static CodecInitializer     codecInitializer;
+
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
@@ -1121,6 +1128,23 @@ public class SpaceServiceImpl implements SpaceService {
 
   public void addSpaceListener(SpaceListenerPlugin plugin) {
     registerSpaceLifeCycleListener(plugin);
+  }
+
+  @Override
+  public String generateInvitationToken(Long spaceId, Long userIdentityId) throws TokenServiceInitializationException {
+    int nonceLength = NONCE_LENGTH;
+    byte[] bytes = new byte[nonceLength];
+    SECURE_RANDOM.nextBytes(bytes);
+    String nonce = URL_ENCODER.encodeToString(bytes).substring(0, nonceLength);
+    String payload = spaceId + ":" + userIdentityId + ":" + nonce;
+    return getCodec().encode(payload);
+  }
+
+  private static AbstractCodec getCodec() throws TokenServiceInitializationException {
+    if (codecInitializer == null) {
+      codecInitializer = CommonsUtils.getService(CodecInitializer.class);
+    }
+    return codecInitializer.getCodec();
   }
 
   private void copySpaceTemplateProperties(Space space,

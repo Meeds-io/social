@@ -749,3 +749,18 @@ export function muteSpace(spaceId, unmute) {
     }
   });
 }
+
+export function generateInvitationToken(spaceId) {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/invitationToken?spaceId=${spaceId}`, {
+    method: 'GET',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+  }).then(resp => {
+    if (!resp?.ok) {
+      throw new Error('Error while generating invitation token');
+    }
+    return resp.json();
+  });
+}

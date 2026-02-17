@@ -23,13 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.security.RolesAllowed;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -416,6 +410,46 @@ public class SpaceMembershipRest implements ResourceContainer {
     return Response.noContent().build();
   }
 
+	@GET
+	@Path("/invitationToken")
+	@RolesAllowed("users")
+	@Produces(MediaType.APPLICATION_JSON)
+	@Operation(summary = "Generate invitation token for a space", method = "GET", description = "Generates a secure invitation token for a space.")
+	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Invitation token generated"),
+			@ApiResponse(responseCode = "401", description = "User not authorized"),
+			@ApiResponse(responseCode = "404", description = "Space not found") })
+	public Response generateInvitationToken(@Parameter(description = "Space technical identifier", required = true)
+                                          @QueryParam("spaceId") String spaceId) {
+
+		if (StringUtils.isBlank(spaceId)) {
+			return Response.status(Response.Status.BAD_REQUEST).entity("spaceId is required").build();
+		}
+
+		String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
+
+		Space space = spaceService.getSpaceById(spaceId);
+		if (space == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+
+		if (!spaceService.canManageSpace(space, authenticatedUser)) {
+			return Response.status(Response.Status.UNAUTHORIZED).build();
+		}
+
+		try {
+			String invitationToken = spaceService.generateInvitationToken(Long.parseLong(spaceId),
+					RestUtils.getCurrentUserIdentityId());
+
+			DataEntity response = new DataEntity();
+			response.put("invitationToken", invitationToken);
+
+			return Response.ok(response).build();
+		} catch (Exception e) {
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+		}
+
+	}
+    
   private boolean canRetrieveSpaceMemberships(Space space, String targetUser, String authenticatedUser) {
     if (spaceService.isSuperManager(space, authenticatedUser)
         || (space == null && StringUtils.equals(targetUser, authenticatedUser))) {
