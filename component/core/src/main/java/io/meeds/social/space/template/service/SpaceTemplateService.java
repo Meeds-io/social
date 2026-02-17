@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -493,9 +494,10 @@ public class SpaceTemplateService {
   private String createSpaceTemplateGroup(SpaceTemplate spaceTemplate) {
     GroupHandler groupHandler = organizationService.getGroupHandler();
     Group parentGroup = groupHandler.findGroupById(SPACE_TEMPLATES_GROUP_ID);
-    String shortName = Utils.cleanString(spaceTemplate.getName());
+    String shortName = Utils.cleanString(Objects.requireNonNullElseGet(spaceTemplate.getName(), () -> UUID.randomUUID().toString()));
     String groupId = parentGroup.getId() + "/" + shortName;
     Group newGroup = groupHandler.createGroupInstance();
+    newGroup.setParentId(SPACE_TEMPLATES_GROUP_ID);
     newGroup.setGroupName(shortName);
     newGroup.setLabel(spaceTemplate.getName());
     newGroup.setDescription(spaceTemplate.getDescription());
