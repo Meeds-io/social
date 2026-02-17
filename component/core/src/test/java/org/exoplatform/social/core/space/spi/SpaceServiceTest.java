@@ -82,6 +82,7 @@ import io.meeds.social.space.template.storage.SpaceTemplateStorage;
 import io.meeds.social.space.template.utils.EntityMapper;
 
 import lombok.SneakyThrows;
+import org.exoplatform.web.security.codec.CodecInitializer;
 
 public class SpaceServiceTest extends AbstractCoreTest {
 
@@ -190,12 +191,15 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   private Identity            externalUser;
 
+  private CodecInitializer   codecInitializer;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
     identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
+    codecInitializer = getContainer().getComponentInstanceOfType(CodecInitializer.class);
 
     Identity userNew = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_NAME);
     Identity userNew1 = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_1_NAME);
@@ -2641,7 +2645,24 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   }
 
-  @SneakyThrows
+  public void testGenerateInvitationToken() throws Exception {
+
+    Space space = createSpace("tokenTestSpace", ROOT_NAME);
+    Long spaceId = Long.parseLong(space.getId());
+    Long johnIdentityId = Long.parseLong(john.getId());
+
+    // Token decodes to the expected payload format "<spaceId>:<InviterId>:<nonce>"
+    String token = spaceService.generateInvitationToken(spaceId, johnIdentityId);
+    String[] parts = codecInitializer.getCodec().decode(token).split(":");
+    assertEquals(3, parts.length);
+    assertEquals(String.valueOf(spaceId), parts[0]);
+    assertEquals(String.valueOf(johnIdentityId), parts[1]);
+
+    // Two calls for the same inputs produce different tokens (random nonce)
+    assertNotEquals(token, spaceService.generateInvitationToken(spaceId, johnIdentityId));
+  }
+
+    @SneakyThrows
   private void checkExternalUserMemberships() {
     Collection<Membership> internalMemberships = organizationService.getMembershipHandler()
                                                                     .findMembershipsByUserAndGroup(EXTERNAL_USER_NAME,
