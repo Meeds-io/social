@@ -31,6 +31,7 @@ import org.exoplatform.social.core.space.SpaceException;
 import org.exoplatform.social.core.space.SpaceFilter;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 /**
  * Provides methods to work with Space.
@@ -1233,4 +1234,27 @@ public interface SpaceService {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Generates a signed invitation token for the given space and user identity.
+   * <p>
+   * The generated token typically embeds the required information
+   * (e.g., space identifier and user identity identifier) and ensures
+   * its integrity through a cryptographic signature mechanism.
+   * </p>
+   *
+   * <p>
+   * The returned token can be embedded in an invitation link and shared
+   * with external users to grant them access to the specified space,
+   * according to the underlying invitation policy.
+   * </p>
+   *
+   * @param spaceId the unique identifier of the target space
+   * @param userIdentityId the unique identifier of the user identity generating the invitation
+   * @return a signed invitation token
+   * @throws TokenServiceInitializationException if the token service cannot be initialized
+   *         or if the token generation process fails
+   */
+  default String generateInvitationToken(Long spaceId, Long userIdentityId) throws TokenServiceInitializationException {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -34,6 +34,8 @@ import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
 
+import static org.junit.Assert.assertNotEquals;
+
 public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
   private static final String INVITED                      = "invited";
@@ -652,6 +654,35 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     assertEquals(200, response.getStatus());
     collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
+  }
+
+  public void testGenerateInvitationToken() throws Exception {
+    String invitationTokenUrl = SPACES_MEMBERSHIPS_URL + "/invitationToken";
+
+    startSessionAs("root");
+    ContainerResponse response = service(HttpMethod.GET, getURLResource(invitationTokenUrl), "", null, null);
+    assertEquals(400, response.getStatus());
+
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=99999"), "", null, null);
+    assertEquals(404, response.getStatus());
+
+    startSessionAs("mary");
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(401, response.getStatus());
+
+    startSessionAs("root");
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(200, response.getStatus());
+    DataEntity entity = (DataEntity) response.getEntity();
+    assertNotNull(entity);
+    String token = (String) entity.get("invitationToken");
+    assertNotNull(token);
+    assertFalse(token.isBlank());
+
+    ContainerResponse response2 = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(200, response2.getStatus());
+    String token2 = (String) ((DataEntity) response2.getEntity()).get("invitationToken");
+    assertNotEquals(token, token2);
   }
 
   private void createSpaceIfNotExist(int index, String creator) throws Exception {
