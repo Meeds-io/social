@@ -447,6 +447,10 @@ export default {
             self.inputVal = newData;
           },
           paste: function (evt) {
+            const data = evt.data;
+            if (data.dataValue) {
+              data.dataValue = self.cleanPastedText(data.dataValue);
+            }
             if (!self.disableImageAttachmentPaste && self.$refs?.attachmentsInput && evt.data.dataTransfer.getFilesCount() > 0) {
               const files = [];
               for (let i = 0; i < evt.data.dataTransfer.getFilesCount(); i++ ) {
@@ -463,6 +467,16 @@ export default {
           }
         }
       });
+    },
+    cleanPastedText(text) {
+      if (!text) {
+        return text;
+      }
+      let cleaned = text;
+      cleaned = cleaned.replaceAll(/[\u200B-\u200D\uFEFF]/g, '');
+      cleaned = cleaned.replaceAll(/\u00A0/g, ' ');
+      cleaned = cleaned.replaceAll(/\s+/g, ' ');
+      return cleaned;
     },
     destroyCKEditor: function () {
       this.editor?.destroy?.(true);
@@ -653,7 +667,6 @@ export default {
     updateInput(content) {
       if (this.editorReady) {
         const message = this.getContentToSave(content);
-        this.inputVal = message;
         if (!this.activityId && this.useDraftManagement && this.contextName) {
           localStorage.setItem(`activity-message-${this.contextName}`,  JSON.stringify({'url': this.baseUrl, 'text': this.inputVal}));
         }
