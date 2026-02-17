@@ -59,6 +59,20 @@
           <v-list-item-subtitle class="text-truncate-3 text-wrap">{{ $t('SpaceSettings.users.button.inviteByEmail.description') }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item
+        v-if="invitationLinkAllowed"
+        id="InviteUserByInvitationToSpaceButton"
+        link
+        @click="$root.$emit('space-settings-invite-link')">
+        <v-list-item-content class="d-inline">
+          <v-list-item-title>
+            {{ $t('SpaceSettings.users.button.inviteByLink') }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="text-truncate-3 text-wrap">
+            {{ $t('SpaceSettings.users.button.inviteByLink.description') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
   </v-menu>
   <v-btn
@@ -77,4 +91,19 @@
     {{ $t('SpaceSettings.users.invite') }}
   </v-btn>
 </template>
-<script></script>
+
+<script>
+export default {
+  props: {
+    spaceSubscription: {
+      type: String,
+      default: null,
+    }
+  },
+  computed: {
+    invitationLinkAllowed() {
+      return ['validation', 'open'].includes(this.spaceSubscription);
+    },
+  }
+};
+</script>

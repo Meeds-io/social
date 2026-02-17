@@ -23,6 +23,7 @@ import SpaceInviteButton from './components/form/SpaceInviteButton.vue';
 import SpaceInvitePendingDrawer from './components/drawer/SpaceInvitePendingDrawer.vue';
 import SpaceInviteInputUsersDrawer from './components/drawer/SpaceInviteInputUsersDrawer.vue';
 import SpaceInviteInputEmailDrawer from './components/drawer/SpaceInviteInputEmailDrawer.vue';
+import SpaceInvitationLinkDrawer from './components/drawer/SpaceInvitationLinkDrawer.vue';
 
 import SpaceSettingRoleList from './components/list/SpaceSettingRoleList.vue';
 import SpaceSettingRoleListItem from './components/list/SpaceSettingRoleListItem.vue';
@@ -39,6 +40,7 @@ const components = {
   'space-setting-role-list': SpaceSettingRoleList,
   'space-setting-role-list-item': SpaceSettingRoleListItem,
   'space-invite-email-list-item': SpaceInviteEmailListItem,
+  'space-invitation-link-drawer': SpaceInvitationLinkDrawer
 };
 
 for (const key in components) {
