@@ -20,7 +20,7 @@
 -->
 <template>
   <div class="d-flex align-center">
-    <space-invite-button />
+    <space-invite-button :space-subscription="spaceSubscription" />
     <v-badge
       v-if="pendingCount"
       color="white pa-0"
@@ -59,17 +59,32 @@
     <space-invite-input-email-drawer
       v-if="$root.isExternalFeatureEnabled"
       ref="emailInvitationDrawer" />
+    <space-invitation-link-drawer
+      :space-id="spaceId"
+      :go-back-button="goBackButton" />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    goBackButton: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     pendingCount() {
       return (this.$root?.space?.pendingUsersCount || 0)
         + (this.$root?.space?.invitedUsersCount || 0)
         + (this.$root?.externalInvitations?.length || 0);
     },
-  },
+    spaceSubscription() {
+      return this.$root?.space?.subscription;
+    },
+    spaceId() {
+      return this.$root?.space?.id;
+    }
+  }
 };
 </script>
 
