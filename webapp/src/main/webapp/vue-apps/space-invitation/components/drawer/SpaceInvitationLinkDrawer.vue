@@ -81,12 +81,11 @@ export default {
   },
   created() {
     this.$root.$on('space-settings-invite-link', this.open);
+    this.generateInvitationLink();
   },
   watch: {
     spaceId() {
-      if (this.spaceId) {
-        this.generateInvitationLink();
-      }
+      this.generateInvitationLink();
     }
   },
   methods: {
@@ -94,6 +93,9 @@ export default {
       this.$refs.SpaceInvitationLinkDrawer.open();
     },
     generateInvitationLink() {
+      if (!this.spaceId) {
+        return;
+      }
       this.$spaceService.generateInvitationToken(this.spaceId).then(invitationLink => {
         this.invitationLink = invitationLink;
       });

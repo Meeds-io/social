@@ -20,7 +20,6 @@
       #left>
       <div class="d-flex">
         <space-invite-buttons-group
-          v-if="isManager"
           class="me-4" />
         <div
           v-if="peopleCount"
