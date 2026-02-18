@@ -1254,7 +1254,7 @@ public interface SpaceService {
    * @throws TokenServiceInitializationException if the token service cannot be initialized
    *         or if the token generation process fails
    */
-  default String generateInvitationToken(Long spaceId, Long userIdentityId) throws TokenServiceInitializationException {
+  default String generateInvitationLink(Long spaceId, Long userIdentityId) throws Exception {
     throw new UnsupportedOperationException();
   }
 }
