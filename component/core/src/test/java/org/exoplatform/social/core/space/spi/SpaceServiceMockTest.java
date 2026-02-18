@@ -29,6 +29,8 @@ import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.xml.InitParams;
+import org.exoplatform.container.xml.ValueParam;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.resources.LocaleConfigService;
@@ -112,11 +114,12 @@ public class SpaceServiceMockTest {
   @InjectMocks
   private SpaceServiceImpl         spaceService;
 
+
   @Before
   public void setUp() throws Exception {
-    Field field = SpaceServiceImpl.class.getDeclaredField("spaceLifeCycle");
-    field.setAccessible(true);
-    field.set(spaceService, spaceLifeCycle);
+    Field lifecycleField = SpaceServiceImpl.class.getDeclaredField("spaceLifeCycle");
+    lifecycleField.setAccessible(true);
+    lifecycleField.set(spaceService, spaceLifeCycle);
   }
 
   @Test
