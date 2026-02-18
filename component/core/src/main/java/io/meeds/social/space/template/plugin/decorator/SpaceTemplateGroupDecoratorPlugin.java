@@ -86,6 +86,7 @@ public class SpaceTemplateGroupDecoratorPlugin extends BaseComponentPlugin imple
                                                                 .collect(Collectors.toSet());
 
       group.setEnclosingMemberships(templateEnclosingMembership);
+      group.setLabel(spaceTemplate.getName());
       return group;
     } catch (Exception e) {
       LOG.error("Failed to decorate space template group {}. Group will be returned without decoration.", group.getId(), e);
