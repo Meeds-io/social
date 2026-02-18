@@ -25,6 +25,7 @@ import javax.ws.rs.HttpMethod;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -657,7 +658,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
   }
 
   public void testGenerateInvitationToken() throws Exception {
-    String invitationTokenUrl = SPACES_MEMBERSHIPS_URL + "/invitationToken";
+    String invitationTokenUrl = SPACES_MEMBERSHIPS_URL + "/invitationLink";
 
     startSessionAs("root");
     ContainerResponse response = service(HttpMethod.GET, getURLResource(invitationTokenUrl), "", null, null);
@@ -673,15 +674,17 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     startSessionAs("root");
     response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
     assertEquals(200, response.getStatus());
-    DataEntity entity = (DataEntity) response.getEntity();
-    assertNotNull(entity);
-    String token = (String) entity.get("invitationToken");
+
+    String token = (String) response.getEntity();
     assertNotNull(token);
     assertFalse(token.isBlank());
+    assertTrue(token.startsWith(CommonsUtils.getCurrentDomain() + "portal/s/" + getSpaceId(1) + "?invitation_id="));
 
     ContainerResponse response2 = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
     assertEquals(200, response2.getStatus());
-    String token2 = (String) ((DataEntity) response2.getEntity()).get("invitationToken");
+
+    String token2 = (String) response2.getEntity();
+    assertNotNull(token2);
     assertNotEquals(token, token2);
   }
 

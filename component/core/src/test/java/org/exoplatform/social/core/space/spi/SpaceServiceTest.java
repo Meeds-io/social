@@ -2651,18 +2651,29 @@ public class SpaceServiceTest extends AbstractCoreTest {
     Long spaceId = Long.parseLong(space.getId());
     Long johnIdentityId = Long.parseLong(john.getId());
 
-    // Token decodes to the expected payload format "<spaceId>:<InviterId>:<nonce>"
-    String token = spaceService.generateInvitationToken(spaceId, johnIdentityId);
-    String[] parts = codecInitializer.getCodec().decode(token).split(":");
-    assertEquals(3, parts.length);
-    assertEquals(String.valueOf(spaceId), parts[0]);
-    assertEquals(String.valueOf(johnIdentityId), parts[1]);
+    String invitationUrl1 = spaceService.generateInvitationLink(spaceId, johnIdentityId);
 
-    // Two calls for the same inputs produce different tokens (random nonce)
-    assertNotEquals(token, spaceService.generateInvitationToken(spaceId, johnIdentityId));
+    String token1 = extractTokenFromUrl(invitationUrl1);
+
+    String[] parts = codecInitializer.getCodec().decode(token1).split(":");
+    assertEquals(4, parts.length);
+    assertEquals(String.valueOf(spaceId), parts[1]);
+    assertEquals(String.valueOf(johnIdentityId), parts[2]);
+
+    String invitationUrl2 = spaceService.generateInvitationLink(spaceId, johnIdentityId);
+    String token2 = extractTokenFromUrl(invitationUrl2);
+    assertNotEquals(token1, token2);
   }
 
-    @SneakyThrows
+  private String extractTokenFromUrl(String invitationUrl) {
+	int index = invitationUrl.indexOf("invitation_id=");
+	if (index == -1) {
+	  throw new IllegalArgumentException("Invalid invitation URL: " + invitationUrl);
+	}
+	return invitationUrl.substring(index + "invitation_id=".length());
+  }
+
+  @SneakyThrows
   private void checkExternalUserMemberships() {
     Collection<Membership> internalMemberships = organizationService.getMembershipHandler()
                                                                     .findMembershipsByUserAndGroup(EXTERNAL_USER_NAME,
