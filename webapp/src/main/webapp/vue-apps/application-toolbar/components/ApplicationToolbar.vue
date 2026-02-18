@@ -20,7 +20,10 @@
 
 -->
 <template>
-  <v-toolbar class="z-index-one" flat>
+  <v-toolbar
+    :dense="dense"
+    class="z-index-one px-0"
+    flat>
     <div id="applicationToolbar" class="d-flex flex-grow-1 align-center content-box-sizing position-relative">
       <!-- Left Content -->
       <div
@@ -309,6 +312,10 @@ export default {
       default: false,
     },
     colsAuto: { // Allow columns to be arranged in automatic way, usefull only when no center section
+      type: Boolean,
+      default: false,
+    },
+    dense: { // Reduces the height of the toolbar content to 48px
       type: Boolean,
       default: false,
     },
