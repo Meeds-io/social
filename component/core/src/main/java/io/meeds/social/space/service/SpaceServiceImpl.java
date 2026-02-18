@@ -1157,10 +1157,6 @@ public class SpaceServiceImpl implements SpaceService {
         throw new ObjectNotFoundException("space not found");
     }
 
-    if (!canManageSpace(space, identityManager.getIdentity(userIdentityId).getRemoteId())) {
-      throw new IllegalAccessException();
-    }
-
     String payload = "%s:%s:%s:%s".formatted(generateNonce(), spaceId, userIdentityId, generateNonce());
     String token = getCodec().encode(payload);
     String domain = CommonsUtils.getCurrentDomain();
