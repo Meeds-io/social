@@ -44,7 +44,7 @@
         no-text-truncate
         @filter-text-input-end-typing="keyword = $event"
         @loading="loading = $event">
-        <template v-if="isManager" #left>
+        <template #left>
           <div class="d-flex">
             <space-invite-buttons-group
               class="px-2"
@@ -140,6 +140,7 @@ export default {
       this.$root.isManager = settings.isManager;
       this.$root.space = settings.space;
       this.$root.spaceId = settings.space.id;
+      this.$root.isExternalFeatureEnabled ??= eXo?.env?.portal?.isExternalFeatureEnabled;
     },
     close() {
       this.$refs.drawer.close();
