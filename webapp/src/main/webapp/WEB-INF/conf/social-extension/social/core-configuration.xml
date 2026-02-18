@@ -387,7 +387,7 @@
       <init-params>
         <value-param>
           <name>space.invitation.token.nonce.maxLength</name>
-          <value>{space.invitation.token.nonce.maxLength:12}</value>
+          <value>${space.invitation.token.nonce.maxLength:12}</value>
         </value-param>
       </init-params>
     </component>

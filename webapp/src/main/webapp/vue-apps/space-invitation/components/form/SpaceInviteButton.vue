@@ -20,7 +20,7 @@
 -->
 <template>
   <v-menu
-    v-if="$root.isExternalFeatureEnabled"
+    v-if="showMenu"
     content-class="application-menu z-index-modal"
     offset-y>
     <template #activator="{attrs, on}">
@@ -40,7 +40,8 @@
         {{ $t('SpaceSettings.users.invite') }}
       </v-btn>
     </template>
-    <v-list max-width="300">
+    <v-list
+      max-width="300">
       <v-list-item
         id="InvitePlatformUserToSpaceButton"
         link
@@ -51,6 +52,7 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
+        v-if="$root.isExternalFeatureEnabled"
         id="InviteUserByEmailToSpaceButton"
         link
         @click="$root.$emit('space-settings-invite-email', true)">
@@ -76,12 +78,12 @@
     </v-list>
   </v-menu>
   <v-btn
-    v-else
+    v-else-if="showInviteButton"
     id="spaceSettingUsersListToolbar"
     :title="$t('SpaceSettings.users.invite')"
     color="primary"
     elevation="0"
-    @click="$root.$emit('space-settings-invite-member', true)">
+    @click="openInvite">
     <v-icon
       color="while"
       class="me-2"
@@ -94,16 +96,31 @@
 
 <script>
 export default {
-  props: {
-    spaceSubscription: {
-      type: String,
-      default: null,
-    }
-  },
   computed: {
     invitationLinkAllowed() {
       return ['validation', 'open'].includes(this.spaceSubscription);
     },
+    spaceSubscription() {
+      return this.$root?.space?.subscription;
+    },
+    showInviteButton() {
+      return this.isManager || this.invitationLinkAllowed;
+    },
+    showMenu() {
+      return this.isManager && (this.$root.isExternalFeatureEnabled || this.invitationLinkAllowed);
+    },
+    isManager() {
+      return this.$root?.space?.isManager;
+    }
+  },
+  methods: {
+    openInvite() {
+      if (this.isManager) {
+        this.$root.$emit('space-settings-invite-member');
+      } else {
+        this.$root.$emit('space-settings-invite-link');
+      }
+    }
   }
 };
 </script>

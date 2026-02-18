@@ -20,7 +20,7 @@
 -->
 <template>
   <div class="d-flex align-center">
-    <space-invite-button :space-subscription="spaceSubscription" />
+    <space-invite-button />
     <v-badge
       v-if="pendingCount"
       color="white pa-0"
@@ -77,9 +77,6 @@ export default {
       return (this.$root?.space?.pendingUsersCount || 0)
         + (this.$root?.space?.invitedUsersCount || 0)
         + (this.$root?.externalInvitations?.length || 0);
-    },
-    spaceSubscription() {
-      return this.$root?.space?.subscription;
     },
     spaceId() {
       return this.$root?.space?.id;
