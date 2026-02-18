@@ -751,7 +751,7 @@ export function muteSpace(spaceId, unmute) {
 }
 
 export function generateInvitationToken(spaceId) {
-  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/invitationToken?spaceId=${spaceId}`, {
+  return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships/invitationLink?spaceId=${spaceId}`, {
     method: 'GET',
     credentials: 'include',
     headers: {
@@ -761,6 +761,6 @@ export function generateInvitationToken(spaceId) {
     if (!resp?.ok) {
       throw new Error('Error while generating invitation token');
     }
-    return resp.json();
+    return resp.text();
   });
 }
