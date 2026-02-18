@@ -283,9 +283,11 @@
                   v-model="canHaveSubspaces"
                   :aria-label="canHaveSubspaces && $t('spaceTemplate.subspacesConfigurationStepCanHaveSubspaces') || $t('spaceTemplate.subspacesConfigurationStepCannotHaveSubspaces')"
                   :aria-checked="canHaveSubspaces ? 'true' : 'false'"
+                  :disabled="isSubspaceTemplate"
                   class="mb-0 mt-1 me-2 pa-0 r-0 absolute-vertical-center" />
               </div>
             </div>
+            <span v-if="isSubspaceTemplate" class="text-subtitle pe-2">{{ subspaceDisableMessage }}</span>
           </div>
           <template v-if="canHaveSubspaces">
             <div class="d-flex flex-column">
@@ -517,6 +519,26 @@ export default {
         noDataLabel: this.$t('spaceTemplate.templateSuggester.noDataLabel'),
       };
     },
+    isSubspaceTemplate() {
+      return this.$root?.subspacesTemplateIds?.includes(this.spaceTemplate?.id) || false;
+    },
+    parentSpaceTemplateName() {
+      const parent = this.$root.spaceTemplates.find(template =>
+        Array.isArray(template.allowedSubspaceTemplates) &&
+          template.allowedSubspaceTemplates.some(subspaceId =>
+            Number(subspaceId.split(':')[0]) === this.spaceTemplate.id
+          )
+      );
+      return parent?.name || '';
+    },
+    subspaceDisableMessage() {
+      if (!this.isSubspaceTemplate) {
+        return '';
+      }
+      return this.$t('spaceTemplate.subspaces.disable.message', {
+        0: this.parentSpaceTemplateName,
+      });
+    }
   },
   watch: {
     description() {

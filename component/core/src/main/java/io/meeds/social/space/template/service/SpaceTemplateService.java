@@ -420,7 +420,9 @@ public class SpaceTemplateService {
   }
 
   public SpaceTemplate getSpaceTemplateByGroupId(String groupId) {
-    return spaceTemplateStorage.getSpaceTemplateByGroupId(groupId);
+    SpaceTemplate spaceTemplate = spaceTemplateStorage.getSpaceTemplateByGroupId(groupId);
+    computeSpaceTemplateAttributes(spaceTemplate, getDefaultLocale());
+    return spaceTemplate;
   }
 
   private void createSpaceTemplateGroupIfNotExist(long templateId) throws ObjectNotFoundException {
