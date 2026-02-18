@@ -345,6 +345,12 @@
   <component>
     <key>org.exoplatform.social.core.space.spi.SpaceService</key>
     <type>io.meeds.social.space.service.SpaceServiceImpl</type>
+    <init-params>
+      <value-param>
+        <name>space.invitation.token.nonce.maxLength</name>
+        <value>{space.invitation.token.nonce.maxLength:12}</value>
+      </value-param>
+    </init-params>
   </component>
 
   <component>
