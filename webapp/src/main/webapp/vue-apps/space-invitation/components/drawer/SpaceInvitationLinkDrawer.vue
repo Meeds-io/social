@@ -66,7 +66,7 @@
 export default {
   data() {
     return {
-      invitationToken: null,
+      invitationLink: null,
     };
   },
   props: {
@@ -89,18 +89,13 @@ export default {
       }
     }
   },
-  computed: {
-    invitationLink() {
-      return `${location.origin}/portal/s/${this.spaceId}?invitation_id=${this.invitationToken}`;
-    }
-  },
   methods: {
     open() {
       this.$refs.SpaceInvitationLinkDrawer.open();
     },
     generateInvitationLink() {
-      this.$spaceService.generateInvitationToken(this.spaceId).then(data => {
-        this.invitationToken = data.invitationToken;
+      this.$spaceService.generateInvitationToken(this.spaceId).then(invitationLink => {
+        this.invitationLink = invitationLink;
       });
     },
     copyLink() {

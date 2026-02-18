@@ -51,12 +51,14 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ListAccessImpl;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -97,19 +99,22 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import lombok.SneakyThrows;
+import org.exoplatform.web.security.security.SecureRandomService;
 import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log            LOG                     = ExoLogger.getLogger(SpaceServiceImpl.class);
+  private static final Log            LOG                          = ExoLogger.getLogger(SpaceServiceImpl.class);
 
-  private static final int            MAX_SPACE_NAME_LENGTH   = 200;
+  private static final int            MAX_SPACE_NAME_LENGTH        = 200;
 
-  private static final SecureRandom   SECURE_RANDOM           = new SecureRandom();
+  private static final int            MIN_NONCE_LENGTH             = 8;
 
-  private static final int            NONCE_LENGTH            = 12;
+  private static final int            DEFAULT_MAX_NONCE_LENGTH     = 12;
 
-  private static final Base64.Encoder URL_ENCODER             = Base64.getUrlEncoder().withoutPadding();
+  private static final String         NONCE_MAX_LENGTH_VALUE_PARAM = "space.invitation.token.nonce.maxLength";
+
+  private static final Base64.Encoder URL_ENCODER                  = Base64.getUrlEncoder().withoutPadding();
 
   private SpaceStorage                spaceStorage;
 
@@ -133,10 +138,13 @@ public class SpaceServiceImpl implements SpaceService {
 
   private CookieTokenService          cookieTokenService;
 
-  private SpaceLifecycle              spaceLifeCycle         = new SpaceLifecycle();
+  private SpaceLifecycle              spaceLifeCycle               = new SpaceLifecycle();
 
-  private static CodecInitializer     codecInitializer;
+  private CodecInitializer            codecInitializer;
+  
+  private SecureRandomService         secureRandomService;
 
+  private int invitationTokenNonceMaxLength;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
@@ -146,7 +154,8 @@ public class SpaceServiceImpl implements SpaceService {
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
                           FileService fileService,
-                          CookieTokenService cookieTokenService) {
+                          CookieTokenService cookieTokenService,
+                          InitParams initParams) {
     this.spaceStorage = spaceStorage;
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
@@ -156,6 +165,17 @@ public class SpaceServiceImpl implements SpaceService {
     this.localeConfigService = localeConfigService;
     this.fileService = fileService;
     this.cookieTokenService = cookieTokenService;
+
+    this.invitationTokenNonceMaxLength = DEFAULT_MAX_NONCE_LENGTH;
+    if (initParams != null && initParams.containsKey(NONCE_MAX_LENGTH_VALUE_PARAM)) {
+      String value = initParams.getValueParam(NONCE_MAX_LENGTH_VALUE_PARAM).getValue();
+      try {
+        this.invitationTokenNonceMaxLength = Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        LOG.warn("Invalid value for {}: '{}', using default {}",
+                    NONCE_MAX_LENGTH_VALUE_PARAM, value, DEFAULT_MAX_NONCE_LENGTH, e);
+      }
+    }
   }
 
   @Override
@@ -1131,16 +1151,40 @@ public class SpaceServiceImpl implements SpaceService {
   }
 
   @Override
-  public String generateInvitationToken(Long spaceId, Long userIdentityId) throws TokenServiceInitializationException {
-    int nonceLength = NONCE_LENGTH;
-    byte[] bytes = new byte[nonceLength];
-    SECURE_RANDOM.nextBytes(bytes);
-    String nonce = URL_ENCODER.encodeToString(bytes).substring(0, nonceLength);
-    String payload = spaceId + ":" + userIdentityId + ":" + nonce;
-    return getCodec().encode(payload);
+  public String generateInvitationLink(Long spaceId, Long userIdentityId) throws Exception {
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+        throw new ObjectNotFoundException("space not found");
+    }
+
+    if (!canManageSpace(space, identityManager.getIdentity(userIdentityId).getRemoteId())) {
+      throw new IllegalAccessException();
+    }
+
+    String payload = "%s:%s:%s:%s".formatted(generateNonce(), spaceId, userIdentityId, generateNonce());
+    String token = getCodec().encode(payload);
+    String domain = CommonsUtils.getCurrentDomain();
+    return String.format("%sportal/s/%d?invitation_id=%s", domain, spaceId, token);
   }
 
-  private static AbstractCodec getCodec() throws TokenServiceInitializationException {
+  private String generateNonce() {
+    SecureRandom secureRandom = getSecureRandomService().getSecureRandom();
+    int maxLength = Math.max(invitationTokenNonceMaxLength, DEFAULT_MAX_NONCE_LENGTH);
+    int randomLength = secureRandom.nextInt(maxLength - MIN_NONCE_LENGTH + 1) + MIN_NONCE_LENGTH;
+
+    byte[] bytes = new byte[randomLength];
+    secureRandom.nextBytes(bytes);
+    return URL_ENCODER.encodeToString(bytes);
+  }
+
+  private SecureRandomService getSecureRandomService() {
+    if(secureRandomService == null) {
+      secureRandomService = CommonsUtils.getService(SecureRandomService.class);
+    }
+    return  secureRandomService;
+  }
+
+  private AbstractCodec getCodec() throws TokenServiceInitializationException {
     if (codecInitializer == null) {
       codecInitializer = CommonsUtils.getService(CodecInitializer.class);
     }

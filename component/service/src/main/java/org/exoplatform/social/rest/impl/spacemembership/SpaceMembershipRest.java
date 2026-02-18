@@ -31,7 +31,10 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
+import org.exoplatform.services.log.ExoLogger;
+import org.exoplatform.services.log.Log;
 import org.exoplatform.services.rest.resource.ResourceContainer;
 import org.exoplatform.services.security.ConversationState;
 import org.exoplatform.services.security.IdentityConstants;
@@ -64,6 +67,8 @@ import lombok.Getter;
 @Path(VersionResources.VERSION_ONE + "/social/spacesMemberships")
 @Tag(name = VersionResources.VERSION_ONE + "/social/spacesMemberships", description = "Managing memberships of users in a space")
 public class SpaceMembershipRest implements ResourceContainer {
+
+  private static final Log LOG             = ExoLogger.getLogger(SpaceMembershipRest.class);
 
   private SpaceService    spaceService;
 
@@ -410,45 +415,33 @@ public class SpaceMembershipRest implements ResourceContainer {
     return Response.noContent().build();
   }
 
-	@GET
-	@Path("/invitationToken")
-	@RolesAllowed("users")
-	@Produces(MediaType.APPLICATION_JSON)
-	@Operation(summary = "Generate invitation token for a space", method = "GET", description = "Generates a secure invitation token for a space.")
-	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Invitation token generated"),
+  @GET
+  @Path("/invitationLink")
+  @RolesAllowed("users")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Generate invitation link for a space", method = "GET", description = "Generates a secure invitation link for a space.")
+  @ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Invitation link generated"),
 			@ApiResponse(responseCode = "401", description = "User not authorized"),
 			@ApiResponse(responseCode = "404", description = "Space not found") })
-	public Response generateInvitationToken(@Parameter(description = "Space technical identifier", required = true)
-                                          @QueryParam("spaceId") String spaceId) {
+  public Response generateInvitationLink(@Parameter(description = "Space technical identifier", required = true)
+                                         @QueryParam("spaceId") Long spaceId) {
 
-		if (StringUtils.isBlank(spaceId)) {
-			return Response.status(Response.Status.BAD_REQUEST).entity("spaceId is required").build();
-		}
+    if (spaceId == null) {
+      return Response.status(Response.Status.BAD_REQUEST).entity("spaceId is required").build();
+    }
 
-		String authenticatedUser = ConversationState.getCurrent().getIdentity().getUserId();
-
-		Space space = spaceService.getSpaceById(spaceId);
-		if (space == null) {
-			return Response.status(Response.Status.NOT_FOUND).build();
-		}
-
-		if (!spaceService.canManageSpace(space, authenticatedUser)) {
-			return Response.status(Response.Status.UNAUTHORIZED).build();
-		}
-
-		try {
-			String invitationToken = spaceService.generateInvitationToken(Long.parseLong(spaceId),
-					RestUtils.getCurrentUserIdentityId());
-
-			DataEntity response = new DataEntity();
-			response.put("invitationToken", invitationToken);
-
-			return Response.ok(response).build();
-		} catch (Exception e) {
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-		}
-
-	}
+    try {
+       String invitationUrl = spaceService.generateInvitationLink(spaceId, RestUtils.getCurrentUserIdentityId());
+       return Response.ok(invitationUrl).build();
+    } catch (ObjectNotFoundException e) {
+      return Response.status(Response.Status.NOT_FOUND).build();
+    } catch (IllegalAccessException e) {
+      return Response.status(Response.Status.UNAUTHORIZED).build();
+    } catch (Exception e) {
+      LOG.error("Error while generating space invitation link", e);
+      return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+  }
     
   private boolean canRetrieveSpaceMemberships(Space space, String targetUser, String authenticatedUser) {
     if (spaceService.isSuperManager(space, authenticatedUser)
