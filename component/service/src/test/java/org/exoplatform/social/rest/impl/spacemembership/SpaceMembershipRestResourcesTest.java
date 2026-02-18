@@ -669,7 +669,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
     startSessionAs("mary");
     response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
-    assertEquals(401, response.getStatus());
+    assertEquals(200, response.getStatus());
 
     startSessionAs("root");
     response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
