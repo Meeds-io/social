@@ -435,8 +435,6 @@ public class SpaceMembershipRest implements ResourceContainer {
        return Response.ok(invitationUrl).build();
     } catch (ObjectNotFoundException e) {
       return Response.status(Response.Status.NOT_FOUND).build();
-    } catch (IllegalAccessException e) {
-      return Response.status(Response.Status.UNAUTHORIZED).build();
     } catch (Exception e) {
       LOG.error("Error while generating space invitation link", e);
       return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
