@@ -109,12 +109,12 @@
           v-if="summary"
           :child="summaryElement"
           :class="bodyClass"
-          class="text-wrap text-break reset-style-box rich-editor-content text-color"
+          class="text-wrap text-break reset-style-box rich-editor-content text-color mb-0"
           dir="auto" />
         <v-btn
           v-if="showReadMore"
           :aria-label="$t('UIActivity.label.seeMore')"
-          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto position-absolute r-0 b-0 text-light-color linear-gradient-white-background hover-underline hover-blue-color"
+          class="d-flex ms-auto pb-2px mb-0 pl-2 pr-0 height-auto r-0 b-0 text-light-color linear-gradient-white-background hover-underline hover-blue-color"
           text
           plain
           @click="displayFullContent">
