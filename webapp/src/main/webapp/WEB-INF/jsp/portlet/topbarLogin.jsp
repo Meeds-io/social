@@ -18,6 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 %>
+<%@page import="org.exoplatform.portal.application.PortalRequestContext"%>
+<%@page import="org.exoplatform.web.application.RequestContext"%>
 <%@page import="org.exoplatform.social.core.space.spi.SpaceService"%>
 <%@page import="org.exoplatform.social.core.space.model.Space"%>
 <%@page import="org.exoplatform.social.core.identity.model.Identity"%>
@@ -26,7 +28,12 @@
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
+
 <%
+  PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
+  HttpSession portalSession = portalRequestContext.getRequest().getSession();
+  String spaceInvitationToken = (String) portalSession.getAttribute("invitation_id");
+
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
   Identity viewerIdentity = Utils.getViewerIdentity();
@@ -57,7 +64,9 @@
           '<%=space == null ? "" : space.getRegistration()%>',
           <%=space != null && username != null && spaceService.canViewSpace(space, username)%>,
           <%=space != null && username != null && spaceService.isPendingUser(space, username)%>,
-          <%=space != null && username != null && spaceService.isInvitedUser(space, username)%>)
+          <%=space != null && username != null && spaceService.isInvitedUser(space, username)%>,
+          '<%=spaceInvitationToken == null ? "" : spaceInvitationToken%>'
+        )
       );
     </script>
   </div>

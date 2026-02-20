@@ -143,10 +143,13 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       break;
     case SPACE_SOVEREIGNTY:
       listener.spaceSovereigntyEdited(event);
+      break; 
+    case SPACE_TEMPLATE_APPLIED:
+      listener.templateApplied(event);
       break;
-      case SPACE_TEMPLATE_APPLIED:
-        listener.templateApplied(event);
-        break;
+    case USER_JOINED_BY_INVITATION_LINK:
+      listener.userJoinedByInvitationLink(event);
+      break;
     default:
       break;
     }
@@ -254,6 +257,10 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
 
   public void spaceTemplateApplied(Space space, String userId) {
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_TEMPLATE_APPLIED));
+  }
+
+  public void userJoinedByInvitationLink(Space space, String userId) {
+    broadcast(new SpaceLifeCycleEvent(space, userId, Type.USER_JOINED_BY_INVITATION_LINK));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {
