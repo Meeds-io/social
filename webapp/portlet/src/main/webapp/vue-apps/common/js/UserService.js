@@ -166,7 +166,7 @@ export function getPending(offset, limit, expand) {
 }
 
 export function getUserSuggestions() {
-  const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+  const cachedSuggestions = sessionStorage && sessionStorage.getItem(`Suggestions_Users_${eXo.env.portal.userName}`);
   if (cachedSuggestions) {
     return Promise.resolve(JSON.parse(cachedSuggestions));
   }
@@ -183,7 +183,7 @@ export function getUserSuggestions() {
   }).then(data => {
     if (sessionStorage && data) {
       try {
-        sessionStorage.setItem(`Suggestions_Users_${eXo.env.server.sessionId}`, JSON.stringify(data));
+        sessionStorage.setItem(`Suggestions_Users_${eXo.env.portal.userName}`, JSON.stringify(data));
       } catch (e) {
         // Expected when Quota Error is thrown 
       }
@@ -194,7 +194,7 @@ export function getUserSuggestions() {
 
 export function connect(userId) {
   if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.portal.userName}`);
   }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'POST',
@@ -219,7 +219,7 @@ export function connect(userId) {
 
 export function confirm(userId) {
   if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.portal.userName}`);
   }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'PUT',
@@ -244,7 +244,7 @@ export function confirm(userId) {
 
 export function ignore(receiver) {
   if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.portal.userName}`);
   }
   const sender = eXo.env.portal.userName;
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
@@ -272,7 +272,7 @@ export function ignore(receiver) {
 
 export function deleteRelationship(userId) {
   if (sessionStorage) {
-    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.server.sessionId}`);
+    sessionStorage.removeItem(`Suggestions_Users_${eXo.env.portal.userName}`);
   }
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/relationships`, {
     method: 'DELETE',
