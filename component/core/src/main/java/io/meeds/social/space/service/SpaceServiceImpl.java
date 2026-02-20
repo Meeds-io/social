@@ -40,6 +40,9 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
@@ -1160,8 +1163,44 @@ public class SpaceServiceImpl implements SpaceService {
     String payload = "%s:%s:%s:%s".formatted(generateNonce(), spaceId, userIdentityId, generateNonce());
     String token = getCodec().encode(payload);
     String domain = CommonsUtils.getCurrentDomain();
-    return String.format("%sportal/s/%d?invitation_id=%s", domain, spaceId, token);
+    String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
+    return String.format("%s/portal/s/%d?invitation_id=%s", domain, spaceId, encodedToken);
   }
+
+  @Override
+  public void joinSpaceByInvitation(String invitationToken, String username) throws Exception {
+    String payload;
+    try {
+      payload = getCodec().decode(invitationToken);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Invalid invitation token");
+    }
+
+    String[] parts = payload.split(":");
+    if (parts.length != 4) {
+      throw new IllegalArgumentException("Invalid invitation token format");
+    }
+
+    long spaceId;
+    long inviterId;
+    try {
+      spaceId = Long.parseLong(parts[1]);
+      inviterId = Long.parseLong(parts[2]);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid invitation token content");
+    }
+
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException("Space not found");
+    }
+
+    if (Space.OPEN.equals(space.getRegistration())) {
+      addMember(space, username);
+      spaceLifeCycle.userJoinedByInvitationLink(space, identityManager.getIdentity(inviterId).getRemoteId());
+    }
+  }
+  
 
   private String generateNonce() {
     SecureRandom secureRandom = getSecureRandomService().getSecureRandom();
