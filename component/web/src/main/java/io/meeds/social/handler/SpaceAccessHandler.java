@@ -46,6 +46,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.web.ControllerContext;
 import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.WebRequestHandler;
+import org.exoplatform.web.controller.QualifiedName;
 import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
@@ -59,21 +60,23 @@ import jakarta.servlet.http.HttpSession;
 
 public class SpaceAccessHandler extends WebRequestHandler {
 
-  private static final String     SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
+  private static final String       SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
 
-  public static final String      PAGE_URI            = "space-access";
+  public static final String        PAGE_URI            = "space-access";
 
-  private SpaceService            spaceService;
+  public static final QualifiedName INVITATION_ID       = QualifiedName.create("invitation_id");
 
-  private SpaceLayoutService      spaceLayoutService;
+  private SpaceService              spaceService;
 
-  private URLFactoryService       urlFactoryService;
+  private SpaceLayoutService        spaceLayoutService;
 
-  private UserPortalConfigService userPortalConfigService;
+  private URLFactoryService         urlFactoryService;
 
-  private LayoutService           layoutService;
+  private UserPortalConfigService   userPortalConfigService;
 
-  private UserACL                 userAcl;
+  private LayoutService             layoutService;
+
+  private UserACL                   userAcl;
 
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
@@ -103,9 +106,17 @@ public class SpaceAccessHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String requestSiteType = controllerContext.getParameter(REQUEST_SITE_TYPE);
     String requestSiteName = controllerContext.getParameter(REQUEST_SITE_NAME);
+    String invitationId = controllerContext.getParameter(INVITATION_ID);
+    if (invitationId == null) {
+      invitationId = controllerContext.getRequest().getParameter(INVITATION_ID.getName());
+    }
     if (!SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
         || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
       return false;
+    }
+    HttpSession session = controllerContext.getRequest().getSession();
+    if (invitationId != null) {
+      session.setAttribute(INVITATION_ID.getName(), invitationId);
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
     if (StringUtils.isBlank(username) && canAccessSpacePublicSite(space, username)) {
@@ -120,7 +131,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
       return true;
     } else if (canAccessSpace(space, username)) {
       if (spaceService.isMember(space, username)) {
-        HttpSession session = controllerContext.getRequest().getSession();
         String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
         if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
           spaceService.updateSpaceAccessed(username, space);
