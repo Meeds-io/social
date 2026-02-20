@@ -678,7 +678,7 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     String token = (String) response.getEntity();
     assertNotNull(token);
     assertFalse(token.isBlank());
-    assertTrue(token.startsWith(CommonsUtils.getCurrentDomain() + "portal/s/" + getSpaceId(1) + "?invitation_id="));
+    assertTrue(token.startsWith(CommonsUtils.getCurrentDomain() + "/portal/s/" + getSpaceId(1) + "?invitation_id="));
 
     ContainerResponse response2 = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
     assertEquals(200, response2.getStatus());
