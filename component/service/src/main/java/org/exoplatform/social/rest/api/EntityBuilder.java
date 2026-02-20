@@ -460,7 +460,7 @@ public class EntityBuilder {
       }
     }
     if (expandAttributes.contains(SETTINGS)) {
-      userEntity.setProperties(buildProperties(profile, canViewProperties));
+      userEntity.setProperties(buildProperties(profile, isCurrentUser, isAdmin));
     }
     if (expandAttributes.contains(MANAGER) && profile.getProperty(MANAGER) != null) {
       buildListManagers(userEntity, profile, restPath);
@@ -593,7 +593,7 @@ public class EntityBuilder {
     return profilePropertyService;
   }
 
-  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, boolean canViewProperties) {
+  public static List<ProfilePropertySettingEntity> buildProperties(Profile profile, boolean isCurrentUser, boolean isAdmin) {
     ProfilePropertyService profilePropertyService = getProfilePropertyService();
     List<Long> hiddenProfileProperties = profilePropertyService.getHiddenProfilePropertyIds(Long.parseLong(profile.getIdentity()
                                                                                                                   .getId()));
@@ -602,7 +602,8 @@ public class EntityBuilder {
     List<ProfilePropertySetting> settings = profilePropertyService.getPropertySettings()
                                                                   .stream()
                                                                   .filter(prop -> prop.isVisible()
-                                                                                  || (prop.isEditable() && canViewProperties))
+                                                                                  || (prop.isEditable() && isCurrentUser)
+                                                                                  || isAdmin)
                                                                   .toList();
     List<ProfilePropertySetting> subProperties = new ArrayList<>();
     List<Long> parents = new ArrayList<>();
@@ -624,7 +625,7 @@ public class EntityBuilder {
                                                                                                       profilePropertyService,
                                                                                                       ProfilePropertyService.LABELS_OBJECT_TYPE);
         boolean isHidden = hiddenProfileProperties.contains(profilePropertySettingEntity.getId());
-        if (isHidden && !canViewProperties) {
+        if (isHidden && !isCurrentUser && !isAdmin) {
           continue;
         }
         profilePropertySettingEntity.setHidden(isHidden);
@@ -664,7 +665,7 @@ public class EntityBuilder {
                                                                                         profilePropertyService,
                                                                                         ProfilePropertyService.LABELS_OBJECT_TYPE);
                       isHidden = hiddenProfileProperties.contains(profilePropertySettingEntity.getId());
-                      if (isHidden && !canViewProperties) {
+                      if (isHidden && !isCurrentUser && !isAdmin) {
                         continue;
                       }
                       subProfilePropertySettingEntity.setHidden(hiddenProfileProperties.contains(subProfilePropertySettingEntity.getId()));
