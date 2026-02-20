@@ -1257,4 +1257,19 @@ public interface SpaceService {
   default String generateInvitationLink(Long spaceId, Long userIdentityId) throws Exception {
     throw new UnsupportedOperationException();
   }
+
+  /**
+   * Joins a space using the provided invitation token.
+   * <p>The invitation token is expected to be a valid and non-expired token
+   * previously generated for a specific space. If the token is invalid, expired, or the join operation fails, an exception may be
+   * thrown.</p>
+   *
+   * @param invitationToken the unique invitation token used to join the space
+   * @param username  current userName
+   * @throws Exception if the token is invalid, expired, or if the join operation fails
+   * @throws UnsupportedOperationException if the implementation does not support this operation
+   */
+  default void joinSpaceByInvitation(String invitationToken, String username) throws Exception {
+    throw new UnsupportedOperationException();
+  }
 }
