@@ -247,4 +247,8 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
     // No default implementation
   }
 
+  default void userJoinedByInvitationLink(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
 }
