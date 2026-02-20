@@ -47,6 +47,8 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   public static final QualifiedName REQUEST_SPACE_ID = QualifiedName.create("spaceId");
 
+  public static final QualifiedName INVITATION_ID    = QualifiedName.create("invitation_id");
+
   public static final QualifiedName REQUEST_PATH     = QualifiedName.create("path");
 
   private SpaceService              spaceService;
@@ -80,6 +82,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String spaceId = controllerContext.getParameter(REQUEST_SPACE_ID);
     String path = controllerContext.getParameter(REQUEST_PATH);
+    String invitationId = controllerContext.getRequest().getParameter(INVITATION_ID.getName());
     String queryString = controllerContext.getRequest().getQueryString();
     if (StringUtils.isNotEmpty(queryString)) {
       path = path + "?" + queryString;
@@ -93,6 +96,9 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
+      if (StringUtils.isNotBlank(invitationId)) {
+        spaceService.joinSpaceByInvitation(invitationId, username);
+      }
       String uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
       controllerContext.getResponse().sendRedirect(uri);
     }
