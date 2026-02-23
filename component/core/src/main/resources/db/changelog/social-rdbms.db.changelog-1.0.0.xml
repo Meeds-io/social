@@ -1266,7 +1266,11 @@
     </addColumn>
   </changeSet>
 
-  <changeSet author="social" id="1.0.0-meed-3976">
+  <changeSet author="social" id="1.0.0-meed-3976" dbms="!mysql" runOnChange="true">
     <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="CLOB"/>
+  </changeSet>
+
+  <changeSet author="social" id="1.0.0-meed-3976-fix" dbms="mysql">
+    <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"/>
   </changeSet>
 </databaseChangeLog>
