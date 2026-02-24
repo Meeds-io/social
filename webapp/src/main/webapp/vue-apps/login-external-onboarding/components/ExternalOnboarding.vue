@@ -32,7 +32,8 @@
       <portal-external-onboarding-create-user-form
         v-else-if="action === 'createUser'"
         :identifier="this.email"
-        :token-param="this.token" />
+        :token-param="this.token"
+        :initial-uri="initialUri"  />
     </v-card>
   </v-app>
 </template>
@@ -41,12 +42,14 @@ export default {
   data: () => ({
     email: '',
     action: '',
-    token: ''
+    token: '',
+    initialUri: null
   }),
   created() {
     const searchParams = new URLSearchParams(window.location.search);
     this.token = searchParams.get('token');
     this.action = searchParams.get('action');
+    this.initialUri = searchParams.get('initialURI');
     if (this.token) {
       if (this.action === 'validateEmail') {
         this.$loginService.finishRegistration(this.token, 'email-validation').then((resp) => {
