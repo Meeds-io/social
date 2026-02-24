@@ -71,7 +71,7 @@
           {{ newHere }}
           <a
             :title="createAccount"
-            href="/portal/register"
+            :href="registerLink"
             class="text-decoration-underline">
             {{ createAccount }}
           </a>
@@ -294,6 +294,13 @@ export default {
     });
   },
   computed: {
+    registerLink() {
+      const base = '/portal/register';
+      if (this.initialUri) {
+        return `${base}?initialURI=${this.initialUri}`;
+      }
+      return base;
+    },
     registerEnabled() {
       return this.values?.registerEnabled;
     },

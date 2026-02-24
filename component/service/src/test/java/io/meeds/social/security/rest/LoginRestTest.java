@@ -501,7 +501,8 @@ public class LoginRestTest {
   @SneakyThrows
   public void testRequestRegisterFailedSendOnboardingEmail() {
     when(registerUIParamsExtension.isRegisterEnabled()).thenReturn(true);
-    when(passwordRecoveryService.sendExternalRegisterEmail(eq(null),any(),any(),eq(null),any(),anyBoolean())).thenThrow(new Exception("Error"));
+   	when(passwordRecoveryService.sendExternalRegisterEmail(eq(null), any(), any(), eq(null), any(), anyBoolean(), any()))
+			.thenThrow(new Exception("Error"));
     when(captcha.isCorrect(any())).thenReturn(true);
 
     ListAccess<User> users = new ListAccess<>() {
@@ -716,6 +717,54 @@ public class LoginRestTest {
                                                  .accept(MediaType.APPLICATION_JSON));
     response.andExpect(status().isFound())
             .andExpect(header().string("Location","/portal/login"));
+  }
+
+  @Test
+  @SneakyThrows
+  public void testRequestRegisterSuccessSendOnboardingEmailWithInitialUri() {
+
+    when(registerUIParamsExtension.isRegisterEnabled()).thenReturn(true);
+    when(captcha.isCorrect(any())).thenReturn(true);
+
+    // No existing users
+    ListAccess<User> users = new ListAccess<>() {
+      @Override
+      public User[] load(int i, int i1) {
+        return null;
+      }
+
+      @Override
+      public int getSize() {
+        return 0;
+      }
+    };
+
+    when(userHandler.findUsersByQuery(any(), any())).thenReturn(users);
+    when(organizationService.getUserHandler()).thenReturn(userHandler);
+
+    when(passwordRecoveryService.sendExternalRegisterEmail(
+        eq(null),
+        any(),
+        any(),
+        eq(null),
+        any(),
+        anyBoolean(),
+        eq("/spaces/dev")
+    )).thenReturn("ok");
+
+    HashMap<String, Object> sessionattr = new HashMap<>();
+    sessionattr.put("register", captcha);
+
+    ResultActions response = mockMvc.perform(post("/login/requestRegister")
+                                                 .sessionAttrs(sessionattr)
+                                                 .content("email=john@acme.com&captcha=123456&initialUri=/spaces/dev")
+                                                 .contentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                                                 .accept(MediaType.APPLICATION_JSON));
+
+    response.andExpect(status().isOk())
+            .andExpect(content().string(
+                new JSONObject().put("success", "onboardingEmailSent").toString()
+            ));
   }
 
   private RequestPostProcessor testSimpleUser() {
