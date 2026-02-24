@@ -115,9 +115,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
         || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
       return false;
     }
-    HttpSession session = controllerContext.getRequest().getSession();
     if (invitationId != null) {
-      session.setAttribute(INVITATION_ID.getName(), invitationId);
+      controllerContext.getRequest().setAttribute(INVITATION_ID.getName(), invitationId);
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
     if (StringUtils.isBlank(username) && canAccessSpacePublicSite(space, username)) {
@@ -132,6 +131,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
       return true;
     } else if (canAccessSpace(space, username)) {
       if (spaceService.isMember(space, username)) {
+        HttpSession session = controllerContext.getRequest().getSession();
         String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
         if (!StringUtils.equals(lastAccessedSpaceId, space.getId())) {
           spaceService.updateSpaceAccessed(username, space);
