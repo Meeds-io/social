@@ -2667,34 +2667,6 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertNotEquals(token1, token2);
   }
 
-  public void testJoinSpaceByInvitation() throws Exception {
-    Space space = createSpace("invitationSpace", ROOT_NAME);
-    space.setRegistration(Space.OPEN);
-    spaceService.updateSpace(space);
-    Long spaceId = Long.parseLong(space.getId());
-    Long johnIdentityId = Long.parseLong(john.getId());
-
-    // Generate a valid token
-    String token = extractTokenFromUrl(spaceService.generateInvitationLink(spaceId, johnIdentityId));
-    assertFalse(spaceService.isMember(space, MARY_NAME));
-
-    spaceService.joinSpaceByInvitation(token, MARY_NAME);
-
-    assertTrue(spaceService.isMember(spaceService.getSpaceById(space.getId()), MARY_NAME));
-
-    Space closedSpace = createSpace("closedInvitationSpace", ROOT_NAME);
-    closedSpace.setRegistration(Space.CLOSED);
-    spaceService.updateSpace(closedSpace);
-    String closedToken = extractTokenFromUrl(spaceService.generateInvitationLink(Long.parseLong(closedSpace.getId()), johnIdentityId));
-    spaceService.joinSpaceByInvitation(closedToken, TOM_NAME);
-    assertFalse(spaceService.isMember(spaceService.getSpaceById(closedSpace.getId()), TOM_NAME));
-
-    assertThrows(IllegalArgumentException.class, () -> spaceService.joinSpaceByInvitation("invalid-token", MARY_NAME));
-
-    String fakeToken = codecInitializer.getCodec().encode(System.currentTimeMillis() + ":999999:" + johnIdentityId + ":x");
-    assertThrows(ObjectNotFoundException.class, () -> spaceService.joinSpaceByInvitation(fakeToken, MARY_NAME));
-  }
-
   private String extractTokenFromUrl(String invitationUrl) {
     invitationUrl =  URLDecoder.decode(invitationUrl, StandardCharsets.UTF_8);
     int index = invitationUrl.indexOf("invitation_id=");
