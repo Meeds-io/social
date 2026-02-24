@@ -31,8 +31,7 @@
 
 <%
   PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
-  HttpSession portalSession = portalRequestContext.getRequest().getSession();
-  String spaceInvitationToken = (String) portalSession.getAttribute("invitation_id");
+  String spaceInvitationToken = (String) portalRequestContext.getRequest().getAttribute("invitation_id");
 
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
