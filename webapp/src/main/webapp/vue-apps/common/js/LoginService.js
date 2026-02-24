@@ -73,10 +73,13 @@ export function sendEmailVerificationEmail(email, firstName, lastName, password,
   });
 }
 
-export function requestRegister(email, captcha) {
+export function requestRegister(email, captcha, initialUri) {
   const formData = new FormData();
   formData.append('email', email);
   formData.append('captcha', captcha);
+  if (initialUri) {
+    formData.append('initialURI', initialUri);
+  }
   const body = new URLSearchParams(formData).toString();
   return fetch(`/social/${eXo.env.portal.rest}/login/requestRegister`, {
     method: 'POST',
