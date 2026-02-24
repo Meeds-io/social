@@ -127,7 +127,8 @@ export default {
   },
   methods: {
     submitForm() {
-      this.$loginService.requestRegister(this.email, this.captcha).then((resp) => {
+      const initialUri = new URLSearchParams(window.location.search).get('initialURI');
+      this.$loginService.requestRegister(this.email, this.captcha, initialUri).then((resp) => {
         if (!resp || !resp.ok) {
           resp.json().then((data) => {
             if (data.error) {

@@ -97,9 +97,6 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
-      if (StringUtils.isNotBlank(invitationId)) {
-        spaceService.joinSpaceByInvitation(invitationId, username);
-      }
       String uri = permanentLinkService.getLink(getPermanentLinkObject(spaceId, path));
       controllerContext.getResponse().sendRedirect(uri);
     }

@@ -25,7 +25,7 @@
   PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
   HttpSession portalSession = portalRequestContext.getRequest().getSession();
   SpaceAccessType spaceAccessType = (SpaceAccessType) portalSession.getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY);
-  String spaceInvitationToken = (String) portalSession.getAttribute("invitation_id");
+  String spaceInvitationToken = (String) portalRequestContext.getRequest().getAttribute("invitation_id");
   if (spaceAccessType == null) {
     return;
   }

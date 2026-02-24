@@ -1167,41 +1167,6 @@ public class SpaceServiceImpl implements SpaceService {
     return String.format("%s/portal/s/%d?invitation_id=%s", domain, spaceId, encodedToken);
   }
 
-  @Override
-  public void joinSpaceByInvitation(String invitationToken, String username) throws Exception {
-    String payload;
-    try {
-      payload = getCodec().decode(invitationToken);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Invalid invitation token");
-    }
-
-    String[] parts = payload.split(":");
-    if (parts.length != 4) {
-      throw new IllegalArgumentException("Invalid invitation token format");
-    }
-
-    long spaceId;
-    long inviterId;
-    try {
-      spaceId = Long.parseLong(parts[1]);
-      inviterId = Long.parseLong(parts[2]);
-    } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("Invalid invitation token content");
-    }
-
-    Space space = getSpaceById(spaceId);
-    if (space == null) {
-      throw new ObjectNotFoundException("Space not found");
-    }
-
-    if (Space.OPEN.equals(space.getRegistration())) {
-      addMember(space, username);
-      spaceLifeCycle.userJoinedByInvitationLink(space, identityManager.getIdentity(inviterId).getRemoteId());
-    }
-  }
-  
-
   private String generateNonce() {
     SecureRandom secureRandom = getSecureRandomService().getSecureRandom();
     int maxLength = Math.max(invitationTokenNonceMaxLength, DEFAULT_MAX_NONCE_LENGTH);
