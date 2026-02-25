@@ -559,8 +559,8 @@ public class ProfileSearchConnectorTest {
                 }
           ,
             {
-              "match_phrase": {
-                "testProperty": "valueProperty"
+              "query_string": {
+                "query": "testProperty.whitespace:*valueProperty*"
               }
            }
                 ]
