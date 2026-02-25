@@ -24,7 +24,8 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
     'NewUserPlugin',
     'RelationshipReceivedRequestPlugin',
     'SpaceInvitationPlugin',
-    'RequestJoinSpacePlugin'
+    'RequestJoinSpacePlugin',
+    'JoinedSpaceByInvitationLinkPlugin'
   ],
   icon: 'fa-people-arrows',
 });
@@ -42,7 +43,7 @@ extensionRegistry.registerExtension('WebNotification', 'notification-group-exten
     'EditActivityPlugin',
     'LikePlugin',
     'EditCommentPlugin',
-    'LikeCommentPlugin',
+    'LikeCommentPlugin'
   ],
   icon: 'fa-stream',
 });
@@ -121,4 +122,9 @@ extensionRegistry.registerExtension('WebNotification', 'notification-content-ext
   type: 'LikeCommentPlugin',
   rank: 10,
   vueComponent: Vue.options.components['user-notification-comment-like'],
+});
+extensionRegistry.registerExtension('WebNotification', 'notification-content-extension', {
+  type: 'JoinedSpaceByInvitationLinkPlugin',
+  rank: 10,
+  vueComponent: Vue.options.components['join-space-by-invitation-link-plugin'],
 });

@@ -20,9 +20,12 @@ package org.exoplatform.social.core.space.spi;
 
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -33,6 +36,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import io.meeds.social.space.invitation.model.SpaceInvitationLink;
+import io.meeds.social.space.invitation.storage.SpaceInvitationLinkStorage;
+import io.meeds.social.space.service.SpaceServiceImpl;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -195,6 +201,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   private CodecInitializer   codecInitializer;
 
+  private SpaceInvitationLinkStorage spaceInvitationLinkStorage;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -202,6 +210,11 @@ public class SpaceServiceTest extends AbstractCoreTest {
     organizationService = getContainer().getComponentInstanceOfType(OrganizationService.class);
     spaceLayoutService = getContainer().getComponentInstanceOfType(SpaceLayoutService.class);
     codecInitializer = getContainer().getComponentInstanceOfType(CodecInitializer.class);
+
+    spaceInvitationLinkStorage = mock(SpaceInvitationLinkStorage.class);
+    Field spaceStorageField = SpaceServiceImpl.class.getDeclaredField("spaceInvitationLinkStorage");
+    spaceStorageField.setAccessible(true);
+    spaceStorageField.set(spaceService, spaceInvitationLinkStorage);
 
     Identity userNew = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_NAME);
     Identity userNew1 = new Identity(OrganizationIdentityProvider.NAME, USER_NEW_1_NAME);
@@ -2490,6 +2503,62 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(spaceService.canAccessSpacePublicSite(space, EXTERNAL_USER_NAME));
     assertTrue(spaceService.canAccessSpacePublicSite(space, null));
     assertTrue(spaceService.canAccessSpacePublicSite(space, IdentityConstants.ANONIM));
+  }
+
+  public void testSaveSpaceInvitationLinkInvalidToken() {
+    assertThrows(IllegalArgumentException.class,
+                 () -> spaceService.saveSpaceInvitationLink("invalid-token", JOHN_NAME));
+  }
+
+  public void testSaveSpaceLinkInvitationSpaceNotFoundLink() throws Exception {
+    String payload = "LINK:999999:" + john.getId() + ":extra";
+    String token = codecInitializer.getCodec().encode(payload);
+    assertThrows(ObjectNotFoundException.class,
+                 () -> spaceService.saveSpaceInvitationLink(token, MARY_NAME));
+  }
+
+  public void testSaveAndGetAndRemoveSpaceInvitationLink() throws Exception {
+    Space space = createSpace("linkInvitationTestSpace", ROOT_NAME);
+    long spaceId = Long.parseLong(space.getId());
+    long johnIdentityId = Long.parseLong(john.getId());
+
+    String token = extractTokenFromUrl(spaceService.generateInvitationLink(spaceId, johnIdentityId));
+
+    SpaceInvitationLink expected = new SpaceInvitationLink(null, spaceId, john.getRemoteId(), MARY_NAME);
+    when(spaceInvitationLinkStorage.getInvitationLinkBySpaceAndUserAndType(spaceId, MARY_NAME))
+        .thenReturn(null)
+        .thenReturn(expected);
+
+    assertNull(spaceService.getSpaceInvitationLink(spaceId, MARY_NAME));
+
+    spaceService.saveSpaceInvitationLink(token, MARY_NAME);
+    verify(spaceInvitationLinkStorage).saveInvitationLink(any(SpaceInvitationLink.class));
+
+    SpaceInvitationLink invitation = spaceService.getSpaceInvitationLink(spaceId, MARY_NAME);
+    assertNotNull(invitation);
+    assertEquals(spaceId, (long) invitation.getSpaceId());
+    assertEquals(MARY_NAME, invitation.getInvitedUserId());
+
+    spaceService.removeSpaceInvitationLink(spaceId, MARY_NAME);
+    verify(spaceInvitationLinkStorage).deleteInvitationLinkBySpaceAndUserAndType(spaceId, MARY_NAME);
+
+    when(spaceInvitationLinkStorage.getInvitationLinkBySpaceAndUserAndType(spaceId, MARY_NAME)).thenReturn(null);
+    assertNull(spaceService.getSpaceInvitationLink(spaceId, MARY_NAME));
+  }
+
+  public void testTriggerUserJoinedByInvitationLink() throws Exception {
+    Space space = createSpace("linkJoinEventSpace", ROOT_NAME);
+
+    SpaceListenerPluginMock listener = new SpaceListenerPluginMock();
+    spaceService.registerSpaceListenerPlugin(listener);
+    try {
+      spaceService.triggerUserJoinedByInvitationLink(space, MARY_NAME, john.getRemoteId());
+    } finally {
+      spaceService.unregisterSpaceListenerPlugin(listener);
+    }
+
+    assertEquals(1, listener.getEvents().size());
+    assertEquals(Type.USER_JOINED_BY_INVITATION_LINK, listener.getEvents().getFirst());
   }
 
   private Space populateData() {
