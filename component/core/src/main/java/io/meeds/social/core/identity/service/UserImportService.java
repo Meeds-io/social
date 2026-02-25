@@ -553,6 +553,9 @@ public class UserImportService {
       if (!STANDARD_FIELDS.contains(field)) {
         if (!field.contains(".")) {
           ProfilePropertySetting propertySetting = profilePropertyService.getProfileSettingByName(field);
+          if (propertySetting != null && !propertySetting.getPropertyName().equals(field)) {
+            propertySetting = null;
+          }
           if (propertySetting == null) {
             userImportResult.addWarnMessage("ALL", "PROFILE_PROPERTY_DOES_NOT_EXIST:" + field);
             unauthorizedFields.add(field);
@@ -566,6 +569,9 @@ public class UserImportService {
         } else {
           String[] fieldNames = field.split("\\.");
           ProfilePropertySetting parentProperty = profilePropertyService.getProfileSettingByName(fieldNames[0]);
+          if (parentProperty != null && !parentProperty.getPropertyName().equals(fieldNames[0])) {
+            parentProperty = null;
+          }
           if (fieldNames.length > 2) {
             userImportResult.addWarnMessage("ALL", "PROPERTY_HAS_MORE_THAN_ONE_PARENT:" + field);
             unauthorizedFields.add(field);
