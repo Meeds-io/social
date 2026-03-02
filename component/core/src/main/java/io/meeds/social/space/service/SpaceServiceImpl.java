@@ -40,7 +40,6 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -48,6 +47,8 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Stream;
 
+import io.meeds.social.space.invitation.model.SpaceInvitationLink;
+import io.meeds.social.space.invitation.storage.SpaceInvitationLinkStorage;
 import io.meeds.social.space.model.SpaceCreationInstance;
 import io.meeds.social.util.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -120,6 +121,8 @@ public class SpaceServiceImpl implements SpaceService {
   private static final Base64.Encoder URL_ENCODER                  = Base64.getUrlEncoder().withoutPadding();
 
   private SpaceStorage                spaceStorage;
+
+  private SpaceInvitationLinkStorage  spaceInvitationLinkStorage;
 
   private SpaceSearchConnector        spaceSearchConnector;
 
@@ -1167,6 +1170,53 @@ public class SpaceServiceImpl implements SpaceService {
     return String.format("%s/portal/s/%d?invitation_id=%s", domain, spaceId, encodedToken);
   }
 
+  @Override
+  public void saveSpaceInvitationLink(String invitationToken, String username) throws ObjectNotFoundException {
+    String payload;
+    try {
+      payload = getCodec().decode(invitationToken);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Invalid invitation token");
+    }
+
+    String[] parts = payload.split(":");
+    if (parts.length != 4) {
+      throw new IllegalArgumentException("Invalid invitation token format");
+    }
+
+    long spaceId;
+    long inviterId;
+    try {
+      spaceId = Long.parseLong(parts[1]);
+      inviterId = Long.parseLong(parts[2]);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid invitation token content");
+    }
+
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException("Space not found");
+    }
+
+  getSpaceInvitationLinkStorage().saveInvitationLink(
+      new SpaceInvitationLink(null, spaceId, identityManager.getIdentity(inviterId).getRemoteId(), username));
+  }
+
+  @Override
+  public void removeSpaceInvitationLink(long spaceId, String username) {
+    getSpaceInvitationLinkStorage().deleteInvitationLinkBySpaceAndUserAndType(spaceId, username);
+	}
+
+  @Override
+  public SpaceInvitationLink getSpaceInvitationLink(long spaceId, String username) {
+    return getSpaceInvitationLinkStorage().getInvitationLinkBySpaceAndUserAndType(spaceId, username);
+  }
+
+  @Override
+  public void triggerUserJoinedByInvitationLink(Space space, String userId, String inviterId) {
+    spaceLifeCycle.userJoinedByInvitationLink(space, userId, inviterId);
+  }
+
   private String generateNonce() {
     SecureRandom secureRandom = getSecureRandomService().getSecureRandom();
     int maxLength = Math.max(invitationTokenNonceMaxLength, DEFAULT_MAX_NONCE_LENGTH);
@@ -1465,6 +1515,13 @@ public class SpaceServiceImpl implements SpaceService {
       spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
     }
     return spaceTemplateService;
+  }
+
+  private SpaceInvitationLinkStorage getSpaceInvitationLinkStorage() {
+    if (spaceInvitationLinkStorage == null) {
+      spaceInvitationLinkStorage = ExoContainerContext.getService(SpaceInvitationLinkStorage.class);
+    }
+    return spaceInvitationLinkStorage;
   }
 
   private String buildPrettyName(String... names) {
