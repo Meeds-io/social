@@ -18,7 +18,9 @@
  */
 package org.exoplatform.social.core.test;
 
+import io.meeds.social.space.invitation.storage.SpaceInvitationLinkLinkStorageTest;
 import io.meeds.social.space.listener.SpaceGroupCacheListenerTest;
+import io.meeds.social.space.listener.SpaceInvitationLinkLinkJoinListenerTest;
 import io.meeds.social.upgrade.RemoveProfilePropertyUpgradePlugin;
 import io.meeds.social.space.plugin.SpaceGroupDecoratorPluginTest;
 import io.meeds.social.space.template.listener.SpaceTemplateMembershipListenerTest;
@@ -99,7 +101,9 @@ import io.meeds.social.user.plugin.UserAclPluginTest;
     UserExportServiceTest.class,
     UserImportServiceTest.class,
     UserAclPluginTest.class,
-    RemoveProfilePropertyUpgradePlugin.class
+    RemoveProfilePropertyUpgradePlugin.class,
+    SpaceInvitationLinkLinkJoinListenerTest.class,
+    SpaceInvitationLinkLinkStorageTest.class
 })
 public class NoContainerTestSuite {
 

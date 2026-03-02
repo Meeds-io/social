@@ -25,7 +25,6 @@
   PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
   HttpSession portalSession = portalRequestContext.getRequest().getSession();
   SpaceAccessType spaceAccessType = (SpaceAccessType) portalSession.getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY);
-  String spaceInvitationToken = (String) portalRequestContext.getRequest().getAttribute("invitation_id");
   if (spaceAccessType == null) {
     return;
   }
@@ -44,14 +43,18 @@
       "spaceAccessTypeLabel": "<%=spaceAccessTypeLabel%>",
       "spacePrettyName": "<%=spacePrettyName%>",
       "spaceDisplayName": "<%=spaceDisplayName%>",
-      "originalUri": "<%=originalUri%>",
-      "spaceInvitationToken": "<%=spaceInvitationToken == null ? "" : spaceInvitationToken%>"
+      "originalUri": "<%=originalUri%>"
     }</textarea>
     <script type="text/javascript">
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const spaceInvitationToken = urlParams.get('invitation_id') || '';
+      const data = JSON.parse(
+        document.getElementById('SpaceAccessData').value.replace(/\n/g, '')
+      );
+      data.spaceInvitationToken = spaceInvitationToken;
       require(['PORTLET/social/SpaceAccessPortlet'],
-        app => app.init(
-          JSON.parse(document.getElementById('SpaceAccessData').value.replace(/\n/g, '')),
-        )
+        app => app.init(data)
       );
     </script>
   </div>
