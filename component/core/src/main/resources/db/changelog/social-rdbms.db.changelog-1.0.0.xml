@@ -1270,6 +1270,7 @@
   </changeSet>
 
   <changeSet author="social" id="1.0.0-meed-3976-fix" dbms="mysql">
+      <validCheckSum>9:8299bc11df1142abb5beb3dd3e3ea53a</validCheckSum>
     <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"/>
   </changeSet>
 

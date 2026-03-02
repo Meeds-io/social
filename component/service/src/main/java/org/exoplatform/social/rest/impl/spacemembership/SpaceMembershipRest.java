@@ -489,7 +489,7 @@ public class SpaceMembershipRest implements ResourceContainer {
       try {
         spaceService.saveSpaceInvitationLink(invitationToken, user);
       } catch (Exception e) {
-        LOG.error("Error while saving space link invitation");
+        LOG.error("Error while saving space link invitation", e);
       }
     }
   }
