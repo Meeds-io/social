@@ -45,6 +45,8 @@ import SharedActivitySpaceStreamPlugin from './components/plugins/SharedActivity
 
 import ActivityBasedPlugin from './components/plugins/abstract/ActivityBasedPlugin.vue';
 
+import JoinedSpaceByInvitationLinkPlugin from './components/plugins/JoinedSpaceByInvitationLinkPlugin.vue';
+
 const components = {
   'user-notification-html': HtmlNotification,
   'user-notifications': UserNotifications,
@@ -72,6 +74,8 @@ const components = {
   'user-notification-comment-like': LikeCommentPlugin,
 
   'user-notification-activity-base': ActivityBasedPlugin,
+
+  'join-space-by-invitation-link-plugin': JoinedSpaceByInvitationLinkPlugin
 };
 
 for (const key in components) {

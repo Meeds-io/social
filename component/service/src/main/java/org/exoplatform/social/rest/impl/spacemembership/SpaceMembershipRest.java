@@ -256,6 +256,7 @@ public class SpaceMembershipRest implements ResourceContainer {
     String spaceId = model.getSpace();
     String status = StringUtils.lowerCase(model.getStatus());
     String role = StringUtils.lowerCase(model.getRole());
+    String invitationToken = model.getInvitationToken();
     //
     Space space = spaceService.getSpaceById(spaceId);
     if (space == null) {
@@ -306,6 +307,7 @@ public class SpaceMembershipRest implements ResourceContainer {
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
       } else {
         spaceService.addPendingUser(space, user);
+        handleSpaceInvitation(invitationToken, user);
       }
     } else if (MembershipType.INVITED.name().equalsIgnoreCase(status)) {
       if (!canManageSpace) {
@@ -321,6 +323,7 @@ public class SpaceMembershipRest implements ResourceContainer {
     } else if (StringUtils.isNotBlank(status)) {
       return Response.status(Response.Status.BAD_REQUEST).entity("Status is not managed").build();
     } else if (isAddSelfToSpace(space, user, role, authenticatedUser)) {
+      handleSpaceInvitation(invitationToken, user);
       spaceService.addMember(space, user);
     } else if (canManageSpace) {
       if (SpaceUtils.MANAGER.equalsIgnoreCase(role)) {
@@ -481,4 +484,13 @@ public class SpaceMembershipRest implements ResourceContainer {
     }
   }
 
+  private void handleSpaceInvitation(String invitationToken, String user) {
+    if (StringUtils.isNotBlank(invitationToken)) {
+      try {
+        spaceService.saveSpaceInvitationLink(invitationToken, user);
+      } catch (Exception e) {
+        LOG.error("Error while saving space link invitation");
+      }
+    }
+  }
 }
