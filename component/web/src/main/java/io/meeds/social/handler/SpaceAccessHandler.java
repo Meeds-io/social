@@ -115,9 +115,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
         || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
       return false;
     }
-    if (invitationId != null) {
-      controllerContext.getRequest().setAttribute(INVITATION_ID.getName(), invitationId);
-    }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
     if (StringUtils.isBlank(username) && canAccessSpacePublicSite(space, username)) {
       controllerContext.getResponse()

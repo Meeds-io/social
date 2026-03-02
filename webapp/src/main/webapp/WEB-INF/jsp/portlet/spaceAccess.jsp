@@ -25,7 +25,6 @@
   PortalRequestContext portalRequestContext = RequestContext.getCurrentInstance();
   HttpSession portalSession = portalRequestContext.getRequest().getSession();
   SpaceAccessType spaceAccessType = (SpaceAccessType) portalSession.getAttribute(SpaceAccessType.ACCESSED_TYPE_KEY);
-  String spaceInvitationToken = (String) portalRequestContext.getRequest().getAttribute("invitation_id");
   if (spaceAccessType == null) {
     return;
   }
@@ -44,8 +43,7 @@
       "spaceAccessTypeLabel": "<%=spaceAccessTypeLabel%>",
       "spacePrettyName": "<%=spacePrettyName%>",
       "spaceDisplayName": "<%=spaceDisplayName%>",
-      "originalUri": "<%=originalUri%>",
-      "spaceInvitationToken": "<%=spaceInvitationToken == null ? "" : spaceInvitationToken%>"
+      "originalUri": "<%=originalUri%>"
     }</textarea>
     <script type="text/javascript">
       const queryString = window.location.search;
