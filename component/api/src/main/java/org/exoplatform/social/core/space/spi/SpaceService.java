@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import io.meeds.social.space.invitation.model.SpaceInvitationLink;
 import io.meeds.social.space.model.SpaceCreationInstance;
 import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.ListAccess;
@@ -1255,6 +1256,54 @@ public interface SpaceService {
    *         or if the token generation process fails
    */
   default String generateInvitationLink(Long spaceId, Long userIdentityId) throws Exception {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Persists a space invitation for the given invitation token and target username.
+   *
+   * @param invitationToken the signed invitation token identifying the space and invitation context
+   * @param username the username of the invited user
+   * @throws ObjectNotFoundException if the space or user corresponding to the invitation cannot be found
+   */
+  default void saveSpaceInvitationLink(String invitationToken, String username) throws ObjectNotFoundException {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Removes space invitation by given spaceID and invitedUserId after being joined a space
+   *
+   * @param spaceId target space id
+   * @param username invited userId
+   */
+  default void removeSpaceInvitationLink(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Retrieves space invitation by given spaceId and invitedUserName and invitation type
+   *
+   * @param spaceId  target spaceId
+   * @param username invited username
+   * @return {@link SpaceInvitationLink}
+   */
+  default SpaceInvitationLink getSpaceInvitationLink(long spaceId, String username) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
+   * Triggers the event when a user joins a space via an invitation link.
+   * <p>
+   * Implementations of this method should notify all registered
+   * {@link SpaceLifeCycleListener listeners}
+   * that the user has joined the space through an invitation link.
+   * </p>
+   *
+   * @param space     the {@link Space} that the user is joining
+   * @param userId    the identifier of the user who joined the space
+   * @param inviterId the identifier of the user who sent the invitation
+   */
+  default void triggerUserJoinedByInvitationLink(Space space, String userId, String inviterId) {
     throw new UnsupportedOperationException();
   }
 }
