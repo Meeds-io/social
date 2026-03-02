@@ -1,7 +1,7 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,21 +16,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.rest.entity;
 
+package io.meeds.social.space.invitation.model;
+
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-public class SpaceMembershipUpdateEntity {
+@NoArgsConstructor
+@AllArgsConstructor
+public class SpaceInvitationLink {
+  private Long id;
 
-  private String user;
+  private Long spaceId;
 
-  private String space;
+  private String inviterId;
 
-  private String status;
-
-  private String role;
-
-  private String invitationToken;
-
+  private String invitedUserId;
 }

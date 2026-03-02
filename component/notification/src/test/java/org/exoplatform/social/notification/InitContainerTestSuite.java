@@ -18,6 +18,8 @@
  */
 package org.exoplatform.social.notification;
 
+import io.meeds.social.notification.listener.SpaceMembershipNotificationListenerTest;
+import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPluginTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -64,6 +66,8 @@ import io.meeds.social.security.plugin.EmailOtpPluginTest;
   SocialNotificationUtilsTest.class,
   UtilsTestCase.class,
   EmailOtpPluginTest.class,
+  SpaceMembershipNotificationListenerTest.class,
+  JoinedSpaceByInvitationLinkPluginTest.class
 })
 @ConfigTestCase(AbstractCoreTest.class)
 public class InitContainerTestSuite extends BaseExoContainerTestSuite {

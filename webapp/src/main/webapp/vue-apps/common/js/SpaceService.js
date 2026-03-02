@@ -370,7 +370,7 @@ export function cancel(spaceId) {
   });
 }
 
-export function join(spaceId) {
+export function join(spaceId, invitationToken) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -381,6 +381,7 @@ export function join(spaceId) {
       space: spaceId,
       user: eXo.env.portal.userName,
       role: 'member',
+      invitationToken
     }),
   }).then(resp => {
     if (!resp?.ok) {
@@ -389,7 +390,7 @@ export function join(spaceId) {
   });
 }
 
-export function requestJoin(spaceId) {
+export function requestJoin(spaceId, invitationToken) {
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/spacesMemberships`, {
     method: 'POST',
     credentials: 'include',
@@ -400,6 +401,7 @@ export function requestJoin(spaceId) {
       space: spaceId,
       user: eXo.env.portal.userName,
       status: 'pending',
+      invitationToken
     }),
   }).then(resp => {
     if (!resp?.ok) {

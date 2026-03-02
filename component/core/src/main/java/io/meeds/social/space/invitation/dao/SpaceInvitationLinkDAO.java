@@ -1,7 +1,7 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,21 +16,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.rest.entity;
+package io.meeds.social.space.invitation.dao;
 
-import lombok.Data;
 
-@Data
-public class SpaceMembershipUpdateEntity {
+import io.meeds.social.space.invitation.entity.SpaceInvitationLinkEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-  private String user;
+@Repository
+public interface SpaceInvitationLinkDAO extends JpaRepository<SpaceInvitationLinkEntity, Long> {
 
-  private String space;
+  SpaceInvitationLinkEntity findBySpaceIdAndInvitedUserId(Long spaceId, String invitedUserId);
 
-  private String status;
-
-  private String role;
-
-  private String invitationToken;
+  void deleteBySpaceIdAndInvitedUserId(Long spaceId, String invitedUserId);
 
 }

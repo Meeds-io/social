@@ -21,6 +21,7 @@ package org.exoplatform.social.core.mock;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.core.space.SpaceListenerPlugin;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
@@ -127,6 +128,11 @@ public class SpaceListenerPluginMock extends SpaceListenerPlugin {
   @Override
   public void categoryRemoved(SpaceCategoryLifeCycleEvent event) {
     events.add(Type.CATEGORY_REMOVED);
+  }
+
+  @Override
+  public void userJoinedByInvitationLink(SpaceInvitationLifeCycleEvent event) {
+    events.add(Type.USER_JOINED_BY_INVITATION_LINK);
   }
 
   public void reset() {
