@@ -1,7 +1,7 @@
-/**
+/*
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -16,21 +16,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.rest.entity;
+package io.meeds.social.space.plugin;
 
-import lombok.Data;
+import lombok.Getter;
+import org.exoplatform.social.core.space.model.Space;
+import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
 
-@Data
-public class SpaceMembershipUpdateEntity {
+public class SpaceInvitationLifeCycleEvent extends SpaceLifeCycleEvent {
 
-  private String user;
+  @Getter
+  private String inviterId;
 
-  private String space;
-
-  private String status;
-
-  private String role;
-
-  private String invitationToken;
-
+  public SpaceInvitationLifeCycleEvent(Space space, String target, Type eventType, String inviterId) {
+    super(space, target, eventType);
+    this.inviterId = inviterId;
+  }
 }

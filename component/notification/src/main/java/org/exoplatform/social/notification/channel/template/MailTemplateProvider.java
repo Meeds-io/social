@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import io.meeds.social.notification.plugin.JoinedSpaceByInvitationLinkPlugin;
+import io.meeds.social.notification.util.NotificationUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -43,9 +45,9 @@ import org.exoplatform.commons.api.notification.model.NotificationInfo;
 import org.exoplatform.commons.api.notification.model.PluginKey;
 import org.exoplatform.commons.api.notification.plugin.NotificationPluginUtils;
 import org.exoplatform.commons.api.notification.service.template.TemplateContext;
-import org.exoplatform.commons.notification.NotificationUtils;
 import org.exoplatform.commons.notification.template.TemplateUtils;
 import org.exoplatform.commons.utils.CommonsUtils;
+import org.exoplatform.commons.utils.HTMLEntityEncoder;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
@@ -80,7 +82,8 @@ import org.jsoup.Jsoup;
     @TemplateConfig(pluginId = RelationshipReceivedRequestPlugin.ID, template = "war:/notification/templates/RelationshipReceivedRequestPlugin.gtmpl"),
     @TemplateConfig(pluginId = SharedActivitySpaceStreamPlugin.ID, template = "war:/notification/templates/SharedActivitySpaceStreamPlugin.gtmpl"),
     @TemplateConfig(pluginId = RequestJoinSpacePlugin.ID, template = "war:/notification/templates/RequestJoinSpacePlugin.gtmpl"),
-    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl")})
+    @TemplateConfig(pluginId = SpaceInvitationPlugin.ID, template = "war:/notification/templates/SpaceInvitationPlugin.gtmpl"),
+    @TemplateConfig(pluginId = JoinedSpaceByInvitationLinkPlugin.ID, template = "war:/notification/templates/JoinedSpaceByInvitationLinkPlugin.gtmpl")})
 
 public class MailTemplateProvider extends TemplateProvider {
 
@@ -783,7 +786,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
       templateContext.put("USER", Utils.addExternalFlag(identity));
       templateContext.put("PORTAL_NAME", NotificationPluginUtils.getBrandingPortalName());
-      templateContext.put("PORTAL_HOME", NotificationUtils.getPortalHome(NotificationPluginUtils.getBrandingPortalName()));
+      templateContext.put("PORTAL_HOME", org.exoplatform.commons.notification.NotificationUtils.getPortalHome(NotificationPluginUtils.getBrandingPortalName()));
       String subject = TemplateUtils.processSubject(templateContext);
 
       templateContext.put("PROFILE_URL", LinkProviderUtils.getRedirectUrl("user", identity.getRemoteId()));
@@ -1270,6 +1273,43 @@ public class MailTemplateProvider extends TemplateProvider {
 
   };
 
+  private class JoinedSpaceByInvitationLinkTemplateBuilder extends AbstractTemplateBuilder {
+
+  @Override
+  protected MessageInfo makeMessage(NotificationContext notificationContext) {
+    NotificationInfo notificationInfo = notificationContext.getNotificationInfo();
+    String pluginId = notificationInfo.getKey().getId();
+    HTMLEntityEncoder encoder = HTMLEntityEncoder.getInstance();
+    String invitedUserDisplayName = notificationInfo.getValueOwnerParameter(NotificationUtils.INVITED_USER.getKey());
+    String inviterId = notificationInfo.getValueOwnerParameter(NotificationUtils.INVITER_ID.getKey());
+    String spaceId = notificationInfo.getValueOwnerParameter(NotificationUtils.SPACE_ID.getKey());
+    String spaceDisplayName = notificationInfo.getValueOwnerParameter(NotificationUtils.SPACE_DISPLAY_NAME.getKey());
+    String spaceAvatarUrl = notificationInfo.getValueOwnerParameter(NotificationUtils.SPACE_AVATAR_URL.getKey());
+    Identity inviterIdentity = Utils.getIdentityManager().getOrCreateUserIdentity(inviterId);
+    String language = getLanguage(notificationInfo);
+    TemplateContext templateContext = TemplateContext.newChannelInstance(getChannelKey(), pluginId, language);
+    SocialNotificationUtils.addFooterAndFirstName(notificationInfo.getTo(), templateContext);
+
+
+    templateContext.put("INVITED_USER_DISPLAY_NAME", encoder.encode(invitedUserDisplayName));
+    templateContext.put("SPACE_DISPLAY_NAME", encoder.encode(spaceDisplayName));
+    templateContext.put("SPACE_MEMBERS_URL", "/portal/s/" + encoder.encode(spaceId) + "/members");
+    templateContext.put("SPACE_AVATAR_URL", encoder.encode(spaceAvatarUrl));
+    templateContext.put("USER", Utils.addExternalFlag(inviterIdentity));
+    templateContext.put("AVATAR", CommonsUtils.getCurrentDomain() + spaceAvatarUrl);
+
+    String subject = TemplateUtils.processSubject(templateContext);
+    String body = TemplateUtils.processGroovy(templateContext);
+    notificationContext.setException(templateContext.getException());
+    MessageInfo messageInfo = new MessageInfo();
+    return messageInfo.subject(subject).body(body).end();
+  }
+
+    @Override
+    protected boolean makeDigest(NotificationContext notificationContext, Writer writer) {
+      return false;
+    }
+  }
 
   protected ExoSocialActivity getI18N(ExoSocialActivity activity,Locale locale) {
 
@@ -1297,6 +1337,7 @@ public class MailTemplateProvider extends TemplateProvider {
     this.templateBuilders.put(PluginKey.key(RelationshipReceivedRequestPlugin.ID), relationshipReceived);
     this.templateBuilders.put(PluginKey.key(RequestJoinSpacePlugin.ID), requestJoinSpace);
     this.templateBuilders.put(PluginKey.key(SpaceInvitationPlugin.ID), spaceInvitation);
+    this.templateBuilders.put(PluginKey.key(JoinedSpaceByInvitationLinkPlugin.ID), new JoinedSpaceByInvitationLinkTemplateBuilder());
   }
 
   private String getActivityTitle(ExoSocialActivity activity, String language) {
@@ -1306,7 +1347,7 @@ public class MailTemplateProvider extends TemplateProvider {
 
   private String processBody(String message, String language) {
     message = MentionUtils.substituteRoleWithLocale(message, Locale.forLanguageTag(language));
-    return NotificationUtils.processLinkTitle(message);
+    return org.exoplatform.commons.notification.NotificationUtils.processLinkTitle(message);
   }
 
 }

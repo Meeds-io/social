@@ -107,6 +107,9 @@ export default {
     spaceLink() {
       return this.parameters?.originalUri;
     },
+    invitationToken() {
+      return this.parameters?.spaceInvitationToken;
+    },
     spaceNotAccessible() {
       return this.spaceAccessTypeLabel === 'CLOSED_SPACE' || this.spaceAccessTypeLabel === 'SPACE_NOT_FOUND';
     },
@@ -182,13 +185,13 @@ export default {
     },
     join() {
       this.sendingAction = true;
-      this.$spaceService.join(this.spaceId)
+      this.$spaceService.join(this.spaceId, this.invitationToken)
         .then(() => this.gotToSpace())
         .catch(() => this.handleError());
     },
     requestJoin() {
       this.sendingAction = true;
-      this.$spaceService.requestJoin(this.spaceId)
+      this.$spaceService.requestJoin(this.spaceId, this.invitationToken)
         .then(() => this.gotToSpace())
         .catch(() => this.handleError());
     },

@@ -156,6 +156,9 @@ export default {
     spaceRegistration() {
       return this.$root.spaceRegistration;
     },
+    spaceInvitationToken() {
+      return this.$root?.spaceInvitationToken;
+    },
     isSpace() {
       return !!this.spaceId?.length;
     },
@@ -204,7 +207,7 @@ export default {
     async join() {
       this.loading = true;
       try {
-        await this.$spaceService.join(this.spaceId);
+        await this.$spaceService.join(this.spaceId, this.spaceInvitationToken);
         this.$root.isMember = true;
       } finally {
         this.loading = false;
@@ -213,7 +216,7 @@ export default {
     async requestJoin() {
       this.loading = true;
       try {
-        await this.$spaceService.requestJoin(this.spaceId);
+        await this.$spaceService.requestJoin(this.spaceId, this.spaceInvitationToken);
         this.$root.isPendingUser = true;
       } finally {
         this.loading = false;

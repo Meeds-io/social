@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.space;
 
+import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.common.lifecycle.AbstractLifeCycle;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent;
@@ -148,7 +149,7 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
       listener.templateApplied(event);
       break;
     case USER_JOINED_BY_INVITATION_LINK:
-      listener.userJoinedByInvitationLink(event);
+      listener.userJoinedByInvitationLink((SpaceInvitationLifeCycleEvent) event);
       break;
     default:
       break;
@@ -259,8 +260,8 @@ public class SpaceLifecycle extends AbstractLifeCycle<SpaceLifeCycleListener, Sp
     broadcast(new SpaceLifeCycleEvent(space, userId, Type.SPACE_TEMPLATE_APPLIED));
   }
 
-  public void userJoinedByInvitationLink(Space space, String userId) {
-    broadcast(new SpaceLifeCycleEvent(space, userId, Type.USER_JOINED_BY_INVITATION_LINK));
+  public void userJoinedByInvitationLink(Space space, String userId, String inviterId) {
+    broadcast(new SpaceInvitationLifeCycleEvent(space, userId, Type.USER_JOINED_BY_INVITATION_LINK, inviterId));
   }
 
   private boolean isSpaceProperEvent(SpaceLifeCycleEvent event) {
