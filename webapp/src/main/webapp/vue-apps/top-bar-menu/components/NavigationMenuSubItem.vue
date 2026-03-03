@@ -210,7 +210,7 @@ export default {
       }
       const myUri = this.navigationNodeUri;
       const emitterUri = emitter.navigationNodeUri;
-      if (myUri && emitterUri && emitterUri.startsWith(myUri)) {
+      if (myUri && emitterUri && (myUri.startsWith(emitterUri) || emitterUri.startsWith(myUri))) {
         return;
       }
       if (!myUri && this.isDescendant(emitter.navigation, this.navigation)) {
