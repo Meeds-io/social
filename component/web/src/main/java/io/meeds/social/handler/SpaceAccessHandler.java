@@ -58,13 +58,15 @@ import jakarta.servlet.http.HttpSession;
 
 public class SpaceAccessHandler extends WebRequestHandler {
 
-  private static final String       SPACES_GROUP_PREFIX  = SpaceUtils.SPACE_GROUP + "/";
+  private static final String       SPACES_GROUP_PREFIX      = SpaceUtils.SPACE_GROUP + "/";
 
-  public static final String        PAGE_URI             = "space-access";
+  public static final String        PAGE_URI                 = "space-access";
 
-  public static final QualifiedName INVITATION_ID        = QualifiedName.create("invitation_id");
+  public static final QualifiedName INVITATION_ID            = QualifiedName.create("invitation_id");
 
-  private static final String INVITATION_DI_QUERY_STRING = "?invitation_id=";
+  public static final String       IS_PARENT_SPACE_MEMBER    = "isParentSpaceMember";
+
+  private static final String INVITATION_DI_QUERY_STRING     = "?invitation_id=";
 
   private SpaceService              spaceService;
 
@@ -144,7 +146,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
     } else if (username == null) {
       return false;
     } else {
-      processSpaceAccess(controllerContext, username, space, invitationId);
+      processSpaceAccess(controllerContext, username, space, invitationId, username);
       return true;
     }
   }
@@ -175,15 +177,20 @@ public class SpaceAccessHandler extends WebRequestHandler {
   private void processSpaceAccess(ControllerContext controllerContext,
                                   String remoteId,
                                   Space space,
-                                  String invitationId) throws IOException {
+                                  String invitationId,
+                                  String username) throws IOException {
     SpaceAccessType spaceAccessType = Arrays.stream(SpaceAccessType.values())
                                             .filter(accessType -> accessType.doCheck(remoteId, space))
                                             .findFirst()
                                             .orElse(null);
-    sendRedirect(controllerContext, spaceAccessType, space, invitationId);
+    sendRedirect(controllerContext, spaceAccessType, space, invitationId, username);
   }
 
-  private void sendRedirect(ControllerContext controllerContext, SpaceAccessType type, Space space, String invitationId) throws IOException {
+  private void sendRedirect(ControllerContext controllerContext,
+                            SpaceAccessType type,
+                            Space space,
+                            String invitationId,
+                            String username) throws IOException {
     // set original parameter in session to share it with SpaceAccess App after
     // redirection
     HttpServletRequest request = controllerContext.getRequest();
@@ -195,16 +202,29 @@ public class SpaceAccessHandler extends WebRequestHandler {
       session.removeAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY);
     } else {
       session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
-      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_PRETTY_NAME_KEY, space.getDisplayName());
-      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY, space.getPrettyName());
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_PRETTY_NAME_KEY, space.getPrettyName());
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY, space.getDisplayName());
       session.setAttribute(SpaceAccessType.ACCESSED_SPACE_REQUEST_PATH_KEY, request.getRequestURI());
     }
 
-    String redirectUrl = getURI(controllerContext, PAGE_URI);
+    StringBuilder redirectUrl = new StringBuilder(getURI(controllerContext, PAGE_URI));
+    boolean hasQuery = false;
+
     if (invitationId != null) {
-      redirectUrl += INVITATION_DI_QUERY_STRING + URLEncoder.encode(invitationId, StandardCharsets.UTF_8);
+      redirectUrl.append(INVITATION_DI_QUERY_STRING)
+                 .append(URLEncoder.encode(invitationId, StandardCharsets.UTF_8));
+      hasQuery = true;
     }
-    controllerContext.getResponse().sendRedirect(redirectUrl);
+
+    if (space != null && space.getParentSpaceId() != null) {
+      boolean isParentSpaceMember = spaceService.isMember(String.valueOf(space.getParentSpaceId()), username);
+      redirectUrl.append(hasQuery ? "&" : "?")
+                 .append(IS_PARENT_SPACE_MEMBER)
+                 .append("=")
+                 .append(URLEncoder.encode(String.valueOf(isParentSpaceMember), StandardCharsets.UTF_8));
+    }
+
+    controllerContext.getResponse().sendRedirect(redirectUrl.toString());
   }
 
   private void cleanupSession(ControllerContext controllerContext) {
