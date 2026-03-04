@@ -54,7 +54,13 @@ export default {
   }),
   computed: {
     bodyElement() {
-      return this.body || '';
+      if (!this.body) {
+        return '';
+      }
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(this.body, 'text/html');
+      doc.querySelectorAll('oembed').forEach(el => el.remove());
+      return doc.body.innerHTML;
     },
     getBody() {
       return this.activityTypeExtension && this.activityTypeExtension.getBody;
