@@ -52,6 +52,9 @@
       const data = JSON.parse(
         document.getElementById('SpaceAccessData').value.replace(/\n/g, '')
       );
+      if (urlParams.has('isParentSpaceMember')) {
+        data.isParentSpaceMember = urlParams.get('isParentSpaceMember') === 'true';
+      }
       data.spaceInvitationToken = spaceInvitationToken;
       require(['PORTLET/social/SpaceAccessPortlet'],
         app => app.init(data)
