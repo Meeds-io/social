@@ -49,9 +49,11 @@
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
       const spaceInvitationToken = urlParams.get('invitation_id') || '';
+      const parentRegistrationType = urlParams.get('parentRegistrationType') || '';
       const data = JSON.parse(
         document.getElementById('SpaceAccessData').value.replace(/\n/g, '')
       );
+      data.parentRegistrationType = parentRegistrationType;
       data.spaceInvitationToken = spaceInvitationToken;
       require(['PORTLET/social/SpaceAccessPortlet'],
         app => app.init(data)

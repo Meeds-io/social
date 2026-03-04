@@ -35,7 +35,15 @@
         class="text-body"
         v-sanitized-html="secondLabel" />
       <v-card-actions class="justify-center py-5">
-        <template v-if="spaceAccessTypeLabel === 'INVITED_SPACE'">
+        <v-btn
+          v-if="isSubSpace && parentRegistration === 'closed'"
+          :href="spacesLink"
+          :loading="sendingAction"
+          color="primary"
+          class="btn spaceJoinButton">
+          {{ $t('UISpaceAccess.action.ExploreSpaces') }}
+        </v-btn>
+        <template v-else-if="spaceAccessTypeLabel === 'INVITED_SPACE'">
           <v-btn
             :disabled="sendingRefuse"
             :loading="sendingAction"
@@ -104,6 +112,12 @@ export default {
     spacesLink() {
       return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
     },
+    isSubSpace() {
+      return !!this.parentRegistration;
+    },
+    parentRegistration() {
+      return this.parameters?.parentRegistrationType;
+    },
     spaceLink() {
       return this.parameters?.originalUri;
     },
@@ -139,6 +153,9 @@ export default {
       return null;
     },
     secondLabel() {
+      if (this.isSubSpace) {
+        return this.$t('UISpaceAccess.subspace.memberRestrict');
+      }
       switch (this.spaceAccessTypeLabel) {
       case 'INVITED_SPACE':
         return this.$t('UISpaceAccess.invited-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
