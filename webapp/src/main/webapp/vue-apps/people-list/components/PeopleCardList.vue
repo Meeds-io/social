@@ -204,7 +204,10 @@ export default {
     document.addEventListener('user-extension-updated', this.refreshUserExtensions);
     document.addEventListener('people-list-refresh', this.searchPeopleNoFilters);
 
-    this.$root.$on('reset-advanced-filter', this.searchPeople);
+    this.$root.$on('reset-advanced-filter', () => {
+      this.advancedFilterSettings = null;
+      this.searchPeople();
+    });
     this.$root.$on('advanced-filter', profileSettings => this.searchPeople(profileSettings));
 
     this.refreshExtensions();
