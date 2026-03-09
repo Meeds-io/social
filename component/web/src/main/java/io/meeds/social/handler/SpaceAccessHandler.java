@@ -22,11 +22,14 @@ import static org.exoplatform.portal.application.PortalRequestHandler.REQUEST_SI
 import static org.exoplatform.portal.application.PortalRequestHandler.REQUEST_SITE_TYPE;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.portal.config.UserPortalConfigService;
@@ -46,6 +49,7 @@ import org.exoplatform.web.WebRequestHandler;
 import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
+import org.exoplatform.web.security.sso.SSOHelper;
 
 import io.meeds.social.space.service.SpaceLayoutService;
 
@@ -104,7 +108,17 @@ public class SpaceAccessHandler extends WebRequestHandler {
       return false;
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
-    if (canAccessSpace(space, username)) {
+    if (StringUtils.isBlank(username) && canAccessSpacePublicSite(space, username)) {
+      controllerContext.getResponse()
+                       .sendRedirect(String.format("%s/%s",
+                                                   controllerContext.getRequest().getContextPath(),
+                                                   spaceLayoutService.getSpacePublicSiteName(space)));
+      return true;
+    } else if (StringUtils.isBlank(username)) {
+      String loginPath = getAuthenticationUrl(controllerContext.getRequest().getRequestURI());
+      controllerContext.getResponse().sendRedirect(loginPath);
+      return true;
+    } else if (canAccessSpace(space, username)) {
       if (spaceService.isMember(space, username)) {
         HttpSession session = controllerContext.getRequest().getSession();
         String lastAccessedSpaceId = (String) session.getAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY);
@@ -127,8 +141,6 @@ public class SpaceAccessHandler extends WebRequestHandler {
                                                    controllerContext.getRequest().getContextPath(),
                                                    spaceLayoutService.getSpacePublicSiteName(space)));
       return true;
-    } else if (username == null) {
-      return false;
     } else {
       processSpaceAccess(controllerContext, username, space);
       return true;
@@ -216,6 +228,20 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private String getPageNotFoundSite(String username) {
     return StringUtils.isBlank(username) ? "public" : userPortalConfigService.getMetaPortal();
+  }
+
+  private String getAuthenticationUrl(String permanentLink) {
+    StringBuilder loginPath = new StringBuilder();
+
+    // . Check SSO Enable
+    SSOHelper ssoHelper = ExoContainerContext.getService(SSOHelper.class);
+    if (ssoHelper != null && ssoHelper.isSSOEnabled() && ssoHelper.skipJSPRedirection()) {
+      loginPath.append("/portal").append(ssoHelper.getSSORedirectURLSuffix());
+    } else {
+      loginPath.append("/portal/login");
+    }
+    loginPath.append("?initialURI=").append(URLEncoder.encode(permanentLink, StandardCharsets.UTF_8));
+    return loginPath.toString();
   }
 
 }
