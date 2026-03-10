@@ -448,7 +448,7 @@ public class ProfileSearchConnectorTest {
     }
 
     @Test
-    public void testSearchWithProfileSetting() throws InvocationTargetException, NoSuchMethodException, IllegalAccessException {
+    public void testSearchWithProfileSetting() {
         ElasticSearchingClient elasticSearchClient = Mockito.mock(ElasticSearchingClient.class);
         profileSearchConnector = new ProfileSearchConnector(getInitParams(), elasticSearchClient, profilePropertyService);
         IdentityManagerImpl identityManager = Mockito.mock(IdentityManagerImpl.class);
