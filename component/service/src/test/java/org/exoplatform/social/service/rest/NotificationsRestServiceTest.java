@@ -18,9 +18,12 @@
  */
 package org.exoplatform.social.service.rest;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import io.meeds.portal.permlink.service.PermanentLinkService;
+import io.meeds.social.space.plugin.SpacePermanentLinkPlugin;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.activity.model.ExoSocialActivity;
 import org.exoplatform.social.core.activity.model.ExoSocialActivityImpl;
@@ -35,7 +38,8 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
 
   private ActivityManagerImpl activityManager;
   private SpaceService spaceService;
-  
+  private PermanentLinkService permanentLinkService;
+
   private Identity rootIdentity;
   private Identity johnIdentity;
   private Identity maryIdentity;
@@ -47,7 +51,14 @@ public class NotificationsRestServiceTest extends AbstractResourceTest {
     IdentityStorage identityStorage = getContainer().getComponentInstanceOfType(IdentityStorage.class);
     activityManager = getContainer().getComponentInstanceOfType(ActivityManagerImpl.class);
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
-    
+
+    permanentLinkService = getContainer().getComponentInstanceOfType(PermanentLinkService.class);
+    SpacePermanentLinkPlugin spacePermanentLinkPlugin = new SpacePermanentLinkPlugin();
+    Field field = SpacePermanentLinkPlugin.class.getDeclaredField("spaceService");
+    field.setAccessible(true);
+    field.set(spacePermanentLinkPlugin, spaceService);
+    permanentLinkService.addPlugin(spacePermanentLinkPlugin);
+
     rootIdentity = new Identity("organization", "root");
     johnIdentity = new Identity("organization", "john");
     maryIdentity = new Identity("organization", "mary");
