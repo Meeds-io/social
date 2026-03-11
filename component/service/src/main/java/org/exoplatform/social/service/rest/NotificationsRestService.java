@@ -198,7 +198,7 @@ public class NotificationsRestService implements ResourceContainer {
     if (Arrays.asList(space.getInvitedUsers()).contains(userId)) {
       getSpaceService().addMember(space, userId);
     }
-    String targetURL = Util.getBaseUrl() + LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", ""));
+    String targetURL = Util.getBaseUrl() + LinkProvider.getSpaceLink(spaceId);
 
     // redirect to target page
     return Response.seeOther(URI.create(targetURL)).build();
@@ -323,7 +323,7 @@ public class NotificationsRestService implements ResourceContainer {
     }
     
     String baseUrl = Util.getBaseUrl();
-    String spaceHomeUrl = LinkProvider.getActivityUriForSpace(space.getPrettyName(), space.getGroupId().replace("/spaces/", ""));
+    String spaceHomeUrl = LinkProvider.getSpaceLink(spaceId);
     StringBuilder targetURL = new StringBuilder().append(baseUrl).append(spaceHomeUrl).append("/members?feedbackMessage=");
     if (getSpaceService().isMember(space, userId)) {
       targetURL.append("SpaceRequestAlreadyMember&spaceId=").append(spaceId).append("&userName=").append(userId);
