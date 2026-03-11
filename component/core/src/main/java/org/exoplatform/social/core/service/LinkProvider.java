@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Validate;
 import org.apache.commons.text.StringEscapeUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.container.PortalContainer;
@@ -332,6 +333,15 @@ public class LinkProvider {
    */
   public static String getActivityUriForSpace(final String remoteId, final String groupId) {
     return String.format("/%s/g/:spaces:%s/%s", getPortalName(null), groupId, remoteId);
+  }
+
+  /**
+   * Gets space Link
+   * @param spaceId target spaceId
+   * @return space link
+   */
+  public static String getSpaceLink(String spaceId) throws ObjectNotFoundException {
+    return CommonsUtils.getService(PermanentLinkService.class).getLink(new PermanentLinkObject("space", spaceId));
   }
 
   /**

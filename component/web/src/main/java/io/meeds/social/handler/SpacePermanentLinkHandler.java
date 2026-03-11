@@ -93,7 +93,7 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
                                               controllerContext.getRequest().getQueryString());
       controllerContext.getResponse().sendRedirect(loginPath);
     } else if (space == null
-        || isHiddenSpace(space, username)) {
+        || (isHiddenSpace(space, username) && !spaceService.isInvitedUser(space, username))) {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
