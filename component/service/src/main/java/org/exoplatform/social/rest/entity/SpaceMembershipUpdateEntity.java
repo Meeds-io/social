@@ -31,4 +31,6 @@ public class SpaceMembershipUpdateEntity {
 
   private String role;
 
+  private String invitationToken;
+
 }

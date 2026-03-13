@@ -40,28 +40,29 @@ import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWi
 import static org.exoplatform.social.core.space.SpaceUtils.removeUserFromGroupWithRedactorMembership;
 import static org.exoplatform.social.core.space.SpaceUtils.setPermissionsFromTemplate;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Stream;
 
+import io.meeds.social.space.invitation.model.SpaceInvitationLink;
+import io.meeds.social.space.invitation.storage.SpaceInvitationLinkStorage;
 import io.meeds.social.space.model.SpaceCreationInstance;
 import io.meeds.social.util.JsonUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import org.exoplatform.commons.exception.ObjectNotFoundException;
 import org.exoplatform.commons.file.model.FileItem;
 import org.exoplatform.commons.file.services.FileService;
 import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.commons.utils.ListAccess;
 import org.exoplatform.commons.utils.ListAccessImpl;
 import org.exoplatform.container.ExoContainerContext;
+import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.portal.config.UserACL;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
@@ -92,6 +93,8 @@ import org.exoplatform.social.core.space.spi.SpaceLifeCycleEvent.Type;
 import org.exoplatform.social.core.space.spi.SpaceLifeCycleListener;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
+import org.exoplatform.web.security.codec.AbstractCodec;
+import org.exoplatform.web.security.codec.CodecInitializer;
 import org.exoplatform.web.security.security.CookieTokenService;
 import org.exoplatform.web.security.security.RemindPasswordTokenService;
 
@@ -100,36 +103,54 @@ import io.meeds.social.space.template.model.SpaceTemplate;
 import io.meeds.social.space.template.service.SpaceTemplateService;
 
 import lombok.SneakyThrows;
+import org.exoplatform.web.security.security.SecureRandomService;
+import org.exoplatform.web.security.security.TokenServiceInitializationException;
 
 public class SpaceServiceImpl implements SpaceService {
 
-  private static final Log         LOG                   = ExoLogger.getLogger(SpaceServiceImpl.class);
+  private static final Log            LOG                          = ExoLogger.getLogger(SpaceServiceImpl.class);
 
-  private static final int         MAX_SPACE_NAME_LENGTH = 200;
+  private static final int            MAX_SPACE_NAME_LENGTH        = 200;
 
-  private SpaceStorage             spaceStorage;
+  private static final int            MIN_NONCE_LENGTH             = 8;
 
-  private SpaceSearchConnector     spaceSearchConnector;
+  private static final int            DEFAULT_MAX_NONCE_LENGTH     = 12;
 
-  private GroupSpaceBindingStorage groupSpaceBindingStorage;
+  private static final String         NONCE_MAX_LENGTH_VALUE_PARAM = "space.invitation.token.nonce.maxLength";
 
-  private IdentityManager          identityManager;
+  private static final Base64.Encoder URL_ENCODER                  = Base64.getUrlEncoder().withoutPadding();
 
-  private UserACL                  userAcl;
+  private SpaceStorage                spaceStorage;
 
-  private ResourceBundleService    resourceBundleService;
+  private SpaceInvitationLinkStorage  spaceInvitationLinkStorage;
 
-  private LocaleConfigService      localeConfigService;
+  private SpaceSearchConnector        spaceSearchConnector;
 
-  private OrganizationService      organizationService;
+  private GroupSpaceBindingStorage    groupSpaceBindingStorage;
 
-  private SpaceTemplateService     spaceTemplateService;
+  private IdentityManager             identityManager;
 
-  private FileService              fileService;
+  private UserACL                     userAcl;
 
-  private CookieTokenService       cookieTokenService;
+  private ResourceBundleService       resourceBundleService;
 
-  private SpaceLifecycle           spaceLifeCycle        = new SpaceLifecycle();
+  private LocaleConfigService         localeConfigService;
+
+  private OrganizationService         organizationService;
+
+  private SpaceTemplateService        spaceTemplateService;
+
+  private FileService                 fileService;
+
+  private CookieTokenService          cookieTokenService;
+
+  private SpaceLifecycle              spaceLifeCycle               = new SpaceLifecycle();
+
+  private CodecInitializer            codecInitializer;
+  
+  private SecureRandomService         secureRandomService;
+
+  private int invitationTokenNonceMaxLength;
 
   public SpaceServiceImpl(SpaceStorage spaceStorage, // NOSONAR
                           GroupSpaceBindingStorage groupSpaceBindingStorage,
@@ -139,7 +160,8 @@ public class SpaceServiceImpl implements SpaceService {
                           ResourceBundleService resourceBundleService,
                           LocaleConfigService localeConfigService,
                           FileService fileService,
-                          CookieTokenService cookieTokenService) {
+                          CookieTokenService cookieTokenService,
+                          InitParams initParams) {
     this.spaceStorage = spaceStorage;
     this.groupSpaceBindingStorage = groupSpaceBindingStorage;
     this.spaceSearchConnector = spaceSearchConnector;
@@ -149,6 +171,17 @@ public class SpaceServiceImpl implements SpaceService {
     this.localeConfigService = localeConfigService;
     this.fileService = fileService;
     this.cookieTokenService = cookieTokenService;
+
+    this.invitationTokenNonceMaxLength = DEFAULT_MAX_NONCE_LENGTH;
+    if (initParams != null && initParams.containsKey(NONCE_MAX_LENGTH_VALUE_PARAM)) {
+      String value = initParams.getValueParam(NONCE_MAX_LENGTH_VALUE_PARAM).getValue();
+      try {
+        this.invitationTokenNonceMaxLength = Integer.parseInt(value);
+      } catch (NumberFormatException e) {
+        LOG.warn("Invalid value for {}: '{}', using default {}",
+                    NONCE_MAX_LENGTH_VALUE_PARAM, value, DEFAULT_MAX_NONCE_LENGTH, e);
+      }
+    }
   }
 
   @Override
@@ -1123,6 +1156,91 @@ public class SpaceServiceImpl implements SpaceService {
     registerSpaceLifeCycleListener(plugin);
   }
 
+  @Override
+  public String generateInvitationLink(Long spaceId, Long userIdentityId) throws Exception {
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+        throw new ObjectNotFoundException("space not found");
+    }
+
+    String payload = "%s:%s:%s:%s".formatted(generateNonce(), spaceId, userIdentityId, generateNonce());
+    String token = getCodec().encode(payload);
+    String domain = CommonsUtils.getCurrentDomain();
+    String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
+    return String.format("%s/portal/s/%d?invitation_id=%s", domain, spaceId, encodedToken);
+  }
+
+  @Override
+  public void saveSpaceInvitationLink(String invitationToken, String username) throws ObjectNotFoundException {
+    String payload;
+    try {
+      payload = getCodec().decode(invitationToken);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Invalid invitation token");
+    }
+
+    String[] parts = payload.split(":");
+    if (parts.length != 4) {
+      throw new IllegalArgumentException("Invalid invitation token format");
+    }
+
+    long spaceId;
+    long inviterId;
+    try {
+      spaceId = Long.parseLong(parts[1]);
+      inviterId = Long.parseLong(parts[2]);
+    } catch (NumberFormatException e) {
+      throw new IllegalArgumentException("Invalid invitation token content");
+    }
+
+    Space space = getSpaceById(spaceId);
+    if (space == null) {
+      throw new ObjectNotFoundException("Space not found");
+    }
+
+  getSpaceInvitationLinkStorage().saveInvitationLink(
+      new SpaceInvitationLink(null, spaceId, identityManager.getIdentity(inviterId).getRemoteId(), username));
+  }
+
+  @Override
+  public void removeSpaceInvitationLink(long spaceId, String username) {
+    getSpaceInvitationLinkStorage().deleteInvitationLinkBySpaceAndUserAndType(spaceId, username);
+	}
+
+  @Override
+  public SpaceInvitationLink getSpaceInvitationLink(long spaceId, String username) {
+    return getSpaceInvitationLinkStorage().getInvitationLinkBySpaceAndUserAndType(spaceId, username);
+  }
+
+  @Override
+  public void triggerUserJoinedByInvitationLink(Space space, String userId, String inviterId) {
+    spaceLifeCycle.userJoinedByInvitationLink(space, userId, inviterId);
+  }
+
+  private String generateNonce() {
+    SecureRandom secureRandom = getSecureRandomService().getSecureRandom();
+    int maxLength = Math.max(invitationTokenNonceMaxLength, DEFAULT_MAX_NONCE_LENGTH);
+    int randomLength = secureRandom.nextInt(maxLength - MIN_NONCE_LENGTH + 1) + MIN_NONCE_LENGTH;
+
+    byte[] bytes = new byte[randomLength];
+    secureRandom.nextBytes(bytes);
+    return URL_ENCODER.encodeToString(bytes);
+  }
+
+  private SecureRandomService getSecureRandomService() {
+    if(secureRandomService == null) {
+      secureRandomService = CommonsUtils.getService(SecureRandomService.class);
+    }
+    return  secureRandomService;
+  }
+
+  private AbstractCodec getCodec() throws TokenServiceInitializationException {
+    if (codecInitializer == null) {
+      codecInitializer = CommonsUtils.getService(CodecInitializer.class);
+    }
+    return codecInitializer.getCodec();
+  }
+
   private void copySpaceTemplateProperties(Space space,
                                            SpaceTemplate spaceTemplate,
                                            String username,
@@ -1397,6 +1515,13 @@ public class SpaceServiceImpl implements SpaceService {
       spaceTemplateService = ExoContainerContext.getService(SpaceTemplateService.class);
     }
     return spaceTemplateService;
+  }
+
+  private SpaceInvitationLinkStorage getSpaceInvitationLinkStorage() {
+    if (spaceInvitationLinkStorage == null) {
+      spaceInvitationLinkStorage = ExoContainerContext.getService(SpaceInvitationLinkStorage.class);
+    }
+    return spaceInvitationLinkStorage;
   }
 
   private String buildPrettyName(String... names) {

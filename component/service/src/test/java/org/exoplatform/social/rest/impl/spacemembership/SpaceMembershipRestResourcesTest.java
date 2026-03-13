@@ -18,13 +18,19 @@
  */
 package org.exoplatform.social.rest.impl.spacemembership;
 
+import java.lang.reflect.Field;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.stream.Stream;
 
 import javax.ws.rs.HttpMethod;
 
+import io.meeds.social.space.invitation.storage.SpaceInvitationLinkStorage;
+import io.meeds.social.space.service.SpaceServiceImpl;
 import org.apache.commons.lang3.ArrayUtils;
 
+import org.exoplatform.commons.utils.CommonsUtils;
 import org.exoplatform.services.rest.impl.ContainerResponse;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.space.SpaceUtils;
@@ -33,6 +39,11 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.rest.entity.CollectionEntity;
 import org.exoplatform.social.rest.entity.DataEntity;
 import org.exoplatform.social.service.test.AbstractResourceTest;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
@@ -60,6 +71,8 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
 
   private SpaceMembershipRest membershipRestResources;
 
+  private SpaceInvitationLinkStorage spaceInvitationLinkStorage;
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
@@ -67,6 +80,11 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     System.setProperty("gatein.email.domain.url", "localhost:8080");
 
     spaceService = getContainer().getComponentInstanceOfType(SpaceService.class);
+
+    spaceInvitationLinkStorage = mock(SpaceInvitationLinkStorage.class);
+    Field spaceStorageField = SpaceServiceImpl.class.getDeclaredField("spaceInvitationLinkStorage");
+    spaceStorageField.setAccessible(true);
+    spaceStorageField.set(spaceService, spaceInvitationLinkStorage);
 
     Identity rootIdentity = identityManager.getOrCreateUserIdentity("root");
     Identity johnIdentity = identityManager.getOrCreateUserIdentity("john");
@@ -653,6 +671,78 @@ public class SpaceMembershipRestResourcesTest extends AbstractResourceTest {
     collections = (CollectionEntity) response.getEntity();
     assertEquals(0, collections.getEntities().size());
   }
+
+  public void testGenerateInvitationToken() throws Exception {
+    String invitationTokenUrl = SPACES_MEMBERSHIPS_URL + "/invitationLink";
+
+    startSessionAs("root");
+    ContainerResponse response = service(HttpMethod.GET, getURLResource(invitationTokenUrl), "", null, null);
+    assertEquals(400, response.getStatus());
+
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=99999"), "", null, null);
+    assertEquals(404, response.getStatus());
+
+    startSessionAs("mary");
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(200, response.getStatus());
+
+    startSessionAs("root");
+    response = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(200, response.getStatus());
+
+    String token = (String) response.getEntity();
+    assertNotNull(token);
+    assertFalse(token.isBlank());
+    assertTrue(token.startsWith(CommonsUtils.getCurrentDomain() + "/portal/s/" + getSpaceId(1) + "?invitation_id="));
+
+    ContainerResponse response2 = service(HttpMethod.GET, getURLResource(invitationTokenUrl + "?spaceId=" + getSpaceId(1)), "", null, null);
+    assertEquals(200, response2.getStatus());
+
+    String token2 = (String) response2.getEntity();
+    assertNotNull(token2);
+    assertNotEquals(token, token2);
+  }
+
+  public void testAddSpacesMembershipWithInvitationToken() throws Exception {
+    // Generate a real invitation link as root (manager of space1)
+    startSessionAs("root");
+    ContainerResponse linkResponse = service(HttpMethod.GET,
+      getURLResource(SPACES_MEMBERSHIPS_URL + "/invitationLink?spaceId=" + getSpaceId(1)), "", null, null);
+    assertNotNull(linkResponse);
+    assertEquals(200, linkResponse.getStatus());
+
+    String invitationUrl = (String) linkResponse.getEntity();
+    assertNotNull(invitationUrl);
+    assertFalse(invitationUrl.isBlank());
+    assertTrue(invitationUrl.contains("invitation_id="));
+
+    // Extract the URL-encoded token from the URL, then decode it for use in JSON
+    // body
+    String encodedToken = invitationUrl
+        .substring(invitationUrl.indexOf("invitation_id=") + "invitation_id=".length());
+    assertFalse(encodedToken.isBlank());
+    String invitationToken = URLDecoder.decode(encodedToken, StandardCharsets.UTF_8);
+
+    // demo tries to join space1 (VALIDATION registration) with the invitation token
+    startSessionAs("demo");
+    String jsonInput = String.format(
+       "{\"space\":\"%s\", \"user\":\"demo\", \"status\":\"pending\", \"invitationToken\":\"%s\"}",
+       getSpaceId(1),
+    // Escape any backslashes or quotes in the token for valid JSON
+    invitationToken.replace("\\", "\\\\").replace("\"", "\\\""));
+
+    ContainerResponse response = getResponse(HttpMethod.POST, getURLResource(SPACES_MEMBERSHIPS_URL), jsonInput);
+    assertNotNull(response);
+    assertEquals(204, response.getStatus());
+
+    // Verify that demo is now a pending member of space1
+    Space space = spaceService.getSpaceByPrettyName(SPACE1);
+    assertTrue(spaceService.isPendingUser(space, "demo"));
+
+    verify(spaceInvitationLinkStorage).saveInvitationLink(argThat(invitation -> invitation != null
+       && Long.parseLong(space.getId()) == invitation.getSpaceId()
+       && "demo".equals(invitation.getInvitedUserId())));
+	}
 
   private void createSpaceIfNotExist(int index, String creator) throws Exception {
     createSpaceIfNotExist(index, creator, Space.OPEN);

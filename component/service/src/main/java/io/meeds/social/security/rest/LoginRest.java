@@ -262,7 +262,9 @@ public class LoginRest {
                                                 String email,
                                                 @Parameter(description = "Captcha")
                                                 @RequestParam("captcha")
-                                                String captcha) {
+                                                String captcha,
+                                                @RequestParam(value = "initialURI", required = false)
+                                                String initialURI) {
 
     if (request.getRemoteUser() != null) {
       return ResponseEntity.status(HttpStatus.FOUND).header(LOCATION_HEADER, "/portal").build();
@@ -282,7 +284,7 @@ public class LoginRest {
     if (errorMessage == null) {
       cleanCapcha(request.getSession(),"register");
       if (!isExistsEmail(email)) {
-        if (sendOnboardingEmail(email, request)) {
+        if (sendOnboardingEmail(email, initialURI, request)) {
           return ResponseEntity.ok(new JSONObject()
                                       .put(SUCCESS_MESSAGE_PARAM, ONBOARDING_EMAIL_SENT_MESSAGE)
                                       .toString());
@@ -675,11 +677,11 @@ public class LoginRest {
     return false;
   }
 
-  private boolean sendOnboardingEmail(String email, HttpServletRequest request) {
+  private boolean sendOnboardingEmail(String email, String initialUri, HttpServletRequest request) {
     try {
       StringBuilder url = getUrl(request);
       Locale locale = request.getLocale();
-      passwordRecoveryService.sendExternalRegisterEmail(null, email, locale, null, url, false);
+      passwordRecoveryService.sendExternalRegisterEmail(null, email, locale, null, url, false, initialUri);
     } catch (Exception e) {
       LOG.error("Unable to send onboarding email",e);
       return false;

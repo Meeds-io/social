@@ -47,6 +47,8 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
 
   public static final QualifiedName REQUEST_SPACE_ID = QualifiedName.create("spaceId");
 
+  public static final QualifiedName INVITATION_ID    = QualifiedName.create("invitation_id");
+
   public static final QualifiedName REQUEST_PATH     = QualifiedName.create("path");
 
   private SpaceService              spaceService;
@@ -80,13 +82,15 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String spaceId = controllerContext.getParameter(REQUEST_SPACE_ID);
     String path = controllerContext.getParameter(REQUEST_PATH);
+    String invitationId = controllerContext.getRequest().getParameter(INVITATION_ID.getName());
     String queryString = controllerContext.getRequest().getQueryString();
     if (StringUtils.isNotEmpty(queryString)) {
       path = path + "?" + queryString;
     }
     Space space = spaceService.getSpaceById(spaceId);
     if (StringUtils.isBlank(username)) {
-      String loginPath = getAuthenticationUrl(controllerContext.getRequest().getRequestURI());
+      String loginPath = getAuthenticationUrl(controllerContext.getRequest().getRequestURI(),
+                                              controllerContext.getRequest().getQueryString());
       controllerContext.getResponse().sendRedirect(loginPath);
     } else if (space == null
         || isHiddenSpace(space, username)) {
@@ -114,17 +118,17 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
                                    Collections.singletonMap(APPLICATION_URI, path));
   }
 
-  private String getAuthenticationUrl(String permanentLink) {
+  private String getAuthenticationUrl(String permanentLink, String queryString) {
     StringBuilder loginPath = new StringBuilder();
-
-    // . Check SSO Enable
+    // Check sso enabled
     SSOHelper ssoHelper = ExoContainerContext.getService(SSOHelper.class);
     if (ssoHelper != null && ssoHelper.isSSOEnabled() && ssoHelper.skipJSPRedirection()) {
       loginPath.append("/portal").append(ssoHelper.getSSORedirectURLSuffix());
     } else {
       loginPath.append("/portal/login");
     }
-    loginPath.append("?initialURI=").append(URLEncoder.encode(permanentLink, StandardCharsets.UTF_8));
+    String fullUri = StringUtils.isNotBlank(queryString) ? permanentLink + "?" + queryString : permanentLink;
+    loginPath.append("?initialURI=").append(URLEncoder.encode(fullUri, StandardCharsets.UTF_8));
     return loginPath.toString();
   }
 

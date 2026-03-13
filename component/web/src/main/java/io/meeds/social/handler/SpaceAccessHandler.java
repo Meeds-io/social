@@ -46,6 +46,7 @@ import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.web.ControllerContext;
 import org.exoplatform.web.WebAppController;
 import org.exoplatform.web.WebRequestHandler;
+import org.exoplatform.web.controller.QualifiedName;
 import org.exoplatform.web.url.URLFactoryService;
 import org.exoplatform.web.url.navigation.NavigationResource;
 import org.exoplatform.web.url.navigation.NodeURL;
@@ -59,21 +60,27 @@ import jakarta.servlet.http.HttpSession;
 
 public class SpaceAccessHandler extends WebRequestHandler {
 
-  private static final String     SPACES_GROUP_PREFIX = SpaceUtils.SPACE_GROUP + "/";
+  private static final String       SPACES_GROUP_PREFIX      = SpaceUtils.SPACE_GROUP + "/";
 
-  public static final String      PAGE_URI            = "space-access";
+  public static final String        PAGE_URI                 = "space-access";
 
-  private SpaceService            spaceService;
+  public static final QualifiedName INVITATION_ID            = QualifiedName.create("invitation_id");
 
-  private SpaceLayoutService      spaceLayoutService;
+  public static final String       IS_PARENT_SPACE_MEMBER    = "isParentSpaceMember";
 
-  private URLFactoryService       urlFactoryService;
+  private static final String INVITATION_DI_QUERY_STRING     = "?invitation_id=";
 
-  private UserPortalConfigService userPortalConfigService;
+  private SpaceService              spaceService;
 
-  private LayoutService           layoutService;
+  private SpaceLayoutService        spaceLayoutService;
 
-  private UserACL                 userAcl;
+  private URLFactoryService         urlFactoryService;
+
+  private UserPortalConfigService   userPortalConfigService;
+
+  private LayoutService             layoutService;
+
+  private UserACL                   userAcl;
 
   @Override
   public void onInit(WebAppController controller, ServletConfig sConfig) throws Exception {
@@ -103,6 +110,7 @@ public class SpaceAccessHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String requestSiteType = controllerContext.getParameter(REQUEST_SITE_TYPE);
     String requestSiteName = controllerContext.getParameter(REQUEST_SITE_NAME);
+    String invitationId = controllerContext.getRequest().getParameter(INVITATION_ID.getName());
     if (!SiteType.GROUP.name().equalsIgnoreCase(requestSiteType)
         || !requestSiteName.startsWith(SPACES_GROUP_PREFIX)) {
       return false;
@@ -136,13 +144,19 @@ public class SpaceAccessHandler extends WebRequestHandler {
                                                    getPageNotFoundSite(username)));
       return true;
     } else if (canAccessSpacePublicSite(space, username)) {
-      controllerContext.getResponse()
-                       .sendRedirect(String.format("%s/%s",
-                                                   controllerContext.getRequest().getContextPath(),
-                                                   spaceLayoutService.getSpacePublicSiteName(space)));
+      String redirectUrl = String.format("%s/%s",
+                                         controllerContext.getRequest().getContextPath(),
+                                         spaceLayoutService.getSpacePublicSiteName(space));
+
+      if (invitationId != null) {
+        redirectUrl += INVITATION_DI_QUERY_STRING
+            + URLEncoder.encode(invitationId, StandardCharsets.UTF_8);
+      }
+
+      controllerContext.getResponse().sendRedirect(redirectUrl);
       return true;
     } else {
-      processSpaceAccess(controllerContext, username, space);
+      processSpaceAccess(controllerContext, username, space, invitationId, username);
       return true;
     }
   }
@@ -172,15 +186,21 @@ public class SpaceAccessHandler extends WebRequestHandler {
 
   private void processSpaceAccess(ControllerContext controllerContext,
                                   String remoteId,
-                                  Space space) throws IOException {
+                                  Space space,
+                                  String invitationId,
+                                  String username) throws IOException {
     SpaceAccessType spaceAccessType = Arrays.stream(SpaceAccessType.values())
                                             .filter(accessType -> accessType.doCheck(remoteId, space))
                                             .findFirst()
                                             .orElse(null);
-    sendRedirect(controllerContext, spaceAccessType, space);
+    sendRedirect(controllerContext, spaceAccessType, space, invitationId, username);
   }
 
-  private void sendRedirect(ControllerContext controllerContext, SpaceAccessType type, Space space) throws IOException {
+  private void sendRedirect(ControllerContext controllerContext,
+                            SpaceAccessType type,
+                            Space space,
+                            String invitationId,
+                            String username) throws IOException {
     // set original parameter in session to share it with SpaceAccess App after
     // redirection
     HttpServletRequest request = controllerContext.getRequest();
@@ -192,12 +212,29 @@ public class SpaceAccessHandler extends WebRequestHandler {
       session.removeAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY);
     } else {
       session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
-      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_PRETTY_NAME_KEY, space.getDisplayName());
-      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY, space.getPrettyName());
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_PRETTY_NAME_KEY, space.getPrettyName());
+      session.setAttribute(SpaceAccessType.ACCESSED_SPACE_DISPLAY_NAME_KEY, space.getDisplayName());
       session.setAttribute(SpaceAccessType.ACCESSED_SPACE_REQUEST_PATH_KEY, request.getRequestURI());
     }
 
-    controllerContext.getResponse().sendRedirect(getURI(controllerContext, PAGE_URI));
+    StringBuilder redirectUrl = new StringBuilder(getURI(controllerContext, PAGE_URI));
+    boolean hasQuery = false;
+
+    if (invitationId != null) {
+      redirectUrl.append(INVITATION_DI_QUERY_STRING)
+                 .append(URLEncoder.encode(invitationId, StandardCharsets.UTF_8));
+      hasQuery = true;
+    }
+
+    if (space != null && space.getParentSpaceId() != null) {
+      boolean isParentSpaceMember = spaceService.isMember(String.valueOf(space.getParentSpaceId()), username);
+      redirectUrl.append(hasQuery ? "&" : "?")
+                 .append(IS_PARENT_SPACE_MEMBER)
+                 .append("=")
+                 .append(URLEncoder.encode(String.valueOf(isParentSpaceMember), StandardCharsets.UTF_8));
+    }
+
+    controllerContext.getResponse().sendRedirect(redirectUrl.toString());
   }
 
   private void cleanupSession(ControllerContext controllerContext) {

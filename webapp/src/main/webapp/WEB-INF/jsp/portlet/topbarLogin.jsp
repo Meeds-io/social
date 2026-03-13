@@ -26,6 +26,7 @@
 <%@page import="org.exoplatform.container.ExoContainerContext"%>
 <%@page import="io.meeds.portal.security.service.SecuritySettingService"%>
 <%@page import="org.exoplatform.social.core.space.SpaceUtils"%>
+
 <%
   SecuritySettingService securitySettingService = ExoContainerContext.getService(SecuritySettingService.class);
   boolean canRegister = securitySettingService.getRegistrationType() == UserRegistrationType.OPEN;
@@ -51,13 +52,18 @@
     </div>
     <% } %>
     <script type="text/javascript">
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      const spaceInvitationToken = urlParams.get('invitation_id') || '';
       require(['PORTLET/social/TopBarLogin'], app =>
         app.init('<%=avatarUrl%>',
           <%=canRegister%>,
           '<%=space == null ? "" : space.getRegistration()%>',
           <%=space != null && username != null && spaceService.canViewSpace(space, username)%>,
           <%=space != null && username != null && spaceService.isPendingUser(space, username)%>,
-          <%=space != null && username != null && spaceService.isInvitedUser(space, username)%>)
+          <%=space != null && username != null && spaceService.isInvitedUser(space, username)%>,
+          spaceInvitationToken
+        )
       );
     </script>
   </div>

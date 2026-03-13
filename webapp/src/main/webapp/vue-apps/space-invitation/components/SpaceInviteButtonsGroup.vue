@@ -59,17 +59,29 @@
     <space-invite-input-email-drawer
       v-if="$root.isExternalFeatureEnabled"
       ref="emailInvitationDrawer" />
+    <space-invitation-link-drawer
+      :space-id="spaceId"
+      :go-back-button="goBackButton" />
   </div>
 </template>
 <script>
 export default {
+  props: {
+    goBackButton: {
+      type: Boolean,
+      default: false
+    }
+  },
   computed: {
     pendingCount() {
       return (this.$root?.space?.pendingUsersCount || 0)
         + (this.$root?.space?.invitedUsersCount || 0)
         + (this.$root?.externalInvitations?.length || 0);
     },
-  },
+    spaceId() {
+      return this.$root?.space?.id;
+    }
+  }
 };
 </script>
 

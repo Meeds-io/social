@@ -20,7 +20,7 @@
 -->
 <template>
   <v-menu
-    v-if="$root.isExternalFeatureEnabled"
+    v-if="showMenu"
     content-class="application-menu z-index-modal"
     offset-y>
     <template #activator="{attrs, on}">
@@ -40,7 +40,8 @@
         {{ $t('SpaceSettings.users.invite') }}
       </v-btn>
     </template>
-    <v-list max-width="300">
+    <v-list
+      max-width="300">
       <v-list-item
         id="InvitePlatformUserToSpaceButton"
         link
@@ -51,6 +52,7 @@
         </v-list-item-content>
       </v-list-item>
       <v-list-item
+        v-if="$root.isExternalFeatureEnabled"
         id="InviteUserByEmailToSpaceButton"
         link
         @click="$root.$emit('space-settings-invite-email', true)">
@@ -59,15 +61,29 @@
           <v-list-item-subtitle class="text-truncate-3 text-wrap">{{ $t('SpaceSettings.users.button.inviteByEmail.description') }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item
+        v-if="invitationLinkAllowed"
+        id="InviteUserByInvitationToSpaceButton"
+        link
+        @click="$root.$emit('space-settings-invite-link')">
+        <v-list-item-content class="d-inline">
+          <v-list-item-title>
+            {{ $t('SpaceSettings.users.button.inviteByLink') }}
+          </v-list-item-title>
+          <v-list-item-subtitle class="text-truncate-3 text-wrap">
+            {{ $t('SpaceSettings.users.button.inviteByLink.description') }}
+          </v-list-item-subtitle>
+        </v-list-item-content>
+      </v-list-item>
     </v-list>
   </v-menu>
   <v-btn
-    v-else
+    v-else-if="showInviteButton"
     id="spaceSettingUsersListToolbar"
     :title="$t('SpaceSettings.users.invite')"
     color="primary"
     elevation="0"
-    @click="$root.$emit('space-settings-invite-member', true)">
+    @click="openInvite">
     <v-icon
       color="while"
       class="me-2"
@@ -77,4 +93,34 @@
     {{ $t('SpaceSettings.users.invite') }}
   </v-btn>
 </template>
-<script></script>
+
+<script>
+export default {
+  computed: {
+    invitationLinkAllowed() {
+      return ['validation', 'open'].includes(this.spaceSubscription);
+    },
+    spaceSubscription() {
+      return this.$root?.space?.subscription;
+    },
+    showInviteButton() {
+      return this.canEdit || this.invitationLinkAllowed;
+    },
+    showMenu() {
+      return this.canEdit && (this.$root.isExternalFeatureEnabled || this.invitationLinkAllowed);
+    },
+    canEdit() {
+      return this.$root?.space?.canEdit;
+    }
+  },
+  methods: {
+    openInvite() {
+      if (this.isManager) {
+        this.$root.$emit('space-settings-invite-member');
+      } else {
+        this.$root.$emit('space-settings-invite-link');
+      }
+    }
+  }
+};
+</script>

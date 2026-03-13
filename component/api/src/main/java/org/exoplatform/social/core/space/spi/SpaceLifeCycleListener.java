@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.space.spi;
 
+import io.meeds.social.space.plugin.SpaceInvitationLifeCycleEvent;
 import org.exoplatform.social.common.lifecycle.LifeCycleListener;
 
 import io.meeds.social.space.plugin.SpaceCategoryLifeCycleEvent;
@@ -244,6 +245,10 @@ public interface SpaceLifeCycleListener extends LifeCycleListener<SpaceLifeCycle
    * @param event the space lifecycle event
    */
   default void templateApplied(SpaceLifeCycleEvent event) {
+    // No default implementation
+  }
+
+  default void userJoinedByInvitationLink(SpaceInvitationLifeCycleEvent event) {
     // No default implementation
   }
 

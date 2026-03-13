@@ -224,6 +224,10 @@ export default {
       type: String,
       default: null,
     },
+    initialUri: {
+      type: String,
+      default: null
+    }
   },
   data: () => ({
     username: null,
@@ -306,7 +310,12 @@ export default {
             } else {
               if (resp.redirected) {
                 sessionStorage.setItem('email',this.email);
-                window.location.href = resp.url;
+
+                const redirectUrl = new URL(resp.url, window.location.origin);
+                if (this.initialUri) {
+                  redirectUrl.searchParams.set('initialURI', this.initialUri);
+                }
+                window.location.href = redirectUrl.toString();
               } else {
                 this.success = true;
               }

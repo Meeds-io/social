@@ -35,7 +35,8 @@
         class="text-body"
         v-sanitized-html="secondLabel" />
       <v-card-actions class="justify-center py-5">
-        <template v-if="spaceAccessTypeLabel === 'INVITED_SPACE'">
+        <span v-if="isSubSpace && !isParentSpaceMember"></span>
+        <template v-else-if="spaceAccessTypeLabel === 'INVITED_SPACE'">
           <v-btn
             :disabled="sendingRefuse"
             :loading="sendingAction"
@@ -104,8 +105,17 @@ export default {
     spacesLink() {
       return `${eXo.env.portal.context}/${eXo.env.portal.metaPortalName}/spaces`;
     },
+    isSubSpace() {
+      return 'isParentSpaceMember' in (this.parameters || {});
+    },
+    isParentSpaceMember() {
+      return this.parameters?.isParentSpaceMember;
+    },
     spaceLink() {
       return this.parameters?.originalUri;
+    },
+    invitationToken() {
+      return this.parameters?.spaceInvitationToken;
     },
     spaceNotAccessible() {
       return this.spaceAccessTypeLabel === 'CLOSED_SPACE' || this.spaceAccessTypeLabel === 'SPACE_NOT_FOUND';
@@ -136,6 +146,9 @@ export default {
       return null;
     },
     secondLabel() {
+      if (this.isSubSpace && !this.isParentSpaceMember) {
+        return this.$t('UISpaceAccess.subspace.memberRestrict');
+      }
       switch (this.spaceAccessTypeLabel) {
       case 'INVITED_SPACE':
         return this.$t('UISpaceAccess.invited-space').replace('{0}', `<strong>${this.spaceDisplayName}</strong>`);
@@ -182,13 +195,13 @@ export default {
     },
     join() {
       this.sendingAction = true;
-      this.$spaceService.join(this.spaceId)
+      this.$spaceService.join(this.spaceId, this.invitationToken)
         .then(() => this.gotToSpace())
         .catch(() => this.handleError());
     },
     requestJoin() {
       this.sendingAction = true;
-      this.$spaceService.requestJoin(this.spaceId)
+      this.$spaceService.requestJoin(this.spaceId, this.invitationToken)
         .then(() => this.gotToSpace())
         .catch(() => this.handleError());
     },
