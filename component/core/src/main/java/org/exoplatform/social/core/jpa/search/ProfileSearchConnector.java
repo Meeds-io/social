@@ -577,7 +577,7 @@ public class ProfileSearchConnector {
                 } else {
                   searchedText = removeAccents(splittedValues[i]);
                 }
-                expression.append(" ").append(key.replace(" ", "\\\\ ")).append(".whitespace").append(":").append(searchedText);
+                expression.append(" ").append(key.replace(" ", "\\\\ ")).append(isEmailProfileProperty(key) ? ":" : ".whitespace:").append(searchedText);
               }
             }
             query.append("""
@@ -592,13 +592,15 @@ public class ProfileSearchConnector {
                                                           ? StorageUtils.ASTERISK_STR + removeAccents(value)
                                                               + StorageUtils.ASTERISK_STR
                                                           : removeAccents(value);
+            String propertyName = property.getPropertyName();
+            String filedName = isEmailProfileProperty(propertyName) ? propertyName : "%s.whitespace".formatted(propertyName);
             query.append("""
                   {
                     "query_string": {
-                      "query": "%s.whitespace:%s"
+                      "query": "%s:%s"
                     }
                  }
-                """.formatted(property.getPropertyName().replace(" ", "\\\\ "), searchedTex));
+                """.formatted(filedName.replace(" ", "\\\\ "), searchedTex));
           }
           index++;
         }
@@ -634,5 +636,8 @@ public class ProfileSearchConnector {
     query.append("        }\n");
     query.append("      }");
     return query.toString();
+  }
+  private boolean isEmailProfileProperty(String propertyName) {
+    return propertyName.equals("email");
   }
 }
