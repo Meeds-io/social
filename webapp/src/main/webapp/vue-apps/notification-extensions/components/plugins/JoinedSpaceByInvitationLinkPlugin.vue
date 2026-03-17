@@ -38,7 +38,7 @@
         </div>
         <v-btn
           :href="spaceMembersLink"
-          class="pa-1 btn btn-primary"
+          class="pa-1 primary--text border-radius border-box-sizing ignore-vuetify-classes"
           link
           small
           outlined>
