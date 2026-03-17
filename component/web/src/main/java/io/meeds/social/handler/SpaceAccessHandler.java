@@ -116,7 +116,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
       return false;
     }
     Space space = spaceService.getSpaceByGroupId(requestSiteName);
-    if (StringUtils.isBlank(username) && canAccessSpacePublicSite(space, username)) {
+    if (StringUtils.isBlank(username) && space.getPublicSiteId() != 0
+        && canAccessSpacePublicSite(space, username)) {
       controllerContext.getResponse()
                        .sendRedirect(String.format("%s/%s",
                                                    controllerContext.getRequest().getContextPath(),
