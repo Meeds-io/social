@@ -72,7 +72,7 @@ public class SpaceGroupDecoratorPlugin extends BaseComponentPlugin implements Gr
     }
     try {
       Space space = spaceService.getSpaceByGroupId(group.getId());
-      if (space == null) {
+      if (space == null || space.getTemplateId() <= 0) {
         return group;
       }
       String templateGroupId = spaceTemplateService.getOrCreateSpaceTemplateGroupId(space.getTemplateId());
