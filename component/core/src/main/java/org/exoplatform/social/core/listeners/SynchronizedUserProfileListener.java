@@ -55,7 +55,8 @@ public class SynchronizedUserProfileListener extends Listener<IDMExternalStoreIm
       boolean isModified = false;
       Set<String> externalUserProfileAttributes = externalUserProperties.keySet();
       for (String externalUserProfileAttribute : externalUserProfileAttributes) {
-        if (!internalUserProperties.containsKey(externalUserProfileAttribute)
+        Object externalPropertyValue = externalUserProperties.getOrDefault(externalUserProfileAttribute, null);
+        if ((!internalUserProperties.containsKey(externalUserProfileAttribute) && externalPropertyValue != null)
             || !Objects.equals(externalUserProperties.get(externalUserProfileAttribute),
                                internalUserProperties.get(externalUserProfileAttribute))) {
           // set the newly or modified property
