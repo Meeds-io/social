@@ -138,12 +138,15 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
       // , except 'validator', ...so on.
       SpaceService spaceService = ExoContainerContext.getService(SpaceService.class);
       Space space = spaceService.getSpaceByGroupId(m.getGroupId());
+      String userName = m.getUserName();
       if (space != null) {
         ConversationState state = ConversationState.getCurrent();
         if (state != null && state.getIdentity() != null && space.getEditor() == null) {
+          if (!spaceService.isMember(space, userName)) {
+            spaceService.addMember(space, userName);
+          }
           space.setEditor(state.getIdentity().getUserId());
         }
-        String userName = m.getUserName();
         clearOwnerGlobalStreamCache(userName);
         if (acl.getAdminMSType().equalsIgnoreCase(m.getMembershipType()) ||
             MembershipTypeHandler.ANY_MEMBERSHIP_TYPE.equalsIgnoreCase(m.getMembershipType())) {
@@ -165,10 +168,16 @@ public class SocialMembershipListenerImpl extends MembershipEventListener {
           if (spaceService.isRedactor(space, userName)) {
             return;
           }
+          if (!spaceService.isMember(space, userName)) {
+            spaceService.addMember(space, userName);
+          }
           spaceService.addRedactor(space, userName);
         } else if (SpaceUtils.PUBLISHER.equalsIgnoreCase(m.getMembershipType())) {
           if (spaceService.isPublisher(space, userName)) {
             return;
+          }
+          if (!spaceService.isMember(space, userName)) {
+            spaceService.addMember(space, userName);
           }
           spaceService.addPublisher(space, userName);
         }
