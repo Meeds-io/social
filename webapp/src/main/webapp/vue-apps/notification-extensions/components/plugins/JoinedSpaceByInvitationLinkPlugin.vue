@@ -34,7 +34,7 @@
             small>
             fas fa-door-open
           </v-icon>
-          <span v-sanitized-html="actionMessage" />
+          <span v-sanitized-html="actionMessage"></span>
         </div>
         <v-btn
           :href="spaceMembersLink"
