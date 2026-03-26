@@ -33,7 +33,7 @@
         v-else-if="action === 'createUser'"
         :identifier="this.email"
         :token-param="this.token"
-        :initial-uri="initialUri"  />
+        :initial-uri="initialUri" />
     </v-card>
   </v-app>
 </template>
