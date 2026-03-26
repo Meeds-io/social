@@ -82,18 +82,17 @@ public class SpacePermanentLinkHandler extends WebRequestHandler {
     String username = controllerContext.getRequest().getRemoteUser();
     String spaceId = controllerContext.getParameter(REQUEST_SPACE_ID);
     String path = controllerContext.getParameter(REQUEST_PATH);
-    String invitationId = controllerContext.getRequest().getParameter(INVITATION_ID.getName());
     String queryString = controllerContext.getRequest().getQueryString();
     if (StringUtils.isNotEmpty(queryString)) {
       path = path + "?" + queryString;
     }
     Space space = spaceService.getSpaceById(spaceId);
-    if (StringUtils.isBlank(username)) {
+    if (StringUtils.isBlank(username) && space.getPublicSiteId() == 0) {
       String loginPath = getAuthenticationUrl(controllerContext.getRequest().getRequestURI(),
                                               controllerContext.getRequest().getQueryString());
       controllerContext.getResponse().sendRedirect(loginPath);
-    } else if (space == null
-        || (isHiddenSpace(space, username) && !spaceService.isInvitedUser(space, username))) {
+    } else if (space == null || (StringUtils.isNotBlank(username) && isHiddenSpace(space, username)
+        && !spaceService.isInvitedUser(space, username))) {
       String pageNotFoundUrl = "/portal/" + getPageNotFoundSite(username) + "/page-not-found";
       controllerContext.getResponse().sendRedirect(pageNotFoundUrl);
     } else {
