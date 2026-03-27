@@ -44,7 +44,7 @@
       type="activity-number-views"
       parent-element="div"
       element="div"
-       class="d-flex align-center"/>
+      class="d-flex align-center" />
   </div>
 </template>
 
@@ -81,11 +81,11 @@ export default {
     isActivityEdited() {
       return this.activity && this.activity.updateDate !== this.activity.createDate;
     },
-      params() {
-          return {
-            activity: this.activity,
-          };
-        },
+    params() {
+      return {
+        activity: this.activity,
+      };
+    },
     activityId() {
       return this.activity && this.activity.id;
     },
