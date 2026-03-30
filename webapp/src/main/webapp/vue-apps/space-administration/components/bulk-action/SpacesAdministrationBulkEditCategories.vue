@@ -42,8 +42,8 @@ export default {
             objectType: 'space',
             objectId: space.id,
             spaceId: space.id,
-            oldCategoryIds: oldCategoryIds.slice(),
-            newCategoryIds: newCategoryIds.slice(),
+            oldCategories: oldCategoryIds.slice(),
+            newCategories: newCategoryIds.slice(),
             dropExisting: params.dropExisting
           });
           const categoryIds = newCategoryIds.slice();
