@@ -138,7 +138,8 @@ public class SpaceAccessHandler extends WebRequestHandler {
         session.setAttribute(SpaceAccessType.ACCESSED_SPACE_ID_KEY, space.getId());
       }
       return false;
-    } else if (space == null || (Space.HIDDEN.equals(space.getVisibility())
+    } else if (space == null || (Space.HIDDEN.equals(space.getVisibility()) && space.getRegistration()
+                                                                                    .equalsIgnoreCase(Space.CLOSED)
         && !spaceService.isInvitedUser(space, username))) {
       controllerContext.getResponse()
                        .sendRedirect(String.format("%s/%s/page-not-found",
