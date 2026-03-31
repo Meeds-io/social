@@ -197,12 +197,18 @@ public class OAuthAuthenticationFilter extends AbstractSSOInterceptor {
       socialNetworkService.updateOAuthAccessToken(principal.getOauthProviderType(),
                                                   portalUser.getUserName(),
                                                   principal.getAccessToken());
+      // Now Facebook/Google authentication handshake is finished and credentials
+      // are in session. We can redirect to JAAS authenticatio
+      String loginRedirectURL = httpResponse.encodeRedirectURL(getLoginRedirectUrl(httpRequest, portalUser.getUserName()));
+      httpResponse.sendRedirect(loginRedirectURL);
+    } else {
+      String loginRedirectURL = "/portal/login?error=SigninFail";
+      cleanAuthenticationContext(httpRequest);
+      httpResponse.setHeader("Set-Cookie", "OPENID_ACCESS_TOKEN="+" ; Path=/;  Max-Age=0; HttpOnly;SameSite=Lax");
+      httpResponse.sendRedirect(loginRedirectURL);
     }
 
-    // Now Facebook/Google authentication handshake is finished and credentials
-    // are in session. We can redirect to JAAS authentication
-    String loginRedirectURL = httpResponse.encodeRedirectURL(getLoginRedirectUrl(httpRequest, portalUser.getUserName()));
-    httpResponse.sendRedirect(loginRedirectURL);
+
   }
 
   protected String getLoginRedirectUrl(HttpServletRequest req, String username) {
