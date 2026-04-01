@@ -38,13 +38,6 @@
       </template>
       <date-format :value="activityPostedTime" :format="dateFormat" />
     </v-tooltip>
-    <extension-registry-components
-      :params="params"
-      name="ActivityNumberViews"
-      type="activity-number-views"
-      parent-element="div"
-      element="div"
-      class="d-flex align-center" />
   </div>
 </template>
 
@@ -80,11 +73,6 @@ export default {
   computed: {
     isActivityEdited() {
       return this.activity && this.activity.updateDate !== this.activity.createDate;
-    },
-    params() {
-      return {
-        activity: this.activity,
-      };
     },
     activityId() {
       return this.activity && this.activity.id;
