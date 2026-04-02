@@ -372,4 +372,9 @@ public class ActivityEntity extends BaseEntity {
     return count == null ? 0 : Integer.parseInt(count.toString());
   }
 
+  public ActivityEntity setViewersCount(int viewersCount) {
+    setProperty("viewersCount", viewersCount);
+    return this;
+  }
+
 }
