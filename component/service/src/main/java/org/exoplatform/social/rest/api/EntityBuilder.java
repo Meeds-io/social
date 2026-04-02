@@ -228,6 +228,8 @@ public class EntityBuilder {
 
   public static final String              TOTAL_COMMENTS_COUNT                       = "totalCommentsCount";
 
+  public static final String              VIEWERS_COUNT                              = "viewersCount";
+
   private static final int                DEFAULT_LIKERS_LIMIT                       = 4;
 
   private static UserPortalConfigService  userPortalConfigService;
@@ -1298,6 +1300,9 @@ public class EntityBuilder {
     if (expandFields.contains(TOTAL_COMMENTS_COUNT)) {
       activityEntity.setTotalCommentsCount(getActivityManager().getNumberOfAllComments(activity.getId()));
     }
+    if (expandFields.contains(VIEWERS_COUNT)) {
+      activityEntity.setViewersCount(getActivityViewersCount(activity));
+    }
     return activityEntity;
   }
 
@@ -1775,6 +1780,21 @@ public class EntityBuilder {
       }
     }
     return result;
+  }
+
+  private static int getActivityViewersCount(ExoSocialActivity activity) {
+    Map<String, List<MetadataItem>> activityMetadatas = activity.getMetadatas();
+    if (MapUtils.isNotEmpty(activityMetadatas) && activityMetadatas.containsKey("viewers")) {
+      List<MetadataItem> viewersMetadata = activityMetadatas.get("viewers");
+      if (viewersMetadata != null && !viewersMetadata.isEmpty()) {
+        MetadataItem viewers = viewersMetadata.get(0);
+        Map<String, String> props = viewers.getProperties();
+        String viewerIdsString = props.get("viewerIds");
+        String[] ids = viewerIdsString.split(",");
+        return ids.length;
+      }
+    }
+    return 0;
   }
 
   /**
