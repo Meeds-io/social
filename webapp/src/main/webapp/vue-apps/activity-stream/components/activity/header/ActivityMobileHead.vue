@@ -30,13 +30,20 @@
           link-style
           username-class />
       </v-list-item-title>
-      <v-list-item-subtitle>
+      <v-list-item-subtitle class="d-flex">
         <activity-head-time
           :activity="activity"
           :is-activity-shared="isActivityShared"
           is-mobile
           no-icon
           class="d-flex activity-head-time" />
+        <extension-registry-components
+          :params="params"
+          name="ActivitySubtitle"
+          type="activity-header-subtitle"
+          parent-element="div"
+          element="div"
+          class="d-flex align-center" />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
@@ -75,6 +82,13 @@
           is-mobile
           no-icon
           class="text-caption activity-head-time pt-0 ps-0" />
+        <extension-registry-components
+          :params="params"
+          name="ActivitySubtitle"
+          type="activity-header-subtitle"
+          parent-element="div"
+          element="div"
+          class="d-flex align-center" />
       </v-list-item-subtitle>
     </v-list-item-content>
   </v-list-item>
@@ -91,6 +105,10 @@ export default {
       type: Boolean,
       default: () => false
     },
+    activityTypeExtension: {
+      type: Object,
+      default: null,
+    },
     posterIdentity: {
       type: Object,
       default: null,
@@ -103,6 +121,12 @@ export default {
   computed: {
     displayUserAvatar() {
       return eXo.env.portal.spaceId !== '' || !this.space;
+    },
+    params() {
+      return {
+        activity: this.activity,
+        activityTypeExtension: this.activityTypeExtension
+      };
     },
   },
 
