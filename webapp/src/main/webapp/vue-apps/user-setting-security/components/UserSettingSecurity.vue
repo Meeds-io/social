@@ -53,7 +53,7 @@
             </v-tooltip>  
           </v-list-item-action>
         </v-list-item>
-        <v-list-item v-if="!$root.ssoEnabled" dense>
+        <v-list-item dense>
           <v-list-item-content>
             <v-list-item-title>
               {{ $t('UserSettings.security.passwordChange.title') }}
@@ -79,6 +79,12 @@
             </v-tooltip>  
           </v-list-item-action>
         </v-list-item>
+        <extension-registry-components
+          name="UserSettingsSecurity"
+          type="user-settings-security"
+          parent-element="div"
+          element="div"
+          class=" d-flex flex-column" />
       </v-list>
     </v-card>
     <user-setting-security-email-drawer
@@ -96,7 +102,11 @@ export default {
   }),
   computed: {
     passwordChangeTooltip() {
-      return this.allowedToChangePassword ? this.$t('UserSettings.button.tooltip.enabled') : this.$t('UserSettings.button.tooltip.disabled');
+      if (this.$root.ssoEnabled) {
+        return this.$t('UserSettings.passwordChange.sso.enabled');
+      } else {
+        return this.allowedToChangePassword ? this.$t('UserSettings.button.tooltip.enabled') : this.$t('UserSettings.button.tooltip.disabled');
+      }
     },
     emailChangeTooltip() {
       return this.$t('UserSettings.security.emailChange.tooltip');
@@ -122,7 +132,7 @@ export default {
   methods: {
     async init() {
       const data = await this.$userService.isSynchronizedUserAllowedToChangePassword();
-      this.allowedToChangePassword = data?.isSynchronizedUserAllowedToChangePassword === 'true';
+      this.allowedToChangePassword = !this.$root.ssoEnabled && data?.isSynchronizedUserAllowedToChangePassword === 'true';
     },
     showApp() {
       this.displayed = true;
