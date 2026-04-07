@@ -26,20 +26,21 @@
     v-model="drawer"
     :loading="loading || saving"
     allow-expand
-    right>
+    right
+    @closed="closed">
     <template #title>
       {{ $t('categoryInput.drawer') }}
     </template>
     <template v-if="drawer" #content>
       <div class="d-flex flex-column ma-4">
         <div class="mb-2">
-          {{ $t('categoryInput.drawer.summary1') }}
+          {{ summary1 || $t('categoryInput.drawer.summary1') }}
         </div>
         <div class="mb-2">
-          {{ $t('categoryInput.drawer.summary2') }}
+          {{ summary2 || $t('categoryInput.drawer.summary2') }}
         </div>
         <div class="mb-4">
-          {{ $t('categoryInput.drawer.summary3') }}
+          {{ summary3 || $t('categoryInput.drawer.summary3') }}
         </div>
         <slot></slot>
         <category-input v-model="selectedCategoryIds" />
@@ -72,6 +73,18 @@ export default {
       type: Boolean,
       default: false,
     },
+    summary1: {
+      type: String,
+      default: null,
+    },
+    summary2: {
+      type: String,
+      default: null,
+    },
+    summary3: {
+      type: String,
+      default: null,
+    },
   },
   data: () => ({
     drawer: false,
@@ -95,6 +108,9 @@ export default {
     },
     close() {
       this.$refs.drawer.close();
+    },
+    closed() {
+      document.dispatchEvent(new CustomEvent('categories-drawer-closed'));
     },
     async save() {
       if (!this.spaceId) {
