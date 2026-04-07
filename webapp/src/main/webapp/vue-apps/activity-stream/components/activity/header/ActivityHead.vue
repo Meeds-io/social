@@ -6,6 +6,7 @@
       <activity-mobile-head
         :activity="activity"
         :is-activity-shared="isActivityShared"
+        :activity-type-extension="activityTypeExtension"
         :poster-identity="posterIdentity"
         :space="space"
         class="px-0" />
@@ -49,10 +50,19 @@
               popover />
           </template>
         </v-list-item-title>
-        <activity-head-time
-          :activity="activity"
-          :is-activity-shared="isActivityShared"
-          class="d-flex activity-head-time" />
+        <div class="d-flex">
+          <activity-head-time
+            :activity="activity"
+            :is-activity-shared="isActivityShared"
+            class="d-flex activity-head-time" />
+          <extension-registry-components
+            :params="params"
+            name="ActivitySubtitle"
+            type="activity-header-subtitle"
+            parent-element="div"
+            element="div"
+            class="d-flex align-center" />
+        </div>
       </v-list-item-content>
     </template>
     <activity-categories
