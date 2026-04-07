@@ -20,6 +20,7 @@ import CategoryInput from './components/CategoryInput.vue';
 import CategorySuggester from './components/CategorySuggester.vue';
 
 import CategoriesDrawer from './components/drawer/CategoriesDrawer.vue';
+import BulkCategoriesDrawer from './components/drawer/BulkCategoriesDrawer.vue';
 import CategoryFormDrawer from './components/drawer/CategoryFormDrawer.vue';
 import CategoryListDrawer from './components/drawer/CategoryListDrawer.vue';
 import CategoryInputDrawer from './components/drawer/CategoryInputDrawer.vue';
@@ -36,6 +37,7 @@ const components = {
 
   'category-input-drawer': CategoryInputDrawer,
   'categories-drawer': CategoriesDrawer,
+  'categories-bulk-edit-drawer': BulkCategoriesDrawer,
   'category-form-drawer': CategoryFormDrawer,
   'categories-list-drawer': CategoryListDrawer,
 
