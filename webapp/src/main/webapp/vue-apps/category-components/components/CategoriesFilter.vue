@@ -27,7 +27,7 @@
     <v-card
       v-if="display"
       :class="isMobile && 'overflow-x-auto specific-scrollbar'"
-      class="d-flex align-center"
+      class="d-flex align-center transparent"
       min-height="34"
       flat>
       <categories-breadcrumb
