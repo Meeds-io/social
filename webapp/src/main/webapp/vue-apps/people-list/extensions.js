@@ -63,5 +63,5 @@ extensionRegistry.registerExtension('profile-extension', 'action', {
   iconOnly: true,
   isLink: true,
   enabled: (user) => !!user?.displayedPhone,
-  href: (user) => `tel:${user.displayedEmail}`
+  href: (user) => `tel:${user.displayedPhone}`
 });
