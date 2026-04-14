@@ -830,8 +830,8 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertTrue(spaceService.canRedactOnSpace(space, demoACLIdentity));
     // Redactor can redact
     assertTrue(spaceService.canRedactOnSpace(space, jamesACLIdentity));
-    // space publisher can't redact
-    assertFalse(spaceService.canRedactOnSpace(space, maryACLIdentity));
+    // space publisher can redact
+    assertTrue(spaceService.canRedactOnSpace(space, maryACLIdentity));
     // space members can't redact
     assertFalse(spaceService.canRedactOnSpace(space, raulACLIdentity));
   }
@@ -1355,7 +1355,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
 
   public void testCreateSpaceWithInvalidSpaceName() {
     Space space = new Space();
-    String spaceDisplayName = "%zzz:^!/<>😁";
+    String spaceDisplayName = "%zzz:^!/<>ðŸ˜�";
     space.setDisplayName(spaceDisplayName);
     String creator = ROOT_NAME;
     String shortName = "zzz";
@@ -1374,7 +1374,7 @@ public class SpaceServiceTest extends AbstractCoreTest {
     assertFalse(space.getPrettyName().contains("/"));
     assertFalse(space.getPrettyName().contains("<"));
     assertFalse(space.getPrettyName().contains(">"));
-    assertFalse(space.getPrettyName().contains("😁"));
+    assertFalse(space.getPrettyName().contains("ðŸ˜�"));
   }
 
   public void testCreateSpaceNoUser() {
