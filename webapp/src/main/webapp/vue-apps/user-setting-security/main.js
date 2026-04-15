@@ -42,14 +42,12 @@ const appId = 'UserSettingSecurity';
 document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 export function init(ssoEnabled, isEmailEditable) {
-  if (!isEmailEditable && ssoEnabled) {
-    Vue.prototype.$updateApplicationVisibility(false, document.querySelector(`#${appId}`));
-  } else {
-    exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, url)
+    .then(i18n => {
       const appElement = document.createElement('div');
       appElement.id = appId;
-  
-      Vue.createApp({
+
+      return Vue.createApp({
         data: {
           ssoEnabled,
           isEmailEditable,
@@ -61,6 +59,6 @@ export function init(ssoEnabled, isEmailEditable) {
         i18n,
         vuetify: Vue.prototype.vuetifyOptions,
       }, appElement, 'User Settings Security');
-    });
-  }
+    })
+    .then(() => Vue.prototype.$utils.includeExtensions('UserSecuritySetting'));
 }
