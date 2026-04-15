@@ -1154,6 +1154,7 @@
   <portlet>
     <name>UserSettingSecurity</name>
     <module>
+      <load-group>UserSettingSecurityGRP</load-group>
       <script>
         <minify>false</minify>
         <path>/js/userSettingSecurity.bundle.js</path>
