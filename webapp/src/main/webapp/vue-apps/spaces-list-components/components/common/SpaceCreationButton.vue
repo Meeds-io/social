@@ -35,11 +35,15 @@
         :small="!icon && isMobile"
         :color="color"
         :icon="icon"
+        :outlined="outlined"
         :elevation="elevation"
         v-bind="attrs"
         v-on="on">
-        <v-icon :size="iconSize">fa-plus</v-icon>
-        <span v-if="displayLabel" class="ms-2 hidden-xs-only">
+        <v-icon v-if="displaySpaceCreationIcon" :size="iconSize">fa-plus</v-icon>
+        <span
+          v-if="displayLabel"
+          :class="{ 'ms-2': displaySpaceCreationIcon }"
+          class="hidden-xs-only">
           {{ $t('spacesList.button.add') }}
         </span>
       </v-btn>
@@ -80,7 +84,7 @@
     v-on="on"
     @click="addNewSpace">
     <v-icon
-      v-if="displayIcon || isMobile"
+      v-if="displaySpaceCreationIcon"
       :size="iconSize"
       class="me-2">
       fa-plus
@@ -149,6 +153,9 @@ export default {
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.mobile;
+    },
+    displaySpaceCreationIcon() {
+      return this.displayIcon || this.isMobile;
     }
   },
   watch: {
@@ -164,8 +171,8 @@ export default {
       }
     },
   },
-  created() {
-    this.init();
+  async created() {
+    await this.init();
   },
   methods: {
     async init() {
