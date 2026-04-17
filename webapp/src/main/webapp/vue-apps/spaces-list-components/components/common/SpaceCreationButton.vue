@@ -35,11 +35,16 @@
         :small="!icon && isMobile"
         :color="color"
         :icon="icon"
+        :outlined="outlined"
         :elevation="elevation"
+        :min-width="!icon && 'auto'"
         v-bind="attrs"
         v-on="on">
-        <v-icon :size="iconSize">fa-plus</v-icon>
-        <span v-if="displayLabel" class="ms-2 hidden-xs-only">
+        <v-icon v-if="displaySpaceCreationIcon" :size="iconSize">fa-plus</v-icon>
+        <span
+          v-if="displayLabel"
+          class="hidden-xs-only"
+          :class="{ 'ms-2': displaySpaceCreationIcon }">
           {{ $t('spacesList.button.add') }}
         </span>
       </v-btn>
@@ -80,12 +85,14 @@
     v-on="on"
     @click="addNewSpace">
     <v-icon
-      v-if="displayIcon || isMobile"
-      :size="iconSize"
-      class="me-2">
+      v-if="displaySpaceCreationIcon"
+      :size="iconSize">
       fa-plus
     </v-icon>
-    <span v-if="displayLabel" class="hidden-xs-only">
+    <span
+      v-if="displayLabel"
+      class="hidden-xs-only"
+      :class="{ 'ms-2': displaySpaceCreationIcon }">
       {{ $t('spacesList.button.add') }}
     </span>
   </v-btn>
@@ -141,7 +148,6 @@ export default {
     isMemberInParentSpace: false,
     spaceTemplates: [],
     subspaceTemplateIds: [],
-    displaySpaceCreationMenu: false
   }),
   computed: {
     filteredSpaceTemplates() {
@@ -149,6 +155,12 @@ export default {
     },
     isMobile() {
       return this.$vuetify?.breakpoint?.mobile;
+    },
+    displaySpaceCreationIcon() {
+      return this.displayIcon || this.isMobile;
+    },
+    displaySpaceCreationMenu() {
+      return !!(this.isMemberInParentSpace && this.subspaceTemplateIds?.length > 0 && !this.$root.openedSpaceTemplateId);
     }
   },
   watch: {
@@ -164,8 +176,8 @@ export default {
       }
     },
   },
-  created() {
-    this.init();
+  async created() {
+    await this.init();
   },
   methods: {
     async init() {
@@ -184,7 +196,6 @@ export default {
         this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
       }
       this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
-      this.displaySpaceCreationMenu = this.isMemberInParentSpace && this.subspaceTemplateIds.length && !this.$root.openedSpaceTemplateId;
     },
     addNewSpace() {
       const spaceTemplateId = this.$root.openedSpaceTemplateId;
