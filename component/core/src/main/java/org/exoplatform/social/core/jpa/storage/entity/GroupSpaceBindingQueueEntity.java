@@ -19,18 +19,10 @@
 package org.exoplatform.social.core.jpa.storage.entity;
 
 import java.io.Serializable;
+import java.time.Instant;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity(name = "SocGroupSpaceBindingQueue")
 @Table(name = "SOC_GROUP_SPACE_BINDING_QUEUE")
@@ -41,6 +33,7 @@ import jakarta.persistence.Table;
         + " where q.action = :action"),
     @NamedQuery(name = "SocGroupSpaceBindingQueue.getAllFromBindingQueueOrderedById", query = "SELECT q FROM SocGroupSpaceBindingQueue q "
         + " ORDER BY q.id DESC "), })
+@Data
 public class GroupSpaceBindingQueueEntity implements Serializable {
 
   @Id
@@ -56,27 +49,8 @@ public class GroupSpaceBindingQueueEntity implements Serializable {
   @Column(name = "ACTION")
   private String                  action;
 
-  public long getId() {
-    return id;
-  }
+  @Temporal(TemporalType.TIMESTAMP)
+  @Column(name = "CREATED_DATE")
+  private Instant createdDate;
 
-  public void setId(long id) {
-    this.id = id;
-  }
-
-  public GroupSpaceBindingEntity getGroupSpaceBindingEntity() {
-    return groupSpaceBindingEntity;
-  }
-
-  public void setGroupSpaceBindingEntity(GroupSpaceBindingEntity groupSpaceBindingEntity) {
-    this.groupSpaceBindingEntity = groupSpaceBindingEntity;
-  }
-
-  public String getAction() {
-    return action;
-  }
-
-  public void setAction(String action) {
-    this.action = action;
-  }
 }

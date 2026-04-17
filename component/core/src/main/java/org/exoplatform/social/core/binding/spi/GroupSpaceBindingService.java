@@ -20,12 +20,7 @@ package org.exoplatform.social.core.binding.spi;
 
 import java.util.List;
 
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.space.model.Space;
 
 /**
@@ -51,6 +46,23 @@ public interface GroupSpaceBindingService {
   GroupSpaceBindingQueue findFirstGroupSpaceBindingQueue();
 
   /**
+   * Get the first UserBindingsQueue to treat
+   *
+   * @return The firdtbinding.
+   */
+  UserBindingsQueue findFirstUserBindingsQueue();
+
+  /**
+   * Get of UserBindingsQueue by userId and action
+   *
+   * @param userId The user Id.
+   * @param action The action.
+   *
+   * @return The list of UserBindingsQueue.
+   */
+  List<UserBindingsQueue> findUserBindingsQueueByUserAndAction(String userId, String action);
+
+  /**
    * Get a list containing all the groups binding for a space.
    *
    * @param spaceId The space Id.
@@ -65,6 +77,12 @@ public interface GroupSpaceBindingService {
    * @return The list of binding.
    */
   List<GroupSpaceBinding> findGroupSpaceBindingsByGroup(String group);
+  /**
+   * Get a list containing all the groups spaces binding.
+   *
+   * @return The list of binding.
+   */
+  List<GroupSpaceBinding> getAllGroupSpaceBindings();
 
   /**
    * Get a list containing all the groups binding for a space.
@@ -132,6 +150,19 @@ public interface GroupSpaceBindingService {
    * @param groupSpaceBinding The binding to be deleted.
    */
   void deleteGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding);
+  /**
+   * Saves a user bindings queue
+   *
+   * @param userBindingsQueue The user bindings queue to save
+   */
+  void createUserBindingsQueue(UserBindingsQueue userBindingsQueue);
+
+  /**
+   * Delete a user bindings queue.
+   *
+   * @param userBindingsQueue The user bindings to be deleted.
+   */
+  void deleteUserBindingsQueue(UserBindingsQueue userBindingsQueue);
   
   /**
    * Prepare the group binding deletion : create the reportAction, and create the GroupBindingQueue
@@ -263,5 +294,11 @@ public interface GroupSpaceBindingService {
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
 
   List<GroupSpaceBindingQueue> getAllFromBindingQueue();
+
+  /**
+   * Check and fix  all incompleted group space bindings.
+   *
+   */
+  void checkAndUpdateGroupSpaceBindings();
 
 }
