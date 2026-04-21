@@ -31,7 +31,6 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.social.core.binding.model.*;
@@ -50,6 +49,8 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   private static final Log         LOG                     = ExoLogger.getLogger(GroupSpaceBindingServiceImpl.class);
 
   private static final int         USERS_TO_BIND_PAGE_SIZE = 20;
+
+  private static final int USERS_TO_UNBIND_PAGE_SIZE = 10;
 
   private GroupSpaceBindingStorage groupSpaceBindingStorage;
 
@@ -210,33 +211,34 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     long startTime = System.currentTimeMillis();
     Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
 
-    
     GroupSpaceBindingReportAction bindingReportRemoveAction =
-        groupSpaceBindingStorage.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                                                                   GroupSpaceBindingReportAction.REMOVE_ACTION);
-    if (bindingReportRemoveAction==null) {
+            groupSpaceBindingStorage.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
+                    GroupSpaceBindingReportAction.REMOVE_ACTION);
+    if (bindingReportRemoveAction == null) {
       GroupSpaceBindingReportAction report = new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                                                                               Long.parseLong(groupSpaceBinding.getSpaceId()),
-                                                                               groupSpaceBinding.getGroup(),
-                                                                               GroupSpaceBindingReportAction.REMOVE_ACTION);
-      bindingReportRemoveAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
+              Long.parseLong(groupSpaceBinding.getSpaceId()),
+              groupSpaceBinding.getGroup(),
+              GroupSpaceBindingReportAction.REMOVE_ACTION);
+      bindingReportRemoveAction = groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
     }
-  
-    // Call the delete user binding to also update space membership.
-    int i = 0;
-    for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
-      // every 10 users, we check if the binding is not in the queue for creation, if it is the case we stop the process since the binding will be created again and we can have conflicts between the delete and create actions.
+    // Check if the binding is not in the queue for creation, if it is the case we stop the process since the binding will be created again.
 
-
-      if (i==10){
-        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_CREATE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
-          LOG.info("Binding process: Stopped since binding will be created again");
-          break;
+    if (getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_CREATE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getSpaceId().equals(gSBinding.getSpaceId()))) {
+      LOG.info("Unbinding process: Stopped since binding will be created again");
+    } else {
+      // Call the delete user binding to also update space membership.
+      int i = 0;
+      for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
+        if (i == USERS_TO_UNBIND_PAGE_SIZE) {
+          if (getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_CREATE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getSpaceId().equals(gSBinding.getSpaceId()))) {
+            LOG.info("Unbinding process: Stopped since binding will be created again");
+            break;
+          }
+          i = 0;
         }
-        i = 0;
+        deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);
+        i++;
       }
-      deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);
-      i++;
     }
     // Finally save the end date for the bindingReportAction.
     bindingReportRemoveAction.setEndDate(new Date());
@@ -249,13 +251,14 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     long endTime = System.currentTimeMillis();
     long totalTime = endTime - startTime;
     LOG.info("service={} operation={} parameters=\"space:{},totalSpaceMembers:{},boundSpaceMembers:{}\" status=ok "
-        + "duration_ms={}",
-             LOG_SERVICE_NAME,
-             LOG_REMOVE_OPERATION_NAME,
-             space.getPrettyName(),
-             space.getMembers().length,
-             countBoundUsers(space.getId()),
-             totalTime);
+                    + "duration_ms={}",
+            LOG_SERVICE_NAME,
+            LOG_REMOVE_OPERATION_NAME,
+            space.getPrettyName(),
+            space.getMembers().length,
+            countBoundUsers(space.getId()),
+            totalTime);
+
   }
 
   /**
@@ -398,7 +401,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         bindingReportAddAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
       }
       do {
-        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
+        if (getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getSpaceId().equals(gSBinding.getSpaceId()))) {
           LOG.info("Binding process: Stopped since binding was removed");
           offset = totalGroupMembersSize;
           break;
