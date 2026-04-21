@@ -1,7 +1,7 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
  *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,26 +25,37 @@ import lombok.Data;
  */
 
 @Data
-public class GroupSpaceBindingQueue {
-  /** The id */
-  private long   id;
+public class UserBindingsQueue {
+  /**
+   * The id
+   */
+  private long id;
 
-  /** The GroupSpaceBinding */
-  private GroupSpaceBinding groupSpaceBinding;
-  
-  /** The action. */
+  /**
+   * The UserId
+   */
+  private String userId;
+
+  /**
+   * The action.
+   */
   private String action;
 
   private Long    createdDate;
-  
-  public static String ACTION_CREATE = "create";
-  public static String ACTION_REMOVE = "remove";
 
-  public GroupSpaceBindingQueue() {
+  public static String ACTION_REMOVE_USER_BINDINGS = "removeUserBindings";
+
+  public static String ACTION_CREATE_USER_BINDINGS = "createUserBindings";
+
+
+  public UserBindingsQueue() {
   }
 
-  public GroupSpaceBindingQueue(GroupSpaceBinding groupSpaceBinding, String action) {
-    this.groupSpaceBinding = groupSpaceBinding;
+
+  public UserBindingsQueue(String userId, String action) {
+    this.userId = userId;
     this.action = action;
   }
+
 }
+

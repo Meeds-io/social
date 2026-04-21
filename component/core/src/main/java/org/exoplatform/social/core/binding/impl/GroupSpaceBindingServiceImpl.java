@@ -31,14 +31,10 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.binding.spi.GroupSpaceBindingService;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
@@ -87,6 +83,21 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     LOG.debug("Retrieving First GroupSpaceBindingQueue to treat");
     return groupSpaceBindingStorage.findFirstGroupSpaceBindingQueue();
   }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public UserBindingsQueue findFirstUserBindingsQueue() {
+    LOG.debug("Retrieving First UserBindingsQueue to treat");
+    return groupSpaceBindingStorage.findFirstUserBindingsQueue();
+  }
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public List<UserBindingsQueue> findUserBindingsQueueByUserAndAction(String userId, String action) {
+    return groupSpaceBindingStorage.findUserBindingsQueueByUserAndAction(userId, action);
+  }
 
   /**
    * {@inheritDoc}
@@ -105,6 +116,15 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public List<GroupSpaceBinding> findGroupSpaceBindingsByGroup(String group) {
     LOG.debug("Retrieving group/space bindings for group:" + group);
     return groupSpaceBindingStorage.findGroupSpaceBindingsByGroup(group);
+  }
+  /**
+   * {@inheritDoc}
+   */
+
+  @Override
+  public List<GroupSpaceBinding> getAllGroupSpaceBindings() {
+    LOG.debug("Retrieving all group/space ");
+    return groupSpaceBindingStorage.getAllGroupSpaceBindings();
   }
 
   /**
@@ -158,6 +178,11 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public void createGroupSpaceBindingQueue(GroupSpaceBindingQueue groupSpaceBindingsQueue) {
     groupSpaceBindingStorage.createGroupSpaceBindingQueue(groupSpaceBindingsQueue);
   }
+
+  @Override
+  public void createUserBindingsQueue(UserBindingsQueue userBindingsQueue) {
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+  }
   
   @Override
   public void prepareDeleteGroupSpaceBinding(GroupSpaceBinding groupSpaceBinding) {
@@ -198,8 +223,20 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     }
   
     // Call the delete user binding to also update space membership.
+    int i = 0;
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
+      // every 10 users, we check if the binding is not in the queue for creation, if it is the case we stop the process since the binding will be created again and we can have conflicts between the delete and create actions.
+
+
+      if (i==10){
+        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_CREATE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
+          LOG.info("Binding process: Stopped since binding will be created again");
+          break;
+        }
+        i = 0;
+      }
       deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);
+      i++;
     }
     // Finally save the end date for the bindingReportAction.
     bindingReportRemoveAction.setEndDate(new Date());
@@ -361,7 +398,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         bindingReportAddAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
       }
       do {
-        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getId()==gSBinding.getId())){
+        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
           LOG.info("Binding process: Stopped since binding was removed");
           offset = totalGroupMembersSize;
           break;
@@ -372,9 +409,9 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         users = Arrays.asList(groupMembersAccess.load(offset, limit));
         count = users.size();
         int currentCount = offset;
+        startRequest();
         for (User user : users) {
           currentCount++;
-          startRequest();
           long startTimeUser = System.currentTimeMillis();
 
           String userId = user.getUserName();
@@ -384,8 +421,8 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           long totalTimeUser = endTimeUser - startTimeUser;
           LOG.debug("Time to treat user " + userId + " (" + currentCount + "/" + totalGroupMembersSize + ") : " + totalTimeUser
               + " ms");
-          endRequest();
         }
+        endRequest();
         offset += count;
         LOG.info("Binding process: Bound Users({})", offset);
         long endBunchTime = System.currentTimeMillis();
@@ -435,6 +472,10 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   @Override
   public void deleteFromBindingQueue(GroupSpaceBindingQueue bindingQueue) {
     groupSpaceBindingStorage.deleteGroupBindingQueue(bindingQueue.getId());
+  }
+  @Override
+  public void deleteUserBindingsQueue(UserBindingsQueue bindingQueue) {
+    groupSpaceBindingStorage.deleteUserBindingsQueue(bindingQueue.getId());
   }
 
   private void endRequest() {
@@ -487,7 +528,11 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
                                                                                             userId,
                                                                                             GroupSpaceBindingReportUser.ACTION_ADD_USER);
     groupSpaceBindingReportUser.setWasPresentBefore(userSpaceBinding.isMemberBefore());
-    spaceService.addMember(space, userId);
+    try {
+      spaceService.addMember(space, userId);
+    } catch (Exception e) {
+      LOG.error("Error when adding user " + userId + " to space " + space.getPrettyName(), e);
+    }
     groupSpaceBindingStorage.saveUserBinding(userSpaceBinding);
     groupSpaceBindingStorage.saveGroupSpaceBindingReportUser(groupSpaceBindingReportUser);
   }
@@ -511,5 +556,4 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public List<GroupSpaceBindingQueue> getAllFromBindingQueue() {
     return groupSpaceBindingStorage.getAllFromBindingQueue();
   }
-
 }
