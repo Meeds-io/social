@@ -1298,4 +1298,27 @@
       <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
     </modifySql>
   </changeSet>
+
+  <changeSet author="social" id="1.0.0-122">
+    <createTable tableName="SOC_USER_BINDINGS_QUEUE">
+      <column name="USER_BINDINGS_QUEUE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+       <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER_BINDINGS_QUEUE_ID"/>
+        </column>
+         <column name="USER_ID" type="NVARCHAR(200)">
+           <constraints nullable="false"/>
+         </column>
+         <column name="ACTION" type="NVARCHAR(200)">
+           <constraints nullable="false"/>
+         </column>
+        <column name="CREATED_DATE" type="TIMESTAMP">
+            <constraints nullable="false"/>
+        </column>
+    </createTable>
+    <addColumn tableName="SOC_GROUP_SPACE_BINDING_QUEUE">
+      <column name="CREATED_DATE" type="TIMESTAMP"/>
+    </addColumn>
+   </changeSet>
+   <changeSet author="social" id="1.0.0-123" dbms="hsqldb">
+    <createSequence sequenceName="SEQ_SOC_USER_BINDINGS_QUEUE_ID" startValue="1"/>
+   </changeSet>
 </databaseChangeLog>
