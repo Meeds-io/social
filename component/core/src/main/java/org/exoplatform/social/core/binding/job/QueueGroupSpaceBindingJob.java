@@ -59,7 +59,7 @@ public class QueueGroupSpaceBindingJob implements Job {
     do {
       try {
         if (firstGroupBindingInQueue != null && firstUserBindingsQueue == null) {
-          proceedGroupSpaceBiding(firstGroupBindingInQueue);
+          proceedGroupSpaceBinding(firstGroupBindingInQueue);
           firstGroupBindingInQueue = groupSpaceBindingService.findFirstGroupSpaceBindingQueue();
         } else if (firstUserBindingsQueue != null && firstGroupBindingInQueue == null) {
           proceedUserBindings(firstUserBindingsQueue);
@@ -67,7 +67,7 @@ public class QueueGroupSpaceBindingJob implements Job {
         } else if (firstUserBindingsQueue != null && firstGroupBindingInQueue != null) {
           // If both queues are not empty, we proceed the one which is the oldest.
           if (firstGroupBindingInQueue.getCreatedDate() == null || firstGroupBindingInQueue.getCreatedDate() < firstUserBindingsQueue.getCreatedDate()) {
-            proceedGroupSpaceBiding(firstGroupBindingInQueue);
+            proceedGroupSpaceBinding(firstGroupBindingInQueue);
             firstGroupBindingInQueue = groupSpaceBindingService.findFirstGroupSpaceBindingQueue();
           } else {
             proceedUserBindings(firstUserBindingsQueue);
@@ -86,7 +86,7 @@ public class QueueGroupSpaceBindingJob implements Job {
     LOG.info("End treating GroupSpaceBinding queue");
   }
 
-  private void proceedGroupSpaceBiding(GroupSpaceBindingQueue groupSpaceBindingQueue) {
+  private void proceedGroupSpaceBinding(GroupSpaceBindingQueue groupSpaceBindingQueue) {
 // Get first binding from groupSpaceBindingQueue.
     GroupSpaceBinding firstBindingInBindingQueue = groupSpaceBindingQueue.getGroupSpaceBinding();
     String queueAction = groupSpaceBindingQueue.getAction();
