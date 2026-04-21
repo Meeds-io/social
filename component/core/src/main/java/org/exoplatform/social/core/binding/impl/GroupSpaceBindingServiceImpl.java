@@ -31,6 +31,7 @@ import org.exoplatform.container.component.ComponentRequestLifecycle;
 import org.exoplatform.container.xml.InitParams;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
+import org.exoplatform.services.organization.Group;
 import org.exoplatform.services.organization.OrganizationService;
 import org.exoplatform.services.organization.User;
 import org.exoplatform.social.core.binding.model.*;
@@ -412,9 +413,9 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         users = Arrays.asList(groupMembersAccess.load(offset, limit));
         count = users.size();
         int currentCount = offset;
+        startRequest();
         for (User user : users) {
           currentCount++;
-          startRequest();
           long startTimeUser = System.currentTimeMillis();
 
           String userId = user.getUserName();
@@ -424,8 +425,8 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
           long totalTimeUser = endTimeUser - startTimeUser;
           LOG.debug("Time to treat user " + userId + " (" + currentCount + "/" + totalGroupMembersSize + ") : " + totalTimeUser
               + " ms");
-          endRequest();
         }
+        endRequest();
         offset += count;
         LOG.info("Binding process: Bound Users({})", offset);
         long endBunchTime = System.currentTimeMillis();
