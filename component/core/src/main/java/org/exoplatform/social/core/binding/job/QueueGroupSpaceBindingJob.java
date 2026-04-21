@@ -75,7 +75,6 @@ public class QueueGroupSpaceBindingJob implements Job {
           }
         } else {
           LOG.info("No GroupSpaceBindingQueue or UserBindingsQueue to process");
-          groupSpaceBindingService.checkAndUpdateGroupSpaceBindings();
         }
       } catch (Exception e) {
         LOG.error("Failed to treat GroupSpaceBinding queue", e);

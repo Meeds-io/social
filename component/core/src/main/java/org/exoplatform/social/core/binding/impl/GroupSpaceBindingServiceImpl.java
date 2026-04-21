@@ -223,8 +223,20 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
     }
   
     // Call the delete user binding to also update space membership.
+    int i = 0;
     for (UserSpaceBinding userSpaceBinding : groupSpaceBindingStorage.findUserAllBindingsByGroupBinding(groupSpaceBinding)) {
+      // every 10 users, we check if the binding is not in the queue for creation, if it is the case we stop the process since the binding will be created again and we can have conflicts between the delete and create actions.
+
+
+      if (i==10){
+        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_CREATE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
+          LOG.info("Binding process: Stopped since binding will be created again");
+          break;
+        }
+        i = 0;
+      }
       deleteUserBinding(userSpaceBinding, bindingReportRemoveAction);
+      i++;
     }
     // Finally save the end date for the bindingReportAction.
     bindingReportRemoveAction.setEndDate(new Date());
@@ -386,7 +398,7 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
         bindingReportAddAction=groupSpaceBindingStorage.saveGroupSpaceBindingReport(report);
       }
       do {
-        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()) && groupSpaceBinding.getId()==gSBinding.getId())){
+        if(getGroupSpaceBindingsFromQueueByAction(GroupSpaceBindingQueue.ACTION_REMOVE).stream().anyMatch(gSBinding -> groupSpaceBinding.getGroup().equals(gSBinding.getGroup()))){
           LOG.info("Binding process: Stopped since binding was removed");
           offset = totalGroupMembersSize;
           break;
@@ -544,45 +556,4 @@ public class GroupSpaceBindingServiceImpl implements GroupSpaceBindingService {
   public List<GroupSpaceBindingQueue> getAllFromBindingQueue() {
     return groupSpaceBindingStorage.getAllFromBindingQueue();
   }
-
-  public void checkAndUpdateGroupSpaceBindings()  {
-    for (GroupSpaceBinding groupSpaceBinding : getAllGroupSpaceBindings()){
-      try {
-      Space space = spaceService.getSpaceById(groupSpaceBinding.getSpaceId());
-      String[] members = space.getMembers();
-      ListAccess<User> groupMembersAccess = organizationService.getUserHandler().findUsersByGroupId(groupSpaceBinding.getGroup());
-      int totalGroupMembersSize = groupMembersAccess.getSize();
-      if (totalGroupMembersSize > members.length) {
-        List<String> groupMembers = Arrays.asList(groupMembersAccess.load(0, totalGroupMembersSize)).stream()
-            .map(User::getUserName)
-            .toList();
-        List<String> spaceMembers = Arrays.asList(members);
-        List<String> missingSpaceMembers = groupMembers.stream()
-            .filter(groupMember -> !spaceMembers.contains(groupMember))
-            .toList();
-        GroupSpaceBindingReportAction bindingReportAddSynchronizeAction =
-                findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                        GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION);
-        if (bindingReportAddSynchronizeAction == null) {
-          GroupSpaceBindingReportAction report =
-                  new GroupSpaceBindingReportAction(groupSpaceBinding.getId(),
-                          Long.parseLong(groupSpaceBinding.getSpaceId()),
-                          groupSpaceBinding.getGroup(),
-                          GroupSpaceBindingReportAction.SYNCHRONIZE_ACTION);
-          bindingReportAddSynchronizeAction = saveGroupSpaceBindingReport(report);
-        }
-        for (String missingSpaceMember : missingSpaceMembers) {
-          saveUserBinding(missingSpaceMember,
-                  groupSpaceBinding,
-                  space,
-                  bindingReportAddSynchronizeAction);
-        }
-      }
-      } catch (Exception e) {
-        LOG.error("Error when synchronizing group space binding " + groupSpaceBinding.getId() + " for space "
-            + groupSpaceBinding.getSpaceId(), e);
-      }
-    }
-  }
-
 }

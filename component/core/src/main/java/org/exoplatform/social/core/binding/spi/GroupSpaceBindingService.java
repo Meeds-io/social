@@ -294,11 +294,4 @@ public interface GroupSpaceBindingService {
   void updateGroupSpaceBindingReportAction(GroupSpaceBindingReportAction groupSpaceBindingReportAction);
 
   List<GroupSpaceBindingQueue> getAllFromBindingQueue();
-
-  /**
-   * Check and fix  all incompleted group space bindings.
-   *
-   */
-  void checkAndUpdateGroupSpaceBindings();
-
 }
