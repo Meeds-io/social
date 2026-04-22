@@ -1,8 +1,8 @@
 /**
  * This file is part of the Meeds project (https://meeds.io/).
- *
- * Copyright (C) 2020 - 2025 Meeds Association contact@meeds.io
- *
+ * <p>
+ * Copyright (C) 2020 - 2026 Meeds Association contact@meeds.io
+ * <p>
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -11,40 +11,32 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
-package org.exoplatform.social.core.binding.model;
+package org.exoplatform.social.core.jpa.storage.dao;
 
-import lombok.Data;
+import java.util.List;
 
-/**
- * Group Binding Model (between space ang organization group)
- */
+import org.exoplatform.commons.api.persistence.GenericDAO;
+import org.exoplatform.social.core.jpa.storage.entity.UserBindingsQueueEntity;
 
-@Data
-public class GroupSpaceBindingQueue {
-  /** The id */
-  private long   id;
+public interface UserBindingsQueueDAO extends GenericDAO<UserBindingsQueueEntity, Long> {
 
-  /** The GroupSpaceBinding */
-  private GroupSpaceBinding groupSpaceBinding;
-  
-  /** The action. */
-  private String action;
+  /**
+   * Gets first UserBindingsQueue in the queue.
+   *
+   * @return
+   */
+  UserBindingsQueueEntity findFirstUserBindingsQueue();
 
-  private Long    createdDate;
-  
-  public static String ACTION_CREATE = "create";
-  public static String ACTION_REMOVE = "remove";
+  /**
+   * Gets list of UserBindingsQueue by user and action.
+   *
+   * @return
+   */
+  List<UserBindingsQueueEntity> findUserBindingsQueueByUserAndAction(String userId, String action);
 
-  public GroupSpaceBindingQueue() {
-  }
-
-  public GroupSpaceBindingQueue(GroupSpaceBinding groupSpaceBinding, String action) {
-    this.groupSpaceBinding = groupSpaceBinding;
-    this.action = action;
-  }
 }
