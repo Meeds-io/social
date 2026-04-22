@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.exoplatform.social.core.binding.model.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -38,11 +39,6 @@ import org.exoplatform.services.organization.User;
 import org.exoplatform.services.organization.idm.UserDAOImpl;
 import org.exoplatform.services.organization.idm.UserImpl;
 import org.exoplatform.social.core.binding.impl.GroupSpaceBindingServiceImpl;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
 import org.exoplatform.social.core.space.model.Space;
 import org.exoplatform.social.core.space.spi.SpaceService;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
@@ -96,6 +92,50 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
                                                                                          orgService,
                                                                                          spaceService);
     List<GroupSpaceBinding> results = groupSpaceBindingService.findGroupSpaceBindingsBySpace("1");
+    GroupSpaceBinding result1 = results.get(0);
+    GroupSpaceBinding result2 = results.get(1);
+
+    // Then
+    assertEquals(2, results.size());
+
+    assertEquals(1, result1.getId());
+    assertEquals("/platform/administrators", result1.getGroup());
+    assertEquals("1", result1.getSpaceId());
+
+    assertEquals(2, result2.getId());
+    assertEquals("/platform/web-contributors", result2.getGroup());
+    assertEquals("1", result2.getSpaceId());
+  }
+  /**
+   * Test
+   * {@link GroupSpaceBindingService#getAllGroupSpaceBindings()}
+   *
+   * @throws Exception
+   */
+  @Test
+  public void testGetAllGroupSpaceBindings() throws Exception {
+    // Given
+    List<GroupSpaceBinding> groupSpaceBindings = new LinkedList<>();
+    GroupSpaceBinding binding1 = new GroupSpaceBinding();
+    binding1.setId(1);
+    binding1.setGroup("/platform/administrators");
+    binding1.setSpaceId("1");
+    groupSpaceBindings.add(binding1);
+
+    GroupSpaceBinding binding2 = new GroupSpaceBinding();
+    binding2.setId(2);
+    binding2.setGroup("/platform/web-contributors");
+    binding2.setSpaceId("1");
+    groupSpaceBindings.add(binding2);
+
+    Mockito.when(groupSpaceBindingStorage.getAllGroupSpaceBindings()).thenReturn(groupSpaceBindings);
+
+    // When
+    GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
+                                                                                         groupSpaceBindingStorage,
+                                                                                         orgService,
+                                                                                         spaceService);
+    List<GroupSpaceBinding> results = groupSpaceBindingService.getAllGroupSpaceBindings();
     GroupSpaceBinding result1 = results.get(0);
     GroupSpaceBinding result2 = results.get(1);
 
@@ -438,6 +478,48 @@ public class GroupSpaceBindingServiceTest extends AbstractCoreTest {
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(4)).saveGroupSpaceBinding(Mockito.any());
     Mockito.verify(groupSpaceBindingStorage, Mockito.times(4)).createGroupSpaceBindingQueue(Mockito.any());
   
+  }
+  /**
+   * Test {@link GroupSpaceBindingService#createUserBindingsQueue(UserBindingsQueue userBindingsQueue)}
+   * *
+   * @throws Exception
+   */
+  @Test
+  public void testCreateUserBindingsQueue() throws Exception {
+    UserBindingsQueue userBindingsQueue = new UserBindingsQueue("user1", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);;
+    GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
+                                                                                         groupSpaceBindingStorage,
+                                                                                         orgService,
+                                                                                         spaceService);
+    Mockito.when(groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue)).thenReturn(userBindingsQueue);
+    groupSpaceBindingService.createUserBindingsQueue(userBindingsQueue);
+
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).createUserBindingsQueue(Mockito.any());
+
+  }
+  /**
+   * Test {@link GroupSpaceBindingService#createUserBindingsQueue(UserBindingsQueue userBindingsQueue)}
+   * *
+   * @throws Exception
+   */
+  @Test
+  public void testDeleteUserBindingsQueue() throws Exception {
+    UserBindingsQueue userBindingsQueue = new UserBindingsQueue("user1", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);
+    userBindingsQueue.setId(1);
+    GroupSpaceBindingService groupSpaceBindingService = new GroupSpaceBindingServiceImpl(initParams,
+                                                                                         groupSpaceBindingStorage,
+                                                                                         orgService,
+                                                                                         spaceService);
+    groupSpaceBindingService.deleteUserBindingsQueue(userBindingsQueue);
+
+    // Then
+
+
+    ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
+    Mockito.verify(groupSpaceBindingStorage, Mockito.times(1)).deleteUserBindingsQueue(idCaptor.capture());
+    long id = idCaptor.getValue();
+    assertEquals(1, id);
+
   }
   
   /**
