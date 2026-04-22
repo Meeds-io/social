@@ -22,12 +22,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.exoplatform.container.component.RequestLifeCycle;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
+import org.exoplatform.social.core.binding.model.*;
 import org.exoplatform.social.core.identity.model.Identity;
 import org.exoplatform.social.core.jpa.storage.SpaceStorage;
 import org.exoplatform.social.core.space.model.Space;
@@ -79,9 +74,15 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     identityStorage.saveIdentity(mary);
     identityStorage.saveIdentity(jame);
 
-    Space space = this.getSpaceInstance(1);
-    spaceStorage.saveSpace(space, true);
-    spaceId = spaceStorage.getSpaceByPrettyName("myspacetestbinding1").getId();
+    Space space =  spaceStorage.getSpaceByPrettyName("myspacetestbinding1");
+    if (space == null) {
+      space = this.getSpaceInstance(1);
+      spaceStorage.saveSpace(space, true);
+      spaceId = spaceStorage.getSpaceByPrettyName("myspacetestbinding1").getId();
+    } else {
+        spaceId = space.getId();
+    }
+
     
   }
 
@@ -110,6 +111,9 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     groupSpaceBindingStorage.findAllGroupSpaceBindingQueue()
                             .stream()
                             .forEach(binding -> groupSpaceBindingStorage.deleteGroupBindingQueue(binding.getId()));
+    groupSpaceBindingStorage.findAllUserBindingsQueue()
+                            .stream()
+                            .forEach(binding -> groupSpaceBindingStorage.deleteUserBindingsQueue(binding.getId()));
     groupSpaceBindingStorage.findAllGroupSpaceBinding()
                             .stream()
                             .forEach(binding -> {
@@ -284,6 +288,39 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
     assertEquals("groupSpaceBindingStorage.findFirstGroupSpaceBindingQueue() must return after creation: " + 1,
                  groupSpaceBindingQueue.getId(),
                  groupSpaceBindingStorage.findFirstGroupSpaceBindingQueue().getId());
+  }
+  /**
+   * Test
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#createUserBindingsQueue(UserBindingsQueue)}
+   *
+   * @throws Exception
+   **/
+  public void testCreateUserBindingsQueue() throws Exception {
+    UserBindingsQueue userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);
+    userBindingsQueue=groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    assertEquals("groupSpaceBindingStorage.findFirstUserBindingsQueue() must return after creation: " + 1,
+            userBindingsQueue.getId(),
+                 groupSpaceBindingStorage.findFirstUserBindingsQueue().getId());
+  }
+  /**
+   * Test
+   * {@link org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage#findUserBindingsQueueByUserAndAction(String, String)}
+   *
+   * @throws Exception
+   **/
+  public void testFindUserBindingsQueueByUserAndAction() throws Exception {
+    UserBindingsQueue userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS);
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_REMOVE_USER_BINDINGS);
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    userBindingsQueue = new UserBindingsQueue("john", UserBindingsQueue.ACTION_REMOVE_USER_BINDINGS);
+    groupSpaceBindingStorage.createUserBindingsQueue(userBindingsQueue);
+    assertEquals( 3,  groupSpaceBindingStorage.findUserBindingsQueueByUserAndAction("john", UserBindingsQueue.ACTION_CREATE_USER_BINDINGS).size());
+    assertEquals( 2,  groupSpaceBindingStorage.findUserBindingsQueueByUserAndAction("john", UserBindingsQueue.ACTION_REMOVE_USER_BINDINGS).size());
   }
 
   /**
@@ -501,6 +538,21 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
       groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
     }
     assertEquals(totalBindings,groupSpaceBindingStorage.findGroupSpaceBindingsByGroup("/platform/administrators").size());
+  }
+  /**
+   * Test
+   * {@link GroupSpaceBindingStorage#getAllGroupSpaceBindings()}
+   *
+   * @throws Exception
+   **/
+  public void testGetAllGroupSpaceBindings() {
+    int totalBindings = 5;
+
+    for (int i = 1; i <= totalBindings; i++) {
+      GroupSpaceBinding groupSpaceBinding = this.getGroupSpaceBindingInstance(spaceId, "/platform/administrators");
+      groupSpaceBindingStorage.saveGroupSpaceBinding(groupSpaceBinding);
+    }
+    assertEquals(totalBindings,groupSpaceBindingStorage.getAllGroupSpaceBindings().size());
   }
   
   /**
@@ -769,7 +821,7 @@ public class RDBMSGroupSpaceBindingStorageTest extends AbstractCoreTest {
         groupSpaceBindingStorage.findGroupSpaceBindingReportAction(groupSpaceBinding.getId(),
                                                                    GroupSpaceBindingReportAction.ADD_ACTION);
     assertEquals(0,resultActionReport.getEndDate().compareTo(endDate));
-    
+
     
   }
 }
