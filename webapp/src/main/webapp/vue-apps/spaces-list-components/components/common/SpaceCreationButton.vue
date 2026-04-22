@@ -37,13 +37,14 @@
         :icon="icon"
         :outlined="outlined"
         :elevation="elevation"
+        :min-width="!icon && 'auto'"
         v-bind="attrs"
         v-on="on">
         <v-icon v-if="displaySpaceCreationIcon" :size="iconSize">fa-plus</v-icon>
         <span
           v-if="displayLabel"
-          :class="{ 'ms-2': displaySpaceCreationIcon }"
-          class="hidden-xs-only">
+          class="hidden-xs-only"
+          :class="{ 'ms-2': displaySpaceCreationIcon }">
           {{ $t('spacesList.button.add') }}
         </span>
       </v-btn>
@@ -85,11 +86,13 @@
     @click="addNewSpace">
     <v-icon
       v-if="displaySpaceCreationIcon"
-      :size="iconSize"
-      class="me-2">
+      :size="iconSize">
       fa-plus
     </v-icon>
-    <span v-if="displayLabel" class="hidden-xs-only">
+    <span
+      v-if="displayLabel"
+      class="hidden-xs-only"
+      :class="{ 'ms-2': displaySpaceCreationIcon }">
       {{ $t('spacesList.button.add') }}
     </span>
   </v-btn>
@@ -145,7 +148,6 @@ export default {
     isMemberInParentSpace: false,
     spaceTemplates: [],
     subspaceTemplateIds: [],
-    displaySpaceCreationMenu: false
   }),
   computed: {
     filteredSpaceTemplates() {
@@ -156,6 +158,9 @@ export default {
     },
     displaySpaceCreationIcon() {
       return this.displayIcon || this.isMobile;
+    },
+    displaySpaceCreationMenu() {
+      return !!(this.isMemberInParentSpace && this.subspaceTemplateIds?.length > 0 && !this.$root.openedSpaceTemplateId);
     }
   },
   watch: {
@@ -191,7 +196,6 @@ export default {
         this.$root.subspaceTemplateIds = await this.$spaceTemplateService.getSubspaceTemplateIds();
       }
       this.subspaceTemplateIds = this.$root.subspaceTemplateIds;
-      this.displaySpaceCreationMenu = this.isMemberInParentSpace && this.subspaceTemplateIds.length && !this.$root.openedSpaceTemplateId;
     },
     addNewSpace() {
       const spaceTemplateId = this.$root.openedSpaceTemplateId;
