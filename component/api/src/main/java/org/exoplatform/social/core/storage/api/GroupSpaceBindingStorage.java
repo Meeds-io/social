@@ -37,6 +37,19 @@ public interface GroupSpaceBindingStorage {
   GroupSpaceBindingQueue findFirstGroupSpaceBindingQueue() throws GroupSpaceBindingStorageException;
 
   /**
+   * Get the first GroupSpaceBindingQueueUserBindingsQueue to treat
+   *
+   * @return The GroupSpaceBindingQueueUserBindingsQueue
+   */
+  UserBindingsQueue findFirstUserBindingsQueue() throws GroupSpaceBindingStorageException;
+  /**
+   * Get the list of GroupSpaceBindingQueueUserBindingsQueue by userID ans action
+   *
+   * @return The List of GroupSpaceBindingQueueUserBindingsQueue
+   */
+  List<UserBindingsQueue> findUserBindingsQueueByUserAndAction(String userId, String action);
+
+  /**
    * Get a list containing all the groups binding for a space.
    *
    * @param spaceId The space Id.
@@ -51,6 +64,12 @@ public interface GroupSpaceBindingStorage {
    * @return The list of binding.
    */
   List<GroupSpaceBinding> findGroupSpaceBindingsByGroup(String group) throws GroupSpaceBindingStorageException;
+  /**
+   * Get a list of all groups spaces binding.
+   *
+   * @return The list of binding.
+   */
+  List<GroupSpaceBinding> getAllGroupSpaceBindings() throws GroupSpaceBindingStorageException;
 
   /**
    * Get a list containing all the group binding for a space member.
@@ -93,6 +112,14 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   GroupSpaceBinding saveGroupSpaceBinding(GroupSpaceBinding binding) throws GroupSpaceBindingStorageException;
+
+  /**
+   * Add a users Bindings Queue to the binding queue
+   *
+   * @param bindingQueue
+   * @throws GroupSpaceBindingStorageException
+   */
+  UserBindingsQueue createUserBindingsQueue(UserBindingsQueue bindingQueue) throws GroupSpaceBindingStorageException;
 
   /**
    * Add a Group Space Binding to the binding queue
@@ -141,6 +168,7 @@ public interface GroupSpaceBindingStorage {
    */
   void deleteGroupBindingReportUser(long id) throws GroupSpaceBindingStorageException;
 
+
   /**
    * Deletes a binding by binding id.
    *
@@ -164,6 +192,16 @@ public interface GroupSpaceBindingStorage {
    * @throws GroupSpaceBindingStorageException
    */
   void deleteAllUserBindings(String userName) throws GroupSpaceBindingStorageException;
+
+
+  /**
+   * Deletes a user bindings Queue by its id.
+   *
+   * @param id
+   * @throws GroupSpaceBindingStorageException
+   */
+  void deleteUserBindingsQueue(long id) throws GroupSpaceBindingStorageException;
+
 
   /**
    * Count user's bindings of the space.
@@ -256,6 +294,7 @@ public interface GroupSpaceBindingStorage {
   
   
   List<GroupSpaceBinding> findAllGroupSpaceBinding();
+  List<UserBindingsQueue> findAllUserBindingsQueue();
   List<UserSpaceBinding> findAllUserSpaceBinding();
   List<GroupSpaceBindingQueue> findAllGroupSpaceBindingQueue();
   List<GroupSpaceBindingReportAction> findAllGroupSpaceBindingReportAction();

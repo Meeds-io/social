@@ -18,6 +18,7 @@
  */
 package org.exoplatform.social.core.jpa.storage;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -26,24 +27,10 @@ import java.util.stream.Collectors;
 import org.exoplatform.commons.api.persistence.ExoTransactional;
 import org.exoplatform.services.log.ExoLogger;
 import org.exoplatform.services.log.Log;
-import org.exoplatform.social.core.binding.model.GroupSpaceBinding;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingOperationReport;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingQueue;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportAction;
-import org.exoplatform.social.core.binding.model.GroupSpaceBindingReportUser;
-import org.exoplatform.social.core.binding.model.UserSpaceBinding;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingDAO;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingQueueDAO;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportActionDAO;
-import org.exoplatform.social.core.jpa.storage.dao.GroupSpaceBindingReportUserDAO;
-import org.exoplatform.social.core.jpa.storage.dao.UserSpaceBindingDAO;
+import org.exoplatform.social.core.binding.model.*;
+import org.exoplatform.social.core.jpa.storage.dao.*;
 import org.exoplatform.social.core.jpa.storage.dao.jpa.SpaceDAO;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingEntity;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingQueueEntity;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportActionEntity;
-import org.exoplatform.social.core.jpa.storage.entity.GroupSpaceBindingReportUserEntity;
-import org.exoplatform.social.core.jpa.storage.entity.SpaceEntity;
-import org.exoplatform.social.core.jpa.storage.entity.UserSpaceBindingEntity;
+import org.exoplatform.social.core.jpa.storage.entity.*;
 import org.exoplatform.social.core.storage.GroupSpaceBindingStorageException;
 import org.exoplatform.social.core.storage.api.GroupSpaceBindingStorage;
 
@@ -71,18 +58,22 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
 
   private GroupSpaceBindingReportUserDAO   groupSpaceBindingReportUserDAO;
 
+  private UserBindingsQueueDAO             userBindingsQueueDAO;
+
   public RDBMSGroupSpaceBindingStorageImpl(SpaceDAO spaceDAO,
                                            GroupSpaceBindingDAO groupSpaceBindingDAO,
                                            GroupSpaceBindingQueueDAO groupSpaceBindingQueueDAO,
                                            UserSpaceBindingDAO userSpaceBindingDAO,
                                            GroupSpaceBindingReportActionDAO groupSpaceBindingReportActionDAO,
-                                           GroupSpaceBindingReportUserDAO groupSpaceBindingReportUserDAO) {
+                                           GroupSpaceBindingReportUserDAO groupSpaceBindingReportUserDAO,
+                                           UserBindingsQueueDAO   userBindingsQueueDAO) {
     this.spaceDAO = spaceDAO;
     this.groupSpaceBindingDAO = groupSpaceBindingDAO;
     this.groupSpaceBindingQueueDAO = groupSpaceBindingQueueDAO;
     this.userSpaceBindingDAO = userSpaceBindingDAO;
     this.groupSpaceBindingReportActionDAO = groupSpaceBindingReportActionDAO;
     this.groupSpaceBindingReportUserDAO = groupSpaceBindingReportUserDAO;
+    this.userBindingsQueueDAO = userBindingsQueueDAO;
   }
 
   @ExoTransactional
@@ -98,6 +89,11 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   @ExoTransactional
   public List<GroupSpaceBinding> findGroupSpaceBindingsByGroup(String group) throws GroupSpaceBindingStorageException {
     return buildGroupBindingListFromEntities(groupSpaceBindingDAO.findGroupSpaceBindingsByGroup(group));
+  }
+
+  @ExoTransactional
+  public List<GroupSpaceBinding> getAllGroupSpaceBindings() throws GroupSpaceBindingStorageException {
+    return buildGroupBindingListFromEntities(groupSpaceBindingDAO.findAll());
   }
 
   @ExoTransactional
@@ -123,6 +119,17 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   }
 
   @ExoTransactional
+  public UserBindingsQueue findFirstUserBindingsQueue() throws GroupSpaceBindingStorageException {
+    UserBindingsQueueEntity entity =userBindingsQueueDAO.findFirstUserBindingsQueue();
+    return fillUserBindingsQueueFromEntity(entity);
+  }
+
+  @ExoTransactional
+  public List<UserBindingsQueue> findUserBindingsQueueByUserAndAction(String userId, String action) {
+    return buildUserBindingsQueueListFromEntities(userBindingsQueueDAO.findUserBindingsQueueByUserAndAction(userId, action));
+  }
+
+  @ExoTransactional
   public GroupSpaceBinding saveGroupSpaceBinding(GroupSpaceBinding binding) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingEntity bindingEntity = buildEntityGroupBindingFrom(binding);
     GroupSpaceBindingEntity entity = groupSpaceBindingDAO.create(bindingEntity);
@@ -133,6 +140,13 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   public GroupSpaceBindingQueue createGroupSpaceBindingQueue(GroupSpaceBindingQueue bindingQueue) throws GroupSpaceBindingStorageException {
     GroupSpaceBindingQueueEntity entity = groupSpaceBindingQueueDAO.create(buildEntityGroupBindingQueueFrom(bindingQueue));
     return fillGroupBindingQueueFromEntity(entity);
+  }
+
+  @ExoTransactional
+  public UserBindingsQueue createUserBindingsQueue(UserBindingsQueue bindingQueue) throws GroupSpaceBindingStorageException {
+
+    UserBindingsQueueEntity entity = userBindingsQueueDAO.create(buildEntityUserBindingsQueueFrom(bindingQueue));
+    return fillUserBindingsQueueFromEntity(entity);
   }
 
   @ExoTransactional
@@ -184,6 +198,10 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
                                .stream()
                                .map(groupSpaceBindingEntity -> fillGroupBindingFromEntity(groupSpaceBindingEntity))
                                .collect(Collectors.toList());
+  }
+  @Override
+  public List<UserBindingsQueue> findAllUserBindingsQueue() {
+    return buildUserBindingsQueueListFromEntities(userBindingsQueueDAO.findAll());
   }
 
   @Override
@@ -242,6 +260,11 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
   @ExoTransactional
   public void deleteGroupBindingQueue(long id) throws GroupSpaceBindingStorageException {
     groupSpaceBindingQueueDAO.delete(groupSpaceBindingQueueDAO.find(id));
+  }
+
+  @ExoTransactional
+  public void deleteUserBindingsQueue(long id) throws GroupSpaceBindingStorageException {
+    userBindingsQueueDAO.delete(userBindingsQueueDAO.find(id));
   }
 
   @ExoTransactional
@@ -431,6 +454,10 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     groupSpaceBindingQueue.setId(bindingQueueEntity.getId());
     groupSpaceBindingQueue.setGroupSpaceBinding(fillGroupBindingFromEntity(bindingQueueEntity.getGroupSpaceBindingEntity()));
     groupSpaceBindingQueue.setAction(bindingQueueEntity.getAction());
+    Instant createdDate = bindingQueueEntity.getCreatedDate();
+    if (createdDate != null) {
+      groupSpaceBindingQueue.setCreatedDate(createdDate.toEpochMilli());
+    }
     return groupSpaceBindingQueue;
   }
 
@@ -521,6 +548,7 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     GroupSpaceBindingQueueEntity groupSpaceBindingQueueEntity = new GroupSpaceBindingQueueEntity();
     groupSpaceBindingQueueEntity.setGroupSpaceBindingEntity(buildEntityGroupBindingFrom(groupSpaceBindingQueue.getGroupSpaceBinding()));
     groupSpaceBindingQueueEntity.setAction(groupSpaceBindingQueue.getAction());
+    groupSpaceBindingQueueEntity.setCreatedDate(Instant.now());
     return groupSpaceBindingQueueEntity;
   }
 
@@ -537,5 +565,54 @@ public class RDBMSGroupSpaceBindingStorageImpl implements GroupSpaceBindingStora
     userSpaceBindingEntity.setGroupSpaceBinding(groupBindingEntity);
     return userSpaceBindingEntity;
   }
+
+  /**
+   * build {@link UserBindingsQueueEntity} from
+   * {@link UserBindingsQueue} object.
+   *
+   * @param userBindingsQueue the UserBindingsQueue object
+   */
+  private UserBindingsQueueEntity buildEntityUserBindingsQueueFrom(UserBindingsQueue userBindingsQueue) {
+    UserBindingsQueueEntity userBindingsQueueEntity = new UserBindingsQueueEntity();
+    userBindingsQueueEntity.setUserId(userBindingsQueue.getUserId());
+    userBindingsQueueEntity.setAction(userBindingsQueue.getAction());
+    userBindingsQueueEntity.setCreatedDate(Instant.now());
+    return userBindingsQueueEntity;
+  }
+
+  /**
+   * Fills {@link UserBindingsQueue}'s properties to
+   * {@link UserBindingsQueueEntity}'s.
+   *
+   * @param bindingQueueEntity the GroupSpaceBinding entity
+   */
+  private UserBindingsQueue fillUserBindingsQueueFromEntity(UserBindingsQueueEntity bindingQueueEntity) {
+    if (bindingQueueEntity == null) {
+      return null;
+    }
+    UserBindingsQueue userBindingsQueue = new UserBindingsQueue();
+    userBindingsQueue.setId(bindingQueueEntity.getId());
+    userBindingsQueue.setUserId(bindingQueueEntity.getUserId());
+    userBindingsQueue.setAction(bindingQueueEntity.getAction());
+    Instant createdDate = bindingQueueEntity.getCreatedDate();
+    if (createdDate != null) {
+      userBindingsQueue.setCreatedDate(createdDate.toEpochMilli());
+    }
+    return userBindingsQueue;
+  }
+
+  /**
+   * build {@link UserBindingsQueue}'s list from {@link UserBindingsQueueEntity}'s
+   * list.
+   *
+   * @param userSpaceBindingEntities
+   * @return
+   */
+  private List<UserBindingsQueue> buildUserBindingsQueueListFromEntities(List<UserBindingsQueueEntity> userSpaceBindingEntities) {
+    List<UserBindingsQueue> userBindingsQueues = new ArrayList<>();
+    userSpaceBindingEntities.stream().forEach(entity -> userBindingsQueues.add(fillUserBindingsQueueFromEntity(entity)));
+    return userBindingsQueues;
+  }
+
 
 }
