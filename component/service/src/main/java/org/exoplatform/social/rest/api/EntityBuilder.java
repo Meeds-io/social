@@ -54,6 +54,8 @@ import javax.ws.rs.core.UriInfo;
 
 import io.meeds.social.html.model.HtmlTransformerContext;
 import io.meeds.social.html.utils.HtmlUtils;
+import io.meeds.social.space.template.model.SpaceTemplate;
+import io.meeds.social.space.template.service.SpaceTemplateService;
 import io.meeds.social.translation.service.TranslationService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -955,6 +957,7 @@ public class EntityBuilder {
       spaceEntity.setInvitedUsersCount(space.getInvitedUsers() == null ? 0 : countUsers(space.getInvitedUsers()));
     }
     spaceEntity.setParentSpaceId(space.getParentSpaceId());
+    spaceEntity.setIsParentSpace(isParentSpace(space));
 
     return spaceEntity;
   }
@@ -2558,6 +2561,15 @@ public class EntityBuilder {
     if (StringUtils.isNotBlank(defaultTitle)) {
       activityEntity.getTemplateParams().put(COMMENT_PARAM, HtmlUtils.transform(comment, htmlContext));
     }
+  }
+
+  private static boolean isParentSpace(Space space) {
+    if (space.getParentSpaceId() != null && space.getParentSpaceId() > 0) {
+      return false;
+    }
+    SpaceTemplate spaceTemplate = ExoContainerContext.getService(SpaceTemplateService.class)
+                                                     .getSpaceTemplate(space.getTemplateId());
+    return spaceTemplate != null && CollectionUtils.isNotEmpty(spaceTemplate.getAllowedSubspaceTemplates());
   }
 
 }
