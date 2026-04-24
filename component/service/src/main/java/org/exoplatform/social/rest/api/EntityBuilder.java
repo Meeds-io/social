@@ -2221,26 +2221,21 @@ public class EntityBuilder {
                                                    boolean excludeEmptyNavigationSites,
                                                    boolean temporalCheck,
                                                    boolean excludeGroupNodesWithoutPageChildNodes,
-                                                   boolean filterByPermission,
                                                    boolean sortByDisplayOrder,
                                                    Locale locale) throws Exception {
-    List<PortalConfig> filteredByPermissionSites = sites;
-    if (filterByPermission) {
-      filteredByPermissionSites = sites.stream()
-                                       .filter(portalConfig -> getUserACL().hasAccessPermission(portalConfig,
-                                                                                                getCurrentUserIdentity()))
-                                       .toList();
-    }
     List<SiteEntity> siteEntities = new ArrayList<>();
-    for (PortalConfig site : filteredByPermissionSites) {
-      siteEntities.add(buildSiteEntity(site,
-                                       request,
-                                       expandNavigations,
-                                       visibilityNames,
-                                       excludeEmptyNavigationSites,
-                                       temporalCheck,
-                                       excludeGroupNodesWithoutPageChildNodes,
-                                       locale));
+    for (PortalConfig site : sites) {
+      if (getUserACL().hasAccessPermission(site,
+                                           getCurrentUserIdentity())) {
+        siteEntities.add(buildSiteEntity(site,
+                                         request,
+                                         expandNavigations,
+                                         visibilityNames,
+                                         excludeEmptyNavigationSites,
+                                         temporalCheck,
+                                         excludeGroupNodesWithoutPageChildNodes,
+                                         locale));
+      }
     }
     siteEntities = siteEntities.stream().filter(Objects::nonNull).toList();
     return sortByDisplayOrder ? siteEntities :
