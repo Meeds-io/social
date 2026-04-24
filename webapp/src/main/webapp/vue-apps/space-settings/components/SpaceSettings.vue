@@ -56,7 +56,7 @@ export default {
       return !this.$root.activeSection;
     },
     isParentSpace() {
-      return !this.$root.space?.parentSpaceId;
+      return this.$root.space?.isParentSpace;
     }
   },
 };
