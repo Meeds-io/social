@@ -250,6 +250,15 @@ public class SpaceEntity extends BaseEntity {
     return (Boolean) getProperty("isPublisher");
   }
 
+  public SpaceEntity setIsParentSpace(boolean isParentSpace) {
+    setProperty("isParentSpace", isParentSpace);
+    return this;
+  }
+
+  public Boolean getIsParentSpace() {
+    return (Boolean) getProperty("isParentSpace");
+  }
+
   public SpaceEntity setCreatedTime(String creationTime) {
     setProperty("createdTime", creationTime);
     return this;

@@ -83,7 +83,7 @@
     :min-width="!icon && 'auto'"
     v-bind="attrs"
     v-on="on"
-    @click="addNewSpace">
+    @click="addSpace">
     <v-icon
       v-if="displaySpaceCreationIcon"
       :size="iconSize">
@@ -140,6 +140,10 @@ export default {
     displayIcon: {
       type: Boolean,
       default: true
+    },
+    parentSpaceId: {
+      type: String,
+      default: null
     }
   },
   data: () => ({
@@ -160,7 +164,7 @@ export default {
       return this.displayIcon || this.isMobile;
     },
     displaySpaceCreationMenu() {
-      return !!(this.isMemberInParentSpace && this.subspaceTemplateIds?.length > 0 && !this.$root.openedSpaceTemplateId);
+      return !!(!this.parentSpaceId && this.isMemberInParentSpace && this.subspaceTemplateIds?.length > 0 && !this.$root.openedSpaceTemplateId);
     }
   },
   watch: {
@@ -181,13 +185,15 @@ export default {
   },
   methods: {
     async init() {
-      const result = await this.$spaceService.getSpacesByFilter({
-        offset: 0,
-        limit: 1,
-        filter: 'accessible',
-        onlyParentSpaces: true,
-      });
-      this.isMemberInParentSpace = result?.size > 0;
+      if (!this.parentSpaceId) {
+        const result = await this.$spaceService.getSpacesByFilter({
+          offset: 0,
+          limit: 1,
+          filter: 'accessible',
+          onlyParentSpaces: true,
+        });
+        this.isMemberInParentSpace = result?.size > 0;
+      }
       if (!this.$root.spaceTemplates) {
         this.$root.spaceTemplates = await this.$spaceTemplateService.getSpaceTemplates();
       }
@@ -210,6 +216,20 @@ export default {
         window.require(['SHARED/spaceForm'], drawer => drawer.open(this.$root.openedSpaceTemplateId, null, null, true));
       } else {
         this.$root.$emit('addNewSpace', this.$root.openedSpaceTemplateId, null, null, true);
+      }
+    },
+    addNewSubSpaceWithSelectedParent() {
+      if (this.requireFormDrawer) {
+        window.require(['SHARED/spaceForm'], drawer => drawer.open(null, null, this.parentSpaceId, false));
+      } else {
+        this.$root.$emit('addNewSpace', null, null, this.parentSpaceId, false);
+      }
+    },
+    addSpace() {
+      if (this.parentSpaceId) {
+        this.addNewSubSpaceWithSelectedParent();
+      } else {
+        this.addNewSpace();
       }
     },
     closeMenu(event) {
