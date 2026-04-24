@@ -476,6 +476,12 @@ export default {
       if (this.parentSpaceId) {
         const parentSpace = await this.$spaceService.getSpaceById(parentSpaceId);
         await this.selectParentSpace(parentSpace);
+        if (!spaceTemplates) {
+          this.templates = await this.$spaceTemplateService.getAllowedSubspaceTemplates(parentSpace?.templateId);
+          if (this.templates?.length === 1) {
+            this.templateId = this.templates[0].id;
+          }
+        }
         this.$refs.spaceFormDrawer.open();
         return;
       }
