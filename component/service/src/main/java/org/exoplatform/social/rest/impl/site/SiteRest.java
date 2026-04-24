@@ -154,10 +154,6 @@ public class SiteRest implements ResourceContainer {
                            @DefaultValue("false")
                            @QueryParam("displayed")
                            boolean displayed,
-                           @Parameter(description = "to filter sites by view/edit permissions")
-                           @DefaultValue("false")
-                           @QueryParam("filterByPermissions")
-                           boolean filterByPermission,
                            @Parameter(description = "Offset of results to retrieve")
                            @QueryParam("offset")
                            @DefaultValue("0")
@@ -196,7 +192,6 @@ public class SiteRest implements ResourceContainer {
                                                                       excludeEmptyNavigationSites,
                                                                       temporalCheck,
                                                                       excludeGroupNodesWithoutPageChildNodes,
-                                                                      filterByPermission,
                                                                       sortByDisplayOrder,
                                                                       getLocale(httpServletRequest, lang));
       EntityTag eTag = new EntityTag(String.valueOf(Objects.hash(siteEntities,
@@ -206,7 +201,6 @@ public class SiteRest implements ResourceContainer {
                                                                  excludeEmptyNavigationSites,
                                                                  temporalCheck,
                                                                  excludeGroupNodesWithoutPageChildNodes,
-                                                                 filterByPermission,
                                                                  sortByDisplayOrder,
                                                                  getLocale(httpServletRequest, lang))));
       Response.ResponseBuilder builder = request.evaluatePreconditions(eTag);

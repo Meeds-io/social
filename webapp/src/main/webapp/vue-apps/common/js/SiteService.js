@@ -18,7 +18,7 @@
  */
 
 
-export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, filterByPermissions, excludeGroupNodesWithoutPageChildNodes, temporalCheck, visibility) {
+export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEmptyNavigationSites, excludeSpaceSites, expandNavigations, filterByDisplayed, sortByDisplayOrder, displayed, excludeGroupNodesWithoutPageChildNodes, temporalCheck, visibility) {
   return getSitesByFilter({
     siteType,
     excludedSiteType,
@@ -29,7 +29,6 @@ export function getSites(siteType, excludedSiteType, excludedSiteName, excludeEm
     filterByDisplayed,
     sortByDisplayOrder,
     displayed,
-    filterByPermissions,
     excludeGroupNodesWithoutPageChildNodes,
     temporalCheck,
     visibility
@@ -46,7 +45,6 @@ export function getSitesByFilter({
   filterByDisplayed,
   sortByDisplayOrder,
   displayed,
-  filterByPermissions,
   excludeGroupNodesWithoutPageChildNodes,
   temporalCheck,
   visibility,
@@ -82,7 +80,6 @@ export function getSitesByFilter({
   if (expand) {
     formData.append('expand', expand);
   }
-  formData.append('filterByPermissions', filterByPermissions || false);
   const params = new URLSearchParams(formData).toString();
 
   return fetch(`${eXo.env.portal.context}/${eXo.env.portal.rest}/v1/social/sites?${params}`, {

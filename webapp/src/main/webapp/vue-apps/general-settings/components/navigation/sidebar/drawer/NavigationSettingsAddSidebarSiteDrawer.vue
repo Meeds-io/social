@@ -274,7 +274,6 @@ export default {
             this.filterByDisplayed,
             this.sortByDisplayOrder,
             this.displayed,
-            this.filterByPermissions,
             this.excludeGroupNodesWithoutPageChildNodes,
             this.temporalCheck
           );

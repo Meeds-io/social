@@ -431,7 +431,7 @@ export default {
       }
     },
     async retrieveSites() {
-      this.$root.sites = await this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
+      this.$root.sites = await this.$siteService.getSites('PORTAL', null, 'global', true, true, true, true, true, true, true, true, ['displayed', 'temporal']);
     },
     async retrieveSpace(refresh) {
       this.space = await this.$spaceService.getSpaceById(this.spaceId, 'member,managers,favorite,unread,muted', refresh);
