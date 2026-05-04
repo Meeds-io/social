@@ -6,17 +6,13 @@
       :group="child"
       :page-size="pageSize"
       :loading="loading"
-      :open-all="!!keyword"
-      class="ms-3" />
+      :open-all="!!keyword" />
   </v-list-item-group>
 </template>
 
 <script>
 export default {
   data: () => ({
-    startSearchAfterInMilliseconds: 600,
-    endTypingKeywordTimeout: 50,
-    startTypingKeywordTimeout: 0,
     keyword: null,
     groups: [],
     searching: 0,
@@ -39,10 +35,9 @@ export default {
       if (!this.keyword) {
         return this.retrieveGroupTree();
       }
-      this.startTypingKeywordTimeout = Date.now();
       if (!this.loading) {
         this.searching++;
-        this.waitForEndTyping();
+        this.searchGroups();
       }
     },
   },
@@ -227,15 +222,6 @@ export default {
         this.loading--;
         this.searching--;
       });
-    },
-    waitForEndTyping() {
-      window.setTimeout(() => {
-        if (Date.now() - this.startTypingKeywordTimeout > this.startSearchAfterInMilliseconds) {
-          this.searchGroups();
-        } else {
-          this.waitForEndTyping();
-        }
-      }, this.endTypingKeywordTimeout);
     },
   },
 };
