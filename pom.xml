@@ -45,8 +45,8 @@
     <!-- **************************************** -->
     <!-- Project Dependencies                     -->
     <!-- **************************************** -->
-    <io.meeds.commons.version>7.1.x-exo-SNAPSHOT</io.meeds.commons.version>
-    <io.meeds.platform-ui.version>7.1.x-exo-SNAPSHOT</io.meeds.platform-ui.version>
+    <io.meeds.commons.version>7.1.3-exo</io.meeds.commons.version>
+    <io.meeds.platform-ui.version>7.1.3-exo</io.meeds.platform-ui.version>
 
     <!-- Sonar properties -->
     <sonar.organization>meeds-io</sonar.organization>
