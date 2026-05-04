@@ -16,7 +16,7 @@
               v-if="loadingChildren"
               indeterminate
               size="18" />
-            <v-icon v-else size="32">{{ icon }}</v-icon>
+            <v-icon v-else size="18">{{ icon }}</v-icon>
           </v-btn>
         </v-list-item-action>
         <v-list-item-content>
@@ -91,7 +91,7 @@ export default {
       return parseInt((this.childrenSize + this.pageSize - 1) / this.pageSize);
     },
     icon() {
-      return this.loading >=0 && this.open ? 'mdi-menu-down' : 'mdi-menu-right';
+      return this.loading >=0 && this.open ? 'fa-caret-down' : 'fa-caret-right';
     },
     loadingChildren() {
       return this.loading && this.group.loading;
