@@ -22,7 +22,7 @@
           text
           v-on="on"
           @blur="closeMenu()">
-          <v-icon size="21">mdi-dots-vertical</v-icon>
+          <v-icon size="18">fa-ellipsis-v</v-icon>
         </v-btn>
       </template>
       <v-list class="pa-0" dense>
