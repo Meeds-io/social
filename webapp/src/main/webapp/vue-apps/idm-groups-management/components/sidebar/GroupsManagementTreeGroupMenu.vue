@@ -7,13 +7,6 @@
       :ok-label="$t('GroupsManagement.button.ok')"
       :cancel-label="$t('GroupsManagement.button.cancel')"
       @ok="deleteConfirm()" />
-    <v-btn
-      icon
-      text
-      class="groupMenuIcon"
-      @click="openMenu">
-      <v-icon size="21">mdi-dots-vertical</v-icon>
-    </v-btn>
     <v-menu
       ref="actionMenu"
       v-model="displayActionMenu"
@@ -23,6 +16,15 @@
       right
       offset-x
       offset-y>
+      <template #activator="{ on }">
+        <v-btn
+          icon
+          text
+          v-on="on"
+          @blur="closeMenu()">
+          <v-icon size="21">mdi-dots-vertical</v-icon>
+        </v-btn>
+      </template>
       <v-list class="pa-0" dense>
         <v-list-item @click="emitEvent($event, 'editGroup')">
           <v-list-item-title>
@@ -74,23 +76,13 @@ export default {
         .toString()}`;
     },
   },
-  created() {
-    $(document).on('mousedown', () => {
-      if (this.displayActionMenu) {
-        window.setTimeout(() => {
-          this.displayActionMenu = false;
-          this.displaySecondButton = false;
-        }, this.waitTimeUntilCloseMenu);
-      }
-    });
-  },
   methods: {
-    openMenu(event) {
+    closeMenu(event) {
       if (event) {
         event.preventDefault();
         event.stopPropagation();
       }
-      this.displayActionMenu = true;
+      this.displayActionMenu = false;
     },
     emitEvent(event, eventName) {
       if (event) {
