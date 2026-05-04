@@ -78,6 +78,9 @@
             <field name="name">
               <string>people</string>
             </field>
+            <field name="contentType">
+              <string>user</string>
+            </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/users?q={keyword}&limit={limit}&expand=all,spacesCount,relationshipStatus,connectionsCount]]></string>
             </field>
@@ -122,6 +125,9 @@
             <field name="name">
               <string>spaces</string>
             </field>
+            <field name="contentType">
+              <string>space</string>
+            </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/spaces?q={keyword}&limit={limit}&sort={sortField}&order={sortDirection}&expand=managers,favorite]]></string>
             </field>
@@ -165,6 +171,9 @@
           <object type="org.exoplatform.social.core.search.SearchConnector">
             <field name="name">
               <string>activities</string>
+            </field>
+            <field name="contentType">
+              <string>activity</string>
             </field>
             <field name="uri">
               <string><![CDATA[/portal/rest/v1/social/activities/search?q={keyword}&limit={limit}&expand=shared]]></string>
