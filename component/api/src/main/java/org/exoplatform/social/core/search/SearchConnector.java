@@ -31,6 +31,8 @@ public class SearchConnector implements Cloneable {
 
   private String  name;
 
+  private String  contentType;
+
   private String  uri;
 
   private String  jsModule;
@@ -81,6 +83,18 @@ public class SearchConnector implements Cloneable {
 
   @Override
   public SearchConnector clone() { // NOSONAR
-    return new SearchConnector(name, uri, jsModule, cssModule, i18nBundle, uiComponent, icon, enabled, favoritesEnabled, tagsEnabled, groupingEnabled, spaceFilterEnabled);
+    return new SearchConnector(name,
+                               contentType,
+                               uri,
+                               jsModule,
+                               cssModule,
+                               i18nBundle,
+                               uiComponent,
+                               icon,
+                               enabled,
+                               favoritesEnabled,
+                               tagsEnabled,
+                               groupingEnabled,
+                               spaceFilterEnabled);
   }
 }
