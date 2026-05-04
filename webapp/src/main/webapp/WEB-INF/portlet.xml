@@ -98,6 +98,10 @@
         <name>portlet-view-dispatched-file-path</name>
         <value>/html/idmGroupsManagement.html</value>
     </init-param>
+    <init-param>
+      <name>layout-css-class</name>
+      <value>no-layout-style</value>
+    </init-param>
     <expiration-cache>-1</expiration-cache>
     <cache-scope>PUBLIC</cache-scope>
     <supports>

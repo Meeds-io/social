@@ -750,6 +750,9 @@
       <depends>
         <module>extensionRegistry</module>
       </depends>
+      <depends>
+        <module>applicationToolbarComponent</module>
+      </depends>
     </module>
   </portlet>
 
