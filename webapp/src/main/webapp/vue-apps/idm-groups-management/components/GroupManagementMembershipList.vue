@@ -62,7 +62,6 @@ export default {
       minute: '2-digit',
       second: '2-digit',
     },
-    group: null,
     totalSize: 0,
     options: {
       page: 1,
@@ -126,6 +125,9 @@ export default {
         sortable: false,
       }];
     },
+    group() {
+      return this.$root.selectedGroup;
+    },
   },
   watch: {
     options() {
@@ -149,7 +151,6 @@ export default {
   },
   created() {
     this.$root.$on('searchGroupMemberships', this.updateSearchTerms);
-    this.$root.$on('selectGroup', group => this.group = group);
     this.$root.$on('refreshGroupMemberships', () => this.searchMemberships());
   },
   methods: {
