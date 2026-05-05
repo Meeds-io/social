@@ -5,9 +5,9 @@
     class="transparent">
     <v-toolbar-title>
       <v-btn
-        :disabled="!group"
+        :disabled="!$root.selectedGroup"
         class="btn addNewMembershipButton"
-        @click="$root.$emit('addNewMembership', group)">
+        @click="$root.$emit('addNewMembership', $root.selectedGroup)">
         <i class="uiIconSocConnectUser me-md-3"></i>
         <span class="d-none d-sm-inline">
           {{ $t('GroupsManagement.addMemberInGroup') }}
@@ -19,7 +19,7 @@
       <v-text-field
         v-model="keyword"
         :placeholder="$t('GroupsManagement.filterBy')"
-        :disabled="!group"
+        :disabled="!$root.selectedGroup"
         prepend-inner-icon="fa-filter"
         class="inputMembershipTypeFilter pa-0 me-3 my-auto" />
     </v-scale-transition>
@@ -29,16 +29,12 @@
 <script>
 export default {
   data: () => ({
-    group: null,
     keyword: null,
   }),
   watch: {
     keyword() {
       this.$root.$emit('searchGroupMemberships', this.keyword);
     },
-  },
-  created() {
-    this.$root.$on('selectGroup', group => this.group = group);
   },
 };
 </script>

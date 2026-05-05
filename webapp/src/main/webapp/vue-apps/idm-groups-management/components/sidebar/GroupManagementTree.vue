@@ -1,6 +1,6 @@
 <template>
   <v-list-item-group v-model="selectedIndex" color="primary">
-    <groups-management-tree-item
+    <group-management-tree-item
       v-for="child in groups"
       :key="child.id"
       :group="child"
