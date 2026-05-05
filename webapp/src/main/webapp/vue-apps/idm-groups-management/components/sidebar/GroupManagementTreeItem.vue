@@ -29,7 +29,7 @@
         </v-list-item-content>
         <v-list-item-action class="my-1">
           <v-sheet :min-height="36">
-            <groups-management-tree-group-menu v-show="hover" :group="group" />
+            <group-management-tree-group-menu v-show="hover" :group="group" />
           </v-sheet>
         </v-list-item-action>
       </v-list-item>
@@ -41,7 +41,7 @@
             :length="pagesCount"
             :total-visible="5" />
         </div>
-        <groups-management-tree-item
+        <group-management-tree-item
           v-for="child in children"
           :key="child.id"
           :group="child"
