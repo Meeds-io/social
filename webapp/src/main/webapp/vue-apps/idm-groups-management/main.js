@@ -22,12 +22,36 @@ const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
 
 export function init() {
   exoi18n.loadLanguageAsync(lang, url).then(i18n => {
-    // init Vue app when locale ressources are ready
+    // init Vue app when locale resources are ready
     Vue.createApp({
+      data() {
+        return {
+          group: null,
+        };
+      },
+      computed: {
+        selectedGroup() {
+          return this.group;
+        },
+        isMobile() {
+          return this.$vuetify.breakpoint.smAndDown;
+        },
+      },
+      created() {
+        this.$root.$on('selectGroup', this.setSelectedGroup);
+      },
       mounted() {
         document.dispatchEvent(new CustomEvent('hideTopBarLoading'));
       },
-      template: `<groups-management id="${appId}" />`,
+      beforeDestroy() {
+        this.$root.$off('selectGroup', this.setSelectedGroup);
+      },
+      methods: {
+        setSelectedGroup(group) {
+          this.group = group;
+        },
+      },
+      template: `<group-management id="${appId}" />`,
       vuetify: Vue.prototype.vuetifyOptions,
       i18n,
     }, `#${appId}`, 'Group Management');
