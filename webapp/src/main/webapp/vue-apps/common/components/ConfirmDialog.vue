@@ -16,7 +16,7 @@
         <span class="ignore-vuetify-classes text-title" v-html="title"></span>
       </div>
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <v-card-text v-html="message" />
+      <v-card-text v-sanitized-html="message" />
       <v-card-actions v-if="!hideActions">
         <v-spacer />
         <button
