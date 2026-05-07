@@ -369,7 +369,7 @@ public class ProfilePropertyServiceImpl implements ProfilePropertyService, Start
     String existingType = existingProperty.getPropertyType();
     String updatedType = updatedProperty.getPropertyType();
 
-    if (!existingType.equals(updatedType) && USER_TYPE.equals(existingType) || USER_TYPE.equals(updatedType)) {
+    if (!existingType.equals(updatedType) && (USER_TYPE.equals(existingType) || USER_TYPE.equals(updatedType))) {
       throw new IllegalArgumentException("Changing profile property type to or from USER type is not allowed.");
     }
   }
