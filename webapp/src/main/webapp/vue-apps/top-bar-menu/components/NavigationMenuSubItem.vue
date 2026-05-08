@@ -213,7 +213,7 @@ export default {
       if (myUri && emitterUri && (myUri.startsWith(emitterUri) || emitterUri.startsWith(myUri))) {
         return;
       }
-      if (!myUri && this.isDescendant(emitter.navigation, this.navigation)) {
+      if ((!myUri || emitter && myUri && !myUri.includes(emitter.baseSiteUri)) && this.isDescendant(emitter.navigation, this.navigation)) {
         return;
       }
       this.showMenu = false;
