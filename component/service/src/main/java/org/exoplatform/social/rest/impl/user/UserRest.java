@@ -334,6 +334,9 @@ public class UserRest implements ResourceContainer, Startable {
                            @Parameter(description = "Space id to filter only its members, ex: 1")
                            @QueryParam("spaceId")
                            List<Long> spaceIds,
+                           @Parameter(description = "Group id to filter only its members, ex: /platform")
+                           @QueryParam("groupId")
+                           List<String> groupIds,
                            @Parameter(description = "Is disabled users")
                            @Schema(defaultValue = "false")
                            @QueryParam("isDisabled")
@@ -388,7 +391,8 @@ public class UserRest implements ResourceContainer, Startable {
         && !RestUtils.isMemberOfAdminGroup()
         && !RestUtils.isMemberOfDelegatedGroup()
         && userType != null
-        && !userType.equals(INTERNAL)) {
+        && !userType.equals(INTERNAL)
+        && !groupIds.isEmpty()) {
       throw new WebApplicationException(Response.Status.FORBIDDEN);
     }
 
@@ -475,6 +479,9 @@ public class UserRest implements ResourceContainer, Startable {
         List<String> spaceIdsString = spaceIds.stream().map(String::valueOf).toList();
         filter.setSpaceIdentityIds(SpaceUtils.getSpaceIdentityIds(target.getRemoteId(), spaceIdsString));
       }
+      if (CollectionUtils.isNotEmpty(groupIds)) {
+        filter.setGroupIds(groupIds);
+      }
       if (StringUtils.isNotBlank(sortField)) {
         Sorting.SortBy sortBy = Sorting.SortBy.valueOf(sortField.toUpperCase());
         Sorting.OrderBy orderBy = Sorting.OrderBy.ASC;
@@ -489,17 +496,6 @@ public class UserRest implements ResourceContainer, Startable {
       filter.setUserType(userType);
       filter.setConnected(isConnected != null ? isConnected.equals(CONNECTED) : null);
       filter.setEnrollmentStatus(enrollmentStatus);
-      if (!RestUtils.isMemberOfAdminGroup()
-            && RestUtils.isMemberOfDelegatedGroup()) {
-          List<String> groupIds = ConversationState.getCurrent()
-                  .getIdentity()
-                  .getMemberships()
-                  .stream()
-                  .filter(m -> StringUtils.equals("manager", m.getMembershipType()) || StringUtils.equals("*", m.getMembershipType()))
-                  .map(MembershipEntry::getGroup)
-                  .toList();
-          filter.setGroupIds(groupIds);
-      }
       ListAccess<Identity> list = identityManager.getIdentitiesByProfileFilter(OrganizationIdentityProvider.NAME, filter, true);
       identities = list.load(offset, limit);
       if (returnSize) {

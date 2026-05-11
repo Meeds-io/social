@@ -41,13 +41,12 @@
         <div
           ref="main"
           class="application-layout-style flex-shrink-1 flex-grow-1 overflow-hidden">
-          <div class="d-flex fill-height border-box-sizing">
-            <group-management-placeholder v-if="!$root.selectedGroup" />
-            <span v-else>
-              <group-management-membership-toolbar />
-              <group-management-membership-list />
-            </span>
+          <div v-if="!$root.selectedGroup" class="d-flex fill-height border-box-sizing">
+            <group-management-placeholder />
           </div>
+          <span v-else>
+            <group-members-management />
+          </span>
         </div>
       </v-card>
     </main>
@@ -55,6 +54,7 @@
     <group-management-membership-form-drawer />
   </v-app>
 </template>
-<script />
+<script>
+</script>
 
 
