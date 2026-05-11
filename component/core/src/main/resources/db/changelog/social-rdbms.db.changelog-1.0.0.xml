@@ -1268,10 +1268,14 @@
   <changeSet author="social" id="1.0.0-meed-3976" dbms="!mysql" runOnChange="true">
     <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="CLOB"/>
   </changeSet>
-
-  <changeSet author="social" id="1.0.0-meed-3976-fix" dbms="mysql">
-    <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"/>
-  </changeSet>
+    <changeSet author="social" id="1.0.0-meed-4222-fix" dbms="mysql">
+        <sql>
+            ALTER TABLE SOC_SPACES
+                MODIFY `DESCRIPTION` LONGTEXT
+                    CHARACTER SET utf8mb4
+                    COLLATE utf8mb4_unicode_ci;
+        </sql>
+    </changeSet>
 
   <changeSet author="social" id="1.0.0-mip-244-01" dbms="oracle,postgresql,hsqldb">
     <createSequence sequenceName="SEQ_SOC_SPACE_INVITATION_LINK_ID" startValue="1"/>
