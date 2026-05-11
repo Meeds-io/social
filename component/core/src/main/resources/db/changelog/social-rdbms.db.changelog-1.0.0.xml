@@ -1229,7 +1229,40 @@
   <changeSet author="social" id="1.0.0-meed-3976">
     <modifyDataType tableName="SOC_SPACES" columnName="DESCRIPTION" newDataType="CLOB"/>
   </changeSet>
-  <changeSet author="social" id="1.0.0-122">
+    <changeSet author="social" id="1.0.0-meed-4222-fix" dbms="mysql">
+        <sql>
+            ALTER TABLE SOC_SPACES
+                MODIFY `DESCRIPTION` LONGTEXT
+                    CHARACTER SET utf8mb4
+                    COLLATE utf8mb4_unicode_ci;
+        </sql>
+    </changeSet>
+
+  <changeSet author="social" id="1.0.0-mip-244-01" dbms="oracle,postgresql,hsqldb">
+    <createSequence sequenceName="SEQ_SOC_SPACE_INVITATION_LINK_ID" startValue="1"/>
+  </changeSet>
+  <changeSet author="social" id="1.0.0-mip-244-02">
+    <createTable tableName="SOC_SPACE_INVITATION_LINKS">
+      <column name="ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
+        <constraints nullable="false" primaryKey="true" primaryKeyName="PK_SOC_SPACE_INVITATION_LINKS"/>
+      </column>
+      <column name="SPACE_ID" type="BIGINT">
+        <constraints nullable="false"
+                     foreignKeyName="FK_SOC_SPACE_INVITATION_LINKS_SPACE_ID"
+                     references="SOC_SPACES(SPACE_ID)"/>
+      </column>
+      <column name="INVITER_ID" type="NVARCHAR(200)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="INVITED_USER_ID" type="NVARCHAR(200)">
+        <constraints nullable="true"/>
+      </column>
+    </createTable>
+    <modifySql dbms="mysql">
+      <append value=" ENGINE=INNODB CHARSET=UTF8 COLLATE utf8_general_ci"/>
+    </modifySql>
+  </changeSet>
+    <changeSet author="social" id="1.0.0-122">
     <createTable tableName="SOC_USER_BINDINGS_QUEUE">
       <column name="USER_BINDINGS_QUEUE_ID" type="BIGINT" autoIncrement="${autoIncrement}" startWith="1">
         <constraints nullable="false" primaryKey="true" primaryKeyName="PK_USER_BINDINGS_QUEUE_ID"/>
