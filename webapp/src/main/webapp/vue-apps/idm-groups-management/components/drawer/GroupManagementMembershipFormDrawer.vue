@@ -338,7 +338,7 @@ export default {
             throw new Error(this.$t('IDMManagement.error.UnknownServerError'));
           }
         }
-      }).then(() => this.$root.$emit('refreshGroupMemberships'))
+      }).then(() => this.$root.$emit('refresh-group-members'))
         .then(() => this.$refs.drawer.close())
         .catch(this.handleError)
         .finally(() => {
