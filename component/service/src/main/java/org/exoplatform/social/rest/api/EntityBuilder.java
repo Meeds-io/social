@@ -320,6 +320,9 @@ public class EntityBuilder {
   }
 
   public static ProfileEntity buildEntityProfile(Profile profile, String restPath, String expand) { // NOSONAR
+    return buildEntityProfile(profile, restPath, null, expand);
+  }
+  public static ProfileEntity buildEntityProfile(Profile profile, String restPath, List<String> groupIds, String expand) { // NOSONAR
     ProfileEntity userEntity = new ProfileEntity(profile.getId());
     userEntity.setHref(RestUtils.getRestUrl(USERS_TYPE, profile.getIdentity().getRemoteId(), restPath));
     userEntity.setIdentity(RestUtils.getRestUrl(IDENTITIES_TYPE, profile.getIdentity().getId(), restPath));
@@ -407,6 +410,10 @@ public class EntityBuilder {
     if (canViewProperties || isProfilePropertyVisible(Profile.CITY)) {
       userEntity.setCity((String) profile.getProperty(Profile.CITY));
     }
+    if (CollectionUtils.isNotEmpty(groupIds) && groupIds.size() == 1) {
+      UserACL userACL = ExoContainerContext.getService(UserACL.class);
+      userEntity.setIsManager(userACL.isMemberOf(userACL.getUserIdentity(profile.getIdentity().getRemoteId()), MANAGER, groupIds.getFirst()));
+    }
 
     String[] expandArray = StringUtils.split(expand, ",");
     List<String> expandAttributes = expandArray == null ? Collections.emptyList() : Arrays.asList(expandArray);
@@ -452,7 +459,7 @@ public class EntityBuilder {
             Type status = relationship.getStatus();
             if (status == Type.PENDING) {
               Type relationshipStatus = StringUtils.equals(relationship.getSender().getRemoteId(), currentUser) ? Type.OUTGOING :
-                                                                                                                Type.INCOMING;
+                  Type.INCOMING;
               userEntity.setRelationshipStatus(relationshipStatus.name());
             } else {
               userEntity.setRelationshipStatus(relationship.getStatus().name());

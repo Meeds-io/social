@@ -1,4 +1,5 @@
 import './initComponents.js';
+import './components/members/js/services';
 
 // get overrided components if exists
 if (extensionRegistry) {
@@ -17,11 +18,14 @@ document.dispatchEvent(new CustomEvent('displayTopBarLoading'));
 
 const appId = 'GroupsManagement';
 
-//should expose the locale ressources as REST API 
-const url = `/social/i18n/locale.portlet.Portlets?lang=${lang}`;
+//should expose the locale resources as REST API
+const urls = [
+  `/social/i18n/locale.portlet.Portlets?lang=${lang}`,
+  `/social/i18n/locale.portlet.UsersManagement?lang=${lang}`,
+];
 
 export function init() {
-  exoi18n.loadLanguageAsync(lang, url).then(i18n => {
+  exoi18n.loadLanguageAsync(lang, urls).then(i18n => {
     // init Vue app when locale resources are ready
     Vue.createApp({
       data() {
