@@ -151,20 +151,9 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
           String sortDirection = sorting == null || sorting.sortBy == null ? null : sorting.orderBy.name();
           List<String> groupIds = profileFilter.getGroupIds();
           if (CollectionUtils.isNotEmpty(groupIds)) {
-            Set<String> userNames = new HashSet<>();
-            for (String groupId : groupIds) {
-              OrganizationService organizationService = ExoContainerContext.getService(OrganizationService.class);
-              Group group = organizationService.getGroupHandler().findGroupById(groupId);
-              ListAccess<Membership> membershipsListAccess =
-                      organizationService.getMembershipHandler().findAllMembershipsByGroup(group);
-              int membershipSize = membershipsListAccess.getSize();
-              if (membershipSize > 0) {
-                Membership[] memberships = membershipsListAccess.load(0, membershipSize);
-                Arrays.stream(memberships)
-                      .filter(Objects::nonNull)
-                      .map(Membership::getUserName)
-                      .forEach(userNames::add);
-              }
+            Set<String> userNames = resolveRemoteIds(groupIds);
+            if (CollectionUtils.isEmpty(userNames)) {
+              return new Identity[0];
             }
             if (CollectionUtils.isEmpty(remoteIds)) {
               remoteIds = new ArrayList<>(userNames);
@@ -237,6 +226,13 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
     int size = 0; 
     if (profileFilter.isEmpty()) {
       if (profileFilter.getViewerIdentity() == null) {
+        if (CollectionUtils.isNotEmpty(profileFilter.getGroupIds())) {
+          Set<String> userNames = resolveRemoteIds(profileFilter.getGroupIds());
+          if (CollectionUtils.isEmpty(userNames)) {
+            return size;
+          }
+          profileFilter.setRemoteIds(userNames.stream().toList());
+        }
         size = identityStorage.getIdentitiesByProfileFilterCount(providerId, profileFilter);
       } else {
         size = identityStorage.countIdentitiesWithRelationships(profileFilter.getViewerIdentity().getId());
@@ -248,5 +244,24 @@ public class ProfileFilterListAccess implements ListAccess<Identity> {
     }
 
     return size;
+  }
+
+  private Set<String> resolveRemoteIds(List<String> groupIds) throws Exception {
+    Set<String> userNames = new HashSet<>();
+    for (String groupId : groupIds) {
+      OrganizationService organizationService = ExoContainerContext.getService(OrganizationService.class);
+      Group group = organizationService.getGroupHandler().findGroupById(groupId);
+      ListAccess<Membership> membershipsListAccess =
+          organizationService.getMembershipHandler().findAllMembershipsByGroup(group);
+      int membershipSize = membershipsListAccess.getSize();
+      if (membershipSize > 0) {
+        Membership[] memberships = membershipsListAccess.load(0, membershipSize);
+        Arrays.stream(memberships)
+              .filter(Objects::nonNull)
+              .map(Membership::getUserName)
+              .forEach(userNames::add);
+      }
+    }
+    return userNames;
   }
 }
