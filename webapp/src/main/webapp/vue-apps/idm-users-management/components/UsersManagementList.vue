@@ -254,7 +254,7 @@ export default {
     this.$root.$on('searchUser', this.updateSearchTerms);
     this.$root.$on('refreshUsers', this.searchUsers);
     this.$root.$on('multiSelectAction', this.multiSelectAction);
-    this.$root.$on('applyAdvancedFilter', this.applyAdvancedFilter);
+    this.$root.$on('apply-users-filter', this.applyAdvancedFilter);
   },
   methods: {
     updateSearchTerms(keyword, filter) {
