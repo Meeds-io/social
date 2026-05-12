@@ -3,7 +3,8 @@
     id="usersFilterDrawer"
     ref="drawer"
     v-model="drawer"
-    :right="!$vuetify.rtl">
+    :right="!$vuetify.rtl"
+    @closed="$emit('closed')">
     <template #title>{{ $t('UsersManagement.filter') }}</template>
     <template #content>
       <div flat class="pa-5">
@@ -134,18 +135,21 @@ export default {
     },
   },
   created() {
-    this.$root.$on('advancedFilter', this.open);
+    this.$root.$on('open-advanced-filter-drawer', this.open);
   },
   methods: {
     open(filter) {
-      this.filter = filter;
+      this.status = filter?.status || this.status;
+      this.type = filter?.type || this.type;
+      this.connectionStatus = filter?.connectionStatus || this.connectionStatus;
+      this.enrollmentStatus = filter?.enrollmentStatus || this.enrollmentStatus;
       this.$refs.drawer.open();
     },
     close() {
       this.$refs.drawer.close();
     },
     apply() {
-      this.$root.$emit('applyAdvancedFilter',this.filter);
+      this.$emit('apply-advanced-filter',this.filter);
       this.close();
     },
     resetFilter() {
