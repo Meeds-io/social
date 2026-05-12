@@ -31,7 +31,7 @@
       chips
       dense
       flat
-      @update:search-input="searchTerm = $event">
+      @update:search-input="updateSearchTerm($event)">
       <template slot="no-data">
         <v-list-item class="pa-0">
           <v-list-item-title
@@ -114,6 +114,10 @@
 export default {
   props: {
     allGroupsForAdmin: {
+      type: Boolean,
+      default: false,
+    },
+    includeOnlyItems: {
       type: Boolean,
       default: false,
     },
@@ -344,6 +348,11 @@ export default {
         });
       } else if (this.value && this.value.profile){
         this.items = this.value;
+      }
+    },
+    updateSearchTerm(value) {
+      if (!this.includeOnlyItems) {
+        this.searchTerm = value;
       }
     },
     emitSelectedValue(value) {
