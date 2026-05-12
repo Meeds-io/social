@@ -12,7 +12,7 @@
     </v-card>
     <users-management-user-form-drawer />
     <users-management-user-membership-drawer />
-    <users-management-filter-drawer />
+    <users-management-filter-drawer @apply-advanced-filter="$root.$emit('apply-users-filter', $event)" />
   </v-app>
 </template>
 <script>
